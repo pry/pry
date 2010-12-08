@@ -127,10 +127,10 @@ only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
 `Pry.repl()`
 * Likewise `Pry.re()` only performs the Read-Eval section of the REPL,
-it returns the result of the evaluation. It also takes the same parameters as `Pry.repl()`
+it returns the result of the evaluation or an Exception object in
+case of error. It also takes the same parameters as `Pry.repl()`
 * Similarly `Pry.r()` only performs the Read section of the REPL, only
-returning the Ruby expression (as a string) or an Exception object in
-case of error. It takes the same parameters as all the others.
+returning the Ruby expression (as a string). It takes the same parameters as all the others.
 
 Pry supports a few commands inside the session itself:
 
