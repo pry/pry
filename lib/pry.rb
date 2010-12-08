@@ -94,12 +94,12 @@ module Pry
   end
 
   def self.prompt(eval_string, target)
-    context = target.eval('self')
+    target_self = target.eval('self')
     
     if eval_string.empty?
-      default_prompt.call(context)
+      default_prompt.call(target_self)
     else
-      wait_prompt.call(context)
+      wait_prompt.call(target_self)
     end
   end
 

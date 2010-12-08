@@ -12,7 +12,7 @@ manipulation of objects during the running of a program.
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
 
-example: prying on an object at runtime 
+example: Interacting with an object at runtime 
 ---------------------------------------
 
 With the `Pry.into()` method we can pry (open an irb-like session) on
@@ -91,6 +91,8 @@ Features:
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit'
 * Pry has multi-line support built in.
+* Pry is not based on the IRB codebase.
+* Pry is Only 120 LOC.
 * Pry implements all the methods in the REPL chain separately: `Pry.r`
 for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
 for the loop (`Pry.into` is simply an alias for `Pry.repl`). You can
