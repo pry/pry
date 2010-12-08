@@ -8,6 +8,8 @@ _attach an irb-like session to any object at runtime_
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
+It is not based on the IRB codebase and is small, at around 120 LOC.
+
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
