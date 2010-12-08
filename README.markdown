@@ -3,7 +3,7 @@ Pry
 
 (C) John Mair (banisterfiend) 2010
 
-_attach an irb-like session to any object_
+_attach an irb-like session to any object at runtime_
 
 Pry is a simple Ruby REPL that specializes in the interactive
 manipulation of objects during the running of a program.
@@ -17,7 +17,7 @@ example: prying on an object at runtime
 
 With the `Pry.into()` method we can pry (open an irb-like session) on
 an object. In the example below we open a Pry session for the `Test` class and execute a method and add
-an instance variable. The program is halted for the duration of the session.
+an instance variable. The current thread is halted for the duration of the session.
 
     require 'pry'
     
@@ -73,19 +73,6 @@ an instance variable inside that class:
     Ending Pry session for Hello
     pry(main)> exit
     Ending Pry session for main
-
-    # program resumes here
-
-
-example: Spawn a separate thread so you can use `Pry` to manipulate an
-object without halting the program. 
----------------------------------------------------------------------------------------------------
-
-If we embed our `Pry.into` method inside its own thread we can examine
-and manipulate objects without halting the program.
-
-    # Pry.into() without parameters opens up the top-level (main)
-    Thread.new { Pry.into }
     
 
 Features and limitations
@@ -123,6 +110,38 @@ Limitations:
   hash literal syntax (this: syntax) or the 'stabby lambda' syntax
   (->).
  
+Commands
+-----------
+
+The Pry API:
+
+* `Pry.into()` and `Pry.start()` and `Pry.repl()` are all aliases of
+oneanother. They all start a Read-Eval-Print-Loop on the object they
+receive as a parameter. In the case of no parameter they operate on
+top-level (main). They can receive any object or a `Binding`
+object as parameter.
+* If, for some reason you do not want to 'loop' then use `Pry.rep()`; it
+only performs the Read-Eval-Print section of the REPL - it ends the
+session after just one line of input. It takes the same parameters as
+`Pry.repl()`
+* Likewise `Pry.re()` only performs the Read-Eval section of the REPL,
+it returns the result of the evaluation. It also takes the same parameters as `Pry.repl()`
+* Similarly `Pry.r()` only performs the Read section of the REPL, only
+returning the Ruby expression (as a string) or an Exception object in
+case of error. It takes the same parameters as all the others.
+
+Pry supports a few commands inside the session itself:
+
+* Typing `!` on a line by itself will refresh the REPL - useful for
+  getting you out of a situation if the parsing process
+  goes wrong.
+* `exit` or `quit` will end the current Pry session. Note that it will
+  not end any containing Pry sessions if the current session happens
+  to be nested.
+* `#exit` or `#quit` will end the currently running program.
+* You can type `Pry.into(obj)` to nest another Pry session within the
+  current one with `obj` as the receiver of the new session. Very useful
+  when exploring large or complicated runtime state.
 
 Contact
 -------

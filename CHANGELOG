@@ -1,3 +1,5 @@
+8/12/2010 version 0.1.2
+* now rescuing SyntaxError as well as Racc::Parser error in valid_expression?
 8/12/2010 version 0.1.0
 * release!
 	

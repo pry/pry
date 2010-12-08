@@ -1,6 +1,12 @@
+# (C) John Mair (banisterfiend) 2010
+# MIT License
+
+direc = File.dirname(__FILE__)
+
 require 'rubygems'
 require 'readline'
 require 'ruby_parser'
+require "#{direc}/pry/version"
 
 module Pry
   class << self
@@ -12,22 +18,28 @@ module Pry
   @wait_prompt = proc { |v| "pry(#{v})* " }
   @session_start_msg = proc { |v| "Beginning Pry session for #{v}" }
   @session_end_msg = proc { |v| "Ending Pry session for #{v}" }
+
+  # useful for ending all Pry sessions currently active
+  @dead = false
   
   # loop
   def self.repl(target=TOPLEVEL_BINDING)
     if !target.is_a?(Binding)
       target = target.instance_eval { binding }
     end
-    
-    puts session_start_msg.call(target.eval('self'))
+
+    target_self = target.eval('self')
+    puts session_start_msg.call(target_self)
 
     loop do
-      if catch(:pop) { rep(target) } == :return
-        break target.eval('self')
+      if catch(:pop) { rep(target) } == :return || @dead
+        break 
       end
     end
 
-    puts session_end_msg.call(target.eval('self'))
+    puts session_end_msg.call(target_self)
+
+    target_self
   end
 
   class << self
@@ -93,9 +105,17 @@ module Pry
 
   def self.valid_expression?(code)
     RubyParser.new.parse(code)
-  rescue Racc::ParseError
+  rescue Racc::ParseError, SyntaxError
     false
   else
     true
+  end
+
+  def self.kill
+    @dead = true
+  end
+
+  def self.revive
+    @dead = false
   end
 end

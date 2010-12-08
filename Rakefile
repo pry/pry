@@ -12,7 +12,7 @@ CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
 
 def apply_spec_defaults(s)
   s.name = "pry"
-  s.summary = "Open an irb-like session on any object"
+  s.summary = "attach an irb-like session to any object at runtime"
   s.version = Pry::VERSION
   s.date = Time.now.strftime '%Y-%m-%d'
   s.author = "John Mair (banisterfiend)"
