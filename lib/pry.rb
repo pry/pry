@@ -3,66 +3,85 @@ require 'readline'
 require 'ruby_parser'
 
 module Pry
-  module RubyParserExtension
-    def valid?(code)
-      new.parse(code)
-    rescue Racc::ParseError
-      false
-    else
-      true
+  DEFAULT_PROMPT = proc { |v| "pry(#{v})> " }
+  DEFAULT_WAIT_PROMPT = proc { |v| "pry(#{v})* " }
+
+  # loop
+  def self.repl(target=TOPLEVEL_BINDING)
+    if !target.is_a?(Binding)
+      target = target.instance_eval { binding }
     end
-  end
-
-  def self.repl_loop(target=TOPLEVEL_BINDING)
-    repl(target, :loop => true)
-  end
-
-  def self.repl(target=TOPLEVEL_BINDING, options={:loop => false})
-    prompt = ""
-    code = proc do
-      eval_string = ""
-      while true
-        if eval_string.empty?
-          prompt = "> "
-        else
-          prompt = "* "
-        end
-        
-        val = Readline.readline(prompt, true)
-        eval_string += "#{val}\n"
-
-        if val == "#"
-        elsif val == "#pop"
-          puts "Poppping back"
-          return
-        elsif (_, new_target = val.split(/#target\s*\=\s*/)).size > 1
-          target = target.eval(new_target)
-          eval_string = ""
-          puts "Context changed to #{target}"
-          break
-        end
-
-        abort if val == "abort"
-        exit if val == "exit"
-        exit if val == "quit"
-        
-        break if RubyParser.valid?(eval_string)
-      end
-      begin
-        puts "=> #{target.eval(eval_string).inspect}"
-      rescue StandardError => e
-        puts "#{e.message}"
+    
+    loop do
+      if catch(:pop) { rep(target) } == :return
+        return target.eval('self')
       end
     end
+  end
 
-    if options[:loop]
-      loop(&code)
+  # print
+  def self.rep(target=TOP_LEVEL_BINDING)
+    if !target.is_a?(Binding)
+      target = target.instance_eval { binding }
+    end
+
+    value = re(target)
+    case value
+    when Exception
+      puts "#{value.class}: #{value.message}"
     else
-      code.call
+      puts "=> #{value.inspect}"
+    end
+    
+  end
+
+  # eval
+  def self.re(target=TOPLEVEL_BINDING)
+    target.eval r(target)
+  rescue StandardError => e
+    e
+  end
+
+  # read
+  def self.r(target=TOPLEVEL_BINDING)
+    eval_string = ""
+    loop do
+      val = Readline.readline(prompt(eval_string, target), true)
+      eval_string += "#{val}\n"
+      process_commands(val, eval_string)
+      
+      break eval_string if valid_expression?(eval_string)
     end
   end
-end
+  
+  def self.process_commands(val, eval_string)
+    case val
+    when "exit", "quit"
+      exit
+    when "!"
+      eval_string.replace("")
+      puts "Refreshed REPL."
+    when "#pop"
+      puts "Popping up a context."
+      throw(:pop, :return)
+    end
+  end
 
-class RubyParser
-  extend Pry::RubyParserExtension
+  def self.prompt(eval_string, target)
+    context = target.eval('self')
+    
+    if eval_string.empty?
+      DEFAULT_PROMPT.call(context)
+    else
+      DEFAULT_WAIT_PROMPT.call(context)
+    end
+  end
+
+  def self.valid_expression?(code)
+    RubyParser.new.parse(code)
+  rescue Racc::ParseError
+    false
+  else
+    true
+  end
 end
