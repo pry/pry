@@ -5,7 +5,7 @@ Pry
 
 _attach an irb-like session to any object at runtime_
 
-Pry is a simple Ruby REPL that specializes in the interactive
+Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
