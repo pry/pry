@@ -24,10 +24,7 @@ module Pry
   
   # loop
   def self.repl(target=TOPLEVEL_BINDING)
-    if !target.is_a?(Binding)
-      target = target.instance_eval { binding }
-    end
-
+    target = binding_for(target)
     target_self = target.eval('self')
     puts session_start_msg.call(target_self)
 
@@ -49,10 +46,7 @@ module Pry
   
   # print
   def self.rep(target=TOPLEVEL_BINDING)
-    if !target.is_a?(Binding)
-      target = target.instance_eval { binding }
-    end
-
+    target = binding_for(target)
     value = re(target)
     case value
     when Exception
@@ -64,6 +58,7 @@ module Pry
 
   # eval
   def self.re(target=TOPLEVEL_BINDING)
+    target = binding_for(target)
     target.eval r(target)
   rescue StandardError => e
     e
@@ -71,6 +66,7 @@ module Pry
 
   # read
   def self.r(target=TOPLEVEL_BINDING)
+    target = binding_for(target)
     eval_string = ""
     loop do
       val = Readline.readline(prompt(eval_string, target), true)
@@ -109,6 +105,14 @@ module Pry
     false
   else
     true
+  end
+
+  def self.binding_for(target)
+    if target.is_a?(Binding)
+      target
+    else
+      target.instance_eval { binding }
+    end
   end
 
   def self.kill
