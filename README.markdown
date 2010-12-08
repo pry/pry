@@ -44,6 +44,7 @@ If we now inspect the `Test` object we can see our changes have had
 effect:
 
     Test.instance_variable_get(:@y) #=> 20
+    
 
 example: Pry sessions can nest arbitrarily deep so we can pry on
 objects inside objects:
@@ -52,6 +53,7 @@ objects inside objects:
 Here we will begin Pry at top-level, then pry on a class and then on
 an instance variable inside that class:
 
+    # Pry.into() without parameters begins a Pry session on top-level (main)
     Pry.into
     Beginning Pry session for main
     pry(main)> class Hello
@@ -75,8 +77,9 @@ an instance variable inside that class:
 
     # program resumes here
 
-example: Spawn a separate thread so you can use `Pry` to manipulate an object without halting
-the program. 
+
+example: Spawn a separate thread so you can use `Pry` to manipulate an
+object without halting the program. 
 --------------------------------------------------------------------
 
 If we embed our `Pry.into` method inside its own thread we can examine
