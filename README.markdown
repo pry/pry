@@ -5,97 +5,105 @@ Pry
 
 _attach an irb-like session to any object_
 
-Pry is a simple Ruby REPL that specializes in interactively manipulates objects during the running of the program.
+Pry is a simple Ruby REPL that specializes in the interactive
+manipulation of objects during the running of a program.
 
-Based on some ideas found in this [Ruby-Forum thread](http://www.ruby-forum.com/topic/179060)
+* Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
+* Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
+* See the [source code](http://github.com/banister/pry)
 
-`Tweak` provides the `using` method.
+example: prying on an object at runtime 
+---------------------------------------
 
-* Install the [gem](https://rubygems.org/gems/tweak): `gem install tweak`
-* Read the [documentation](http://rdoc.info/github/banister/tweak/master/file/README.markdown)
-* See the [source code](http://github.com/banister/tweak)
+With the `Pry.into()` method we can pry (open an irb-like session) on
+an object. In the example below we open a Pry session for the `Test` class and execute a method and add
+an instance variable. The program is halted for the duration of the session.
 
-example: using
--------------------------
-
-With the `using` method we can enhance a core class for the duration
-of a block:
-
-    module Tweaks
-      
-      class String
-        def hello
-          :hello
-        end
-      end
-
-      class Fixnum
-        Hello = :hello
-        
-        def bye
-          :bye
-        end
-      end
-      
-    end
-
-    using Tweaks do
-      "john".hello #=> :hello
-      5.bye #=> :bye
-      Fixnum::Hello #=> :hello
-    end
-
-    "john".hello #=> NameError
+    require 'pry'
     
-How it works
---------------
+    class Test
+      def self.hello() "hello world" end
+    end
 
-Makes use of the `Remix` and `Object2module` libraries. Note that `Tweak`
-modifies core classes by what is effectively a module inclusion, this
-means you cannot use `Tweak` to override existing functionality but
-more to augment and supplement that functionality.
+    Pry.into(Test)
 
-`Tweak` works by doing the following: 
+    # Pry session begins on stdin
+    Beginning Pry session for Test
+    pry(Test)> self
+    => Test
+    pry(Test)> hello
+    => "hello world"
+    pry(Test)> @y = 20
+    => 20
+    pry(Test)> exit
+    Ending Pry session for Test
 
-* Looks for top-level classes and modules with the same name as those
-defined under the using-module.
-* Uses `Object2module` to include the corresponding class/module
-defined under the using-module into the top-level class/module of the
-same name.
-* Uses `Remix` to uninclude that functionality at the end of the
-`using` block.
+    # program resumes here
 
-Also look at the [Remix](http://github.com/banister/remix) library's
-`temp_include` and `temp_extend` methods for a more general solution than `Tweak`.
+If we now inspect the `Test` object we can see our changes have had
+effect:
 
-Thread Safety
---------------
+    Test.instance_variable_get(:@y) #=> 20
 
-`Tweak` is not threadsafe.
+example: Pry sessions can nest arbitrarily deep so we can pry on
+objects inside objects:
+----------------------------------------------------------------
 
-Limitations
------------
+Here we will begin Pry at top-level, then pry on a class and then on
+an instance variable inside that class:
 
-Does not work with nested modules, e.g `class String::SomethingElse`
+    Pry.into
+    Beginning Pry session for main
+    pry(main)> class Hello
+    pry(main)*   @x = 20
+    pry(main)* end
+    => 20
+    pry(main)> Pry.into Hello
+    Beginning Pry session for Hello
+    pry(Hello)> instance_variables
+    => [:@x]
+    pry(Hello)> Pry.into @x
+    Beginning Pry session for 20
+    pry(20)> self + 10
+    => 30
+    pry(20)> exit
+    Ending Pry session for 20
+    pry(Hello)> exit
+    Ending Pry session for Hello
+    pry(main)> exit
+    Ending Pry session for main
 
-This is not intended to be a robust or serious solution, it's just a
-little experiment. :)
+    # program resumes here
 
-Companion Libraries
---------------------
+example: Spawn a separate thread so you can use `Pry` to manipulate an object without halting
+the program. 
+--------------------------------------------------------------------
 
-Tweak is one of a series of experimental libraries that mess with
-the internals of Ruby to bring new and interesting functionality to
-the language, see also:
+If we embed our `Pry.into` method inside its own thread we can examine
+and manipulate objects without halting the program.
 
-* [Remix](http://github.com/banister/remix) - Makes ancestor chains read/write
-* [Object2module](http://github.com/banister/object2module) - Enables you to include/extend Object/Classes.
-* [Include Complete](http://github.com/banister/include_complete) - Brings in
-  module singleton classes during an include. No more ugly ClassMethods and included() hook hacks.
-* [Prepend](http://github.com/banister/prepend) - Prepends modules in front of a class; so method lookup starts with the module
-* [GenEval](http://github.com/banister/gen_eval) - A strange new breed of instance_eval
-* [LocalEval](http://github.com/banister/local_eval) - instance_eval without changing self
+    # Pry.into() without parameters opens up the top-level (main)
+    Thread.new { Pry.into }
+    
+    
+Features and limitations
+------------------------
 
+Pry is an irb-like clone with an emphasis on interactively examining
+and manipulating objects during the running of a program.
+
+Its primary utility is probably in debugging, though it may have other
+uses (such as implementing a quake-like console for games, for example). Here is a
+list of Pry's features along with some of its limitations given at the
+end.
+
+* Pry can be invoked at any time and on any object in the running program.
+* Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit'
+* Pry has multi-line support built in.
+* Pry implements all the methods in the REPL chain separately: `Pry.r`
+for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
+for the loop (`Pry.into` is simply an alias for `Pry.repl`)
+      
 Contact
 -------
 
