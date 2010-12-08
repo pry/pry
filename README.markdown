@@ -46,9 +46,8 @@ effect:
     Test.instance_variable_get(:@y) #=> 20
     
 
-example: Pry sessions can nest arbitrarily deep so we can pry on
-objects inside objects:
-----------------------------------------------------------------
+example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
+----------------------------------------------------------------------------------------
 
 Here we will begin Pry at top-level, then pry on a class and then on
 an instance variable inside that class:
@@ -80,7 +79,7 @@ an instance variable inside that class:
 
 example: Spawn a separate thread so you can use `Pry` to manipulate an
 object without halting the program. 
---------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
 If we embed our `Pry.into` method inside its own thread we can examine
 and manipulate objects without halting the program.
@@ -88,7 +87,7 @@ and manipulate objects without halting the program.
     # Pry.into() without parameters opens up the top-level (main)
     Thread.new { Pry.into }
     
-    
+
 Features and limitations
 ------------------------
 
@@ -100,13 +99,31 @@ uses (such as implementing a quake-like console for games, for example). Here is
 list of Pry's features along with some of its limitations given at the
 end.
 
+Features:
+
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit'
 * Pry has multi-line support built in.
 * Pry implements all the methods in the REPL chain separately: `Pry.r`
 for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
-for the loop (`Pry.into` is simply an alias for `Pry.repl`)
-      
+for the loop (`Pry.into` is simply an alias for `Pry.repl`). You can
+invoke any of these methods directly depending on exactly what aspect of the functionality you need.
+
+Limitations:
+
+* Pry does not pretend to be a replacement for `irb`,
+  and so does not have an executable. It is designed to be used by
+  other programs, not on its own. For a full-featured `irb` replacement
+  see [ripl](https://github.com/cldwalker/ripl)
+* Although Pry works fine in Ruby 1.9, only Ruby 1.8 syntax is
+  supported. This is because Pry uses the
+  [RubyParser](https://github.com/seattlerb/ruby_parser)
+  gem internally to  validate expressions, and RubyParser, as yet, only parses Ruby 1.8
+  code. In practice this usually just means you cannot use the new
+  hash literal syntax (this: syntax) or the 'stabby lambda' syntax
+  (->).
+ 
+
 Contact
 -------
 

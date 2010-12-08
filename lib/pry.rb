@@ -36,7 +36,7 @@ module Pry
   end
   
   # print
-  def self.rep(target=TOP_LEVEL_BINDING)
+  def self.rep(target=TOPLEVEL_BINDING)
     if !target.is_a?(Binding)
       target = target.instance_eval { binding }
     end
