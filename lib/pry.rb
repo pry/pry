@@ -3,42 +3,79 @@
 
 direc = File.dirname(__FILE__)
 
-require 'rubygems'
-require 'readline'
 require 'ruby_parser'
 require "#{direc}/pry/version"
+require "#{direc}/pry/input"
+require "#{direc}/pry/output"
 
 module Pry
+  
+  # class accessors
   class << self
-    attr_accessor :default_prompt, :wait_prompt,
-    :session_start_msg, :session_end_msg
+    attr_reader :nesting
+    attr_reader :last_result
+    attr_accessor :default_prompt
+    attr_accessor :wait_prompt
+    attr_accessor :input
+    attr_accessor :output
   end
   
-  @default_prompt = proc { |v| "pry(#{v})> " }
-  @wait_prompt = proc { |v| "pry(#{v})* " }
-  @session_start_msg = proc { |v| "Beginning Pry session for #{v}" }
-  @session_end_msg = proc { |v| "Ending Pry session for #{v}" }
+  @default_prompt = lambda do |v, nest|
+    if nest == 0
+      "pry(#{v.inspect})> "
+    else
+      "pry(#{v.inspect}):#{nest.inspect}> "
+    end
+  end
+  
+  @wait_prompt = lambda do |v, nest|
+    if nest == 0
+      "pry(#{v.inspect})* "
+    else
+      "pry(#{v.inspect}):#{nest.inspect}* "
+    end
+  end
+  
+  @output = Output.new
+  @input = Input.new
+  
+  @nesting = []
 
-  # useful for ending all Pry sessions currently active
-  @dead = false
+  def @nesting.level
+    last.is_a?(Array) ? last.first : nil
+  end
   
   # loop
   def self.repl(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     target_self = target.eval('self')
-    puts session_start_msg.call(target_self)
+    output.session_start(target_self)
 
-    loop do
-      if catch(:pop) { rep(target) } == :return || @dead
-        break 
+    # NOTE: this is set PRIOR TO the << to @nesting, so the value here
+    # is equal to the ultimate value in nesting.level
+    nesting_level = @nesting.size
+
+    # Make sure _ exists
+    target.eval("_ = Pry.last_result")
+    
+    nesting_level_breakout = catch(:breakout) do
+      @nesting << [@nesting.size, target_self]
+      loop do
+         rep(target) 
       end
     end
 
-    puts session_end_msg.call(target_self)
+    @nesting.pop
+    output.session_end(target_self)
 
+    # we only enter here if :breakout has been thrown
+    if nesting_level_breakout
+      throw :breakout, nesting_level_breakout if nesting_level != nesting_level_breakout
+    end
+    
     target_self
   end
-
+  
   class << self
     alias_method :into, :repl
     alias_method :start, :repl
@@ -47,19 +84,14 @@ module Pry
   # print
   def self.rep(target=TOPLEVEL_BINDING)
     target = binding_for(target)
-    value = re(target)
-    case value
-    when Exception
-      puts "#{value.class}: #{value.message}"
-    else
-      puts "=> #{value.inspect}"
-    end
+    output.print re(target)
   end
 
   # eval
   def self.re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
-    target.eval r(target)
+    @last_result = target.eval r(target)
+    target.eval("_ = Pry.last_result")
   rescue StandardError => e
     e
   end
@@ -69,7 +101,7 @@ module Pry
     target = binding_for(target)
     eval_string = ""
     loop do
-      val = Readline.readline(prompt(eval_string, target), true)
+      val = input.read(prompt(eval_string, target, nesting.level))
       eval_string += "#{val}\n"
       process_commands(val, eval_string, target)
       
@@ -78,24 +110,43 @@ module Pry
   end
   
   def self.process_commands(val, eval_string, target)
+    def eval_string.clear() replace("") end
+    
     case val
-    when "#exit", "#quit"
+    when "exit_program", "quit_program"
+      output.exit_program
       exit
     when "!"
-      eval_string.replace("")
-      puts "Refreshed REPL."
-    when "exit", "quit"
-      throw(:pop, :return)
+      output.refresh
+      eval_string.clear
+    when "nesting"
+      output.show_nesting(nesting)
+      eval_string.clear
+    when "exit_all"
+      throw(:breakout, 0)
+    when "exit", "quit", "back"
+      output.exit
+      throw(:breakout, nesting.level)
+    when /exit_at\s*(\d*)/, /jump_to\s*(\d*)/
+      nesting_level_breakout = ($~.captures).first.to_i
+      output.exit_at(nesting_level_breakout)
+      
+      if nesting_level_breakout < 0 || nesting_level_breakout >= nesting.level
+        output.error_invalid_nest_level(nesting_level_breakout, nesting.level - 1)
+        eval_string.clear
+      else
+        throw(:breakout, nesting_level_breakout + 1)
+      end
     end
   end
 
-  def self.prompt(eval_string, target)
+  def self.prompt(eval_string, target, nest)
     target_self = target.eval('self')
     
     if eval_string.empty?
-      default_prompt.call(target_self)
+      default_prompt.call(target_self, nest)
     else
-      wait_prompt.call(target_self)
+      wait_prompt.call(target_self, nest)
     end
   end
 
@@ -115,11 +166,13 @@ module Pry
     end
   end
 
-  def self.kill
-    @dead = true
+  module ObjectExtensions
+    def pry
+      Pry.start(self)
+    end
   end
+end
 
-  def self.revive
-    @dead = false
-  end
+class Object
+  include Pry::ObjectExtensions
 end

@@ -8,7 +8,7 @@ _attach an irb-like session to any object at runtime_
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
-It is not based on the IRB codebase and is small, at around 120 LOC.
+It is not based on the IRB codebase and is small, at around 230 LOC.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
@@ -17,7 +17,7 @@ It is not based on the IRB codebase and is small, at around 120 LOC.
 example: Interacting with an object at runtime 
 ---------------------------------------
 
-With the `Pry.into()` method we can pry (open an irb-like session) on
+With the `Pry.start()` method we can pry (open an irb-like session) on
 an object. In the example below we open a Pry session for the `Test` class and execute a method and add
 an instance variable. The current thread is halted for the duration of the session.
 
@@ -27,7 +27,7 @@ an instance variable. The current thread is halted for the duration of the sessi
       def self.hello() "hello world" end
     end
 
-    Pry.into(Test)
+    Pry.start(Test)
 
     # Pry session begins on stdin
     Beginning Pry session for Test
@@ -46,36 +46,77 @@ If we now inspect the `Test` object we can see our changes have had
 effect:
 
     Test.instance_variable_get(:@y) #=> 20
-    
 
+Note: you can also use the `obj.pry` syntax to start a pry session on
+`obj`. e.g
+
+    5.pry
+    Beginning Pry session for 5
+    pry(5)>
+    
 example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
 ----------------------------------------------------------------------------------------
 
 Here we will begin Pry at top-level, then pry on a class and then on
 an instance variable inside that class:
 
-    # Pry.into() without parameters begins a Pry session on top-level (main)
-    Pry.into
+    # Pry.start() without parameters begins a Pry session on top-level (main)
+    Pry.start
     Beginning Pry session for main
     pry(main)> class Hello
     pry(main)*   @x = 20
     pry(main)* end
     => 20
-    pry(main)> Pry.into Hello
+    pry(main)> Pry.start Hello
     Beginning Pry session for Hello
-    pry(Hello)> instance_variables
+    pry(Hello):1> instance_variables
     => [:@x]
-    pry(Hello)> Pry.into @x
+    pry(Hello):1> Pry.start @x
     Beginning Pry session for 20
-    pry(20)> self + 10
+    pry(20:2)> self + 10
     => 30
-    pry(20)> exit
+    pry(20:2)> exit
     Ending Pry session for 20
-    pry(Hello)> exit
+    pry(Hello):1> exit
     Ending Pry session for Hello
     pry(main)> exit
     Ending Pry session for main
+
+The number after the `:` in the pry prompt indicates the nesting
+level. To display more information about nesting, use the `nesting`
+command. E.g
+
+    pry("friend":3)> nesting
+    Nesting status:
+    0. main (Pry top level)
+    1. Hello
+    2. 100
+    3. "friend"
+    => nil
     
+We can then jump back to any of the previous nesting levels by using
+the `jump_to` or `exit_at` commands:
+
+    pry(100:2)> jump_to 1
+    Ending Pry session for "friend"
+    Ending Pry session for 100
+    => 100
+    pry(Hello):1>
+
+If we just want to go back one level of nesting we can of course just
+use the `quit` or `exit` or `back` commands.
+
+To breakout of all levels of pry nesting and return immediately to the
+calling process use `exit_all`:
+
+    pry("friend":3) exit_all
+    Ending Pry session for "friend"
+    Ending Pry session for 100
+    Ending Pry session for Hello
+    Ending Pry session for main
+    => main
+    
+    # program resumes here
 
 Features and limitations
 ------------------------
@@ -91,13 +132,14 @@ end.
 Features:
 
 * Pry can be invoked at any time and on any object in the running program.
-* Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit'
+* Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
+* Use `_` to recover last result.
 * Pry has multi-line support built in.
 * Pry is not based on the IRB codebase.
-* Pry is Only 120 LOC.
+* Pry is small; around 230 LOC.
 * Pry implements all the methods in the REPL chain separately: `Pry.r`
 for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
-for the loop (`Pry.into` is simply an alias for `Pry.repl`). You can
+for the loop (`Pry.start` is simply an alias for `Pry.repl`). You can
 invoke any of these methods directly depending on exactly what aspect of the functionality you need.
 
 Limitations:
@@ -119,11 +161,12 @@ Commands
 
 The Pry API:
 
-* `Pry.into()` and `Pry.start()` and `Pry.repl()` are all aliases of
+* `Pry.start()` and `Pry.into()` and `Pry.repl()` are all aliases of
 oneanother. They all start a Read-Eval-Print-Loop on the object they
 receive as a parameter. In the case of no parameter they operate on
 top-level (main). They can receive any object or a `Binding`
 object as parameter.
+* `obj.pry` may also be used as an alternate syntax to `Pry.start(obj)`
 * If, for some reason you do not want to 'loop' then use `Pry.rep()`; it
 only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
@@ -134,16 +177,26 @@ case of error. It also takes the same parameters as `Pry.repl()`
 * Similarly `Pry.r()` only performs the Read section of the REPL, only
 returning the Ruby expression (as a string). It takes the same parameters as all the others.
 
-Pry supports a few commands inside the session itself:
+Pry supports a few commands inside the session itself; these are
+not methods and must start at the beginning of a line, with no
+whitespace in between.
+
+If you want to access a method of the same name, prefix the invocation by whitespace.
 
 * Typing `!` on a line by itself will refresh the REPL - useful for
   getting you out of a situation if the parsing process
   goes wrong.
-* `exit` or `quit` will end the current Pry session. Note that it will
-  not end any containing Pry sessions if the current session happens
-  to be nested.
-* `#exit` or `#quit` will end the currently running program.
-* You can type `Pry.into(obj)` to nest another Pry session within the
+* `exit` or `quit` or `back` will end the current Pry session and go
+  back to the calling process or back one level of nesting.
+* `exit_program` or `quit_program` will end the currently running
+  program.
+* `nesting` shows Pry nesting information.
+* `jump_to <nest_level>` or `exit_at <nest_level>` unwinds the Pry
+  stack (nesting level) until the appropriate nesting level is reached
+  -- as per the output of `nesting`
+* `exit_all` breaks out of all Pry nesting levels and returns to the
+  calling process.
+* You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
   current one with `obj` as the receiver of the new session. Very useful
   when exploring large or complicated runtime state.
 
