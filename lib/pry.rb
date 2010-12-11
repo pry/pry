@@ -117,17 +117,23 @@ module Pry
     when "!"
       output.refresh
       eval_string.clear
+    when "help"
+      output.show_help
+      eval_string.clear
     when "nesting"
       output.show_nesting(nesting)
+      eval_string.clear
+    when "status"
+      output.show_status(nesting, target)
       eval_string.clear
     when "exit_all"
       throw(:breakout, 0)
     when "exit", "quit", "back"
       output.exit
       throw(:breakout, nesting.level)
-    when /exit_at\s*(\d*)/, /jump_to\s*(\d*)/
+    when /jump_to\s*(\d*)/
       nesting_level_breakout = ($~.captures).first.to_i
-      output.exit_at(nesting_level_breakout)
+      output.jump_to(nesting_level_breakout)
       
       if nesting_level_breakout < 0 || nesting_level_breakout >= nesting.level
         output.error_invalid_nest_level(nesting_level_breakout, nesting.level - 1)
@@ -169,8 +175,8 @@ module Pry
   end
 
   module ObjectExtensions
-    def pry
-      Pry.start(Pry.binding_for(self))
+    def pry(target=self)
+      Pry.start(Pry.binding_for(target))
     end
   end
 end

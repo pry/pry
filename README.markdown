@@ -8,7 +8,7 @@ _attach an irb-like session to any object at runtime_
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
-It is not based on the IRB codebase and is small, at around 230 LOC.
+It is not based on the IRB codebase and is small, at around 260 LOC.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
@@ -49,12 +49,18 @@ effect:
 
 #### Alternative Syntax
 
-You can also use the `obj.pry` syntax to start a pry session on
+You can also use the `obj.pry` or `pry(obj)` syntax to start a pry session on
 `obj`. e.g
 
     5.pry
     Beginning Pry session for 5
     pry(5)>
+
+OR
+
+    pry 6
+    beginning Pry session for 6
+    pry(6)>
     
 example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
 ----------------------------------------------------------------------------------------
@@ -97,7 +103,7 @@ command. E.g
     => nil
     
 We can then jump back to any of the previous nesting levels by using
-the `jump_to` or `exit_at` commands:
+the `jump_to` command:
 
     pry("friend":3)> jump_to 1
     Ending Pry session for "friend"
@@ -105,13 +111,13 @@ the `jump_to` or `exit_at` commands:
     => 100
     pry(Hello):1>
 
-If we just want to go back one level of nesting we can of course just
+If we just want to go back one level of nesting we can of course 
 use the `quit` or `exit` or `back` commands.
 
 To break out of all levels of Pry nesting and return immediately to the
 calling process use `exit_all`:
 
-    pry("friend":3) exit_all
+    pry("friend":3)> exit_all
     Ending Pry session for "friend"
     Ending Pry session for 100
     Ending Pry session for Hello
@@ -139,7 +145,7 @@ Features:
 * Pry has multi-line support built in.
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
-* Pry is small; around 230 LOC.
+* Pry is small; around 260 LOC.
 * Pry implements all the methods in the REPL chain separately: `Pry.r`
 for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
 for the loop (`Pry.start` is simply an alias for `Pry.repl`). You can
@@ -169,7 +175,7 @@ oneanother. They all start a Read-Eval-Print-Loop on the object they
 receive as a parameter. In the case of no parameter they operate on
 top-level (main). They can receive any object or a `Binding`
 object as parameter.
-* `obj.pry` may also be used as an alternate syntax to `Pry.start(obj)`
+* `obj.pry` and `pry(obj)` may also be used as alternative syntax to `Pry.start(obj)`
 * If, for some reason you do not want to 'loop' then use `Pry.rep()`; it
 only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
@@ -191,14 +197,15 @@ If you want to access a method of the same name, prefix the invocation by whites
 * Typing `!` on a line by itself will refresh the REPL - useful for
   getting you out of a situation if the parsing process
   goes wrong.
+* `status` shows status information about the current session.
+* `help` shows the list of session commands with brief explanations.
 * `exit` or `quit` or `back` will end the current Pry session and go
   back to the calling process or back one level of nesting (if there
   are nested sessions).
 * `exit_program` or `quit_program` will end the currently running
   program.
 * `nesting` shows Pry nesting information.
-* `jump_to <nest_level>` or `exit_at <nest_level>` unwinds the Pry
-  stack (nesting level) until the appropriate nesting level is reached
+* `jump_to <nest_level>`  unwinds the Pry stack (nesting level) until the appropriate nesting level is reached
   -- as per the output of `nesting`
 * `exit_all` breaks out of all Pry nesting levels and returns to the
   calling process.
