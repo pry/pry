@@ -51,8 +51,6 @@ module Pry
     target_self = target.eval('self')
     output.session_start(target_self)
 
-    # NOTE: this is set PRIOR TO the << to @nesting, so the value here
-    # is equal to the ultimate value in nesting.level
     nesting_level = @nesting.size
 
     # Make sure _ exists
