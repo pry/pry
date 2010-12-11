@@ -56,7 +56,11 @@ module Pry
       puts "Last result: #{Pry.last_result.inspect}"
     end
 
-    def error_invalid_nest_level(nest_level, max_nest_level)
+    def warn_already_at_level(nesting_level)
+      puts "Already at nesting level #{nesting_level}"
+    end
+    
+    def err_invalid_nest_level(nest_level, max_nest_level)
       puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{nest_level}."
     end
 

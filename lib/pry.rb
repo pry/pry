@@ -56,7 +56,7 @@ module Pry
     # Make sure _ exists
     target.eval("_ = Pry.last_result")
     
-    nesting_level_breakout = catch(:breakout) do
+    break_level = catch(:breakout) do
       @nesting << [@nesting.size, target_self]
       loop do
          rep(target) 
@@ -67,8 +67,8 @@ module Pry
     output.session_end(target_self)
 
     # we only enter here if :breakout has been thrown
-    if nesting_level_breakout
-      throw :breakout, nesting_level_breakout if nesting_level != nesting_level_breakout
+    if break_level && nesting_level != break_level
+      throw :breakout, break_level 
     end
     
     target_self
@@ -132,14 +132,19 @@ module Pry
       output.exit
       throw(:breakout, nesting.level)
     when /jump_to\s*(\d*)/
-      nesting_level_breakout = ($~.captures).first.to_i
-      output.jump_to(nesting_level_breakout)
+      break_level = ($~.captures).first.to_i
+      output.jump_to(break_level)
       
-      if nesting_level_breakout < 0 || nesting_level_breakout >= nesting.level
-        output.error_invalid_nest_level(nesting_level_breakout, nesting.level - 1)
+      case break_level
+      when nesting.level
+        output.warn_already_at_level(nesting.level)
         eval_string.clear
+      when (0...nesting.level)
+        throw(:breakout, break_level + 1)
       else
-        throw(:breakout, nesting_level_breakout + 1)
+        output.err_invalid_nest_level(break_level,
+                                      nesting.level - 1)
+        eval_string.clear
       end
     end
   end
@@ -176,7 +181,7 @@ module Pry
 
   module ObjectExtensions
     def pry(target=self)
-      Pry.start(Pry.binding_for(target))
+      Pry.start(target)
     end
   end
 end
