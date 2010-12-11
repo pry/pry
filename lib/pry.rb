@@ -20,7 +20,7 @@ module Pry
     attr_accessor :output
   end
   
-  @default_prompt = lambda do |v, nest|
+  @default_prompt = proc do |v, nest|
     if nest == 0
       "pry(#{v.inspect})> "
     else
@@ -28,7 +28,7 @@ module Pry
     end
   end
   
-  @wait_prompt = lambda do |v, nest|
+  @wait_prompt = proc do |v, nest|
     if nest == 0
       "pry(#{v.inspect})* "
     else
