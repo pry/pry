@@ -162,13 +162,17 @@ module Pry
     if target.is_a?(Binding)
       target
     else
-      target.instance_eval { binding }
+      if target == TOPLEVEL_BINDING.eval('self')
+        TOPLEVEL_BINDING
+      else
+        target.instance_eval { binding }
+      end
     end
   end
 
   module ObjectExtensions
     def pry
-      Pry.start(self)
+      Pry.start(Pry.binding_for(self))
     end
   end
 end

@@ -47,7 +47,9 @@ effect:
 
     Test.instance_variable_get(:@y) #=> 20
 
-Note: you can also use the `obj.pry` syntax to start a pry session on
+#### Alternative Syntax
+
+You can also use the `obj.pry` syntax to start a pry session on
 `obj`. e.g
 
     5.pry
@@ -97,7 +99,7 @@ command. E.g
 We can then jump back to any of the previous nesting levels by using
 the `jump_to` or `exit_at` commands:
 
-    pry(100:2)> jump_to 1
+    pry("friend":3)> jump_to 1
     Ending Pry session for "friend"
     Ending Pry session for 100
     => 100
@@ -106,7 +108,7 @@ the `jump_to` or `exit_at` commands:
 If we just want to go back one level of nesting we can of course just
 use the `quit` or `exit` or `back` commands.
 
-To breakout of all levels of pry nesting and return immediately to the
+To break out of all levels of Pry nesting and return immediately to the
 calling process use `exit_all`:
 
     pry("friend":3) exit_all
@@ -135,6 +137,7 @@ Features:
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Use `_` to recover last result.
 * Pry has multi-line support built in.
+* Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
 * Pry is small; around 230 LOC.
 * Pry implements all the methods in the REPL chain separately: `Pry.r`
@@ -159,7 +162,7 @@ Limitations:
 Commands
 -----------
 
-The Pry API:
+### The Pry API:
 
 * `Pry.start()` and `Pry.into()` and `Pry.repl()` are all aliases of
 oneanother. They all start a Read-Eval-Print-Loop on the object they
@@ -177,7 +180,9 @@ case of error. It also takes the same parameters as `Pry.repl()`
 * Similarly `Pry.r()` only performs the Read section of the REPL, only
 returning the Ruby expression (as a string). It takes the same parameters as all the others.
 
-Pry supports a few commands inside the session itself; these are
+### Session commands
+
+Pry supports a few commands inside the session itself. These commands are
 not methods and must start at the beginning of a line, with no
 whitespace in between.
 
@@ -187,7 +192,8 @@ If you want to access a method of the same name, prefix the invocation by whites
   getting you out of a situation if the parsing process
   goes wrong.
 * `exit` or `quit` or `back` will end the current Pry session and go
-  back to the calling process or back one level of nesting.
+  back to the calling process or back one level of nesting (if there
+  are nested sessions).
 * `exit_program` or `quit_program` will end the currently running
   program.
 * `nesting` shows Pry nesting information.
