@@ -32,7 +32,7 @@ module Pry
       puts "exit/quit/back                   End the current Pry session"
       puts "exit_all                         End all nested Pry sessions"
       puts "exit_program/quit_program        End the current program"
-      puts "jump_to <level>  Jump to a Pry session further up the stack, exiting all sessions below"
+      puts "jump_to <level>                  Jump to a Pry session further up the stack, exiting all sessions below"
     end
 
     def show_nesting(nesting)
