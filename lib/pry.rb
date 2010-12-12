@@ -20,6 +20,9 @@ module Pry
     attr_accessor :output
   end
   
+  @output = Output.new
+  @input = Input.new
+
   @default_prompt = proc do |v, nest|
     if nest == 0
       "pry(#{v.inspect})> "
@@ -35,9 +38,6 @@ module Pry
       "pry(#{v.inspect}):#{nest.inspect}* "
     end
   end
-  
-  @output = Output.new
-  @input = Input.new
   
   @nesting = []
 
