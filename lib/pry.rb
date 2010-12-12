@@ -134,7 +134,7 @@ module Pry
     when /jump_to\s*(\d*)/
       break_level = ($~.captures).first.to_i
       output.jump_to(break_level)
-      
+
       case break_level
       when nesting.level
         output.warn_already_at_level(nesting.level)
