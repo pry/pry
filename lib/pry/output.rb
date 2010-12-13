@@ -1,4 +1,4 @@
-module Pry
+class Pry
   class Output
     def refresh
       puts "Refreshed REPL"

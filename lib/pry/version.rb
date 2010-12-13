@@ -1,3 +1,3 @@
-module Pry
+class Pry
   VERSION = "0.2.0"
 end

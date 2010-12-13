@@ -8,106 +8,113 @@ require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
 
-module Pry
+class Pry
   
   # class accessors
   class << self
     attr_reader :nesting
-    attr_reader :last_result
-    attr_accessor :default_prompt
-    attr_accessor :wait_prompt
-    attr_accessor :input
-    attr_accessor :output
+    attr_accessor :last_result
   end
-  
-  @output = Output.new
-  @input = Input.new
 
-  @default_prompt = proc do |v, nest|
-    if nest == 0
-      "pry(#{v.inspect})> "
-    else
-      "pry(#{v.inspect}):#{nest.inspect}> "
+  attr_accessor :input
+  attr_accessor :output
+  attr_reader :last_result
+  attr_reader :default_prompt
+  attr_reader :wait_prompt
+  
+  def initialize
+    @output = Output.new
+    @input = Input.new
+
+    @default_prompt = proc do |v, nest|
+      if nest == 0
+        "pry(#{v.inspect})> "
+      else
+        "pry(#{v.inspect}):#{nest.inspect}> "
+      end
+    end
+    
+    @wait_prompt = proc do |v, nest|
+      if nest == 0
+        "pry(#{v.inspect})* "
+      else
+        "pry(#{v.inspect}):#{nest.inspect}* "
+      end
     end
   end
-  
-  @wait_prompt = proc do |v, nest|
-    if nest == 0
-      "pry(#{v.inspect})* "
-    else
-      "pry(#{v.inspect}):#{nest.inspect}* "
-    end
-  end
-  
+
   @nesting = []
 
   def @nesting.level
     last.is_a?(Array) ? last.first : nil
   end
+
+  def nesting
+    self.class.nesting
+  end
+
+  def nesting=(v)
+    self.class.nesting = v
+  end
   
   # loop
-  def self.repl(target=TOPLEVEL_BINDING)
+  def repl(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     target_self = target.eval('self')
     output.session_start(target_self)
 
-    nesting_level = @nesting.size
+    nesting_level = nesting.size
 
     # Make sure _ exists
     target.eval("_ = Pry.last_result")
     
     break_level = catch(:breakout) do
-      @nesting << [@nesting.size, target_self]
+      nesting << [nesting.size, target_self]
       loop do
-         rep(target) 
+        rep(target) 
       end
     end
 
-    @nesting.pop
+    nesting.pop
     output.session_end(target_self)
 
     # we only enter here if :breakout has been thrown
-    if break_level && nesting_level != break_level
+    if nesting_level != break_level
       throw :breakout, break_level 
     end
     
     target_self
   end
   
-  class << self
-    alias_method :into, :repl
-    alias_method :start, :repl
-  end
-  
   # print
-  def self.rep(target=TOPLEVEL_BINDING)
+  def rep(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     output.print re(target)
   end
 
   # eval
-  def self.re(target=TOPLEVEL_BINDING)
+  def re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
-    @last_result = target.eval r(target)
+    Pry.last_result = target.eval r(target)
     target.eval("_ = Pry.last_result")
   rescue StandardError => e
     e
   end
 
   # read
-  def self.r(target=TOPLEVEL_BINDING)
+  def r(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     eval_string = ""
     loop do
       val = input.read(prompt(eval_string, target, nesting.level))
-      eval_string += "#{val}\n"
+      eval_string += "#{val.chomp}\n"
       process_commands(val, eval_string, target)
       
       break eval_string if valid_expression?(eval_string)
     end
   end
   
-  def self.process_commands(val, eval_string, target)
+  def process_commands(val, eval_string, target)
     def eval_string.clear() replace("") end
     
     case val
@@ -131,6 +138,24 @@ module Pry
     when "exit", "quit", "back"
       output.exit
       throw(:breakout, nesting.level)
+    when /show_method\s*(\w*)/
+      meth_name = ($~.captures).first
+      file, line = target.eval("method(:#{meth_name}).source_location")
+      input = Class.new do
+        define_method(:initialize) do
+          @f = File.open(file)
+          (line - 1).times { @f.readline }
+        end
+        
+        def read(prompt)
+          @f.readline
+        end
+      end
+
+      tp = Pry.new
+      tp.input = input.new
+      tp.r.display
+      eval_string.clear
     when /jump_to\s*(\d*)/
       break_level = ($~.captures).first.to_i
       output.jump_to(break_level)
@@ -149,7 +174,7 @@ module Pry
     end
   end
 
-  def self.prompt(eval_string, target, nest)
+  def prompt(eval_string, target, nest)
     target_self = target.eval('self')
     
     if eval_string.empty?
@@ -159,7 +184,7 @@ module Pry
     end
   end
 
-  def self.valid_expression?(code)
+  def valid_expression?(code)
     RubyParser.new.parse(code)
   rescue Racc::ParseError, SyntaxError
     false
@@ -167,7 +192,7 @@ module Pry
     true
   end
 
-  def self.binding_for(target)
+  def binding_for(target)
     if target.is_a?(Binding)
       target
     else
@@ -181,7 +206,7 @@ module Pry
 
   module ObjectExtensions
     def pry(target=self)
-      Pry.start(target)
+      Pry.new.start(target)
     end
   end
 end

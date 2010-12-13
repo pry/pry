@@ -1,6 +1,6 @@
 require 'readline'
 
-module Pry
+class Pry
   class Input
     def read(prompt)
       Readline.readline(prompt, true)
