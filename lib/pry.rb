@@ -9,6 +9,18 @@ require "#{direc}/pry/input"
 require "#{direc}/pry/output"
 
 class Pry
+  def self.start(target)
+    new.repl(target)
+  end
+
+  def self.view(obj)
+    case obj
+    when String, Symbol, nil
+      obj.inspect
+    else
+      obj.to_s
+    end
+  end
   
   # class accessors
   class << self
@@ -16,29 +28,26 @@ class Pry
     attr_accessor :last_result
   end
 
-  attr_accessor :input
-  attr_accessor :output
-  attr_reader :last_result
-  attr_reader :default_prompt
-  attr_reader :wait_prompt
+  attr_accessor :input, :output
+  attr_reader :default_prompt, :wait_prompt, :last_result
   
-  def initialize
-    @output = Output.new
-    @input = Input.new
+  def initialize(input = Input.new, output = Output.new)
+    @input = input
+    @output = output
 
     @default_prompt = proc do |v, nest|
       if nest == 0
-        "pry(#{v.inspect})> "
+        "pry(#{Pry.view(v)})> "
       else
-        "pry(#{v.inspect}):#{nest.inspect}> "
+        "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
       end
     end
     
     @wait_prompt = proc do |v, nest|
       if nest == 0
-        "pry(#{v.inspect})* "
+        "pry(#{Pry.view(v)})* "
       else
-        "pry(#{v.inspect}):#{nest.inspect}* "
+        "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
       end
     end
   end
@@ -56,6 +65,7 @@ class Pry
   def nesting=(v)
     self.class.nesting = v
   end
+
   
   # loop
   def repl(target=TOPLEVEL_BINDING)
@@ -97,7 +107,7 @@ class Pry
     target = binding_for(target)
     Pry.last_result = target.eval r(target)
     target.eval("_ = Pry.last_result")
-  rescue StandardError => e
+  rescue Exception => e
     e
   end
 
@@ -141,19 +151,7 @@ class Pry
     when /show_method\s*(\w*)/
       meth_name = ($~.captures).first
       file, line = target.eval("method(:#{meth_name}).source_location")
-      input = Class.new do
-        define_method(:initialize) do
-          @f = File.open(file)
-          (line - 1).times { @f.readline }
-        end
-        
-        def read(prompt)
-          @f.readline
-        end
-      end
-
-      tp = Pry.new
-      tp.input = input.new
+      tp = Pry.new.tap { |v| v.input = SourceInput.new(file, line) }
       tp.r.display
       eval_string.clear
     when /jump_to\s*(\d*)/
@@ -185,6 +183,28 @@ class Pry
   end
 
   def valid_expression?(code)
+    test_bed = Object.new.instance_eval { binding }
+
+    begin
+      test_bed.eval(code)
+    rescue Exception => e
+      case e
+      when SyntaxError 
+        case e.message
+        when /(parse|syntax) error.*?\$end/i, /unterminated/i 
+          return false
+        else
+          return true
+        end
+      else
+        true
+      end
+      true
+    end
+    true
+  end
+
+  def old_valid_expression?(code)
     RubyParser.new.parse(code)
   rescue Racc::ParseError, SyntaxError
     false
@@ -206,7 +226,7 @@ class Pry
 
   module ObjectExtensions
     def pry(target=self)
-      Pry.new.start(target)
+      Pry.new.repl(target)
     end
   end
 end

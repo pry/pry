@@ -5,11 +5,11 @@ class Pry
     end
 
     def session_start(obj)
-      puts "Beginning Pry session for #{obj.inspect}"
+      puts "Beginning Pry session for #{Pry.view(obj)}"
     end
 
     def session_end(obj)
-      puts "Ending Pry session for #{obj.inspect}"
+      puts "Ending Pry session for #{Pry.view(obj)}"
     end
 
     # the print component of READ-EVAL-PRINT-LOOP
@@ -18,7 +18,7 @@ class Pry
       when Exception
         puts "#{value.class}: #{value.message}"
       else
-        puts "=> #{value.inspect}"
+        puts "=> #{Pry.view(value)}"
       end
     end
 
@@ -40,9 +40,9 @@ class Pry
       puts "--"
       nesting.each do |level, obj|
         if level == 0
-          puts "#{level}. #{obj.inspect} (Pry top level)"
+          puts "#{level}. #{Pry.view(obj)} (Pry top level)"
         else
-          puts "#{level}. #{obj.inspect}"
+          puts "#{level}. #{Pry.view(obj)}"
         end
       end
     end
@@ -50,10 +50,10 @@ class Pry
     def show_status(nesting, target)
       puts "Status:"
       puts "--"
-      puts "Receiver: #{target.eval('self').inspect}"
+      puts "Receiver: #{Pry.view(target.eval('self'))}"
       puts "Nesting level: #{nesting.level}"
-      puts "Local variables: #{target.eval("local_variables").inspect}"
-      puts "Last result: #{Pry.last_result.inspect}"
+      puts "Local variables: #{Pry.view(target.eval("local_variables"))}"
+      puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
     def warn_already_at_level(nesting_level)
