@@ -2,6 +2,8 @@ require 'readline'
 
 class Pry
   class Input
+    trap('INT') { exit }
+    
     def read(prompt)
       Readline.readline(prompt, true)
     end

@@ -106,6 +106,8 @@ class Pry
     target = binding_for(target)
     Pry.last_result = target.eval r(target)
     target.eval("_ = Pry.last_result")
+  rescue SystemExit => e
+    exit
   rescue Exception => e
     e
   end
@@ -153,17 +155,15 @@ class Pry
       obj = $~.captures.first
       target.eval("#{obj}.pry")
       eval_string.clear
-    when /^show_method\s*(\w*)/
+    when /^show_method\s*(.+)/
       meth_name = ($~.captures).first
-      file, line = target.eval("method(:#{meth_name}).source_location")
-      tp = Pry.new.tap { |v| v.input = SourceInput.new(file, line) }
-      output.show_method tp.r
+      code = get_method_source(target, meth_name, :method)
+      output.show_method code
       eval_string.clear
-    when /^show_instance_method\s*(\w*)/
+    when /^show_instance_method\s*(.+)/
       meth_name = ($~.captures).first
-      file, line = target.eval("instance_method(:#{meth_name}).source_location")
-      tp = Pry.new.tap { |v| v.input = SourceInput.new(file, line) }
-      output.show_method tp.r
+      code = get_method_source(target, meth_name, :instance_method)
+      output.show_method code
       eval_string.clear
     when /^jump_to\s*(\d*)/
       break_level = ($~.captures).first.to_i
@@ -183,6 +183,11 @@ class Pry
     end
   end
 
+  def get_method_source(target, meth_name, kind)
+    file, line = target.eval("#{kind}(:#{meth_name}).source_location")
+    Pry.new.tap { |v| v.input = SourceInput.new(file, line) }.r
+  end
+
   def prompt(eval_string, target, nest)
     target_self = target.eval('self')
     
@@ -198,14 +203,12 @@ class Pry
 
     begin
       test_bed.eval(code)
-    rescue Exception => e
-      case e
-      when SyntaxError 
-        case e.message
-        when /(parse|syntax) error.*?\$end/i, /unterminated/i 
-          return false
-        end
+    rescue SyntaxError => e
+      case e.message
+      when /(parse|syntax) error.*?\$end/i, /unterminated/i 
+        return false
       end
+    rescue Exception
     end
     true
   end
