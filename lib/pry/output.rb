@@ -56,6 +56,10 @@ class Pry
       puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
+    def show_method(code)
+      code.display
+    end
+
     def warn_already_at_level(nesting_level)
       puts "Already at nesting level #{nesting_level}"
     end

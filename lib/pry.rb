@@ -65,7 +65,6 @@ class Pry
   def nesting=(v)
     self.class.nesting = v
   end
-
   
   # loop
   def repl(target=TOPLEVEL_BINDING)
@@ -145,16 +144,28 @@ class Pry
       eval_string.clear
     when "exit_all"
       throw(:breakout, 0)
-    when "exit", "quit", "back"
+    when "exit", "quit", "back", /^cd\s*\.\./
       output.exit
       throw(:breakout, nesting.level)
-    when /show_method\s*(\w*)/
+    when "ls"
+      eval_string.replace("local_variables + instance_variables")
+    when /^cd\s+(.+)/
+      obj = $~.captures.first
+      target.eval("#{obj}.pry")
+      eval_string.clear
+    when /^show_method\s*(\w*)/
       meth_name = ($~.captures).first
       file, line = target.eval("method(:#{meth_name}).source_location")
       tp = Pry.new.tap { |v| v.input = SourceInput.new(file, line) }
-      tp.r.display
+      output.show_method tp.r
       eval_string.clear
-    when /jump_to\s*(\d*)/
+    when /^show_instance_method\s*(\w*)/
+      meth_name = ($~.captures).first
+      file, line = target.eval("instance_method(:#{meth_name}).source_location")
+      tp = Pry.new.tap { |v| v.input = SourceInput.new(file, line) }
+      output.show_method tp.r
+      eval_string.clear
+    when /^jump_to\s*(\d*)/
       break_level = ($~.captures).first.to_i
       output.jump_to(break_level)
 
@@ -193,13 +204,8 @@ class Pry
         case e.message
         when /(parse|syntax) error.*?\$end/i, /unterminated/i 
           return false
-        else
-          return true
         end
-      else
-        true
       end
-      true
     end
     true
   end
