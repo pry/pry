@@ -144,6 +144,8 @@ end.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Use `_` to recover last result.
 * Pry has multi-line support built in.
+* Pry has unique commands not found in any other REPL: `show_method`,
+`jump_to`, `ls`, `cd`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
 * Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
