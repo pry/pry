@@ -4,6 +4,8 @@
 direc = File.dirname(__FILE__)
 
 require 'ruby_parser'
+require 'method_source'
+require 'stringio'
 require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
@@ -15,7 +17,7 @@ class Pry
 
   def self.view(obj)
     case obj
-    when String, Symbol, nil
+    when String, Array, Hash, Symbol, nil
       obj.inspect
     else
       obj.to_s
@@ -150,7 +152,8 @@ class Pry
       output.exit
       throw(:breakout, nesting.level)
     when "ls"
-      eval_string.replace("local_variables + instance_variables")
+      output.ls(target)
+      eval_string.clear
     when /^cd\s+(.+)/
       obj = $~.captures.first
       target.eval("#{obj}.pry")
@@ -184,8 +187,7 @@ class Pry
   end
 
   def get_method_source(target, meth_name, kind)
-    file, line = target.eval("#{kind}(:#{meth_name}).source_location")
-    Pry.new.tap { |v| v.input = SourceInput.new(file, line) }.r
+    target.eval("#{kind}(:#{meth_name}).source")
   end
 
   def prompt(eval_string, target, nest)
@@ -198,27 +200,23 @@ class Pry
     end
   end
 
-  def valid_expression?(code)
-    test_bed = Object.new.instance_eval { binding }
-
-    begin
-      test_bed.eval(code)
-    rescue SyntaxError => e
-      case e.message
-      when /(parse|syntax) error.*?\$end/i, /unterminated/i 
-        return false
-      end
-    rescue Exception
+  if RUBY_VERSION =~ /1.9/
+    require 'ripper'
+    
+    def valid_expression?(code)
+      !!Ripper::SexpBuilder.new(code).parse
     end
-    true
-  end
-
-  def old_valid_expression?(code)
-    RubyParser.new.parse(code)
-  rescue Racc::ParseError, SyntaxError
-    false
+    
   else
-    true
+    
+    def valid_expression?(code)
+      RubyParser.new.parse(code)
+    rescue Racc::ParseError, SyntaxError
+      false
+    else
+      true
+    end
+    
   end
 
   def binding_for(target)

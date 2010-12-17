@@ -8,13 +8,14 @@ _attach an irb-like session to any object at runtime_
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
-It is not based on the IRB codebase and is small, at around 260 LOC.
+It is not based on the IRB codebase, and implements some unique REPL
+commands such as `show_method` and `jump_to`
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
 
-example: Interacting with an object at runtime 
+Example: Interacting with an object at runtime 
 ---------------------------------------
 
 With the `Pry.start()` method we can pry (open an irb-like session) on
@@ -62,7 +63,7 @@ OR
     beginning Pry session for 6
     pry(6)>
     
-example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
+Example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
 ----------------------------------------------------------------------------------------
 
 Here we will begin Pry at top-level, then pry on a class and then on
@@ -137,7 +138,7 @@ uses (such as implementing a quake-like console for games, for example). Here is
 list of Pry's features along with some of its limitations given at the
 end.
 
-Features:
+####Features:
 
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
@@ -145,45 +146,40 @@ Features:
 * Pry has multi-line support built in.
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
-* Pry is small; around 260 LOC.
-* Pry implements all the methods in the REPL chain separately: `Pry.r`
-for reading; `Pry.re` for eval; `Pry.rep` for printing; and `Pry.repl`
-for the loop (`Pry.start` is simply an alias for `Pry.repl`). You can
+* Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
+validate expressions in 1.8, and [Ripper](http://rdoc.info/docs/ruby-core/1.9.2/Ripper) for 1.9.
+* Pry implements all the methods in the REPL chain separately: `Pry#r`
+for reading; `Pry#re` for eval; `Pry#rep` for printing; and `Pry#repl`
+for the loop (`Pry.start` simply wraps `Pry.new.repl`). You can
 invoke any of these methods directly depending on exactly what aspect of the functionality you need.
 
-Limitations:
+####Limitations:
 
 * Pry does not pretend to be a replacement for `irb`,
   and so does not have an executable. It is designed to be used by
   other programs, not on its own. For a full-featured `irb` replacement
   see [ripl](https://github.com/cldwalker/ripl)
-* Although Pry works fine in Ruby 1.9, only Ruby 1.8 syntax is
-  supported. This is because Pry uses the
-  [RubyParser](https://github.com/seattlerb/ruby_parser)
-  gem internally to  validate expressions, and RubyParser, as yet, only parses Ruby 1.8
-  code. In practice this usually just means you cannot use the new
-  hash literal syntax (this: syntax) or the 'stabby lambda' syntax
-  (->).
+* Pry's `show_method` and `show_instance_method` commands do not work
+  in Ruby 1.8.
  
 Commands
 -----------
 
 ### The Pry API:
 
-* `Pry.start()` and `Pry.into()` and `Pry.repl()` are all aliases of
-oneanother. They all start a Read-Eval-Print-Loop on the object they
-receive as a parameter. In the case of no parameter they operate on
-top-level (main). They can receive any object or a `Binding`
-object as parameter.
+* `Pry.start()` Starts a Read-Eval-Print-Loop on the object it
+receives as a parameter. In the case of no parameter it operates on
+top-level (main). It can receive any object or a `Binding`
+object as parameter. `Pry.start()` is implemented as `Pry.new.repl()`
 * `obj.pry` and `pry(obj)` may also be used as alternative syntax to `Pry.start(obj)`
-* If, for some reason you do not want to 'loop' then use `Pry.rep()`; it
+* If, for some reason you do not want to 'loop' then use `Pry.new.rep()`; it
 only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
-`Pry.repl()`
-* Likewise `Pry.re()` only performs the Read-Eval section of the REPL,
+`Pry#repl()` 
+* Likewise `Pry#re()` only performs the Read-Eval section of the REPL,
 it returns the result of the evaluation or an Exception object in
-case of error. It also takes the same parameters as `Pry.repl()`
-* Similarly `Pry.r()` only performs the Read section of the REPL, only
+case of error. It also takes the same parameters as `Pry#repl()`
+* Similarly `Pry#r()` only performs the Read section of the REPL, only
 returning the Ruby expression (as a string). It takes the same parameters as all the others.
 
 ### Session commands
@@ -202,6 +198,13 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `exit` or `quit` or `back` will end the current Pry session and go
   back to the calling process or back one level of nesting (if there
   are nested sessions).
+* `ls` returns a list of local variables and instance variables in the
+  current scope
+* `cd <var>` starts a `Pry` session on the variable <var>. E.g `cd @x`
+* `show_method <methname>` Displays the sourcecode for the method
+  <methname>. E.g `show_method hello`
+* `show_instance_method <methname>` Displays the sourcecode for the
+  instance method <methname>. E.g `show_instance_method goodbye`
 * `exit_program` or `quit_program` will end the currently running
   program.
 * `nesting` shows Pry nesting information.

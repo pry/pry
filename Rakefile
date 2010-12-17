@@ -7,7 +7,7 @@ require "#{direc}/lib/pry/version"
 
 CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
 CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
-              "ext/**/*~", "ext/**/*#*", "ext/**/*.obj",
+              "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "**/*#*", "**/*#*.*",
               "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake")
 
 def apply_spec_defaults(s)
@@ -20,6 +20,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("ruby_parser",">=2.0.5")
+  s.add_dependency("method_source",">=0.1.4")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",

@@ -29,6 +29,10 @@ class Pry
       puts "status                           Show status information"
       puts "!                                Refresh the REPL"
       puts "nesting                          Show nesting information"
+      puts "ls                               Show the list of variables in the current scope"
+      puts "cd <var>                         Start a Pry session on <var> (use `cd ..` to go back)"
+      puts "show_method <methname>           Show the sourcecode for the method <method_name>"
+      puts "show_instance_method <methname>  Show the sourcecode for the instance method <method_name>"
       puts "exit/quit/back                   End the current Pry session"
       puts "exit_all                         End all nested Pry sessions"
       puts "exit_program/quit_program        End the current program"
@@ -52,10 +56,14 @@ class Pry
       puts "--"
       puts "Receiver: #{Pry.view(target.eval('self'))}"
       puts "Nesting level: #{nesting.level}"
-      puts "Local variables: #{Pry.view(target.eval("local_variables"))}"
+      puts "Local variables: #{target.eval('Pry.view(local_variables)')}"
       puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
+    def ls(target)
+      puts "#{target.eval('Pry.view(local_variables + instance_variables)')}"
+    end
+    
     def show_method(code)
       code.display
     end
