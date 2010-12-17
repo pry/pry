@@ -5,7 +5,6 @@ direc = File.dirname(__FILE__)
 
 require 'ruby_parser'
 require 'method_source'
-require 'stringio'
 require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
@@ -23,35 +22,40 @@ class Pry
       obj.to_s
     end
   end
-  
+
   # class accessors
   class << self
     attr_reader :nesting
     attr_accessor :last_result
+    attr_accessor :default_prompt, :wait_prompt
+  end
+
+  self.default_prompt = proc do |v, nest|
+    if nest == 0
+      "pry(#{Pry.view(v)})> "
+    else
+      "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
+    end
+  end
+  
+  self.wait_prompt = proc do |v, nest|
+    if nest == 0
+      "pry(#{Pry.view(v)})* "
+    else
+      "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
+    end
   end
 
   attr_accessor :input, :output
-  attr_reader :default_prompt, :wait_prompt, :last_result
+  attr_accessor :default_prompt, :wait_prompt
+  attr_reader :last_result
   
   def initialize(input = Input.new, output = Output.new)
     @input = input
     @output = output
 
-    @default_prompt = proc do |v, nest|
-      if nest == 0
-        "pry(#{Pry.view(v)})> "
-      else
-        "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
-      end
-    end
-    
-    @wait_prompt = proc do |v, nest|
-      if nest == 0
-        "pry(#{Pry.view(v)})* "
-      else
-        "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
-      end
-    end
+    @default_prompt = Pry.default_prompt
+    @wait_prompt = Pry.wait_prompt
   end
 
   @nesting = []
@@ -233,7 +237,7 @@ class Pry
 
   module ObjectExtensions
     def pry(target=self)
-      Pry.new.repl(target)
+      Pry.start(target)
     end
   end
 end
