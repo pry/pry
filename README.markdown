@@ -207,7 +207,7 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `show_method <methname>` Displays the sourcecode for the method
   <methname>. E.g `show_method hello`
 * `show_imethod <methname>` Displays the sourcecode for the
-  instance method <methname>. E.g `show_instance_method goodbye`
+  instance method <methname>. E.g `show_imethod goodbye`
 * `show_doc <methname>` Displays comments for `<methname>`
 * `show_idoc <methname>` Displays comments for instance
   method `<methname>`
