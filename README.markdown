@@ -144,8 +144,8 @@ end.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Use `_` to recover last result.
 * Pry has multi-line support built in.
-* Pry has unique commands not found in any other REPL: `show_method`,
-`jump_to`, `ls`, `cd`
+* Pry has unique commands not found in any other REPL: `show_method`, `method_doc`
+`jump_to`, `ls`, `cd`, `cat`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
 * Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
@@ -202,11 +202,15 @@ If you want to access a method of the same name, prefix the invocation by whites
   are nested sessions).
 * `ls` returns a list of local variables and instance variables in the
   current scope
+* `cat <var>` calls `inspect` on `<var>`
 * `cd <var>` starts a `Pry` session on the variable <var>. E.g `cd @x`
 * `show_method <methname>` Displays the sourcecode for the method
   <methname>. E.g `show_method hello`
 * `show_instance_method <methname>` Displays the sourcecode for the
   instance method <methname>. E.g `show_instance_method goodbye`
+* `method_doc <methname>` Displays comments for `<methname>`
+* `instance_method_doc <methname>` Displays comments for instance
+  method `<methname>`
 * `exit_program` or `quit_program` will end the currently running
   program.
 * `nesting` shows Pry nesting information.

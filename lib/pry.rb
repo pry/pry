@@ -3,8 +3,7 @@
 
 direc = File.dirname(__FILE__)
 
-require 'ruby_parser'
-require 'method_source'
+require "method_source"
 require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
@@ -158,18 +157,32 @@ class Pry
     when "ls"
       output.ls(target)
       eval_string.clear
+    when /^cat\s+(.+)/
+      var = $~.captures.first
+      output.cat(target, var)
+      eval_string.clear
     when /^cd\s+(.+)/
       obj = $~.captures.first
       target.eval("#{obj}.pry")
       eval_string.clear
+    when /^method_doc\s*(.+)/
+      meth_name = ($~.captures).first
+      doc = target.eval("method(:#{meth_name})").comment
+      output.show_doc doc
+      eval_string.clear
+    when /^instance_method_doc\s*(.+)/
+      meth_name = ($~.captures).first
+      doc = target.eval("instance_method(:#{meth_name})").comment
+      output.show_doc doc
+      eval_string.clear
     when /^show_method\s*(.+)/
       meth_name = ($~.captures).first
-      code = get_method_source(target, meth_name, :method)
+      code = target.eval("method(:#{meth_name})").source
       output.show_method code
       eval_string.clear
     when /^show_instance_method\s*(.+)/
       meth_name = ($~.captures).first
-      code = get_method_source(target, meth_name, :instance_method)
+      code = target.eval("instance_method(:#{meth_name})").source
       output.show_method code
       eval_string.clear
     when /^jump_to\s*(\d*)/
@@ -190,10 +203,6 @@ class Pry
     end
   end
 
-  def get_method_source(target, meth_name, kind)
-    target.eval("#{kind}(:#{meth_name}).source")
-  end
-
   def prompt(eval_string, target, nest)
     target_self = target.eval('self')
     
@@ -212,6 +221,7 @@ class Pry
     end
     
   else
+    require 'ruby_parser'
     
     def valid_expression?(code)
       RubyParser.new.parse(code)

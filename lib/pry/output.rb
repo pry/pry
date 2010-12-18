@@ -30,9 +30,12 @@ class Pry
       puts "!                                Refresh the REPL"
       puts "nesting                          Show nesting information"
       puts "ls                               Show the list of variables in the current scope"
+      puts "cat <var>                        Show output of <var>.inspect"
       puts "cd <var>                         Start a Pry session on <var> (use `cd ..` to go back)"
-      puts "show_method <methname>           Show the sourcecode for the method <method_name>"
+      puts "show_method <methname>           Show the sourcecode for the method <methname>"
       puts "show_instance_method <methname>  Show the sourcecode for the instance method <method_name>"
+      puts "method_doc <methname>            Show the comments above <methname>"
+      puts "instance_method_doc <methname>   Show the comments above instance method <methname>"
       puts "exit/quit/back                   End the current Pry session"
       puts "exit_all                         End all nested Pry sessions"
       puts "exit_program/quit_program        End the current program"
@@ -63,9 +66,17 @@ class Pry
     def ls(target)
       puts "#{target.eval('Pry.view(local_variables + instance_variables)')}"
     end
+
+    def cat(target, var)
+      puts target.eval("#{var}.inspect")
+    end
     
     def show_method(code)
       code.display
+    end
+
+    def show_doc(doc)
+      doc.display
     end
 
     def warn_already_at_level(nesting_level)
