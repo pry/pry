@@ -10,7 +10,7 @@ require "#{direc}/pry/input"
 require "#{direc}/pry/output"
 
 class Pry
-  def self.start(target)
+  def self.start(target=TOPLEVEL_BINDING)
     new.repl(target)
   end
 
