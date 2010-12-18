@@ -165,12 +165,12 @@ class Pry
       obj = $~.captures.first
       target.eval("#{obj}.pry")
       eval_string.clear
-    when /^method_doc\s*(.+)/
+    when /^show_doc\s*(.+)/
       meth_name = ($~.captures).first
       doc = target.eval("method(:#{meth_name})").comment
       output.show_doc doc
       eval_string.clear
-    when /^instance_method_doc\s*(.+)/
+    when /^show_idoc\s*(.+)/
       meth_name = ($~.captures).first
       doc = target.eval("instance_method(:#{meth_name})").comment
       output.show_doc doc
@@ -180,7 +180,7 @@ class Pry
       code = target.eval("method(:#{meth_name})").source
       output.show_method code
       eval_string.clear
-    when /^show_instance_method\s*(.+)/
+    when /^show_instance_method\s*(.+)/, /^show_imethod\s*(.+)/
       meth_name = ($~.captures).first
       code = target.eval("instance_method(:#{meth_name})").source
       output.show_method code
