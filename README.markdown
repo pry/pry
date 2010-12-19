@@ -161,7 +161,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
   and so does not have an executable. It is designed to be used by
   other programs, not on its own. For a full-featured `irb` replacement
   see [ripl](https://github.com/cldwalker/ripl)
-* Pry's `show_method` and `show_instance_method` commands do not work
+* Pry's `show_method` and `show_doc` commands do not work
   in Ruby 1.8.
  
 Commands
