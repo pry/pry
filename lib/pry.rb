@@ -22,34 +22,48 @@ class Pry
     end
   end
 
+  def self.reset_defaults
+    self.input = Input.new
+    self.output = Output.new
+
+    self.default_prompt = proc do |v, nest|
+      if nest == 0
+        "pry(#{Pry.view(v)})> "
+      else
+        "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
+      end
+    end
+    
+    self.wait_prompt = proc do |v, nest|
+      if nest == 0
+        "pry(#{Pry.view(v)})* "
+      else
+        "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
+      end
+    end
+  end
+
   # class accessors
   class << self
     attr_reader :nesting
     attr_accessor :last_result
     attr_accessor :default_prompt, :wait_prompt
+    attr_accessor :input, :output
   end
 
-  self.default_prompt = proc do |v, nest|
-    if nest == 0
-      "pry(#{Pry.view(v)})> "
-    else
-      "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
-    end
-  end
-  
-  self.wait_prompt = proc do |v, nest|
-    if nest == 0
-      "pry(#{Pry.view(v)})* "
-    else
-      "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
-    end
+  self.reset_defaults
+
+  @nesting = []
+
+  def @nesting.level
+    last.is_a?(Array) ? last.first : nil
   end
 
   attr_accessor :input, :output
   attr_accessor :default_prompt, :wait_prompt
   attr_reader :last_result
   
-  def initialize(input = Input.new, output = Output.new)
+  def initialize(input = Pry.input, output = Pry.output)
     @input = input
     @output = output
 
@@ -57,11 +71,6 @@ class Pry
     @wait_prompt = Pry.wait_prompt
   end
 
-  @nesting = []
-
-  def @nesting.level
-    last.is_a?(Array) ? last.first : nil
-  end
 
   def nesting
     self.class.nesting
@@ -123,7 +132,7 @@ class Pry
     eval_string = ""
     loop do
       val = input.read(prompt(eval_string, target, nesting.level))
-      eval_string += "#{val.chomp}\n"
+      eval_string << "#{val.chomp}\n"
       process_commands(val, eval_string, target)
       
       break eval_string if valid_expression?(eval_string)
@@ -163,6 +172,7 @@ class Pry
       eval_string.clear
     when /^cd\s+(.+)/
       obj = $~.captures.first
+      output.cd(obj)
       target.eval("#{obj}.pry")
       eval_string.clear
     when /^show_doc\s*(.+)/

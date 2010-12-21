@@ -94,6 +94,7 @@ class Pry
     end
 
     def exit() end
+    def cd(*) end
     def jump_to(nesting_level_breakout) end
     def exit_program() end
   end
