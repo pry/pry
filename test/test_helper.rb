@@ -4,9 +4,9 @@ class Object
 end
 
 class InputTester
-  def initialize(actions)
-    @orig_actions = Array(actions.dup)
-    @actions = Array(actions)
+  def initialize(*actions)
+    @orig_actions = actions.dup
+    @actions = actions
   end
 
   def read(*)
@@ -27,7 +27,6 @@ class OutputTester
 
   def print(val)
     @output_buffer = val
-    puts val.inspect
   end
 
   def method_missing(meth_name, *args, &block)

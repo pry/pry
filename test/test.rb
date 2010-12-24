@@ -29,18 +29,54 @@ describe Pry do
     end
 
     describe "repl" do
-      describe "commands" do
+      describe "basic functionality" do
+        it 'should set an ivar on an object and exit the repl' do
+          input_strings = ["@x = 10", "exit"]
+          input = InputTester.new(*input_strings)
+          output = OutputTester.new
 
+          o = Object.new
+
+          pry_tester = Pry.new(input, output)
+          pry_tester.repl(o)
+
+          o.instance_variable_get(:@x).should == 10
+          output.session_end_invoked.should == true
+        end
+      end
+
+      describe "nesting" do
+        it 'should nest properly' do
+          Pry.input = InputTester.new("pry", "pry", "pry", "nesting", "exit", "exit", "exit", "exit")
+          Pry.output = OutputTester.new
+
+          def (Pry.output).show_nesting(level)
+            class << self; attr_reader :nest_output; end
+            @nest_output = level.last.first
+          end
+
+          o = Object.new
+
+          pry_tester = Pry.new
+          pry_tester.repl(o)
+
+          Pry.output.nest_output.should == 3
+        end
+      end
+
+      describe "commands" do
         before do
           Pry.input = InputTester.new("exit")
+
           Pry.output = OutputTester.new
         end
 
         after do
           Pry.reset_defaults
         end
-        
-        { "!" => "refresh",
+
+        commands = {
+          "!" => "refresh",
           "help" => "show_help",
           "nesting" => "show_nesting",
           "status" => "show_status",
@@ -52,12 +88,14 @@ describe Pry do
           "show_doc test_method" => "show_doc",
           "show_idoc test_method" => "show_doc",
           "jump_to 0" => "jump_to"
-        }.each do |command, meth|
+        }
+        
+        commands.each do |command, meth|
 
           eval %{
             it "should invoke output##{meth}  when #{command} command entered" do
               input_strings = ["#{command}", "exit"]
-              input = InputTester.new(input_strings)
+              input = InputTester.new(*input_strings)
               output = OutputTester.new
               o = Class.new
           
@@ -68,34 +106,31 @@ describe Pry do
               output.session_end_invoked.should == true
             end
           }
+        end
+        
+        commands.each do |command, meth|
 
-
-          # it "should invoke output#help when help command entered" do
-          #   input_strings = ["help", "exit"]
-          #   input = InputTester.new(input_strings)
-          #   output = OutputTester.new
-          #   o = Object.new
+          eval %{
+            it "should raise when trying to invoke #{command} command with preceding whitespace" do
+              input_strings = [" #{command}", "exit"]
+              input = InputTester.new(*input_strings)
+              output = OutputTester.new
+              o = Class.new
           
-          #   pry_tester = Pry.new(input, output)
-          #   pry_tester.repl(o)
+              pry_tester = Pry.new(input, output)
+              pry_tester.repl(o)
 
-          #   output.show_help_invoked.should == true
-          #   output.session_end_invoked.should == true
-          # end
+              if "#{command}" != "!"
+                output.output_buffer.is_a?(NameError).should == true
+              else
 
-          # it 'should set an ivar on an object and exit the repl' do
-          #   input_strings = ["@x = 10", "exit"]
-          #   input = InputTester.new(input_strings)
-          #   output = OutputTester.new
-
-          #   o = Object.new
-
-          #   pry_tester = Pry.new(input, output)
-          #   pry_tester.repl(o)
-
-          #   o.instance_variable_get(:@x).should == 10
-          #   output.session_end_invoked.should == true
-          # end
+                # because entering " !" in pry doesnt cause error, it
+                # just creates a wait prompt which the subsquent
+                # "exit" escapes from
+                output.output_buffer.should == ""
+              end
+            end
+          }
         end
       end
     end

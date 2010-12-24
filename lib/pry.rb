@@ -9,8 +9,13 @@ require "#{direc}/pry/input"
 require "#{direc}/pry/output"
 
 class Pry
-  def self.start(target=TOPLEVEL_BINDING)
-    new.repl(target)
+  def self.start(target=TOPLEVEL_BINDING, options={})
+    options = {
+      :input => Pry.input,
+      :output => Pry.output
+    }.merge!(options)
+
+    new(options[:input], options[:output]).repl(target)
   end
 
   def self.view(obj)
