@@ -76,7 +76,6 @@ class Pry
     @wait_prompt = Pry.wait_prompt
   end
 
-
   def nesting
     self.class.nesting
   end
@@ -255,7 +254,7 @@ class Pry
       if target == TOPLEVEL_BINDING.eval('self')
         TOPLEVEL_BINDING
       else
-        target.instance_eval { binding }
+        target.__binding__
       end
     end
   end
@@ -263,6 +262,22 @@ class Pry
   module ObjectExtensions
     def pry(target=self)
       Pry.start(target)
+    end
+
+    def __binding__
+      if is_a?(Module)
+        return class_eval "binding"
+      end
+
+      unless respond_to? :__binding_impl__
+        self.class.class_eval <<-EXTRA
+        def __binding_impl__
+          binding
+        end
+        EXTRA
+      end
+
+      __binding_impl__
     end
   end
 end

@@ -7,6 +7,16 @@ require "#{direc}/test_helper"
 describe Pry do
   describe "open a Pry session on an object" do
     describe "rep" do
+      
+      before do
+        class Hello
+        end
+      end
+
+      after do
+        Object.send(:remove_const, :Hello)
+      end
+
       it 'should set an ivar on an object' do
         input_string = "@x = 10"
         input = InputTester.new(input_string)
@@ -25,6 +35,20 @@ describe Pry do
         pry_tester = Pry.new(InputTester.new("self"), output)
         pry_tester.rep(o)
         output.output_buffer.should == o
+      end
+
+      it 'should work with multi-line input' do
+        output = OutputTester.new
+        pry_tester = Pry.new(InputTester.new("x = ", "1 + 4"), output)
+        pry_tester.rep(Hello)
+        output.output_buffer.should == 5
+      end
+
+      it 'should define a nested class under Hello and not on top-level or Pry' do
+        output = OutputTester.new
+        pry_tester = Pry.new(InputTester.new("class Nested", "end"), output)
+        pry_tester.rep(Hello)
+        Hello.const_defined?(:Nested, false).should == true
       end
     end
 
