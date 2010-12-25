@@ -244,7 +244,6 @@ class Pry
     else
       true
     end
-    
   end
 
   def binding_for(target)

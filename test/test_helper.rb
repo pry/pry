@@ -30,7 +30,7 @@ class OutputTester
   end
 
   def method_missing(meth_name, *args, &block)
-    define_singleton_method("#{meth_name}_invoked") { true }
+    class << self; self; end.send(:define_method, "#{meth_name}_invoked") { true }
   end
 end
     

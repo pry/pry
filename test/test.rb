@@ -1,8 +1,11 @@
 direc = File.dirname(__FILE__)
 
+require 'rubygems'
 require 'bacon'
 require "#{direc}/../lib/pry"
 require "#{direc}/test_helper"
+
+NOT_FOR_RUBY_18 = [/show_doc/, /show_idoc/, /show_method/, /show_imethod/]
 
 describe Pry do
   describe "open a Pry session on an object" do
@@ -48,7 +51,7 @@ describe Pry do
         output = OutputTester.new
         pry_tester = Pry.new(InputTester.new("class Nested", "end"), output)
         pry_tester.rep(Hello)
-        Hello.const_defined?(:Nested, false).should == true
+        Hello.const_defined?(:Nested).should == true
       end
     end
 
@@ -107,14 +110,18 @@ describe Pry do
           "cat dummy" => "cat",
           "cd 3" => "cd",
           "ls" => "ls",
+          "jump_to 0" => "jump_to",
           "show_method test_method" => "show_method",
           "show_imethod test_method" => "show_method",
           "show_doc test_method" => "show_doc",
-          "show_idoc test_method" => "show_doc",
-          "jump_to 0" => "jump_to"
+          "show_idoc test_method" => "show_doc"
         }
         
         commands.each do |command, meth|
+
+          if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.any? { |v| v =~ command }
+            next
+          end
 
           eval %{
             it "should invoke output##{meth}  when #{command} command entered" do
@@ -133,6 +140,10 @@ describe Pry do
         end
         
         commands.each do |command, meth|
+
+          if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.include?(command)
+            next
+          end
 
           eval %{
             it "should raise when trying to invoke #{command} command with preceding whitespace" do
