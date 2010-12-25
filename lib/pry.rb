@@ -8,15 +8,21 @@ require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
 require "#{direc}/pry/commands"
+require "#{direc}/pry/prompts"
 
 class Pry
-  def self.start(target=TOPLEVEL_BINDING, options={})
-    options = {
-      :input => Pry.input,
-      :output => Pry.output
-    }.merge!(options)
 
-    new(options[:input], options[:output]).repl(target)
+  # class accessors
+  class << self
+    attr_reader :nesting
+    attr_accessor :last_result
+    attr_accessor :input, :output
+    attr_accessor :commands
+    attr_accessor :default_prompt, :wait_prompt
+  end
+  
+  def self.start(target=TOPLEVEL_BINDING, options={})
+    new(options).repl(target)
   end
 
   def self.view(obj)
@@ -31,32 +37,9 @@ class Pry
   def self.reset_defaults
     self.input = Input.new
     self.output = Output.new
-    self.commands = Commands.new(self.output)
-
-    self.default_prompt = proc do |v, nest|
-      if nest == 0
-        "pry(#{Pry.view(v)})> "
-      else
-        "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
-      end
-    end
-    
-    self.wait_prompt = proc do |v, nest|
-      if nest == 0
-        "pry(#{Pry.view(v)})* "
-      else
-        "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
-      end
-    end
-  end
-
-  # class accessors
-  class << self
-    attr_reader :nesting
-    attr_accessor :last_result
-    attr_accessor :default_prompt, :wait_prompt
-    attr_accessor :input, :output
-    attr_accessor :commands
+    self.commands = COMMANDS
+    self.default_prompt = DEFAULT_PROMPT
+    self.wait_prompt = WAIT_PROMPT
   end
 
   self.reset_defaults
@@ -68,17 +51,25 @@ class Pry
   end
 
   attr_accessor :input, :output
-  attr_accessor :default_prompt, :wait_prompt
   attr_accessor :commands
+  attr_accessor :default_prompt, :wait_prompt
   attr_reader :last_result
   
-  def initialize(input = Pry.input, output = Pry.output)
-    @input = input
-    @output = output
+  def initialize(options={})
 
-    @default_prompt = Pry.default_prompt
-    @wait_prompt = Pry.wait_prompt
-    @commands = Commands.new(output)
+    options = {
+      :input => Pry.input,
+      :output => Pry.output,
+      :commands => Pry.commands,
+      :default_prompt => Pry.default_prompt,
+      :wait_prompt => Pry.wait_prompt
+    }.merge!(options)
+    
+    @input = options[:input]
+    @output = options[:output]
+    @commands = options[:commands]
+    @default_prompt = options[:default_prompt]
+    @wait_prompt = options[:wait_prompt]
   end
 
   def nesting
@@ -151,8 +142,9 @@ class Pry
   def process_commands(val, eval_string, target)
     def eval_string.clear() replace("") end
 
-    if action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
+    pattern, action = commands.find { |k, v| Array(k).any? { |a| a === val } }
 
+    if pattern
       options = {
         :captures => $~ ? $~.captures : nil,
         :eval_string => eval_string,
@@ -162,7 +154,7 @@ class Pry
         :output => output
       }
 
-      action.last.call(options)
+      action.call(options)
     end
   end
 
@@ -208,8 +200,8 @@ class Pry
   end
 
   module ObjectExtensions
-    def pry(target=self)
-      Pry.start(target)
+    def pry(target=self, options={})
+      Pry.start(target, options)
     end
 
     def __binding__

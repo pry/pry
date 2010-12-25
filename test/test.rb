@@ -31,7 +31,7 @@ describe Pry do
         output = OutputTester.new
         o = Object.new
 
-        pry_tester = Pry.new(input, output)
+        pry_tester = Pry.new(:input => input, :output => output)
         pry_tester.rep(o)
         o.instance_variable_get(:@x).should == 10
       end
@@ -40,21 +40,21 @@ describe Pry do
         output = OutputTester.new
         o = Object.new
         
-        pry_tester = Pry.new(InputTester.new("self"), output)
+        pry_tester = Pry.new(:input => InputTester.new("self"), :output => output)
         pry_tester.rep(o)
         output.output_buffer.should == o
       end
 
       it 'should work with multi-line input' do
         output = OutputTester.new
-        pry_tester = Pry.new(InputTester.new("x = ", "1 + 4"), output)
+        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => output)
         pry_tester.rep(Hello)
         output.output_buffer.should == 5
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
         output = OutputTester.new
-        pry_tester = Pry.new(InputTester.new("class Nested", "end"), output)
+        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => output)
         pry_tester.rep(Hello)
         Hello.const_defined?(:Nested).should == true
       end
@@ -69,7 +69,7 @@ describe Pry do
 
           o = Object.new
 
-          pry_tester = Pry.new(input, output)
+          pry_tester = Pry.new(:input => input, :output => output)
           pry_tester.repl(o)
 
           o.instance_variable_get(:@x).should == 10
@@ -135,7 +135,7 @@ describe Pry do
               output = OutputTester.new
               o = Class.new
           
-              pry_tester = Pry.new(input, output)
+              pry_tester = Pry.new(:input => input, :output => output)
               pry_tester.repl(o)
 
               output.#{meth}_invoked.should == true
@@ -157,7 +157,7 @@ describe Pry do
               output = OutputTester.new
               o = Class.new
           
-              pry_tester = Pry.new(input, output)
+              pry_tester = Pry.new(:input => input, :output => output)
               pry_tester.repl(o)
 
               if "#{command}" != "!"
