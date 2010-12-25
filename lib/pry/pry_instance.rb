@@ -1,7 +1,6 @@
 class Pry
 
-  attr_accessor :input, :output
-  attr_accessor :commands
+  attr_accessor :input, :output, :commands
   attr_accessor :default_prompt, :wait_prompt
   
   def initialize(options={})

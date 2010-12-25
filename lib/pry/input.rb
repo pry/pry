@@ -9,8 +9,8 @@ class Pry
     end
   end
 
-  class SourceInput
-    def initialize(file, line)
+  class FileInput
+    def initialize(file, line = 1)
       @f = File.open(file)
       (line - 1).times { @f.readline }
     end

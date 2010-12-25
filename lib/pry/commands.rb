@@ -1,14 +1,28 @@
 class Pry
   COMMANDS = {
-    ["exit_program", "quit_program"] => proc { opts[:output].exit_program; exit },
-    "!" => proc { |opts| opts[:output].refresh; opts[:eval_string].clear },
-    "help" => proc { |opts| opts[:output].show_help; opts[:eval_string].clear },
-    "nesting" => proc { |opts| opts[:output].show_nesting(opts[:nesting]); opts[:eval_string].clear },
+    "!" => proc do |opts|
+      opts[:output].refresh
+      opts[:eval_string].clear
+    end,
+    ["exit_program", "quit_program"] => proc do
+      opts[:output].exit_program
+      exit
+    end,
+    "help" => proc do |opts|
+      opts[:output].show_help
+      opts[:eval_string].clear
+      end,
+    "nesting" => proc do |opts|
+      opts[:output].show_nesting(opts[:nesting])
+      opts[:eval_string].clear
+      end,
     "status" => proc do |opts|
       opts[:output].show_status(opts[:nesting], opts[:target])
       opts[:eval_string].clear
     end,
-    "exit_all" => proc { throw(:breakout, 0) },
+    "exit_all" => proc do
+      throw(:breakout, 0)
+    end,
     ["exit", "quit", "back", "cd .."] => proc do |opts|
       output.exit
       throw(:breakout, opts[:nesting].level)

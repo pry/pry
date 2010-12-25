@@ -23,17 +23,16 @@ class Pry
   end
 
   def self.reset_defaults
-    self.input = Input.new
-    self.output = Output.new
-    self.commands = COMMANDS
-    self.default_prompt = DEFAULT_PROMPT
-    self.wait_prompt = WAIT_PROMPT
+    @input = Input.new
+    @output = Output.new
+    @commands = COMMANDS
+    @default_prompt = DEFAULT_PROMPT
+    @wait_prompt = WAIT_PROMPT
   end
 
   self.reset_defaults
 
   @nesting = []
-
   def @nesting.level
     last.is_a?(Array) ? last.first : nil
   end
