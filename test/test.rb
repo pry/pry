@@ -7,6 +7,11 @@ require "#{direc}/test_helper"
 
 NOT_FOR_RUBY_18 = [/show_doc/, /show_idoc/, /show_method/, /show_imethod/]
 
+puts "Ruby Version #{RUBY_VERSION}"
+puts "Testing Pry #{Pry::VERSION}"
+puts "With method_source version #{MethodSource::VERSION}"
+puts "--"
+
 describe Pry do
   describe "open a Pry session on an object" do
     describe "rep" do
@@ -124,7 +129,7 @@ describe Pry do
           end
 
           eval %{
-            it "should invoke output##{meth}  when #{command} command entered" do
+            it "should invoke output##{meth} when #{command} command entered" do
               input_strings = ["#{command}", "exit"]
               input = InputTester.new(*input_strings)
               output = OutputTester.new

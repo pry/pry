@@ -7,6 +7,7 @@ require "method_source"
 require "#{direc}/pry/version"
 require "#{direc}/pry/input"
 require "#{direc}/pry/output"
+require "#{direc}/pry/commands"
 
 class Pry
   def self.start(target=TOPLEVEL_BINDING, options={})
@@ -30,6 +31,7 @@ class Pry
   def self.reset_defaults
     self.input = Input.new
     self.output = Output.new
+    self.commands = Commands.new(self.output)
 
     self.default_prompt = proc do |v, nest|
       if nest == 0
@@ -54,6 +56,7 @@ class Pry
     attr_accessor :last_result
     attr_accessor :default_prompt, :wait_prompt
     attr_accessor :input, :output
+    attr_accessor :commands
   end
 
   self.reset_defaults
@@ -66,6 +69,7 @@ class Pry
 
   attr_accessor :input, :output
   attr_accessor :default_prompt, :wait_prompt
+  attr_accessor :commands
   attr_reader :last_result
   
   def initialize(input = Pry.input, output = Pry.output)
@@ -74,6 +78,7 @@ class Pry
 
     @default_prompt = Pry.default_prompt
     @wait_prompt = Pry.wait_prompt
+    @commands = Commands.new(output)
   end
 
   def nesting
@@ -145,75 +150,19 @@ class Pry
   
   def process_commands(val, eval_string, target)
     def eval_string.clear() replace("") end
-    
-    case val
-    when "exit_program", "quit_program"
-      output.exit_program
-      exit
-    when "!"
-      output.refresh
-      eval_string.clear
-    when "help"
-      output.show_help
-      eval_string.clear
-    when "nesting"
-      output.show_nesting(nesting)
-      eval_string.clear
-    when "status"
-      output.show_status(nesting, target)
-      eval_string.clear
-    when "exit_all"
-      throw(:breakout, 0)
-    when "exit", "quit", "back", /^cd\s*\.\./
-      output.exit
-      throw(:breakout, nesting.level)
-    when "ls"
-      output.ls(target)
-      eval_string.clear
-    when /^cat\s+(.+)/
-      var = $~.captures.first
-      output.cat(target, var)
-      eval_string.clear
-    when /^cd\s+(.+)/
-      obj = $~.captures.first
-      output.cd(obj)
-      target.eval("#{obj}.pry")
-      eval_string.clear
-    when /^show_doc\s*(.+)/
-      meth_name = ($~.captures).first
-      doc = target.eval("method(:#{meth_name})").comment
-      output.show_doc doc
-      eval_string.clear
-    when /^show_idoc\s*(.+)/
-      meth_name = ($~.captures).first
-      doc = target.eval("instance_method(:#{meth_name})").comment
-      output.show_doc doc
-      eval_string.clear
-    when /^show_method\s*(.+)/
-      meth_name = ($~.captures).first
-      code = target.eval("method(:#{meth_name})").source
-      output.show_method code
-      eval_string.clear
-    when /^show_instance_method\s*(.+)/, /^show_imethod\s*(.+)/
-      meth_name = ($~.captures).first
-      code = target.eval("instance_method(:#{meth_name})").source
-      output.show_method code
-      eval_string.clear
-    when /^jump_to\s*(\d*)/
-      break_level = ($~.captures).first.to_i
-      output.jump_to(break_level)
 
-      case break_level
-      when nesting.level
-        output.warn_already_at_level(nesting.level)
-        eval_string.clear
-      when (0...nesting.level)
-        throw(:breakout, break_level + 1)
-      else
-        output.err_invalid_nest_level(break_level,
-                                      nesting.level - 1)
-        eval_string.clear
-      end
+    if action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
+
+      options = {
+        :captures => $~ ? $~.captures : nil,
+        :eval_string => eval_string,
+        :target => target,
+        :val => val,
+        :nesting => nesting,
+        :output => output
+      }
+
+      action.last.call(options)
     end
   end
 
