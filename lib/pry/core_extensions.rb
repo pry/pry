@@ -1,7 +1,7 @@
 class Pry
   module ObjectExtensions
-    def pry(target=self, options={})
-      Pry.start(target, options)
+    def pry(target=self)
+      Pry.start(target)
     end
 
     def __binding__
