@@ -25,7 +25,7 @@ class Pry
   def self.reset_defaults
     @input = Input.new
     @output = Output.new
-    @commands = COMMANDS
+    @commands = Commands.new(@output)
     @default_prompt = DEFAULT_PROMPT
     @wait_prompt = WAIT_PROMPT
   end

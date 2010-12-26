@@ -3,6 +3,7 @@ class Pry
   attr_accessor :input, :output, :commands
   attr_accessor :default_prompt, :wait_prompt
   
+  
   def initialize(options={})
 
     options = {
@@ -60,7 +61,15 @@ class Pry
   # print
   def rep(target=TOPLEVEL_BINDING)
     target = binding_for(target)
-    output.print re(target)
+    value = re(target)
+
+    # TODO - replace this with a callback
+    case value
+    when Exception
+      output.puts "#{value.class}: #{value.message}"
+    else
+      output.puts "=> #{Pry.view(value)}"
+    end
   end
 
   # eval
@@ -90,7 +99,7 @@ class Pry
   def process_commands(val, eval_string, target)
     def eval_string.clear() replace("") end
 
-    pattern, action = commands.find { |k, v| Array(k).any? { |a| a === val } }
+    pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
 
     if pattern
       options = {

@@ -5,6 +5,10 @@ class Pry
     def initialize(out=STDOUT)
       @out = out
     end
+
+    def puts(value)
+      out.puts value
+    end
     
     def refresh
       out.puts "Refreshed REPL"
