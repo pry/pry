@@ -1,24 +1,18 @@
 class Pry
 
-  attr_accessor :input, :output, :commands
-  attr_accessor :default_prompt, :wait_prompt
-  
+  ConfigOptions = [:input, :output, :commands, :print,
+                   :default_prompt, :wait_prompt, :hooks]
+
+  attr_accessor *ConfigOptions
   
   def initialize(options={})
 
-    options = {
-      :input => Pry.input,
-      :output => Pry.output,
-      :commands => Pry.commands,
-      :default_prompt => Pry.default_prompt,
-      :wait_prompt => Pry.wait_prompt
-    }.merge!(options)
-    
-    @input = options[:input]
-    @output = options[:output]
-    @commands = options[:commands]
-    @default_prompt = options[:default_prompt]
-    @wait_prompt = options[:wait_prompt]
+    options = ConfigOptions.each_with_object({}) { |v, h| h[v] = Pry.send(v) }
+    options.merge!(options)
+
+    ConfigOptions.each do |key|
+      instance_variable_set("@#{key}", options[key])
+    end
   end
 
   def nesting
@@ -33,12 +27,16 @@ class Pry
   def repl(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     target_self = target.eval('self')
-    output.session_start(target_self)
 
+    hooks[:before_session].call(output, target_self)
+    
     nesting_level = nesting.size
+
+    Pry.active_instance = self
 
     # Make sure _ exists
     target.eval("_ = Pry.last_result")
+    target.eval("_pry_ = Pry.active_instance")
     
     break_level = catch(:breakout) do
       nesting << [nesting.size, target_self]
@@ -48,7 +46,7 @@ class Pry
     end
 
     nesting.pop
-    output.session_end(target_self)
+    hooks[:after_session].call(output, target_self)
 
     # we only enter here if :breakout has been thrown
     if nesting_level != break_level
@@ -61,21 +59,15 @@ class Pry
   # print
   def rep(target=TOPLEVEL_BINDING)
     target = binding_for(target)
-    value = re(target)
-
-    # TODO - replace this with a callback
-    case value
-    when Exception
-      output.puts "#{value.class}: #{value.message}"
-    else
-      output.puts "=> #{Pry.view(value)}"
-    end
+    print.call output, re(target)
   end
 
   # eval
   def re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     Pry.last_result = target.eval r(target)
+    Pry.active_instance = self
+    target.eval("_pry_ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
   rescue SystemExit => e
     exit

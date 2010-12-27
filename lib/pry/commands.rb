@@ -15,8 +15,9 @@ class Pry
         ["exit_program", "quit_program"] => proc do
           exit
         end,
-        "help" => proc do |opts|
-          self.show_help
+        /^help\s*(.+)?/ => proc do |opts|
+          param = opts[:captures].first
+          self.show_help(param)
           opts[:eval_string].clear
         end,
         "nesting" => proc do |opts|
@@ -91,8 +92,7 @@ class Pry
     def command_info
       @command_info ||= {
         "!" => "Refresh the REPL.",
-        ["exit_program", "quit_program"] => "end
-the current program.",
+        ["exit_program", "quit_program"] => "end the current program.",
         "help" => "This menu.",
         "nesting" => "Show nesting information.",
         "status" => "Show status information.",
@@ -109,27 +109,21 @@ the current program.",
       }
     end
 
-    def refresh
-    end
-
-    def show_help
-      out.puts "Command list:"
-      out.puts "--"
-      out.puts "help                             This menu"
-      out.puts "status                           Show status information"
-      out.puts "!                                Refresh the REPL"
-      out.puts "nesting                          Show nesting information"
-      out.puts "ls                               Show the list of variables in the current scope"
-      out.puts "cat <var>                        Show output of <var>.inspect"
-      out.puts "cd <var>                         Start a Pry session on <var> (use `cd ..` to go back)"
-      out.puts "show_method <methname>           Show the sourcecode for the method <methname>"
-      out.puts "show_imethod <methname>          Show the sourcecode for the instance method <method_name>"
-      out.puts "show_doc <methname>              Show the comments above <methname>"
-      out.puts "show_idoc <methname>             Show the comments above instance method <methname>"
-      out.puts "exit/quit/back                   End the current Pry session"
-      out.puts "exit_all                         End all nested Pry sessions"
-      out.puts "exit_program/quit_program        End the current program"
-      out.puts "jump_to <level>                  Jump to a Pry session further up the stack, exiting all sessions below"
+    def show_help(param)
+      if !param
+        out.puts "Command list:"
+        out.puts "--"
+        command_info.each do |k, v|
+          puts "#{Array(k).first}".ljust(33) + v
+        end
+      else
+        key = command_info.keys.find { |v| Array(v).any? { |k| k == param } }
+        if key
+          out.puts command_info[key]
+        else
+          out.puts "No info for command: #{param}"
+        end
+      end
     end
 
     def show_nesting(nesting)

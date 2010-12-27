@@ -3,9 +3,9 @@ class Pry
   # class accessors
   class << self
     attr_reader :nesting
-    attr_accessor :last_result
+    attr_accessor :last_result, :active_instance
     attr_accessor :input, :output
-    attr_accessor :commands
+    attr_accessor :commands, :print, :hooks
     attr_accessor :default_prompt, :wait_prompt
   end
   
@@ -28,6 +28,8 @@ class Pry
     @commands = Commands.new(@output)
     @default_prompt = DEFAULT_PROMPT
     @wait_prompt = WAIT_PROMPT
+    @print = DEFAULT_PRINT
+    @hooks = DEFAULT_HOOKS
   end
 
   self.reset_defaults
