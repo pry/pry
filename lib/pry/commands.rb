@@ -85,6 +85,14 @@ class Pry
             out.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
             opts[:eval_string].clear
           end
+        end,
+        "ls_methods" => proc do |opts|
+          out.puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
+          opts[:eval_string].clear
+        end,
+        "ls_imethods" => proc do |opts|
+          out.puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
+          opts[:eval_string].clear
         end
       }
     end
@@ -105,7 +113,9 @@ class Pry
         "show_idoc" => "Show the comments above instance method <methname>",
         "show_method" => "Show sourcecode for method <methname>",
         "show_imethod" => "Show sourcecode for instance method <methname>",
-        "jump_to" => "Jump to a Pry session further up the stack, exiting all sessions below."
+        "jump_to" => "Jump to a Pry session further up the stack, exiting all sessions below.",
+        "ls_methods" => "List public methods defined on class of receiver.",
+        "ls_imethods" => "List public instance methods defined on receiver."
       }
     end
 
@@ -143,7 +153,7 @@ class Pry
       out.puts "--"
       out.puts "Receiver: #{Pry.view(target.eval('self'))}"
       out.puts "Nesting level: #{nesting.level}"
-      out.puts "Local variables: #{target.eval('Pry.view(local_variables)')}"
+      out.puts "Local variables: #{Pry.view(target.eval('local_variables'))}"
       out.puts "Pry instance: #{Pry.active_instance}"
       out.puts "Last result: #{Pry.view(Pry.last_result)}"
     end

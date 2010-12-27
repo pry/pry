@@ -6,7 +6,7 @@ class Pry
     attr_accessor :last_result, :active_instance
     attr_accessor :input, :output
     attr_accessor :commands, :print, :hooks
-    attr_accessor :default_prompt, :wait_prompt
+    attr_accessor :default_prompt
   end
   
   def self.start(target=TOPLEVEL_BINDING, options={})
@@ -15,7 +15,7 @@ class Pry
 
   def self.view(obj)
     case obj
-    when String, Array, Hash, Symbol, nil
+    when String, Hash, Array, Symbol, nil
       obj.inspect
     else
       obj.to_s
@@ -27,7 +27,6 @@ class Pry
     @output = Output.new
     @commands = Commands.new(@output)
     @default_prompt = DEFAULT_PROMPT
-    @wait_prompt = WAIT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
   end
