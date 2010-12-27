@@ -31,7 +31,7 @@ class Pry
         "exit_all" => proc do
           throw(:breakout, 0)
         end,
-        ["exit", "quit", "back", "cd .."] => proc do |opts|
+        ["exit", "quit", "back", /cd\s*\.\./] => proc do |opts|
           throw(:breakout, opts[:nesting].level)
         end,
         "ls" => proc do |opts|
@@ -97,7 +97,7 @@ class Pry
         "nesting" => "Show nesting information.",
         "status" => "Show status information.",
         "exit_all" => "End all nested Pry sessions",
-        ["exit", "quit", "back", "cd .."] => "End the current Pry session.",
+        ["exit", "quit", "back", /cd\s*\.\./] => "End the current Pry session.",
         "ls" => "Show the list of vars in the current scope.",
         "cat" => "Show output of <var>.inspect",
         "cd" => "Start a Pry session on <var> (use `cd ..` to go back)",
@@ -114,10 +114,10 @@ class Pry
         out.puts "Command list:"
         out.puts "--"
         command_info.each do |k, v|
-          puts "#{Array(k).first}".ljust(33) + v
+          puts "#{Array(k).first}".ljust(18) + v
         end
       else
-        key = command_info.keys.find { |v| Array(v).any? { |k| k == param } }
+        key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
         if key
           out.puts command_info[key]
         else
@@ -144,6 +144,7 @@ class Pry
       out.puts "Receiver: #{Pry.view(target.eval('self'))}"
       out.puts "Nesting level: #{nesting.level}"
       out.puts "Local variables: #{target.eval('Pry.view(local_variables)')}"
+      out.puts "Pry instance: #{Pry.active_instance}"
       out.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
   end

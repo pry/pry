@@ -34,9 +34,9 @@ class Pry
 
     Pry.active_instance = self
 
-    # Make sure _ exists
+    # Make sure special locals exist
+    target.eval("__pry__ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
-    target.eval("_pry_ = Pry.active_instance")
     
     break_level = catch(:breakout) do
       nesting << [nesting.size, target_self]
@@ -67,7 +67,7 @@ class Pry
     target = binding_for(target)
     Pry.last_result = target.eval r(target)
     Pry.active_instance = self
-    target.eval("_pry_ = Pry.active_instance")
+    target.eval("__pry__ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
   rescue SystemExit => e
     exit

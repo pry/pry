@@ -14,4 +14,7 @@ class Pry
       "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
     end
   end
+
+  SIMPLE_PROMPT = proc { "pry> " }
+  SIMPLE_WAIT = proc { "pry* " }
 end
