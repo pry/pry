@@ -1,5 +1,5 @@
 class Pry
-  DEFAULT_PROMPT = [
+  STANDARD_PROMPT = [
                     proc do |v, nest|
                       if nest == 0
                         "pry(#{Pry.view(v)})> "

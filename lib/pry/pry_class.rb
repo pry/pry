@@ -8,7 +8,7 @@ class Pry
     attr_accessor :commands, :print, :hooks
     attr_accessor :default_prompt
   end
-  
+
   def self.start(target=TOPLEVEL_BINDING, options={})
     new(options).repl(target)
   end
@@ -26,7 +26,7 @@ class Pry
     @input = Input.new
     @output = Output.new
     @commands = Commands.new(@output)
-    @default_prompt = DEFAULT_PROMPT
+    @default_prompt = STANDARD_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
   end
