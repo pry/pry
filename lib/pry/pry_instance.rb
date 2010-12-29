@@ -1,31 +1,55 @@
 class Pry
 
+  # The list of configuration options.
   ConfigOptions = [:input, :output, :commands, :print,
                    :default_prompt, :hooks]
 
   attr_accessor *ConfigOptions
   
+  # Create a new `Pry` object.
+  # @param [Hash] options The optional configuration parameters.
+  # @option options [#read] :input The object to use for input. (see input.rb)
+  # @option options [#puts] :output The object to use for output. (see output.rb)
+  # @option options [#commands] :commands The object to use for 
+  #   commands. (see commands.rb)
+  # @options options [Hash] :hooks The defined hook Procs (see hooks.rb)
+  # @option options [Array<Proc>] :default_prompt The array of Procs
+  #   to use for the prompts.
+  # @option options [Proc] :print The Proc to use for the 'print' componenent of the REPL
   def initialize(options={})
 
-    options = ConfigOptions.each_with_object({}) { |v, h| h[v] = Pry.send(v) }
-    options.merge!(options)
+    default_options = ConfigOptions.each_with_object({}) { |v, h| h[v] = Pry.send(v) }
+    default_options.merge!(options)
 
     ConfigOptions.each do |key|
-      instance_variable_set("@#{key}", options[key])
+      instance_variable_set("@#{key}", default_options[key])
     end
   end
 
+  # Get nesting data.
+  # This method should not need to be accessed directly.
+  # @return [Array] The unparsed nesting information.
   def nesting
     self.class.nesting
   end
 
+  # Set nesting data.
+  # This method should not need to be accessed directly.
+  # @param v nesting data.
   def nesting=(v)
     self.class.nesting = v
   end
+
+  # Execute the hook `hook_name`, if it is defined.
+  # @param [Symbol] hook_name The hook to execute
+  # @param [Array] args The arguments to pass to the hook.
+  def exec_hook(hook_name, *args, &block)
+    hooks[hook_name].call(*args, &block) if hooks[hook_name]
+  end
   
-  # Start a read-eval-print-loop
+  # Start a read-eval-print-loop.
   # If no parameter is given, default to top-level (main).
-  # @param [Object] target The receiver of the Pry session
+  # @param [Object, Binding] target The receiver of the Pry session
   # @return [Object] The target of the Pry session
   # @example
   #   Pry.new.repl(Object.new)
@@ -33,7 +57,7 @@ class Pry
     target = binding_for(target)
     target_self = target.eval('self')
 
-    hooks[:before_session].call(output, target_self)
+    exec_hook :before_session, output, target_self
     
     nesting_level = nesting.size
 
@@ -51,7 +75,8 @@ class Pry
     end
 
     nesting.pop
-    hooks[:after_session].call(output, target_self)
+    
+    exec_hook :after_session, output, target_self
 
     # we only enter here if :breakout has been thrown
     if nesting_level != break_level
@@ -61,9 +86,9 @@ class Pry
     target_self
   end
   
-  # Perform a read-eval-print
+  # Perform a read-eval-print.
   # If no parameter is given, default to top-level (main).
-  # @param [Object] target The receiver of the read-eval-print
+  # @param [Object, Binding] target The receiver of the read-eval-print
   # @example
   #   Pry.new.rep(Object.new)
   def rep(target=TOPLEVEL_BINDING)
@@ -73,9 +98,8 @@ class Pry
 
   # Perform a read-eval
   # If no parameter is given, default to top-level (main).
-  # @param [Object] target The receiver of the read-eval-print
-  # @return [Object] The result of the eval or an `Exception` object
-  # in case of error.
+  # @param [Object, Binding] target The receiver of the read-eval-print
+  # @return [Object] The result of the eval or an `Exception` object in case of error.
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
@@ -95,7 +119,7 @@ class Pry
   # This is a multi-line read; so the read continues until a valid
   # Ruby expression is received.
   # Pry commands are also accepted here and operate on the target.
-  # @param [Object] target The receiver of the read.
+  # @param [Object, Binding] target The receiver of the read.
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
@@ -116,10 +140,10 @@ class Pry
   # Commands can be modified/configured by the user: see `Pry::Commands`
   # This method should not need to be invoked directly - it is called
   # by `Pry#r`
-  # @param [String] val The current line of input
+  # @param [String] val The current line of input.
   # @param [String] eval_string The cumulative lines of input for
-  # multi-line input
-  # @param [Object] target The receiver of the commands
+  #   multi-line input.
+  # @param [Object] target The receiver of the commands.
   def process_commands(val, eval_string, target)
     def eval_string.clear() replace("") end
 
@@ -142,7 +166,7 @@ class Pry
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
   # @param [String] eval_string The cumulative lines of input for
-  # multi-line input
+  #   multi-line input.
   # @param [Object] target The receiver of the Pry session.
   # @return [String] The prompt.
   def prompt(eval_string, target)
@@ -159,7 +183,7 @@ class Pry
     require 'ripper'
 
     # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.9 uses Ripper parser.
+    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
     # @param [String] code The code to validate.
     # @return [Boolean] Whether or not the code is a valid Ruby expression.
     # @example
@@ -173,7 +197,7 @@ class Pry
     require 'ruby_parser'
     
     # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.8 uses RubyParser parser.
+    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
     # @param [String] code The code to validate.
     # @return [Boolean] Whether or not the code is a valid Ruby expression.
     # @example
