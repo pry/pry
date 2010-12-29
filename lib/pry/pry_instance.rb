@@ -12,7 +12,7 @@ class Pry
   # @option options [#puts] :output The object to use for output. (see output.rb)
   # @option options [#commands] :commands The object to use for 
   #   commands. (see commands.rb)
-  # @options options [Hash] :hooks The defined hook Procs (see hooks.rb)
+  # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
   # @option options [Array<Proc>] :default_prompt The array of Procs
   #   to use for the prompts.
   # @option options [Proc] :print The Proc to use for the 'print' componenent of the REPL
