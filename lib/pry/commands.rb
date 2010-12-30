@@ -1,4 +1,11 @@
 class Pry
+
+  # Default commands used by Pry.
+  # @notes
+  #   If you plan to replace the default Commands class with a custom
+  #   one then it must have a `commands` method that returns a Hash.
+  #   The Hash should be set up so that the key is the command String
+  #   (or Regexp)
   class Commands
     attr_accessor :out
     
@@ -10,7 +17,12 @@ class Pry
       @commands ||= {
         "!" => proc do |opts|
           out.puts "Refreshed REPL"
+          opts[:val].clear
           opts[:eval_string].clear
+        end,
+        "!pry" => proc do |opts|
+          Pry.start(opts[:target])
+          opts[:val].clear
         end,
         ["exit_program", "quit_program"] => proc do
           exit
@@ -18,15 +30,15 @@ class Pry
         /^help\s*(.+)?/ => proc do |opts|
           param = opts[:captures].first
           self.show_help(param)
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         "nesting" => proc do |opts|
           self.show_nesting(opts[:nesting])
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         "status" => proc do |opts|
           self.show_status(opts[:nesting], opts[:target])
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         "exit_all" => proc do
           throw(:breakout, 0)
@@ -36,39 +48,39 @@ class Pry
         end,
         "ls" => proc do |opts|
           out.puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^cat\s+(.+)/ => proc do |opts|
           obj = opts[:captures].first
           out.puts opts[:target].eval("#{obj}.inspect")
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^cd\s+(.+)/ => proc do |opts|
           obj = opts[:captures].first
           opts[:target].eval("#{obj}.pry")
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^show_doc\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           doc = opts[:target].eval("method(:#{meth_name})").comment
           out.puts doc
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^show_idoc\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           doc = opts[:target].eval("instance_method(:#{meth_name})").comment
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^show_method\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           code = opts[:target].eval("method(:#{meth_name})").source
           out.puts code
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^show_imethod\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           code = opts[:target].eval("instance_method(:#{meth_name})").source
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         /^jump_to\s*(\d*)/ => proc do |opts|
           break_level = opts[:captures].first.to_i
@@ -77,22 +89,22 @@ class Pry
           case break_level
           when nesting.level
             out.puts "Already at nesting level #{nesting.level}"
-            opts[:eval_string].clear
+            opts[:val].clear
           when (0...nesting.level)
             throw(:breakout, break_level + 1)
           else
             max_nest_level = nesting.level - 1
             out.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
-            opts[:eval_string].clear
+            opts[:val].clear
           end
         end,
         "ls_methods" => proc do |opts|
           out.puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
-          opts[:eval_string].clear
+          opts[:val].clear
         end,
         "ls_imethods" => proc do |opts|
           out.puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
-          opts[:eval_string].clear
+          opts[:val].clear
         end
       }
     end
@@ -100,6 +112,7 @@ class Pry
     def command_info
       @command_info ||= {
         "!" => "Refresh the REPL.",
+        "!pry" => "Start a Pry session on current self; this even works mid-expression.",
         ["exit_program", "quit_program"] => "end the current program.",
         "help" => "This menu.",
         "nesting" => "Show nesting information.",

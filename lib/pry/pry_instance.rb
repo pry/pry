@@ -14,11 +14,14 @@ class Pry
   #   commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
   # @option options [Array<Proc>] :default_prompt The array of Procs
-  #   to use for the prompts.
-  # @option options [Proc] :print The Proc to use for the 'print' componenent of the REPL
+  #   to use for the prompts. (see prompts.rb)
+  # @option options [Proc] :print The Proc to use for the 'print'
+  #   component of the REPL. (see print.rb)
   def initialize(options={})
 
-    default_options = ConfigOptions.each_with_object({}) { |v, h| h[v] = Pry.send(v) }
+    h = {}
+    ConfigOptions.each { |v| h[v] = Pry.send(v) }
+    default_options = h
     default_options.merge!(options)
 
     ConfigOptions.each do |key|
@@ -68,7 +71,7 @@ class Pry
     target.eval("_ = Pry.last_result")
     
     break_level = catch(:breakout) do
-      nesting << [nesting.size, target_self]
+      nesting.push [nesting.size, target_self]
       loop do
         rep(target) 
       end
@@ -128,8 +131,8 @@ class Pry
     eval_string = ""
     loop do
       val = input.read(prompt(eval_string, target))
-      eval_string << "#{val.chomp}\n"
       process_commands(val, eval_string, target)
+      eval_string << "#{val.chomp}\n"
       
       break eval_string if valid_expression?(eval_string)
     end
@@ -139,7 +142,7 @@ class Pry
   # prior to Ruby expressions.
   # Commands can be modified/configured by the user: see `Pry::Commands`
   # This method should not need to be invoked directly - it is called
-  # by `Pry#r`
+  # by `Pry#r`.
   # @param [String] val The current line of input.
   # @param [String] eval_string The cumulative lines of input for
   #   multi-line input.
@@ -150,8 +153,10 @@ class Pry
     pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
 
     if pattern
+      last_match = Regexp.last_match
+      
       options = {
-        :captures => $~ ? $~.captures : nil,
+        :captures => last_match ? last_match.captures : nil,
         :eval_string => eval_string,
         :target => target,
         :val => val,
@@ -211,7 +216,6 @@ class Pry
       true
     end
   end
-
   
   # Return a `Binding` object for `target` or return `target` if it is
   # already a `Binding`.
