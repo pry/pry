@@ -21,10 +21,11 @@ end
 class CommandTester
   def commands
     @commands ||= {
-      "command1" => proc { |opts| opts[:output].puts "command1" },
-      /command2\s*(.+)/ => proc do |opts|
+      "command1" => proc { |opts| opts[:output].puts "command1"; opts[:val].clear },
+      /command2\s*(.*)/ => proc do |opts|
         arg = opts[:captures].first
         opts[:output].puts arg
+        opts[:val].clear
       end
     }
   end

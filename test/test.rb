@@ -88,7 +88,7 @@ describe Pry do
 
       describe "nesting" do
         it 'should nest properly' do
-          Pry.input = InputTester.new("pry", "pry", "pry", "\"nest:\#\{Pry.nesting.level\}\"", "exit", "exit", "exit", "exit")
+          Pry.input = InputTester.new("pry", "pry", "pry", "\"nest:\#\{Pry.nesting.level\}\"", "exit_all")
 
           str_output = StringIO.new
           Pry.output = Pry::Output.new(str_output)
@@ -104,16 +104,40 @@ describe Pry do
         end
       end
 
-    #   describe "commands" do
-    #     before do
-    #       Pry.input = InputTester.new("exit")
+      describe "commands" do
+        after do
+          Pry.reset_defaults
+        end
 
-    #       Pry.output = OutputTester.new
-    #     end
+        it 'should run command1' do
+          pry_tester = Pry.new
+          pry_tester.commands = CommandTester.new
+          pry_tester.input = InputTester.new("command1", "exit_all")
+          pry_tester.commands = CommandTester.new
 
-    #     after do
-    #       Pry.reset_defaults
-    #     end
+          str_output = StringIO.new
+          pry_tester.output = Pry::Output.new(str_output)
+
+          pry_tester.rep
+
+          str_output.string.should =~ /command1/
+        end
+
+        it 'should run command2' do
+          pry_tester = Pry.new
+          pry_tester.commands = CommandTester.new
+          pry_tester.repl
+          pry_tester.input = InputTester.new("command2 horsey", "exit_all")
+          pry_tester.commands = CommandTester.new
+
+          str_output = StringIO.new
+          pry_tester.output = Pry::Output.new(str_output)
+
+          pry_tester.rep
+
+          str_output.string.should =~ /horsey/
+        end
+
 
     #     commands = {
     #       "!" => "refresh",
@@ -183,4 +207,5 @@ describe Pry do
     #   end
     end
   end
+end
 end
