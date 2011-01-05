@@ -10,4 +10,9 @@ class Pry
       out.puts value
     end
   end
+
+  class NullOutput
+    def puts(*) end
+  end
+    
 end

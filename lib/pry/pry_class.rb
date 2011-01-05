@@ -84,7 +84,7 @@ class Pry
   def self.reset_defaults
     @input = Input.new
     @output = Output.new
-    @commands = Commands.new(@output)
+    @commands = Commands.new
     @default_prompt = STANDARD_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS

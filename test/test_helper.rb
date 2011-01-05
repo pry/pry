@@ -18,20 +18,14 @@ class InputTester
   end
 end
 
-class OutputTester
-  attr_reader :output_buffer
-
-  def initialize
-    @output_buffer = ""
-  end
-
-  def print(val)
-    @output_buffer = val
-  end
-
-  def method_missing(meth_name, *args, &block)
-    class << self; self; end.send(:define_method, "#{meth_name}_invoked") { true }
+class CommandTester
+  def commands
+    @commands ||= {
+      "command1" => proc { |opts| opts[:output].puts "command1" },
+      /command2\s*(.+)/ => proc do |opts|
+        arg = opts[:captures].first
+        opts[:output].puts arg
+      end
+    }
   end
 end
-    
-    

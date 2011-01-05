@@ -1,22 +1,45 @@
 class Pry
 
   # Default commands used by Pry.
-  # @notes
+  # @note
   #   If you plan to replace the default Commands class with a custom
   #   one then it must have a `commands` method that returns a Hash.
-  #   The Hash should be set up so that the key is the command String
-  #   (or Regexp)
   class Commands
-    attr_accessor :out
     
-    def initialize(out)
-      @out = out
-    end
-    
+    # This method returns a hash that defines the commands implemented for the REPL session.
+    # The hash has the following form:
+    # 
+    #   * Each key is a command, it should either be a String or a
+    #   Regexp or an Array.
+    #   * Where it is an Array, each element should be a String or a
+    #   Regexp, and the elements are considered to be aliases.
+    #   * Each value is the action to take for the command. The value
+    #   should be a `proc`.
+    #   * If the proc needs to generate output it should write to the
+    #   `opts[:output]` object, as follows: `opts[:output].puts "hello world"`
+    #   * When the proc is invoked it is passed parameters in the form
+    #   of an options hash, the parameters are as follows:
+    #   
+    #     * `opts[:val]` The current line of input.
+    #     * `opts[:eval_string]` The cumulative lines of input for a multi-line input.
+    #     * `opts[:target]` The receiver of the Pry session.
+    #     * `opts[:nesting]` The nesting level of the current Pry Session.
+    #     * `opts[:output]` The `output` object for the current Pry session.
+    #     * `opts[:captures]` The Regexp captures for the command (if
+    #       any) - This can be used to implement command parameters.
+    #       
+    # @return [Hash] The commands hash.
+    # @example A 'hello' command.
+    #     def commands
+    #       {
+    #         /^hello\s*(.+)/ => proc do |opts|
+    #           opts[:output].puts "hello #{opts[:captures].first}"
+    #       }
+    #     end
     def commands
       @commands ||= {
         "!" => proc do |opts|
-          out.puts "Refreshed REPL"
+          opts[:output].puts "Refreshed REPL"
           opts[:val].clear
           opts[:eval_string].clear
         end,
@@ -29,15 +52,15 @@ class Pry
         end,
         /^help\s*(.+)?/ => proc do |opts|
           param = opts[:captures].first
-          self.show_help(param)
+          self.show_help(opts[:output], param)
           opts[:val].clear
         end,
         "nesting" => proc do |opts|
-          self.show_nesting(opts[:nesting])
+          self.show_nesting(opts[:output], opts[:nesting])
           opts[:val].clear
         end,
         "status" => proc do |opts|
-          self.show_status(opts[:nesting], opts[:target])
+          self.show_status(opts[:output], opts[:nesting], opts[:target])
           opts[:val].clear
         end,
         "exit_all" => proc do
@@ -47,12 +70,12 @@ class Pry
           throw(:breakout, opts[:nesting].level)
         end,
         "ls" => proc do |opts|
-          out.puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
+          opts[:output].puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
           opts[:val].clear
         end,
         /^cat\s+(.+)/ => proc do |opts|
           obj = opts[:captures].first
-          out.puts opts[:target].eval("#{obj}.inspect")
+          opts[:output].puts opts[:target].eval("#{obj}.inspect")
           opts[:val].clear
         end,
         /^cd\s+(.+)/ => proc do |opts|
@@ -63,7 +86,7 @@ class Pry
         /^show_doc\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           doc = opts[:target].eval("method(:#{meth_name})").comment
-          out.puts doc
+          opts[:output].puts doc
           opts[:val].clear
         end,
         /^show_idoc\s*(.+)/ => proc do |opts|
@@ -74,7 +97,7 @@ class Pry
         /^show_method\s*(.+)/ => proc do |opts|
           meth_name = opts[:captures].first
           code = opts[:target].eval("method(:#{meth_name})").source
-          out.puts code
+          opts[:output].puts code
           opts[:val].clear
         end,
         /^show_imethod\s*(.+)/ => proc do |opts|
@@ -88,22 +111,22 @@ class Pry
 
           case break_level
           when nesting.level
-            out.puts "Already at nesting level #{nesting.level}"
+            opts[:output].puts "Already at nesting level #{nesting.level}"
             opts[:val].clear
           when (0...nesting.level)
             throw(:breakout, break_level + 1)
           else
             max_nest_level = nesting.level - 1
-            out.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
+            opts[:output].puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
             opts[:val].clear
           end
         end,
         "ls_methods" => proc do |opts|
-          out.puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
+          opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
           opts[:val].clear
         end,
         "ls_imethods" => proc do |opts|
-          out.puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
+          opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
           opts[:val].clear
         end
       }
@@ -132,7 +155,7 @@ class Pry
       }
     end
 
-    def show_help(param)
+    def show_help(out, param)
       if !param
         out.puts "Command list:"
         out.puts "--"
@@ -149,7 +172,7 @@ class Pry
       end
     end
 
-    def show_nesting(nesting)
+    def show_nesting(out, nesting)
       out.puts "Nesting status:"
       out.puts "--"
       nesting.each do |level, obj|
@@ -161,7 +184,7 @@ class Pry
       end
     end
 
-    def show_status(nesting, target)
+    def show_status(out, nesting, target)
       out.puts "Status:"
       out.puts "--"
       out.puts "Receiver: #{Pry.view(target.eval('self'))}"
