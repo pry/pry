@@ -50,13 +50,12 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
-    # Get/Set the array of Procs to be used for the prompts by default by
+    # Get the array of Procs to be used for the prompts by default by
     # all Pry instances.
     # @return [Array<Proc>] The array of Procs to be used for the
     #   prompts by default by all Pry instances.
-    attr_accessor :default_prompt
+    attr_accessor :prompt
   end
-
   # Start a Pry REPL.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
@@ -85,7 +84,7 @@ class Pry
     @input = Input.new
     @output = Output.new
     @commands = Commands.new
-    @default_prompt = STANDARD_PROMPT
+    @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
   end

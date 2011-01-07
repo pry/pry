@@ -105,10 +105,6 @@ describe Pry do
       end
 
       describe "commands" do
-        after do
-          Pry.reset_defaults
-        end
-
         it 'should run command1' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester.new
@@ -126,7 +122,6 @@ describe Pry do
         it 'should run command2' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester.new
-          pry_tester.repl
           pry_tester.input = InputTester.new("command2 horsey", "exit_all")
           pry_tester.commands = CommandTester.new
 
@@ -137,75 +132,253 @@ describe Pry do
 
           str_output.string.should =~ /horsey/
         end
+      end
 
+      describe "test Pry defaults" do
+        it 'should set the input default, and the default should be overridable' do
+          Pry.input = InputTester.new("5")
 
-    #     commands = {
-    #       "!" => "refresh",
-    #       "help" => "show_help",
-    #       "nesting" => "show_nesting",
-    #       "status" => "show_status",
-    #       "cat dummy" => "cat",
-    #       "cd 3" => "cd",
-    #       "ls" => "ls",
-    #       "jump_to 0" => "jump_to",
-    #       "show_method test_method" => "show_method",
-    #       "show_imethod test_method" => "show_method",
-    #       "show_doc test_method" => "show_doc",
-    #       "show_idoc test_method" => "show_doc"
-    #     }
-        
-    #     commands.each do |command, meth|
+          str_output = StringIO.new
+          Pry.output = Pry::Output.new(str_output)
+          Pry.new.rep
+          str_output.string.should =~ /5/
 
-    #       if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.any? { |v| v =~ command }
-    #         next
-    #       end
+          Pry.new(:input => InputTester.new("6")).rep
+          str_output.string.should =~ /6/
 
-    #       eval %{
-    #         it "should invoke output##{meth} when #{command} command entered" do
-    #           input_strings = ["#{command}", "exit"]
-    #           input = InputTester.new(*input_strings)
-    #           output = OutputTester.new
-    #           o = Class.new
+          Pry.reset_defaults
+        end
+
+        it 'should set the output default, and the default should be overridable' do
+          Pry.input = InputTester.new("5", "6", "7")
           
-    #           pry_tester = Pry.new(:input => input, :output => output)
-    #           pry_tester.repl(o)
-
-    #           output.#{meth}_invoked.should == true
-    #           output.session_end_invoked.should == true
-    #         end
-    #       }
-    #     end
-        
-    #     commands.each do |command, meth|
-
-    #       if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.include?(command)
-    #         next
-    #       end
-
-    #       eval %{
-    #         it "should raise when trying to invoke #{command} command with preceding whitespace" do
-    #           input_strings = [" #{command}", "exit"]
-    #           input = InputTester.new(*input_strings)
-    #           output = OutputTester.new
-    #           o = Class.new
+          str_output = StringIO.new
+          Pry.output = Pry::Output.new(str_output)
           
-    #           pry_tester = Pry.new(:input => input, :output => output)
-    #           pry_tester.repl(o)
+          Pry.new.rep
+          str_output.string.should =~ /5/
 
-    #           if "#{command}" != "!"
-    #             output.output_buffer.is_a?(NameError).should == true
-    #           else
+          Pry.new.rep
+          str_output.string.should =~ /5\n.*6/
 
-    #             # because entering " !" in pry doesnt cause error, it
-    #             # just creates a wait prompt which the subsquent
-    #             # "exit" escapes from
-    #             output.output_buffer.should == ""
-    #           end
-    #         end
-    #       }
-    #     end
-    #   end
+          str_output2 = StringIO.new
+          Pry.new(:output => Pry::Output.new(str_output2)).rep
+          str_output2.string.should.not =~ /5\n.*6/
+          str_output2.string.should =~ /7/
+
+          Pry.reset_defaults
+        end
+
+        it 'should set the commands default, and the default should be overridable' do
+          Pry.reset_defaults
+          
+          commands = {
+            "hello" => proc { |opts| opts[:output].puts "hello world"; opts[:val].clear }
+          }
+
+          def commands.commands() self end
+
+          Pry.commands = commands
+
+          str_output = StringIO.new
+          Pry.new(:input => InputTester.new("hello"), :output => Pry::Output.new(str_output)).rep
+          str_output.string.should =~ /hello world/
+
+          commands = {
+            "goodbye" => proc { |opts| opts[:output].puts "goodbye world"; opts[:val].clear }
+          }
+
+          def commands.commands() self end
+          str_output = StringIO.new
+          
+          Pry.new(:input => InputTester.new("goodbye"), :output => Pry::Output.new(str_output), :commands => commands).rep
+          str_output.string.should =~ /goodbye world/
+
+          Pry.reset_defaults
+        end
+
+
+        it "should set the print default, and the default should be overridable" do
+          new_print = proc { |out, value| out.puts value }
+          Pry.print =  new_print
+
+          Pry.new.print.should == Pry.print
+          str_output = StringIO.new
+          Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
+          str_output.string.should == "test\n"
+
+          str_output = StringIO.new
+          Pry.new(:input => InputTester.new("\"test\""), :output => str_output,
+                  :print => proc { |out, value| out.puts value.reverse }).rep
+          str_output.string.should == "tset\n"
+          
+          Pry.new.print.should == Pry.print
+          str_output = StringIO.new
+          Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
+          str_output.string.should == "test\n"
+
+          Pry.reset_defaults
+        end
+        
+        describe "prompts" do
+          it 'should set the prompt default, and the default should be overridable (single prompt)' do
+            new_prompt = proc { "test prompt> " }
+            Pry.prompt =  new_prompt
+
+            Pry.new.prompt.should == Pry.prompt
+            Pry.new.get_prompt(true, 0).should == "test prompt> "
+            Pry.new.get_prompt(false, 0).should == "test prompt> "
+
+            new_prompt = proc { "A" }
+            pry_tester = Pry.new(:prompt => new_prompt)
+            pry_tester.prompt.should == new_prompt
+            pry_tester.get_prompt(true, 0).should == "A"
+            pry_tester.get_prompt(false, 0).should == "A"
+                                 
+            Pry.new.prompt.should == Pry.prompt
+            Pry.new.get_prompt(true, 0).should == "test prompt> "
+            Pry.new.get_prompt(false, 0).should == "test prompt> "
+          end
+
+          it 'should set the prompt default, and the default should be overridable (multi prompt)' do
+            new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
+            Pry.prompt =  new_prompt
+
+            Pry.new.prompt.should == Pry.prompt
+            Pry.new.get_prompt(true, 0).should == "test prompt> "
+            Pry.new.get_prompt(false, 0).should == "test prompt* "
+
+            new_prompt = [proc { "A" }, proc { "B" }]
+            pry_tester = Pry.new(:prompt => new_prompt)
+            pry_tester.prompt.should == new_prompt
+            pry_tester.get_prompt(true, 0).should == "A"
+            pry_tester.get_prompt(false, 0).should == "B"
+                                 
+            Pry.new.prompt.should == Pry.prompt
+            Pry.new.get_prompt(true, 0).should == "test prompt> "
+            Pry.new.get_prompt(false, 0).should == "test prompt* "
+          end
+        end
+
+        it 'should set the hooks default, and the default should be overridable' do
+          Pry.input = InputTester.new("exit")
+          Pry.hooks = {
+            :before_session => proc { |out| out.puts "HELLO" },
+            :after_session => proc { |out| out.puts "BYE" }
+          }
+          
+          str_output = StringIO.new
+          Pry.new(:output => Pry::Output.new(str_output)).repl
+          str_output.string.should =~ /HELLO/
+          str_output.string.should =~ /BYE/
+          
+          Pry.input.rewind
+
+          str_output = StringIO.new
+          Pry.new(:output => Pry::Output.new(str_output),
+                  :hooks => {
+                    :before_session => proc { |out| out.puts "MORNING" },
+                    :after_session => proc { |out| out.puts "EVENING" }
+                  }
+                  ).repl
+
+          str_output.string.should =~ /MORNING/
+          str_output.string.should =~ /EVENING/
+
+          # try below with just defining one hook
+          Pry.input.rewind
+          str_output = StringIO.new
+          Pry.new(:output => Pry::Output.new(str_output),
+                  :hooks => {
+                    :before_session => proc { |out| out.puts "OPEN" }
+                  }
+                  ).repl
+          
+          str_output.string.should =~ /OPEN/
+
+          Pry.input.rewind
+          str_output = StringIO.new
+          Pry.new(:output => Pry::Output.new(str_output),
+                  :hooks => {
+                    :after_session => proc { |out| out.puts "CLOSE" }
+                  }
+                  ).repl
+
+          str_output.string.should =~ /CLOSE/
+
+          Pry.reset_defaults
+        end
+
+        
+        
+      end
+
+      #     commands = {
+      #       "!" => "refresh",
+      #       "help" => "show_help",
+      #       "nesting" => "show_nesting",
+      #       "status" => "show_status",
+      #       "cat dummy" => "cat",
+      #       "cd 3" => "cd",
+      #       "ls" => "ls",
+      #       "jump_to 0" => "jump_to",
+      #       "show_method test_method" => "show_method",
+      #       "show_imethod test_method" => "show_method",
+      #       "show_doc test_method" => "show_doc",
+      #       "show_idoc test_method" => "show_doc"
+      #     }
+      
+      #     commands.each do |command, meth|
+
+      #       if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.any? { |v| v =~ command }
+      #         next
+      #       end
+
+      #       eval %{
+      #         it "should invoke output##{meth} when #{command} command entered" do
+      #           input_strings = ["#{command}", "exit"]
+      #           input = InputTester.new(*input_strings)
+      #           output = OutputTester.new
+      #           o = Class.new
+      
+      #           pry_tester = Pry.new(:input => input, :output => output)
+      #           pry_tester.repl(o)
+
+      #           output.#{meth}_invoked.should == true
+      #           output.session_end_invoked.should == true
+      #         end
+      #       }
+      #     end
+      
+      #     commands.each do |command, meth|
+
+      #       if RUBY_VERSION =~ /1.8/ && NOT_FOR_RUBY_18.include?(command)
+      #         next
+      #       end
+
+      #       eval %{
+      #         it "should raise when trying to invoke #{command} command with preceding whitespace" do
+      #           input_strings = [" #{command}", "exit"]
+      #           input = InputTester.new(*input_strings)
+      #           output = OutputTester.new
+      #           o = Class.new
+      
+      #           pry_tester = Pry.new(:input => input, :output => output)
+      #           pry_tester.repl(o)
+
+      #           if "#{command}" != "!"
+      #             output.output_buffer.is_a?(NameError).should == true
+      #           else
+
+      #             # because entering " !" in pry doesnt cause error, it
+      #             # just creates a wait prompt which the subsquent
+      #             # "exit" escapes from
+      #             output.output_buffer.should == ""
+      #           end
+      #         end
+      #       }
+      #     end
+      #   end
     end
   end
-end
 end

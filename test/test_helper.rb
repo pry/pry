@@ -14,7 +14,7 @@ class InputTester
   end
 
   def rewind
-    @actions = @orig_actions
+    @actions = @orig_actions.dup
   end
 end
 

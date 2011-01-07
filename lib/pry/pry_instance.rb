@@ -2,10 +2,10 @@ class Pry
 
   # The list of configuration options.
   ConfigOptions = [:input, :output, :commands, :print,
-                   :default_prompt, :hooks]
+                   :prompt, :hooks]
 
   attr_accessor *ConfigOptions
-  
+
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
   # @option options [#read] :input The object to use for input. (see input.rb)
@@ -62,6 +62,8 @@ class Pry
 
     exec_hook :before_session, output, target_self
     
+    # cannot rely on nesting.level as
+    # nesting.level changes with new sessions
     nesting_level = nesting.size
 
     Pry.active_instance = self
@@ -107,8 +109,14 @@ class Pry
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
+
+    # eval the expression and save to last_result
     Pry.last_result = target.eval r(target)
+
+    # save the pry instance to active_instance
     Pry.active_instance = self
+
+    # define locals _pry_ and _ (active instance and last expression)
     target.eval("_pry_ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
   rescue SystemExit => e
@@ -130,7 +138,7 @@ class Pry
     target = binding_for(target)
     eval_string = ""
     loop do
-      val = input.read(prompt(eval_string, target))
+      val = input.read(get_prompt(eval_string.empty?, target.eval('self')))
       process_commands(val, eval_string, target)
       eval_string << "#{val.chomp}\n"
       
@@ -170,17 +178,16 @@ class Pry
 
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
-  # @param [String] eval_string The cumulative lines of input for
-  #   multi-line input.
-  # @param [Object] target The receiver of the Pry session.
+  # @param [Boolean] first_line Whether this is the first line of input
+  #   (and not multi-line input).
+  # @param [Object] target_self The receiver of the Pry session.
   # @return [String] The prompt.
-  def prompt(eval_string, target)
-    target_self = target.eval('self')
+  def get_prompt(first_line, target_self)
     
-    if eval_string.empty?
-      default_prompt.first.call(target_self, nesting.level)
+    if first_line
+      Array(prompt).first.call(target_self, nesting.level)
     else
-      default_prompt.last.call(target_self, nesting.level)
+      Array(prompt).last.call(target_self, nesting.level)
     end
   end
 
