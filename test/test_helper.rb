@@ -9,7 +9,7 @@ class InputTester
     @actions = actions
   end
 
-  def read(*)
+  def readline(*)
     @actions.shift
   end
 

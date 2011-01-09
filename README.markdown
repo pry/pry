@@ -18,7 +18,7 @@ commands such as `show_method` and `jump_to`
 Example: Interacting with an object at runtime 
 ---------------------------------------
 
-With the `Pry.start()` method we can pry (open an irb-like session) on
+With the `Object#pry` method we can pry (open an irb-like session) on
 an object. In the example below we open a Pry session for the `Test` class and execute a method and add
 an instance variable. The current thread is halted for the duration of the session.
 
@@ -28,7 +28,7 @@ an instance variable. The current thread is halted for the duration of the sessi
       def self.hello() "hello world" end
     end
 
-    Pry.start(Test)
+    Test.pry
 
     # Pry session begins on stdin
     Beginning Pry session for Test
@@ -50,10 +50,10 @@ effect:
 
 #### Alternative Syntax
 
-You can also use the `obj.pry` or `pry(obj)` syntax to start a pry session on
+You can also use the `Pry.start(obj)` or `pry(obj)` syntax to start a pry session on
 `obj`. e.g
 
-    5.pry
+    Pry.start 5
     Beginning Pry session for 5
     pry(5)>
 
@@ -62,7 +62,7 @@ OR
     pry 6
     beginning Pry session for 6
     pry(6)>
-    
+
 Example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
 ----------------------------------------------------------------------------------------
 
@@ -76,11 +76,11 @@ an instance variable inside that class:
     pry(main)*   @x = 20
     pry(main)* end
     => 20
-    pry(main)> Pry.start Hello
+    pry(main)> Hello.pry
     Beginning Pry session for Hello
     pry(Hello):1> instance_variables
     => [:@x]
-    pry(Hello):1> Pry.start @x
+    pry(Hello):1> @x.pry
     Beginning Pry session for 20
     pry(20:2)> self + 10
     => 30
@@ -143,8 +143,9 @@ end.
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Use `_` to recover last result.
+* Use `_pry_` to reference the Pry instance managing the current session.
 * Pry has multi-line support built in.
-* Pry has unique commands not found in any other REPL: `show_method`, `show_doc`
+* Pry has special commands not found in many other Ruby REPLs: `show_method`, `show_doc`
 `jump_to`, `ls`, `cd`, `cat`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
@@ -173,7 +174,22 @@ Commands
 receives as a parameter. In the case of no parameter it operates on
 top-level (main). It can receive any object or a `Binding`
 object as parameter. `Pry.start()` is implemented as `Pry.new.repl()`
-* `obj.pry` and `pry(obj)` may also be used as alternative syntax to `Pry.start(obj)`
+* `obj.pry` and `pry(obj)` may also be used as alternative syntax to
+`Pry.start(obj)`.
+
+  However there are some differences. `obj.pry` opens
+a Pry session on the receiver whereas `Pry.start` (with no parameter)
+will start a Pry session on top-level. The other form of the `pry`
+method: `pry(obj)` will also start a Pry session on its parameter.
+
+  The `pry` method invoked by itself, with no explict receiver and no
+parameter will start a Pry session on the implied receiver. It is
+perhaps more useful to invoke it in this form `pry(binding)` or
+`binding.pry` so as to get access to locals in the current context.
+
+  Another difference is that `Pry.start()` accepts a second parameter
+that is a hash of configuration options (discussed further, below).
+
 * If, for some reason you do not want to 'loop' then use `Pry.new.rep()`; it
 only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
@@ -202,8 +218,8 @@ If you want to access a method of the same name, prefix the invocation by whites
   are nested sessions).
 * `ls` returns a list of local variables and instance variables in the
   current scope
-* `cat <var>` calls `inspect` on `<var>`
-* `cd <var>` starts a `Pry` session on the variable <var>. E.g `cd @x`
+* `cat <var>` Calls `inspect` on `<var>`
+* `cd <var>` Starts a `Pry` session on the variable <var>. E.g `cd @x`
 * `show_method <methname>` Displays the sourcecode for the method
   <methname>. E.g `show_method hello`
 * `show_imethod <methname>` Displays the sourcecode for the
@@ -213,14 +229,43 @@ If you want to access a method of the same name, prefix the invocation by whites
   method `<methname>`
 * `exit_program` or `quit_program` will end the currently running
   program.
-* `nesting` shows Pry nesting information.
-* `jump_to <nest_level>`  unwinds the Pry stack (nesting level) until the appropriate nesting level is reached
+* `nesting` Shows Pry nesting information.
+* `!pry` Starts a Pry session on the implied receiver; this can be
+  used in the middle of an expression in multi-line input.
+* `jump_to <nest_level>`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached
   -- as per the output of `nesting`
 * `exit_all` breaks out of all Pry nesting levels and returns to the
   calling process.
 * You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
   current one with `obj` as the receiver of the new session. Very useful
   when exploring large or complicated runtime state.
+
+Customizing Pry
+---------------
+
+Pry supports customization of the input, the output, the commands,
+the hooks, the prompt, and 'print' (the "P" in REPL).
+
+Global customization, which applies to all Pry sessions, is done
+through invoking class accessors on the `Pry` class, the accessors
+are:
+
+* `Pry.input=`
+* `Pry.output=`
+* `Pry.commands=`
+* `Pry.hooks=`
+* `Pry.prompt=`
+* `Pry.print=`
+
+Local customization (applied to a single Pry session) is done by
+passing config hash options to `Pry.start()` or to `Pry.new()`; also the
+same accessors as described above for the `Pry` class also exist for a
+Pry instance.
+
+### Input:
+
+
+
 
 Contact
 -------

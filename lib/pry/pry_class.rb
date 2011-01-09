@@ -81,8 +81,8 @@ class Pry
 
   # Set all the configurable options back to their default values
   def self.reset_defaults
-    @input = Input.new
-    @output = Output.new
+    @input = Readline
+    @output = $stdout
     @commands = Commands.new
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT

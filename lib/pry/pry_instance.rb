@@ -138,9 +138,21 @@ class Pry
     target = binding_for(target)
     eval_string = ""
     loop do
-      val = input.read(get_prompt(eval_string.empty?, target.eval('self')))
+
+      val = if input == Readline
+              input.readline(select_prompt(eval_string.empty?, target.eval('self')), true)
+            else
+              if input.method(:readline).arity == 1
+                input.readline(select_prompt(eval_string.empty?, target.eval('self')))
+              else
+                input.readline
+              end
+            end
+
+      val.chomp!
+
       process_commands(val, eval_string, target)
-      eval_string << "#{val.chomp}\n"
+      eval_string << "#{val}\n"
       
       break eval_string if valid_expression?(eval_string)
     end
@@ -154,9 +166,9 @@ class Pry
   # @param [String] val The current line of input.
   # @param [String] eval_string The cumulative lines of input for
   #   multi-line input.
-  # @param [Object] target The receiver of the commands.
+  # @param [Binding] target The receiver of the commands.
   def process_commands(val, eval_string, target)
-    def eval_string.clear() replace("") end
+    def val.clear() replace("") end
 
     pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
 
@@ -182,7 +194,7 @@ class Pry
   #   (and not multi-line input).
   # @param [Object] target_self The receiver of the Pry session.
   # @return [String] The prompt.
-  def get_prompt(first_line, target_self)
+  def select_prompt(first_line, target_self)
     
     if first_line
       Array(prompt).first.call(target_self, nesting.level)

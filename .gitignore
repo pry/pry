@@ -1,0 +1,7 @@
+Makefile
+*.so
+*.o
+*.def
+doc/
+pkg/
+.yardoc/

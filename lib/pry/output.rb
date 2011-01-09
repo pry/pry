@@ -1,4 +1,6 @@
 class Pry
+
+  # default output class - just writes to STDOUT
   class Output
     attr_reader :out
     
@@ -11,8 +13,8 @@ class Pry
     end
   end
 
+  # null output class - doesn't write anywwhere.
   class NullOutput
     def puts(*) end
   end
-    
 end
