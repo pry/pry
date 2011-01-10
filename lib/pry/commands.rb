@@ -66,7 +66,7 @@ class Pry
         "exit_all" => proc do
           throw(:breakout, 0)
         end,
-        ["exit", "quit", "back", /cd\s*\.\./] => proc do |opts|
+        ["exit", "quit", "back", /^cd\s*\.\./] => proc do |opts|
           throw(:breakout, opts[:nesting].level)
         end,
         "ls" => proc do |opts|
@@ -80,6 +80,9 @@ class Pry
         end,
         /^cd\s+(.+)/ => proc do |opts|
           obj = opts[:captures].first
+
+          throw(:breakout, opts[:nesting].level) if obj == ".."
+          
           opts[:target].eval("#{obj}.pry")
           opts[:val].clear
         end,

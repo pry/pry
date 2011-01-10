@@ -110,6 +110,11 @@ class Pry
   def re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
 
+    # FIXME!!!!!!!! Should not hardcode command_info in here!
+    if input == Readline
+      Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, Pry.commands.command_info.keys.flatten)
+    end
+
     # eval the expression and save to last_result
     Pry.last_result = target.eval r(target)
 

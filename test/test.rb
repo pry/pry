@@ -181,16 +181,67 @@ describe Pry do
           Pry.reset_defaults
         end
         
-        it 'should set the input default, and the default should be overridable' do
-          Pry.input = InputTester.new("5")
+        describe "input" do
 
-          str_output = StringIO.new
-          Pry.output = str_output
-          Pry.new.rep
-          str_output.string.should =~ /5/
+          after do
+            Pry.reset_defaults
+          end
+          
+          it 'should set the input default, and the default should be overridable' do
+            Pry.input = InputTester.new("5")
 
-          Pry.new(:input => InputTester.new("6")).rep
-          str_output.string.should =~ /6/
+            str_output = StringIO.new
+            Pry.output = str_output
+            Pry.new.rep
+            str_output.string.should =~ /5/
+
+            Pry.new(:input => InputTester.new("6")).rep
+            str_output.string.should =~ /6/
+          end
+
+          it 'should pass in the prompt if readline arity is 1' do
+            Pry.prompt = proc { "A" }
+
+            arity_one_input = Class.new do
+              attr_accessor :prompt
+              def readline(prompt)
+                @prompt = prompt
+                "exit"
+              end
+            end.new
+
+            Pry.start(self, :input => arity_one_input, :output => Pry::NullOutput)
+            arity_one_input.prompt.should == Pry.prompt.call
+          end
+
+          it 'should not pass in the prompt if the arity is 0' do
+            Pry.prompt = proc { "A" }
+
+            arity_zero_input = Class.new do
+              def readline
+                "exit"
+              end
+            end.new
+
+            lambda { Pry.start(self, :input => arity_zero_input, :output => Pry::NullOutput) }.should.not.raise Exception
+          end
+
+          it 'should not pass in the prompt if the arity is -1' do
+            Pry.prompt = proc { "A" }
+
+            arity_multi_input = Class.new do
+              attr_accessor :prompt
+              
+              def readline(*args)
+                @prompt = args.first
+                "exit"
+              end
+            end.new
+
+            Pry.start(self, :input => arity_multi_input, :output => Pry::NullOutput)
+            arity_multi_input.prompt.should == nil
+          end
+          
         end
 
         it 'should set the output default, and the default should be overridable' do
