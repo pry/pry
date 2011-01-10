@@ -30,7 +30,7 @@ describe Pry do
         input = InputTester.new(input_string)
         o = Object.new
 
-        pry_tester = Pry.new(:input => input, :output => Pry::NullOutput.new)
+        pry_tester = Pry.new(:input => input, :output => Pry::NullOutput)
         pry_tester.rep(o)
         o.instance_variable_get(:@x).should == 10
       end
@@ -39,7 +39,7 @@ describe Pry do
         o = Object.new
         str_output = StringIO.new
         
-        pry_tester = Pry.new(:input => InputTester.new("self"), :output => Pry::Output.new(str_output))
+        pry_tester = Pry.new(:input => InputTester.new("self"), :output => str_output)
         pry_tester.rep(o)
         str_output.string.should =~ /#{o.to_s}/
       end
@@ -48,13 +48,13 @@ describe Pry do
         o = Object.new
         str_output = StringIO.new
         
-        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => Pry::Output.new(str_output))
+        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => str_output)
         pry_tester.rep(o)
         str_output.string.should =~ /5/
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
-        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => Pry::NullOutput.new)
+        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => Pry::NullOutput)
         pry_tester.rep(Hello)
         Hello.const_defined?(:Nested).should == true
       end
@@ -68,7 +68,7 @@ describe Pry do
 
           o = Object.new
 
-          pry_tester = Pry.start(o, :input => input, :output => Pry::NullOutput.new)
+          pry_tester = Pry.start(o, :input => input, :output => Pry::NullOutput)
 
           o.instance_variable_get(:@x).should == 10
         end
@@ -78,26 +78,27 @@ describe Pry do
           str_output = StringIO.new
           o = Object.new
           
-          pry_tester = Pry.start(o, :input => input, :output => Pry::Output.new(str_output))
+          pry_tester = Pry.start(o, :input => input, :output => str_output)
           str_output.string.should =~ /Beginning.*#{o}/
           str_output.string.should =~ /Ending.*#{o}/
         end
       end
 
       describe "nesting" do
+        after do
+          Pry.reset_defaults
+        end
+        
         it 'should nest properly' do
           Pry.input = InputTester.new("pry", "pry", "pry", "\"nest:\#\{Pry.nesting.level\}\"", "exit_all")
 
           str_output = StringIO.new
-          Pry.output = Pry::Output.new(str_output)
+          Pry.output = str_output
 
           o = Object.new
 
           pry_tester = o.pry
           str_output.string.should =~ /nest:3/
-
-          Pry.input = Pry::Input.new
-          Pry.output = Pry::Output.new
         end
       end
 
@@ -109,7 +110,7 @@ describe Pry do
           pry_tester.commands = CommandTester.new
 
           str_output = StringIO.new
-          pry_tester.output = Pry::Output.new(str_output)
+          pry_tester.output = str_output
 
           pry_tester.rep
 
@@ -123,7 +124,7 @@ describe Pry do
           pry_tester.commands = CommandTester.new
 
           str_output = StringIO.new
-          pry_tester.output = Pry::Output.new(str_output)
+          pry_tester.output = str_output
 
           pry_tester.rep
 
@@ -141,7 +142,7 @@ describe Pry do
           Pry.input = InputTester.new("self", "exit")
 
           str_output = StringIO.new
-          Pry.output = Pry::Output.new(str_output)
+          Pry.output = str_output
 
           20.pry
 
@@ -152,7 +153,7 @@ describe Pry do
           Pry.input = InputTester.new("self", "exit")
 
           str_output = StringIO.new
-          Pry.output = Pry::Output.new(str_output)
+          Pry.output = str_output
 
           pry 20
           
@@ -160,7 +161,7 @@ describe Pry do
         end
 
         it "should error if more than one argument is passed to Object#pry" do
-          lambda { pry(20, :input => Pry::Input.new) }.should.raise ArgumentError
+          lambda { pry(20, :input => Readline) }.should.raise ArgumentError
         end
       end
 
@@ -184,7 +185,7 @@ describe Pry do
           Pry.input = InputTester.new("5")
 
           str_output = StringIO.new
-          Pry.output = Pry::Output.new(str_output)
+          Pry.output = str_output
           Pry.new.rep
           str_output.string.should =~ /5/
 
@@ -196,7 +197,7 @@ describe Pry do
           Pry.input = InputTester.new("5", "6", "7")
           
           str_output = StringIO.new
-          Pry.output = Pry::Output.new(str_output)
+          Pry.output = str_output
           
           Pry.new.rep
           str_output.string.should =~ /5/
@@ -205,7 +206,7 @@ describe Pry do
           str_output.string.should =~ /5\n.*6/
 
           str_output2 = StringIO.new
-          Pry.new(:output => Pry::Output.new(str_output2)).rep
+          Pry.new(:output => str_output2).rep
           str_output2.string.should.not =~ /5\n.*6/
           str_output2.string.should =~ /7/
         end
@@ -220,7 +221,7 @@ describe Pry do
           Pry.commands = commands
 
           str_output = StringIO.new
-          Pry.new(:input => InputTester.new("hello"), :output => Pry::Output.new(str_output)).rep
+          Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
           str_output.string.should =~ /hello world/
 
           commands = {
@@ -230,7 +231,7 @@ describe Pry do
           def commands.commands() self end
           str_output = StringIO.new
           
-          Pry.new(:input => InputTester.new("goodbye"), :output => Pry::Output.new(str_output), :commands => commands).rep
+          Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => commands).rep
           str_output.string.should =~ /goodbye world/
         end
 
@@ -303,14 +304,14 @@ describe Pry do
           }
           
           str_output = StringIO.new
-          Pry.new(:output => Pry::Output.new(str_output)).repl
+          Pry.new(:output => str_output).repl
           str_output.string.should =~ /HELLO/
           str_output.string.should =~ /BYE/
           
           Pry.input.rewind
 
           str_output = StringIO.new
-          Pry.new(:output => Pry::Output.new(str_output),
+          Pry.new(:output => str_output,
                   :hooks => {
                     :before_session => proc { |out,_| out.puts "MORNING" },
                     :after_session => proc { |out,_| out.puts "EVENING" }
@@ -323,7 +324,7 @@ describe Pry do
           # try below with just defining one hook
           Pry.input.rewind
           str_output = StringIO.new
-          Pry.new(:output => Pry::Output.new(str_output),
+          Pry.new(:output => str_output,
                   :hooks => {
                     :before_session => proc { |out,_| out.puts "OPEN" }
                   }
@@ -333,7 +334,7 @@ describe Pry do
 
           Pry.input.rewind
           str_output = StringIO.new
-          Pry.new(:output => Pry::Output.new(str_output),
+          Pry.new(:output => str_output,
                   :hooks => {
                     :after_session => proc { |out,_| out.puts "CLOSE" }
                   }

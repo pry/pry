@@ -83,7 +83,7 @@ class Pry
     
     exec_hook :after_session, output, target_self
 
-    # we only enter here if :breakout has been thrown
+    # keep throwing until we reach the desired nesting level
     if nesting_level != break_level
       throw :breakout, break_level 
     end
@@ -137,18 +137,11 @@ class Pry
   def r(target=TOPLEVEL_BINDING)
     target = binding_for(target)
     eval_string = ""
+
     loop do
+      current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
 
-      val = if input == Readline
-              input.readline(select_prompt(eval_string.empty?, target.eval('self')), true)
-            else
-              if input.method(:readline).arity == 1
-                input.readline(select_prompt(eval_string.empty?, target.eval('self')))
-              else
-                input.readline
-              end
-            end
-
+      val = readline(current_prompt)
       val.chomp!
 
       process_commands(val, eval_string, target)
@@ -187,6 +180,26 @@ class Pry
       action.call(options)
     end
   end
+
+  # Returns the next line of input to be used by the pry instance.
+  # This method should not need to be invoked directly.
+  # @param [String] current_prompt The prompt to use for input.
+  # @return [String] The next line of input.
+  def readline(current_prompt)
+
+    if input == Readline
+
+      # Readline must be treated differently
+      # as it has a second parameter.
+      input.readline(current_prompt, true)
+    else
+      if input.method(:readline).arity == 1
+        input.readline(current_prompt)
+      else
+        input.readline
+      end
+    end
+  end    
 
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.

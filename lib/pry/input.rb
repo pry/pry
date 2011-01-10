@@ -2,15 +2,6 @@ require 'readline'
 
 class Pry
 
-  # default input class - uses Readline.
-  class Input
-    trap('INT') { exit }
-    
-    def readline(prompt)
-      Readline.readline(prompt, true)
-    end
-  end
-
   # read from any IO-alike
   class IOInput
     def initialize(io)
