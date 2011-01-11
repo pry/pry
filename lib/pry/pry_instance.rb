@@ -179,7 +179,8 @@ class Pry
         :target => target,
         :val => val,
         :nesting => nesting,
-        :output => output
+        :output => output,
+        :command_info => commands.command_info
       }
 
       action.call(options)

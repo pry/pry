@@ -10,7 +10,6 @@ class Pry
     @commands = {}
     @command_info = {}
     
-    
     class Command
       Elements = [:name, :description, :pattern, :action]
       
@@ -32,9 +31,8 @@ class Pry
     def self.command(name, &block)
       c = Command.new
       c.name name
-      #      c.instance_eval(&block)
+
       c.instance_eval(&block)
-      
       check_command(c)
 
       commands.merge! c.get_pattern => c.get_action
@@ -42,20 +40,36 @@ class Pry
     end
 
     command "help" do
+      pattern /^help\s*(.+)?/
       description "This menu."
+
       action proc { |opts|
         out = opts[:output]
-        out.puts "Command list:"
-        out.puts "--"
-        opts[:command_info].each do |k, v|
-          puts "#{Array(k).first}".ljust(18) + v
+        command_info = opts[:command_info]
+        param = opts[:captures].first
+
+        puts opts[:captures].inspect
+
+        if !param
+          out.puts "Command list:"
+          out.puts "--"
+          command_info.each do |k, v|
+            puts "#{Array(k).first}".ljust(18) + v
+          end
+        else
+          key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
+          if key
+            out.puts command_info[key]
+          else
+            out.puts "No info for command: #{param}"
+          end
         end
+
+        opts[:val].clear
       }
     end
     
   end
-  
-  
 
   # Default commands used by Pry.
   # @note
