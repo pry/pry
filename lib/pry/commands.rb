@@ -1,5 +1,62 @@
 class Pry
 
+  class CommandBase
+
+    class << self
+      attr_accessor :commands
+      attr_accessor :command_info
+    end
+
+    @commands = {}
+    @command_info = {}
+    
+    
+    class Command
+      Elements = [:name, :description, :pattern, :action]
+      
+      Elements.each do |e|
+        define_method(e) { |s| instance_variable_set("@#{e}", s) }
+        define_method("get_#{e}") { instance_variable_get("@#{e}") }
+      end
+    end
+
+    def self.check_command(c)
+
+      c.pattern(c.get_name) if !c.get_pattern
+      
+      Command::Elements.each do |e|
+        raise "command has no #{e}!" if !c.send("get_#{e}")
+      end
+    end
+    
+    def self.command(name, &block)
+      c = Command.new
+      c.name name
+      #      c.instance_eval(&block)
+      c.instance_eval(&block)
+      
+      check_command(c)
+
+      commands.merge! c.get_pattern => c.get_action
+      command_info.merge! c.get_name => c.get_description
+    end
+
+    command "help" do
+      description "This menu."
+      action proc { |opts|
+        out = opts[:output]
+        out.puts "Command list:"
+        out.puts "--"
+        opts[:command_info].each do |k, v|
+          puts "#{Array(k).first}".ljust(18) + v
+        end
+      }
+    end
+    
+  end
+  
+  
+
   # Default commands used by Pry.
   # @note
   #   If you plan to replace the default Commands class with a custom
