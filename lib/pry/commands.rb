@@ -5,44 +5,29 @@ class Pry
   # Default commands used by Pry.
   # @note
   #   If you plan to replace the default Commands class with a custom
-  #   one then it must have a `commands` method that returns a Hash.
+  #   one then it must be a class that inherits from
+  #   `Pry::CommandBase` or from `Pry::Commands` (if you want to keep
+  #   default commands).
+  # @example Creating a custom command set
+  #   class MyCommands < Pry::CommandBase
+  #     command "greeting" do
+  #       describe "give a greeting"
+  #       action { puts "hello world!" }
+  #     end
+  #
+  #     command "goodbye" do
+  #       describe "say goodbye and quit"
+  #       action { puts "goodbye!"; exit }
+  #     end
+  #   end
+  #
+  #   Pry.commands = MyCommands
   class Commands < CommandBase
     
-    # This method returns a hash that defines the commands implemented for the REPL session.
-    # The hash has the following form:
-    # 
-    #   * Each key is a command, it should either be a String or a
-    #   Regexp or an Array.
-    #   * Where it is an Array, each element should be a String or a
-    #   Regexp, and the elements are considered to be aliases.
-    #   * Each value is the action to take for the command. The value
-    #   should be a `proc`.
-    #   * If the proc needs to generate output it should write to the
-    #   `opts[:output]` object, as follows: `opts[:output].puts "hello world"`
-    #   * When the proc is invoked it is passed parameters in the form
-    #   of an options hash, the parameters are as follows:
-    #   
-    #     * `opts[:val]` The current line of input.
-    #     * `opts[:eval_string]` The cumulative lines of input for a multi-line input.
-    #     * `opts[:target]` The receiver of the Pry session.
-    #     * `opts[:nesting]` The nesting level of the current Pry Session.
-    #     * `opts[:output]` The `output` object for the current Pry session.
-    #     * `opts[:captures]` The Regexp captures for the command (if
-    #       any) - This can be used to implement command parameters.
-    #       
-    # @return [Hash] The commands hash.
-    # @example A 'hello' command.
-    #     def commands
-    #       {
-    #         /^hello\s*(.+)/ => proc do |opts|
-    #           opts[:output].puts "hello #{opts[:captures].first}"
-    #       }
-    #     end
     command "!" do
       describe "Refresh the REPL"
       action do |opts|
         opts[:output].puts "Refreshed REPL"
-        
         opts[:eval_string].clear
       end
     end
@@ -51,7 +36,6 @@ class Pry
       describe "Start a Pry session on current self; this even works mid-expression."      
       action do |opts|
         Pry.start(opts[:target])
-        
       end
     end
 
@@ -76,8 +60,6 @@ class Pry
             out.puts "#{level}. #{Pry.view(obj)}"
           end
         end
-
-        
       end
     end
 

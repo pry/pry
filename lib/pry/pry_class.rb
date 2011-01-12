@@ -22,7 +22,7 @@ class Pry
     attr_accessor :active_instance
     
     # Get/Set the object to use for input by default by all Pry instances.
-    # @return [#read] The object to use for input by default by all
+    # @return [#readline] The object to use for input by default by all
     #   Pry instances.
     attr_accessor :input
 
@@ -32,7 +32,7 @@ class Pry
     attr_accessor :output
 
     # Get/Set the object to use for commands by default by all Pry instances.
-    # @return [#commands] The object to use for commands by default by all
+    # @return [Pry::CommandBase] The object to use for commands by default by all
     #   Pry instances.
     attr_accessor :commands
 
@@ -43,7 +43,6 @@ class Pry
     #   Pry instances.
     attr_accessor :print
 
-    
     # Get/Set the Hash that defines Pry hooks used by default by all Pry
     # instances.
     # @return [Hash] The hooks used by default by all Pry instances.
