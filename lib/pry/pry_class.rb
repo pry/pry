@@ -1,3 +1,5 @@
+require 'readline'
+
 # @author John Mair (banisterfiend)
 class Pry
 
@@ -83,7 +85,7 @@ class Pry
   def self.reset_defaults
     @input = Readline
     @output = $stdout
-    @commands = Commands.new
+    @commands = Commands
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS

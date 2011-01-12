@@ -1,81 +1,12 @@
+direc = File.dirname(__FILE__)
+require "#{direc}/command_base"
+
 class Pry
-
-  class CommandBase
-
-    class << self
-      attr_accessor :commands
-      attr_accessor :command_info
-    end
-
-    @commands = {}
-    @command_info = {}
-    
-    class Command
-      Elements = [:name, :description, :pattern, :action]
-      
-      Elements.each do |e|
-        define_method(e) { |s| instance_variable_set("@#{e}", s) }
-        define_method("get_#{e}") { instance_variable_get("@#{e}") }
-      end
-    end
-
-    def self.check_command(c)
-
-      c.pattern(c.get_name) if !c.get_pattern
-      
-      Command::Elements.each do |e|
-        raise "command has no #{e}!" if !c.send("get_#{e}")
-      end
-    end
-    
-    def self.command(name, &block)
-      c = Command.new
-      c.name name
-
-      c.instance_eval(&block)
-      check_command(c)
-
-      commands.merge! c.get_pattern => c.get_action
-      command_info.merge! c.get_name => c.get_description
-    end
-
-    command "help" do
-      pattern /^help\s*(.+)?/
-      description "This menu."
-
-      action proc { |opts|
-        out = opts[:output]
-        command_info = opts[:command_info]
-        param = opts[:captures].first
-
-        puts opts[:captures].inspect
-
-        if !param
-          out.puts "Command list:"
-          out.puts "--"
-          command_info.each do |k, v|
-            puts "#{Array(k).first}".ljust(18) + v
-          end
-        else
-          key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
-          if key
-            out.puts command_info[key]
-          else
-            out.puts "No info for command: #{param}"
-          end
-        end
-
-        opts[:val].clear
-      }
-    end
-    
-  end
-
   # Default commands used by Pry.
   # @note
   #   If you plan to replace the default Commands class with a custom
   #   one then it must have a `commands` method that returns a Hash.
-  class Commands
+  class Commands < CommandBase
     
     # This method returns a hash that defines the commands implemented for the REPL session.
     # The hash has the following form:
@@ -107,165 +38,183 @@ class Pry
     #           opts[:output].puts "hello #{opts[:captures].first}"
     #       }
     #     end
-    def commands
-      @commands ||= {
-        "!" => proc do |opts|
-          opts[:output].puts "Refreshed REPL"
-          opts[:val].clear
-          opts[:eval_string].clear
-        end,
-        "!pry" => proc do |opts|
-          Pry.start(opts[:target])
-          opts[:val].clear
-        end,
-        ["exit_program", "quit_program"] => proc do
-          exit
-        end,
-        /^help\s*(.+)?/ => proc do |opts|
-          param = opts[:captures].first
-          self.show_help(opts[:output], param)
-          opts[:val].clear
-        end,
-        "nesting" => proc do |opts|
-          self.show_nesting(opts[:output], opts[:nesting])
-          opts[:val].clear
-        end,
-        "status" => proc do |opts|
-          self.show_status(opts[:output], opts[:nesting], opts[:target])
-          opts[:val].clear
-        end,
-        "exit_all" => proc do
-          throw(:breakout, 0)
-        end,
-        ["exit", "quit", "back", /^cd\s*\.\./] => proc do |opts|
-          throw(:breakout, opts[:nesting].level)
-        end,
-        "ls" => proc do |opts|
-          opts[:output].puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
-          opts[:val].clear
-        end,
-        /^cat\s+(.+)/ => proc do |opts|
-          obj = opts[:captures].first
-          opts[:output].puts opts[:target].eval("#{obj}.inspect")
-          opts[:val].clear
-        end,
-        /^cd\s+(.+)/ => proc do |opts|
-          obj = opts[:captures].first
-
-          throw(:breakout, opts[:nesting].level) if obj == ".."
-          
-          opts[:target].eval("#{obj}.pry")
-          opts[:val].clear
-        end,
-        /^show_doc\s*(.+)/ => proc do |opts|
-          meth_name = opts[:captures].first
-          doc = opts[:target].eval("method(:#{meth_name})").comment
-          opts[:output].puts doc
-          opts[:val].clear
-        end,
-        /^show_idoc\s*(.+)/ => proc do |opts|
-          meth_name = opts[:captures].first
-          doc = opts[:target].eval("instance_method(:#{meth_name})").comment
-          opts[:val].clear
-        end,
-        /^show_method\s*(.+)/ => proc do |opts|
-          meth_name = opts[:captures].first
-          code = opts[:target].eval("method(:#{meth_name})").source
-          opts[:output].puts code
-          opts[:val].clear
-        end,
-        /^show_imethod\s*(.+)/ => proc do |opts|
-          meth_name = opts[:captures].first
-          code = opts[:target].eval("instance_method(:#{meth_name})").source
-          opts[:val].clear
-        end,
-        /^jump_to\s*(\d*)/ => proc do |opts|
-          break_level = opts[:captures].first.to_i
-          nesting = opts[:nesting]
-
-          case break_level
-          when nesting.level
-            opts[:output].puts "Already at nesting level #{nesting.level}"
-            opts[:val].clear
-          when (0...nesting.level)
-            throw(:breakout, break_level + 1)
-          else
-            max_nest_level = nesting.level - 1
-            opts[:output].puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
-            opts[:val].clear
-          end
-        end,
-        "ls_methods" => proc do |opts|
-          opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
-          opts[:val].clear
-        end,
-        "ls_imethods" => proc do |opts|
-          opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
-          opts[:val].clear
-        end
-      }
+    command "!" do
+      describe "Refresh the REPL"
+      action do |opts|
+        opts[:output].puts "Refreshed REPL"
+        
+        opts[:eval_string].clear
+      end
     end
 
-    def command_info
-      @command_info ||= {
-        "!" => "Refresh the REPL.",
-        "!pry" => "Start a Pry session on current self; this even works mid-expression.",
-        ["exit_program", "quit_program"] => "end the current program.",
-        "help" => "This menu.",
-        "nesting" => "Show nesting information.",
-        "status" => "Show status information.",
-        "exit_all" => "End all nested Pry sessions",
-        ["exit", "quit", "back", /cd\s*\.\./] => "End the current Pry session.",
-        "ls" => "Show the list of vars in the current scope.",
-        "cat" => "Show output of <var>.inspect",
-        "cd" => "Start a Pry session on <var> (use `cd ..` to go back)",
-        "show_doc" => "Show the comments above <methname>",
-        "show_idoc" => "Show the comments above instance method <methname>",
-        "show_method" => "Show sourcecode for method <methname>",
-        "show_imethod" => "Show sourcecode for instance method <methname>",
-        "jump_to" => "Jump to a Pry session further up the stack, exiting all sessions below.",
-        "ls_methods" => "List public methods defined on class of receiver.",
-        "ls_imethods" => "List public instance methods defined on receiver."
-      }
+    command "!pry" do
+      describe "Start a Pry session on current self; this even works mid-expression."      
+      action do |opts|
+        Pry.start(opts[:target])
+        
+      end
     end
 
-    def show_help(out, param)
-      if !param
-        out.puts "Command list:"
+    command ["exit_program", "quit_program"] do
+      describe "End the current program."
+      action { |opts| exit }
+    end
+
+    command "nesting" do
+      describe "Show nesting information."
+
+      action do |opts|
+        out = opts[:output]
+        nesting = opts[:nesting]
+        
+        out.puts "Nesting status:"
         out.puts "--"
-        command_info.each do |k, v|
-          puts "#{Array(k).first}".ljust(18) + v
+        nesting.each do |level, obj|
+          if level == 0
+            out.puts "#{level}. #{Pry.view(obj)} (Pry top level)"
+          else
+            out.puts "#{level}. #{Pry.view(obj)}"
+          end
         end
-      else
-        key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
-        if key
-          out.puts command_info[key]
+
+        
+      end
+    end
+
+    command "status" do
+      describe "Show status information."
+
+      action do |opts|
+        out = opts[:output]
+        nesting = opts[:nesting]
+        target = opts[:target]
+        
+        out.puts "Status:"
+        out.puts "--"
+        out.puts "Receiver: #{Pry.view(target.eval('self'))}"
+        out.puts "Nesting level: #{nesting.level}"
+        out.puts "Local variables: #{Pry.view(target.eval('local_variables'))}"
+        out.puts "Pry instance: #{Pry.active_instance}"
+        out.puts "Last result: #{Pry.view(Pry.last_result)}"
+      end
+    end
+
+    command "exit_all" do
+      describe "End all nested Pry sessions."
+      action { |opts| throw(:breakout, 0) }
+    end
+
+    command "ls" do
+      describe "Show the list of vars in the current scope."
+      action do |opts|
+        opts[:output].puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
+      end
+    end
+
+    command "cat" do
+      describe "Show output of <var>.inspect."
+      pattern /^cat\s+(.+)/
+      action do |opts|
+        out = opts[:output]
+        obj = opts[:captures].first
+
+        out.puts opts[:target].eval("#{obj}.inspect")
+      end
+    end
+    
+    command "cd" do
+      pattern /^cd\s+(.+)/
+      describe "Start a Pry session on <var> (use `cd ..` to go back)"
+
+      action do |opts|
+        obj = opts[:captures].first
+        throw(:breakout, opts[:nesting].level) if obj == ".."
+        opts[:target].eval("#{obj}.pry")
+      end
+    end
+
+    command "show_doc" do
+      pattern /^show_doc\s*(.+)/
+      describe "Show the comments above <methname>"
+      action do |opts|
+        meth_name = opts[:captures].first
+        doc = opts[:target].eval("method(:#{meth_name})").comment
+        opts[:output].puts doc
+      end
+    end
+
+    command "show_idoc" do
+      pattern /^show_idoc\s*(.+)/
+      describe "Show the comments above instance method <methname>"
+      action do |opts|
+        meth_name = opts[:captures].first
+        doc = opts[:target].eval("instance_method(:#{meth_name})").comment
+        opts[:output].puts doc
+      end
+    end
+
+    command "show_method" do
+      pattern /^show_method\s*(.+)/
+      describe "Show sourcecode for method <methname>."
+      action do |opts|
+        meth_name = opts[:captures].first
+        doc = opts[:target].eval("method(:#{meth_name})").source
+        opts[:output].puts doc
+      end
+    end
+
+    command "show_imethod" do
+      pattern /^show_imethod\s*(.+)/
+      describe "Show sourcecode for instance method <methname>."
+      action do |opts|
+        meth_name = opts[:captures].first
+        doc = opts[:target].eval("instance_method(:#{meth_name})").source
+        opts[:output].puts doc
+      end
+    end
+
+    command "jump_to" do
+      pattern /^jump_to\s*(\d*)/
+
+      describe "Jump to a Pry session further up the stack, exiting all sessions below."
+      
+      action do |opts|
+        break_level = opts[:captures].first.to_i
+        nesting = opts[:nesting]
+
+        case break_level
+        when nesting.level
+          opts[:output].puts "Already at nesting level #{nesting.level}"
+        when (0...nesting.level)
+          throw(:breakout, break_level + 1)
         else
-          out.puts "No info for command: #{param}"
+          max_nest_level = nesting.level - 1
+          opts[:output].puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
         end
       end
     end
 
-    def show_nesting(out, nesting)
-      out.puts "Nesting status:"
-      out.puts "--"
-      nesting.each do |level, obj|
-        if level == 0
-          out.puts "#{level}. #{Pry.view(obj)} (Pry top level)"
-        else
-          out.puts "#{level}. #{Pry.view(obj)}"
-        end
+    command "ls_methods" do
+      describe "List public methods defined on class of receiver."
+      
+      action do |opts|
+        opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
       end
     end
 
-    def show_status(out, nesting, target)
-      out.puts "Status:"
-      out.puts "--"
-      out.puts "Receiver: #{Pry.view(target.eval('self'))}"
-      out.puts "Nesting level: #{nesting.level}"
-      out.puts "Local variables: #{Pry.view(target.eval('local_variables'))}"
-      out.puts "Pry instance: #{Pry.active_instance}"
-      out.puts "Last result: #{Pry.view(Pry.last_result)}"
+    command "ls_imethods" do
+      describe "List public instance methods defined on class of receiver."
+      
+      action do |opts|
+        opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
+      end
+    end
+
+    command ["exit", "quit", "back"] do
+      describe "End the current Pry session."
+      action do |opts|
+         throw(:breakout, opts[:nesting].level)
+      end
     end
   end
 end

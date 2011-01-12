@@ -1,3 +1,5 @@
+require 'readline'
+
 class Pry
 
   # The list of configuration options.
@@ -10,7 +12,7 @@ class Pry
   # @param [Hash] options The optional configuration parameters.
   # @option options [#read] :input The object to use for input. (see input.rb)
   # @option options [#puts] :output The object to use for output. (see output.rb)
-  # @option options [#commands] :commands The object to use for 
+  # @option options [Pry::CommandBase] :commands The object to use for 
   #   commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
   # @option options [Array<Proc>] :default_prompt The array of Procs
@@ -110,7 +112,6 @@ class Pry
   def re(target=TOPLEVEL_BINDING)
     target = binding_for(target)
 
-    # FIXME!!!!!!!! Should not hardcode command_info in here!
     if input == Readline
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, Pry.commands.command_info.keys.flatten)
     end
@@ -167,6 +168,7 @@ class Pry
   # @param [Binding] target The receiver of the commands.
   def process_commands(val, eval_string, target)
     def val.clear() replace("") end
+    def eval_string.clear() replace("") end
 
     pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
 
@@ -184,6 +186,7 @@ class Pry
       }
 
       action.call(options)
+      val.clear
     end
   end
 
@@ -191,7 +194,7 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
-  def readline(current_prompt)
+  def readline(current_prompt="> ")
 
     if input == Readline
 

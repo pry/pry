@@ -1,9 +1,15 @@
-# stolen from irb
+# taken from irb
 
 require "readline"
 
 class Pry
   module InputCompleter
+    
+    if Readline.respond_to?("basic_word_break_characters=")
+      Readline.basic_word_break_characters= " \t\n\"\\'`><=;|&{("
+    end
+
+    Readline.completion_append_character = nil
 
     ReservedWords = [
                      "BEGIN", "END",
@@ -30,7 +36,7 @@ class Pry
                  "[]", "[]=", "^", "!", "!=", "!~"]
 
     def self.build_completion_proc(target, commands=[""])
-      proc { |input|
+      proc do |input|
         bind = target
 
         case input
@@ -75,7 +81,6 @@ class Pry
           candidates = Object.constants.collect{|m| m.to_s}
           candidates.grep(/^#{receiver}/).collect{|e| "::" + e}
 
-          #      when /^(((::)?[A-Z][^:.\(]*)+)::?([^:.]*)$/
         when /^([A-Z].*)::([^:.]*)$/
           # Constant or class methods
           receiver = $1
@@ -124,8 +129,6 @@ class Pry
           regmessage = Regexp.new(Regexp.quote($1))
           candidates = global_variables.collect{|m| m.to_s}.grep(regmessage)
 
-          #      when /^(\$?(\.?[^.]+)+)\.([^.]*)$/
-          #      when /^((\.?[^.]+)+)\.([^.]*)$/
         when /^([^."].*)\.([^.]*)$/
           # variable
           receiver = $1
@@ -175,10 +178,8 @@ class Pry
 
           (candidates|ReservedWords|commands).grep(/^#{Regexp.quote(input)}/)
         end
-      }
+      end
     end
-
-    
 
     def self.select_message(receiver, message, candidates)
       candidates.grep(/^#{message}/).collect do |e|
@@ -194,7 +195,3 @@ class Pry
   end
 end
 
-if Readline.respond_to?("basic_word_break_characters=")
-  Readline.basic_word_break_characters= " \t\n\"\\'`><=;|&{("
-end
-Readline.completion_append_character = nil

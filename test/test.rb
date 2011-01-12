@@ -5,8 +5,6 @@ require 'bacon'
 require "#{direc}/../lib/pry"
 require "#{direc}/test_helper"
 
-NOT_FOR_RUBY_18 = [/show_doc/, /show_idoc/, /show_method/, /show_imethod/]
-
 puts "Ruby Version #{RUBY_VERSION}"
 puts "Testing Pry #{Pry::VERSION}"
 puts "With method_source version #{MethodSource::VERSION}"
@@ -105,9 +103,9 @@ describe Pry do
       describe "commands" do
         it 'should run command1' do
           pry_tester = Pry.new
-          pry_tester.commands = CommandTester.new
+          pry_tester.commands = CommandTester
           pry_tester.input = InputTester.new("command1", "exit_all")
-          pry_tester.commands = CommandTester.new
+          pry_tester.commands = CommandTester
 
           str_output = StringIO.new
           pry_tester.output = str_output
@@ -119,9 +117,9 @@ describe Pry do
 
         it 'should run command2' do
           pry_tester = Pry.new
-          pry_tester.commands = CommandTester.new
+          pry_tester.commands = CommandTester
           pry_tester.input = InputTester.new("command2 horsey", "exit_all")
-          pry_tester.commands = CommandTester.new
+          pry_tester.commands = CommandTester
 
           str_output = StringIO.new
           pry_tester.output = str_output
@@ -262,30 +260,68 @@ describe Pry do
           str_output2.string.should =~ /7/
         end
 
-        it 'should set the commands default, and the default should be overridable' do
-          commands = {
-            "hello" => proc { |opts| opts[:output].puts "hello world"; opts[:val].clear }
-          }
-
-          def commands.commands() self end
-
-          Pry.commands = commands
-
-          str_output = StringIO.new
-          Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
-          str_output.string.should =~ /hello world/
-
-          commands = {
-            "goodbye" => proc { |opts| opts[:output].puts "goodbye world"; opts[:val].clear }
-          }
-
-          def commands.commands() self end
-          str_output = StringIO.new
+        describe "commands" do
           
-          Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => commands).rep
-          str_output.string.should =~ /goodbye world/
-        end
+          it 'should set the commands default, and the default should be overridable' do
+            class Command0 < Pry::CommandBase
+              command "hello" do
+                describe ""
+                action { |opts| opts[:output].puts "hello world"; opts[:val].clear }
+              end
+            end
 
+            Pry.commands = Command0
+
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
+            str_output.string.should =~ /hello world/
+
+            class Command1 < Pry::CommandBase
+              command "goodbye" do
+                describe ""
+                action { |opts| opts[:output].puts "goodbye world"; opts[:val].clear }
+              end
+            end
+
+            str_output = StringIO.new
+            
+            Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => Command1).rep
+            str_output.string.should =~ /goodbye world/
+
+            Object.remove_const(:Command0)
+            Object.remove_const(:Command1)
+          end
+
+          it 'should inherit "help" command from Pry::CommandBase' do
+            class Command2 < Pry::CommandBase
+              command "h" do |v|
+                v.describe "h command"
+                v.action { }
+              end
+            end
+
+            Command2.commands.keys.size.should == 2
+            Command2.command_info.keys.include?("help").should == true
+            Command2.command_info.keys.include?("h").should == true
+
+            Object.remove_const(:Command2)
+          end
+
+          it 'should inherit comands from Pry::Commands' do
+            class Command3 < Pry::Commands
+              command "v" do
+                action {}
+              end
+            end
+
+            Command3.command_info.include?("nesting").should == true
+            Command3.command_info.include?("jump_to").should == true
+            Command3.command_info.include?("cd").should == true
+            Command3.command_info.include?("v").should == true
+
+            Object.remove_const(:Command3)
+          end
+        end
 
         it "should set the print default, and the default should be overridable" do
           new_print = proc { |out, value| out.puts value }
