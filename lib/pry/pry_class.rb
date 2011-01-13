@@ -20,7 +20,7 @@ class Pry
     # This method should not need to be accessed directly.
     # @return [Pry] The active Pry instance.
     attr_accessor :active_instance
-    
+
     # Get/Set the object to use for input by default by all Pry instances.
     # @return [#readline] The object to use for input by default by all
     #   Pry instances.
@@ -57,6 +57,7 @@ class Pry
     #   prompts by default by all Pry instances.
     attr_accessor :prompt
   end
+  
   # Start a Pry REPL.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
@@ -95,5 +96,12 @@ class Pry
   @nesting = []
   def @nesting.level
     last.is_a?(Array) ? last.first : nil
+  end
+
+  # Return all active Pry sessions.
+  # @return [Array<Pry>] Active Pry sessions.
+  def self.sessions
+    # last element in nesting array is the pry instance
+    nesting.map(&:last)
   end
 end

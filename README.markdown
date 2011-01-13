@@ -16,7 +16,7 @@ commands such as `show_method` and `jump_to`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
 
-Example: Interacting with an object at runtime 
+Example: Interacting with an object at runtime
 ---------------------------------------
 
 With the `Object#pry` method we can pry (open an irb-like session) on
@@ -24,7 +24,7 @@ an object. In the example below we open a Pry session for the `Test` class and e
 an instance variable. The current thread is halted for the duration of the session.
 
     require 'pry'
-    
+
     class Test
       def self.hello() "hello world" end
     end
@@ -54,13 +54,13 @@ effect:
 You can also use the `Pry.start(obj)` or `pry(obj)` syntax to start a pry session on
 `obj`. e.g
 
-    Pry.start 5
+    Pry.start(5)
     Beginning Pry session for 5
     pry(5)>
 
 OR
 
-    pry 6
+    pry(6)
     beginning Pry session for 6
     pry(6)>
 
@@ -103,7 +103,7 @@ command. E.g
     2. 100
     3. "friend"
     => nil
-    
+
 We can then jump back to any of the previous nesting levels by using
 the `jump_to` command:
 
@@ -113,7 +113,7 @@ the `jump_to` command:
     => 100
     pry(Hello):1>
 
-If we just want to go back one level of nesting we can of course 
+If we just want to go back one level of nesting we can of course
 use the `quit` or `exit` or `back` commands.
 
 To break out of all levels of Pry nesting and return immediately to the
@@ -125,7 +125,7 @@ calling process use `exit_all`:
     Ending Pry session for Hello
     Ending Pry session for main
     => main
-    
+
     # program resumes here
 
 Features and limitations
@@ -167,7 +167,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
   see [ripl](https://github.com/cldwalker/ripl)
 * Pry's `show_method` and `show_doc` commands do not work
   in Ruby 1.8.
- 
+
 Commands
 -----------
 
@@ -196,7 +196,7 @@ that is a hash of configuration options (discussed further, below).
 * If, for some reason you do not want to 'loop' then use `Pry.new.rep()`; it
 only performs the Read-Eval-Print section of the REPL - it ends the
 session after just one line of input. It takes the same parameters as
-`Pry#repl()` 
+`Pry#repl()`
 * Likewise `Pry#re()` only performs the Read-Eval section of the REPL,
 it returns the result of the evaluation or an Exception object in
 case of error. It also takes the same parameters as `Pry#repl()`
@@ -262,8 +262,8 @@ are:
 
 Local customization (applied to a single Pry session) is done by
 passing config hash options to `Pry.start()` or to `Pry.new()`; also the
-same accessors as described above for the `Pry` class also exist for a
-Pry instance.
+same accessors as described above for the `Pry` class exist for a
+Pry instance so that customization can occur during runtime.
 
 ### Input:
 
@@ -278,7 +278,7 @@ this input by default:
 
     Pry.input = StringIO.new("@x = 10\nexit")
     Object.pry
-    
+
     Object.instance_variable_get(:@x) #=> 10
 
 The above will execute the code in the `StringIO`
@@ -291,18 +291,25 @@ session will hang as it loops indefinitely awaiting new input.
 
 The settings for a specific session override the global settings
 (discussed above). There are two ways to set input for a specific pry session: At the
-point the session is started, or within the session itself:
+point the session is started, or within the session itself (at runtime):
 
-Here is the first case:
+##### At session start
 
     Pry.start(Object, :input => StringIO.new("@x = 10\nexit"))
     Object.instance_variable_get(:@x) #=> 10
+
+##### At runtime
 
 If you want to set the input object within the session itself you use
 the special `_pry_` local variable which represents the Pry instance
 managing the current session; inside the session we type:
 
     _pry_.input = StringIO.new("@x = 10\nexit")
+
+Note we can also set the input object for the parent Pry session (if
+the current session is nested) like so:
+
+    _pry_.parent.input = StringIO.new("@x = 10\nexit")
 
 ### Output
 
@@ -317,27 +324,27 @@ this output by default:
 
     Pry.output = StringIO.new
     Object.pry
-    
+
     Object.instance_variable_get(:@x) #=> 10
 
 #### Example: Setting output for a specific session
 
 As per Input, given above, we set the local output as follows:
 
-Here is the first case:
+##### At session start
 
     Pry.start(Object, :output => StringIO.new("@x = 10\nexit"))
     Object.instance_variable_get(:@x) #=> 10
 
-And to change output from within the session itself:
-
+##### At runtime
+    
     _pry_.output = StringIO.new
 
 ### Commands
 
 Pry commands are not methods; they are commands that are intercepted
 and executed before a Ruby eval takes place. Pry comes with a default
-command set, but these commands can be augmented or overriden by
+command set (`Pry::Commands`), but these commands can be augmented or overriden by
 user-specified ones.
 
 A valid Pry command object must inherit from
@@ -359,7 +366,7 @@ A valid Pry command object must inherit from
 
 Then inside a pry session:
 
-    (pry)> hello john
+    pry(main)> hello john
     hello john!
     => nil
 
@@ -367,12 +374,12 @@ Then inside a pry session:
 
 As in the case of `input` and `output`:
 
-At session start:
+##### At session start:
 
     Pry.start(self, :commands => MyCommands)
 
-From within the session:    
-    
+##### At runtime:
+
     _pry_.commands = MyCommands
 
 #### The command API
@@ -415,8 +422,51 @@ for you. Typing `help` in a Pry session will show a list of commands
 to the user followed by their descriptions. Passing a parameter to
 `help` with the command name will just return the description of that specific command.
 
+### Hooks
 
+Currently Pry supports just two hooks: `before_session` and
+`after_session`. These hooks are invoked before a Pry session starts
+and after a session ends respectively. The default hooks used are
+stored in the `Pry::DEFAULT_HOOKS` and just output the text `"Beginning
+Pry session for <obj>"` and `"Ending Pry session for <obj>"`.
 
+#### Example: Setting global hooks
+
+All subsequent Pry instances will use these hooks as default:
+
+    Pry.hooks = {
+      :before_session => proc { |out, obj| out.puts "Opened #{obj}" },
+      :after_session => proc { |out, obj| out.puts "Closed #{obj}" }
+    }
+
+    5.pry
+
+Inside the session:
+
+    Opened 5
+    pry(5)> exit
+    Closed 5
+
+Note that the `before_session` and `after_session` procs receive the
+current session's output object and session receiver as parameters.
+
+#### Example: Setting hooks for a specific session
+
+Like all the other customization options, the global default (as
+explained above) can be overriden for a specific session, either at
+session start or during runtime.
+
+##### At session start
+
+    Pry.start(self, :hooks => { :before_session => proc { puts "hello world!" },
+                                :after_session => proc { puts "goodbye world!" }
+                              })
+
+##### At runtime
+
+    _pry_.hooks = { :before_session => proc { puts "puts "hello world!" } }
+    
+    
 Contact
 -------
 

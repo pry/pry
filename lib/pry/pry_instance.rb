@@ -12,7 +12,7 @@ class Pry
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input. (see input.rb)
   # @option options [#puts] :output The object to use for output. (see output.rb)
-  # @option options [Pry::CommandBase] :commands The object to use for 
+  # @option options [Pry::CommandBase] :commands The object to use for
   #   commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
   # @option options [Array<Proc>] :default_prompt The array of Procs
@@ -45,13 +45,25 @@ class Pry
     self.class.nesting = v
   end
 
+  # Return parent of current Pry session.
+  # @return [Pry] The parent of the current Pry session.
+  def parent
+    idx = Pry.sessions.index(self)
+
+    if idx > 0
+      Pry.sessions[idx - 1]
+    else
+      nil
+    end
+  end
+
   # Execute the hook `hook_name`, if it is defined.
   # @param [Symbol] hook_name The hook to execute
   # @param [Array] args The arguments to pass to the hook.
   def exec_hook(hook_name, *args, &block)
     hooks[hook_name].call(*args, &block) if hooks[hook_name]
   end
-  
+
   # Start a read-eval-print-loop.
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the Pry session
@@ -63,7 +75,7 @@ class Pry
     target_self = target.eval('self')
 
     exec_hook :before_session, output, target_self
-    
+
     # cannot rely on nesting.level as
     # nesting.level changes with new sessions
     nesting_level = nesting.size
@@ -73,26 +85,26 @@ class Pry
     # Make sure special locals exist
     target.eval("_pry_ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
-    
+
     break_level = catch(:breakout) do
-      nesting.push [nesting.size, target_self]
+      nesting.push [nesting.size, target_self, self]
       loop do
-        rep(target) 
+        rep(target)
       end
     end
 
     nesting.pop
-    
+
     exec_hook :after_session, output, target_self
 
     # keep throwing until we reach the desired nesting level
     if nesting_level != break_level
-      throw :breakout, break_level 
+      throw :breakout, break_level
     end
-    
+
     target_self
   end
-  
+
   # Perform a read-eval-print.
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the read-eval-print
@@ -152,11 +164,11 @@ class Pry
 
       process_commands(val, eval_string, target)
       eval_string << "#{val}\n"
-      
+
       break eval_string if valid_expression?(eval_string)
     end
   end
-  
+
   # Process Pry commands. Pry commands are not Ruby methods and are evaluated
   # prior to Ruby expressions.
   # Commands can be modified/configured by the user: see `Pry::Commands`
@@ -174,7 +186,7 @@ class Pry
 
     if pattern
       last_match = Regexp.last_match
-      
+
       options = {
         :captures => last_match ? last_match.captures : nil,
         :eval_string => eval_string,
@@ -208,7 +220,7 @@ class Pry
         input.readline
       end
     end
-  end    
+  end
 
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
@@ -217,7 +229,7 @@ class Pry
   # @param [Object] target_self The receiver of the Pry session.
   # @return [String] The prompt.
   def select_prompt(first_line, target_self)
-    
+
     if first_line
       Array(prompt).first.call(target_self, nesting.level)
     else
@@ -238,10 +250,10 @@ class Pry
     def valid_expression?(code)
       !!Ripper::SexpBuilder.new(code).parse
     end
-    
+
   else
     require 'ruby_parser'
-    
+
     # Determine if a string of code is a valid Ruby expression.
     # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
     # @param [String] code The code to validate.
@@ -257,7 +269,7 @@ class Pry
       true
     end
   end
-  
+
   # Return a `Binding` object for `target` or return `target` if it is
   # already a `Binding`.
   # In the case where `target` is top-level then return `TOPLEVEL_BINDING`
