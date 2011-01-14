@@ -1,18 +1,18 @@
 class Pry
   DEFAULT_PROMPT = [
-                    proc do |v, nest|
+                    proc do |target_self, nest_level|
                       if nest == 0
-                        "pry(#{Pry.view(v)})> "
+                        "pry(#{Pry.view(target_self)})> "
                       else
-                        "pry(#{Pry.view(v)}):#{Pry.view(nest)}> "
+                        "pry(#{Pry.view(target_self)}):#{Pry.view(nest_level)}> "
                       end
                     end,
                     
-                    proc do |v, nest|
+                    proc do |target_self, nest_level|
                       if nest == 0
-                        "pry(#{Pry.view(v)})* "
+                        "pry(#{Pry.view(target_self)})* "
                       else
-                        "pry(#{Pry.view(v)}):#{Pry.view(nest)}* "
+                        "pry(#{Pry.view(target_self)}):#{Pry.view(nest_level)}* "
                       end
                     end
                    ]

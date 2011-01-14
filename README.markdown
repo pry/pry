@@ -465,7 +465,95 @@ session start or during runtime.
 ##### At runtime
 
     _pry_.hooks = { :before_session => proc { puts "puts "hello world!" } }
-    
+
+### Prompts
+
+The Pry prompt is used by `Readline` and other input objects that
+accept a prompt. Pry can accept two prompt-types for every prompt; the
+'main prompt' and the 'wait prompt'. The main prompt is always used
+for the first line of input; the wait prompt is used in multi-line
+input to indicate that the current expression is incomplete and more lines of
+input are required. The default Prompt used by Pry is stored in the
+`Pry::DEFAULT_PROMPT` constant.
+
+A valid Pry prompt is a either a single `Proc` object or a two element
+array of `Proc` objects. When an array is used the first element is
+the 'main prompt' and the last element is the 'wait prompt'. When a
+single `Proc` object is used it will be used for both the main prompt
+and the wait prompt.
+
+#### Example: Setting global prompt
+
+The prompt `Proc` objects are passed the receiver of the Pry session
+and the nesting level of that session as parameters (they can simply
+ignore these if they do not need them).
+
+    # Using one proc for both main and wait prompts
+    Pry.prompt = proc { |obj, nest_level| "#{obj}:#{nest_level}> " }
+
+    # Alternatively, provide two procs; one for main and one for wait
+    Pry.prompt = [ proc { "ENTER INPUT> " }, proc { "MORE INPUT REQUIRED!* " }]
+
+#### Example: Setting the prompt for a specific session
+
+##### At session start
+
+    Pry.start(self, :prompt => [proc { "ENTER INPUT> " },
+                                proc { "MORE INPUT REQUIRED!* " }])
+
+##### At runtime
+
+    _pry_.prompt = [proc { "ENTER INPUT> " },
+                    proc { "MORE INPUT REQUIRED!* " }]
+
+### Print
+
+The Print phase of Pry's READ-EVAL-PRINT-LOOP can be customized. The
+default action is stored in the `Pry::DEFAULT_PRINT` constant and it
+simply outputs the value of the current expression preceded by a `=>` (or the first
+line of the backtrace if the value is an `Exception` object.)
+
+The print object should be a `Proc` and the parameters passed to the
+`Proc` are the output object for the current session and the 'value'
+returned by the current expression.
+
+#### Example: Setting global prompt
+
+Let's define a print object that displays the full backtrace of any
+exception and precedes the output of a value by the text `"Output is: "`:
+
+    Pry.print = proc do |output, value|
+                  case value
+                  when Exception
+                    output.puts value.backtrace
+                  else
+                    output.puts "Output is: #{value}"
+                  end
+                end
+
+#### Example: Setting the prompt for a specific session
+
+##### At session start
+
+    Pry.start(self, :print => proc do |output, value|
+                                case value
+                                when Exception
+                                  output.puts value.backtrace
+                                else
+                                  output.puts "Output is: #{value.inspect}"
+                                end
+                              end
+
+##### At runtime
+
+    _pry_.print =  proc do |output, value|
+                     case value
+                     when Exception
+                       output.puts value.backtrace
+                     else
+                       output.puts "Output is: #{value.inspect}"
+                     end
+                   end
     
 Contact
 -------

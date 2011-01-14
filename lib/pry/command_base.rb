@@ -37,7 +37,7 @@ class Pry
     # Defines a new Pry command.
     # @param [String, Array] name The name of the command (or array of
     #   command name aliases).
-    # @yield [command] The command block. Optionall yields command if
+    # @yield [command] The command block. Optionally yields command if
     #   block arity is 1. Otherwise block is instance_eval'd.
     def self.command(name, &block)
       @commands ||= {}
@@ -87,8 +87,8 @@ class Pry
     end    
 
     def self.inherited(klass)
-      klass.commands = @commands.dup
-      klass.command_info = @command_info.dup
+      klass.commands = commands.dup
+      klass.command_info = command_info.dup
     end
   end
 end
