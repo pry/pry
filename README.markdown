@@ -151,7 +151,7 @@ end.
 `jump_to`, `ls`, `cd`, `cat`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
-* Pry supports significant customizability.
+* Pry allows significant customizability.
 * Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
 validate expressions in 1.8, and [Ripper](http://rdoc.info/docs/ruby-core/1.9.2/Ripper) for 1.9.
 * Pry implements all the methods in the REPL chain separately: `Pry#r`
@@ -323,9 +323,6 @@ Setting Pry's global output causes all subsequent Pry instances to use
 this output by default:
 
     Pry.output = StringIO.new
-    Object.pry
-
-    Object.instance_variable_get(:@x) #=> 10
 
 #### Example: Setting output for a specific session
 
@@ -334,7 +331,6 @@ As per Input, given above, we set the local output as follows:
 ##### At session start
 
     Pry.start(Object, :output => StringIO.new("@x = 10\nexit"))
-    Object.instance_variable_get(:@x) #=> 10
 
 ##### At runtime
     
