@@ -261,12 +261,11 @@ describe Pry do
         end
 
         describe "commands" do
-          
           it 'should set the commands default, and the default should be overridable' do
             class Command0 < Pry::CommandBase
               command "hello" do
-                describe ""
-                action { |opts| opts[:output].puts "hello world"; opts[:val].clear }
+                opts[:output].puts "hello world"
+                opts[:val].clear 
               end
             end
 
@@ -277,9 +276,9 @@ describe Pry do
             str_output.string.should =~ /hello world/
 
             class Command1 < Pry::CommandBase
-              command "goodbye" do
-                describe ""
-                action { |opts| opts[:output].puts "goodbye world"; opts[:val].clear }
+              command "goodbye", "" do
+                opts[:output].puts "goodbye world"
+                opts[:val].clear 
               end
             end
 
@@ -294,9 +293,7 @@ describe Pry do
 
           it 'should inherit "help" command from Pry::CommandBase' do
             class Command2 < Pry::CommandBase
-              command "h" do |v|
-                v.describe "h command"
-                v.action { }
+              command "h", "h command" do
               end
             end
 
@@ -310,7 +307,6 @@ describe Pry do
           it 'should inherit comands from Pry::Commands' do
             class Command3 < Pry::Commands
               command "v" do
-                action {}
               end
             end
 

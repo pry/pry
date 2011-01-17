@@ -185,10 +185,11 @@ class Pry
     pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
 
     if pattern
-      last_match = Regexp.last_match
-
+      captures = Regexp.last_match.captures
+      captures.compact!
+      
       options = {
-        :captures => last_match ? last_match.captures : nil,
+        :captures => captures,
         :eval_string => eval_string,
         :target => target,
         :val => val,
@@ -197,7 +198,12 @@ class Pry
         :command_info => commands.command_info
       }
 
-      action.call(options)
+      # because procs are defined in different places (e.g 'help' in CommandBase)
+      # we cannot simply use `commands.opts=...`
+      action_self = action.binding.eval('self')
+      action_self.opts = options
+
+      action.call(*captures)
       val.clear
     end
   end
