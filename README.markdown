@@ -349,12 +349,8 @@ A valid Pry command object must inherit from
 #### Example: Defining a command object and setting it globally
 
     class MyCommands < Pry::CommandBase
-      command "hello" do
-        pattern /^hello\s*(.+)/
-        describe "Output hello to the user."
-        action do |opts|
-          opts[:output].puts "hello #{opts[:captures].first}!"
-        end
+      command "hello", "Output hello to the user." do |name|
+        opts[:output].puts "hello #{name}!"
       end
     end
 
@@ -384,20 +380,31 @@ The command API is defined by the `Pry::CommandBase` class (hence why
 all commands must inherit from it). The API works as follows:
 
 The `command` method defines a new command, its parameter is the
-name of the command. The block associated with `command` supports the
-following methods, and defines the substance of the command:
+name of the command and an optional second parameter is a description of
+the command.
 
-* `describe(str)` - Used to describe the functionality of the command;
-  used with `help`.
-* `action(&block)` - Defines the action to perform when the command is invoked.
-* `pattern(regex)` - If `pattern` is used then the command shall be
-  invoked if user input matches this pattern (rather than just the
-  command name). Any captures defined in the pattern can be accessed
-  in the action block through the `opts[:captures]` hash parameter.
+The associated block defines the action to be performed. The number of
+parameters in the block determine the number of parameters that will
+be sent to the command (from the Pry prompt) when it is invoked. Note
+that all parameters that are received will be strings; if a parameter
+is not received it will be set to `nil`.
+
+    command "hello" do |x, y, z|
+      puts "hello there #{x}, #{y}, and #{z}!"
+    end
+
+Command aliases can also be defined - simply use an array of strings
+for the command name - all these strings will be valid names for the
+command.
+
+    command ["ls", "dir"], "show a list of local vars" do
+      opts[:output].puts opts[:target].eval("local_variables")
+    end
+
 
 #### action block parameters
 
-Note that in the example we are using `opts[:output]` for output; this is the output
+Note that in the example above we are using `opts[:output]` for output; this is the output
 object in use by the current pry session. Other hash values accesible
 within an `action` block include:
 
@@ -416,7 +423,8 @@ within an `action` block include:
 The `Pry::CommandBase` class automatically defines a `help` command
 for you. Typing `help` in a Pry session will show a list of commands
 to the user followed by their descriptions. Passing a parameter to
-`help` with the command name will just return the description of that specific command.
+`help` with the command name will just return the description of that
+specific command.
 
 ### Hooks
 
@@ -472,7 +480,7 @@ input to indicate that the current expression is incomplete and more lines of
 input are required. The default Prompt used by Pry is stored in the
 `Pry::DEFAULT_PROMPT` constant.
 
-A valid Pry prompt is a either a single `Proc` object or a two element
+A valid Pry prompt is either a single `Proc` object or a two element
 array of `Proc` objects. When an array is used the first element is
 the 'main prompt' and the last element is the 'wait prompt'. When a
 single `Proc` object is used it will be used for both the main prompt
@@ -538,7 +546,7 @@ exception and precedes the output of a value by the text `"Output is: "`:
                                 else
                                   output.puts "Output is: #{value.inspect}"
                                 end
-                              end
+                              end)
 
 ##### At runtime
 
