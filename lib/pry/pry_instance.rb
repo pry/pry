@@ -199,7 +199,9 @@ class Pry
       }
 
       # because procs are defined in different places (e.g 'help' in CommandBase)
-      # we cannot simply use `commands.opts=...`
+      # we cannot simply use `commands.opts=...`; instead we have to
+      # retrieve the object where the block was defined; since that is
+      # the `opts` method that the block will have access to.
       action_self = action.binding.eval('self')
       action_self.opts = options
 

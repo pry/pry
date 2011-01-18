@@ -2,26 +2,8 @@ direc = File.dirname(__FILE__)
 require "#{direc}/command_base"
 
 class Pry
+
   # Default commands used by Pry.
-  # @note
-  #   If you plan to replace the default Commands class with a custom
-  #   one then it must be a class that inherits from
-  #   `Pry::CommandBase` or from `Pry::Commands` (if you want to keep
-  #   default commands).
-  # @example Creating a custom command set
-  #   class MyCommands < Pry::CommandBase
-  #     command "greeting" do
-  #       describe "give a greeting"
-  #       action { puts "hello world!" }
-  #     end
-  #
-  #     command "goodbye" do
-  #       describe "say goodbye and quit"
-  #       action { puts "goodbye!"; exit }
-  #     end
-  #   end
-  #
-  #   Pry.commands = MyCommands
   class Commands < CommandBase
     
     command "!", "Refresh the REPL" do

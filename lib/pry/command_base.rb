@@ -16,8 +16,24 @@ class Pry
       # Defines a new Pry command.
       # @param [String, Array] name The name of the command (or array of
       #   command name aliases).
-      # @yield [command] The action to perform. The parameters in the block
-      #   determines the parameters the command will receive.
+      # @param [String] description A description of the command.
+      # @yield The action to perform. The parameters in the block
+      #   determines the parameters the command will receive. All
+      #   parameters passed into the block will be strings. Successive
+      #   command parameters are separated by whitespace at the Pry prompt.
+      # @example
+      #   class MyCommands < Pry::CommandBase
+      #     command "greet", "Greet somebody" do |name|
+      #       puts "Good afternoon #{name.capitalize}!"
+      #     end
+      #   end
+      #
+      #   # From pry:
+      #   # pry(main)> _pry_.commands = MyCommands
+      #   # pry(main)> greet john
+      #   # Good afternoon John!
+      #   # pry(main)> help greet
+      #   # Greet somebody
       def command(name, description="No description.", &block)
         @commands ||= {}
         @command_info ||= {}
@@ -26,10 +42,10 @@ class Pry
         if name.is_a?(Array)
           matcher = []
           name.each do |n|
-            matcher << /^#{n}#{arg_match}?/
+            matcher << /^#{n}(?!\S)#{arg_match}?/
           end
         else
-          matcher = /^#{name}#{arg_match}?/
+          matcher = /^#{name}(?!\S)#{arg_match}?/
         end
 
         commands[matcher] = block
@@ -57,6 +73,7 @@ class Pry
       end
     end
 
+    # Ensures that commands can be inherited
     def self.inherited(klass)
       klass.commands = commands.dup
       klass.command_info = command_info.dup
