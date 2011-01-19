@@ -6,8 +6,6 @@ direc = File.dirname(__FILE__)
 require "method_source"
 require "readline"
 require "#{direc}/pry/version"
-require "#{direc}/pry/input"
-require "#{direc}/pry/output"
 require "#{direc}/pry/hooks"
 require "#{direc}/pry/print"
 require "#{direc}/pry/command_base"

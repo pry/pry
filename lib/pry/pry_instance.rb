@@ -10,8 +10,8 @@ class Pry
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
-  # @option options [#readline] :input The object to use for input. (see input.rb)
-  # @option options [#puts] :output The object to use for output. (see output.rb)
+  # @option options [#readline] :input The object to use for input. 
+  # @option options [#puts] :output The object to use for output. 
   # @option options [Pry::CommandBase] :commands The object to use for
   #   commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
