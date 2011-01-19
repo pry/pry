@@ -402,11 +402,11 @@ command.
     end
 
 
-#### action block parameters
+#### opts hash
 
 Note that in the example above we are using `opts[:output]` for output; this is the output
 object in use by the current pry session. Other hash values accesible
-within an `action` block include:
+within a `command` block include:
 
 * `opts[:output]` - The session's output object.
 * `opts[:val]` - The line of input that invoked the command.
