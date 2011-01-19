@@ -53,7 +53,7 @@ class Pry
     end
 
     command "ls", "Show the list of vars in the current scope." do
-      opts[:output].puts "#{opts[:target].eval('Pry.view(local_variables + instance_variables)')}"
+      opts[:output].puts "#{Pry.view(opts[:target].eval('local_variables + instance_variables'))}"
     end
 
     command "cat", "Show output of <var>.inspect." do |obj|
@@ -101,12 +101,12 @@ class Pry
       end
     end
 
-    command "ls_methods", "List public methods defined on class of receiver." do
-      opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false)'))}"
+    command "ls_methods", "List all methods defined on class of receiver." do
+      opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false) + private_methods(false) + protected_methods(false)'))}"
     end
 
-    command "ls_imethods", "List public instance methods defined on class of receiver." do
-      opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false)'))}"
+    command "ls_imethods", "List all instance methods defined on class of receiver." do
+      opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)'))}"
     end
 
     command ["exit", "quit", "back"], "End the current Pry session." do
