@@ -1,4 +1,6 @@
 class Pry
+
+  # The default prompt; includes the target
   DEFAULT_PROMPT = [
                     proc do |target_self, nest_level|
                       if nest_level == 0
@@ -17,5 +19,6 @@ class Pry
                     end
                    ]
 
+  # A simple prompt - doesn't display target or nesting level
   SIMPLE_PROMPT = [proc { "pry> " }, proc { "pry* " }]
 end

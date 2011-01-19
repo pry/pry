@@ -49,7 +49,7 @@ effect:
 
     Test.instance_variable_get(:@y) #=> 20
 
-#### Alternative Syntax
+### Alternative Syntax
 
 You can also use the `Pry.start(obj)` or `pry(obj)` syntax to start a pry session on
 `obj`. e.g
@@ -64,8 +64,8 @@ OR
     beginning Pry session for 6
     pry(6)>
 
-Example: Pry sessions can nest arbitrarily deep so we can pry on objects inside objects:
-----------------------------------------------------------------------------------------
+Example: Pry sessions can nest arbitrarily deep
+-----------------------------------------------
 
 Here we will begin Pry at top-level, then pry on a class and then on
 an instance variable inside that class:
@@ -139,7 +139,7 @@ uses (such as implementing a quake-like console for games, for example). Here is
 list of Pry's features along with some of its limitations given at the
 end.
 
-####Features:
+###Features:
 
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
@@ -159,7 +159,7 @@ for reading; `Pry#re` for eval; `Pry#rep` for printing; and `Pry#repl`
 for the loop (`Pry.start` simply wraps `Pry.new.repl`). You can
 invoke any of these methods directly depending on exactly what aspect of the functionality you need.
 
-####Limitations:
+###Limitations:
 
 * Pry does not pretend to be a replacement for `irb`,
   and so does not have an executable. It is designed to be used by
@@ -265,7 +265,7 @@ passing config hash options to `Pry.start()` or to `Pry.new()`; also the
 same accessors as described above for the `Pry` class exist for a
 Pry instance so that customization can occur during runtime.
 
-### Input:
+### Input
 
 For input Pry accepts any object that implements the `readline` method. This
 includes `IO` objects, `StringIO`, `Readline` and custom objects. Pry
@@ -367,7 +367,7 @@ Then inside a pry session:
 As in the case of `input` and `output`:
 
 ##### At session start:
-
+nnnnn
     Pry.start(self, :commands => MyCommands)
 
 ##### At runtime:
@@ -405,7 +405,7 @@ command.
 #### opts hash
 
 Note that in the example above we are using `opts[:output]` for output; this is the output
-object in use by the current pry session. Other hash values accesible
+object in use by the current pry session. Other hash values accessible
 within a `command` block include:
 
 * `opts[:output]` - The session's output object.
@@ -521,7 +521,7 @@ The print object should be a `Proc` and the parameters passed to the
 `Proc` are the output object for the current session and the 'value'
 returned by the current expression.
 
-#### Example: Setting global prompt
+#### Example: Setting global print object
 
 Let's define a print object that displays the full backtrace of any
 exception and precedes the output of a value by the text `"Output is: "`:
@@ -535,7 +535,7 @@ exception and precedes the output of a value by the text `"Output is: "`:
                   end
                 end
 
-#### Example: Setting the prompt for a specific session
+#### Example: Setting the print object for a specific session
 
 ##### At session start
 
@@ -566,3 +566,4 @@ Problems or questions contact me at [github](http://github.com/banister)
 
 
 
+]

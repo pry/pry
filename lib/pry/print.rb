@@ -1,4 +1,7 @@
 class Pry
+
+  # The default print object - only show first line of backtrace and
+  # prepend output with `=>`
   DEFAULT_PRINT = proc do |output, value|
     case value
     when Exception
