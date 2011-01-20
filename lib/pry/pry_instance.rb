@@ -201,11 +201,27 @@ class Pry
       # because procs are defined in different places (e.g 'help' in CommandBase)
       # we cannot simply use `commands.opts=...`; instead we have to
       # retrieve the object where the block was defined; since that is
-      # the `opts` method that the block will have access to.
+      # where the `opts` method the block will have access to is defined.
       action_self = action.binding.eval('self')
       action_self.opts = options
 
-      action.call(*captures)
+      # send the correct number of parameters to the block (to avoid
+      # warnings in 1.8.7)
+      case action.arity <=> 0
+      when -1
+
+        # if arity is negative then we have a *args in 1.8.7.
+        # In 1.9 we have default values or *args
+        action.call(*captures)
+      when 1, 0
+
+        # ensure that we get the right number of parameters;
+        # using values_at we pad out missing parameters with nils so
+        # that 1.8.7 doesn't complain about incorrect arity (1.9.2
+        # doesn't care)
+        action.call(*captures.values_at(*0..(action.arity - 1)))
+      end
+      
       val.clear
     end
   end
