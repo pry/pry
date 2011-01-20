@@ -7,12 +7,12 @@ class Pry
   class Commands < CommandBase
     
     command "!", "Refresh the REPL" do
-      opts[:output].puts "Refreshed REPL"
+      output.puts "Refreshed REPL"
       opts[:eval_string].clear
     end
 
     command "!pry", "Start a Pry session on current self; this even works mid-expression." do
-      Pry.start(opts[:target])
+      Pry.start(target)
     end
 
     command ["exit_program", "quit_program"], "End the current program." do
@@ -20,7 +20,7 @@ class Pry
     end
 
     command "nesting", "Show nesting information." do 
-      out = opts[:output]
+      out = output
       nesting = opts[:nesting]
       
       out.puts "Nesting status:"
@@ -35,9 +35,8 @@ class Pry
     end
 
     command "status", "Show status information." do
-      out = opts[:output]
+      out = output
       nesting = opts[:nesting]
-      target = opts[:target]
       
       out.puts "Status:"
       out.puts "--"
@@ -53,37 +52,37 @@ class Pry
     end
 
     command "ls", "Show the list of vars in the current scope." do
-      opts[:output].puts "#{Pry.view(opts[:target].eval('local_variables + instance_variables'))}"
+      output.puts "#{Pry.view(target.eval('local_variables + instance_variables'))}"
     end
 
     command "cat", "Show output of <var>.inspect." do |obj|
-      out = opts[:output]
-      out.puts opts[:target].eval("#{obj}.inspect")
+      out = output
+      out.puts target.eval("#{obj}.inspect")
     end
     
     command "cd", "Start a Pry session on <var> (use `cd ..` to go back)" do |obj|
       throw(:breakout, opts[:nesting].level) if obj == ".."
-      opts[:target].eval("#{obj}.pry")
+      target.eval("#{obj}.pry")
     end
 
     command "show_doc", "Show the comments above <methname>" do |meth_name|
-      doc = opts[:target].eval("method(:#{meth_name})").comment
-      opts[:output].puts doc
+      doc = target.eval("method(:#{meth_name})").comment
+      output.puts doc
     end
 
     command "show_idoc", "Show the comments above instance method <methname>" do |meth_name|
-      doc = opts[:target].eval("instance_method(:#{meth_name})").comment
-      opts[:output].puts doc
+      doc = target.eval("instance_method(:#{meth_name})").comment
+      output.puts doc
     end
 
     command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      doc = opts[:target].eval("method(:#{meth_name})").source
-      opts[:output].puts doc
+      doc = target.eval("method(:#{meth_name})").source
+      output.puts doc
     end
 
     command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|
-      doc = opts[:target].eval("instance_method(:#{meth_name})").source
-      opts[:output].puts doc
+      doc = target.eval("instance_method(:#{meth_name})").source
+      output.puts doc
     end
 
     command "jump_to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
@@ -92,21 +91,21 @@ class Pry
 
       case break_level
       when nesting.level
-        opts[:output].puts "Already at nesting level #{nesting.level}"
+        output.puts "Already at nesting level #{nesting.level}"
       when (0...nesting.level)
         throw(:breakout, break_level + 1)
       else
         max_nest_level = nesting.level - 1
-        opts[:output].puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
+        output.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
       end
     end
 
     command "ls_methods", "List all methods defined on class of receiver." do
-      opts[:output].puts "#{Pry.view(opts[:target].eval('public_methods(false) + private_methods(false) + protected_methods(false)'))}"
+      output.puts "#{Pry.view(target.eval('public_methods(false) + private_methods(false) + protected_methods(false)'))}"
     end
 
     command "ls_imethods", "List all instance methods defined on class of receiver." do
-      opts[:output].puts "#{Pry.view(opts[:target].eval('public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)'))}"
+      output.puts "#{Pry.view(target.eval('public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)'))}"
     end
 
     command ["exit", "quit", "back"], "End the current Pry session." do

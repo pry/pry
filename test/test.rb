@@ -298,24 +298,121 @@ describe Pry do
             end
 
             Command2.commands.keys.size.should == 2
-            Command2.command_info.keys.include?("help").should == true
-            Command2.command_info.keys.include?("h").should == true
+            Command2.commands.keys.include?("help").should == true
+            Command2.commands.keys.include?("h").should == true
 
             Object.remove_const(:Command2)
           end
 
-          it 'should inherit comands from Pry::Commands' do
+          it 'should inherit commands from Pry::Commands' do
             class Command3 < Pry::Commands
               command "v" do
               end
             end
 
-            Command3.command_info.include?("nesting").should == true
-            Command3.command_info.include?("jump_to").should == true
-            Command3.command_info.include?("cd").should == true
-            Command3.command_info.include?("v").should == true
+            Command3.commands.include?("nesting").should == true
+            Command3.commands.include?("jump_to").should == true
+            Command3.commands.include?("cd").should == true
+            Command3.commands.include?("v").should == true
 
             Object.remove_const(:Command3)
+          end
+
+          it 'should run a command from within a command' do
+            class Command3 < Pry::Commands
+              command "v" do
+                output.puts "v command"
+              end
+
+              command "run_v" do
+                run "v"
+              end
+            end
+
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command3).rep
+            str_output.string.should =~ /v command/
+
+            Object.remove_const(:Command3)
+          end
+
+          it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
+            class Command3 < Pry::Commands
+              command "v" do
+                output.puts "#{target.eval('self')}"
+              end
+            end
+
+            class Command4 < Command3
+            end
+
+            str_output = StringIO.new
+            Pry.new(:print => proc {}, :input => InputTester.new("v"),
+                    :output => str_output, :commands => Command4).rep("john")
+            str_output.string.chomp.should == "john"
+
+            Object.remove_const(:Command3)
+            Object.remove_const(:Command4)
+          end
+
+          it 'should import commands from another command object' do
+            class Command3 < Pry::CommandBase
+              import_from Pry::Commands, "status", "jump_to"
+            end
+
+            str_output = StringIO.new
+            Pry.new(:print => proc {}, :input => InputTester.new("status"),
+                    :output => str_output, :commands => Command3).rep("john")
+            str_output.string.should =~ /Status:/
+
+            Object.remove_const(:Command3)
+          end
+
+          it 'should delete some inherited commands when using delete method' do
+            class Command3 < Pry::Commands
+              command "v" do
+              end
+              
+              delete "show_doc", "show_method"
+              delete "ls"
+            end
+
+            Command3.commands.include?("nesting").should == true
+            Command3.commands.include?("jump_to").should == true
+            Command3.commands.include?("cd").should == true
+            Command3.commands.include?("v").should == true
+            Command3.commands.include?("show_doc").should == false
+            Command3.commands.include?("show_method").should == false
+            Command3.commands.include?("ls").should == false
+
+            Object.remove_const(:Command3)
+          end
+
+          it 'should override some inherited commands' do
+            class Command3 < Pry::Commands
+              command "jump_to" do
+                output.puts "jump_to the music"
+              end
+
+              command "help" do
+                output.puts "help to the music"
+              end
+            end
+
+            # suppress evaluation output
+            Pry.print = proc {}
+            
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("jump_to"), :output => str_output, :commands => Command3).rep
+            str_output.string.chomp.should == "jump_to the music"
+
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => Command3).rep
+            str_output.string.chomp.should == "help to the music"
+            
+            Object.remove_const(:Command3)
+
+            Pry.reset_defaults
           end
         end
 

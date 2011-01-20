@@ -6,7 +6,7 @@ class Pry
     class << self
       attr_accessor :commands
       attr_accessor :command_info
-      attr_accessor :opts
+      attr_accessor :opts, :output, :target
 
       # private because we want to force function style invocation. We require
       # that the location where the block is defined has the `opts`
@@ -14,7 +14,7 @@ class Pry
       private
       
       # Defines a new Pry command.
-      # @param [String, Array] name The name of the command (or array of
+      # @param [String, Array] names The name of the command (or array of
       #   command name aliases).
       # @param [String] description A description of the command.
       # @yield The action to perform. The parameters in the block
@@ -34,42 +34,73 @@ class Pry
       #   # Good afternoon John!
       #   # pry(main)> help greet
       #   # Greet somebody
-      def command(name, description="No description.", &block)
+      def command(names, description="No description.", &block)
         @commands ||= {}
-        @command_info ||= {}
 
-        arg_match = '(?:\s+(\S+))?' * 20
-        if name.is_a?(Array)
-          name.each do |n|
-            matcher = /^#{n}(?!\S)#{arg_match}?/
-            commands[matcher] = block
-            command_info[n] = description
-          end
-        else
-          matcher = /^#{name}(?!\S)#{arg_match}?/
-          commands[matcher] = block
-          command_info[name] = description
+        Array(names).each do |name|
+          commands[name] = { :description => description, :action => block }
         end
+      end
 
+      # Delete a command or an array of commands.
+      # Useful when inheriting from another command set and pruning
+      # those commands down to the ones you want.
+      # @param [Array<String>] names The command name or array
+      #   of command names you want to delete
+      # @example Deleteing inherited commands
+      #   class MyCommands < Pry::Commands
+      #     delete "show_method", "show_imethod", "show_doc", "show_idoc"
+      #   end
+      #   Pry.commands = MyCommands
+      def delete(*names)
+        names.each { |name| commands.delete(name) }
+      end
+
+      # Execute a command (this enables commands to call other commands).
+      # @param [String] name The command to execute
+      # @param [Array] args The parameters to pass to the command.
+      # @example Wrap one command with another
+      #   class MyCommands < Pry::Commands
+      #     command "ls2" do
+      #       output.puts "before ls"
+      #       run "ls"
+      #       output.puts "after ls"
+      #     end
+      #   end
+      def run(name, *args)
+        action = opts[:commands][name][:action]
+        instance_exec(*args, &action)
+      end
+
+      # Import commands from another command object.
+      # @param [Pry::CommandBase] klass The class to import from (must
+      #   be a subclass of `Pry::CommandBase`)
+      # @param [Array<String>] names The commands to import.
+      # @example
+      #   class MyCommands < Pry::CommandBase
+      #     import_from Pry::Commands, "ls", "show_method", "cd"
+      #   end
+      def import_from(klass, *names)
+        imported_hash = Hash[klass.commands.select { |k, v| names.include?(k) }]
+        commands.merge!(imported_hash)
       end
     end
+    
     command "help", "This menu." do |cmd|
-      out = opts[:output]
-      command_info = opts[:command_info]
+      command_info = opts[:commands]
       param = cmd
 
       if !param
-        out.puts "Command list:"
-        out.puts "--"
-        command_info.each do |k, v|
-          out.puts "#{k}".ljust(18) + v
+        output.puts "Command list:"
+        output.puts "--"
+        command_info.each do |k, data|
+          output.puts "#{k}".ljust(18) + data[:description] if !data[:description].empty?
         end
       else
-        key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
-        if key
-          out.puts command_info[key]
+        if command_info[param]
+          output.puts command_info[param][:description]
         else
-          out.puts "No info for command: #{param}"
+          output.puts "No info for command: #{param}"
         end
       end
     end
@@ -77,7 +108,7 @@ class Pry
     # Ensures that commands can be inherited
     def self.inherited(klass)
       klass.commands = commands.dup
-      klass.command_info = command_info.dup
     end
+    
   end
 end

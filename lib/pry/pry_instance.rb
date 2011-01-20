@@ -125,7 +125,7 @@ class Pry
     target = binding_for(target)
 
     if input == Readline
-      Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, Pry.commands.command_info.keys.flatten)
+      Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, commands.commands.keys)
     end
 
     # eval the expression and save to last_result
@@ -182,28 +182,29 @@ class Pry
     def val.clear() replace("") end
     def eval_string.clear() replace("") end
 
-    pattern, action = commands.commands.find { |k, v| k === val } 
+    pattern, data = commands.commands.find do |name, data|
+      /^#{name}(?!\S)(?:\s+(.+))?/ =~ val
+    end
 
     if pattern
-      captures = Regexp.last_match.captures
-      captures.compact!
+      args_string = $1
+      args = args_string ? args_string.split : []
+      action = data[:action]
       
       options = {
-        :captures => captures,
+        :captures => args_string,
         :eval_string => eval_string,
         :target => target,
         :val => val,
         :nesting => nesting,
         :output => output,
-        :command_info => commands.command_info
+        :commands => commands.commands
       }
 
-      # because procs are defined in different places (e.g 'help' in CommandBase)
-      # we cannot simply use `commands.opts=...`; instead we have to
-      # retrieve the object where the block was defined; since that is
-      # where the `opts` method the block will have access to is defined.
-      action_self = action.binding.eval('self')
-      action_self.opts = options
+      # set some useful methods to be used by the action blocks
+      commands.opts = options
+      commands.target = target
+      commands.output = output
 
       # send the correct number of parameters to the block (to avoid
       # warnings in 1.8.7)
@@ -212,14 +213,19 @@ class Pry
 
         # if arity is negative then we have a *args in 1.8.7.
         # In 1.9 we have default values or *args
-        action.call(*captures)
+        # Use instance_exec() to make the opts, target, output, etc methods available
+        commands.instance_exec(*args, &action)
       when 1, 0
 
         # ensure that we get the right number of parameters;
         # using values_at we pad out missing parameters with nils so
         # that 1.8.7 doesn't complain about incorrect arity (1.9.2
         # doesn't care)
-        action.call(*captures.values_at(*0..(action.arity - 1)))
+        args_with_corrected_arity = args.values_at *0..(action.arity - 1)
+
+        # Use instance_exec() to make the opts, target, output, etc methods
+        # available        
+        commands.instance_exec(*args_with_corrected_arity, &action)
       end
       
       val.clear
