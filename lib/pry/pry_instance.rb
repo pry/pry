@@ -182,7 +182,7 @@ class Pry
     def val.clear() replace("") end
     def eval_string.clear() replace("") end
 
-    pattern, action = commands.commands.find { |k, v| Array(k).any? { |a| a === val } }
+    pattern, action = commands.commands.find { |k, v| k === val } 
 
     if pattern
       captures = Regexp.last_match.captures

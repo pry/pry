@@ -40,16 +40,17 @@ class Pry
 
         arg_match = '(?:\s+(\S+))?' * 20
         if name.is_a?(Array)
-          matcher = []
           name.each do |n|
-            matcher << /^#{n}(?!\S)#{arg_match}?/
+            matcher = /^#{n}(?!\S)#{arg_match}?/
+            commands[matcher] = block
+            command_info[n] = description
           end
         else
           matcher = /^#{name}(?!\S)#{arg_match}?/
+          commands[matcher] = block
+          command_info[name] = description
         end
 
-        commands[matcher] = block
-        command_info[name] = description
       end
     end
     command "help", "This menu." do |cmd|
@@ -61,7 +62,7 @@ class Pry
         out.puts "Command list:"
         out.puts "--"
         command_info.each do |k, v|
-          out.puts "#{Array(k).first}".ljust(18) + v
+          out.puts "#{k}".ljust(18) + v
         end
       else
         key = command_info.keys.find { |v| Array(v).any? { |k| k === param } }
