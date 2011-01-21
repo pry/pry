@@ -3,6 +3,8 @@
 require "readline"
 
 class Pry
+
+  # Implements tab completion for Readline in Pry
   module InputCompleter
     
     if Readline.respond_to?("basic_word_break_characters=")
@@ -35,6 +37,9 @@ class Pry
                  "<", "<<", "<=", "<=>", "==", "===", "=~", ">", ">=", ">>",
                  "[]", "[]=", "^", "!", "!=", "!~"]
 
+    # Return a new completion proc for use by Readline.
+    # @param [Binding] target The current binding context.
+    # @param [Array<String>] commands The array of Pry commands.
     def self.build_completion_proc(target, commands=[""])
       proc do |input|
         bind = target

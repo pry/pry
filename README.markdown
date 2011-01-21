@@ -6,11 +6,10 @@ Pry
 _attach an irb-like session to any object at runtime_
 
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
-manipulation of objects during the running of a program. It is primarily
-designed for examining and manipulating large and complicated runtime state.
+manipulation of objects during the running of a program. 
 
 It is not based on the IRB codebase, and implements some unique REPL
-commands such as `show_method` and `jump_to`
+commands such as `show_method` and `show_doc`
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
@@ -64,7 +63,7 @@ OR
     beginning Pry session for 6
     pry(6)>
 
-Example: Pry sessions can nest arbitrarily deep
+Example: Pry sessions can nest
 -----------------------------------------------
 
 Here we will begin Pry at top-level, then pry on a class and then on
@@ -455,7 +454,7 @@ the state of the object. E.g, the "ls" command is implemented as follows
 
 #### The opts hash
 
-These are miscellaneous variables that may be useful to your own commands:
+These are miscellaneous variables that may be useful to your commands:
 
 * `opts[:val]` - The line of input that invoked the command.
 * `opts[:eval_string]` - The cumulative lines of input for multi-line input.

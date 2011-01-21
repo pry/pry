@@ -125,6 +125,7 @@ class Pry
     target = binding_for(target)
 
     if input == Readline
+      # Readline tab completion
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, commands.commands.keys)
     end
 
@@ -204,21 +205,17 @@ class Pry
       commands.target = target
       commands.output = output
 
-      # send the correct number of parameters to the block (to avoid
-      # warnings in 1.8.7)
       case action.arity <=> 0
       when -1
 
+        # Use instance_exec() to make the `opts` method, etc available
         commands.instance_exec(*args, &action)
       when 1, 0
 
-        # ensure that we get the right number of parameters;
-        # using values_at we pad out missing parameters with nils so
-        # that 1.8.7 doesn't complain about incorrect arity (1.9.2
+        # ensure that we get the right number of parameters
+        # since 1.8.7 complains about incorrect arity (1.9.2
         # doesn't care)
         args_with_corrected_arity = args.values_at *0..(action.arity - 1)
-
-        # Use instance_exec() to make the `opts` method, etc available
         commands.instance_exec(*args_with_corrected_arity, &action)
       end
       
