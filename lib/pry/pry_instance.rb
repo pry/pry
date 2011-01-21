@@ -192,10 +192,8 @@ class Pry
       action = data[:action]
       
       options = {
-        :captures => args_string,
-        :eval_string => eval_string,
-        :target => target,
         :val => val,
+        :eval_string => eval_string,
         :nesting => nesting,
         :output => output,
         :commands => commands.commands
@@ -211,9 +209,6 @@ class Pry
       case action.arity <=> 0
       when -1
 
-        # if arity is negative then we have a *args in 1.8.7.
-        # In 1.9 we have default values or *args
-        # Use instance_exec() to make the opts, target, output, etc methods available
         commands.instance_exec(*args, &action)
       when 1, 0
 
@@ -223,8 +218,7 @@ class Pry
         # doesn't care)
         args_with_corrected_arity = args.values_at *0..(action.arity - 1)
 
-        # Use instance_exec() to make the opts, target, output, etc methods
-        # available        
+        # Use instance_exec() to make the `opts` method, etc available
         commands.instance_exec(*args_with_corrected_arity, &action)
       end
       

@@ -1,6 +1,6 @@
 class Pry
 
-  # The default prompt; includes the target
+  # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc do |target_self, nest_level|
                       if nest_level == 0

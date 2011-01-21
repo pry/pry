@@ -354,7 +354,7 @@ A valid Pry command object must inherit from
 #### Example: Defining a command object and setting it globally
 
     class MyCommands < Pry::CommandBase
-      command greet", "Greet the user." do |name|
+      command "greet", "Greet the user." do |name|
         output.puts "Hello #{name.capitalize}, how are you?"
       end
     end
