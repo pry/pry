@@ -196,7 +196,6 @@ class Pry
         :val => val,
         :eval_string => eval_string,
         :nesting => nesting,
-        :output => output,
         :commands => commands.commands
       }
 

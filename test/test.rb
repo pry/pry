@@ -264,8 +264,7 @@ describe Pry do
           it 'should set the commands default, and the default should be overridable' do
             class Command0 < Pry::CommandBase
               command "hello" do
-                opts[:output].puts "hello world"
-                opts[:val].clear 
+                output.puts "hello world"
               end
             end
 
@@ -277,8 +276,7 @@ describe Pry do
 
             class Command1 < Pry::CommandBase
               command "goodbye", "" do
-                opts[:output].puts "goodbye world"
-                opts[:val].clear 
+                output.puts "goodbye world"
               end
             end
 

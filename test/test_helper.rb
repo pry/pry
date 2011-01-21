@@ -29,12 +29,10 @@ end
 class CommandTester < Pry::CommandBase
 
   command "command1", "command 1 test" do
-    opts[:output].puts "command1"
-    opts[:val].clear 
+    output.puts "command1"
   end
 
   command "command2", "command 2 test" do |arg|
-    opts[:output].puts arg
-    opts[:val].clear
+    output.puts arg
   end
 end

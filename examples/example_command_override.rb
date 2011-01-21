@@ -3,8 +3,9 @@ direc = File.dirname(__FILE__)
 require 'rubygems'
 require "#{direc}/../lib/pry"
 
-# inherit standard command set, but tweak them by deleting some and
-# overriding others
+# Inherit standard command set, but tweak them by importing some and
+# overriding others.
+# Illustrates use of `command`, `run`, and `import_from` commands.
 class MyCommands < Pry::CommandBase
 
   # Override ls command

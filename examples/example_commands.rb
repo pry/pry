@@ -21,11 +21,14 @@ class MathCommands < Pry::CommandBase
   command "exit", "" do
     throw :breakout, 0
   end
+
+  # Bring in the "!" method from Pry::Commands
+  import_from Pry::Commands, "!"
 end
 
 # Since we provide math commands, let's have mathematical
 # before_session and after_session hooks, and a mathematical prompt
-math_prompt = proc { "math> " }
+math_prompt = [proc { "math> " }, proc { "math* " }]
 math_hooks = {
   :before_session => proc { |output, *| output.puts "Welcome! Let's do some math! Type 'help' for a list of commands." },
   :after_session => proc { |output, *| output.puts "Goodbye!" }

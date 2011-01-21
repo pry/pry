@@ -15,10 +15,12 @@ _pry_.parent.input = Readline
 back
 exit_all
 CMDS
+
+# create our StringIO object
 str_input = StringIO.new(cmds)
 
-# Start a Pry session on the Fixnum 5 using the input data in
-# str_input
+# set global input to str_input, this means that all pry sessions
+# adopt this object as their input object.
 Pry.input = str_input
 
 # Start the session reading from str_input.
@@ -27,5 +29,4 @@ Pry.input = str_input
 # for non-interactive, except for `pry(1)` which starts off
 # non-interactive but is set to be interactive by pry(2) (using
 # _pry_.parent.input = Readline)
-
 0.pry

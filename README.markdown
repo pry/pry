@@ -248,6 +248,16 @@ Example Programs
 Pry comes bundled with a few example programs to illustrate some
 features, see the `examples/` directory.
 
+* `example_input.rb`             - Demonstrates how to set the `input` object.
+* `example_output.rb`            - Demonstrates how to set the `output` object.
+* `example_hooks.rb`             - Demonstrates how to set the `hooks` hash.
+* `example_print.rb`             - Demonstrates how to set the `print` object.
+* `example_prompt.rb`            - Demonstrates how to set the `prompt`.
+* `example_input2.rb`            - An advanced `input` example.
+* `example_commands.rb`          - Implementing a mathematical command set.
+* `example_commands_override.rb` - An advanced `commands` example.
+* `example_image_edit.rb`        - A simple image editor using a Pry REPL (requires `Gosu` and `TexPlay` gems).
+
 Customizing Pry
 ---------------
 
@@ -354,7 +364,7 @@ command set, deletion of commands, calling of commands within other
 commands, and so on.
 
 A valid Pry command object must inherit from
-`Pry::CommandBase` and use the special command API:
+`Pry::CommandBase` (or one of its subclasses) and use the special command API:
 
 #### Example: Defining a command object and setting it globally
 
@@ -389,7 +399,9 @@ As in the case of `input` and `output`:
 The command API is defined by the `Pry::CommandBase` class (hence why
 all commands must inherit from it or a subclass). The API works as follows:
 
-* The `command` method defines a new command, its parameter is the
+##### `command` method
+
+The `command` method defines a new command, its parameter is the
 name of the command and an optional second parameter is a description of
 the command.
 
@@ -411,36 +423,42 @@ command.
       output.puts target.eval("local_variables")
     end
 
-* The `delete` method deletes a command or a group of a commands; it
-  can be useful when inheriting from another command set when you decide
-  to keep only a portion of inherited commands.
+##### `delete` method
 
-      class MyCommands < Pry::Commands
-        delete "show_method", "show_imethod"
+The `delete` method deletes a command or a group of a commands; it
+can be useful when inheriting from another command set when you decide
+to keep only a portion of inherited commands.
+
+    class MyCommands < Pry::Commands
+      delete "show_method", "show_imethod"
+    end
+
+##### `import_from` method
+
+The `import_from` method enables you to specifically select which
+commands will be copied across from another command set, useful when
+you only want a small number of commands and so inheriting and then
+deleting would be inefficient. The first parameter to `import_from`
+is the class to import from and the other paramters are the names of
+the commands to import:
+
+    class MyCommands < Pry::CommandBase
+      import_from Pry::Commands, "ls", "status", "!"
+    end
+
+##### `run` method
+
+The `run` command invokes one command from within another.
+The first parameter is the name of the command to invoke
+and the remainder of the parameters will be passed on to the command
+being invoked:
+
+    class MyCommands < Pry::Commands
+      command "ls_with_hello" do
+        output.puts "hello!"
+        run "ls"
       end
-
-* The `import_from` method enables you to specifically select which
-  commands will be copied across from another command set, useful when
-  you only want a small number of commands and so inheriting and then
-  deleting would be inefficient. The first parameter to `import_from`
-  is the class to import from and the other paramters are the names of
-  the commands to import:
-
-      class MyCommands < Pry::CommandBase
-        import_from Pry::Commands, "ls", "status", "!"
-      end
-
-* The `run` command invokes one command from within another.
-  The first parameter is the name of the command to invoke
-  and the remainder of the parameters will be passed on to the command
-  being invoked:
-
-      class MyCommands < Pry::Commands
-        command "ls_with_hello" do
-          output.puts "hello!"
-          run "ls"
-        end
-      end
+    end
 
 #### Utility methods for commands
 
