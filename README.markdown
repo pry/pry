@@ -220,6 +220,8 @@ If you want to access a method of the same name, prefix the invocation by whites
   are nested sessions).
 * `ls` returns a list of local variables and instance variables in the
   current scope
+* `ls_methods` List all methods defined on immediate class of receiver.
+* `ls_imethods` List all instance methods defined on receiver.
 * `cat <var>` Calls `inspect` on `<var>`
 * `cd <var>` Starts a `Pry` session on the variable <var>. E.g `cd @x`
 * `show_method <methname>` Displays the sourcecode for the method
