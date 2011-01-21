@@ -1,3 +1,13 @@
+21/1/2010 version 0.4.0
+* added command API
+* added many new commands, i.e ls_methods and friends
+* modified other commands
+* now accepts greater customization, can modify: input, output, hooks,
+	prompt, print object
+* added tab completion (even completes commands)
+* added extensive tests
+* added examples
+* many more changes
 9/12/2010 version 0.1.3
 * Got rid of rubygems dependency, refactored some code.
 8/12/2010 version 0.1.2

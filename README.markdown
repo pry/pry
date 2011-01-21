@@ -242,6 +242,12 @@ If you want to access a method of the same name, prefix the invocation by whites
   current one with `obj` as the receiver of the new session. Very useful
   when exploring large or complicated runtime state.
 
+Example Programs
+----------------
+
+Pry comes bundled with a few example programs to illustrate some
+features, see the `examples/` directory.
+
 Customizing Pry
 ---------------
 

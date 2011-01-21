@@ -38,7 +38,7 @@ class WinClass < Gosu::Window
 
   def initialize
     super(WIDTH, HEIGHT, false)
-    @img = TexPlay.create_image(self, 200, 200)
+    @img = TexPlay.create_image(self, 200, 200).clear :color => :black
     @img.rect 0, 0, @img.width - 1, @img.height - 1
     
     @binding = @img.__binding__
