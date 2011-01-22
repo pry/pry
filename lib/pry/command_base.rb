@@ -5,7 +5,6 @@ class Pry
   class CommandBase
     class << self
       attr_accessor :commands
-      attr_accessor :command_info
       attr_accessor :opts, :output, :target
 
       # private because we want to force function style invocation. We require
