@@ -6,10 +6,19 @@ Pry
 _attach an irb-like session to any object at runtime_
 
 Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
-manipulation of objects during the running of a program. 
+manipulation of objects during the running of a program.
+
+In some sense it is the opposite of IRB in that you bring a REPL
+session to your code (with Pry) instead of bringing your code to a
+REPL session (as with IRB).
 
 It is not based on the IRB codebase, and implements some unique REPL
 commands such as `show_method` and `show_doc`
+
+Pry is also fairly flexible and allows significant user
+customization. It is trivial to set it to read from any
+object that has a `readline` method and write to any object that has a
+`puts` method - many other aspects of Pry are also configurable.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
@@ -263,8 +272,7 @@ features, see the `examples/` directory.
 Customizing Pry
 ---------------
 
-Pry supports customization of the input, the output, the commands,
-the hooks, the prompt, and 'print' (the "P" in REPL).
+Pry allows a large degree of customization. 
 
 [Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
 
