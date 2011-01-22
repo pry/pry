@@ -268,6 +268,8 @@ the hooks, the prompt, and 'print' (the "P" in REPL).
 
 [Read how to customize Pry here.](https://github.com/banister/pry/wiki/Customizing-pry)
 
+{file:wiki/Customizing-pry.md Customizing Pry}
+
 Contact
 -------
 
