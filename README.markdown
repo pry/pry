@@ -266,9 +266,7 @@ Customizing Pry
 Pry supports customization of the input, the output, the commands,
 the hooks, the prompt, and 'print' (the "P" in REPL).
 
-[Read how to customize Pry here.](https://github.com/banister/pry/wiki/Customizing-pry)
-
-{file:wiki/Customizing-pry.md Customizing Pry}
+[Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
 
 Contact
 -------
