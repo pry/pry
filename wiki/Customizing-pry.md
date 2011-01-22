@@ -2,7 +2,7 @@ Customizing Pry
 ---------------
 
 Pry supports customization of the input, the output, the commands,
-the hooks, the prompt, and 'print' (the "P" in REPL).
+the hooks, the prompt, and the 'print' object (the "P" in REPL).
 
 Global customization, which applies to all Pry sessions, is done
 through invoking class accessors on the `Pry` class, the accessors
