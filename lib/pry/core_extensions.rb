@@ -29,11 +29,19 @@ class Pry
       end
 
       unless respond_to? :__binding_impl__
-        self.class.class_eval <<-EXTRA
-        def __binding_impl__
-          binding
+        begin
+          instance_eval %{
+            def __binding_impl__
+              binding
+            end
+          }
+        rescue TypeError
+          self.class.class_eval %{
+            def __binding_impl__
+              binding
+            end
+          }
         end
-        EXTRA
       end
 
       __binding_impl__
