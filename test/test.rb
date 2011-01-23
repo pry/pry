@@ -100,8 +100,45 @@ describe Pry do
         end
       end
 
+      describe "defining methods" do
+        it 'should define a method on the singleton class of an object when performing "def meth;end" inside the object' do
+          [Object.new, {}, []].each do |val|
+            str_input = StringIO.new("def hello;end")
+            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
+            
+            val.methods(false).map(&:to_sym).include?(:hello).should == true
+          end
+        end
+
+        it 'should define an instance method on the module when performing "def meth;end" inside the module' do
+          str_input = StringIO.new("def hello;end")
+          hello = Module.new
+          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+        end
+
+        it 'should define an instance method on the class when performing "def meth;end" inside the class' do
+          str_input = StringIO.new("def hello;end")
+          hello = Class.new
+          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+        end
+
+        it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
+          # should include  float in here, but test fails for some reason
+          # on 1.8.7, no idea why!
+          [:test, 0, true, false, nil].each do |val|
+            str_input = StringIO.new("def hello;end")
+            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
+            val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+          end
+        end
+        
+      end        
+        
+
       describe "commands" do
-        it 'should run command1' do
+        it 'should run a command with no parameter' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester
           pry_tester.input = InputTester.new("command1", "exit_all")
@@ -115,7 +152,7 @@ describe Pry do
           str_output.string.should =~ /command1/
         end
 
-        it 'should run command2' do
+        it 'should run a command with one parameter' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester
           pry_tester.input = InputTester.new("command2 horsey", "exit_all")

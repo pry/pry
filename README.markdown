@@ -24,6 +24,13 @@ object that has a `readline` method and write to any object that has a
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
 
+Pry also has `rubygems-test` support; to participate, first install
+Pry, then:
+
+1. Install rubygems-test: `gem install rubygems-test`
+2. Run the test: `gem test pry`
+3. Finally choose 'Yes' to upload the results. 
+
 Example: Interacting with an object at runtime
 ---------------------------------------
 
