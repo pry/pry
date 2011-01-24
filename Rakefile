@@ -32,6 +32,11 @@ task :test do
   sh "bacon -k #{direc}/test/test.rb"
 end
 
+desc "display the Pry version"
+task :show_version do
+  puts "Pry version: #{Pry::VERSION}"
+end
+
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)        

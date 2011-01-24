@@ -1,7 +1,7 @@
 Pry
 =============
 
-(C) John Mair (banisterfiend) 2010
+(C) John Mair (banisterfiend) 2011
 
 _attach an irb-like session to any object at runtime_
 
@@ -167,6 +167,8 @@ end.
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
 * Pry allows significant customizability.
+* Pry uses the [method_source](https://github.com/banister/method_source) gem; so
+this functionality is available to a Pry session.
 * Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
 validate expressions in 1.8, and [Ripper](http://rdoc.info/docs/ruby-core/1.9.2/Ripper) for 1.9.
 * Pry implements all the methods in the REPL chain separately: `Pry#r`
@@ -240,6 +242,7 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `ls_imethods` List all instance methods defined on receiver.
 * `cat <var>` Calls `inspect` on `<var>`
 * `cd <var>` Starts a `Pry` session on the variable <var>. E.g `cd @x`
+(use `cd ..` to go back).
 * `show_method <methname>` Displays the sourcecode for the method
   <methname>. E.g `show_method hello`
 * `show_imethod <methname>` Displays the sourcecode for the
@@ -252,8 +255,7 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `nesting` Shows Pry nesting information.
 * `!pry` Starts a Pry session on the implied receiver; this can be
   used in the middle of an expression in multi-line input.
-* `jump_to <nest_level>`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached
-  -- as per the output of `nesting`
+* `jump_to <nest_level>`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
 * `exit_all` breaks out of all Pry nesting levels and returns to the
   calling process.
 * You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
