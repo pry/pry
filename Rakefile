@@ -25,7 +25,7 @@ def apply_spec_defaults(s)
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",
-                     "test/*.rb", "CHANGELOG", "README.markdown", "Rakefile", ".gemtest"]
+                     "test/*.rb", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
 end
 
 task :test do
@@ -41,6 +41,11 @@ desc "run pry"
 task :pry do
   require "#{direc}/lib/pry.rb"
   Pry.start
+end
+
+desc "show pry version"
+task :version do
+  puts "Pry version: #{Pry::VERSION}"
 end
 
 namespace :ruby do
