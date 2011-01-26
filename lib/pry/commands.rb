@@ -76,14 +76,17 @@ class Pry
     end
 
     command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      meth_name = target.eval("__method__").to_s if !meth_name
-      puts "blah #{meth_name.to_s}"
-      doc = target.eval("method(\"#{meth_name}\")").source
-      output.puts doc
+      if meth_name
+        meth_name = target.eval("__method__").to_s if !meth_name
+        doc = target.eval("method(\"#{meth_name}\")").source
+        output.puts doc
+      else
+        output.puts "Error: Not in a method."
+      end
     end
 
     command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|
-      doc = target.eval("instance_method(#{meth_name})").source
+      doc = target.eval("instance_method(\"#{meth_name}\")").source
       output.puts doc
     end
 
@@ -103,11 +106,11 @@ class Pry
     end
 
     command "ls_methods", "List all methods defined on class of receiver." do
-      output.puts "#{Pry.view(target.eval('public_methods(false) + private_methods(false) + protected_methods(false)'))}"
+      output.puts "#{Pry.view(target.eval('(public_methods(false) + private_methods(false) + protected_methods(false)).sort'))}"
     end
 
     command "ls_imethods", "List all instance methods defined on class of receiver." do
-      output.puts "#{Pry.view(target.eval('public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)'))}"
+      output.puts "#{Pry.view(target.eval('(public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)).sort'))}"
     end
 
     command ["exit", "quit", "back"], "End the current Pry session." do

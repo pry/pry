@@ -353,8 +353,38 @@ describe Pry do
             Object.remove_const(:Command3)
           end
 
+          it 'should alias a command with another command' do
+            class Command6 < Pry::CommandBase
+              alias_command "help2", "help"
+            end
+
+            Command6.commands["help2"].should == Command6.commands["help"]
+            # str_output = StringIO.new
+            # Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command3).rep
+            # str_output.string.should =~ /v command/
+
+            Object.remove_const(:Command6)
+          end
+
+          it 'should change description of a command using desc' do
+            
+            class Command7 < Pry::Commands
+            end
+
+            orig = Command7.commands["help"][:description]
+
+            class Command7
+              desc "help", "blah"
+            end
+
+            Command7.commands["help"][:description].should.not == orig
+            Command7.commands["help"][:description].should == "blah"
+            
+            Object.remove_const(:Command7)
+          end
+          
           it 'should run a command from within a command' do
-            class Command3 < Pry::Commands
+            class Command01 < Pry::Commands
               command "v" do
                 output.puts "v command"
               end
@@ -365,10 +395,10 @@ describe Pry do
             end
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command3).rep
+            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command01).rep
             str_output.string.should =~ /v command/
 
-            Object.remove_const(:Command3)
+            Object.remove_const(:Command01)
           end
 
           it 'should enable an inherited method to access opts and output and target, due to instance_exec' do

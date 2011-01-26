@@ -200,6 +200,28 @@ being invoked:
       end
     end
 
+##### `alias_command` method
+
+The `alias_command` method creates an alias of a command. The first
+parameter is the name of the new command, the second parameter is the
+name of the command to be aliased; an optional third parameter is the
+description to use for the alias. If no description is provided then
+the description of the original command is used.
+
+    class MyCommands < Pry::Commands
+      alias_command "help2", "help", "An alias of help"
+    end
+
+##### `desc` method
+
+The `desc` method is used to give a command a new description. The
+first parameter is the name of the command, the second parameter is
+the description.
+
+    class MyCommands < Pry::Commands
+      desc "ls", "a new description"
+    end
+
 #### Utility methods for commands
 
 All commands can access the special `output` and `target` methods. The
@@ -372,3 +394,4 @@ exception and precedes the output of a value by the text `"Output is: "`:
                      end
                    end
     
+[Back to front page of documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
