@@ -76,12 +76,14 @@ class Pry
     end
 
     command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      doc = target.eval("method(:#{meth_name})").source
+      meth_name = target.eval("__method__").to_s if !meth_name
+      puts "blah #{meth_name.to_s}"
+      doc = target.eval("method(\"#{meth_name}\")").source
       output.puts doc
     end
 
     command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|
-      doc = target.eval("instance_method(:#{meth_name})").source
+      doc = target.eval("instance_method(#{meth_name})").source
       output.puts doc
     end
 

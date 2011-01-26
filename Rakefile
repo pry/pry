@@ -37,6 +37,12 @@ task :show_version do
   puts "Pry version: #{Pry::VERSION}"
 end
 
+desc "run pry"
+task :pry do
+  require "#{direc}/lib/pry.rb"
+  Pry.start
+end
+
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)        

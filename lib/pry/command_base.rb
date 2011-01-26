@@ -83,6 +83,29 @@ class Pry
         imported_hash = Hash[klass.commands.select { |k, v| names.include?(k) }]
         commands.merge!(imported_hash)
       end
+
+      # Create an alias for a command.
+      # @param [String] new_command The alias name.
+      # @param [String] orig_command The original command name.
+      # @example
+      #   class MyCommands < Pry::CommandBase
+      #     alias_command "help_alias", "help"
+      def alias_command(new_command_name, orig_command_name, desc=nil)
+        commands[new_command_name] = commands[orig_command_name].dup
+        commands[new_command_name][:description] = desc if desc
+      end
+
+      # Set the description for a command (replacing the old
+      # description.)
+      # @param [String] name The command name.
+      # @param [String] description The command description.
+      # @example
+      #   class MyCommands < Pry::CommandBase
+      #     desc "help", "help description"
+      #   end
+      def desc(name, description)
+        commands[name][:description] = description
+      end
     end
     
     command "help", "This menu." do |cmd|

@@ -85,8 +85,6 @@ class Pry
   def self.reset_defaults
     @input = Readline
     @output = $stdout
-
-    # FIXME
     @commands = Pry::Commands
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
