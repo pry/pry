@@ -76,18 +76,22 @@ class Pry
     end
 
     command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      if meth_name
-        meth_name = target.eval("__method__").to_s if !meth_name
-        doc = target.eval("method(\"#{meth_name}\")").source
-        output.puts doc
-      else
-        output.puts "Error: Not in a method."
+      context_meth_name = target.eval("__method__")
+      meth_name = context_meth_name if !meth_name
+
+      # fragile as it hard-codes in the __binding_impl__ method name
+      # from core_extensions.rb
+      if meth_name && meth_name != :__binding_impl__
+        code = target.eval("method(\"#{meth_name.to_s}\")").source
+        output.puts code
+        next
       end
+      output.puts "Error: Not in a method."
     end
 
     command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|
-      doc = target.eval("instance_method(\"#{meth_name}\")").source
-      output.puts doc
+      code = target.eval("instance_method(\"#{meth_name}\")").source
+      output.puts code
     end
 
     command "jump_to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
