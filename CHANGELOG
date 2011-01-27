@@ -1,3 +1,6 @@
+27/1/2010 version 0.4.5
+* fixed show_method (though fragile as it references __binding_impl__
+	directly, making a name change to that method difficult
 27/1/2010 version 0.4.4
 * oops, added examples/ directory
 26/1/2010 version 0.4.3
