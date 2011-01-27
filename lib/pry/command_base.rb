@@ -87,9 +87,11 @@ class Pry
       # Create an alias for a command.
       # @param [String] new_command The alias name.
       # @param [String] orig_command The original command name.
+      # @param [String] desc The optional description.
       # @example
       #   class MyCommands < Pry::CommandBase
       #     alias_command "help_alias", "help"
+      #   end
       def alias_command(new_command_name, orig_command_name, desc=nil)
         commands[new_command_name] = commands[orig_command_name].dup
         commands[new_command_name][:description] = desc if desc
