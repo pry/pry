@@ -13,14 +13,21 @@ class MyCommands < Pry::CommandBase
     output.puts "No, i refuse to display any useful information."
   end
 
+  # bring in just the status command from Pry::Commands
+  import_from Pry::Commands, "status"
+
+  # analagy to Ruby's native alias_method idiom for decorating a method
+  alias_command "old_status", "status", ""
+  
   # Invoke one command from within another using `run`
-  command "status2" do |x|
+  command "status", "Modified status."  do |x|
     output.puts "About to show status, are you ready?"
-    run "status", x
+    run "old_status", x
     output.puts "Finished showing status."
   end
 
-  import_from Pry::Commands, "quit", "show_method", "ls"
+  # bring in a few other commands
+  import_from Pry::Commands, "quit", "show_method"
 end
 
 # Start a Pry session using the commands defined in MyCommands
