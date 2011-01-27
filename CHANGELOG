@@ -1,3 +1,9 @@
+27/1/2010 version 0.4.4
+* oops, added examples/ directory
+26/1/2010 version 0.4.3
+* added alias_command and desc methods to Pry::CommandBase
+* changed behaviour of ls_methods and ls_imethods to return sorted lists
+	of methods
 23/1/2010 version 0.4.1
 * made it so a 'def meth;end' in an object Pry session defines singleton
 	methods, not methods on the class (except in the case of
@@ -6,7 +12,7 @@
 * storing wiki in a nested git repo, as github wiki pages have their own
 	repo
 * added more tests for new method definition behaviour
-21/1/2010 version 0.4.0
+x21/1/2010 version 0.4.0
 * added command API
 * added many new commands, i.e ls_methods and friends
 * modified other commands

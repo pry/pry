@@ -24,7 +24,7 @@ def apply_spec_defaults(s)
   s.add_development_dependency("bacon",">=1.1.0")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
-  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb",
+  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "examples/**/*.rb",
                      "test/*.rb", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
 end
 
