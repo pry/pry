@@ -16,7 +16,7 @@ class MyCommands < Pry::CommandBase
   # bring in just the status command from Pry::Commands
   import_from Pry::Commands, "status"
 
-  # analagy to Ruby's native alias_method idiom for decorating a method
+  # analogy to Ruby's native alias_method idiom for decorating a method
   alias_command "old_status", "status", ""
   
   # Invoke one command from within another using `run`

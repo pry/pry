@@ -262,6 +262,23 @@ If you want to access a method of the same name, prefix the invocation by whites
   current one with `obj` as the receiver of the new session. Very useful
   when exploring large or complicated runtime state.
 
+Bindings and objects
+--------------------
+
+Pry ultimately operates on `Binding` objects. If you invoke Pry with a
+Binding object it uses that Binding. If you invoke Pry with anything
+other than a `Binding`, Pry will generate a Binding for that
+object and use that.
+
+If you want to open a Pry session on the current context and capture
+the locals you should use: `binding.pry`. If you do not care about
+capturing the locals you can simply use `pry` (which will generate a
+fresh `Binding` for the receiver).
+
+Top-level is a special case; you can start a Pry session on top-level
+*and* capture locals by simply using: `pry`. This is because Pry
+automatically uses `TOPLEVEL_BINDING` for the top-level object (main).
+
 Example Programs
 ----------------
 
