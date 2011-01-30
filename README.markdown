@@ -18,7 +18,8 @@ commands such as `show_method` and `show_doc`
 Pry is also fairly flexible and allows significant user
 customization. It is trivial to set it to read from any
 object that has a `readline` method and write to any object that has a
-`puts` method - many other aspects of Pry are also configurable.
+`puts` method - many other aspects of Pry are also configurable making
+it a good choice for implementing custom shells.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
