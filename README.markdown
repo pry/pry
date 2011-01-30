@@ -16,8 +16,8 @@ It is not based on the IRB codebase, and implements some unique REPL
 commands such as `show_method` and `show_doc`
 
 Pry is also fairly flexible and allows significant user
-customization. It is trivial to set it to read from any
-object that has a `readline` method and write to any object that has a
+[customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
+is trivial to set it to read from any object that has a `readline` method and write to any object that has a
 `puts` method - many other aspects of Pry are also configurable making
 it a good choice for implementing custom shells.
 
