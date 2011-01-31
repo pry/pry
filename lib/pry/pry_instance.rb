@@ -3,10 +3,10 @@ require 'readline'
 class Pry
 
   # The list of configuration options.
-  ConfigOptions = [:input, :output, :commands, :print,
+  CONFIG_OPTIONS = [:input, :output, :commands, :print,
                    :prompt, :hooks]
 
-  attr_accessor *ConfigOptions
+  attr_accessor *CONFIG_OPTIONS
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
@@ -21,12 +21,11 @@ class Pry
   #   component of the REPL. (see print.rb)
   def initialize(options={})
 
-    h = {}
-    ConfigOptions.each { |v| h[v] = Pry.send(v) }
-    default_options = h
+    default_options = {}
+    CONFIG_OPTIONS.each { |v| default_options[v] = Pry.send(v) }
     default_options.merge!(options)
 
-    ConfigOptions.each do |key|
+    CONFIG_OPTIONS.each do |key|
       instance_variable_set("@#{key}", default_options[key])
     end
   end
