@@ -51,8 +51,18 @@ class Pry
       throw(:breakout, 0) 
     end
 
-    command "ls", "Show the list of vars in the current scope." do
-      output.puts "#{Pry.view(target.eval('local_variables + instance_variables'))}"
+    command "ls", "Show the list of vars in the current scope. Use -c to include constants." do |arg|
+      with_constants = (arg == "-c")
+      target_self = target.eval('self')
+
+      case target_self
+      when Module
+        c = with_constants ? target_self.constants : []
+        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
+      else
+        c = with_constants ? target_self.class.constants : []
+        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
+      end
     end
 
     command "cat", "Show output of <var>.inspect." do |obj|
