@@ -286,6 +286,7 @@ Example Programs
 Pry comes bundled with a few example programs to illustrate some
 features, see the `examples/` directory.
 
+* `example_basic.rb`             - Demonstrate basic Pry functionality
 * `example_input.rb`             - Demonstrates how to set the `input` object.
 * `example_output.rb`            - Demonstrates how to set the `output` object.
 * `example_hooks.rb`             - Demonstrates how to set the `hooks` hash.
