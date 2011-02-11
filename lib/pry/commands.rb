@@ -57,10 +57,10 @@ class Pry
 
       case target_self
       when Module
-        c = with_constants ? target_self.constants : []
+        c = with_constants ? target_self.constants.inspect : [].inspect
         output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
       else
-        c = with_constants ? target_self.class.constants : []
+        c = with_constants ? target_self.class.constants.inspect : [].inspect
         output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
       end
     end

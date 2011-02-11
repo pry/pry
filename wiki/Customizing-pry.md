@@ -18,12 +18,12 @@ are:
 Local customization (applied to a single Pry session) is done by
 passing config hash options to `Pry.start()` or to `Pry.new()`; also the
 same accessors as described above for the `Pry` class exist for a
-Pry instance so that customization can occur during runtime.
+Pry instance so that customization can occur at runtime.
 
 ### Input
 
 For input Pry accepts any object that implements the `readline` method. This
-includes `IO` objects, `StringIO`, `Readline` and custom objects. Pry
+includes `IO` objects, `StringIO`, `Readline`, `File` and custom objects. Pry
 initially defaults to using `Readline` for input.
 
 #### Example: Setting global input
@@ -69,7 +69,7 @@ the current session is nested) like so:
 ### Output
 
 For output Pry accepts any object that implements the `puts` method. This
-includes `IO` objects, `StringIO` and custom objects. Pry initially
+includes `IO` objects, `StringIO`, `File` and custom objects. Pry initially
 defaults to using `$stdout` for output.
 
 #### Example: Setting global output
@@ -109,8 +109,8 @@ A valid Pry command object must inherit from
 #### Example: Defining a command object and setting it globally
 
     class MyCommands < Pry::CommandBase
-      command "greet", "Greet the user." do |name|
-        output.puts "Hello #{name.capitalize}, how are you?"
+      command "greet", "Greet the user." do |name, age|
+        output.puts "Hello #{name.capitalize}, how does it feel being #{age}?"
       end
     end
 
@@ -118,8 +118,8 @@ A valid Pry command object must inherit from
 
 Then inside a pry session:
 
-    pry(main)> greet john
-    hello John, how are you?
+    pry(main)> greet john 9
+    Hello John, how does it feel being 9?
     => nil
 
 #### Example: Using a command object in a specific session
@@ -165,9 +165,9 @@ command.
 
 ##### `delete` method
 
-The `delete` method deletes a command or a group of a commands; it
-can be useful when inheriting from another command set when you decide
-to keep only a portion of inherited commands.
+The `delete` method deletes a command or a group of commands. It
+can be useful when inheriting from another command set and you wish
+to keep only a portion of the inherited commands.
 
     class MyCommands < Pry::Commands
       delete "show_method", "show_imethod"
