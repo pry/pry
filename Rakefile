@@ -32,11 +32,6 @@ task :test do
   sh "bacon -k #{direc}/test/test.rb"
 end
 
-desc "display the Pry version"
-task :show_version do
-  puts "Pry version: #{Pry::VERSION}"
-end
-
 desc "run pry"
 task :pry do
   require "#{direc}/lib/pry.rb"
