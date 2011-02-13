@@ -6,8 +6,8 @@ class Pry
   # Default commands used by Pry.
   class Commands < CommandBase
     
-    command "!", "Refresh the REPL" do
-      output.puts "Refreshed REPL"
+    command "!", "Clear the input buffer. Useful if the parsing process goes wrong." do
+      output.puts "Input buffer cleared!"
       opts[:eval_string].clear
     end
 
@@ -27,9 +27,9 @@ class Pry
       out.puts "--"
       nesting.each do |level, obj|
         if level == 0
-          out.puts "#{level}. #{Pry.view(obj)} (Pry top level)"
+          out.puts "#{level}. #{Pry.view_clip(obj)} (Pry top level)"
         else
-          out.puts "#{level}. #{Pry.view(obj)}"
+          out.puts "#{level}. #{Pry.view_clip(obj)}"
         end
       end
     end
@@ -40,7 +40,7 @@ class Pry
       
       out.puts "Status:"
       out.puts "--"
-      out.puts "Receiver: #{Pry.view(target.eval('self'))}"
+      out.puts "Receiver: #{Pry.view_clip(target.eval('self'))}"
       out.puts "Nesting level: #{nesting.level}"
       out.puts "Local variables: #{Pry.view(target.eval('local_variables'))}"
       out.puts "Pry instance: #{Pry.active_instance}"
@@ -51,17 +51,26 @@ class Pry
       throw(:breakout, 0) 
     end
 
-    command "ls", "Show the list of vars in the current scope. Use -c to include constants." do |arg|
-      with_constants = (arg == "-c")
+    command "ls", "Show the list of vars in the current scope. Use -c to include constants and -g to include globals." do |*args|
+      params = []
+      args.each do |v|
+        if v[0].chr == "-"
+          params += v[1..-1].split("")
+        end
+      end
+
       target_self = target.eval('self')
+
+      extras = []
+      extras += target.eval("global_variables") if params.include?("g")
 
       case target_self
       when Module
-        c = with_constants ? target_self.constants.inspect : [].inspect
-        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
+        extras += target.eval("constants") if params.include?("c")
+        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{extras.inspect}"))}"
       else
-        c = with_constants ? target_self.class.constants.inspect : [].inspect
-        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{c}"))}"
+        extras += target.eval("self.class.constants") if params.include?("c")
+        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{extras.inspect}"))}"
       end
     end
 
@@ -104,6 +113,17 @@ class Pry
       output.puts code
     end
 
+    command "show_command", "Show sourcecode for a Pry command, e.g: show_command ls" do |command_name|
+      cmds = Pry.active_instance.commands.commands
+      
+      if cmds[command_name]
+        code = cmds[command_name][:action].source
+        output.puts code
+      else
+        output.puts "No such command: #{command_name}."
+      end
+    end
+    
     command "jump_to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
       break_level = break_level.to_i
       nesting = opts[:nesting]

@@ -38,16 +38,16 @@ class WinClass < Gosu::Window
 
   def initialize
     super(WIDTH, HEIGHT, false)
-    @img = TexPlay.create_image(self, 200, 200).clear :color => :black
-    @img.rect 0, 0, @img.width - 1, @img.height - 1
+    $img = TexPlay.create_image(self, 200, 200).clear :color => :black
+    $img.rect 0, 0, $img.width - 1, $img.height - 1
     
-    @binding = @img.__binding__
+    @binding = $img.__binding__
     
     @pry_instance = Pry.new(:commands => ImageCommands, :prompt => IMAGE_PROMPT)
   end
 
   def draw
-    @img.draw_rot(WIDTH / 2, HEIGHT / 2, 1, 0, 0.5, 0.5) 
+    $img.draw_rot(WIDTH / 2, HEIGHT / 2, 1, 0, 0.5, 0.5) 
   end
 
   def update
@@ -57,7 +57,7 @@ class WinClass < Gosu::Window
     # being updated; instead we do a REP session, and let the image
     # update each time the user presses enter. We maintain the same
     # binding object to keep locals between calls to `Pry#rep()`
-    @pry_instance.rep(@binding)
+#    @pry_instance.rep(@binding)
   end
 end
 
@@ -66,5 +66,7 @@ puts "--"
 puts "Example: Try typing 'circle width/2, height/2, 95, :color => :blue, :fill => true'"
 puts "If you want to save your image, type: save(\"img.png\")"
 
-WinClass.new.show
+w = WinClass.new
+Thread.new { Pry.start(w) }
+w.show
 

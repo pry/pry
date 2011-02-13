@@ -1,20 +1,22 @@
 class Pry
 
+  
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc do |target_self, nest_level|
+
                       if nest_level == 0
-                        "pry(#{Pry.view(target_self)})> "
+                        "pry(#{Pry.view_clip(target_self)})> "
                       else
-                        "pry(#{Pry.view(target_self)}):#{Pry.view(nest_level)}> "
+                        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}> "
                       end
                     end,
                     
                     proc do |target_self, nest_level|
                       if nest_level == 0
-                        "pry(#{Pry.view(target_self)})* "
+                        "pry(#{Pry.view_clip(target_self)})* "
                       else
-                        "pry(#{Pry.view(target_self)}):#{Pry.view(nest_level)}* "
+                        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}* "
                       end
                     end
                    ]
