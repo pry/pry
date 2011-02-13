@@ -81,6 +81,19 @@ class Pry
     end
   end
 
+  # A version of `Pry.view` that clips the output to `max_size` chars.
+  # In case of > `max_size` chars the `#<Object...> notation is used.
+  # @param obj The object to view.
+  # @param max_size The maximum number of chars before clipping occurs.
+  # @return [String] The string representation of `obj`.
+  def self.view_clip(obj, max_size=60)
+    if Pry.view(obj).size < max_size
+      Pry.view(obj)
+    else
+      "#<#{obj.class}:%#x>" % (obj.object_id << 1)
+    end
+  end
+
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @input = Readline
