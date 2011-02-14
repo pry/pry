@@ -5,6 +5,16 @@ class Pry
 
   # Default commands used by Pry.
   class Commands < CommandBase
+
+    # We make this a lambda to avoid documenting it
+    meth_name_from_binding = lambda do |b|
+      meth_name = b.eval('__method__')
+      if [nil, :__binding__, :__binding_impl__].include?(meth_name)
+        nil
+      else
+        meth_name
+      end
+    end
     
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong." do
       output.puts "Input buffer cleared!"
@@ -42,11 +52,19 @@ class Pry
       out.puts "--"
       out.puts "Receiver: #{Pry.view_clip(target.eval('self'))}"
       out.puts "Nesting level: #{nesting.level}"
-      out.puts "Local variables: #{Pry.view(target.eval('local_variables'))}"
+      out.puts "Pry version: #{Pry::VERSION}"
+      out.puts "Ruby version: #{RUBY_VERSION}"
+
+      mn = meth_name_from_binding.call(target)
+      out.puts "Current method: #{mn ? mn : "N/A"}"
       out.puts "Pry instance: #{Pry.active_instance}"
       out.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
+    command "version", "Show Pry version." do
+      output.puts "Pry version: #{Pry::VERSION}"
+    end
+    
     command "exit_all", "End all nested Pry sessions." do
       throw(:breakout, 0) 
     end
@@ -78,6 +96,8 @@ class Pry
       out = output
       out.puts target.eval("#{obj}.inspect")
     end
+
+    alias_command "inspect", "cat", ""
     
     command "cd", "Start a Pry session on <var> (use `cd ..` to go back)" do |obj|
       throw(:breakout, opts[:nesting].level) if obj == ".."
@@ -95,17 +115,13 @@ class Pry
     end
 
     command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      context_meth_name = target.eval("__method__")
-      meth_name = context_meth_name if !meth_name
-
-      # fragile as it hard-codes in the __binding_impl__ method name
-      # from core_extensions.rb
-      if meth_name && meth_name != :__binding_impl__
+      meth_name = meth_name_from_binding.call(target) if !meth_name
+      if meth_name
         code = target.eval("method(\"#{meth_name.to_s}\")").source
         output.puts code
-        next
+      else
+        output.puts "Error: Not in a method."
       end
-      output.puts "Error: Not in a method."
     end
 
     command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|

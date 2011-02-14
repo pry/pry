@@ -1,4 +1,5 @@
 require 'readline'
+require 'shellwords'
 
 class Pry
 
@@ -188,7 +189,7 @@ class Pry
 
     if pattern
       args_string = $1
-      args = args_string ? args_string.split : []
+      args = args_string ? Shellwords.shellwords(args_string) : []
       action = data[:action]
       
       options = {
