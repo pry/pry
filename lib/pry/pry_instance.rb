@@ -71,7 +71,7 @@ class Pry
   # @example
   #   Pry.new.repl(Object.new)
   def repl(target=TOPLEVEL_BINDING)
-    target = binding_for(target)
+    target = Pry.binding_for(target)
     target_self = target.eval('self')
 
     exec_hook :before_session, output, target_self
@@ -111,7 +111,7 @@ class Pry
   # @example
   #   Pry.new.rep(Object.new)
   def rep(target=TOPLEVEL_BINDING)
-    target = binding_for(target)
+    target = Pry.binding_for(target)
     print.call output, re(target)
   end
 
@@ -122,7 +122,7 @@ class Pry
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
-    target = binding_for(target)
+    target = Pry.binding_for(target)
 
     if input == Readline
       # Readline tab completion
@@ -154,13 +154,17 @@ class Pry
   # @example
   #   Pry.new.r(Object.new)
   def r(target=TOPLEVEL_BINDING)
-    target = binding_for(target)
+    target = Pry.binding_for(target)
     eval_string = ""
 
     loop do
       current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
 
       val = readline(current_prompt)
+
+      # exit pry if we receive EOF character
+      val = "quit" if !val
+      
       val.chomp!
 
       process_commands(val, eval_string, target)
@@ -287,23 +291,6 @@ class Pry
       false
     else
       true
-    end
-  end
-
-  # Return a `Binding` object for `target` or return `target` if it is
-  # already a `Binding`.
-  # In the case where `target` is top-level then return `TOPLEVEL_BINDING`
-  # @param [Object] target The object to get a `Binding` object for.
-  # @return [Binding] The `Binding` object.
-  def binding_for(target)
-    if target.is_a?(Binding)
-      target
-    else
-      if target == TOPLEVEL_BINDING.eval('self')
-        TOPLEVEL_BINDING
-      else
-        target.__binding__
-      end
     end
   end
 end

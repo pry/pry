@@ -117,4 +117,21 @@ class Pry
     # last element in nesting array is the pry instance
     nesting.map(&:last)
   end
+
+  # Return a `Binding` object for `target` or return `target` if it is
+  # already a `Binding`.
+  # In the case where `target` is top-level then return `TOPLEVEL_BINDING`
+  # @param [Object] target The object to get a `Binding` object for.
+  # @return [Binding] The `Binding` object.
+  def self.binding_for(target)
+    if target.is_a?(Binding)
+      target
+    else
+      if target == TOPLEVEL_BINDING.eval('self')
+        TOPLEVEL_BINDING
+      else
+        target.__binding__
+      end
+    end
+  end
 end
