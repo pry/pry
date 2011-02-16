@@ -27,7 +27,7 @@ class MyCommands < Pry::CommandBase
   end
 
   # bring in a few other commands
-  import_from Pry::Commands, "quit", "show_method"
+  import_from Pry::Commands, "quit", "show-method"
 end
 
 # Start a Pry session using the commands defined in MyCommands
