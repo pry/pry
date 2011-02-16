@@ -200,12 +200,12 @@ describe Pry do
         end
       end
 
-      describe "Pry#binding_for" do
+      describe "Pry.binding_for" do
         it 'should return TOPLEVEL_BINDING if parameter self is main' do
           _main_ = lambda { TOPLEVEL_BINDING.eval('self') }
-          Pry.new.binding_for(_main_.call).is_a?(Binding).should == true
-          Pry.new.binding_for(_main_.call).should == TOPLEVEL_BINDING
-          Pry.new.binding_for(_main_.call).should == Pry.new.binding_for(_main_.call)
+          Pry.binding_for(_main_.call).is_a?(Binding).should == true
+          Pry.binding_for(_main_.call).should == TOPLEVEL_BINDING
+          Pry.binding_for(_main_.call).should == Pry.binding_for(_main_.call)
         end
       end
 
@@ -346,7 +346,7 @@ describe Pry do
             end
 
             Command3.commands.include?("nesting").should == true
-            Command3.commands.include?("jump_to").should == true
+            Command3.commands.include?("jump-to").should == true
             Command3.commands.include?("cd").should == true
             Command3.commands.include?("v").should == true
 
@@ -422,7 +422,7 @@ describe Pry do
 
           it 'should import commands from another command object' do
             class Command3 < Pry::CommandBase
-              import_from Pry::Commands, "status", "jump_to"
+              import_from Pry::Commands, "status", "jump-to"
             end
 
             str_output = StringIO.new
@@ -443,7 +443,7 @@ describe Pry do
             end
 
             Command3.commands.include?("nesting").should == true
-            Command3.commands.include?("jump_to").should == true
+            Command3.commands.include?("jump-to").should == true
             Command3.commands.include?("cd").should == true
             Command3.commands.include?("v").should == true
             Command3.commands.include?("show_doc").should == false
@@ -455,8 +455,8 @@ describe Pry do
 
           it 'should override some inherited commands' do
             class Command3 < Pry::Commands
-              command "jump_to" do
-                output.puts "jump_to the music"
+              command "jump-to" do
+                output.puts "jump-to the music"
               end
 
               command "help" do
@@ -468,8 +468,8 @@ describe Pry do
             Pry.print = proc {}
             
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("jump_to"), :output => str_output, :commands => Command3).rep
-            str_output.string.chomp.should == "jump_to the music"
+            Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => Command3).rep
+            str_output.string.chomp.should == "jump-to the music"
 
             str_output = StringIO.new
             Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => Command3).rep

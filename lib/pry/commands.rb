@@ -1,5 +1,6 @@
 direc = File.dirname(__FILE__)
 require "#{direc}/command_base"
+require "optparse"
 
 class Pry
 
@@ -25,9 +26,11 @@ class Pry
       Pry.start(target)
     end
 
-    command ["exit_program", "quit_program"], "End the current program." do
+    command "exit-program", "End the current program. Aliases: quit-program" do
       exit
     end
+
+    alias_command "quit-program", "exit-program", ""
 
     command "nesting", "Show nesting information." do 
       out = output
@@ -65,82 +68,267 @@ class Pry
       output.puts "Pry version: #{Pry::VERSION}"
     end
     
-    command "exit_all", "End all nested Pry sessions." do
+    command "exit-all", "End all nested Pry sessions." do
       throw(:breakout, 0) 
     end
 
-    command "ls", "Show the list of vars in the current scope. Use -c to include constants and -g to include globals." do |*args|
-      params = []
-      args.each do |v|
-        if v[0].chr == "-"
-          params += v[1..-1].split("")
+    command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
+      options = {}
+
+      # Set target local to the default -- note that we can set a different target for
+      # ls if we like: e.g ls my_var
+      target = target()
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: ls [OPTIONS] [VAR]\n\
+List information about VAR (the current context by default).
+Always shows local and instance variables by default; use -r to restrict to specific types.
+--
+}
+
+        opts.on("-g", "--globals", "Display global variables.") do |g|
+          options[:g] = true
         end
+        
+        opts.on("-c", "--constants", "Display constants.") do |c|
+          options[:c] = true
+        end
+
+        opts.on("-l", "--locals", "Display locals.") do |c|
+          options[:l] = true
+        end
+
+        opts.on("-i", "--ivars", "Display instance variables.") do |c|
+          options[:i] = true
+        end
+
+        opts.on("-k", "--class-vars", "Display class variables.") do |c|
+          options[:k] = true
+        end        
+
+        opts.on("-m", "--methods", "Display methods.") do |c|
+          options[:m] = true
+        end
+
+        opts.on("-M", "--instance-methods", "Display instance methods (only relevant to classes and modules).") do |c|
+          options[:M] = true
+        end
+
+        opts.on("-s", "--super", "Include superclass entries (relevant to constant and methods options).") do |c|
+          options[:s] = true
+        end
+        
+        opts.on("-r", "--restrict", "Restrict to specified types.") do |c|
+          options[:r] = true
+        end
+
+        opts.on("-a", "--all", "Display all types of entries.") do |a|
+          options[:a] = true
+        end
+
+        opts.on("-v", "--verbose", "Verbose ouput.") do |c|
+          options[:v] = true
+        end
+
+        opts.on_tail("-h", "--help", "Show this message.") do
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |new_target|
+        target = Pry.binding_for(target.eval("#{new_target}")) if !options[:h]
       end
 
+      # exit if we've displayed help
+      next if options[:h]
+
+      info = {}
       target_self = target.eval('self')
 
-      extras = []
-      extras += target.eval("global_variables") if params.include?("g")
+      # ensure we have a real boolean and not a `nil` (important when
+      # interpolating in the string)
+      options[:s] = !!options[:s]
+      
+      # Numbers (e.g 0, 1, 2) are for ordering the hash values in Ruby
+   # 1.8
+      i = -1
+      info["local variables"] = Array(target.eval("local_variables")).sort, i += 1 if !options[:r] || options[:l] || options[:a]
+      info["instance variables"] = Array(target.eval("instance_variables")).sort, i += 1 if !options[:r] || options[:i] || options[:a]
+      info["class variables"] = (target_self.is_a?(Module) ? Array(target.eval("class_variables")).sort : Array(target.eval("self.class.class_variables")).sort), i += 1 if !options[:r] || options[:k] || options[:a]
 
-      case target_self
-      when Module
-        extras += target.eval("constants") if params.include?("c")
-        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{extras.inspect}"))}"
+      info["global variables"] = Array(target.eval("global_variables")).sort, i += 1 if options[:g] || options[:a]
+      
+      info["methods"] = Array(target.eval("methods(#{options[:s]}) + public_methods(#{options[:s]}) +\
+        protected_methods(#{options[:s]}) +\
+        private_methods(#{options[:s]})")).uniq.sort, i += 1 if options[:m] || options[:a]
+
+      info["instance methods"] = Array(target.eval("instance_methods(#{options[:s]}) +\
+        public_instance_methods(#{options[:s]}) +\
+        protected_instance_methods(#{options[:s]}) +\
+        private_instance_methods(#{options[:s]})")).uniq.sort, i += 1 if target_self.is_a?(Module) && (options[:M] || options[:a])
+      
+      # dealing with 1.8/1.9 compatibility issues :/
+      csuper = options[:s]
+      if Module.method(:constants).arity == 0
+        csuper = nil
+      end
+        
+      info["constants"] = Array(target_self.is_a?(Module) ? target.eval("constants(#{csuper})") :
+        target.eval("self.class.constants(#{csuper})")).uniq.sort, i += 1 if options[:c] || options[:a]
+
+      # verbose output?
+      if options[:v]
+
+        # verbose
+        info.each.sort_by { |k, v| v.last }.each do |k, v|
+          if !v.first.empty?
+            output.puts "#{k}:\n--"
+            output.puts Pry.view(v.first)
+            output.puts
+          end
+        end
+
+      # plain
       else
-        extras += target.eval("self.class.constants") if params.include?("c")
-        output.puts "#{Pry.view(target.eval("local_variables + instance_variables + #{extras.inspect}"))}"
+        output.puts Pry.view(info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+))
       end
     end
 
-    command "cat", "Show output of <var>.inspect." do |obj|
-      out = output
-      out.puts target.eval("#{obj}.inspect")
+    command "cat", "Show output of VAR.inspect. Aliases: inspect" do |obj|
+      if !obj
+        output.puts "Must provide an object to inspect."
+        next
+      end
+      
+      output.puts target.eval("#{obj}.inspect")
     end
 
     alias_command "inspect", "cat", ""
     
-    command "cd", "Start a Pry session on <var> (use `cd ..` to go back)" do |obj|
+    command "cd", "Start a Pry session on VAR (use `cd ..` to go back)" do |obj|
+      if !obj
+        output.puts "Must provide an object."
+        next
+      end
+      
       throw(:breakout, opts[:nesting].level) if obj == ".."
       target.eval("#{obj}.pry")
     end
 
-    command "show_doc", "Show the comments above <methname>" do |meth_name|
-      doc = target.eval("method(:#{meth_name})").comment
-      output.puts doc
-    end
+    command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info." do |*args|
+      options = {}
+      meth_name = nil
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: show-doc [OPTIONS] [METH]
+Show the comments above method METH. Shows _method_ comments (rather than instance methods) by default.
+e.g show-doc hello_method
+--
+}
+        opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do |m|
+          options[:M] = true
+        end
 
-    command "show_idoc", "Show the comments above instance method <methname>" do |meth_name|
-      doc = target.eval("instance_method(:#{meth_name})").comment
-      output.puts doc
-    end
-
-    command "show_method", "Show sourcecode for method <methname>." do |meth_name|
-      meth_name = meth_name_from_binding.call(target) if !meth_name
-      if meth_name
-        code = target.eval("method(\"#{meth_name.to_s}\")").source
-        output.puts code
-      else
-        output.puts "Error: Not in a method."
+        opts.on_tail("-h", "--help", "This message.") do |h|
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        meth_name = v
       end
+
+      next if options[:h]
+
+      if !meth_name
+        output.puts "You need to specify a method. Type `show-doc --help` for help"
+        next
+      end
+      
+      begin
+        if options[:M]
+          meth = target.eval("instance_method(:#{meth_name})")
+        else
+          meth = target.eval("method(:#{meth_name})")
+        end
+      rescue
+        output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
+        next
+      end
+
+      doc = meth.comment
+      file, line = meth.source_location
+      output.puts "From #{file} @ line ~#{line}:"
+      output.puts doc
     end
 
-    command "show_imethod", "Show sourcecode for instance method <methname>." do |meth_name|
-      code = target.eval("instance_method(\"#{meth_name}\")").source
+    command "show-method", "Show the source for METH. Type `show-method --help` for more info." do |*args|
+      options = {}
+      meth_name = nil
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: show-method [OPTIONS] [METH]
+Show the source for method METH. Shows _method_ source (rather than instance methods) by default.
+e.g: show-method hello_method
+--
+}
+        opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do |m|
+          options[:M] = true
+        end
+
+        opts.on_tail("-h", "--help", "This message.") do |h|
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        meth_name = v
+      end
+
+      next if options[:h]
+
+      # If no method name is given then use current method, if it exists
+      meth_name = meth_name_from_binding.call(target) if !meth_name
+
+      if !meth_name
+        output.puts "You need to specify a method. Type `show-method --help` for help"
+        next
+      end
+      
+      begin
+        if options[:M]
+          meth = target.eval("instance_method(:#{meth_name})")
+        else
+          meth = target.eval("method(:#{meth_name})")
+        end
+      rescue
+        output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
+        next
+      end
+
+      code = meth.source
+      file, line = meth.source_location
+      output.puts "From #{file} @ line #{line}:"
       output.puts code
     end
-
-    command "show_command", "Show sourcecode for a Pry command, e.g: show_command ls" do |command_name|
+    
+    command "show-command", "Show sourcecode for a Pry command, e.g: show-command ls" do |command_name|
       cmds = Pry.active_instance.commands.commands
       
+      if !command_name
+        output.puts "You must provide a command name."
+        next
+      end
+      
       if cmds[command_name]
-        code = cmds[command_name][:action].source
+        meth = cmds[command_name][:action]
+        code = meth.source
+        file, line = meth.source_location
+        output.puts "From #{file} @ line #{line}:"
         output.puts code
       else
         output.puts "No such command: #{command_name}."
       end
     end
     
-    command "jump_to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
+    command "jump-to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
       break_level = break_level.to_i
       nesting = opts[:nesting]
 
@@ -155,16 +343,11 @@ class Pry
       end
     end
 
-    command "ls_methods", "List all methods defined on class of receiver." do
-      output.puts "#{Pry.view(target.eval('(public_methods(false) + private_methods(false) + protected_methods(false)).sort'))}"
-    end
-
-    command "ls_imethods", "List all instance methods defined on class of receiver." do
-      output.puts "#{Pry.view(target.eval('(public_instance_methods(false) + private_instance_methods(false) + protected_instance_methods(false)).sort'))}"
-    end
-
-    command ["exit", "quit", "back"], "End the current Pry session." do
+    command "exit", "End the current Pry session. Aliases: quit, back" do
       throw(:breakout, opts[:nesting].level)
     end
+
+    alias_command "quit", "exit", ""
+    alias_command "back", "exit", ""
   end
 end

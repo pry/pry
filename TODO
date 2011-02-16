@@ -1,0 +1,16 @@
+0.5.0 release:
+* !!!! UPDATE DOCUMENTATION !!!!
+* Use clipped version of Pry.view() for large objects
+* Exit Pry session on ^d
+* Use Shellwords for breaking up parameters to pry commands
+* Use OptionParser to parse options for default pry commands
+* Add version command
+* Refactor 'status' command: add current method info
+* Add meth_name_from_binding utility lambda to commands.rb
+* Add -g, -m, -v(erbose), -a(ll), -s(uper), -l(ocals), -i(ivars), -k(klass vars) options to ls
+* add -i(nstance) option to show_method
+* add --help option to most commands
+* Get rid of ls_method and ls_imethods (subsumed by more powerful ls)
+* Get rid of show_idoc and show_imethod
+* Support YARD and Rdoc documentation
+* Add special load-file command that evals target file in current context
