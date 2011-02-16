@@ -13,7 +13,7 @@ session to your code (with Pry) instead of bringing your code to a
 REPL session (as with IRB).
 
 It is not based on the IRB codebase, and implements some unique REPL
-commands such as `show_method` and `show_doc`
+commands such as `show-method`, `show-doc`, `ls` and `cd`
 
 Pry is also fairly flexible and allows significant user
 [customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
@@ -121,9 +121,9 @@ command. E.g
     => nil
 
 We can then jump back to any of the previous nesting levels by using
-the `jump_to` command:
+the `jump-to` command:
 
-    pry("friend":3)> jump_to 1
+    pry("friend":3)> jump-to 1
     Ending Pry session for "friend"
     Ending Pry session for 100
     => 100
@@ -133,9 +133,9 @@ If we just want to go back one level of nesting we can of course
 use the `quit` or `exit` or `back` commands.
 
 To break out of all levels of Pry nesting and return immediately to the
-calling process use `exit_all`:
+calling process use `exit-all`:
 
-    pry("friend":3)> exit_all
+    pry("friend":3)> exit-all
     Ending Pry session for "friend"
     Ending Pry session for 100
     Ending Pry session for Hello
@@ -163,8 +163,8 @@ end.
 * Use `_pry_` to reference the Pry instance managing the current session.
 * Pry supports tab completion.
 * Pry has multi-line support built in.
-* Pry has special commands not found in many other Ruby REPLs: `show_method`, `show_doc`
-`jump_to`, `ls`, `cd`, `cat`
+* Pry has special commands not found in many other Ruby REPLs: `show-method`, `show-doc`
+`jump-to`, `ls`, `cd`, `cat`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
 * Pry is not based on the IRB codebase.
 * Pry allows significant customizability.
@@ -183,7 +183,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
   and so does not have an executable. It is designed to be used by
   other programs, not on its own. For a full-featured `irb` replacement
   see [ripl](https://github.com/cldwalker/ripl)
-* Pry's `show_method` and `show_doc` commands do not work
+* Pry's `show-method` and `show-doc` commands do not work
   in Ruby 1.8.
 
 Commands
@@ -229,35 +229,34 @@ whitespace in between.
 
 If you want to access a method of the same name, prefix the invocation by whitespace.
 
-* Typing `!` on a line by itself will refresh the REPL - useful for
-  getting you out of a situation if the parsing process
-  goes wrong.
+* Typing `!` on a line by itself will clear the input buffer - useful for
+  getting you out of a situation where the parsing process
+  goes wrong and you get stuck in an endless read loop.
 * `status` shows status information about the current session.
+* `version` Show Pry version information
 * `help` shows the list of session commands with brief explanations.
 * `exit` or `quit` or `back` will end the current Pry session and go
   back to the calling process or back one level of nesting (if there
   are nested sessions).
-* `ls` returns a list of local variables and instance variables in the
-  current scope
-* `ls_methods` List all methods defined on immediate class of receiver.
-* `ls_imethods` List all instance methods defined on receiver.
-* `cat <var>` Calls `inspect` on `<var>`
-* `cd <var>` Starts a `Pry` session on the variable <var>. E.g `cd @x`
+* `ls [OPTIONS] [VAR]` returns a list of local variables, instance variables, and
+  methods, etc. Highly flexible. See `ls --help` for more info.
+* `cat VAR` Calls `inspect` on `VAR`
+* `cd VAR` Starts a `Pry` session on the variable VAR. E.g `cd @x`
 (use `cd ..` to go back).
-* `show_method <methname>` Displays the sourcecode for the method
-  <methname>. E.g `show_method hello`
-* `show_imethod <methname>` Displays the sourcecode for the
-  instance method <methname>. E.g `show_imethod goodbye`
-* `show_doc <methname>` Displays comments for `<methname>`
-* `show_idoc <methname>` Displays comments for instance
-  method `<methname>`
-* `exit_program` or `quit_program` will end the currently running
+* `show-method [OPTIONS] METH` Displays the sourcecode for the method
+  `METH`. E.g `show-method hello`. See `show-method --help` for more info.
+* `show-doc [OPTIONS] METH` Displays comments for `METH`. See `show-doc
+  --help` for more info.
+* `exit-program` or `quit-program` will end the currently running
   program.
 * `nesting` Shows Pry nesting information.
+* `cat-file FILE` Displays the contents of a file on disk in the Pry session.
+* `eval-file [OPTIONS] FILE` Evals a Ruby script at top-level or in
+  the current context. See `eval-file --help` for more info.
 * `!pry` Starts a Pry session on the implied receiver; this can be
   used in the middle of an expression in multi-line input.
-* `jump_to <nest_level>`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
-* `exit_all` breaks out of all Pry nesting levels and returns to the
+* `jump-to NEST_LEVEL`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
+* `exit-all` breaks out of all Pry nesting levels and returns to the
   calling process.
 * You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
   current one with `obj` as the receiver of the new session. Very useful
@@ -308,7 +307,3 @@ Contact
 -------
 
 Problems or questions contact me at [github](http://github.com/banister)
-
-
-
-

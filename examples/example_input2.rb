@@ -13,7 +13,7 @@ nesting
 puts 'hello from 2!!'
 _pry_.parent.input = Readline
 back
-exit_all
+exit-all
 CMDS
 
 # create our StringIO object

@@ -12,5 +12,4 @@
 * add --help option to most commands
 * Get rid of ls_method and ls_imethods (subsumed by more powerful ls)
 * Get rid of show_idoc and show_imethod
-* Support YARD and Rdoc documentation
 * Add special load-file command that evals target file in current context
