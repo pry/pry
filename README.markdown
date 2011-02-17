@@ -235,7 +235,7 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `status` shows status information about the current session.
 * `version` Show Pry version information
 * `help` shows the list of session commands with brief explanations.
-* `exit` or `quit` or `back` will end the current Pry session and go
+* `exit` or `quit` or `back` or `^d` (control-d) will end the current Pry session and go
   back to the calling process or back one level of nesting (if there
   are nested sessions).
 * `ls [OPTIONS] [VAR]` returns a list of local variables, instance variables, and
