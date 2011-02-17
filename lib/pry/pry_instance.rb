@@ -163,7 +163,10 @@ class Pry
       val = readline(current_prompt)
 
       # exit pry if we receive EOF character
-      val = "quit" if !val
+      if !val
+        output.puts
+        throw(:breakout, nesting.level) 
+      end
       
       val.chomp!
 
