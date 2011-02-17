@@ -93,11 +93,11 @@ an instance variable inside that class:
     pry(main)*   @x = 20
     pry(main)* end
     => 20
-    pry(main)> Hello.pry
+    pry(main)> cd Hello
     Beginning Pry session for Hello
     pry(Hello):1> instance_variables
     => [:@x]
-    pry(Hello):1> @x.pry
+    pry(Hello):1> cd @x
     Beginning Pry session for 20
     pry(20:2)> self + 10
     => 30
