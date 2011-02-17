@@ -111,6 +111,18 @@ Shows local and instance variables by default.
           options[:M] = true
         end
 
+        opts.on("-P", "--public", "Display public methods.") do 
+          options[:P] = true
+        end
+
+        opts.on("-r", "--protected", "Display protected methods.") do 
+          options[:r] = true
+        end        
+
+        opts.on("-p", "--private", "Display private methods.") do 
+          options[:p] = true
+        end        
+
         opts.on("-s", "--super", "Include superclass entries (relevant to constant and methods options).") do 
           options[:s] = true
         end
@@ -137,10 +149,13 @@ Shows local and instance variables by default.
       # default is locals/ivars/class vars.
       # Only occurs when no options or when only option is verbose
       options.merge!({
-        :l => true,
-        :i => true,
-        :k => true
-      }) if options.empty? || (options.size == 1 && options[:v])
+                       :l => true,
+                       :i => true,
+                       :k => true
+                     }) if options.empty? || (options.size == 1 && options[:v])
+
+      # Display public methods by default if -m or -M switch is used.
+      options[:P] = true if (options[:m] || options[:M]) && !(options[:p] || options[:r])
       
       info = {}
       target_self = target.eval('self')
@@ -164,14 +179,17 @@ Shows local and instance variables by default.
 
       info["global variables"] = [Array(target.eval("global_variables")).sort, i += 1] if options[:g] || options[:a]
       
-      info["methods"] = [Array(target.eval("methods(#{options[:s]}) + public_methods(#{options[:s]}) +\
-        protected_methods(#{options[:s]}) +\
-        private_methods(#{options[:s]})")).uniq.sort, i += 1] if options[:m] || options[:a]
+      info["public methods"] = [Array(target.eval("public_methods(#{options[:s]})")).uniq.sort, i += 1] if (options[:m] && options[:P]) || options[:a]
 
-      info["instance methods"] = [Array(target.eval("instance_methods(#{options[:s]}) +\
-        public_instance_methods(#{options[:s]}) +\
-        protected_instance_methods(#{options[:s]}) +\
-        private_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && (options[:M] || options[:a])
+      info["protected methods"] = [Array(target.eval("protected_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:r]) || options[:a]
+
+      info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:p]) || options[:a]
+      
+      info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
+
+      info["protected instance methods"] = [Array(target.eval("protected_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:r]) || options[:a])
+
+      info["private instance methods"] = [Array(target.eval("private_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:p]) || options[:a])
       
       # dealing with 1.8/1.9 compatibility issues :/
       csuper = options[:s]
