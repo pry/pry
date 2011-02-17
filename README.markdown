@@ -245,17 +245,11 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `cd VAR` Starts a `Pry` session on the variable VAR. E.g `cd @x`
 (use `cd ..` to go back).
 * `show-method [OPTIONS] METH` Displays the sourcecode for the method
-  `METH`. E.g `show-method hello`. See `show-method --help` for more info.
+  `METH`. e.g `show-method hello`. See `show-method --help` for more info.
 * `show-doc [OPTIONS] METH` Displays comments for `METH`. See `show-doc
   --help` for more info.
-* `exit-program` or `quit-program` will end the currently running
-  program.
-* `nesting` Shows Pry nesting information.
-* `cat-file FILE` Displays the contents of a file on disk in the Pry session.
-* `eval-file [OPTIONS] FILE` Evals a Ruby script at top-level or in
-  the current context. See `eval-file --help` for more info.
-* `!pry` Starts a Pry session on the implied receiver; this can be
-  used in the middle of an expression in multi-line input.
+* `show-command COMMAND` Displays the sourcecode for the given Pry
+  command. e.g: `show-command cd`
 * `jump-to NEST_LEVEL`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
 * `exit-all` breaks out of all Pry nesting levels and returns to the
   calling process.
