@@ -163,6 +163,7 @@ end.
 * Use `_pry_` to reference the Pry instance managing the current session.
 * Pry supports tab completion.
 * Pry has multi-line support built in.
+* Use `^d` (control-d) to quickly break out of a session.
 * Pry has special commands not found in many other Ruby REPLs: `show-method`, `show-doc`
 `jump-to`, `ls`, `cd`, `cat`
 * Pry gives good control over nested sessions (important when exploring complicated runtime state)
