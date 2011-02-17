@@ -1,3 +1,19 @@
+17/2/2010 version 0.5.0
+* Use clipped version of Pry.view() for large objects
+* Exit Pry session on ^d
+* Use Shellwords for breaking up parameters to pry commands
+* Use OptionParser to parse options for default pry commands
+* Add version command
+* Refactor 'status' command: add current method info
+* Add meth_name_from_binding utility lambda to commands.rb
+* Add -M, -m, -v(erbose), -a(ll), -s(uper), -l(ocals), -i(ivars), -k(klass
+	vars), etc options to ls
+* add -M(instance method) options to show-method and show-doc
+* add --help option to most commands
+* Get rid of ls_method and ls_imethods (subsumed by more powerful ls)
+* Get rid of show_idoc and show_imethod
+* Add special eval-file command that evals target file in current context
+	
 27/1/2010 version 0.4.5
 * fixed show_method (though fragile as it references __binding_impl__
 	directly, making a name change to that method difficult
