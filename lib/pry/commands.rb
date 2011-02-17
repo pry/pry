@@ -103,7 +103,7 @@ Shows local and instance variables by default.
           options[:k] = true
         end        
 
-        opts.on("-m", "--methods", "Display methods.") do 
+        opts.on("-m", "--methods", "Display methods (public methods by default).") do 
           options[:m] = true
         end
 
@@ -233,8 +233,8 @@ Shows local and instance variables by default.
       
       OptionParser.new do |opts|
         opts.banner = %{Usage: eval-file [OPTIONS] FILE
-Eval a Ruby script at top-level or in the current context.
-e.g: eval-script -c "hello.rb"
+Eval a Ruby script at top-level or in the current context. Defaults to top-level.
+e.g: eval-file -c "hello.rb"
 --
 }
         opts.on("-c", "--context", "Eval the script in the current context.") do 
@@ -252,7 +252,7 @@ e.g: eval-script -c "hello.rb"
       next if options[:h]
 
       if !file_name
-        output.puts "You need to specify a file name. Type `eval-script --help` for help"
+        output.puts "You need to specify a file name. Type `eval-file --help` for help"
         next
       end
 
@@ -331,7 +331,7 @@ e.g show-doc hello_method
 
       doc = meth.comment
       file, line = meth.source_location
-      output.puts "From #{file} @ line ~#{line}:\n--"
+      output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
       output.puts doc
     end
 
@@ -380,7 +380,7 @@ e.g: show-method hello_method
 
       code = meth.source
       file, line = meth.source_location
-      output.puts "From #{file} @ line #{line}:\n--"
+      output.puts "--\nFrom #{file} @ line #{line}:\n--"
       output.puts code
     end
     
@@ -396,7 +396,7 @@ e.g: show-method hello_method
         meth = cmds[command_name][:action]
         code = meth.source
         file, line = meth.source_location
-        output.puts "From #{file} @ line #{line}:\n--"
+        output.puts "--\nFrom #{file} @ line #{line}:\n--"
         output.puts code
       else
         output.puts "No such command: #{command_name}."
