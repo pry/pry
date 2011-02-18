@@ -221,6 +221,9 @@ it returns the result of the evaluation or an Exception object in
 case of error. It also takes the same parameters as `Pry#repl()`
 * Similarly `Pry#r()` only performs the Read section of the REPL, only
 returning the Ruby expression (as a string). It takes the same parameters as all the others.
+* `Pry.run_command COMMAND` enables you to invoke Pry commands outside
+of a session, e.g `Pry.run_command "ls -m", :context => MyObject`. See
+docs for more info.
 
 ### Session commands
 
