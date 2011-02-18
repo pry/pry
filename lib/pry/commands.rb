@@ -439,5 +439,47 @@ e.g: show-method hello_method
 
     alias_command "quit", "exit", ""
     alias_command "back", "exit", ""
-  end
+
+    command "game", "" do |highest|
+      highest = highest ? highest.to_i : 100
+      num = rand(highest)
+      output.puts "Guess the number between 0-#{highest}: ('.' to quit)"
+      count = 0
+      while(true)
+        count += 1
+        str = Readline.readline("game > ", true).chomp
+        break if str == "."
+        val = str.to_i
+        output.puts "Too large!" if val > num
+        output.puts "Too small!" if val < num
+        if val == num
+          output.puts "Well done! You guessed right! It took you #{count} guesses."
+          break
+        end
+      end
+    end
+
+    command "cohen-poem", "" do
+      text = %{
+--
+When this American woman,
+whose thighs are bound in casual red cloth,
+comes thundering past my sitting place
+like a forest-burning Mongol tribe,
+the city is ravished
+and brittle buildings of a hundred years
+splash into the street;
+and my eyes are burnt
+for the embroidered Chinese girls,
+already old,
+and so small between the thin pines
+on these enormous landscapes,
+that if you turn your head
+they are lost for hours.
+-- Leonard Cohen                    
+              }
+  output.puts text
+  text
+end
+end
 end
