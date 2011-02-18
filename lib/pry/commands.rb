@@ -111,15 +111,15 @@ Shows local and instance variables by default.
           options[:M] = true
         end
 
-        opts.on("-P", "--public", "Display public methods.") do 
+        opts.on("-P", "--public", "Display public methods (with -m).") do 
           options[:P] = true
         end
 
-        opts.on("-r", "--protected", "Display protected methods.") do 
+        opts.on("-r", "--protected", "Display protected methods (with -m).") do 
           options[:r] = true
         end        
 
-        opts.on("-p", "--private", "Display private methods.") do 
+        opts.on("-p", "--private", "Display private methods (with -m).") do 
           options[:p] = true
         end        
 
