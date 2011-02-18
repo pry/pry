@@ -102,6 +102,7 @@ class Pry
   # @param [String] arg_string The Pry command (including arguments,
   #   if any).
   # @param [Hash] options Optional named parameters.
+  # @return [Object] The return value of the Pry command.
   # @option options [Object, Binding] :context The object context to run the
   #   command under. Defaults to `TOPLEVEL_BINDING` (main).
   # @option options [Boolean] :show_output Whether to show command
