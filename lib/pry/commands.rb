@@ -16,6 +16,12 @@ class Pry
         meth_name
       end
     end
+
+    check_for_dynamically_defined_method = lambda do |file|
+      if file =~ /(\(.*\))|<.*>/
+        raise "Cannot retrieve source for dynamically defined method."
+      end
+    end
     
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
@@ -72,7 +78,7 @@ class Pry
 
     command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
-        
+      
       # Set target local to the default -- note that we can set a different target for
       # ls if we like: e.g ls my_var
       target = target()
@@ -172,10 +178,10 @@ Shows local and instance variables by default.
       info["instance variables"] = [Array(target.eval("instance_variables")).sort, i += 1] if options[:i] || options[:a]
 
       info["class variables"] = [if target_self.is_a?(Module)
-                                  Array(target.eval("class_variables")).sort
-                                else
-                                  Array(target.eval("self.class.class_variables")).sort
-                                end, i += 1] if options[:k] || options[:a]
+                                   Array(target.eval("class_variables")).sort
+                                 else
+                                   Array(target.eval("self.class.class_variables")).sort
+                                 end, i += 1] if options[:k] || options[:a]
 
       info["global variables"] = [Array(target.eval("global_variables")).sort, i += 1] if options[:g] || options[:a]
       
@@ -196,9 +202,9 @@ Shows local and instance variables by default.
       if Module.method(:constants).arity == 0
         csuper = nil
       end
-        
+      
       info["constants"] = [Array(target_self.is_a?(Module) ? target.eval("constants(#{csuper})") :
-        target.eval("self.class.constants(#{csuper})")).uniq.sort, i += 1] if options[:c] || options[:a]
+                                 target.eval("self.class.constants(#{csuper})")).uniq.sort, i += 1] if options[:c] || options[:a]
 
       # verbose output?
       if options[:v]
@@ -212,9 +218,11 @@ Shows local and instance variables by default.
           end
         end
 
-      # plain
+        # plain
       else
-        output.puts Pry.view(info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+))
+        list = info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+)
+        output.puts Pry.view(list)
+        list
       end
     end
 
@@ -264,8 +272,8 @@ e.g: eval-file -c "hello.rb"
         TOPLEVEL_BINDING.eval(File.read(file_name))
         output.puts "--\nEval'd '#{file_name}' at top-level."
       end
-        new_constants = Object.constants - old_constants
-        output.puts "Brought in the following top-level constants: #{new_constants.inspect}" if !new_constants.empty?
+      new_constants = Object.constants - old_constants
+      output.puts "Brought in the following top-level constants: #{new_constants.inspect}" if !new_constants.empty?
     end      
 
     command "cat", "Show output of VAR.inspect. Aliases: inspect" do |obj|
@@ -329,8 +337,10 @@ e.g show-doc hello_method
         next
       end
 
-      doc = meth.comment
       file, line = meth.source_location
+      check_for_dynamically_defined_method.call(file)
+      doc = meth.comment
+
       output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
       output.puts doc
     end
@@ -378,26 +388,31 @@ e.g: show-method hello_method
         next
       end
 
-      code = meth.source
       file, line = meth.source_location
+      check_for_dynamically_defined_method.call(file)
+      code = meth.source
+      
       output.puts "--\nFrom #{file} @ line #{line}:\n--"
       output.puts code
+      code
     end
     
-    command "show-command", "Show sourcecode for a Pry command, e.g: show-command ls" do |command_name|
-      cmds = Pry.active_instance.commands.commands
-      
+    command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |command_name|
       if !command_name
         output.puts "You must provide a command name."
         next
       end
       
-      if cmds[command_name]
-        meth = cmds[command_name][:action]
-        code = meth.source
+      if commands[command_name]
+        meth = commands[command_name][:action]
+
         file, line = meth.source_location
+        check_for_dynamically_defined_method.call(file)
+        code = meth.source
+
         output.puts "--\nFrom #{file} @ line #{line}:\n--"
         output.puts code
+        code
       else
         output.puts "No such command: #{command_name}."
       end

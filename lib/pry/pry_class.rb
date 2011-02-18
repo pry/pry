@@ -1,4 +1,5 @@
 require 'readline'
+require 'shellwords'
 
 # @author John Mair (banisterfiend)
 class Pry
@@ -91,6 +92,47 @@ class Pry
       Pry.view(obj)
     else
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
+    end
+  end
+
+  # Run a Pry command from outside a session. The commands available are
+  # those referenced by `Pry.commands` (the default command set).
+  # Command output is suppresed by default, this is because the return
+  # value (if there is one) is likely to be more useful.
+  # @param [String] arg_string The Pry command (including arguments,
+  #   if any).
+  # @param [Hash] options Optional named parameters.
+  # @option options [Object, Binding] :context The object context to run the
+  #   command under. Defaults to `TOPLEVEL_BINDING` (main).
+  # @option options [Boolean] :show_output Whether to show command
+  #   output. Defaults to false.
+  # @example Run at top-level with no output.
+  #   Pry.run_command "ls"
+  # @example Run under Pry class, returning only public methods.
+  #   Pry.run_command "ls -m", :context => Pry
+  # @example Display command output.
+  #   Pry.run_command "ls -av", :show_output => true
+  def self.run_command(arg_string, options={})
+    name, arg_string = arg_string.split(/\s+/, 2)
+    arg_string = "" if !arg_string
+    
+    options = {
+      :context => TOPLEVEL_BINDING,
+      :show_output => false
+    }.merge!(options)
+    
+    null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
+    
+    commands = Pry.commands.dup
+    commands.output = options[:show_output] ? Pry.output : null_output
+    commands.target = Pry.binding_for(options[:context])
+
+    cmd = commands.commands[name]
+    if cmd
+      action = cmd[:action]
+      commands.instance_exec(*Shellwords.shellwords(arg_string), &action)
+    else
+      raise "No such command: #{name}"
     end
   end
 

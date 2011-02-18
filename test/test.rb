@@ -297,6 +297,43 @@ describe Pry do
           str_output2.string.should =~ /7/
         end
 
+        describe "Pry.run_command" do
+          before do
+            class RCTest
+              def a() end
+              B = 20
+              @x = 10
+            end
+          end
+
+          after do
+            Object.remove_const(:RCTest)
+          end
+          
+          it "should execute command in the appropriate object context" do
+            result = Pry.run_command "ls", :context => RCTest
+            result.map(&:to_sym).should == [:@x]
+          end
+
+          it "should execute command with parameters in the appropriate object context" do
+            result = Pry.run_command "ls -M", :context => RCTest
+            result.map(&:to_sym).should == [:a]
+          end
+
+          it "should execute command and show output with :show_output => true flag" do
+            str = StringIO.new
+            Pry.output = str
+            result = Pry.run_command "ls -av", :context => RCTest, :show_output => true
+            str.string.should =~ /global variables/
+            Pry.output = $stdout
+          end
+
+          it "should execute command with multiple parameters" do
+            result = Pry.run_command "ls -c -M RCTest"
+            result.map(&:to_sym).should == [:a, :B]
+          end
+        end
+
         describe "commands" do
           it 'should set the commands default, and the default should be overridable' do
             class Command0 < Pry::CommandBase
