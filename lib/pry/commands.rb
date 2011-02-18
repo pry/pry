@@ -447,8 +447,8 @@ e.g: show-method hello_method
       count = 0
       while(true)
         count += 1
-        str = Readline.readline("game > ", true).chomp
-        break if str == "."
+        str = Readline.readline("game > ", true)
+        break if str == "." || !str
         val = str.to_i
         output.puts "Too large!" if val > num
         output.puts "Too small!" if val < num
