@@ -101,11 +101,11 @@ an instance variable inside that class:
     Beginning Pry session for 20
     pry(20:2)> self + 10
     => 30
-    pry(20:2)> exit
+    pry(20:2)> cd ..
     Ending Pry session for 20
-    pry(Hello):1> exit
+    pry(Hello):1> cd ..
     Ending Pry session for Hello
-    pry(main)> exit
+    pry(main)> cd ..
     Ending Pry session for main
 
 The number after the `:` in the pry prompt indicates the nesting
