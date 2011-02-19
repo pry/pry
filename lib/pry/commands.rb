@@ -69,7 +69,7 @@ class Pry
     end
 
     command "version", "Show Pry version." do
-      output.puts "Pry version: #{Pry::VERSION}"
+      output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
     
     command "exit-all", "End all nested Pry sessions." do
@@ -343,6 +343,7 @@ e.g show-doc hello_method
 
       output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
       output.puts doc
+      doc
     end
 
     command "show-method", "Show the source for METH. Type `show-method --help` for more info." do |*args|
@@ -384,6 +385,11 @@ e.g: show-method hello_method
           meth = target.eval("method(:#{meth_name})")
         end
       rescue
+        target_self = target.eval('self')
+        if !options[:M]&& target_self.is_a?(Module) &&
+            target_self.method_defined?(meth_name)
+          output.puts "Did you mean: show-method -M #{meth_name} ?"
+        end
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
