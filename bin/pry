@@ -1,0 +1,63 @@
+#!/usr/bin/env ruby
+
+# (C) John Mair (banisterfiend)
+# MIT license
+
+begin
+  require 'pry'
+rescue LoadError
+  require 'rubygems'
+  require 'pry'
+end
+require "optparse"
+
+# defaults
+options = {
+  :context => TOPLEVEL_BINDING,
+  :loadrc => true
+}
+
+OptionParser.new do |opts|
+  opts.banner = %{Usage: pry [OPTIONS] 
+Start a Pry session.
+See: `https://github.com/banister` for more information.
+--
+}
+  opts.on("-r", "--require FILE", "`require` a Ruby script at startup.") do |file|
+    require file
+  end
+
+  opts.on("-e", "--exec CODE", "A line of Ruby code to execute in context before the session starts.") do |code|
+    options[:code] = code
+  end
+
+  opts.on("-f", "Suppress loading of ~/.pryrc") do 
+    options[:loadrc] = false
+  end
+
+  opts.on("-v", "--version", "Display the Pry version.") do
+    puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
+    exit
+  end
+
+  opts.on("-c", "--context CONTEXT",
+          "Start the session in the specified context. Equivalent to `context.pry` in a session.") do |context|
+    options[:context] = Pry.binding_for(eval(context))
+  end
+
+  opts.on_tail("-h", "--help", "This message.") do 
+    puts opts
+    exit
+  end
+end.parse!
+
+rcpath = File.expand_path("~/.pryrc")
+
+# load ~/.pryrc, if not suppressed with -f option
+load rcpath if File.exists?(rcpath) && options[:loadrc]
+
+# execute line of code, if provided with -e option
+options[:context].eval(options[:code]) if options[:code]
+
+# start the session
+options[:context].pry
