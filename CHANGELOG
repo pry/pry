@@ -1,3 +1,7 @@
+21/2/2010 version 0.5.7
+* Added pry executable, auto-loads .pryrc in user's home directory, if it
+	exists.
+	
 19/2/2010 version 0.5.5
 * Added Pry.run_command
 * More useful error messages

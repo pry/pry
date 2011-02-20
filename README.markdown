@@ -21,6 +21,10 @@ is trivial to set it to read from any object that has a `readline` method and wr
 `puts` method - many other aspects of Pry are also configurable making
 it a good choice for implementing custom shells.
 
+Pry now comes with an executable so it can be invoked at the command line.
+Just enter `pry` to start. A `.pryrc` file in the user's home directory will
+be loaded if it exists. Type `pry --help` at the command line for more information.
+
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
 * See the [source code](http://github.com/banister/pry)
@@ -180,10 +184,6 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 
 ###Limitations:
 
-* Pry does not pretend to be a replacement for `irb`,
-  and so does not have an executable. It is designed to be used by
-  other programs, not on its own. For a full-featured `irb` replacement
-  see [ripl](https://github.com/cldwalker/ripl)
 * Pry's `show-method` and `show-doc` commands do not work
   in Ruby 1.8.
 
