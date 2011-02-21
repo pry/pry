@@ -133,7 +133,7 @@ class Pry
       action = cmd[:action]
       commands.instance_exec(*Shellwords.shellwords(arg_string), &action)
     else
-      raise "No such command: #{name}"
+      raise "No such Pry command: #{name}"
     end
   end
 

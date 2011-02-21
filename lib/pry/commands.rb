@@ -345,9 +345,9 @@ e.g show-doc hello_method
         next
       end
 
+      doc = meth.comment
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
-      doc = meth.comment
 
       output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
       output.puts doc
@@ -407,9 +407,9 @@ e.g: show-method hello_method
         next
       end
 
+      code = meth.source
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
-      code = meth.source
       
       output.puts "--\nFrom #{file} @ line #{line}:\n--"
       output.puts code
@@ -425,9 +425,9 @@ e.g: show-method hello_method
       if commands[command_name]
         meth = commands[command_name][:action]
 
+        code = meth.source
         file, line = meth.source_location
         check_for_dynamically_defined_method.call(file)
-        code = meth.source
 
         output.puts "--\nFrom #{file} @ line #{line}:\n--"
         output.puts code
