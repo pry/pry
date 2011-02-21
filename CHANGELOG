@@ -1,3 +1,7 @@
+22/2/2010 version 0.5.8
+* Added -c (context) option to show-doc, show-methods and eval-file
+* Fixed up ordering issue of -c and -r parameters to command line pry
+	
 21/2/2010 version 0.5.7
 * Added pry executable, auto-loads .pryrc in user's home directory, if it
 	exists.
