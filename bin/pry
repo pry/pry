@@ -51,7 +51,7 @@ See: `https://github.com/banister` for more information.
     puts opts
     exit
   end
-end.permute!
+end.parse!
 
 rcpath = File.expand_path("~/.pryrc")
 
