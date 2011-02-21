@@ -9,11 +9,11 @@ rescue LoadError
   require 'rubygems'
   require 'pry'
 end
-require "optparse"
+require 'optparse'
 
 # defaults
 options = {
-  :context => TOPLEVEL_BINDING,
+  :context_string => "TOPLEVEL_BINDING",
   :loadrc => true
 }
 
@@ -42,22 +42,30 @@ See: `https://github.com/banister` for more information.
 
   opts.on("-c", "--context CONTEXT",
           "Start the session in the specified context. Equivalent to `context.pry` in a session.") do |context|
-    options[:context] = Pry.binding_for(eval(context))
+
+    # save the context name
+    options[:context_string] = context
   end
 
   opts.on_tail("-h", "--help", "This message.") do 
     puts opts
     exit
   end
-end.parse!
+end.permute!
 
 rcpath = File.expand_path("~/.pryrc")
 
 # load ~/.pryrc, if not suppressed with -f option
 load rcpath if File.exists?(rcpath) && options[:loadrc]
 
+# create the actual context
+context = Pry.binding_for(eval(options[:context_string]))
+
 # execute line of code, if provided with -e option
-options[:context].eval(options[:code]) if options[:code]
+if options[:code]
+  result = context.eval(options[:code])
+  puts "=> #{Pry.view(result)}"
+end
 
 # start the session
-options[:context].pry
+context.pry

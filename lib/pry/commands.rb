@@ -237,16 +237,18 @@ Shows local and instance variables by default.
 
     command "eval-file", "Eval a Ruby script. Type `eval-file --help` for more info." do |*args|
       options = {}
+      target = target()
       file_name = nil
       
       OptionParser.new do |opts|
         opts.banner = %{Usage: eval-file [OPTIONS] FILE
-Eval a Ruby script at top-level or in the current context. Defaults to top-level.
-e.g: eval-file -c "hello.rb"
+Eval a Ruby script at top-level or in the specified context. Defaults to top-level.
+e.g: eval-file -c self "hello.rb"
 --
 }
-        opts.on("-c", "--context", "Eval the script in the current context.") do 
+        opts.on("-c", "--context CONTEXT", "Eval the script in the specified context.") do |context|
           options[:c] = true
+          target = Pry.binding_for(target.eval(context))
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -266,8 +268,9 @@ e.g: eval-file -c "hello.rb"
 
       old_constants = Object.constants
       if options[:c]
+        target_self = target.eval('self')
         target.eval(File.read(file_name))
-        output.puts "--\nEval'd '#{file_name}' in the current context."
+        output.puts "--\nEval'd '#{file_name}' in the `#{target_self}`  context."
       else
         TOPLEVEL_BINDING.eval(File.read(file_name))
         output.puts "--\nEval'd '#{file_name}' at top-level."
@@ -299,6 +302,7 @@ e.g: eval-file -c "hello.rb"
 
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info." do |*args|
       options = {}
+      target = target()
       meth_name = nil
       
       OptionParser.new do |opts|
@@ -309,6 +313,10 @@ e.g show-doc hello_method
 }
         opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do 
           options[:M] = true
+        end
+
+        opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
+          target = Pry.binding_for(target.eval(context))
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -348,6 +356,7 @@ e.g show-doc hello_method
 
     command "show-method", "Show the source for METH. Type `show-method --help` for more info." do |*args|
       options = {}
+      target = target()
       meth_name = nil
       
       OptionParser.new do |opts|
@@ -358,6 +367,10 @@ e.g: show-method hello_method
 }
         opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do 
           options[:M] = true
+        end
+
+        opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
+          target = Pry.binding_for(target.eval(context))
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
