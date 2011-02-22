@@ -13,7 +13,8 @@ session to your code (with Pry) instead of bringing your code to a
 REPL session (as with IRB).
 
 It is not based on the IRB codebase, and implements some unique REPL
-commands such as `show-method`, `show-doc`, `ls` and `cd`
+commands such as `show-method`, `show-doc`, `ls` and `cd` (type `help`
+to get a full list).
 
 Pry is also fairly flexible and allows significant user
 [customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
