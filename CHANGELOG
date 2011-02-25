@@ -1,17 +1,25 @@
-22/2/2010 version 0.5.8
+26/2/2011 version 0.6.1
+* !@ command alias for exit_all
+* `cd /` for breaking out to pry top level (jump-to 0)
+* made `-e` option work in a more effective way for `pry` command line invocation
+* exit and exit-all commands now accept a parameter, this parameter becomes the return value of repl()
+* `command` method from CommandBase now accepts a :keep_retval arg that determines if command value is returned to pry session or just `nil` (`nil` was old behaviour)
+* tests for new :keep_retval and exit-all/exit behaviour; :keep_retval will remain undocumented.
+
+22/2/2011 version 0.5.8
 * Added -c (context) option to show-doc, show-methods and eval-file
 * Fixed up ordering issue of -c and -r parameters to command line pry
 	
-21/2/2010 version 0.5.7
+21/2/2011 version 0.5.7
 * Added pry executable, auto-loads .pryrc in user's home directory, if it
 	exists.
 	
-19/2/2010 version 0.5.5
+19/2/2011 version 0.5.5
 * Added Pry.run_command
 * More useful error messages
 * Easter eggs (game and cohen-poem)
 
-17/2/2010 version 0.5.0
+17/2/2011 version 0.5.0
 * Use clipped version of Pry.view() for large objects
 * Exit Pry session on ^d
 * Use Shellwords for breaking up parameters to pry commands
@@ -27,16 +35,16 @@
 * Get rid of show_idoc and show_imethod
 * Add special eval-file command that evals target file in current context
 	
-27/1/2010 version 0.4.5
+27/1/2011 version 0.4.5
 * fixed show_method (though fragile as it references __binding_impl__
 	directly, making a name change to that method difficult
-27/1/2010 version 0.4.4
+27/1/2011 version 0.4.4
 * oops, added examples/ directory
-26/1/2010 version 0.4.3
+26/1/2011 version 0.4.3
 * added alias_command and desc methods to Pry::CommandBase
 * changed behaviour of ls_methods and ls_imethods to return sorted lists
 	of methods
-23/1/2010 version 0.4.1
+23/1/2011 version 0.4.1
 * made it so a 'def meth;end' in an object Pry session defines singleton
 	methods, not methods on the class (except in the case of
 	immediates)
@@ -44,7 +52,7 @@
 * storing wiki in a nested git repo, as github wiki pages have their own
 	repo
 * added more tests for new method definition behaviour
-x21/1/2010 version 0.4.0
+21/1/2011 version 0.4.0
 * added command API
 * added many new commands, i.e ls_methods and friends
 * modified other commands

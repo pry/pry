@@ -75,12 +75,12 @@ class Pry
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
     
-    command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: @!" do 
+    command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !@" do 
       str = opts[:val].split.drop(1).join(' ')
       throw(:breakout, [0, target.eval(str)])
     end
 
-    alias_command "@!", "exit-all", ""
+    alias_command "!@", "exit-all", ""
 
     command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
@@ -298,7 +298,8 @@ e.g: eval-file -c self "hello.rb"
 
     alias_command "inspect", "cat", ""
     
-    command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)" do |obj|
+    command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",
+    :keep_retval => true do |obj|
       if !obj
         output.puts "Must provide an object."
         next
