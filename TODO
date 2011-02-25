@@ -1,3 +1,9 @@
+0.6.1
+* !! command alias for exit_all
+* `cd /` for breaking out to pry top level (jump-to 0)
+* `less` command? and pipe support?
+* made `-e` option work in a more effective way for `pry` command line invocation
+
 0.5.0 release:
 * !!!! UPDATE DOCUMENTATION !!!!
 * Use clipped version of Pry.view() for large objects

@@ -1,6 +1,9 @@
 direc = File.dirname(__FILE__)
-require "#{direc}/command_base"
+
 require "optparse"
+require "method_source"
+require "#{direc}/command_base"
+require "#{direc}/pry_instance"
 
 class Pry
 
@@ -72,9 +75,11 @@ class Pry
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
     
-    command "exit-all", "End all nested Pry sessions." do
+    command "exit-all", "End all nested Pry sessions. Aliases: !!" do
       throw(:breakout, 0) 
     end
+
+    alias_command "!!", "exit-all", ""
 
     command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
@@ -210,7 +215,7 @@ Shows local and instance variables by default.
       if options[:v]
 
         # verbose
-        info.each.sort_by { |k, v| v.last }.each do |k, v|
+        info.sort_by { |k, v| v.last }.each do |k, v|
           if !v.first.empty?
             output.puts "#{k}:\n--"
             output.puts Pry.view(v.first)
@@ -218,7 +223,7 @@ Shows local and instance variables by default.
           end
         end
 
-        # plain
+      # plain
       else
         list = info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+)
         output.puts Pry.view(list)
@@ -232,7 +237,9 @@ Shows local and instance variables by default.
         next
       end
 
-      output.puts File.read(file_name)
+      contents = File.read(file_name)
+      output.puts contents
+      contents
     end
 
     command "eval-file", "Eval a Ruby script. Type `eval-file --help` for more info." do |*args|
@@ -290,13 +297,19 @@ e.g: eval-file -c self "hello.rb"
 
     alias_command "inspect", "cat", ""
     
-    command "cd", "Start a Pry session on VAR (use `cd ..` to go back)" do |obj|
+    command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)" do |obj|
       if !obj
         output.puts "Must provide an object."
         next
       end
       
       throw(:breakout, opts[:nesting].level) if obj == ".."
+
+      if obj == "/" 
+        throw(:breakout, 1) if opts[:nesting].level > 0
+        next
+      end
+
       target.eval("#{obj}.pry")
     end
 
@@ -515,7 +528,7 @@ on these enormous landscapes,
 that if you turn your head
 they are lost for hours.
 -- Leonard Cohen                    
-              }
+                }
   output.puts text
   text
 end
