@@ -61,10 +61,9 @@ load rcpath if File.exists?(rcpath) && options[:loadrc]
 # create the actual context
 context = Pry.binding_for(eval(options[:context_string]))
 
-# execute line of code, if provided with -e option
+# run code passed with `-e`, if there is any.
 if options[:code]
-  result = context.eval(options[:code])
-  puts "=> #{Pry.view(result)}"
+  Pry.new(:input => StringIO.new(options[:code]), :print => proc {}).rep(context)
 end
 
 # start the session
