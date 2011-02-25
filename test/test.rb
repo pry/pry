@@ -335,6 +335,33 @@ describe Pry do
         end
 
         describe "commands" do
+          it 'should define a command that keeps its return value' do
+            class Command68 < Pry::CommandBase
+              command "hello", "", :keep_retval => true do
+                :kept_hello
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("hello"), :output => str_output, :commands => Command68).rep
+            str_output.string.should =~ /:kept_hello/
+
+            Object.remove_const(:Command68)
+          end
+
+          it 'should define a command that does NOT keep its return value' do
+            class Command68 < Pry::CommandBase
+              command "hello", "", :keep_retval => false do
+                :kept_hello
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("hello"), :output => str_output, :commands => Command68).rep
+            (str_output.string =~ /:kept_hello/).should == nil
+
+            Object.remove_const(:Command68)
+          end
+          
+          
           it 'should set the commands default, and the default should be overridable' do
             class Command0 < Pry::CommandBase
               command "hello" do
@@ -536,6 +563,28 @@ describe Pry do
           str_output = StringIO.new
           Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
           str_output.string.should == "test\n"
+        end
+
+        describe "pry return values" do
+          it 'should return the target object' do
+            Pry.start(self, :input => StringIO.new("exit"), :output => Pry::NullOutput).should == self
+          end
+
+          it 'should return the parameter given to exit' do
+            Pry.start(self, :input => StringIO.new("exit 10"), :output => Pry::NullOutput).should == 10
+          end
+
+          it 'should return the parameter (multi word string) given to exit' do
+            Pry.start(self, :input => StringIO.new("exit \"john mair\""), :output => Pry::NullOutput).should == "john mair"
+          end
+
+          it 'should return the parameter (function call) given to exit' do
+            Pry.start(self, :input => StringIO.new("exit 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
+          end
+
+          it 'should return the parameter (self) given to exit' do
+            Pry.start("carl", :input => StringIO.new("exit self"), :output => Pry::NullOutput).should == "carl"
+          end
         end
         
         describe "prompts" do

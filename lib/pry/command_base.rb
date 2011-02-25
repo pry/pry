@@ -33,11 +33,19 @@ class Pry
       #   # Good afternoon John!
       #   # pry(main)> help greet
       #   # Greet somebody
-      def command(names, description="No description.", &block)
+      def command(names, description="No description.", options={}, &block)
+        options = {
+          :keep_retval => false
+        }.merge!(options)
+        
         @commands ||= {}
 
         Array(names).each do |name|
-          commands[name] = { :description => description, :action => block }
+          commands[name] = {
+            :description => description,
+            :action => block,
+            :keep_retval => options[:keep_retval]
+          }
         end
       end
 

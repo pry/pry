@@ -1,8 +1,10 @@
 0.6.1
-* !! command alias for exit_all
+* !@ command alias for exit_all
 * `cd /` for breaking out to pry top level (jump-to 0)
-* `less` command? and pipe support?
 * made `-e` option work in a more effective way for `pry` command line invocation
+* exit and exit-all commands now accept a parameter, this parameter becomes the return value of repl()
+* `command` method from CommandBase now accepts a :keep_retval arg that determines if command value is returned to pry session or just `nil` (`nil` was old behaviour)
+* tests for new :keep_retval and exit-all/exit behaviour; :keep_retval will remain undocumented.
 
 0.5.0 release:
 * !!!! UPDATE DOCUMENTATION !!!!

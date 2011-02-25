@@ -1,5 +1,13 @@
+direc = File.dirname(__FILE__)
+
 require 'readline'
 require 'shellwords'
+require "#{direc}/prompts"
+require "#{direc}/hooks"
+require "#{direc}/print"
+require "#{direc}/commands"
+require "#{direc}/core_extensions"
+require "#{direc}/pry_instance"
 
 # @author John Mair (banisterfiend)
 class Pry
@@ -57,6 +65,8 @@ class Pry
     # @return [Array<Proc>] The array of Procs to be used for the
     #   prompts by default by all Pry instances.
     attr_accessor :prompt
+
+    attr_accessor :cmd_ret_value
   end
   
   # Start a Pry REPL.

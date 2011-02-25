@@ -177,8 +177,13 @@ class Pry
       
       val.chomp!
 
-      process_commands(val, eval_string, target)
-      eval_string << "#{val}\n"
+      Pry.cmd_ret_value = process_commands(val, eval_string, target)
+
+      if Pry.cmd_ret_value
+        eval_string << "Pry.cmd_ret_value\n"
+      else
+        eval_string << "#{val}\n"
+      end
 
       break eval_string if valid_expression?(eval_string)
     end
@@ -197,43 +202,49 @@ class Pry
     def val.clear() replace("") end
     def eval_string.clear() replace("") end
 
-    pattern, data = commands.commands.find do |name, data|
+    pattern, cmd_data = commands.commands.find do |name, cmd_data|
       /^#{name}(?!\S)(?:\s+(.+))?/ =~ val
     end
 
-    if pattern
-      args_string = $1
-      args = args_string ? Shellwords.shellwords(args_string) : []
-      action = data[:action]
-      
-      options = {
-        :val => val,
-        :eval_string => eval_string,
-        :nesting => nesting,
-        :commands => commands.commands
-      }
+    # no command was matched, so return to caller
+    return if !pattern
+    
+    args_string = $1
+    args = args_string ? Shellwords.shellwords(args_string) : []
+    action = cmd_data[:action]
+    keep_retval = cmd_data[:keep_retval]
+    
+    options = {
+      :val => val,
+      :eval_string => eval_string,
+      :nesting => nesting,
+      :commands => commands.commands
+    }
 
-      # set some useful methods to be used by the action blocks
-      commands.opts = options
-      commands.target = target
-      commands.output = output
+    # set some useful methods to be used by the action blocks
+    commands.opts = options
+    commands.target = target
+    commands.output = output
 
-      case action.arity <=> 0
-      when -1
+    case action.arity <=> 0
+    when -1
 
-        # Use instance_exec() to make the `opts` method, etc available
-        commands.instance_exec(*args, &action)
-      when 1, 0
+      # Use instance_exec() to make the `opts` method, etc available
+      ret_value = commands.instance_exec(*args, &action)
+    when 1, 0
 
-        # ensure that we get the right number of parameters
-        # since 1.8.7 complains about incorrect arity (1.9.2
-        # doesn't care)
-        args_with_corrected_arity = args.values_at *0..(action.arity - 1)
-        commands.instance_exec(*args_with_corrected_arity, &action)
-      end
-      
-      val.clear
+      # ensure that we get the right number of parameters
+      # since 1.8.7 complains about incorrect arity (1.9.2
+      # doesn't care)
+      args_with_corrected_arity = args.values_at *0..(action.arity - 1)
+      ret_value = commands.instance_exec(*args_with_corrected_arity, &action)
     end
+    
+    # a command was processed so we can now clear the input string
+    val.clear
+
+    # return value of block only if :keep_retval is true
+    ret_value if keep_retval
   end
 
   # Returns the next line of input to be used by the pry instance.
