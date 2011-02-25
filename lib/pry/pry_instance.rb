@@ -86,7 +86,7 @@ class Pry
     target.eval("_pry_ = Pry.active_instance")
     target.eval("_ = Pry.last_result")
 
-    break_level = catch(:breakout) do
+    break_data = catch(:breakout) do
       nesting.push [nesting.size, target_self, self]
       loop do
         rep(target)
@@ -97,11 +97,18 @@ class Pry
 
     exec_hook :after_session, output, target_self
 
+    # If break_data is an array, then the last element is the return value
+    break_level, return_value = Array(break_data)
+    
     # keep throwing until we reach the desired nesting level
     if nesting_level != break_level
-      throw :breakout, break_level
+      throw :breakout, break_data
     end
 
+    # if one was provided, return the return value
+    return return_value if return_value
+    
+    # otherwise return the target_self
     target_self
   end
 

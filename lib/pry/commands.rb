@@ -75,11 +75,12 @@ class Pry
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
     
-    command "exit-all", "End all nested Pry sessions. Aliases: !!" do
-      throw(:breakout, 0) 
+    command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: @!" do 
+      str = opts[:val].split.drop(1).join(' ')
+      throw(:breakout, [0, target.eval(str)])
     end
 
-    alias_command "!!", "exit-all", ""
+    alias_command "@!", "exit-all", ""
 
     command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
@@ -465,8 +466,9 @@ e.g: show-method hello_method
       end
     end
 
-    command "exit", "End the current Pry session. Aliases: quit, back" do
-      throw(:breakout, opts[:nesting].level)
+    command "exit", "End the current Pry session. Accepts optional return value. Aliases: quit, back" do 
+      str = opts[:val].split.drop(1).join(' ')
+      throw(:breakout, [opts[:nesting].level, target.eval(str)])
     end
 
     alias_command "quit", "exit", ""
