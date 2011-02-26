@@ -67,7 +67,9 @@ class Pry
   # Start a read-eval-print-loop.
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the Pry session
-  # @return [Object] The target of the Pry session
+  # @return [Object] The target of the Pry session or an explictly given
+  #   return value. If given return value is `nil` or no return value
+  #   is specified then `target` will be returned.
   # @example
   #   Pry.new.repl(Object.new)
   def repl(target=TOPLEVEL_BINDING)
