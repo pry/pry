@@ -298,8 +298,7 @@ e.g: eval-file -c self "hello.rb"
 
     alias_command "inspect", "cat", ""
     
-    command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",
-    :keep_retval => true do |obj|
+    command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|
       if !obj
         output.puts "Must provide an object."
         next
