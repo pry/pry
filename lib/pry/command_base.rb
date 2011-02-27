@@ -16,6 +16,10 @@ class Pry
       # @param [String, Array] names The name of the command (or array of
       #   command name aliases).
       # @param [String] description A description of the command.
+      # @param [Hash] options The optional configuration parameters.
+      # @option options [Boolean] :keep_retval Whether or not to use return value
+      #   of the block for return of `command` or just to return `nil`
+      #   (the default).
       # @yield The action to perform. The parameters in the block
       #   determines the parameters the command will receive. All
       #   parameters passed into the block will be strings. Successive
