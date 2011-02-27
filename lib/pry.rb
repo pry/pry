@@ -5,6 +5,7 @@ direc = File.dirname(__FILE__)
 
 require "method_source"
 require "readline"
+require "stringio"
 require "#{direc}/pry/version"
 require "#{direc}/pry/hooks"
 require "#{direc}/pry/print"
