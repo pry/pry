@@ -185,8 +185,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 
 ###Limitations:
 
-* Pry's `show-method` and `show-doc` commands do not work
-  in Ruby 1.8.
+* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
 * 1.9 support requires `Ripper` - some implementations may not support this.
 
 Commands
