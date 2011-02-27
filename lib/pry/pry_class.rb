@@ -87,7 +87,7 @@ class Pry
   # @return [String] The string representation of `obj`.
   def self.view(obj)
     case obj
-    when String, Hash, Array, Symbol, Set, nil
+    when String, Hash, Array, Symbol, nil
       obj.inspect
     else
       obj.to_s
