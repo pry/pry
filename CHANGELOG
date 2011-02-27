@@ -1,3 +1,7 @@
+28/2/2011 version 0.6.3
+* Using MethodSource 0.3.4 so 1.8 show-method support provided
+* `Set` class added to list of classes that are inspected
+	
 26/2/2011 version 0.6.1
 * !@ command alias for exit_all
 * `cd /` for breaking out to pry top level (jump-to 0)

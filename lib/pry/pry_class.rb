@@ -66,6 +66,8 @@ class Pry
     #   prompts by default by all Pry instances.
     attr_accessor :prompt
 
+    # Value returned by last executed Pry command.
+    # @return [Object] The command value
     attr_accessor :cmd_ret_value
   end
   
@@ -85,7 +87,7 @@ class Pry
   # @return [String] The string representation of `obj`.
   def self.view(obj)
     case obj
-    when String, Hash, Array, Symbol, nil
+    when String, Hash, Array, Symbol, Set, nil
       obj.inspect
     else
       obj.to_s
