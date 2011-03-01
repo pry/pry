@@ -20,7 +20,6 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("ruby_parser",">=2.0.5")
-  s.add_dependency("method_source",">=0.3.4")
   s.add_development_dependency("bacon",">=1.1.0")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
@@ -46,7 +45,8 @@ end
 
 namespace :ruby do
   spec = Gem::Specification.new do |s|
-    apply_spec_defaults(s)        
+    apply_spec_defaults(s)
+    s.add_dependency("method_source",">=0.3.4")
     s.platform = Gem::Platform::RUBY
   end
   
@@ -56,8 +56,22 @@ namespace :ruby do
   end
 end
 
+namespace :jruby do
+  spec = Gem::Specification.new do |s|
+    apply_spec_defaults(s)
+    s.add_dependency("method_source","=0.2.0")
+    s.platform = "java"
+  end
+  
+  Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_zip = false
+    pkg.need_tar = false
+  end
+end
+
+
 desc "build all platform gems at once"
-task :gems => [:rmgems, "ruby:gem"]
+task :gems => [:rmgems, "ruby:gem", "jruby:gem"]
 
 desc "remove all platform gems"
 task :rmgems => ["ruby:clobber_package"]
