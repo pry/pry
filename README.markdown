@@ -186,6 +186,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 ###Limitations:
 
 * Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
+* `method_source` functionality does not work in JRuby.
 * 1.9 support requires `Ripper` - some implementations may not support this.
 
 Commands
