@@ -1,3 +1,7 @@
+0.6.7
+* color support
+* --simple-prompt for pry commandline
+
 0.6.1
 * !@ command alias for exit_all
 * `cd /` for breaking out to pry top level (jump-to 0)

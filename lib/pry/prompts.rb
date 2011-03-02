@@ -22,5 +22,5 @@ class Pry
                    ]
 
   # A simple prompt - doesn't display target or nesting level
-  SIMPLE_PROMPT = [proc { "pry> " }, proc { "pry* " }]
+  SIMPLE_PROMPT = [proc { ">> " }, proc { ">* " }]
 end
