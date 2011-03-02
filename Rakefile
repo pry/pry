@@ -20,6 +20,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("ruby_parser",">=2.0.5")
+  s.add_dependency("coderay",">=0.9.7")
   s.add_development_dependency("bacon",">=1.1.0")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
@@ -56,6 +57,22 @@ namespace :ruby do
   end
 end
 
+[:mingw32, :mswin32].each do |v|
+  namespace v do
+    spec = Gem::Specification.new do |s|
+      apply_spec_defaults(s)        
+      s.add_dependency("method_source",">=0.3.4")
+      s.add_dependency("win32console", ">=1.3.0")
+      s.platform = "i386-#{v}"
+    end
+
+    Rake::GemPackageTask.new(spec) do |pkg|
+      pkg.need_zip = false
+      pkg.need_tar = false
+    end
+  end
+end
+
 namespace :jruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
@@ -71,7 +88,7 @@ end
 
 
 desc "build all platform gems at once"
-task :gems => [:rmgems, "ruby:gem", "jruby:gem"]
+task :gems => [:rmgems, "ruby:gem", "jruby:gem", "mswin32:gem", "mingw32:gem"]
 
 desc "remove all platform gems"
 task :rmgems => ["ruby:clobber_package"]

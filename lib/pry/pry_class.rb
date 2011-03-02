@@ -1,14 +1,3 @@
-direc = File.dirname(__FILE__)
-
-require 'readline'
-require 'shellwords'
-require "#{direc}/prompts"
-require "#{direc}/hooks"
-require "#{direc}/print"
-require "#{direc}/commands"
-require "#{direc}/core_extensions"
-require "#{direc}/pry_instance"
-
 # @author John Mair (banisterfiend)
 class Pry
 
@@ -69,6 +58,10 @@ class Pry
     # Value returned by last executed Pry command.
     # @return [Object] The command value
     attr_accessor :cmd_ret_value
+
+    # Determines whether colored output is enabled.
+    # @return [Boolean] 
+    attr_accessor :color
   end
   
   # Start a Pry REPL.
@@ -157,6 +150,7 @@ class Pry
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
+    @color = false
   end
 
   self.reset_defaults

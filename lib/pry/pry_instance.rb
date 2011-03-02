@@ -1,6 +1,3 @@
-require 'readline'
-require 'shellwords'
-
 class Pry
 
   # The list of configuration options.

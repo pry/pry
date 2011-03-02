@@ -3,16 +3,30 @@
 
 direc = File.dirname(__FILE__)
 
+$LOAD_PATH << File.expand_path(direc)
+
 require "method_source"
+require 'shellwords'
 require "readline"
 require "stringio"
-require "#{direc}/pry/version"
-require "#{direc}/pry/hooks"
-require "#{direc}/pry/print"
-require "#{direc}/pry/command_base"
-require "#{direc}/pry/commands"
-require "#{direc}/pry/prompts"
-require "#{direc}/pry/completion"
-require "#{direc}/pry/core_extensions"
-require "#{direc}/pry/pry_class"
-require "#{direc}/pry/pry_instance"
+require "coderay"
+
+if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
+  begin
+    require 'win32console'
+  rescue LoadError
+    $stderr.puts "Need to `gem install win32console`" 
+    exit 1
+  end
+end
+
+require "pry/version"
+require "pry/hooks"
+require "pry/print"
+require "pry/command_base"
+require "pry/commands"
+require "pry/prompts"
+require "pry/completion"
+require "pry/core_extensions"
+require "pry/pry_class"
+require "pry/pry_instance"

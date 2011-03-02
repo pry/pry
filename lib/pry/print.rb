@@ -8,7 +8,11 @@ class Pry
       output.puts "#{value.class}: #{value.message}"
       output.puts "from #{value.backtrace.first}"
     else
-      output.puts "=> #{Pry.view(value)}"
+      if Pry.color
+        output.puts "=> #{CodeRay.scan(Pry.view(value), :ruby).term}"
+      else
+        output.puts "=> #{Pry.view(value)}"
+      end
     end
   end
 end

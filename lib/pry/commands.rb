@@ -1,9 +1,7 @@
-direc = File.dirname(__FILE__)
-
 require "optparse"
 require "method_source"
-require "#{direc}/command_base"
-require "#{direc}/pry_instance"
+require "pry/command_base"
+require "pry/pry_instance"
 
 class Pry
 
@@ -25,6 +23,10 @@ class Pry
         raise "Cannot retrieve source for dynamically defined method."
       end
     end
+
+    remove_first_word = lambda do |text|
+      text.split.drop(1).join(' ')
+    end
     
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
@@ -40,6 +42,11 @@ class Pry
     end
 
     alias_command "quit-program", "exit-program", ""
+
+    command "toggle-color", "Toggle syntax highlighting." do
+      Pry.color = !Pry.color
+      output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"
+    end
 
     command "nesting", "Show nesting information." do 
       nesting = opts[:nesting]
@@ -76,7 +83,7 @@ class Pry
     end
     
     command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !@" do 
-      str = opts[:val].split.drop(1).join(' ')
+      str = remove_first_word.call(opts[:val])
       throw(:breakout, [0, target.eval(str)])
     end
 
@@ -219,7 +226,11 @@ Shows local and instance variables by default.
         info.sort_by { |k, v| v.last }.each do |k, v|
           if !v.first.empty?
             output.puts "#{k}:\n--"
-            output.puts Pry.view(v.first)
+            if Pry.color
+              output.puts CodeRay.scan(Pry.view(v.first), :ruby).term
+            else
+              output.puts Pry.view(v.first)
+            end
             output.puts
           end
         end
@@ -227,7 +238,11 @@ Shows local and instance variables by default.
       # plain
       else
         list = info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+)
-        output.puts Pry.view(list)
+        if Pry.color
+          output.puts CodeRay.scan(Pry.view(list), :ruby).term
+        else
+          output.puts Pry.view(list)
+        end
         list
       end
     end
@@ -364,6 +379,11 @@ e.g show-doc hello_method
       check_for_dynamically_defined_method.call(file)
 
       output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
+
+      if Pry.color
+        doc = CodeRay.scan(doc, :ruby).term
+      end
+
       output.puts doc
       doc
     end
@@ -426,6 +446,11 @@ e.g: show-method hello_method
       check_for_dynamically_defined_method.call(file)
       
       output.puts "--\nFrom #{file} @ line #{line}:\n--"
+
+      if Pry.color
+        code = CodeRay.scan(code, :ruby).term
+      end
+      
       output.puts code
       code
     end
@@ -444,6 +469,11 @@ e.g: show-method hello_method
         check_for_dynamically_defined_method.call(file)
 
         output.puts "--\nFrom #{file} @ line #{line}:\n--"
+
+        if Pry.color
+          code = CodeRay.scan(code, :ruby).term
+        end
+
         output.puts code
         code
       else
@@ -467,7 +497,7 @@ e.g: show-method hello_method
     end
 
     command "exit", "End the current Pry session. Accepts optional return value. Aliases: quit, back" do 
-      str = opts[:val].split.drop(1).join(' ')
+      str = remove_first_word.call(opts[:val])
       throw(:breakout, [opts[:nesting].level, target.eval(str)])
     end
 

@@ -35,6 +35,18 @@ See: `https://github.com/banister` for more information.
     options[:loadrc] = false
   end
 
+  opts.on("--color", "Start session with syntax highlighting on.") do 
+    Pry.color = true
+  end
+
+  opts.on("--simple-prompt", "Simple prompt mode.") do 
+    Pry.prompt = Pry::SIMPLE_PROMPT
+  end
+
+  opts.on("-I LOADPATH", "Specify $LOAD_PATH directory.") do  |load_path|
+    $LOAD_PATH << load_path
+  end
+
   opts.on("-v", "--version", "Display the Pry version.") do
     puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
     exit
