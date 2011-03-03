@@ -48,7 +48,7 @@ class Pry
       output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"
     end
 
-    command "toggle-simple", "Toggle the simple prompt." do
+    command "simple-prompt", "Toggle the simple prompt." do
       case Pry.active_instance.prompt
       when Pry::SIMPLE_PROMPT
         Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
