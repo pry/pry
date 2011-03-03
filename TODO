@@ -1,10 +1,14 @@
+Future
+* add whereami command, a la the `ir_b` gem
+* allows pipes (|) for commands
+
 0.6.7
 * color support
 * --simple-prompt for pry commandline
 * -I mode for pry commandline
 * --color mode for pry commandline
 * clean up requires (put them all in one place)
-* add whereami command, a la the `ir_b` gem
+* simple-prompt command and toggle-color commandd.
 
 0.6.1
 * !@ command alias for exit_all

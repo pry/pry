@@ -164,6 +164,7 @@ end.
 
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
+* Pry comes with syntax highlighting just use the `toggle-color` command to use it.
 * Use `_` to recover last result.
 * Use `_pry_` to reference the Pry instance managing the current session.
 * Pry supports tab completion.
@@ -241,6 +242,8 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `status` shows status information about the current session.
 * `version` Show Pry version information
 * `help` shows the list of session commands with brief explanations.
+* `toggle-color` turns on and off syntax highlighting.
+* `simple-prompt` toggles the simple prompt mode.
 * `exit` or `quit` or `back` or `^d` (control-d) will end the current Pry session and go
   back to the calling process or back one level of nesting (if there
   are nested sessions).
