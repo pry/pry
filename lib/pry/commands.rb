@@ -48,6 +48,15 @@ class Pry
       output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"
     end
 
+    command "toggle-simple", "Toggle the simple prompt." do
+      case Pry.active_instance.prompt
+      when Pry::SIMPLE_PROMPT
+        Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
+      else
+        Pry.active_instance.prompt = Pry::SIMPLE_PROMPT
+      end
+    end
+
     command "nesting", "Show nesting information." do 
       nesting = opts[:nesting]
       
