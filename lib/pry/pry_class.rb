@@ -1,6 +1,8 @@
 # @author John Mair (banisterfiend)
 class Pry
 
+  RC_FILES = ["~/.pryrc"]
+  
   # class accessors
   class << self
 
@@ -62,15 +64,40 @@ class Pry
     # Determines whether colored output is enabled.
     # @return [Boolean] 
     attr_accessor :color
+
+    # Determines whether the rc file (~/.pryrc) should be loaded.
+    # @return [Boolean] 
+    attr_accessor :should_load_rc
+
+    # Set to true if Pry is invoked from command line using `pry` executable
+    # @return [Boolean]
+    attr_accessor :cli
+  end
+
+  # Load the rc files given in the `Pry::RC_FILES` array.
+  # Defaults to loading just `~/.pryrc`. This method can also
+  # be used to reload the files if they have changed.
+  def self.load_rc
+    RC_FILES.each do |file_name|
+      file_name = File.expand_path(file_name)
+      load(file_name) if File.exists?(file_name)
+    end
   end
   
   # Start a Pry REPL.
+  # This method also loads the files specified in `Pry::RC_FILES` the
+  # first time it is invoked.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
   # @option options (see Pry#initialize)
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
+    if should_load_rc && !@rc_loaded
+      load_rc
+      @rc_loaded = true
+    end
+    
     new(options).repl(target)
   end
 
@@ -129,7 +156,7 @@ class Pry
     
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
     
-    commands = Pry.commands.dup
+    commands = Pry.commands.clone
     commands.output = options[:show_output] ? Pry.output : null_output
     commands.target = Pry.binding_for(options[:context])
 
@@ -151,6 +178,9 @@ class Pry
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
     @color = false
+    @should_load_rc = true
+    @rc_loaded = false
+    @cli = false
   end
 
   self.reset_defaults

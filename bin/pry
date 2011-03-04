@@ -65,10 +65,11 @@ See: `https://github.com/banister` for more information.
   end
 end.parse!
 
-rcpath = File.expand_path("~/.pryrc")
+# invoked via cli
+Pry.cli = true
 
 # load ~/.pryrc, if not suppressed with -f option
-load rcpath if File.exists?(rcpath) && options[:loadrc]
+Pry.should_load_rc = false if !options[:loadrc]
 
 # create the actual context
 context = Pry.binding_for(eval(options[:context_string]))

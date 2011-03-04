@@ -1,6 +1,9 @@
-Future
-* add whereami command, a la the `ir_b` gem
+FUTURE
 * allows pipes (|) for commands
+
+0.6.8
+* add whereami command, a la the `ir_b` gem
+* make .pryrc be loaded by run-time pry sessions
 
 0.6.7
 * color support
