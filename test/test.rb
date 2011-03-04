@@ -10,6 +10,9 @@ puts "Testing Pry #{Pry::VERSION}"
 puts "With method_source version #{MethodSource::VERSION}"
 puts "--"
 
+# Ensure we do not execute any rc files
+Pry::RC_FILES.clear
+
 describe Pry do
   describe "open a Pry session on an object" do
     describe "rep" do
