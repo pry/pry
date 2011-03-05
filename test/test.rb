@@ -12,6 +12,8 @@ puts "--"
 
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
+Pry.color = false
+Pry.should_load_rc = false
 
 describe Pry do
   describe "open a Pry session on an object" do
@@ -85,9 +87,43 @@ describe Pry do
         end
       end
 
+      describe "test loading rc files" do
+        after do
+          Pry::RC_FILES.clear
+          Pry.should_load_rc = false
+        end
+
+        it "should run the rc file only once" do
+          Pry.should_load_rc = true
+          Pry::RC_FILES << "#{direc}/testrc"
+
+          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          TEST_RC.should == [0]
+
+          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          TEST_RC.should == [0]
+
+          Object.remove_const(:TEST_RC)
+        end
+
+        it "should not run the rc file at all if Pry.should_load_rc is false" do
+          Pry.should_load_rc = false
+          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          Object.const_defined?(:TEST_RC).should == false
+        end
+
+        it "should not load the rc file if #repl method invoked" do
+          Pry.should_load_rc = true
+          Pry.new(:input => StringIO.new("exit\n"), :output => Pry::NullOutput).repl(self)
+          Object.const_defined?(:TEST_RC).should == false
+          Pry.should_load_rc = false
+        end
+      end
+      
       describe "nesting" do
         after do
           Pry.reset_defaults
+          Pry.color = false
         end
         
         it 'should nest properly' do
@@ -174,6 +210,7 @@ describe Pry do
 
         after do
           Pry.reset_defaults
+          Pry.color = false
         end
         
         it "should start a pry session on the receiver (first form)" do
@@ -217,12 +254,14 @@ describe Pry do
 
         after do
           Pry.reset_defaults
+          Pry.color = false
         end
         
         describe "input" do
 
           after do
             Pry.reset_defaults
+            Pry.color = false
           end
           
           it 'should set the input default, and the default should be overridable' do
@@ -545,6 +584,7 @@ describe Pry do
             Object.remove_const(:Command3)
 
             Pry.reset_defaults
+            Pry.color = false
           end
         end
 
@@ -677,6 +717,7 @@ describe Pry do
           str_output.string.should =~ /CLOSE/
 
           Pry.reset_defaults
+          Pry.color = false
         end
       end
     end

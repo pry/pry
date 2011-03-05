@@ -73,7 +73,7 @@ class Pry
     target = Pry.binding_for(target)
     target_self = target.eval('self')
 
-    exec_hook :before_session, output, target_self
+    exec_hook :before_session, output, target
 
     # cannot rely on nesting.level as
     # nesting.level changes with new sessions
@@ -94,7 +94,7 @@ class Pry
 
     nesting.pop
 
-    exec_hook :after_session, output, target_self
+    exec_hook :after_session, output, target
 
     # If break_data is an array, then the last element is the return value
     break_level, return_value = Array(break_data)
@@ -136,7 +136,7 @@ class Pry
     end
 
     # eval the expression and save to last_result
-    Pry.last_result = target.eval r(target)
+    Pry.last_result = target.eval r(target), __FILE__, __LINE__
 
     # save the pry instance to active_instance
     Pry.active_instance = self

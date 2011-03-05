@@ -2,6 +2,14 @@ class Module
   public :remove_const
 end
 
+class << Pry
+  alias_method :orig_reset_defaults, :reset_defaults
+  def reset_defaults
+    orig_reset_defaults
+    Pry.color = false
+  end
+end
+
 class InputTester
   def initialize(*actions)
     @orig_actions = actions.dup

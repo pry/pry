@@ -26,7 +26,7 @@ def apply_spec_defaults(s)
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
   s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "examples/**/*.rb",
-                     "test/*.rb", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
+                     "test/*.rb", "test/testrc", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
 end
 
 task :test do

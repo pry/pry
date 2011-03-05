@@ -2,7 +2,18 @@ class Pry
 
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = {
-    :before_session => proc { |out, obj| out.puts "Beginning Pry session for #{Pry.view_clip(obj)}" },
-    :after_session => proc { |out, obj| out.puts "Ending Pry session for #{Pry.view_clip(obj)}" }
+    
+    :before_session => proc do |out, target|
+      out.puts "Beginning Pry session for #{Pry.view_clip(target.eval('self'))}"
+
+      # ensure we're actually in a method
+      meth_name = target.eval('__method__')
+      file = target.eval('__FILE__')
+      if ![nil, :__binding__, :__binding_impl__].include?(meth_name) && file !~ /(\(.*\))|<.*>/
+        Pry.run_command "whereami", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
+      end
+    end,
+    
+    :after_session => proc { |out, target| out.puts "Ending Pry session for #{Pry.view_clip(target.eval('self'))}" }
   }
 end

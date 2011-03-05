@@ -42,7 +42,7 @@ Example: Interacting with an object at runtime
 
 With the `Object#pry` method we can pry (open an irb-like session) on
 an object. In the example below we open a Pry session for the `Test` class and execute a method and add
-an instance variable. The current thread is halted for the duration of the session.
+an instance variable. The current thread is taken over by the Pry REPL loop for the duration of the session.
 
     require 'pry'
 
@@ -164,7 +164,7 @@ end.
 
 * Pry can be invoked at any time and on any object in the running program.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
-* Pry comes with syntax highlighting just use the `toggle-color` command to use it.
+* Pry comes with syntax highlighting on by default just use the `toggle-color` command to use it.
 * Use `_` to recover last result.
 * Use `_pry_` to reference the Pry instance managing the current session.
 * Pry supports tab completion.
@@ -240,6 +240,7 @@ If you want to access a method of the same name, prefix the invocation by whites
   getting you out of a situation where the parsing process
   goes wrong and you get stuck in an endless read loop.
 * `status` shows status information about the current session.
+* `whereami` shows the code context of the session.
 * `version` Show Pry version information
 * `help` shows the list of session commands with brief explanations.
 * `toggle-color` turns on and off syntax highlighting.
@@ -264,6 +265,14 @@ If you want to access a method of the same name, prefix the invocation by whites
 * You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
   current one with `obj` as the receiver of the new session. Very useful
   when exploring large or complicated runtime state.
+
+Syntax Highlighting
+--------------------
+
+Syntax highlighting is on by default in Pry. You can toggle it on and
+off in a session by using the `toggle-color` command. Alternatively,
+you can turn it off permanently by putting the line `Pry.color =
+false` in your `~/.pryrc` file.
 
 Bindings and objects
 --------------------

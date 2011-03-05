@@ -35,8 +35,8 @@ See: `https://github.com/banister` for more information.
     options[:loadrc] = false
   end
 
-  opts.on("--color", "Start session with syntax highlighting on.") do 
-    Pry.color = true
+  opts.on("--no-color", "Start session without syntax highlighting.") do 
+    Pry.color = false
   end
 
   opts.on("--simple-prompt", "Simple prompt mode.") do 
