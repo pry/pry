@@ -27,6 +27,23 @@ class Pry
     remove_first_word = lambda do |text|
       text.split.drop(1).join(' ')
     end
+
+    command "whereami" do
+      file = target.eval '__FILE__'
+      ir_b_line = target.eval '__LINE__'
+      puts "#{file}:#{ir_b_line}"
+
+      File.open(file).each_with_index do |line, index|
+        line_n = index + 1
+        next unless line_n > (ir_b_line - 6)
+        break if line_n > (ir_b_line + 5)
+        if line_n == ir_b_line
+          puts " =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
+        else
+          puts "#{line_n.to_s.rjust(6)}: #{line.chomp}"
+        end
+      end
+    end
     
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
