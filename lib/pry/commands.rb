@@ -28,19 +28,40 @@ class Pry
       text.split.drop(1).join(' ')
     end
 
-    command "whereami" do
-      file = target.eval '__FILE__'
-      ir_b_line = target.eval '__LINE__'
-      puts "#{file}:#{ir_b_line}"
+    command "whereami", "Show the code context for the session." do
+      file = target.eval('__FILE__')
+      line_num = target.eval('__LINE__')
+      klass = target.eval('self.class')
 
+      meth_name = meth_name_from_binding.call(target)
+      if !meth_name
+        output.puts "Cannot find containing method. Did you remember to use \`binding.pry\` ?"
+        next
+      end
+
+      check_for_dynamically_defined_method.call(file)
+     
+      output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
+      
+      # This method inspired by http://rubygems.org/gems/ir_b
       File.open(file).each_with_index do |line, index|
         line_n = index + 1
-        next unless line_n > (ir_b_line - 6)
-        break if line_n > (ir_b_line + 5)
-        if line_n == ir_b_line
-          puts " =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
+        next unless line_n > (line_num - 6)
+        break if line_n > (line_num + 5)
+        if line_n == line_num
+          code =" =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
+          if Pry.color
+            code = CodeRay.scan(code, :ruby).term
+          end
+          output.puts code
+          code
         else
-          puts "#{line_n.to_s.rjust(6)}: #{line.chomp}"
+          code = "#{line_n.to_s.rjust(6)}: #{line.chomp}"
+          if Pry.color
+            code = CodeRay.scan(code, :ruby).term
+          end
+          output.puts code
+          code
         end
       end
     end
@@ -54,11 +75,12 @@ class Pry
       Pry.start(target)
     end
 
-    command "exit-program", "End the current program. Aliases: quit-program" do
+    command "exit-program", "End the current program. Aliases: quit-program, !!!" do
       exit
     end
 
     alias_command "quit-program", "exit-program", ""
+    alias_command "!!!", "exit-program", ""
 
     command "toggle-color", "Toggle syntax highlighting." do
       Pry.color = !Pry.color
@@ -279,7 +301,7 @@ Shows local and instance variables by default.
         next
       end
 
-      contents = File.read(file_name)
+      contents = File.read(File.expand_path(file_name))
       output.puts contents
       contents
     end
@@ -318,10 +340,10 @@ e.g: eval-file -c self "hello.rb"
       old_constants = Object.constants
       if options[:c]
         target_self = target.eval('self')
-        target.eval(File.read(file_name))
+        target.eval(File.read(File.expand_path(file_name)))
         output.puts "--\nEval'd '#{file_name}' in the `#{target_self}`  context."
       else
-        TOPLEVEL_BINDING.eval(File.read(file_name))
+        TOPLEVEL_BINDING.eval(File.read(File.expand_path(file_name)))
         output.puts "--\nEval'd '#{file_name}' at top-level."
       end
       new_constants = Object.constants - old_constants

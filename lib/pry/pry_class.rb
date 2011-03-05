@@ -1,6 +1,7 @@
 # @author John Mair (banisterfiend)
 class Pry
 
+  # The RC Files to load. 
   RC_FILES = ["~/.pryrc"]
   
   # class accessors
@@ -151,13 +152,15 @@ class Pry
     
     options = {
       :context => TOPLEVEL_BINDING,
-      :show_output => false
+      :show_output => false,
+      :output => Pry.output,
+      :commands => Pry.commands
     }.merge!(options)
     
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
     
-    commands = Pry.commands.clone
-    commands.output = options[:show_output] ? Pry.output : null_output
+    commands = options[:commands].clone
+    commands.output = options[:show_output] ? options[:output] : null_output
     commands.target = Pry.binding_for(options[:context])
 
     cmd = commands.commands[name]
@@ -177,7 +180,7 @@ class Pry
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
-    @color = false
+    @color = true
     @should_load_rc = true
     @rc_loaded = false
     @cli = false

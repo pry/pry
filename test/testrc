@@ -1,0 +1,2 @@
+TEST_RC = [] if !Object.const_defined?(:TEST_RC)
+TEST_RC << 0

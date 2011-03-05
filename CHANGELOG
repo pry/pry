@@ -1,3 +1,8 @@
+6/3/2011 version 0.6.8
+* add whereami command, a la the `ir_b` gem
+* make whereami run at the start of every session
+* make .pryrc be loaded by run-time pry sessions
+
 4/3/2011 version 0.6.7
 * color support
 * --simple-prompt for pry commandline
