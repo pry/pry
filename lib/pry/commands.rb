@@ -11,7 +11,9 @@ class Pry
     # We make this a lambda to avoid documenting it
     meth_name_from_binding = lambda do |b|
       meth_name = b.eval('__method__')
-      if [nil, :__binding__, :__binding_impl__].include?(meth_name)
+
+      # :__script__ for rubinius
+      if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
         nil
       else
         meth_name
