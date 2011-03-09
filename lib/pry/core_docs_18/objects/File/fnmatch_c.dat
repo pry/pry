@@ -1,0 +1,275 @@
+o:$YARD::CodeObjects::MethodObject:
+@name:fnmatch:@docstringIC:YARD::Docstring"Returns true if <i>path</i> matches against <i>pattern</i> The
+pattern is not a regular expression; instead it follows rules
+similar to shell filename globbing. It may contain the following
+metacharacters:
+
+<code>*</code>::        Matches any file. Can be restricted by
+                        other values in the glob. <code>*</code>
+                        will match all files; <code>c*</code> will
+                        match all files beginning with
+                        <code>c</code>; <code>*c</code> will match
+                        all files ending with <code>c</code>; and
+                        <code>*c*</code> will match all files that
+                        have <code>c</code> in them (including at
+                        the beginning or end). Equivalent to
+                        <code>/ .* /x</code> in regexp.
+<code>**</code>::       Matches directories recursively or files
+                        expansively.
+<code>?</code>::        Matches any one character. Equivalent to
+                        <code>/.{1}/</code> in regexp.
+<code>[set]</code>::    Matches any one character in +set+.
+                        Behaves exactly like character sets in
+                        Regexp, including set negation
+                        (<code>[^a-z]</code>).
+<code>\</code>::        Escapes the next metacharacter.
+
+<i>flags</i> is a bitwise OR of the <code>FNM_xxx</code>
+parameters. The same glob pattern and flags are used by
+<code>Dir::glob</code>.
+
+   File.fnmatch('cat',       'cat')        #=> true  : match entire string
+   File.fnmatch('cat',       'category')   #=> false : only match partial string
+   File.fnmatch('c{at,ub}s', 'cats')       #=> false : { } isn't supported
+
+   File.fnmatch('c?t',     'cat')          #=> true  : '?' match only 1 character
+   File.fnmatch('c??t',    'cat')          #=> false : ditto
+   File.fnmatch('c*',      'cats')         #=> true  : '*' match 0 or more characters
+   File.fnmatch('c*t',     'c/a/b/t')      #=> true  : ditto
+   File.fnmatch('ca[a-z]', 'cat')          #=> true  : inclusive bracket expression
+   File.fnmatch('ca[^t]',  'cat')          #=> false : exclusive bracket expression ('^' or '!')
+
+   File.fnmatch('cat', 'CAT')                     #=> false : case sensitive
+   File.fnmatch('cat', 'CAT', File::FNM_CASEFOLD) #=> true  : case insensitive
+
+   File.fnmatch('?',   '/', File::FNM_PATHNAME)  #=> false : wildcard doesn't match '/' on FNM_PATHNAME
+   File.fnmatch('*',   '/', File::FNM_PATHNAME)  #=> false : ditto
+   File.fnmatch('[/]', '/', File::FNM_PATHNAME)  #=> false : ditto
+
+   File.fnmatch('\?',   '?')                       #=> true  : escaped wildcard becomes ordinary
+   File.fnmatch('\a',   'a')                       #=> true  : escaped ordinary remains ordinary
+   File.fnmatch('\a',   '\a', File::FNM_NOESCAPE)  #=> true  : FNM_NOESACPE makes '\' ordinary
+   File.fnmatch('[\?]', '?')                       #=> true  : can escape inside bracket expression
+
+   File.fnmatch('*',   '.profile')                      #=> false : wildcard doesn't match leading
+   File.fnmatch('*',   '.profile', File::FNM_DOTMATCH)  #=> true    period by default.
+   File.fnmatch('.*',  '.profile')                      #=> true
+
+   rbfiles = '**' '/' '*.rb' # you don't have to do like this. just write in single string.
+   File.fnmatch(rbfiles, 'main.rb')                    #=> false
+   File.fnmatch(rbfiles, './main.rb')                  #=> false
+   File.fnmatch(rbfiles, 'lib/song.rb')                #=> true
+   File.fnmatch('**.rb', 'main.rb')                    #=> true
+   File.fnmatch('**.rb', './main.rb')                  #=> false
+   File.fnmatch('**.rb', 'lib/song.rb')                #=> true
+   File.fnmatch('*',           'dave/.profile')                      #=> true
+
+   pattern = '*' '/' '*'
+   File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME)  #=> false
+   File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+
+   pattern = '**' '/' 'foo'
+   File.fnmatch(pattern, 'a/b/c/foo', File::FNM_PATHNAME)     #=> true
+   File.fnmatch(pattern, '/a/b/c/foo', File::FNM_PATHNAME)    #=> true
+   File.fnmatch(pattern, 'c:/a/b/c/foo', File::FNM_PATHNAME)  #=> true
+   File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME)    #=> false
+   File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+:@objectu:YARD::StubProxyFile.fnmatch:@summary0:	@all"™Returns true if <i>path</i> matches against <i>pattern</i> The
+pattern is not a regular expression; instead it follows rules
+similar to shell filename globbing. It may contain the following
+metacharacters:
+
+<code>*</code>::        Matches any file. Can be restricted by
+                        other values in the glob. <code>*</code>
+                        will match all files; <code>c*</code> will
+                        match all files beginning with
+                        <code>c</code>; <code>*c</code> will match
+                        all files ending with <code>c</code>; and
+                        <code>*c*</code> will match all files that
+                        have <code>c</code> in them (including at
+                        the beginning or end). Equivalent to
+                        <code>/ .* /x</code> in regexp.
+<code>**</code>::       Matches directories recursively or files
+                        expansively.
+<code>?</code>::        Matches any one character. Equivalent to
+                        <code>/.{1}/</code> in regexp.
+<code>[set]</code>::    Matches any one character in +set+.
+                        Behaves exactly like character sets in
+                        Regexp, including set negation
+                        (<code>[^a-z]</code>).
+<code>\</code>::        Escapes the next metacharacter.
+
+<i>flags</i> is a bitwise OR of the <code>FNM_xxx</code>
+parameters. The same glob pattern and flags are used by
+<code>Dir::glob</code>.
+
+   File.fnmatch('cat',       'cat')        #=> true  : match entire string
+   File.fnmatch('cat',       'category')   #=> false : only match partial string
+   File.fnmatch('c{at,ub}s', 'cats')       #=> false : { } isn't supported
+
+   File.fnmatch('c?t',     'cat')          #=> true  : '?' match only 1 character
+   File.fnmatch('c??t',    'cat')          #=> false : ditto
+   File.fnmatch('c*',      'cats')         #=> true  : '*' match 0 or more characters
+   File.fnmatch('c*t',     'c/a/b/t')      #=> true  : ditto
+   File.fnmatch('ca[a-z]', 'cat')          #=> true  : inclusive bracket expression
+   File.fnmatch('ca[^t]',  'cat')          #=> false : exclusive bracket expression ('^' or '!')
+
+   File.fnmatch('cat', 'CAT')                     #=> false : case sensitive
+   File.fnmatch('cat', 'CAT', File::FNM_CASEFOLD) #=> true  : case insensitive
+
+   File.fnmatch('?',   '/', File::FNM_PATHNAME)  #=> false : wildcard doesn't match '/' on FNM_PATHNAME
+   File.fnmatch('*',   '/', File::FNM_PATHNAME)  #=> false : ditto
+   File.fnmatch('[/]', '/', File::FNM_PATHNAME)  #=> false : ditto
+
+   File.fnmatch('\?',   '?')                       #=> true  : escaped wildcard becomes ordinary
+   File.fnmatch('\a',   'a')                       #=> true  : escaped ordinary remains ordinary
+   File.fnmatch('\a',   '\a', File::FNM_NOESCAPE)  #=> true  : FNM_NOESACPE makes '\' ordinary
+   File.fnmatch('[\?]', '?')                       #=> true  : can escape inside bracket expression
+
+   File.fnmatch('*',   '.profile')                      #=> false : wildcard doesn't match leading
+   File.fnmatch('*',   '.profile', File::FNM_DOTMATCH)  #=> true    period by default.
+   File.fnmatch('.*',  '.profile')                      #=> true
+
+   rbfiles = '**' '/' '*.rb' # you don't have to do like this. just write in single string.
+   File.fnmatch(rbfiles, 'main.rb')                    #=> false
+   File.fnmatch(rbfiles, './main.rb')                  #=> false
+   File.fnmatch(rbfiles, 'lib/song.rb')                #=> true
+   File.fnmatch('**.rb', 'main.rb')                    #=> true
+   File.fnmatch('**.rb', './main.rb')                  #=> false
+   File.fnmatch('**.rb', 'lib/song.rb')                #=> true
+   File.fnmatch('*',           'dave/.profile')                      #=> true
+
+   pattern = '*' '/' '*'
+   File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME)  #=> false
+   File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+
+   pattern = '**' '/' 'foo'
+   File.fnmatch(pattern, 'a/b/c/foo', File::FNM_PATHNAME)     #=> true
+   File.fnmatch(pattern, '/a/b/c/foo', File::FNM_PATHNAME)    #=> true
+   File.fnmatch(pattern, 'c:/a/b/c/foo', File::FNM_PATHNAME)  #=> true
+   File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME)    #=> false
+   File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+
+
+@overload fnmatch( pattern, path, [flags] )
+  @return [Boolean]
+@overload fnmatch?( pattern, path, [flags] )
+  @return [Boolean]:@ref_tags[ :
+@tags[o:YARD::Tags::OverloadTag;
+u;File.fnmatch;;;IC;	" 
+;
+u;File.fnmatch;0;"@return [Boolean];[ ;[o:YARD::Tags::Tag
+;
+0;0:@types["Boolean:
+@text" :@tag_name"return;0:@parameters[[:pattern0[:	path0[:[flags]0;0:@signature"&fnmatch( pattern, path, [flags] );"overloado;;
+u;File.fnmatch;:fnmatch?;IC;	" 
+;
+u;File.fnmatch;0;"@return [Boolean];[ ;[o;
+;
+0;0;["Boolean;" ;"return;0;[[;0[;0[;0;0;"'fnmatch?( pattern, path, [flags] );"overload:@current_file_has_commentsF:@scope:
+class;[ :@docstring_extra0:@files[["
+dir.c0:@namespaceu;	File:
+@path"File.fnmatch;[ :@visibility:public:@source"~/*
+ *  call-seq:
+ *     File.fnmatch( pattern, path, [flags] ) => (true or false)
+ *     File.fnmatch?( pattern, path, [flags] ) => (true or false)
+ *
+ *  Returns true if <i>path</i> matches against <i>pattern</i> The
+ *  pattern is not a regular expression; instead it follows rules
+ *  similar to shell filename globbing. It may contain the following
+ *  metacharacters:
+ *
+ *  <code>*</code>::        Matches any file. Can be restricted by
+ *                          other values in the glob. <code>*</code>
+ *                          will match all files; <code>c*</code> will
+ *                          match all files beginning with
+ *                          <code>c</code>; <code>*c</code> will match
+ *                          all files ending with <code>c</code>; and
+ *                          <code>*c*</code> will match all files that
+ *                          have <code>c</code> in them (including at
+ *                          the beginning or end). Equivalent to
+ *                          <code>/ .* /x</code> in regexp.
+ *  <code>**</code>::       Matches directories recursively or files
+ *                          expansively.
+ *  <code>?</code>::        Matches any one character. Equivalent to
+ *                          <code>/.{1}/</code> in regexp.
+ *  <code>[set]</code>::    Matches any one character in +set+.
+ *                          Behaves exactly like character sets in
+ *                          Regexp, including set negation
+ *                          (<code>[^a-z]</code>).
+ *  <code>\</code>::        Escapes the next metacharacter.
+ *
+ *  <i>flags</i> is a bitwise OR of the <code>FNM_xxx</code>
+ *  parameters. The same glob pattern and flags are used by
+ *  <code>Dir::glob</code>.
+ *
+ *     File.fnmatch('cat',       'cat')        #=> true  : match entire string
+ *     File.fnmatch('cat',       'category')   #=> false : only match partial string
+ *     File.fnmatch('c{at,ub}s', 'cats')       #=> false : { } isn't supported
+ *
+ *     File.fnmatch('c?t',     'cat')          #=> true  : '?' match only 1 character
+ *     File.fnmatch('c??t',    'cat')          #=> false : ditto
+ *     File.fnmatch('c*',      'cats')         #=> true  : '*' match 0 or more characters
+ *     File.fnmatch('c*t',     'c/a/b/t')      #=> true  : ditto
+ *     File.fnmatch('ca[a-z]', 'cat')          #=> true  : inclusive bracket expression
+ *     File.fnmatch('ca[^t]',  'cat')          #=> false : exclusive bracket expression ('^' or '!')
+ *
+ *     File.fnmatch('cat', 'CAT')                     #=> false : case sensitive
+ *     File.fnmatch('cat', 'CAT', File::FNM_CASEFOLD) #=> true  : case insensitive
+ *
+ *     File.fnmatch('?',   '/', File::FNM_PATHNAME)  #=> false : wildcard doesn't match '/' on FNM_PATHNAME
+ *     File.fnmatch('*',   '/', File::FNM_PATHNAME)  #=> false : ditto
+ *     File.fnmatch('[/]', '/', File::FNM_PATHNAME)  #=> false : ditto
+ *
+ *     File.fnmatch('\?',   '?')                       #=> true  : escaped wildcard becomes ordinary
+ *     File.fnmatch('\a',   'a')                       #=> true  : escaped ordinary remains ordinary
+ *     File.fnmatch('\a',   '\a', File::FNM_NOESCAPE)  #=> true  : FNM_NOESACPE makes '\' ordinary
+ *     File.fnmatch('[\?]', '?')                       #=> true  : can escape inside bracket expression
+ *
+ *     File.fnmatch('*',   '.profile')                      #=> false : wildcard doesn't match leading
+ *     File.fnmatch('*',   '.profile', File::FNM_DOTMATCH)  #=> true    period by default.
+ *     File.fnmatch('.*',  '.profile')                      #=> true
+ *
+ *     rbfiles = '**' '/' '*.rb' # you don't have to do like this. just write in single string.
+ *     File.fnmatch(rbfiles, 'main.rb')                    #=> false
+ *     File.fnmatch(rbfiles, './main.rb')                  #=> false
+ *     File.fnmatch(rbfiles, 'lib/song.rb')                #=> true
+ *     File.fnmatch('**.rb', 'main.rb')                    #=> true
+ *     File.fnmatch('**.rb', './main.rb')                  #=> false
+ *     File.fnmatch('**.rb', 'lib/song.rb')                #=> true
+ *     File.fnmatch('*',           'dave/.profile')                      #=> true
+ *
+ *     pattern = '*' '/' '*'
+ *     File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME)  #=> false
+ *     File.fnmatch(pattern, 'dave/.profile', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+ *
+ *     pattern = '**' '/' 'foo'
+ *     File.fnmatch(pattern, 'a/b/c/foo', File::FNM_PATHNAME)     #=> true
+ *     File.fnmatch(pattern, '/a/b/c/foo', File::FNM_PATHNAME)    #=> true
+ *     File.fnmatch(pattern, 'c:/a/b/c/foo', File::FNM_PATHNAME)  #=> true
+ *     File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME)    #=> false
+ *     File.fnmatch(pattern, 'a/.b/c/foo', File::FNM_PATHNAME | File::FNM_DOTMATCH) #=> true
+ */
+static VALUE
+file_s_fnmatch(argc, argv, obj)
+    int argc;
+    VALUE *argv;
+    VALUE obj;
+{
+    VALUE pattern, path;
+    VALUE rflags;
+    int flags;
+
+    if (rb_scan_args(argc, argv, "21", &pattern, &path, &rflags) == 3)
+    flags = NUM2INT(rflags);
+    else
+    flags = 0;
+
+    StringValue(pattern);
+    StringValue(path);
+
+    if (fnmatch(RSTRING(pattern)->ptr, RSTRING(path)->ptr, flags) == 0)
+    return Qtrue;
+
+    return Qfalse;
+}:@source_type:c
