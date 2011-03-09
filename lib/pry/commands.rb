@@ -30,44 +30,6 @@ class Pry
       text.split.drop(1).join(' ')
     end
 
-    command "whereami", "Show the code context for the session." do
-      file = target.eval('__FILE__')
-      line_num = target.eval('__LINE__')
-      klass = target.eval('self.class')
-
-      meth_name = meth_name_from_binding.call(target)
-      if !meth_name
-        output.puts "Cannot find containing method. Did you remember to use \`binding.pry\` ?"
-        next
-      end
-
-      check_for_dynamically_defined_method.call(file)
-     
-      output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
-      
-      # This method inspired by http://rubygems.org/gems/ir_b
-      File.open(file).each_with_index do |line, index|
-        line_n = index + 1
-        next unless line_n > (line_num - 6)
-        break if line_n > (line_num + 5)
-        if line_n == line_num
-          code =" =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
-          if Pry.color
-            code = CodeRay.scan(code, :ruby).term
-          end
-          output.puts code
-          code
-        else
-          code = "#{line_n.to_s.rjust(6)}: #{line.chomp}"
-          if Pry.color
-            code = CodeRay.scan(code, :ruby).term
-          end
-          output.puts code
-          code
-        end
-      end
-    end
-    
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
       opts[:eval_string].clear
@@ -127,6 +89,45 @@ class Pry
       output.puts "Pry instance: #{Pry.active_instance}"
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
+
+    command "whereami", "Show the code context for the session." do
+      file = target.eval('__FILE__')
+      line_num = target.eval('__LINE__')
+      klass = target.eval('self.class')
+
+      meth_name = meth_name_from_binding.call(target)
+      if !meth_name
+        output.puts "Cannot find containing method. Did you remember to use \`binding.pry\` ?"
+        next
+      end
+
+      check_for_dynamically_defined_method.call(file)
+     
+      output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
+      
+      # This method inspired by http://rubygems.org/gems/ir_b
+      File.open(file).each_with_index do |line, index|
+        line_n = index + 1
+        next unless line_n > (line_num - 6)
+        break if line_n > (line_num + 5)
+        if line_n == line_num
+          code =" =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
+          if Pry.color
+            code = CodeRay.scan(code, :ruby).term
+          end
+          output.puts code
+          code
+        else
+          code = "#{line_n.to_s.rjust(6)}: #{line.chomp}"
+          if Pry.color
+            code = CodeRay.scan(code, :ruby).term
+          end
+          output.puts code
+          code
+        end
+      end
+    end
+    
 
     command "version", "Show Pry version." do
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
