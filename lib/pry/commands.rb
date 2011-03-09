@@ -90,6 +90,55 @@ class Pry
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
+    # FIXME!!! some methods, e.g Kernel#tap actually require
+    # Object#tap in order to retrieve their docs!!!
+    begin
+      require "yard"
+      if RUBY_VERSION =~ /1.9/
+        YARD::Registry.load_yardoc("#{File.dirname(__FILE__)}/core_docs_19")
+      else
+        YARD::Registry.load_yardoc("#{File.dirname(__FILE__)}/core_docs_18")
+      end
+
+      yard_cache = {}
+      command "doc" do |meth_name|
+        begin
+          meth = target.eval("method(:#{meth_name})")
+        rescue
+          begin
+            meth = target.eval("instance_method(:#{meth_name})")
+          rescue
+            output.puts "Error could not find method: #{meth_name}"
+            next
+          end
+        end
+
+        if meth.source_location
+          file = meth.source_location.first
+          if !yard_cache[file]
+            log.enter_level(Logger::FATAL) do
+              YARD.parse(file)
+            end
+            yard_cache[file] = true
+          end
+        end
+
+        if meth.owner.name # instance method
+          klassinst, klass = '#', meth.owner.name
+        else # class method
+          klassinst, klass = '.', meth.owner.to_s[/#<.+?:(.+?)>/, 1]
+        end
+
+        if obj = YARD::Registry.at([klass, meth.name].join(klassinst))
+          output.puts obj.docstring
+        else
+          output.puts "Couldn't find docs for: #{meth_name}"
+        end
+      end
+
+    rescue LoadError
+    end
+      
     command "whereami", "Show the code context for the session." do
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')
