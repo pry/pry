@@ -1,0 +1,1192 @@
+o:$YARD::CodeObjects::MethodObject:
+@name:unpack:@docstringIC:YARD::Docstring"uDecodes <i>str</i> (which may contain binary data) according to the
+format string, returning an array of each value extracted. The
+format string consists of a sequence of single-character directives,
+summarized in the table at the end of this entry.
+Each directive may be followed
+by a number, indicating the number of times to repeat with this
+directive. An asterisk (``<code>*</code>'') will use up all
+remaining elements. The directives <code>sSiIlL</code> may each be
+followed by an underscore (``<code>_</code>'') to use the underlying
+platform's native size for the specified type; otherwise, it uses a
+platform-independent consistent size. Spaces are ignored in the
+format string. See also <code>Array#pack</code>.
+
+   "abc \0\0abc \0\0".unpack('A6Z6')   #=> ["abc", "abc "]
+   "abc \0\0".unpack('a3a3')           #=> ["abc", " \000\000"]
+   "abc \0abc \0".unpack('Z*Z*')       #=> ["abc ", "abc "]
+   "aa".unpack('b8B8')                 #=> ["10000110", "01100001"]
+   "aaa".unpack('h2H2c')               #=> ["16", "61", 97]
+   "\xfe\xff\xfe\xff".unpack('sS')     #=> [-2, 65534]
+   "now=20is".unpack('M*')             #=> ["now is"]
+   "whole".unpack('xax2aX2aX1aX2a')    #=> ["h", "e", "l", "l", "o"]
+
+This table summarizes the various formats and the Ruby classes
+returned by each.
+
+   Format | Returns | Function
+   -------+---------+-----------------------------------------
+     A    | String  | with trailing nulls and spaces removed
+   -------+---------+-----------------------------------------
+     a    | String  | string
+   -------+---------+-----------------------------------------
+     B    | String  | extract bits from each character (msb first)
+   -------+---------+-----------------------------------------
+     b    | String  | extract bits from each character (lsb first)
+   -------+---------+-----------------------------------------
+     C    | Fixnum  | extract a character as an unsigned integer
+   -------+---------+-----------------------------------------
+     c    | Fixnum  | extract a character as an integer
+   -------+---------+-----------------------------------------
+     d,D  | Float   | treat sizeof(double) characters as
+          |         | a native double
+   -------+---------+-----------------------------------------
+     E    | Float   | treat sizeof(double) characters as
+          |         | a double in little-endian byte order
+   -------+---------+-----------------------------------------
+     e    | Float   | treat sizeof(float) characters as
+          |         | a float in little-endian byte order
+   -------+---------+-----------------------------------------
+     f,F  | Float   | treat sizeof(float) characters as
+          |         | a native float
+   -------+---------+-----------------------------------------
+     G    | Float   | treat sizeof(double) characters as
+          |         | a double in network byte order
+   -------+---------+-----------------------------------------
+     g    | Float   | treat sizeof(float) characters as a
+          |         | float in network byte order
+   -------+---------+-----------------------------------------
+     H    | String  | extract hex nibbles from each character
+          |         | (most significant first)
+   -------+---------+-----------------------------------------
+     h    | String  | extract hex nibbles from each character
+          |         | (least significant first)
+   -------+---------+-----------------------------------------
+     I    | Integer | treat sizeof(int) (modified by _)
+          |         | successive characters as an unsigned
+          |         | native integer
+   -------+---------+-----------------------------------------
+     i    | Integer | treat sizeof(int) (modified by _)
+          |         | successive characters as a signed
+          |         | native integer
+   -------+---------+-----------------------------------------
+     L    | Integer | treat four (modified by _) successive
+          |         | characters as an unsigned native
+          |         | long integer
+   -------+---------+-----------------------------------------
+     l    | Integer | treat four (modified by _) successive
+          |         | characters as a signed native
+          |         | long integer
+   -------+---------+-----------------------------------------
+     M    | String  | quoted-printable
+   -------+---------+-----------------------------------------
+     m    | String  | base64-encoded
+   -------+---------+-----------------------------------------
+     N    | Integer | treat four characters as an unsigned
+          |         | long in network byte order
+   -------+---------+-----------------------------------------
+     n    | Fixnum  | treat two characters as an unsigned
+          |         | short in network byte order
+   -------+---------+-----------------------------------------
+     P    | String  | treat sizeof(char *) characters as a
+          |         | pointer, and  return \emph{len} characters
+          |         | from the referenced location
+   -------+---------+-----------------------------------------
+     p    | String  | treat sizeof(char *) characters as a
+          |         | pointer to a  null-terminated string
+   -------+---------+-----------------------------------------
+     Q    | Integer | treat 8 characters as an unsigned
+          |         | quad word (64 bits)
+   -------+---------+-----------------------------------------
+     q    | Integer | treat 8 characters as a signed
+          |         | quad word (64 bits)
+   -------+---------+-----------------------------------------
+     S    | Fixnum  | treat two (different if _ used)
+          |         | successive characters as an unsigned
+          |         | short in native byte order
+   -------+---------+-----------------------------------------
+     s    | Fixnum  | Treat two (different if _ used)
+          |         | successive characters as a signed short
+          |         | in native byte order
+   -------+---------+-----------------------------------------
+     U    | Integer | UTF-8 characters as unsigned integers
+   -------+---------+-----------------------------------------
+     u    | String  | UU-encoded
+   -------+---------+-----------------------------------------
+     V    | Fixnum  | treat four characters as an unsigned
+          |         | long in little-endian byte order
+   -------+---------+-----------------------------------------
+     v    | Fixnum  | treat two characters as an unsigned
+          |         | short in little-endian byte order
+   -------+---------+-----------------------------------------
+     w    | Integer | BER-compressed integer (see Array.pack)
+   -------+---------+-----------------------------------------
+     X    | ---     | skip backward one character
+   -------+---------+-----------------------------------------
+     x    | ---     | skip forward one character
+   -------+---------+-----------------------------------------
+     Z    | String  | with trailing nulls removed
+          |         | upto first null with *
+   -------+---------+-----------------------------------------
+     @    | ---     | skip to the offset given by the
+          |         | length argument
+   -------+---------+-----------------------------------------
+:@objectu:YARD::StubProxyString#unpack:@summary0:	@all"¢Decodes <i>str</i> (which may contain binary data) according to the
+format string, returning an array of each value extracted. The
+format string consists of a sequence of single-character directives,
+summarized in the table at the end of this entry.
+Each directive may be followed
+by a number, indicating the number of times to repeat with this
+directive. An asterisk (``<code>*</code>'') will use up all
+remaining elements. The directives <code>sSiIlL</code> may each be
+followed by an underscore (``<code>_</code>'') to use the underlying
+platform's native size for the specified type; otherwise, it uses a
+platform-independent consistent size. Spaces are ignored in the
+format string. See also <code>Array#pack</code>.
+
+   "abc \0\0abc \0\0".unpack('A6Z6')   #=> ["abc", "abc "]
+   "abc \0\0".unpack('a3a3')           #=> ["abc", " \000\000"]
+   "abc \0abc \0".unpack('Z*Z*')       #=> ["abc ", "abc "]
+   "aa".unpack('b8B8')                 #=> ["10000110", "01100001"]
+   "aaa".unpack('h2H2c')               #=> ["16", "61", 97]
+   "\xfe\xff\xfe\xff".unpack('sS')     #=> [-2, 65534]
+   "now=20is".unpack('M*')             #=> ["now is"]
+   "whole".unpack('xax2aX2aX1aX2a')    #=> ["h", "e", "l", "l", "o"]
+
+This table summarizes the various formats and the Ruby classes
+returned by each.
+
+   Format | Returns | Function
+   -------+---------+-----------------------------------------
+     A    | String  | with trailing nulls and spaces removed
+   -------+---------+-----------------------------------------
+     a    | String  | string
+   -------+---------+-----------------------------------------
+     B    | String  | extract bits from each character (msb first)
+   -------+---------+-----------------------------------------
+     b    | String  | extract bits from each character (lsb first)
+   -------+---------+-----------------------------------------
+     C    | Fixnum  | extract a character as an unsigned integer
+   -------+---------+-----------------------------------------
+     c    | Fixnum  | extract a character as an integer
+   -------+---------+-----------------------------------------
+     d,D  | Float   | treat sizeof(double) characters as
+          |         | a native double
+   -------+---------+-----------------------------------------
+     E    | Float   | treat sizeof(double) characters as
+          |         | a double in little-endian byte order
+   -------+---------+-----------------------------------------
+     e    | Float   | treat sizeof(float) characters as
+          |         | a float in little-endian byte order
+   -------+---------+-----------------------------------------
+     f,F  | Float   | treat sizeof(float) characters as
+          |         | a native float
+   -------+---------+-----------------------------------------
+     G    | Float   | treat sizeof(double) characters as
+          |         | a double in network byte order
+   -------+---------+-----------------------------------------
+     g    | Float   | treat sizeof(float) characters as a
+          |         | float in network byte order
+   -------+---------+-----------------------------------------
+     H    | String  | extract hex nibbles from each character
+          |         | (most significant first)
+   -------+---------+-----------------------------------------
+     h    | String  | extract hex nibbles from each character
+          |         | (least significant first)
+   -------+---------+-----------------------------------------
+     I    | Integer | treat sizeof(int) (modified by _)
+          |         | successive characters as an unsigned
+          |         | native integer
+   -------+---------+-----------------------------------------
+     i    | Integer | treat sizeof(int) (modified by _)
+          |         | successive characters as a signed
+          |         | native integer
+   -------+---------+-----------------------------------------
+     L    | Integer | treat four (modified by _) successive
+          |         | characters as an unsigned native
+          |         | long integer
+   -------+---------+-----------------------------------------
+     l    | Integer | treat four (modified by _) successive
+          |         | characters as a signed native
+          |         | long integer
+   -------+---------+-----------------------------------------
+     M    | String  | quoted-printable
+   -------+---------+-----------------------------------------
+     m    | String  | base64-encoded
+   -------+---------+-----------------------------------------
+     N    | Integer | treat four characters as an unsigned
+          |         | long in network byte order
+   -------+---------+-----------------------------------------
+     n    | Fixnum  | treat two characters as an unsigned
+          |         | short in network byte order
+   -------+---------+-----------------------------------------
+     P    | String  | treat sizeof(char *) characters as a
+          |         | pointer, and  return \emph{len} characters
+          |         | from the referenced location
+   -------+---------+-----------------------------------------
+     p    | String  | treat sizeof(char *) characters as a
+          |         | pointer to a  null-terminated string
+   -------+---------+-----------------------------------------
+     Q    | Integer | treat 8 characters as an unsigned
+          |         | quad word (64 bits)
+   -------+---------+-----------------------------------------
+     q    | Integer | treat 8 characters as a signed
+          |         | quad word (64 bits)
+   -------+---------+-----------------------------------------
+     S    | Fixnum  | treat two (different if _ used)
+          |         | successive characters as an unsigned
+          |         | short in native byte order
+   -------+---------+-----------------------------------------
+     s    | Fixnum  | Treat two (different if _ used)
+          |         | successive characters as a signed short
+          |         | in native byte order
+   -------+---------+-----------------------------------------
+     U    | Integer | UTF-8 characters as unsigned integers
+   -------+---------+-----------------------------------------
+     u    | String  | UU-encoded
+   -------+---------+-----------------------------------------
+     V    | Fixnum  | treat four characters as an unsigned
+          |         | long in little-endian byte order
+   -------+---------+-----------------------------------------
+     v    | Fixnum  | treat two characters as an unsigned
+          |         | short in little-endian byte order
+   -------+---------+-----------------------------------------
+     w    | Integer | BER-compressed integer (see Array.pack)
+   -------+---------+-----------------------------------------
+     X    | ---     | skip backward one character
+   -------+---------+-----------------------------------------
+     x    | ---     | skip forward one character
+   -------+---------+-----------------------------------------
+     Z    | String  | with trailing nulls removed
+          |         | upto first null with *
+   -------+---------+-----------------------------------------
+     @    | ---     | skip to the offset given by the
+          |         | length argument
+   -------+---------+-----------------------------------------
+
+
+@overload unpack(format)
+  @return [Array]:@ref_tags[ :
+@tags[o:YARD::Tags::OverloadTag;
+u;String#unpack;;;IC;	" 
+;
+u;String#unpack;0;"@return [Array];[ ;[o:YARD::Tags::Tag
+;
+0;0:@types["
+Array:
+@text" :@tag_name"return;0:@parameters[[:format0;0:@signature"unpack(format);"overload:@current_file_has_commentsF:@scope:instance;[ :@docstring_extra0:@files[["pack.c0:@namespaceu;String:
+@path"String#unpack;[ :@visibility:public:@source"¡t/*
+ *  call-seq:
+ *     str.unpack(format)   => anArray
+ *  
+ *  Decodes <i>str</i> (which may contain binary data) according to the
+ *  format string, returning an array of each value extracted. The
+ *  format string consists of a sequence of single-character directives,
+ *  summarized in the table at the end of this entry.
+ *  Each directive may be followed
+ *  by a number, indicating the number of times to repeat with this
+ *  directive. An asterisk (``<code>*</code>'') will use up all
+ *  remaining elements. The directives <code>sSiIlL</code> may each be
+ *  followed by an underscore (``<code>_</code>'') to use the underlying
+ *  platform's native size for the specified type; otherwise, it uses a
+ *  platform-independent consistent size. Spaces are ignored in the
+ *  format string. See also <code>Array#pack</code>.
+ *     
+ *     "abc \0\0abc \0\0".unpack('A6Z6')   #=> ["abc", "abc "]
+ *     "abc \0\0".unpack('a3a3')           #=> ["abc", " \000\000"]
+ *     "abc \0abc \0".unpack('Z*Z*')       #=> ["abc ", "abc "]
+ *     "aa".unpack('b8B8')                 #=> ["10000110", "01100001"]
+ *     "aaa".unpack('h2H2c')               #=> ["16", "61", 97]
+ *     "\xfe\xff\xfe\xff".unpack('sS')     #=> [-2, 65534]
+ *     "now=20is".unpack('M*')             #=> ["now is"]
+ *     "whole".unpack('xax2aX2aX1aX2a')    #=> ["h", "e", "l", "l", "o"]
+ *
+ *  This table summarizes the various formats and the Ruby classes
+ *  returned by each.
+ *     
+ *     Format | Returns | Function
+ *     -------+---------+-----------------------------------------
+ *       A    | String  | with trailing nulls and spaces removed
+ *     -------+---------+-----------------------------------------
+ *       a    | String  | string
+ *     -------+---------+-----------------------------------------
+ *       B    | String  | extract bits from each character (msb first)
+ *     -------+---------+-----------------------------------------
+ *       b    | String  | extract bits from each character (lsb first)
+ *     -------+---------+-----------------------------------------
+ *       C    | Fixnum  | extract a character as an unsigned integer
+ *     -------+---------+-----------------------------------------
+ *       c    | Fixnum  | extract a character as an integer
+ *     -------+---------+-----------------------------------------
+ *       d,D  | Float   | treat sizeof(double) characters as
+ *            |         | a native double
+ *     -------+---------+-----------------------------------------
+ *       E    | Float   | treat sizeof(double) characters as
+ *            |         | a double in little-endian byte order
+ *     -------+---------+-----------------------------------------
+ *       e    | Float   | treat sizeof(float) characters as
+ *            |         | a float in little-endian byte order
+ *     -------+---------+-----------------------------------------
+ *       f,F  | Float   | treat sizeof(float) characters as
+ *            |         | a native float
+ *     -------+---------+-----------------------------------------
+ *       G    | Float   | treat sizeof(double) characters as
+ *            |         | a double in network byte order
+ *     -------+---------+-----------------------------------------
+ *       g    | Float   | treat sizeof(float) characters as a
+ *            |         | float in network byte order
+ *     -------+---------+-----------------------------------------
+ *       H    | String  | extract hex nibbles from each character
+ *            |         | (most significant first)
+ *     -------+---------+-----------------------------------------
+ *       h    | String  | extract hex nibbles from each character
+ *            |         | (least significant first)
+ *     -------+---------+-----------------------------------------
+ *       I    | Integer | treat sizeof(int) (modified by _)
+ *            |         | successive characters as an unsigned
+ *            |         | native integer
+ *     -------+---------+-----------------------------------------
+ *       i    | Integer | treat sizeof(int) (modified by _)
+ *            |         | successive characters as a signed
+ *            |         | native integer
+ *     -------+---------+-----------------------------------------
+ *       L    | Integer | treat four (modified by _) successive
+ *            |         | characters as an unsigned native
+ *            |         | long integer
+ *     -------+---------+-----------------------------------------
+ *       l    | Integer | treat four (modified by _) successive
+ *            |         | characters as a signed native
+ *            |         | long integer
+ *     -------+---------+-----------------------------------------
+ *       M    | String  | quoted-printable
+ *     -------+---------+-----------------------------------------
+ *       m    | String  | base64-encoded
+ *     -------+---------+-----------------------------------------
+ *       N    | Integer | treat four characters as an unsigned
+ *            |         | long in network byte order
+ *     -------+---------+-----------------------------------------
+ *       n    | Fixnum  | treat two characters as an unsigned
+ *            |         | short in network byte order
+ *     -------+---------+-----------------------------------------
+ *       P    | String  | treat sizeof(char *) characters as a
+ *            |         | pointer, and  return \emph{len} characters
+ *            |         | from the referenced location
+ *     -------+---------+-----------------------------------------
+ *       p    | String  | treat sizeof(char *) characters as a
+ *            |         | pointer to a  null-terminated string
+ *     -------+---------+-----------------------------------------
+ *       Q    | Integer | treat 8 characters as an unsigned 
+ *            |         | quad word (64 bits)
+ *     -------+---------+-----------------------------------------
+ *       q    | Integer | treat 8 characters as a signed 
+ *            |         | quad word (64 bits)
+ *     -------+---------+-----------------------------------------
+ *       S    | Fixnum  | treat two (different if _ used)
+ *            |         | successive characters as an unsigned
+ *            |         | short in native byte order
+ *     -------+---------+-----------------------------------------
+ *       s    | Fixnum  | Treat two (different if _ used) 
+ *            |         | successive characters as a signed short
+ *            |         | in native byte order
+ *     -------+---------+-----------------------------------------
+ *       U    | Integer | UTF-8 characters as unsigned integers
+ *     -------+---------+-----------------------------------------
+ *       u    | String  | UU-encoded
+ *     -------+---------+-----------------------------------------
+ *       V    | Fixnum  | treat four characters as an unsigned
+ *            |         | long in little-endian byte order
+ *     -------+---------+-----------------------------------------
+ *       v    | Fixnum  | treat two characters as an unsigned
+ *            |         | short in little-endian byte order
+ *     -------+---------+-----------------------------------------
+ *       w    | Integer | BER-compressed integer (see Array.pack)
+ *     -------+---------+-----------------------------------------
+ *       X    | ---     | skip backward one character
+ *     -------+---------+-----------------------------------------
+ *       x    | ---     | skip forward one character
+ *     -------+---------+-----------------------------------------
+ *       Z    | String  | with trailing nulls removed
+ *            |         | upto first null with *
+ *     -------+---------+-----------------------------------------
+ *       @    | ---     | skip to the offset given by the 
+ *            |         | length argument
+ *     -------+---------+-----------------------------------------
+ */
+
+static VALUE
+pack_unpack(str, fmt)
+    VALUE str, fmt;
+{
+    static const char hexdigits[] = "0123456789abcdef0123456789ABCDEFx";
+    char *s, *send;
+    char *p, *pend;
+    VALUE ary;
+    char type;
+    long len, tmp_len;
+    int star;
+#ifdef NATINT_PACK
+    int natint;         /* native integer */
+#endif
+    int signed_p, integer_size, bigendian_p;
+
+    StringValue(str);
+    StringValue(fmt);
+    s = RSTRING(str)->ptr;
+    send = s + RSTRING(str)->len;
+    p = RSTRING(fmt)->ptr;
+    pend = p + RSTRING(fmt)->len;
+
+    ary = rb_ary_new();
+    while (p < pend) {
+    type = *p++;
+#ifdef NATINT_PACK
+    natint = 0;
+#endif
+
+    if (ISSPACE(type)) continue;
+    if (type == '#') {
+        while ((p < pend) && (*p != '\n')) {
+        p++;
+        }
+        continue;
+    }
+    star = 0;
+    if (*p == '_' || *p == '!') {
+        static const char natstr[] = "sSiIlL";
+
+        if (strchr(natstr, type)) {
+#ifdef NATINT_PACK
+        natint = 1;
+#endif
+        p++;
+        }
+        else {
+        rb_raise(rb_eArgError, "'%c' allowed only after types %s", *p, natstr);
+        }
+    }
+    if (p >= pend)
+        len = 1;
+    else if (*p == '*') {
+        star = 1;
+        len = send - s;
+        p++;
+    }
+    else if (ISDIGIT(*p)) {
+        len = strtoul(p, (char**)&p, 10);
+    }
+    else {
+        len = (type != '@');
+    }
+
+    switch (type) {
+      case '%':
+        rb_raise(rb_eArgError, "%% is not supported");
+        break;
+
+      case 'A':
+        if (len > send - s) len = send - s;
+        {
+        long end = len;
+        char *t = s + len - 1;
+
+        while (t >= s) {
+            if (*t != ' ' && *t != '\0') break;
+            t--; len--;
+        }
+        rb_ary_push(ary, infected_str_new(s, len, str));
+        s += end;
+        }
+        break;
+
+      case 'Z':
+        {
+        char *t = s;
+
+        if (len > send-s) len = send-s;
+        while (t < s+len && *t) t++;
+        rb_ary_push(ary, infected_str_new(s, t-s, str));
+        if (t < send) t++;
+        s = star ? t : s+len;
+        }
+        break;
+
+      case 'a':
+        if (len > send - s) len = send - s;
+        rb_ary_push(ary, infected_str_new(s, len, str));
+        s += len;
+        break;
+
+      case 'b':
+        {
+        VALUE bitstr;
+        char *t;
+        int bits;
+        long i;
+
+        if (p[-1] == '*' || len > (send - s) * 8)
+            len = (send - s) * 8;
+        bits = 0;
+        rb_ary_push(ary, bitstr = rb_str_new(0, len));
+        t = RSTRING(bitstr)->ptr;
+        for (i=0; i<len; i++) {
+            if (i & 7) bits >>= 1;
+            else bits = *s++;
+            *t++ = (bits & 1) ? '1' : '0';
+        }
+        }
+        break;
+
+      case 'B':
+        {
+        VALUE bitstr;
+        char *t;
+        int bits;
+        long i;
+
+        if (p[-1] == '*' || len > (send - s) * 8)
+            len = (send - s) * 8;
+        bits = 0;
+        rb_ary_push(ary, bitstr = rb_str_new(0, len));
+        t = RSTRING(bitstr)->ptr;
+        for (i=0; i<len; i++) {
+            if (i & 7) bits <<= 1;
+            else bits = *s++;
+            *t++ = (bits & 128) ? '1' : '0';
+        }
+        }
+        break;
+
+      case 'h':
+        {
+        VALUE bitstr;
+        char *t;
+        int bits;
+        long i;
+
+        if (p[-1] == '*' || len > (send - s) * 2)
+            len = (send - s) * 2;
+        bits = 0;
+        rb_ary_push(ary, bitstr = rb_str_new(0, len));
+        t = RSTRING(bitstr)->ptr;
+        for (i=0; i<len; i++) {
+            if (i & 1)
+            bits >>= 4;
+            else
+            bits = *s++;
+            *t++ = hexdigits[bits & 15];
+        }
+        }
+        break;
+
+      case 'H':
+        {
+        VALUE bitstr;
+        char *t;
+        int bits;
+        long i;
+
+        if (p[-1] == '*' || len > (send - s) * 2)
+            len = (send - s) * 2;
+        bits = 0;
+        rb_ary_push(ary, bitstr = rb_str_new(0, len));
+        t = RSTRING(bitstr)->ptr;
+        for (i=0; i<len; i++) {
+            if (i & 1)
+            bits <<= 4;
+            else
+            bits = *s++;
+            *t++ = hexdigits[(bits >> 4) & 15];
+        }
+        }
+        break;
+
+      case 'c':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(char));
+        while (len-- > 0) {
+                int c = *s++;
+                if (c > (char)127) c-=256;
+        rb_ary_push(ary, INT2FIX(c));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+
+      case 'C':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(unsigned char));
+        while (len-- > 0) {
+        unsigned char c = *s++;
+        rb_ary_push(ary, INT2FIX(c));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+
+      case 's':
+            signed_p = 1;
+            integer_size = NATINT_LEN(short, 2);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+      case 'S':
+            signed_p = 0;
+            integer_size = NATINT_LEN(short, 2);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+      case 'i':
+            signed_p = 1;
+            integer_size = (int)sizeof(int);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+      case 'I':
+            signed_p = 0;
+            integer_size = (int)sizeof(int);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+      case 'l':
+            signed_p = 1;
+            integer_size = NATINT_LEN(long, 4);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+          case 'L':
+            signed_p = 0;
+            integer_size = NATINT_LEN(long, 4);
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+          case 'q':
+            signed_p = 1;
+            integer_size = QUAD_SIZE;
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+          case 'Q':
+            signed_p = 0;
+            integer_size = QUAD_SIZE;
+            bigendian_p = BIGENDIAN_P();
+            goto unpack_integer;
+
+          case 'n':
+            signed_p = 0;
+            integer_size = 2;
+            bigendian_p = 1;
+            goto unpack_integer;
+
+          case 'N':
+            signed_p = 0;
+            integer_size = 4;
+            bigendian_p = 1;
+            goto unpack_integer;
+
+          case 'v':
+            signed_p = 0;
+            integer_size = 2;
+            bigendian_p = 0;
+            goto unpack_integer;
+
+          case 'V':
+            signed_p = 0;
+            integer_size = 4;
+            bigendian_p = 0;
+            goto unpack_integer;
+
+          unpack_integer:
+            switch (integer_size) {
+#if defined(HAVE_INT16_T) && !defined(FORCE_BIG_PACK)
+              case SIZEOF_INT16_T:
+                if (signed_p) {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(int16_t));
+                    while (len-- > 0) {
+                        union {
+                            int16_t i;
+                            char a[sizeof(int16_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(int16_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap16(v.i);
+                        s += sizeof(int16_t);
+                        rb_ary_push(ary, INT2FIX(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                else {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(uint16_t));
+                    while (len-- > 0) {
+                        union {
+                            uint16_t i;
+                            char a[sizeof(uint16_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(uint16_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap16(v.i);
+                        s += sizeof(uint16_t);
+                        rb_ary_push(ary, INT2FIX(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                break;
+#endif
+
+#if defined(HAVE_INT32_T) && !defined(FORCE_BIG_PACK)
+              case SIZEOF_INT32_T:
+                if (signed_p) {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(int32_t));
+                    while (len-- > 0) {
+                        union {
+                            int32_t i;
+                            char a[sizeof(int32_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(int32_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap32(v.i);
+                        s += sizeof(int32_t);
+                        rb_ary_push(ary, INT2NUM(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                else {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(uint32_t));
+                    while (len-- > 0) {
+                        union {
+                            uint32_t i;
+                            char a[sizeof(uint32_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(uint32_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap32(v.i);
+                        s += sizeof(uint32_t);
+                        rb_ary_push(ary, UINT2NUM(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                break;
+#endif
+
+#if defined(HAVE_INT64_T) && !defined(FORCE_BIG_PACK)
+              case SIZEOF_INT64_T:
+                if (signed_p) {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(int64_t));
+                    while (len-- > 0) {
+                        union {
+                            int64_t i;
+                            char a[sizeof(int64_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(int64_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap64(v.i);
+                        s += sizeof(int64_t);
+                        rb_ary_push(ary, INT64toNUM(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                else {
+                    PACK_LENGTH_ADJUST_SIZE(sizeof(uint64_t));
+                    while (len-- > 0) {
+                        union {
+                            uint64_t i;
+                            char a[sizeof(uint64_t)];
+                        } v;
+                        memcpy(v.a, s, sizeof(uint64_t));
+                        if (bigendian_p != BIGENDIAN_P()) v.i = swap64(v.i);
+                        s += sizeof(uint64_t);
+                        rb_ary_push(ary, UINT64toNUM(v.i));
+                    }
+                    PACK_ITEM_ADJUST();
+                }
+                break;
+#endif
+
+
+              default:
+                if (integer_size > MAX_INTEGER_PACK_SIZE)
+                    rb_bug("unexpected intger size for pack: %d", integer_size);
+                PACK_LENGTH_ADJUST_SIZE(integer_size);
+                while (len-- > 0) {
+                    union {
+                        unsigned long i[(MAX_INTEGER_PACK_SIZE+SIZEOF_LONG)/SIZEOF_LONG];
+                        char a[(MAX_INTEGER_PACK_SIZE+SIZEOF_LONG)/SIZEOF_LONG*SIZEOF_LONG];
+                    } v;
+                    int num_longs = (integer_size+SIZEOF_LONG)/SIZEOF_LONG;
+                    int i;
+
+                    if (signed_p && (signed char)s[bigendian_p ? 0 : (integer_size-1)] < 0)
+                        memset(v.a, 0xff, sizeof(long)*num_longs);
+                    else
+                        memset(v.a, 0, sizeof(long)*num_longs);
+                    if (bigendian_p)
+                        memcpy(v.a + sizeof(long)*num_longs - integer_size, s, integer_size);
+                    else
+                        memcpy(v.a, s, integer_size);
+                    if (bigendian_p) {
+                        for (i = 0; i < num_longs/2; i++) {
+                            unsigned long t = v.i[i];
+                            v.i[i] = v.i[num_longs-1-i];
+                            v.i[num_longs-1-i] = t;
+                        }
+                    }
+                    if (bigendian_p != BIGENDIAN_P()) {
+                        for (i = 0; i < num_longs; i++)
+                            v.i[i] = swapl(v.i[i]);
+                    }
+                    s += integer_size;
+                    rb_ary_push(ary, rb_big_unpack(v.i, num_longs));
+                }
+                PACK_ITEM_ADJUST();
+                break;
+            }
+            break;
+
+      case 'f':
+      case 'F':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(float));
+        while (len-- > 0) {
+        float tmp;
+        memcpy(&tmp, s, sizeof(float));
+        s += sizeof(float);
+        rb_ary_push(ary, rb_float_new((double)tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+
+      case 'e':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(float));
+        while (len-- > 0) {
+            float tmp;
+        FLOAT_CONVWITH(ftmp);
+
+        memcpy(&tmp, s, sizeof(float));
+        s += sizeof(float);
+        tmp = VTOHF(tmp,ftmp);
+        rb_ary_push(ary, rb_float_new((double)tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+        
+      case 'E':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(double));
+        while (len-- > 0) {
+        double tmp;
+        DOUBLE_CONVWITH(dtmp);
+
+        memcpy(&tmp, s, sizeof(double));
+        s += sizeof(double);
+        tmp = VTOHD(tmp,dtmp);
+        rb_ary_push(ary, rb_float_new(tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+        
+      case 'D':
+      case 'd':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(double));
+        while (len-- > 0) {
+        double tmp;
+        memcpy(&tmp, s, sizeof(double));
+        s += sizeof(double);
+        rb_ary_push(ary, rb_float_new(tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+
+      case 'g':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(float));
+        while (len-- > 0) {
+            float tmp;
+        FLOAT_CONVWITH(ftmp;)
+
+        memcpy(&tmp, s, sizeof(float));
+        s += sizeof(float);
+        tmp = NTOHF(tmp,ftmp);
+        rb_ary_push(ary, rb_float_new((double)tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+        
+      case 'G':
+        PACK_LENGTH_ADJUST_SIZE(sizeof(double));
+        while (len-- > 0) {
+        double tmp;
+        DOUBLE_CONVWITH(dtmp);
+
+        memcpy(&tmp, s, sizeof(double));
+        s += sizeof(double);
+        tmp = NTOHD(tmp,dtmp);
+        rb_ary_push(ary, rb_float_new(tmp));
+        }
+        PACK_ITEM_ADJUST();
+        break;
+        
+      case 'U':
+        if (len > send - s) len = send - s;
+        while (len > 0 && s < send) {
+        long alen = send - s;
+        unsigned long l;
+
+        l = utf8_to_uv(s, &alen);
+        s += alen; len--;
+        rb_ary_push(ary, ULONG2NUM(l));
+        }
+        break;
+
+      case 'u':
+        {
+        VALUE buf = infected_str_new(0, (send - s)*3/4, str);
+        char *ptr = RSTRING(buf)->ptr;
+        long total = 0;
+
+        while (s < send && *s > ' ' && *s < 'a') {
+            long a,b,c,d;
+            char hunk[4];
+
+            hunk[3] = '\0';
+            len = (*s++ - ' ') & 077;
+            total += len;
+            if (total > RSTRING(buf)->len) {
+            len -= total - RSTRING(buf)->len;
+            total = RSTRING(buf)->len;
+            }
+
+            while (len > 0) {
+            long mlen = len > 3 ? 3 : len;
+
+            if (s < send && *s >= ' ')
+                a = (*s++ - ' ') & 077;
+            else
+                a = 0;
+            if (s < send && *s >= ' ')
+                b = (*s++ - ' ') & 077;
+            else
+                b = 0;
+            if (s < send && *s >= ' ')
+                c = (*s++ - ' ') & 077;
+            else
+                c = 0;
+            if (s < send && *s >= ' ')
+                d = (*s++ - ' ') & 077;
+            else
+                d = 0;
+            hunk[0] = a << 2 | b >> 4;
+            hunk[1] = b << 4 | c >> 2;
+            hunk[2] = c << 6 | d;
+            memcpy(ptr, hunk, mlen);
+            ptr += mlen;
+            len -= mlen;
+            }
+            if (*s == '\r') s++;
+            if (*s == '\n') s++;
+            else if (s < send && (s+1 == send || s[1] == '\n'))
+            s += 2;  /* possible checksum byte */
+        }
+        
+        RSTRING(buf)->ptr[total] = '\0';
+        RSTRING(buf)->len = total;
+        rb_ary_push(ary, buf);
+        }
+        break;
+
+      case 'm':
+        {
+        VALUE buf = infected_str_new(0, (send - s)*3/4, str);
+        char *ptr = RSTRING(buf)->ptr;
+        int a = -1,b = -1,c = 0,d;
+        static int first = 1;
+        static int b64_xtable[256];
+
+        if (first) {
+            int i;
+            first = 0;
+
+            for (i = 0; i < 256; i++) {
+            b64_xtable[i] = -1;
+            }
+            for (i = 0; i < 64; i++) {
+            b64_xtable[(int)b64_table[i]] = i;
+            }
+        }
+        while (s < send) {
+            a = b = c = d = -1;
+            while((a = b64_xtable[(int)(*(unsigned char*)s)]) == -1 && s < send) { s++; }
+            if( s >= send ) break;
+            s++;
+            while((b = b64_xtable[(int)(*(unsigned char*)s)]) == -1 && s < send) { s++; }
+            if( s >= send ) break;
+            s++;
+            while((c = b64_xtable[(int)(*(unsigned char*)s)]) == -1 && s < send) { if( *s == '=' ) break; s++; }
+            if( *s == '=' || s >= send ) break;
+            s++;
+            while((d = b64_xtable[(int)(*(unsigned char*)s)]) == -1 && s < send) { if( *s == '=' ) break; s++; }
+            if( *s == '=' || s >= send ) break;
+            s++;
+            *ptr++ = a << 2 | b >> 4;
+            *ptr++ = b << 4 | c >> 2;
+            *ptr++ = c << 6 | d;
+        }
+        if (a != -1 && b != -1) {
+            if (c == -1 && *s == '=')
+            *ptr++ = a << 2 | b >> 4;
+            else if (c != -1 && *s == '=') {
+            *ptr++ = a << 2 | b >> 4;
+            *ptr++ = b << 4 | c >> 2;
+            }
+        }
+        *ptr = '\0';
+        RSTRING(buf)->len = ptr - RSTRING(buf)->ptr;
+        rb_ary_push(ary, buf);
+        }
+        break;
+
+      case 'M':
+        {
+        VALUE buf = infected_str_new(0, send - s, str);
+        char *ptr = RSTRING(buf)->ptr;
+        int c1, c2;
+
+        while (s < send) {
+            if (*s == '=') {
+            if (++s == send) break;
+                       if (s+1 < send && *s == '\r' && *(s+1) == '\n')
+                         s++;
+            if (*s != '\n') {
+                if ((c1 = hex2num(*s)) == -1) break;
+                if (++s == send) break;
+                if ((c2 = hex2num(*s)) == -1) break;
+                *ptr++ = c1 << 4 | c2;
+            }
+            }
+            else {
+            *ptr++ = *s;
+            }
+            s++;
+        }
+        *ptr = '\0';
+        RSTRING(buf)->len = ptr - RSTRING(buf)->ptr;
+        rb_ary_push(ary, buf);
+        }
+        break;
+
+      case '@':
+        if (len > RSTRING(str)->len)
+        rb_raise(rb_eArgError, "@ outside of string");
+        s = RSTRING(str)->ptr + len;
+        break;
+
+      case 'X':
+        if (len > s - RSTRING(str)->ptr)
+        rb_raise(rb_eArgError, "X outside of string");
+        s -= len;
+        break;
+
+      case 'x':
+        if (len > send - s)
+        rb_raise(rb_eArgError, "x outside of string");
+        s += len;
+        break;
+
+      case 'P':
+        if (sizeof(char *) <= (size_t)(send - s)) {
+        VALUE tmp = Qnil;
+        char *t;
+
+        memcpy(&t, s, sizeof(char *));
+        s += sizeof(char *);
+
+        if (t) {
+            VALUE a, *p, *pend;
+
+            if (!(a = rb_str_associated(str))) {
+            rb_raise(rb_eArgError, "no associated pointer");
+            }
+            p = RARRAY(a)->ptr;
+            pend = p + RARRAY(a)->len;
+            while (p < pend) {
+            if (TYPE(*p) == T_STRING && RSTRING(*p)->ptr == t) {
+                if (len < RSTRING(*p)->len) {
+                tmp = rb_tainted_str_new(t, len);
+                rb_str_associate(tmp, a);
+                }
+                else {
+                tmp = *p;
+                }
+                break;
+            }
+            p++;
+            }
+            if (p == pend) {
+            rb_raise(rb_eArgError, "non associated pointer");
+            }
+        }
+        rb_ary_push(ary, tmp);
+        }
+        break;
+
+      case 'p':
+        if (len > (send - s) / sizeof(char *))
+        len = (send - s) / sizeof(char *);
+        while (len-- > 0) {
+        if ((size_t)(send - s) < sizeof(char *))
+            break;
+        else {
+            VALUE tmp = Qnil;
+            char *t;
+
+            memcpy(&t, s, sizeof(char *));
+            s += sizeof(char *);
+
+            if (t) {
+            VALUE a, *p, *pend;
+
+            if (!(a = rb_str_associated(str))) {
+                rb_raise(rb_eArgError, "no associated pointer");
+            }
+            p = RARRAY(a)->ptr;
+            pend = p + RARRAY(a)->len;
+            while (p < pend) {
+                if (TYPE(*p) == T_STRING && RSTRING(*p)->ptr == t) {
+                tmp = *p;
+                break;
+                }
+                p++;
+            }
+            if (p == pend) {
+                rb_raise(rb_eArgError, "non associated pointer");
+            }
+            }
+            rb_ary_push(ary, tmp);
+        }
+        }
+        break;
+
+      case 'w':
+        {
+        unsigned long ul = 0;
+        unsigned long ulmask = 0xfeUL << ((sizeof(unsigned long) - 1) * 8);
+
+        while (len > 0 && s < send) {
+            ul <<= 7;
+            ul |= (*s & 0x7f);
+            if (!(*s++ & 0x80)) {
+            rb_ary_push(ary, ULONG2NUM(ul));
+            len--;
+            ul = 0;
+            }
+            else if (ul & ulmask) {
+            VALUE big = rb_uint2big(ul);
+            VALUE big128 = rb_uint2big(128);
+            while (s < send) {
+                big = rb_big_mul(big, big128);
+                big = rb_big_plus(big, rb_uint2big(*s & 0x7f));
+                if (!(*s++ & 0x80)) {
+                rb_ary_push(ary, big);
+                len--;
+                ul = 0;
+                break;
+                }
+            }
+            }
+        }
+        }
+        break;
+
+      default:
+        break;
+    }
+    }
+
+    return ary;
+}:@source_type:c
