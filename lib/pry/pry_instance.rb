@@ -136,7 +136,9 @@ class Pry
     end
 
     # eval the expression and save to last_result
-    Pry.last_result = target.eval r(target), __FILE__, __LINE__
+    # Do not want __FILE__, __LINE__ here because we need to distinguish
+    # (eval) methods for show-method and friends.
+    Pry.last_result = target.eval r(target)
 
     # save the pry instance to active_instance
     Pry.active_instance = self
