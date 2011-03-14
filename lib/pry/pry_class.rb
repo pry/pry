@@ -73,6 +73,10 @@ class Pry
     # Set to true if Pry is invoked from command line using `pry` executable
     # @return [Boolean]
     attr_accessor :cli
+
+    # Set to true if the pry-doc extension is loaded.
+    # @return [Boolean]
+    attr_accessor :has_pry_doc
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
