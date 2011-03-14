@@ -3,6 +3,11 @@ require "method_source"
 require "pry/command_base"
 require "pry/pry_instance"
 
+begin
+  require "pry-doc"
+rescue LoadError
+end
+
 class Pry
 
   # Default commands used by Pry.
@@ -90,55 +95,6 @@ class Pry
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
-    # FIXME!!! some methods, e.g Kernel#tap actually require
-    # Object#tap in order to retrieve their docs!!!
-    begin
-      require "yard"
-      if RUBY_VERSION =~ /1.9/
-        YARD::Registry.load_yardoc("#{File.dirname(__FILE__)}/core_docs_19")
-      else
-        YARD::Registry.load_yardoc("#{File.dirname(__FILE__)}/core_docs_18")
-      end
-
-      yard_cache = {}
-      command "doc" do |meth_name|
-        begin
-          meth = target.eval("method(:#{meth_name})")
-        rescue
-          begin
-            meth = target.eval("instance_method(:#{meth_name})")
-          rescue
-            output.puts "Error could not find method: #{meth_name}"
-            next
-          end
-        end
-
-        if meth.source_location
-          file = meth.source_location.first
-          if !yard_cache[file]
-            log.enter_level(Logger::FATAL) do
-              YARD.parse(file)
-            end
-            yard_cache[file] = true
-          end
-        end
-
-        if meth.owner.name # instance method
-          klassinst, klass = '#', meth.owner.name
-        else # class method
-          klassinst, klass = '.', meth.owner.to_s[/#<.+?:(.+?)>/, 1]
-        end
-
-        if obj = YARD::Registry.at([klass, meth.name].join(klassinst))
-          output.puts obj.docstring
-        else
-          output.puts "Couldn't find docs for: #{meth_name}"
-        end
-      end
-
-    rescue LoadError
-    end
-      
     command "whereami", "Show the code context for the session." do
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')
@@ -177,7 +133,6 @@ class Pry
       end
     end
     
-
     command "version", "Show Pry version." do
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
@@ -240,6 +195,10 @@ Shows local and instance variables by default.
 
         opts.on("-p", "--private", "Display private methods (with -m).") do 
           options[:p] = true
+        end
+
+        opts.on("-j", "--just-singletons", "Display just the singleton methods (with -m).") do 
+          options[:j] = true
         end        
 
         opts.on("-s", "--super", "Include superclass entries (relevant to constant and methods options).") do 
@@ -274,7 +233,7 @@ Shows local and instance variables by default.
                      }) if options.empty? || (options.size == 1 && options[:v])
 
       # Display public methods by default if -m or -M switch is used.
-      options[:P] = true if (options[:m] || options[:M]) && !(options[:p] || options[:r])
+      options[:P] = true if (options[:m] || options[:M]) && !(options[:p] || options[:r] || options[:j])
       
       info = {}
       target_self = target.eval('self')
@@ -303,6 +262,8 @@ Shows local and instance variables by default.
       info["protected methods"] = [Array(target.eval("protected_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:r]) || options[:a]
 
       info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:p]) || options[:a]
+
+      info["just singleton methods"] = [Array(target.eval("methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:j]) || options[:a]
       
       info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
 
@@ -338,6 +299,7 @@ Shows local and instance variables by default.
       # plain
       else
         list = info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+)
+        list.uniq! if list
         if Pry.color
           output.puts CodeRay.scan(Pry.view(list), :ruby).term
         else
@@ -440,8 +402,12 @@ Show the comments above method METH. Shows _method_ comments (rather than instan
 e.g show-doc hello_method
 --
 }
-        opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do 
+        opts.on("-M", "--instance-methods", "Operate on instance methods.") do 
           options[:M] = true
+        end
+
+        opts.on("-m", "--methods", "Operate on methods.") do 
+          options[:m] = true
         end
 
         opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
@@ -466,23 +432,34 @@ e.g show-doc hello_method
       begin
         if options[:M]
           meth = target.eval("instance_method(:#{meth_name})")
-        else
+        elsif options[:m]
           meth = target.eval("method(:#{meth_name})")
+        else
+          begin
+            meth = target.eval("method(:#{meth_name})")
+          rescue
+            meth = target.eval("instance_method(:#{meth_name})")
+          end
         end
       rescue
         output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
         next
       end
 
-      doc = meth.comment
+      if Pry.has_pry_doc
+        info = Pry::MethodInfo.info_for(meth)
+        if !info
+          doc = meth.comment
+        else
+          doc = info.docstring
+        end
+      else
+        doc = meth.comment
+      end
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
 
       output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
-
-      if Pry.color
-        doc = CodeRay.scan(doc, :ruby).term
-      end
 
       output.puts doc
       doc
@@ -499,8 +476,12 @@ Show the source for method METH. Shows _method_ source (rather than instance met
 e.g: show-method hello_method
 --
 }
-        opts.on("-M", "--instance-methods", "Operate on instance methods instead.") do 
+        opts.on("-M", "--instance-methods", "Operate on instance methods.") do 
           options[:M] = true
+        end
+
+        opts.on("-m", "--methods", "Operate on methods..") do 
+          options[:m] = true
         end
 
         opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
@@ -528,27 +509,45 @@ e.g: show-method hello_method
       begin
         if options[:M]
           meth = target.eval("instance_method(:#{meth_name})")
-        else
+        elsif options[:m]
           meth = target.eval("method(:#{meth_name})")
+        else
+          begin
+            meth = target.eval("method(:#{meth_name})")
+          rescue
+            meth = target.eval("instance_method(:#{meth_name})")
+          end
         end
+
       rescue
         target_self = target.eval('self')
-        if !options[:M]&& target_self.is_a?(Module) &&
-            target_self.method_defined?(meth_name)
-          output.puts "Did you mean: show-method -M #{meth_name} ?"
-        end
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
 
-      code = meth.source
+      meth_type = :ruby
+
+      # Try to find source for C methods using MethodInfo (if possible)
+      if Pry.has_pry_doc && meth.source_location.nil?
+        
+        info = Pry::MethodInfo.info_for(meth)
+        if !info
+          output.puts "Cannot find source for C method: #{meth_name}"
+          next
+        end
+        code = info.source
+        meth_type = :c
+      else
+        code = meth.source
+      end
+      
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
       
       output.puts "--\nFrom #{file} @ line #{line}:\n--"
 
       if Pry.color
-        code = CodeRay.scan(code, :ruby).term
+        code = CodeRay.scan(code, meth_type).term
       end
       
       output.puts code

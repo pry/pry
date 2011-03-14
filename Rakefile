@@ -8,7 +8,7 @@ require "#{direc}/lib/pry/version"
 CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
 CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
               "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "**/*#*", "**/*#*.*",
-              "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake")
+              "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
 
 def apply_spec_defaults(s)
   s.name = "pry"
@@ -25,8 +25,8 @@ def apply_spec_defaults(s)
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
-  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*.rb", "examples/**/*.rb",
-                     "test/*.rb", "test/testrc", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
+  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*", "examples/**/*.rb",
+                "test/*.rb", "test/testrc", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
 end
 
 task :test do
