@@ -4,6 +4,7 @@
 direc = File.dirname(__FILE__)
 
 $LOAD_PATH << File.expand_path(direc)
+$LOAD_PATH << "."
 
 require "method_source"
 require 'shellwords'

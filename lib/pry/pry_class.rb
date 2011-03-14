@@ -17,6 +17,11 @@ class Pry
     # @return [Object] The last result.
     attr_accessor :last_result
 
+    # Get last exception raised.
+    # This method should not need to be accessed directly.
+    # @return [Exception] The last exception.
+    attr_accessor :last_exception
+
     # Get the active Pry instance that manages the active Pry session.
     # This method should not need to be accessed directly.
     # @return [Pry] The active Pry instance.

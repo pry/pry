@@ -35,6 +35,20 @@ class Pry
       text.split.drop(1).join(' ')
     end
 
+    get_method_object = lambda do |meth_name, target, options|
+      if options[:M]
+        target.eval("instance_method(:#{meth_name})")
+        elsif options[:m]
+        target.eval("method(:#{meth_name})")
+        else
+          begin
+            target.eval("method(:#{meth_name})")
+          rescue
+            target.eval("instance_method(:#{meth_name})")
+          end
+        end
+    end
+
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
       opts[:eval_string].clear
@@ -386,9 +400,20 @@ e.g: eval-file -c self "hello.rb"
       if obj == "/" 
         throw(:breakout, 1) if opts[:nesting].level > 0
         next
-      end
+      end    
 
       target.eval("#{obj}.pry")
+    end
+
+    process_comment_markup = lambda do |comment, code_type|
+      comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+        gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
+        gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
+        gsub(/\B\+(.*)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }
+    end
+
+    strip_leading_hash_from_ruby_comments = lambda do |comment|
+      comment.gsub /^\s*#\s*/, ''
     end
 
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info." do |*args|
@@ -430,41 +455,46 @@ e.g show-doc hello_method
       end
       
       begin
-        if options[:M]
-          meth = target.eval("instance_method(:#{meth_name})")
-        elsif options[:m]
-          meth = target.eval("method(:#{meth_name})")
-        else
-          begin
-            meth = target.eval("method(:#{meth_name})")
-          rescue
-            meth = target.eval("instance_method(:#{meth_name})")
-          end
-        end
+        meth = get_method_object.call(meth_name, target, options)
       rescue
         output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
         next
       end
 
+      code_type = :ruby
+      
       if Pry.has_pry_doc
         info = Pry::MethodInfo.info_for(meth)
         if !info
           doc = meth.comment
         else
           doc = info.docstring
+          code_type = info.source_type
         end
       else
-        doc = meth.comment
+        doc = strip_leading_hash_from_ruby_comments.call(meth.comment)
       end
+
+      doc = process_comment_markup.call(doc, code_type)
+      
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
 
-      output.puts "--\nFrom #{file} @ line ~#{line}:\n--"
-
+      doc = case code_type
+            when :ruby
+              "--\nFrom #{file} @ line ~#{line}:\n--"
+            else
+              "--\nFrom Ruby Core (C Method):\n-"
+            end
+      
       output.puts doc
       doc
     end
 
+    strip_comments_from_c_code = lambda do |code|
+      code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
+    end
+    
     command "show-method", "Show the source for METH. Type `show-method --help` for more info." do |*args|
       options = {}
       target = target()
@@ -480,7 +510,7 @@ e.g: show-method hello_method
           options[:M] = true
         end
 
-        opts.on("-m", "--methods", "Operate on methods..") do 
+        opts.on("-m", "--methods", "Operate on methods.") do 
           options[:m] = true
         end
 
@@ -500,32 +530,19 @@ e.g: show-method hello_method
 
       # If no method name is given then use current method, if it exists
       meth_name = meth_name_from_binding.call(target) if !meth_name
-
       if !meth_name
         output.puts "You need to specify a method. Type `show-method --help` for help"
         next
       end
       
       begin
-        if options[:M]
-          meth = target.eval("instance_method(:#{meth_name})")
-        elsif options[:m]
-          meth = target.eval("method(:#{meth_name})")
-        else
-          begin
-            meth = target.eval("method(:#{meth_name})")
-          rescue
-            meth = target.eval("instance_method(:#{meth_name})")
-          end
-        end
-
+        meth = get_method_object.call(meth_name, target, options)
       rescue
-        target_self = target.eval('self')
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
 
-      meth_type = :ruby
+      code_type = :ruby
 
       # Try to find source for C methods using MethodInfo (if possible)
       if Pry.has_pry_doc && meth.source_location.nil?
@@ -536,7 +553,8 @@ e.g: show-method hello_method
           next
         end
         code = info.source
-        meth_type = :c
+        code = strip_comments_from_c_code.call(code)
+        code_type = :c
       else
         code = meth.source
       end
@@ -544,10 +562,15 @@ e.g: show-method hello_method
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
       
-      output.puts "--\nFrom #{file} @ line #{line}:\n--"
+      code = case code_type
+            when :ruby
+              "--\nFrom #{file} @ line #{line}:\n--"
+            else
+              "--\nFrom Ruby Core (C Method):\n--"
+            end
 
       if Pry.color
-        code = CodeRay.scan(code, meth_type).term
+        code = CodeRay.scan(code, code_type).term
       end
       
       output.puts code

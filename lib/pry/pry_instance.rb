@@ -135,21 +135,20 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, commands.commands.keys)
     end
 
-    # eval the expression and save to last_result
-    # Do not want __FILE__, __LINE__ here because we need to distinguish
-    # (eval) methods for show-method and friends.
-    Pry.last_result = target.eval r(target)
 
     # save the pry instance to active_instance
     Pry.active_instance = self
-
-    # define locals _pry_ and _ (active instance and last expression)
     target.eval("_pry_ = Pry.active_instance")
-    target.eval("_ = Pry.last_result")
+
+    # eval the expression and save to last_result
+    # Do not want __FILE__, __LINE__ here because we need to distinguish
+    # (eval) methods for show-method and friends.
+    # This also sets the `_` local for the session.
+    set_last_result(target.eval(r(target)), target)
   rescue SystemExit => e
     exit
   rescue Exception => e
-    e
+    set_last_exception(e, target)
   end
 
   # Perform a read.
@@ -188,6 +187,22 @@ class Pry
 
       break eval_string if valid_expression?(eval_string)
     end
+  end
+
+  # Set the last result of an eval.
+  # @param [Object] result The result.
+  # @param [Binding] target The binding to set `_` on.
+  def set_last_result(result, target)
+    Pry.last_result = result
+    target.eval("_ = Pry.last_result")
+  end
+
+  # Set the last exception for a session.
+  # @param [Exception] ex The exception.
+  # @param [Binding] target The binding to set `_ex_` on.
+  def set_last_exception(ex, target)
+    Pry.last_exception = ex
+    target.eval("_ex_ = Pry.last_exception")
   end
 
   # Process Pry commands. Pry commands are not Ruby methods and are evaluated
