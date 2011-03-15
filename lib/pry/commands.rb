@@ -38,15 +38,24 @@ class Pry
     get_method_object = lambda do |meth_name, target, options|
       if options[:M]
         target.eval("instance_method(:#{meth_name})")
-        elsif options[:m]
+      elsif options[:m]
         target.eval("method(:#{meth_name})")
-        else
-          begin
-            target.eval("method(:#{meth_name})")
-          rescue
-            target.eval("instance_method(:#{meth_name})")
-          end
+      else
+        begin
+          target.eval("instance_method(:#{meth_name})")
+        rescue
+          target.eval("method(:#{meth_name})")
         end
+      end
+    end
+
+    make_header = lambda do |file, line, code_type|
+      header = case code_type
+               when :ruby
+                 "--\nFrom #{file} @ line #{line}:\n--"
+               else
+                 "--\nFrom Ruby Core (C Method):\n--"
+               end
     end
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
@@ -409,7 +418,8 @@ e.g: eval-file -c self "hello.rb"
       comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
         gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
         gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
-        gsub(/\B\+(.*)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }
+        gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
+        gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
     end
 
     strip_leading_hash_from_ruby_comments = lambda do |comment|
@@ -423,7 +433,7 @@ e.g: eval-file -c self "hello.rb"
       
       OptionParser.new do |opts|
         opts.banner = %{Usage: show-doc [OPTIONS] [METH]
-Show the comments above method METH. Shows _method_ comments (rather than instance methods) by default.
+Show the comments above method METH. Tries instance methods first and then methods by default.
 e.g show-doc hello_method
 --
 }
@@ -462,17 +472,22 @@ e.g show-doc hello_method
       end
 
       code_type = :ruby
-      
-      if Pry.has_pry_doc
+      if Pry.has_pry_doc && meth.source_location.nil?
         info = Pry::MethodInfo.info_for(meth)
         if !info
-          doc = meth.comment
-        else
-          doc = info.docstring
-          code_type = info.source_type
+          output.puts "Cannot find docs for C method: #{meth_name}"
+          next
         end
+        doc = info.docstring
+        code_type = info.source_type
       else
-        doc = strip_leading_hash_from_ruby_comments.call(meth.comment)
+        begin
+          doc = meth.comment
+        rescue
+          output.puts "Cannot locate source for this method: #{meth_name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          next
+        end
+        doc = strip_leading_hash_from_ruby_comments.call(doc)
       end
 
       doc = process_comment_markup.call(doc, code_type)
@@ -480,12 +495,7 @@ e.g show-doc hello_method
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
 
-      doc = case code_type
-            when :ruby
-              "--\nFrom #{file} @ line ~#{line}:\n--"
-            else
-              "--\nFrom Ruby Core (C Method):\n-"
-            end
+      output.puts make_header.call(file, line, code_type)
       
       output.puts doc
       doc
@@ -502,7 +512,7 @@ e.g show-doc hello_method
       
       OptionParser.new do |opts|
         opts.banner = %{Usage: show-method [OPTIONS] [METH]
-Show the source for method METH. Shows _method_ source (rather than instance methods) by default.
+Show the source for method METH. Tries instance methods first and then methods by default.
 e.g: show-method hello_method
 --
 }
@@ -546,7 +556,6 @@ e.g: show-method hello_method
 
       # Try to find source for C methods using MethodInfo (if possible)
       if Pry.has_pry_doc && meth.source_location.nil?
-        
         info = Pry::MethodInfo.info_for(meth)
         if !info
           output.puts "Cannot find source for C method: #{meth_name}"
@@ -554,20 +563,20 @@ e.g: show-method hello_method
         end
         code = info.source
         code = strip_comments_from_c_code.call(code)
-        code_type = :c
+        code_type = info.source_type
       else
-        code = meth.source
+        begin
+          code = meth.source
+        rescue
+          output.puts "Cannot locate source for this method: #{meth_name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          next
+        end
       end
       
       file, line = meth.source_location
       check_for_dynamically_defined_method.call(file)
       
-      code = case code_type
-            when :ruby
-              "--\nFrom #{file} @ line #{line}:\n--"
-            else
-              "--\nFrom Ruby Core (C Method):\n--"
-            end
+      output.puts make_header.call(file, line, code_type)
 
       if Pry.color
         code = CodeRay.scan(code, code_type).term
