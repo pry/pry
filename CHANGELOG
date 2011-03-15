@@ -1,3 +1,8 @@
+15/3/2011 version 0.7.0
+* add pry-doc support with syntax highlighting for docs
+* add 'mj' option to ls (restrict to singleton methods)
+* add _ex_ local to hold last exception raised in an exception
+
 6/3/2011 version 0.6.8
 * add whereami command, a la the `ir_b` gem
 * make whereami run at the start of every session

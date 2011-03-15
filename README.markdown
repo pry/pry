@@ -22,9 +22,14 @@ is trivial to set it to read from any object that has a `readline` method and wr
 `puts` method - many other aspects of Pry are also configurable making
 it a good choice for implementing custom shells.
 
-Pry now comes with an executable so it can be invoked at the command line.
+Pry comes with an executable so it can be invoked at the command line.
 Just enter `pry` to start. A `.pryrc` file in the user's home directory will
-be loaded if it exists. Type `pry --help` at the command line for more information.
+be loaded if it exists. Type `pry --help` at the command line for more
+information.
+
+Try `gem install pry-doc` for additional documentation on Ruby Core
+methods. The additional docs are accessed through the `show-doc` and
+`show-method` commands.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
@@ -163,10 +168,12 @@ end.
 ###Features:
 
 * Pry can be invoked at any time and on any object in the running program.
+* Additional documentation and source code for Ruby Core methods are supported when the `pry-doc` gem is installed.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Pry comes with syntax highlighting on by default just use the `toggle-color` command to turn it on and off.
 * Use `_` to recover last result.
 * Use `_pry_` to reference the Pry instance managing the current session.
+* Use `_ex_` to recover the last exception.
 * Pry supports tab completion.
 * Pry has multi-line support built in.
 * Use `^d` (control-d) to quickly break out of a session.
