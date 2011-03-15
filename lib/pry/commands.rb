@@ -557,7 +557,7 @@ e.g: show-method hello_method
       # Try to find source for C methods using MethodInfo (if possible)
       if Pry.has_pry_doc && meth.source_location.nil?
         info = Pry::MethodInfo.info_for(meth)
-        if !info
+        if !info || !info.source
           output.puts "Cannot find source for C method: #{meth_name}"
           next
         end
