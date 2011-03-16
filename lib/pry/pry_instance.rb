@@ -6,6 +6,11 @@ class Pry
 
   attr_accessor *CONFIG_OPTIONS
 
+  # Returns the target binding for the session. Note that altering this
+  # attribute will not change the target binding.
+  # @return [Binding] The target object for the session
+  attr_accessor :session_target
+
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input. 
@@ -61,6 +66,36 @@ class Pry
     hooks[hook_name].call(*args, &block) if hooks[hook_name]
   end
 
+  # Initialize the repl session.
+  # @param [Binding] target The target binding for the session.
+  def repl_prologue(target)
+    exec_hook :before_session, output, target
+    Pry.active_instance = self
+
+    # Make sure special locals exist
+    target.eval("_pry_ = Pry.active_instance")
+    target.eval("_ = Pry.last_result")
+    self.session_target = target
+  end
+
+  # Clean-up after the repl session.
+  # @param [Binding] target The target binding for the session.
+  # @return [Object] The return value of the repl session (if one exists).
+  def repl_epilogue(target, nesting_level, break_data)
+    nesting.pop
+    exec_hook :after_session, output, target
+
+    # If break_data is an array, then the last element is the return value
+    break_level, return_value = Array(break_data)
+    
+    # keep throwing until we reach the desired nesting level
+    if nesting_level != break_level
+      throw :breakout, break_data
+    end
+
+    return_value
+  end
+  
   # Start a read-eval-print-loop.
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the Pry session
@@ -73,17 +108,11 @@ class Pry
     target = Pry.binding_for(target)
     target_self = target.eval('self')
 
-    exec_hook :before_session, output, target
-
+    repl_prologue(target)
+    
     # cannot rely on nesting.level as
     # nesting.level changes with new sessions
     nesting_level = nesting.size
-
-    Pry.active_instance = self
-
-    # Make sure special locals exist
-    target.eval("_pry_ = Pry.active_instance")
-    target.eval("_ = Pry.last_result")
 
     break_data = catch(:breakout) do
       nesting.push [nesting.size, target_self, self]
@@ -92,17 +121,7 @@ class Pry
       end
     end
 
-    nesting.pop
-
-    exec_hook :after_session, output, target
-
-    # If break_data is an array, then the last element is the return value
-    break_level, return_value = Array(break_data)
-    
-    # keep throwing until we reach the desired nesting level
-    if nesting_level != break_level
-      throw :breakout, break_data
-    end
+    return_value = repl_epilogue(target, nesting_level, break_data)
 
     # if one was provided, return the return value
     return return_value if return_value

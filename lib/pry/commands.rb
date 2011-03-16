@@ -321,7 +321,7 @@ Shows local and instance variables by default.
 
       # plain
       else
-        list = info.values.sort_by { |v| v.last }.map { |v| v.first }.inject(&:+)
+        list = info.values.sort_by(&:last).map(&:first).inject(&:+)
         list.uniq! if list
         if Pry.color
           output.puts CodeRay.scan(Pry.view(list), :ruby).term
