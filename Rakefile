@@ -47,7 +47,7 @@ end
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source",">=0.3.4")
+    s.add_dependency("method_source",">=0.4.0")
     s.platform = Gem::Platform::RUBY
   end
   
@@ -61,7 +61,7 @@ end
   namespace v do
     spec = Gem::Specification.new do |s|
       apply_spec_defaults(s)        
-      s.add_dependency("method_source",">=0.3.4")
+      s.add_dependency("method_source",">=0.4.0")
       s.add_dependency("win32console", ">=1.3.0")
       s.platform = "i386-#{v}"
     end
