@@ -25,7 +25,8 @@ class Pry
       end
     end
 
-    check_for_dynamically_defined_method = lambda do |file|
+    check_for_dynamically_defined_method = lambda do |meth|
+      file, _ = meth.source_location
       if file =~ /(\(.*\))|<.*>/
         raise "Cannot retrieve source for dynamically defined method."
       end
@@ -36,6 +37,10 @@ class Pry
     end
 
     get_method_object = lambda do |meth_name, target, options|
+      if !meth_name
+        return nil
+      end
+
       if options[:M]
         target.eval("instance_method(:#{meth_name})")
       elsif options[:m]
@@ -44,18 +49,53 @@ class Pry
         begin
           target.eval("instance_method(:#{meth_name})")
         rescue
-          target.eval("method(:#{meth_name})")
+          begin
+            target.eval("method(:#{meth_name})")
+          rescue
+            return nil
+          end
         end
       end
     end
 
-    make_header = lambda do |file, line, code_type|
+    make_header = lambda do |meth, code_type|
+      file, line = meth.source_location
       header = case code_type
                when :ruby
                  "--\nFrom #{file} @ line #{line}:\n--"
                else
                  "--\nFrom Ruby Core (C Method):\n--"
                end
+    end
+
+    is_a_c_method = lambda do |meth|
+      meth.source_location.nil?
+    end
+
+    should_use_pry_doc = lambda do |meth|
+      Pry.has_pry_doc && is_a_c_method.call(meth)
+    end
+    
+    code_type_for = lambda do |meth|
+      # only C methods
+      if should_use_pry_doc.call(meth)
+        info = Pry::MethodInfo.info_for(meth) 
+        if info && info.source
+          code_type = :c
+        else
+          output.puts "Cannot find C method: #{meth.name}"
+          code_type = nil
+        end
+      else
+        if is_a_c_method.call(meth)
+          output.puts "Cannot locate this method: #{meth.name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          code_type = nil
+        else
+          check_for_dynamically_defined_method.call(meth)
+          code_type = :ruby
+        end
+      end
+      code_type
     end
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
@@ -459,44 +499,23 @@ e.g show-doc hello_method
 
       next if options[:h]
 
-      if !meth_name
-        output.puts "You need to specify a method. Type `show-doc --help` for help"
-        next
-      end
-      
-      begin
-        meth = get_method_object.call(meth_name, target, options)
-      rescue
+      if (meth = get_method_object.call(meth_name, target, options)).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
         next
       end
 
-      code_type = :ruby
-      if Pry.has_pry_doc && meth.source_location.nil?
-        info = Pry::MethodInfo.info_for(meth)
-        if !info
-          output.puts "Cannot find docs for C method: #{meth_name}"
-          next
-        end
-        doc = info.docstring
-        code_type = info.source_type
-      else
-        begin
-          doc = meth.comment
-        rescue
-          output.puts "Cannot locate source for this method: #{meth_name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
-          next
-        end
+      case code_type = code_type_for.call(meth)
+      when nil
+        next
+      when :c
+        doc = Pry::MethodInfo.info_for(meth).docstring
+      when :ruby
+        doc = meth.comment
         doc = strip_leading_hash_from_ruby_comments.call(doc)
       end
 
       doc = process_comment_markup.call(doc, code_type)
-      
-      file, line = meth.source_location
-      check_for_dynamically_defined_method.call(file)
-
-      output.puts make_header.call(file, line, code_type)
-      
+      output.puts make_header.call(meth, code_type)
       output.puts doc
       doc
     end
@@ -505,7 +524,7 @@ e.g show-doc hello_method
       code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
     end
     
-    command "show-method", "Show the source for METH. Type `show-method --help` for more info." do |*args|
+    command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: show-source" do |*args|
       options = {}
       target = target()
       meth_name = nil
@@ -538,46 +557,23 @@ e.g: show-method hello_method
 
       next if options[:h]
 
-      # If no method name is given then use current method, if it exists
-      meth_name = meth_name_from_binding.call(target) if !meth_name
-      if !meth_name
-        output.puts "You need to specify a method. Type `show-method --help` for help"
-        next
-      end
-      
-      begin
-        meth = get_method_object.call(meth_name, target, options)
-      rescue
+      if (meth = get_method_object.call(meth_name, target, options)).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
 
-      code_type = :ruby
-
-      # Try to find source for C methods using MethodInfo (if possible)
-      if Pry.has_pry_doc && meth.source_location.nil?
-        info = Pry::MethodInfo.info_for(meth)
-        if !info || !info.source
-          output.puts "Cannot find source for C method: #{meth_name}"
-          next
-        end
-        code = info.source
+      case code_type = code_type_for.call(meth)
+      when nil
+        next
+      when :c
+        code = Pry::MethodInfo.info_for(meth).source
         code = strip_comments_from_c_code.call(code)
-        code_type = info.source_type
-      else
-        begin
-          code = meth.source
-        rescue
-          output.puts "Cannot locate source for this method: #{meth_name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
-          next
-        end
+      when :ruby
+        code = meth.source
+        code = strip_leading_hash_from_ruby_comments.call(code)
       end
-      
-      file, line = meth.source_location
-      check_for_dynamically_defined_method.call(file)
-      
-      output.puts make_header.call(file, line, code_type)
 
+      output.puts make_header.call(meth, code_type)
       if Pry.color
         code = CodeRay.scan(code, code_type).term
       end
@@ -585,6 +581,8 @@ e.g: show-method hello_method
       output.puts code
       code
     end
+
+    alias_command "show-source", "show-method", ""
     
     command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |command_name|
       if !command_name
@@ -597,7 +595,7 @@ e.g: show-method hello_method
 
         code = meth.source
         file, line = meth.source_location
-        check_for_dynamically_defined_method.call(file)
+        check_for_dynamically_defined_method.call(meth)
 
         output.puts "--\nFrom #{file} @ line #{line}:\n--"
 
