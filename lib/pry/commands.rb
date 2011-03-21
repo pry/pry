@@ -561,7 +561,7 @@ e.g: show-method hello_method
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
-
+    
       case code_type = code_type_for.call(meth)
       when nil
         next
@@ -570,7 +570,6 @@ e.g: show-method hello_method
         code = strip_comments_from_c_code.call(code)
       when :ruby
         code = meth.source
-        code = strip_leading_hash_from_ruby_comments.call(code)
       end
 
       output.puts make_header.call(meth, code_type)
