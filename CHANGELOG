@@ -1,3 +1,8 @@
+26/3/2011 version 0.7.6
+* `whereami` command now accepts parameter AROUND, to display AROUND lines on eitherside of invocation line.
+* made it so `whereami` is invoked even if no method exists in current context (i.e in rspec tests)
+* added rubinius support for `whereami` invocation in HOOKS by checking for __unknown__.rb rather than just <main>
+
 15/3/2011 version 0.7.0
 * add pry-doc support with syntax highlighting for docs
 * add 'mj' option to ls (restrict to singleton methods)

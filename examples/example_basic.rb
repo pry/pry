@@ -14,4 +14,4 @@ end
 # Start pry session at top-level.
 # The local variable `a` and the `hello` method will
 # be accessible.
-pry
+binding.pry
