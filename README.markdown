@@ -247,7 +247,8 @@ If you want to access a method of the same name, prefix the invocation by whites
   getting you out of a situation where the parsing process
   goes wrong and you get stuck in an endless read loop.
 * `status` shows status information about the current session.
-* `whereami` shows the code context of the session.
+* `whereami AROUND` shows the code context of the session. Shows
+  AROUND lines either side of the current line.
 * `version` Show Pry version information
 * `help` shows the list of session commands with brief explanations.
 * `toggle-color` turns on and off syntax highlighting.
