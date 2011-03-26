@@ -158,26 +158,34 @@ class Pry
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
-    command "whereami", "Show the code context for the session." do
+    command "whereami", "Show the code context for the session. Shows AROUND lines around the invocation line. AROUND defaults to 5 lines. " do |num|
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')
       klass = target.eval('self.class')
 
+      if num
+        i_num = num.to_i
+      else
+        i_num = 5
+      end
+      
       meth_name = meth_name_from_binding.call(target)
-      if !meth_name
-        output.puts "Cannot find containing method. Did you remember to use \`binding.pry\` ?"
+      meth_name = "N/A" if !meth_name
+
+      # FIX ME!!! this line is screwed
+      # check_for_dynamically_defined_method.call()
+      if file =~ /(\(.*\))|<.*>/
+        output.puts "Cannot find local context."
         next
       end
-
-      check_for_dynamically_defined_method.call(file)
      
       output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
       
       # This method inspired by http://rubygems.org/gems/ir_b
       File.open(file).each_with_index do |line, index|
         line_n = index + 1
-        next unless line_n > (line_num - 6)
-        break if line_n > (line_num + 5)
+        next unless line_n > (line_num - i_num - 1)
+        break if line_n > (line_num + i_num)
         if line_n == line_num
           code =" =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
           if Pry.color
@@ -556,6 +564,8 @@ e.g: show-method hello_method
       end
 
       next if options[:h]
+
+      meth_name = meth_name_from_binding.call(target) if !meth_name
 
       if (meth = get_method_object.call(meth_name, target, options)).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"

@@ -9,7 +9,9 @@ class Pry
       # ensure we're actually in a method
       meth_name = target.eval('__method__')
       file = target.eval('__FILE__')
-      if ![:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name) && file !~ /(\(.*\))|<.*>/
+
+      # /unknown/ for rbx
+      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/
         Pry.run_command "whereami", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
       end
     end,

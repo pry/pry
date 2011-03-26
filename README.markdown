@@ -269,9 +269,6 @@ If you want to access a method of the same name, prefix the invocation by whites
 * `jump-to NEST_LEVEL`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
 * `exit-all` breaks out of all Pry nesting levels and returns to the
   calling process.
-* You can type `Pry.start(obj)` or `obj.pry` to nest another Pry session within the
-  current one with `obj` as the receiver of the new session. Very useful
-  when exploring large or complicated runtime state.
 
 Syntax Highlighting
 --------------------
