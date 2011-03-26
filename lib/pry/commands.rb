@@ -4,7 +4,7 @@ require "pry/command_base"
 require "pry/pry_instance"
 
 begin
-  require "pry-doc"
+  require "pry-doc" 
 rescue LoadError
 end
 
@@ -175,7 +175,7 @@ class Pry
       # FIX ME!!! this line is screwed
       # check_for_dynamically_defined_method.call()
       if file =~ /(\(.*\))|<.*>/
-        output.puts "Cannot find local context."
+        output.puts "Cannot find local context. Did you use `binding.pry` ?"
         next
       end
      
@@ -467,7 +467,9 @@ e.g: eval-file -c self "hello.rb"
         gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
         gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
         gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-        gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
+        gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+        gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+        gsub(/(@param|@return)/) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }
     end
 
     strip_leading_hash_from_ruby_comments = lambda do |comment|

@@ -1,3 +1,7 @@
+26/3/2011 version 0.7.6.1
+* added slightly better support for YARD
+* now @param and @return tags are colored green and markdown `code` is syntax highlighted using coderay
+
 26/3/2011 version 0.7.6
 * `whereami` command now accepts parameter AROUND, to display AROUND lines on eitherside of invocation line.
 * made it so `whereami` is invoked even if no method exists in current context (i.e in rspec tests)
