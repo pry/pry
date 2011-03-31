@@ -6,7 +6,7 @@ require "pry/pry_instance"
 begin
 
   # YARD crashes on rbx, so do not require it 
-  if !Object_const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
+  if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
     require "pry-doc"
   end
 rescue LoadError
