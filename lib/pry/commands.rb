@@ -4,7 +4,11 @@ require "pry/command_base"
 require "pry/pry_instance"
 
 begin
-  require "pry-doc" 
+
+  # YARD crashes on rbx, so do not require it 
+  if !Object_const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
+    require "pry-doc"
+  end
 rescue LoadError
 end
 
@@ -469,11 +473,19 @@ e.g: eval-file -c self "hello.rb"
         gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
         gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
         gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-        gsub(/(@param|@return)/) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }
+        gsub(/^@(param|return|example|option|yield|attr|attr_reader|attr_writer)/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
     end
 
-    strip_leading_hash_from_ruby_comments = lambda do |comment|
-      comment.gsub /^\s*#\s*/, ''
+    # strip leading whitespace but preserve indentation
+    strip_leading_whitespace = lambda do |text|
+      leading_spaces = text.lines.first[/^(\s+)/, 1]
+      text.gsub(/^#{leading_spaces}/, '')
+    end
+
+    strip_leading_hash_and_whitespace_from_ruby_comments = lambda do |comment|
+      comment = comment.dup
+      comment.gsub!(/^\s*#/, '')
+      strip_leading_whitespace.call(comment)
     end
 
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info." do |*args|
@@ -521,7 +533,7 @@ e.g show-doc hello_method
         doc = Pry::MethodInfo.info_for(meth).docstring
       when :ruby
         doc = meth.comment
-        doc = strip_leading_hash_from_ruby_comments.call(doc)
+        doc = strip_leading_hash_and_whitespace_from_ruby_comments.call(doc)
       end
 
       doc = process_comment_markup.call(doc, code_type)
@@ -581,7 +593,7 @@ e.g: show-method hello_method
         code = Pry::MethodInfo.info_for(meth).source
         code = strip_comments_from_c_code.call(code)
       when :ruby
-        code = meth.source
+        code = strip_leading_whitespace.call(meth.source)
       end
 
       output.puts make_header.call(meth, code_type)
@@ -604,7 +616,7 @@ e.g: show-method hello_method
       if commands[command_name]
         meth = commands[command_name][:action]
 
-        code = meth.source
+        code = strip_leading_whitespace.call(meth.source)
         file, line = meth.source_location
         check_for_dynamically_defined_method.call(meth)
 

@@ -15,11 +15,9 @@ class Pry
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input. 
   # @option options [#puts] :output The object to use for output. 
-  # @option options [Pry::CommandBase] :commands The object to use for
-  #   commands. (see commands.rb)
+  # @option options [Pry::CommandBase] :commands The object to use for commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
-  # @option options [Array<Proc>] :default_prompt The array of Procs
-  #   to use for the prompts. (see prompts.rb)
+  # @option options [Array<Proc>] :default_prompt The array of Procs to use for the prompts. (see prompts.rb)
   # @option options [Proc] :print The Proc to use for the 'print'
   #   component of the REPL. (see print.rb)
   def initialize(options={})
@@ -184,31 +182,48 @@ class Pry
     eval_string = ""
 
     loop do
-      current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
-
-      val = readline(current_prompt)
-
-      # exit pry if we receive EOF character
-      if !val
-        output.puts
-        throw(:breakout, nesting.level) 
-      end
-      
-      val.chomp!
-
-      Pry.cmd_ret_value = process_commands(val, eval_string, target)
-
-      if Pry.cmd_ret_value
-        eval_string << "Pry.cmd_ret_value\n"
-      else
-        eval_string << "#{val}\n"
-      end
-
+      val = retrieve_line(eval_string, target)
+      process_line(val, eval_string, target)
       break eval_string if valid_expression?(eval_string)
     end
   end
 
+  # Read a line of input and check for ^d, also determine prompt to use.
+  # This method should not need to be invoked directly.
+  # @param [String] eval_string The cumulative lines of input.
+  # @param [Binding] target The target of the session.
+  # @return [String] The line received.
+  def retrieve_line(eval_string, target)
+    current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
+    val = readline(current_prompt)
+
+    # exit session if we receive EOF character
+    if !val
+      output.puts
+      throw(:breakout, nesting.level) 
+    end
+    
+    val
+  end
+
+  # Process the line received.
+  # This method should not need to be invoked directly.
+  # @param [String] val The line to process.
+  # @param [String] eval_string The cumulative lines of input.
+  # @target [Binding] target The target of the Pry session.
+  def process_line(val, eval_string, target)
+    val.chomp!
+    Pry.cmd_ret_value = process_commands(val, eval_string, target)
+    
+    if Pry.cmd_ret_value
+      eval_string << "Pry.cmd_ret_value\n"
+    else
+      eval_string << "#{val}\n"
+    end
+  end
+
   # Set the last result of an eval.
+  # This method should not need to be invoked directly.
   # @param [Object] result The result.
   # @param [Binding] target The binding to set `_` on.
   def set_last_result(result, target)
@@ -217,11 +232,25 @@ class Pry
   end
 
   # Set the last exception for a session.
+  # This method should not need to be invoked directly.
   # @param [Exception] ex The exception.
   # @param [Binding] target The binding to set `_ex_` on.
   def set_last_exception(ex, target)
     Pry.last_exception = ex
     target.eval("_ex_ = Pry.last_exception")
+  end
+
+  # Determine whether a Pry command was matched and return command data
+  # and argument string.
+  # This method should not need to be invoked directly.
+  # @param [String] val The line of input.
+  # @return [Array] The command data and arg string pair
+  def command_matched(val)
+    _, cmd_data = commands.commands.find do |name, cmd_data|
+      /^#{name}(?!\S)(?:\s+(.+))?/ =~ val
+    end
+
+    [cmd_data, $1]
   end
 
   # Process Pry commands. Pry commands are not Ruby methods and are evaluated
@@ -237,14 +266,11 @@ class Pry
     def val.clear() replace("") end
     def eval_string.clear() replace("") end
 
-    pattern, cmd_data = commands.commands.find do |name, cmd_data|
-      /^#{name}(?!\S)(?:\s+(.+))?/ =~ val
-    end
+    cmd_data, args_string = command_matched(val)
 
     # no command was matched, so return to caller
-    return if !pattern
+    return if !cmd_data
     
-    args_string = $1
     args = args_string ? Shellwords.shellwords(args_string) : []
     action = cmd_data[:action]
     keep_retval = cmd_data[:keep_retval]
@@ -256,6 +282,20 @@ class Pry
       :commands => commands.commands
     }
 
+    ret_value = execute_command(target, action, options, *args)
+
+    # return value of block only if :keep_retval is true
+    ret_value if keep_retval
+  end
+
+  # Execute a Pry command.
+  # This method should not need to be invoked directly.
+  # @param [Binding] target The target of the Pry session.
+  # @param [Proc] action The proc that implements the command.
+  # @param [Hash] options The options to set on the Commands object.
+  # @param [Array] args The command arguments.
+  def execute_command(target, action, options, *args)
+
     # set some useful methods to be used by the action blocks
     commands.opts = options
     commands.target = target
@@ -265,21 +305,19 @@ class Pry
     when -1
 
       # Use instance_exec() to make the `opts` method, etc available
-      ret_value = commands.instance_exec(*args, &action)
+      ret_val = commands.instance_exec(*args, &action)
     when 1, 0
 
       # ensure that we get the right number of parameters
       # since 1.8.7 complains about incorrect arity (1.9.2
       # doesn't care)
       args_with_corrected_arity = args.values_at *0..(action.arity - 1)
-      ret_value = commands.instance_exec(*args_with_corrected_arity, &action)
+      ret_val = commands.instance_exec(*args_with_corrected_arity, &action)
     end
-    
-    # a command was processed so we can now clear the input string
-    val.clear
 
-    # return value of block only if :keep_retval is true
-    ret_value if keep_retval
+    options[:val].clear
+    
+    ret_val
   end
 
   # Returns the next line of input to be used by the pry instance.
