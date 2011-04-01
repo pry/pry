@@ -176,9 +176,7 @@ class Pry
       meth_name = meth_name_from_binding.call(target)
       meth_name = "N/A" if !meth_name
 
-      # FIX ME!!! this line is screwed
-      # check_for_dynamically_defined_method.call()
-      if file =~ /(\(.*\))|<.*>/
+      if file =~ /(\(.*\))|<.*>/ || file == ""
         output.puts "Cannot find local context. Did you use `binding.pry` ?"
         next
       end
@@ -463,7 +461,7 @@ e.g: eval-file -c self "hello.rb"
         next
       end    
 
-      target.eval("#{obj}.pry")
+      target.eval("#{obj}").pry
     end
 
     process_comment_markup = lambda do |comment, code_type|

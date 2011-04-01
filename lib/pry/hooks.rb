@@ -11,7 +11,7 @@ class Pry
       file = target.eval('__FILE__')
 
       # /unknown/ for rbx
-      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/
+      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != ""
         Pry.run_command "whereami", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
       end
     end,
