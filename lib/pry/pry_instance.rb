@@ -71,8 +71,8 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("_pry_ = Pry.active_instance")
-    target.eval("_ = Pry.last_result")
+    target.eval("_pry_ = ::Pry.active_instance")
+    target.eval("_ = ::Pry.last_result")
     self.session_target = target
   end
 
@@ -155,7 +155,7 @@ class Pry
 
     # save the pry instance to active_instance
     Pry.active_instance = self
-    target.eval("_pry_ = Pry.active_instance")
+    target.eval("_pry_ = ::Pry.active_instance")
 
     # eval the expression and save to last_result
     # Do not want __FILE__, __LINE__ here because we need to distinguish
@@ -228,7 +228,7 @@ class Pry
   # @param [Binding] target The binding to set `_` on.
   def set_last_result(result, target)
     Pry.last_result = result
-    target.eval("_ = Pry.last_result")
+    target.eval("_ = ::Pry.last_result")
   end
 
   # Set the last exception for a session.
@@ -237,7 +237,7 @@ class Pry
   # @param [Binding] target The binding to set `_ex_` on.
   def set_last_exception(ex, target)
     Pry.last_exception = ex
-    target.eval("_ex_ = Pry.last_exception")
+    target.eval("_ex_ = ::Pry.last_exception")
   end
 
   # Determine whether a Pry command was matched and return command data
@@ -355,7 +355,7 @@ class Pry
     end
   end
 
-  if RUBY_VERSION =~ /1.9/
+  if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"
     require 'ripper'
 
     # Determine if a string of code is a valid Ruby expression.
