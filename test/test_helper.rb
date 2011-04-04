@@ -1,3 +1,8 @@
+# Ensure we do not execute any rc files
+Pry::RC_FILES.clear
+Pry.color = false
+Pry.should_load_rc = false
+
 class Module
   public :remove_const
 end

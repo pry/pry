@@ -122,6 +122,9 @@ class Pry
     else
       obj.to_s
     end
+
+  rescue NoMethodError
+    "unknown"
   end
 
   # A version of `Pry.view` that clips the output to `max_size` chars.
