@@ -1,6 +1,17 @@
 
 FUTURE
 * allows pipes (|) for commands
+* `strip_leading_whitespace` freaks out when method has no
+   documentation; fix this
+
+0.8.0
+* basicobject and no to_s/inspect support
+* fix documentation, support rdoc and yard properly
+* only load Ripper if 1.9 AND MRI (support jruby 1.9, using
+   RubyParser)
+* secret :cd and :pwd and :ls commands
+* supercharge cat-file so it can syntax highlight sourcecode files
+
 
 0.7.0
 * add pry-doc support with syntax highlighting for docs
