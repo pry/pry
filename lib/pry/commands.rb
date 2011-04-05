@@ -492,8 +492,7 @@ e.g: eval-file -c self "hello.rb"
         gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
     end
 
-    # FIXME - problem is not keeping track of exactly WHICH tag
-    process_yardoc = lambda do |comment, code_type|
+    process_yardoc_tag = lambda do |comment, tag|
       in_tag_block = nil
       output = comment.lines.map do |v|
         if in_tag_block && v !~ /^\S/
@@ -502,15 +501,19 @@ e.g: eval-file -c self "hello.rb"
           in_tag_block = false
           v
         else
-          in_tag_block = true if v =~ /^@return/
+          in_tag_block = true if v =~ /^@#{tag}/
           v
         end
       end.join
-      output#.gsub(/^@(param|return|example|option|yield|attr|attr_reader|attr_writer)/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+    end
+      
+      # FIXME - problem is not keeping track of exactly WHICH tag
+    process_yardoc = lambda do |comment|
+      ["return", "option", "yield", "param"].inject(comment) { |a, v| process_yardoc_tag.call(a, v) }
     end
     
     process_comment_markup = lambda do |comment, code_type|
-      process_yardoc.call(process_rdoc.call(comment, code_type), code_type)
+      process_yardoc.call process_rdoc.call(comment, code_type)
     end
 
     # strip leading whitespace but preserve indentation
