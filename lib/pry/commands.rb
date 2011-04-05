@@ -17,6 +17,20 @@ class Pry
   # Default commands used by Pry.
   class Commands < CommandBase
 
+    # hidden commands for file-system interaction
+    command ":cd", "" do |direc|
+      Dir.chdir File.expand_path(direc)
+      output.puts direc
+    end
+
+    command ":ls", "" do
+      output.puts Dir.entries('.')
+    end
+
+    command ":pwd", "" do
+      output.puts Dir.pwd
+    end
+
     # We make this a lambda to avoid documenting it
     meth_name_from_binding = lambda do |b|
       meth_name = b.eval('__method__')
@@ -461,32 +475,59 @@ e.g: eval-file -c self "hello.rb"
         next
       end    
 
-      target.eval("#{obj}").pry
+      Pry.start target.eval("#{obj}")
     end
 
-    process_comment_markup = lambda do |comment, code_type|
+    strip_color_codes = lambda do |str|
+      str.gsub(/\e\[.*?(\d)+m/, '')
+    end
+
+    process_rdoc = lambda do |comment, code_type|
+      comment = comment.dup
       comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
         gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
         gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
         gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
         gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-        gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-        gsub(/^@(param|return|example|option|yield|attr|attr_reader|attr_writer)/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+        gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
+    end
+
+    # FIXME - problem is not keeping track of exactly WHICH tag
+    process_yardoc = lambda do |comment, code_type|
+      in_tag_block = nil
+      output = comment.lines.map do |v|
+        if in_tag_block && v !~ /^\S/
+          strip_color_codes.call(strip_color_codes.call(v))
+        elsif in_tag_block
+          in_tag_block = false
+          v
+        else
+          in_tag_block = true if v =~ /^@return/
+          v
+        end
+      end.join
+      output#.gsub(/^@(param|return|example|option|yield|attr|attr_reader|attr_writer)/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+    end
+    
+    process_comment_markup = lambda do |comment, code_type|
+      process_yardoc.call(process_rdoc.call(comment, code_type), code_type)
     end
 
     # strip leading whitespace but preserve indentation
     strip_leading_whitespace = lambda do |text|
+      return text if text.empty?
       leading_spaces = text.lines.first[/^(\s+)/, 1]
       text.gsub(/^#{leading_spaces}/, '')
     end
 
     strip_leading_hash_and_whitespace_from_ruby_comments = lambda do |comment|
       comment = comment.dup
+      comment.gsub!(/\A\#\#$/, '')
       comment.gsub!(/^\s*#/, '')
       strip_leading_whitespace.call(comment)
     end
 
-    command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info." do |*args|
+    command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
       options = {}
       target = target()
       meth_name = nil
@@ -534,7 +575,10 @@ e.g show-doc hello_method
         doc = strip_leading_hash_and_whitespace_from_ruby_comments.call(doc)
       end
 
+      next output.puts("No documentation found.") if doc.empty?
+      
       doc = process_comment_markup.call(doc, code_type)
+      
       output.puts make_header.call(meth, code_type)
       output.puts doc
       doc
