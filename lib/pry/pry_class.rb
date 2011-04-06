@@ -57,6 +57,8 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
+    attr_accessor :custom_completions
+
     # Get the array of Procs to be used for the prompts by default by
     # all Pry instances.
     # @return [Array<Proc>] The array of Procs to be used for the
@@ -192,6 +194,7 @@ class Pry
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
     @hooks = DEFAULT_HOOKS
+    @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     @color = true
     @should_load_rc = true
     @rc_loaded = false
