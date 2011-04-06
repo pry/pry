@@ -396,6 +396,29 @@ Shows local and instance variables by default.
       end
     end
 
+    file_map = {
+      [".c", ".h"] => :c,
+      [".cpp", ".hpp", ".cc", ".h", "cxx"] => :cpp,
+      ".rb" => :ruby,
+      ".py" => :python,
+      ".diff" => :diff,
+      ".css" => :css,
+      ".html" => :html,
+      [".yaml", ".yml"] => :yaml,
+      ".xml" => :xml,
+      ".php" => :php,
+      ".js" => :javascript,
+      ".java" => :java,
+      ".rhtml" => :rhtml,
+      ".json" => :json
+    }
+
+    syntax_highlight_by_file_type = lambda do |contents, file_name|
+      _, language_detected = file_map.find { |k, v| Array(k).include?(File.extname(file_name)) }
+
+      CodeRay.scan(contents, language_detected).term
+    end
+    
     command "cat-file", "Show output of file FILE" do |file_name|
       if !file_name
         output.puts "Must provide a file name."
@@ -403,6 +426,11 @@ Shows local and instance variables by default.
       end
 
       contents = File.read(File.expand_path(file_name))
+
+      if Pry.color
+        contents = syntax_highlight_by_file_type.call(contents, file_name)
+      end
+      
       output.puts contents
       contents
     end
@@ -507,9 +535,12 @@ e.g: eval-file -c self "hello.rb"
       end.join
     end
       
-      # FIXME - problem is not keeping track of exactly WHICH tag
+    # FIXME - invert it -- should only ALLOW color if @example
     process_yardoc = lambda do |comment|
-      ["return", "option", "yield", "param"].inject(comment) { |a, v| process_yardoc_tag.call(a, v) }
+      yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
+                   "deprecate", "example"]
+      (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag.call(a, v) }.
+        gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
     end
     
     process_comment_markup = lambda do |comment, code_type|
@@ -525,7 +556,7 @@ e.g: eval-file -c self "hello.rb"
 
     strip_leading_hash_and_whitespace_from_ruby_comments = lambda do |comment|
       comment = comment.dup
-      comment.gsub!(/\A\#\#$/, '')
+      comment.gsub!(/\A\#+?$/, '')
       comment.gsub!(/^\s*#/, '')
       strip_leading_whitespace.call(comment)
     end
