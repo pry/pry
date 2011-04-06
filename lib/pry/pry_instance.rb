@@ -2,7 +2,7 @@ class Pry
 
   # The list of configuration options.
   CONFIG_OPTIONS = [:input, :output, :commands, :print,
-                   :prompt, :hooks]
+                   :prompt, :hooks, :custom_completions]
 
   attr_accessor *CONFIG_OPTIONS
 
@@ -93,7 +93,7 @@ class Pry
 
     return_value
   end
-  
+
   # Start a read-eval-print-loop.
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the Pry session
@@ -149,7 +149,7 @@ class Pry
 
     if input == Readline
       # Readline tab completion
-      Readline.completion_proc = Pry::InputCompleter.build_completion_proc(target, commands.commands.keys)
+      Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
 
