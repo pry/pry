@@ -146,6 +146,17 @@ class Pry
       end
     end
 
+    command "file-mode", "Toggle file mode." do
+      case Pry.active_instance.prompt
+      when Pry::FILE_PROMPT
+        Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
+        Pry.active_instance.custom_completions = Pry::DEFAULT_CUSTOM_COMPLETIONS
+      else
+        Pry.active_instance.prompt = Pry::FILE_PROMPT
+        Pry.active_instance.custom_completions = Pry::FILE_COMPLETIONS
+      end        
+    end
+
     command "nesting", "Show nesting information." do 
       nesting = opts[:nesting]
       
