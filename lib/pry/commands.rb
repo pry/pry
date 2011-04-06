@@ -418,22 +418,85 @@ Shows local and instance variables by default.
 
       CodeRay.scan(contents, language_detected).term
     end
+
+    read_between_the_lines = lambda do |file_name, start_line, end_line, with_line_numbers|
+      content = File.read(File.expand_path(file_name))
+
+      if with_line_numbers
+        lines = content.each_line.map.with_index { |line, idx| "#{idx + 1}: #{line}" }
+      else
+        lines = content.each_line.to_a
+      end
+      
+      lines[start_line..end_line].join
+    end
+
+    add_line_numbers = lambda do |lines, start_line|
+      lines.each_line.map.with_index do |line, idx|
+        adjusted_index = idx + start_line
+        if Pry.color
+          cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
+          "#{cindex}: #{line}"
+        else
+          "#{idx}: #{line}"
+        end
+      end
+    end
     
-    command "cat-file", "Show output of file FILE" do |file_name|
+    command "cat-file", "Show output of file FILE. Type `cat --help` for more information. Aliases: :cat" do |*args|
+      options= {}
+      file_name = nil
+      start_line = 0
+      end_line = -1
+
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: cat-file [OPTIONS] FILE
+Cat a file. Defaults to displaying whole file. Syntax highlights file if type is recognized.
+e.g: cat-file hello.rb
+--
+}
+        opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
+          options[:l] = true
+        end
+
+        opts.on("-s", "--start LINE", "Start line (defaults to start of file). Line 1 is the first line.") do |line|
+          start_line = line.to_i - 1
+        end
+
+        opts.on("-e", "--end LINE", "End line (defaults to end of file). Line -1 is the last line.") do |line|
+          end_line = line.to_i - 1
+        end
+
+        opts.on_tail("-h", "--help", "This message.") do 
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        file_name = v
+      end
+
+      next if options[:h]
+      
       if !file_name
         output.puts "Must provide a file name."
         next
       end
 
-      contents = File.read(File.expand_path(file_name))
+      contents = read_between_the_lines.call(file_name, start_line, end_line, false)
 
       if Pry.color
         contents = syntax_highlight_by_file_type.call(contents, file_name)
+      end
+
+      if options[:l]
+        contents = add_line_numbers.call(contents, start_line + 1)
       end
       
       output.puts contents
       contents
     end
+
+    alias_command ":cat", "cat-file", ""
 
     command "eval-file", "Eval a Ruby script. Type `eval-file --help` for more info." do |*args|
       options = {}
@@ -633,6 +696,10 @@ Show the source for method METH. Tries instance methods first and then methods b
 e.g: show-method hello_method
 --
 }
+        opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
+          options[:l] = true
+        end
+
         opts.on("-M", "--instance-methods", "Operate on instance methods.") do 
           options[:M] = true
         end
@@ -675,6 +742,11 @@ e.g: show-method hello_method
       output.puts make_header.call(meth, code_type)
       if Pry.color
         code = CodeRay.scan(code, code_type).term
+      end
+
+      if options[:l]
+        start_line = meth.source_location ? meth.source_location.last : 1
+        code = add_line_numbers.call(code, start_line)
       end
       
       output.puts code
