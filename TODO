@@ -5,8 +5,7 @@ FUTURE
 0.8.0
 * add ; at end of line to suppress return value output
 * Remove message spam (before/after hooks)
-* stop commands returning a value and allow all statements to suppress
-   values being returned by ending line in ';'
+* stop commands returning a value 
 * use `redo` in the r() method when encounter a command
 * shell functionality should just use system(), but redirect in and
    out to Pry.input and Pry.output by reassining $stdin and $stdout
@@ -15,7 +14,7 @@ FUTURE
 * fix documentation, support rdoc and yard properly
 * only load Ripper if 1.9 AND MRI (support jruby 1.9, using
    RubyParser)
-* secret :cd and :pwd and :ls commands
+* shell commands invokable file .<command>
 * supercharge cat-file so it can syntax highlight sourcecode files
 
 
