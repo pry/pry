@@ -25,7 +25,6 @@ class Pry
     def execute_system_command(cmd)
       if cmd =~ /^cd\s+(.+)/i
         Dir.chdir(File.expand_path($1))
-        system(cmd)
       else
         system(cmd)
       end
