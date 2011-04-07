@@ -141,7 +141,8 @@ class Pry
   #   Pry.new.rep(Object.new)
   def rep(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
-    print.call output, re(target)
+    result = re(target)
+    print.call output, result if !@suppress_output
   end
 
   # Perform a read-eval
@@ -185,13 +186,29 @@ class Pry
   #   Pry.new.r(Object.new)
   def r(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
+    @suppress_output = false
     eval_string = ""
 
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      break eval_string if valid_expression?(eval_string)
+      if valid_expression?(eval_string)
+        redo if null_input?(val)
+        break 
+      end
     end
+
+    @suppress_output = true if eval_string =~ /;\Z/
+    
+    eval_string
+  end
+
+  # Returns true if input is "" and a command is not returning a
+  # value.
+  # @param [String] val The input string.
+  # @return [Boolean] Whether the input is null.
+  def null_input?(val)
+    val.empty? && !Pry.cmd_ret_value
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
@@ -224,7 +241,7 @@ class Pry
     if Pry.cmd_ret_value
       eval_string << "Pry.cmd_ret_value\n"
     else
-      eval_string << "#{val}\n"
+      eval_string << "#{val}\n" if !val.empty?
     end
   end
 

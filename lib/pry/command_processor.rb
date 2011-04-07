@@ -2,6 +2,9 @@ require 'forwardable'
 
 class Pry
   class CommandProcessor
+    SYSTEM_COMMAND_DELIMITER = "."
+    SYSTEM_COMMAND_REGEX = /^#{Regexp.escape(SYSTEM_COMMAND_DELIMITER)}(.*)/
+
     extend Forwardable
     
     attr_reader :pry_instance
@@ -12,20 +15,22 @@ class Pry
 
     def_delegators :@pry_instance, :commands, :nesting, :output
     
-    # Run a system command (shell command).
-    # @param [String] val The shell command to execute.
-    # @return [Boolean] Whether
-    def system_command(val)
-      if val =~ /^\.(.*)/
-        execute_system_command($1)
-        val.clear
-      else
-        return false
-      end
-      true
+    def valid_command?(val)
+      system_command?(val) || pry_command?(val)
     end
 
-    def execute_system_command(cmd)
+    def system_command?(val)
+      !!(SYSTEM_COMMAND_REGEX =~ val)
+    end
+
+    def pry_command?(val)
+      !!command_matched(val).first
+    end
+    
+    def execute_system_command(val)
+      SYSTEM_COMMAND_REGEX  =~ val
+      cmd = $1
+      
       if cmd =~ /^cd\s+(.+)/i
         begin
           Dir.chdir(File.expand_path($1))
@@ -35,6 +40,8 @@ class Pry
       else
         system(cmd)
       end
+
+      val.clear
     end
     
     # Determine whether a Pry command was matched and return command data
@@ -63,7 +70,10 @@ class Pry
       def val.clear() replace("") end
       def eval_string.clear() replace("") end
 
-      return if system_command(val)
+      if system_command?(val)
+        execute_system_command(val)
+        return
+      end
 
       cmd_data, args_string = command_matched(val)
 
