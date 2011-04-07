@@ -57,6 +57,12 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
+    
+    # Get/Set the Proc that defines extra Readline completions (on top
+    # of the ones defined for IRB).
+    # @return [Proc] The Proc that defines extra Readline completions (on top
+    # @example Add file names to completion list
+    #   Pry.custom_completions = proc { Dir.entries('.') }
     attr_accessor :custom_completions
 
     # Get the array of Procs to be used for the prompts by default by

@@ -134,7 +134,6 @@ class Pry
       end
     end
 
-    # FIXME: when restoring backups does not restore descriptions
     command "file-mode", "Toggle file mode." do
       case Pry.active_instance.prompt
       when Pry::FILE_PROMPT
@@ -413,9 +412,10 @@ Shows local and instance variables by default.
       ".json" => :json
     }
 
-    syntax_highlight_by_file_type = lambda do |contents, file_name|
+    syntax_highlight_by_file_type_or_specified = lambda do |contents, file_name, file_type|
       _, language_detected = file_map.find { |k, v| Array(k).include?(File.extname(file_name)) }
 
+      language_detected = file_type if file_type
       CodeRay.scan(contents, language_detected).term
     end
 
@@ -443,11 +443,12 @@ Shows local and instance variables by default.
       end
     end
     
-    command "cat-file", "Show output of file FILE. Type `cat --help` for more information. Aliases: :cat" do |*args|
+    command "cat-file", "Show output of file FILE. Type `cat --help` for more information." do |*args|
       options= {}
       file_name = nil
       start_line = 0
       end_line = -1
+      file_type = nil
 
       OptionParser.new do |opts|
         opts.banner = %{Usage: cat-file [OPTIONS] FILE
@@ -467,6 +468,10 @@ e.g: cat-file hello.rb
           end_line = line.to_i - 1
         end
 
+        opts.on("-t", "--type TYPE", "The specific file type for syntax higlighting.") do |type|
+          file_type = type.to_sym
+        end        
+
         opts.on_tail("-h", "--help", "This message.") do 
           output.puts opts
           options[:h] = true
@@ -485,7 +490,7 @@ e.g: cat-file hello.rb
       contents = read_between_the_lines.call(file_name, start_line, end_line, false)
 
       if Pry.color
-        contents = syntax_highlight_by_file_type.call(contents, file_name)
+        contents = syntax_highlight_by_file_type_or_specified.call(contents, file_name, file_type)
       end
 
       if options[:l]
@@ -495,8 +500,6 @@ e.g: cat-file hello.rb
       output.puts contents
       contents
     end
-
-    alias_command ":cat", "cat-file", ""
 
     command "eval-file", "Eval a Ruby script. Type `eval-file --help` for more info." do |*args|
       options = {}
