@@ -12,6 +12,9 @@ class Pry
 
     def_delegators :@pry_instance, :commands, :nesting, :output
     
+    # Run a system command (shell command).
+    # @param [String] val The shell command to execute.
+    # @return [Boolean] Whether
     def system_command(val)
       if val =~ /^\.(.*)/
         execute_system_command($1)
@@ -24,7 +27,11 @@ class Pry
 
     def execute_system_command(cmd)
       if cmd =~ /^cd\s+(.+)/i
-        Dir.chdir(File.expand_path($1))
+        begin
+          Dir.chdir(File.expand_path($1))
+        rescue Errno::ENOENT
+          output.puts "No such directory: #{$1}"
+        end
       else
         system(cmd)
       end
