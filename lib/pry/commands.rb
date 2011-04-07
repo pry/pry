@@ -681,6 +681,8 @@ e.g show-doc hello_method
       doc
     end
 
+    alias_command "?", "show-doc", ""
+
     strip_comments_from_c_code = lambda do |code|
       code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
     end
