@@ -5,6 +5,9 @@ FUTURE
    documentation; fix this
 
 0.8.0
+* stop commands returning a value and allow all statements to suppress
+   values being returned by ending line in ';'
+* use `redo` in the r() method when encounter a command
 * shell functionality should just use system(), but redirect in and
    out to Pry.input and Pry.output by reassining $stdin and $stdout
    for duration of block.
