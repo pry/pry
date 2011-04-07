@@ -120,6 +120,13 @@ class Pry
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
 
+    command "gem-cd", "Change working directory to specified gem's directory." do |gem_name|
+      require 'rubygems'
+      gem_spec = Gem.source_index.find_name(gem_name).first
+      next output.put("Gem `#{gem_name}` not found.") if !gem_spec
+      Dir.chdir(File.expand_path(gem_spec.full_gem_path))
+    end
+
     command "toggle-color", "Toggle syntax highlighting." do
       Pry.color = !Pry.color
       output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"

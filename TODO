@@ -1,10 +1,10 @@
 
 FUTURE
 * allows pipes (|) for commands
-* `strip_leading_whitespace` freaks out when method has no
-   documentation; fix this
 
 0.8.0
+* add ; at end of line to suppress return value output
+* Remove message spam (before/after hooks)
 * stop commands returning a value and allow all statements to suppress
    values being returned by ending line in ';'
 * use `redo` in the r() method when encounter a command
