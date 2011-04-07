@@ -1,7 +1,9 @@
+direc = File.dirname(__FILE__)
+
 require "optparse"
 require "method_source"
-require "pry/command_base"
-require "pry/pry_instance"
+require "#{direc}/command_base"
+require "#{direc}/pry_instance"
 
 begin
 
@@ -16,20 +18,6 @@ class Pry
 
   # Default commands used by Pry.
   class Commands < CommandBase
-
-    # hidden commands for file-system interaction
-    command ":cd", "" do |direc|
-      Dir.chdir File.expand_path(direc)
-      output.puts direc
-    end
-
-    command ":ls", "" do
-      output.puts Dir.entries('.')
-    end
-
-    command ":pwd", "" do
-      output.puts Dir.pwd
-    end
 
     # We make this a lambda to avoid documenting it
     meth_name_from_binding = lambda do |b|
@@ -146,6 +134,7 @@ class Pry
       end
     end
 
+    # FIXME: when restoring backups does not restore descriptions
     command "file-mode", "Toggle file mode." do
       case Pry.active_instance.prompt
       when Pry::FILE_PROMPT
