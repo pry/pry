@@ -25,7 +25,7 @@ class Pry
   SIMPLE_PROMPT = [proc { ">> " }, proc { ">* " }]
 
   FILE_PROMPT = [
-                 proc { |target_self, _| "pry(#{Pry.view_clip(target_self)}:#{Dir.pwd}> " },
-                 proc { |target_self, _| "pry(#{Pry.view_clip(target_self)}:#{Dir.pwd}* " }
+                 proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+                 proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                 ]
 end

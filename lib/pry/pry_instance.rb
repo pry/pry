@@ -240,6 +240,26 @@ class Pry
     target.eval("_ex_ = ::Pry.last_exception")
   end
 
+  # FIXME
+  def system_command(val)
+    if val =~ /^:(.*)/
+      execute_system_command($1)
+      val.clear
+    else
+      return false
+    end
+    true
+  end
+
+  def execute_system_command(cmd)
+    if cmd =~ /^cd\s+(.+)/i
+      Dir.chdir(File.expand_path($1))
+      system(cmd)
+    else
+      system(cmd)
+    end
+  end
+  
   # Determine whether a Pry command was matched and return command data
   # and argument string.
   # This method should not need to be invoked directly.
@@ -265,6 +285,8 @@ class Pry
   def process_commands(val, eval_string, target)
     def val.clear() replace("") end
     def eval_string.clear() replace("") end
+
+    return if system_command(val)
 
     cmd_data, args_string = command_matched(val)
 
