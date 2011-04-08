@@ -68,19 +68,26 @@ class Pry
       end
 
       # Execute a command (this enables commands to call other commands).
+      # @param [Binding] target The current target object.
       # @param [String] name The command to execute
       # @param [Array] args The parameters to pass to the command.
       # @example Wrap one command with another
       #   class MyCommands < Pry::Commands
       #     command "ls2" do
       #       output.puts "before ls"
-      #       run "ls"
+      #       run target, "ls"
       #       output.puts "after ls"
       #     end
       #   end
-      def run(name, *args)
-        action = opts[:commands][name][:action]
-        instance_exec(*args, &action)
+      def run(target, name, *args)
+        command_processor =  CommandProcessor.new(target.eval('_pry_'))
+        
+        if command_processor.system_command?(name)
+          command_processor.execute_system_command("#{name} #{args.join}")
+        else
+          action = opts[:commands][name][:action]
+          instance_exec(*args, &action)
+        end
       end
 
       # Import commands from another command object.
