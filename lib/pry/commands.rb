@@ -123,7 +123,7 @@ class Pry
     command "gem-cd", "Change working directory to specified gem's directory." do |gem_name|
       require 'rubygems'
       gem_spec = Gem.source_index.find_name(gem_name).first
-      next output.put("Gem `#{gem_name}` not found.") if !gem_spec
+      next output.puts("Gem `#{gem_name}` not found.") if !gem_spec
       Dir.chdir(File.expand_path(gem_spec.full_gem_path))
     end
 
@@ -149,6 +149,8 @@ class Pry
       else
         Pry.active_instance.prompt = Pry::FILE_PROMPT
         Pry.active_instance.custom_completions = Pry::FILE_COMPLETIONS
+        Readline.completion_proc = Pry::InputCompleter.build_completion_proc target,
+        Pry.active_instance.instance_eval(&Pry::FILE_COMPLETIONS)
       end        
     end
 
@@ -426,20 +428,13 @@ Shows local and instance variables by default.
       CodeRay.scan(contents, language_detected).term
     end
 
-    read_between_the_lines = lambda do |file_name, start_line, end_line, with_line_numbers|
+    read_between_the_lines = lambda do |file_name, start_line, end_line|
       content = File.read(File.expand_path(file_name))
-
-      if with_line_numbers
-        lines = content.each_line.map.with_index { |line, idx| "#{idx + 1}: #{line}" }
-      else
-        lines = content.each_line.to_a
-      end
-      
-      lines[start_line..end_line].join
+      content.each_line.to_a[start_line..end_line].join
     end
 
     add_line_numbers = lambda do |lines, start_line|
-      lines.each_line.map.with_index do |line, idx|
+      lines.each_line.each_with_index.map do |line, idx|
         adjusted_index = idx + start_line
         if Pry.color
           cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
@@ -475,7 +470,7 @@ e.g: cat-file hello.rb
           end_line = line.to_i - 1
         end
 
-        opts.on("-t", "--type TYPE", "The specific file type for syntax higlighting.") do |type|
+        opts.on("-t", "--type TYPE", "The specific file type for syntax higlighting (e.g ruby, python, cpp, java)") do |type|
           file_type = type.to_sym
         end        
 
@@ -494,7 +489,7 @@ e.g: cat-file hello.rb
         next
       end
 
-      contents = read_between_the_lines.call(file_name, start_line, end_line, false)
+      contents = read_between_the_lines.call(file_name, start_line, end_line)
 
       if Pry.color
         contents = syntax_highlight_by_file_type_or_specified.call(contents, file_name, file_type)

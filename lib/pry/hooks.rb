@@ -4,7 +4,7 @@ class Pry
   DEFAULT_HOOKS = {
     
     :before_session => proc do |out, target|
-      out.puts "Beginning Pry session for #{Pry.view_clip(target.eval('self'))}"
+     # out.puts "Beginning Pry session for #{Pry.view_clip(target.eval('self'))}"
 
       # ensure we're actually in a method
       meth_name = target.eval('__method__')
@@ -16,6 +16,6 @@ class Pry
       end
     end,
     
-    :after_session => proc { |out, target| out.puts "Ending Pry session for #{Pry.view_clip(target.eval('self'))}" }
+#    :after_session => proc { |out, target| out.puts "Ending Pry session for #{Pry.view_clip(target.eval('self'))}" }
   }
 end

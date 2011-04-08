@@ -35,6 +35,7 @@ class Pry
   # null output class - doesn't write anywwhere.
   class NullOutput
     def self.puts(*) end
+    def self.string(*) end
   end
 end
 
