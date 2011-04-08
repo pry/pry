@@ -7,7 +7,7 @@ class Pry
 
     extend Forwardable
     
-    attr_reader :pry_instance
+    attr_accessor :pry_instance
     
     def initialize(pry_instance)
       @pry_instance = pry_instance

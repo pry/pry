@@ -30,7 +30,7 @@ def apply_spec_defaults(s)
 end
 
 task :test do
-  sh "bacon -k #{direc}/test/test.rb"
+  sh "bacon #{direc}/test/test.rb"
 end
 
 desc "run pry"

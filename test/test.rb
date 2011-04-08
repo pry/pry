@@ -492,7 +492,7 @@ describe Pry do
               end
 
               command "run_v" do
-                run "v"
+                run target, "v"
               end
             end
 
