@@ -29,7 +29,7 @@ class Pry
 
     def interpolate_string(str, target)
       dumped_str = str.dump
-      dumped_str.gsub!(/\\\#{/, '#{')
+      dumped_str.gsub!(/\\\#\{/, '#{')
       target.eval(dumped_str)
     end
     
