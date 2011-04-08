@@ -142,6 +142,7 @@ class Pry
   def rep(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
     result = re(target)
+
     print.call output, result if !@suppress_output
   end
 
@@ -235,7 +236,7 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @target [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
-    val.chomp!
+    val.rstrip!
     Pry.cmd_ret_value = @command_processor.process_commands(val, eval_string, target)
     
     if Pry.cmd_ret_value

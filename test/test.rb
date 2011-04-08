@@ -70,15 +70,17 @@ describe Pry do
           o.instance_variable_get(:@x).should == 10
         end
 
-        it 'should execute start session and end session hooks' do
-          input = InputTester.new("exit")
-          str_output = StringIO.new
-          o = Object.new
+        # # this is now deprecated
+        # it 'should execute start session and end session hooks' do
+        #   next
+        #   input = InputTester.new("exit")
+        #   str_output = StringIO.new
+        #   o = Object.new
           
-          pry_tester = Pry.start(o, :input => input, :output => str_output)
-          str_output.string.should =~ /Beginning.*#{o}/
-          str_output.string.should =~ /Ending.*#{o}/
-        end
+        #   pry_tester = Pry.start(o, :input => input, :output => str_output)
+        #   str_output.string.should =~ /Beginning.*#{o}/
+        #   str_output.string.should =~ /Ending.*#{o}/
+        # end
       end
 
       describe "test loading rc files" do
@@ -514,23 +516,26 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:print => proc {}, :input => InputTester.new("v"),
                     :output => str_output, :commands => Command4).rep("john")
-            str_output.string.chomp.should == "john"
+
+            str_output.string.rstrip.should == "john"
 
             Object.remove_const(:Command3)
             Object.remove_const(:Command4)
           end
 
           it 'should import commands from another command object' do
-            class Command3 < Pry::CommandBase
+            Object.remove_const(:Command77) if Object.const_defined?(:Command77)
+
+            class Command77 < Pry::CommandBase
               import_from Pry::Commands, "status", "jump-to"
             end
 
             str_output = StringIO.new
             Pry.new(:print => proc {}, :input => InputTester.new("status"),
-                    :output => str_output, :commands => Command3).rep("john")
+                    :output => str_output, :commands => Command77).rep("john")
             str_output.string.should =~ /Status:/
 
-            Object.remove_const(:Command3)
+            Object.remove_const(:Command77)
           end
 
           it 'should delete some inherited commands when using delete method' do
@@ -569,11 +574,11 @@ describe Pry do
             
             str_output = StringIO.new
             Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => Command3).rep
-            str_output.string.chomp.should == "jump-to the music"
+            str_output.string.rstrip.should == "jump-to the music"
 
             str_output = StringIO.new
             Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => Command3).rep
-            str_output.string.chomp.should == "help to the music"
+            str_output.string.rstrip.should == "help to the music"
             
             Object.remove_const(:Command3)
 
