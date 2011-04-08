@@ -26,10 +26,16 @@ class Pry
     def pry_command?(val)
       !!command_matched(val).first
     end
+
+    def interpolate_string(str, target)
+      dumped_str = str.dump
+      dumped_str.gsub!(/\\\#{/, '#{')
+      target.eval(dumped_str)
+    end
     
-    def execute_system_command(val)
+    def execute_system_command(val, target)
       SYSTEM_COMMAND_REGEX  =~ val
-      cmd = $1
+      cmd = interpolate_string($1, target)
       
       if cmd =~ /^cd\s+(.+)/i
         begin
@@ -71,15 +77,16 @@ class Pry
       def eval_string.clear() replace("") end
 
       if system_command?(val)
-        execute_system_command(val)
+        execute_system_command(val, target)
         return
       end
 
+      # no command was matched, so return to caller
+      return if !pry_command?(val)
+
+      val.replace interpolate_string(val, target)
       cmd_data, args_string = command_matched(val)
 
-      # no command was matched, so return to caller
-      return if !cmd_data
-      
       args = args_string ? Shellwords.shellwords(args_string) : []
       action = cmd_data[:action]
       keep_retval = cmd_data[:keep_retval]
