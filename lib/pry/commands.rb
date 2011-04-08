@@ -31,6 +31,16 @@ class Pry
       end
     end
 
+    set_file_and_dir_locals = lambda do |file_name|
+      return if !target
+      FILE_TEMP = File.expand_path(file_name)
+      DIR_TEMP = File.dirname(FILE_TEMP)
+      target.eval("_file_ = Pry::Commands::FILE_TEMP")
+      target.eval("_dir_ = Pry::Commands::DIR_TEMP")
+      remove_const(:FILE_TEMP)
+      remove_const(:DIR_TEMP)
+    end
+
     check_for_dynamically_defined_method = lambda do |meth|
       file, _ = meth.source_location
       if file =~ /(\(.*\))|<.*>/
@@ -203,6 +213,8 @@ class Pry
         next
       end
      
+      set_file_and_dir_locals.call(file) 
+      puts "blah blah #{target}"
       output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
       
       # This method inspired by http://rubygems.org/gems/ir_b
@@ -498,7 +510,8 @@ e.g: cat-file hello.rb
       if options[:l]
         contents = add_line_numbers.call(contents, start_line + 1)
       end
-      
+       
+      set_file_and_dir_locals.call(file_name)
       output.puts contents
       contents
     end
@@ -543,6 +556,8 @@ e.g: eval-file -c self "hello.rb"
         TOPLEVEL_BINDING.eval(File.read(File.expand_path(file_name)))
         output.puts "--\nEval'd '#{file_name}' at top-level."
       end
+      set_file_and_dir_locals.call(file_name)
+
       new_constants = Object.constants - old_constants
       output.puts "Brought in the following top-level constants: #{new_constants.inspect}" if !new_constants.empty?
     end      
@@ -675,6 +690,7 @@ e.g show-doc hello_method
       when :ruby
         doc = meth.comment
         doc = strip_leading_hash_and_whitespace_from_ruby_comments.call(doc)
+        set_file_and_dir_locals.call(meth.source_location.first)
       end
 
       next output.puts("No documentation found.") if doc.empty?
@@ -744,6 +760,7 @@ e.g: show-method hello_method
         code = strip_comments_from_c_code.call(code)
       when :ruby
         code = strip_leading_whitespace.call(meth.source)
+        set_file_and_dir_locals.call(meth.source_location.first)
       end
 
       output.puts make_header.call(meth, code_type)
@@ -773,6 +790,7 @@ e.g: show-method hello_method
 
         code = strip_leading_whitespace.call(meth.source)
         file, line = meth.source_location
+        set_file_and_dir_locals.call(file)
         check_for_dynamically_defined_method.call(meth)
 
         output.puts "--\nFrom #{file} @ line #{line}:\n--"
