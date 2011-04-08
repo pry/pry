@@ -3,6 +3,8 @@ FUTURE
 * allows pipes (|) for commands
 
 0.8.0
+* allow #{} interpolation of all commands
+* update documentation! new commands and features and change in behaviour of `run`
 * add ; at end of line to suppress return value output
 * Remove message spam (before/after hooks)
 * stop commands returning a value 

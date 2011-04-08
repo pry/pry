@@ -83,7 +83,7 @@ class Pry
         command_processor =  CommandProcessor.new(target.eval('_pry_'))
         
         if command_processor.system_command?(name)
-          command_processor.execute_system_command("#{name} #{args.join}")
+          command_processor.execute_system_command("#{name} #{args.join}", target)
         else
           action = opts[:commands][name][:action]
           instance_exec(*args, &action)
