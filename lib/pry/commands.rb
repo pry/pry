@@ -42,17 +42,37 @@ class Pry
     end
 
     stagger_output = lambda do |text|
+      page_size = 22
       text_array = text.lines.to_a
-      text_array.each_slice(20) do |chunk|
+      text_array.each_slice(page_size) do |chunk|
         output.puts chunk.join
-        if text_array.size > 20
+        break if chunk.size < page_size
+        if text_array.size > page_size
           output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
           break if $stdin.gets.chomp == "q"
         end
       end
     end
 
-    render_output = lambda do |should_stagger, doc|
+    add_line_numbers = lambda do |lines, start_line|
+      lines.each_line.each_with_index.map do |line, idx|
+        adjusted_index = idx + start_line
+        if Pry.color
+          cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
+          "#{cindex}: #{line}"
+        else
+          "#{idx}: #{line}"
+        end
+      end.join
+    end
+
+    # only add line numbers if start_line is not false
+    # if start_line is not false then add line numbers starting with start_line
+    render_output = lambda do |should_stagger, start_line, doc|
+      if start_line
+        doc = add_line_numbers.call(doc, start_line)
+      end
+
       if should_stagger
         stagger_output.call(doc)
       else
@@ -463,17 +483,6 @@ Shows local and instance variables by default.
       content.each_line.to_a[start_line..end_line].join
     end
 
-    add_line_numbers = lambda do |lines, start_line|
-      lines.each_line.each_with_index.map do |line, idx|
-        adjusted_index = idx + start_line
-        if Pry.color
-          cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
-          "#{cindex}: #{line}"
-        else
-          "#{idx}: #{line}"
-        end
-      end.join
-    end
     
     command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
@@ -529,12 +538,8 @@ e.g: cat-file hello.rb
         contents = syntax_highlight_by_file_type_or_specified.call(contents, file_name, file_type)
       end
 
-      if options[:l]
-        contents = add_line_numbers.call(contents, start_line + 1)
-      end
-       
       set_file_and_dir_locals.call(file_name)
-      render_output.call(options[:b], contents)
+      render_output.call(options[:b], options[:l] ? start_line + 1 : false, contents)
       contents
     end
 
@@ -726,7 +731,7 @@ e.g show-doc hello_method
       
       output.puts make_header.call(meth, code_type)
 
-      render_output.call(options[:b], doc)
+      render_output.call(options[:b], false, doc)
       doc
     end
 
@@ -800,18 +805,46 @@ e.g: show-method hello_method
         code = CodeRay.scan(code, code_type).term
       end
 
+      start_line = false
       if options[:l]
         start_line = meth.source_location ? meth.source_location.last : 1
-        code = add_line_numbers.call(code, start_line)
       end
       
-      render_output.call(options[:b], code)
+      render_output.call(options[:b], start_line, code)
       code
     end
 
     alias_command "show-source", "show-method", ""
 
-    command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |command_name|
+    command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |*args|
+      options = {}
+      target = target()
+      command_name = nil
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: show-command [OPTIONS] [CMD]
+Show the source for command CMD. 
+e.g: show-command show-method
+--
+}
+        opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
+          options[:l] = true
+        end
+
+        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
+          options[:b] = true
+        end
+
+        opts.on_tail("-h", "--help", "This message.") do 
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        command_name = v
+      end
+
+      next if options[:h]
+
       if !command_name
         output.puts "You must provide a command name."
         next
@@ -831,7 +864,7 @@ e.g: show-method hello_method
           code = CodeRay.scan(code, :ruby).term
         end
 
-        stagger_output.call(code)
+        render_output.call(options[:b], options[:l] ? meth.source_location.last : false, code)
         code
       else
         output.puts "No such command: #{command_name}."
