@@ -41,6 +41,25 @@ class Pry
       remove_const(:DIR_TEMP)
     end
 
+    stagger_output = lambda do |text|
+      text_array = text.lines.to_a
+      text_array.each_slice(20) do |chunk|
+        output.puts chunk.join
+        if text_array.size > 20
+          output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
+          break if $stdin.gets.chomp == "q"
+        end
+      end
+    end
+
+    render_output = lambda do |should_stagger, doc|
+      if should_stagger
+        stagger_output.call(doc)
+      else
+        output.puts doc
+      end
+    end
+
     check_for_dynamically_defined_method = lambda do |meth|
       file, _ = meth.source_location
       if file =~ /(\(.*\))|<.*>/
@@ -76,12 +95,12 @@ class Pry
 
     make_header = lambda do |meth, code_type|
       file, line = meth.source_location
-      header = case code_type
-               when :ruby
-                 "--\nFrom #{file} @ line #{line}:\n--"
-               else
-                 "--\nFrom Ruby Core (C Method):\n--"
-               end
+      case code_type
+      when :ruby
+        "\nFrom #{file} @ line #{line}:\n\n"
+      else
+        "\nFrom Ruby Core (C Method):\n\n"
+      end
     end
 
     is_a_c_method = lambda do |meth|
@@ -214,8 +233,7 @@ class Pry
       end
      
       set_file_and_dir_locals.call(file) 
-      puts "blah blah #{target}"
-      output.puts "--\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n--"
+      output.puts "\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
       
       # This method inspired by http://rubygems.org/gems/ir_b
       File.open(file).each_with_index do |line, index|
@@ -251,7 +269,7 @@ class Pry
 
     alias_command "!@", "exit-all", ""
 
-    command "ls", "Show the list of vars in the current scope. Type `ls --help` for more info." do |*args|
+    command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
       
       # Set target local to the default -- note that we can set a different target for
@@ -454,10 +472,10 @@ Shows local and instance variables by default.
         else
           "#{idx}: #{line}"
         end
-      end
+      end.join
     end
     
-    command "cat-file", "Show output of file FILE. Type `cat --help` for more information." do |*args|
+    command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
       start_line = 0
@@ -484,7 +502,11 @@ e.g: cat-file hello.rb
 
         opts.on("-t", "--type TYPE", "The specific file type for syntax higlighting (e.g ruby, python, cpp, java)") do |type|
           file_type = type.to_sym
-        end        
+        end
+
+        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
+          options[:b] = true
+        end
 
         opts.on_tail("-h", "--help", "This message.") do 
           output.puts opts
@@ -512,7 +534,7 @@ e.g: cat-file hello.rb
       end
        
       set_file_and_dir_locals.call(file_name)
-      output.puts contents
+      render_output.call(options[:b], contents)
       contents
     end
 
@@ -644,6 +666,7 @@ e.g: eval-file -c self "hello.rb"
       strip_leading_whitespace.call(comment)
     end
 
+
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
       options = {}
       target = target()
@@ -665,6 +688,10 @@ e.g show-doc hello_method
 
         opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
           target = Pry.binding_for(target.eval(context))
+        end
+
+        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
+          options[:b] = true
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -698,7 +725,8 @@ e.g show-doc hello_method
       doc = process_comment_markup.call(doc, code_type)
       
       output.puts make_header.call(meth, code_type)
-      output.puts doc
+
+      render_output.call(options[:b], doc)
       doc
     end
 
@@ -729,6 +757,10 @@ e.g: show-method hello_method
 
         opts.on("-m", "--methods", "Operate on methods.") do 
           options[:m] = true
+        end
+
+        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
+          options[:b] = true
         end
 
         opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
@@ -773,12 +805,12 @@ e.g: show-method hello_method
         code = add_line_numbers.call(code, start_line)
       end
       
-      output.puts code
+      render_output.call(options[:b], code)
       code
     end
 
     alias_command "show-source", "show-method", ""
-    
+
     command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |command_name|
       if !command_name
         output.puts "You must provide a command name."
@@ -793,13 +825,13 @@ e.g: show-method hello_method
         set_file_and_dir_locals.call(file)
         check_for_dynamically_defined_method.call(meth)
 
-        output.puts "--\nFrom #{file} @ line #{line}:\n--"
+        output.puts make_header.call(meth, :ruby)
 
         if Pry.color
           code = CodeRay.scan(code, :ruby).term
         end
 
-        output.puts code
+        stagger_output.call(code)
         code
       else
         output.puts "No such command: #{command_name}."
