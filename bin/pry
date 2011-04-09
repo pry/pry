@@ -68,6 +68,13 @@ end.parse!
 # invoked via cli
 Pry.cli = true
 
+class Pry::Commands
+  command "reset", "Reset the REPL to a clean state." do
+    output.puts "Pry reset."
+    exec("pry")
+  end
+end
+
 # load ~/.pryrc, if not suppressed with -f option
 Pry.should_load_rc = false if !options[:loadrc]
 
