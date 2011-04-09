@@ -35,7 +35,7 @@ end
 
 desc "run pry"
 task :pry do
-  require "#{direc}/lib/pry.rb"
+  require "#{direc}/lib/pry"
   binding.pry
 end
 
