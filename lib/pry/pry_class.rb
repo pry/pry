@@ -179,7 +179,7 @@ class Pry
     
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
     
-    commands = options[:commands].clone
+    commands = options[:commands].dup
     commands.output = options[:show_output] ? options[:output] : null_output
     commands.target = Pry.binding_for(options[:context])
 
