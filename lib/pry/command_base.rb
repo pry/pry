@@ -131,19 +131,17 @@ class Pry
     
     command "help", "This menu." do |cmd|
       command_info = opts[:commands]
-      param = cmd
 
-      if !param
-        output.puts "Command list:"
-        output.puts "--"
+      if !cmd
+        output.puts "Command list:\n--"
         command_info.each do |k, data|
           output.puts "#{k}".ljust(18) + data[:description] if !data[:description].empty?
         end
       else
-        if command_info[param]
-          output.puts command_info[param][:description]
+        if command_info[cmd]
+          output.puts command_info[cmd][:description]
         else
-          output.puts "No info for command: #{param}"
+          output.puts "No info for command: #{cmd}"
         end
       end
     end
