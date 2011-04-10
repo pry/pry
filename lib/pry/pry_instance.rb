@@ -143,7 +143,7 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    print.call output, result if !@suppress_output
+    print.call output, result if should_print?(result)
   end
 
   # Perform a read-eval
@@ -202,7 +202,7 @@ class Pry
     @suppress_output = true if eval_string =~ /;\Z/
     
     eval_string
-  end
+  end 
 
   # Returns true if input is "" and a command is not returning a
   # value.
@@ -284,6 +284,15 @@ class Pry
     end
   end
 
+  # Whether the print proc should be invoked.
+  # Currently only invoked if the output is not suppressed OR the output
+  # is an exception regardless of suppression.
+  # @param [Object] result The result of evaluation stage of the REPL
+  # @return [Boolean] Whether the print proc should be invoked.
+  def should_print?(result)
+    !@suppress_output || result.is_a?(Exception)
+  end
+  
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
   # @param [Boolean] first_line Whether this is the first line of input
