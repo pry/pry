@@ -4,11 +4,12 @@ require "optparse"
 require "method_source"
 require "#{direc}/command_base"
 require "#{direc}/pry_instance"
-
+require "#{direc}/command_helpers"
 begin
 
   # YARD crashes on rbx, so do not require it 
-  if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
+  if !Object.const_defined?(:RUBY_ENGINE) ||
+      RUBY_ENGINE !~ /rbx/
     require "pry-doc"
   end
 rescue LoadError
@@ -18,140 +19,7 @@ class Pry
 
   # Default commands used by Pry.
   class Commands < CommandBase
-
-    # We make this a lambda to avoid documenting it
-    meth_name_from_binding = lambda do |b|
-      meth_name = b.eval('__method__')
-
-      # :__script__ for rubinius
-      if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
-        nil
-      else
-        meth_name
-      end
-    end
-
-    set_file_and_dir_locals = lambda do |file_name|
-      return if !target
-      FILE_TEMP = File.expand_path(file_name)
-      DIR_TEMP = File.dirname(FILE_TEMP)
-      target.eval("_file_ = Pry::Commands::FILE_TEMP")
-      target.eval("_dir_ = Pry::Commands::DIR_TEMP")
-      remove_const(:FILE_TEMP)
-      remove_const(:DIR_TEMP)
-    end
-
-    stagger_output = lambda do |text|
-      page_size = 22
-      text_array = text.lines.to_a
-      text_array.each_slice(page_size) do |chunk|
-        output.puts chunk.join
-        break if chunk.size < page_size
-        if text_array.size > page_size
-          output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
-          break if $stdin.gets.chomp == "q"
-        end
-      end
-    end
-
-    add_line_numbers = lambda do |lines, start_line|
-      lines.each_line.each_with_index.map do |line, idx|
-        adjusted_index = idx + start_line
-        if Pry.color
-          cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
-          "#{cindex}: #{line}"
-        else
-          "#{idx}: #{line}"
-        end
-      end.join
-    end
-
-    # only add line numbers if start_line is not false
-    # if start_line is not false then add line numbers starting with start_line
-    render_output = lambda do |should_stagger, start_line, doc|
-      if start_line
-        doc = add_line_numbers.call(doc, start_line)
-      end
-
-      if should_stagger
-        stagger_output.call(doc)
-      else
-        output.puts doc
-      end
-    end
-
-    check_for_dynamically_defined_method = lambda do |meth|
-      file, _ = meth.source_location
-      if file =~ /(\(.*\))|<.*>/
-        raise "Cannot retrieve source for dynamically defined method."
-      end
-    end
-
-    remove_first_word = lambda do |text|
-      text.split.drop(1).join(' ')
-    end
-
-    get_method_object = lambda do |meth_name, target, options|
-      if !meth_name
-        return nil
-      end
-
-      if options[:M]
-        target.eval("instance_method(:#{meth_name})")
-      elsif options[:m]
-        target.eval("method(:#{meth_name})")
-      else
-        begin
-          target.eval("instance_method(:#{meth_name})")
-        rescue
-          begin
-            target.eval("method(:#{meth_name})")
-          rescue
-            return nil
-          end
-        end
-      end
-    end
-
-    make_header = lambda do |meth, code_type|
-      file, line = meth.source_location
-      case code_type
-      when :ruby
-        "\nFrom #{file} @ line #{line}:\n\n"
-      else
-        "\nFrom Ruby Core (C Method):\n\n"
-      end
-    end
-
-    is_a_c_method = lambda do |meth|
-      meth.source_location.nil?
-    end
-
-    should_use_pry_doc = lambda do |meth|
-      Pry.has_pry_doc && is_a_c_method.call(meth)
-    end
-    
-    code_type_for = lambda do |meth|
-      # only C methods
-      if should_use_pry_doc.call(meth)
-        info = Pry::MethodInfo.info_for(meth) 
-        if info && info.source
-          code_type = :c
-        else
-          output.puts "Cannot find C method: #{meth.name}"
-          code_type = nil
-        end
-      else
-        if is_a_c_method.call(meth)
-          output.puts "Cannot locate this method: #{meth.name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
-          code_type = nil
-        else
-          check_for_dynamically_defined_method.call(meth)
-          code_type = :ruby
-        end
-      end
-      code_type
-    end
+    extend CommandHelpers
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
@@ -227,7 +95,7 @@ class Pry
       output.puts "Pry version: #{Pry::VERSION}"
       output.puts "Ruby version: #{RUBY_VERSION}"
 
-      mn = meth_name_from_binding.call(target)
+      mn = meth_name_from_binding(target)
       output.puts "Current method: #{mn ? mn : "N/A"}"
       output.puts "Pry instance: #{Pry.active_instance}"
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
@@ -243,8 +111,8 @@ class Pry
       else
         i_num = 5
       end
-      
-      meth_name = meth_name_from_binding.call(target)
+
+      meth_name = meth_name_from_binding(target)
       meth_name = "N/A" if !meth_name
 
       if file =~ /(\(.*\))|<.*>/ || file == ""
@@ -252,7 +120,7 @@ class Pry
         next
       end
      
-      set_file_and_dir_locals.call(file) 
+      set_file_and_dir_locals(file) 
       output.puts "\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
       
       # This method inspired by http://rubygems.org/gems/ir_b
@@ -283,7 +151,7 @@ class Pry
     end
     
     command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !@" do 
-      str = remove_first_word.call(opts[:val])
+      str = remove_first_word(opts[:val])
       throw(:breakout, [0, target.eval(str)])
     end
 
@@ -454,36 +322,7 @@ Shows local and instance variables by default.
       end
     end
 
-    file_map = {
-      [".c", ".h"] => :c,
-      [".cpp", ".hpp", ".cc", ".h", "cxx"] => :cpp,
-      ".rb" => :ruby,
-      ".py" => :python,
-      ".diff" => :diff,
-      ".css" => :css,
-      ".html" => :html,
-      [".yaml", ".yml"] => :yaml,
-      ".xml" => :xml,
-      ".php" => :php,
-      ".js" => :javascript,
-      ".java" => :java,
-      ".rhtml" => :rhtml,
-      ".json" => :json
-    }
 
-    syntax_highlight_by_file_type_or_specified = lambda do |contents, file_name, file_type|
-      _, language_detected = file_map.find { |k, v| Array(k).include?(File.extname(file_name)) }
-
-      language_detected = file_type if file_type
-      CodeRay.scan(contents, language_detected).term
-    end
-
-    read_between_the_lines = lambda do |file_name, start_line, end_line|
-      content = File.read(File.expand_path(file_name))
-      content.each_line.to_a[start_line..end_line].join
-    end
-
-    
     command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
@@ -532,14 +371,14 @@ e.g: cat-file hello.rb
         next
       end
 
-      contents = read_between_the_lines.call(file_name, start_line, end_line)
+      contents = read_between_the_lines(file_name, start_line, end_line)
 
       if Pry.color
-        contents = syntax_highlight_by_file_type_or_specified.call(contents, file_name, file_type)
+        contents = syntax_highlight_by_file_type_or_specified(contents, file_name, file_type)
       end
 
-      set_file_and_dir_locals.call(file_name)
-      render_output.call(options[:b], options[:l] ? start_line + 1 : false, contents)
+      set_file_and_dir_locals(file_name)
+      render_output(options[:b], options[:l] ? start_line + 1 : false, contents)
       contents
     end
 
@@ -583,7 +422,7 @@ e.g: eval-file -c self "hello.rb"
         TOPLEVEL_BINDING.eval(File.read(File.expand_path(file_name)))
         output.puts "--\nEval'd '#{file_name}' at top-level."
       end
-      set_file_and_dir_locals.call(file_name)
+      set_file_and_dir_locals(file_name)
 
       new_constants = Object.constants - old_constants
       output.puts "Brought in the following top-level constants: #{new_constants.inspect}" if !new_constants.empty?
@@ -709,12 +548,12 @@ e.g show-doc hello_method
 
       next if options[:h]
 
-      if (meth = get_method_object.call(meth_name, target, options)).nil?
+      if (meth = get_method_object(meth_name, target, options)).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
         next
       end
 
-      case code_type = code_type_for.call(meth)
+      case code_type = code_type_for(meth)
       when nil
         next
       when :c
@@ -722,16 +561,16 @@ e.g show-doc hello_method
       when :ruby
         doc = meth.comment
         doc = strip_leading_hash_and_whitespace_from_ruby_comments.call(doc)
-        set_file_and_dir_locals.call(meth.source_location.first)
+        set_file_and_dir_locals(meth.source_location.first)
       end
 
       next output.puts("No documentation found.") if doc.empty?
       
       doc = process_comment_markup.call(doc, code_type)
       
-      output.puts make_header.call(meth, code_type)
+      output.puts make_header(meth, code_type)
 
-      render_output.call(options[:b], false, doc)
+      render_output(options[:b], false, doc)
       doc
     end
 
@@ -782,14 +621,14 @@ e.g: show-method hello_method
 
       next if options[:h]
 
-      meth_name = meth_name_from_binding.call(target) if !meth_name
+      meth_name = meth_name_from_binding(target) if !meth_name
 
-      if (meth = get_method_object.call(meth_name, target, options)).nil?
+      if (meth = get_method_object(meth_name, target, options)).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
     
-      case code_type = code_type_for.call(meth)
+      case code_type = code_type_for(meth)
       when nil
         next
       when :c
@@ -797,10 +636,10 @@ e.g: show-method hello_method
         code = strip_comments_from_c_code.call(code)
       when :ruby
         code = strip_leading_whitespace.call(meth.source)
-        set_file_and_dir_locals.call(meth.source_location.first)
+        set_file_and_dir_locals(meth.source_location.first)
       end
 
-      output.puts make_header.call(meth, code_type)
+      output.puts make_header(meth, code_type)
       if Pry.color
         code = CodeRay.scan(code, code_type).term
       end
@@ -810,7 +649,7 @@ e.g: show-method hello_method
         start_line = meth.source_location ? meth.source_location.last : 1
       end
       
-      render_output.call(options[:b], start_line, code)
+      render_output(options[:b], start_line, code)
       code
     end
 
@@ -855,16 +694,16 @@ e.g: show-command show-method
 
         code = strip_leading_whitespace.call(meth.source)
         file, line = meth.source_location
-        set_file_and_dir_locals.call(file)
-        check_for_dynamically_defined_method.call(meth)
+        set_file_and_dir_locals(file)
+        check_for_dynamically_defined_method(meth)
 
-        output.puts make_header.call(meth, :ruby)
+        output.puts make_header(meth, :ruby)
 
         if Pry.color
           code = CodeRay.scan(code, :ruby).term
         end
 
-        render_output.call(options[:b], options[:l] ? meth.source_location.last : false, code)
+        render_output(options[:b], options[:l] ? meth.source_location.last : false, code)
         code
       else
         output.puts "No such command: #{command_name}."
@@ -887,7 +726,7 @@ e.g: show-command show-method
     end
 
     command "exit", "End the current Pry session. Accepts optional return value. Aliases: quit, back" do 
-      str = remove_first_word.call(opts[:val])
+      str = remove_first_word(opts[:val])
       throw(:breakout, [opts[:nesting].level, target.eval(str)])
     end
 
