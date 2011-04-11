@@ -12,7 +12,7 @@ class Pry
 
       # /unknown/ for rbx
       if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != ""
-        Pry.run_command "whereami", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
+        Pry.run_command "whereami 5", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
       end
     end,
     
