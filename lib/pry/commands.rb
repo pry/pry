@@ -5,21 +5,14 @@ require "method_source"
 require "#{direc}/command_base"
 require "#{direc}/pry_instance"
 require "#{direc}/command_helpers"
-begin
-
-  # YARD crashes on rbx, so do not require it 
-  if !Object.const_defined?(:RUBY_ENGINE) ||
-      RUBY_ENGINE !~ /rbx/
-    require "pry-doc"
-  end
-rescue LoadError
-end
 
 class Pry
 
   # Default commands used by Pry.
   class Commands < CommandBase
     extend CommandHelpers
+
+    try_to_load_pry_doc
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
@@ -58,7 +51,7 @@ class Pry
       end
     end
 
-    command "file-mode", "Toggle file mode." do
+    command "shell-mode", "Toggle shell mode. Bring in pwd prompt and file completion." do
       case Pry.active_instance.prompt
       when Pry::FILE_PROMPT
         Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
@@ -70,6 +63,8 @@ class Pry
         Pry.active_instance.instance_eval(&Pry::FILE_COMPLETIONS)
       end        
     end
+
+    alias_command "file-mode", "shell-mode", ""
 
     command "nesting", "Show nesting information." do 
       nesting = opts[:nesting]
@@ -705,7 +700,7 @@ Is absorbed, not refracted, by grey stone.
 The dahlias sleep in the empty silence.
 Wait for the early owl.
 -- T.S Eliot
-}
+            }
       output.puts text
       text
     end
