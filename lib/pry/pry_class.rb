@@ -179,7 +179,13 @@ class Pry
     
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
     
-    commands = options[:commands].dup
+    # FIXME! ugly hack to get around broken methods in both YARD and RBX
+    if RUBY_VERSION =~ /1.9/
+      commands = options[:commands].dup
+    else
+      commands = options[:commands].clone
+    end
+      
     commands.output = options[:show_output] ? options[:output] : null_output
     commands.target = Pry.binding_for(options[:context])
 
