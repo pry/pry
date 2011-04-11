@@ -3,6 +3,15 @@ class Pry
     module CommandHelpers 
 
       private
+
+      def try_to_load_pry_doc
+
+        # YARD crashes on rbx, so do not require it 
+        if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
+          require "pry-doc"
+        end
+      rescue LoadError
+      end
       
       def meth_name_from_binding(b)
         meth_name = b.eval('__method__')
@@ -35,7 +44,7 @@ class Pry
         end
       end
       
-      
+      # Try to use `less` for paging, if it fails then use simple_pager
       def stagger_output(text)
         lesspipe { |less| less.puts text }
       rescue Exception
