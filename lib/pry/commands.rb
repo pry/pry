@@ -322,7 +322,6 @@ Shows local and instance variables by default.
       end
     end
 
-
     command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
@@ -352,8 +351,8 @@ e.g: cat-file hello.rb
           file_type = type.to_sym
         end
 
-        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
-          options[:b] = true
+        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do 
+          options[:f] = true
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -371,14 +370,14 @@ e.g: cat-file hello.rb
         next
       end
 
-      contents = read_between_the_lines(file_name, start_line, end_line)
+      contents, normalized_start_line, _ = read_between_the_lines(file_name, start_line, end_line)
 
       if Pry.color
         contents = syntax_highlight_by_file_type_or_specified(contents, file_name, file_type)
       end
 
       set_file_and_dir_locals(file_name)
-      render_output(options[:b], options[:l] ? start_line + 1 : false, contents)
+      render_output(options[:f], options[:l] ? normalized_start_line + 1 : false, contents)
       contents
     end
 
@@ -455,62 +454,6 @@ e.g: eval-file -c self "hello.rb"
       Pry.start target.eval("#{obj}")
     end
 
-    strip_color_codes = lambda do |str|
-      str.gsub(/\e\[.*?(\d)+m/, '')
-    end
-
-    process_rdoc = lambda do |comment, code_type|
-      comment = comment.dup
-      comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-        gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-        gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
-        gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-        gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-        gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
-    end
-
-    process_yardoc_tag = lambda do |comment, tag|
-      in_tag_block = nil
-      output = comment.lines.map do |v|
-        if in_tag_block && v !~ /^\S/
-          strip_color_codes.call(strip_color_codes.call(v))
-        elsif in_tag_block
-          in_tag_block = false
-          v
-        else
-          in_tag_block = true if v =~ /^@#{tag}/
-          v
-        end
-      end.join
-    end
-      
-    # FIXME - invert it -- should only ALLOW color if @example
-    process_yardoc = lambda do |comment|
-      yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
-                   "deprecate", "example"]
-      (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag.call(a, v) }.
-        gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
-    end
-    
-    process_comment_markup = lambda do |comment, code_type|
-      process_yardoc.call process_rdoc.call(comment, code_type)
-    end
-
-    # strip leading whitespace but preserve indentation
-    strip_leading_whitespace = lambda do |text|
-      return text if text.empty?
-      leading_spaces = text.lines.first[/^(\s+)/, 1]
-      text.gsub(/^#{leading_spaces}/, '')
-    end
-
-    strip_leading_hash_and_whitespace_from_ruby_comments = lambda do |comment|
-      comment = comment.dup
-      comment.gsub!(/\A\#+?$/, '')
-      comment.gsub!(/^\s*#/, '')
-      strip_leading_whitespace.call(comment)
-    end
-
-
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
       options = {}
       target = target()
@@ -534,8 +477,8 @@ e.g show-doc hello_method
           target = Pry.binding_for(target.eval(context))
         end
 
-        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
-          options[:b] = true
+        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do 
+          options[:f] = true
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -560,26 +503,22 @@ e.g show-doc hello_method
         doc = Pry::MethodInfo.info_for(meth).docstring
       when :ruby
         doc = meth.comment
-        doc = strip_leading_hash_and_whitespace_from_ruby_comments.call(doc)
+        doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
         set_file_and_dir_locals(meth.source_location.first)
       end
 
       next output.puts("No documentation found.") if doc.empty?
       
-      doc = process_comment_markup.call(doc, code_type)
+      doc = process_comment_markup(doc, code_type)
       
       output.puts make_header(meth, code_type)
 
-      render_output(options[:b], false, doc)
+      render_output(options[:f], false, doc)
       doc
     end
 
     alias_command "?", "show-doc", ""
 
-    strip_comments_from_c_code = lambda do |code|
-      code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
-    end
-    
     command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: show-source" do |*args|
       options = {}
       target = target()
@@ -603,8 +542,8 @@ e.g: show-method hello_method
           options[:m] = true
         end
 
-        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
-          options[:b] = true
+        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do 
+          options[:f] = true
         end
 
         opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
@@ -633,9 +572,9 @@ e.g: show-method hello_method
         next
       when :c
         code = Pry::MethodInfo.info_for(meth).source
-        code = strip_comments_from_c_code.call(code)
+        code = strip_comments_from_c_code(code)
       when :ruby
-        code = strip_leading_whitespace.call(meth.source)
+        code = strip_leading_whitespace(meth.source)
         set_file_and_dir_locals(meth.source_location.first)
       end
 
@@ -649,7 +588,7 @@ e.g: show-method hello_method
         start_line = meth.source_location ? meth.source_location.last : 1
       end
       
-      render_output(options[:b], start_line, code)
+      render_output(options[:f], start_line, code)
       code
     end
 
@@ -670,8 +609,8 @@ e.g: show-command show-method
           options[:l] = true
         end
 
-        opts.on("-b", "--page-breaks", "Page through text one screenful at a time.") do 
-          options[:b] = true
+        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do 
+          options[:f] = true
         end
 
         opts.on_tail("-h", "--help", "This message.") do 
@@ -692,7 +631,7 @@ e.g: show-command show-method
       if commands[command_name]
         meth = commands[command_name][:action]
 
-        code = strip_leading_whitespace.call(meth.source)
+        code = strip_leading_whitespace(meth.source)
         file, line = meth.source_location
         set_file_and_dir_locals(file)
         check_for_dynamically_defined_method(meth)
@@ -703,7 +642,7 @@ e.g: show-command show-method
           code = CodeRay.scan(code, :ruby).term
         end
 
-        render_output(options[:b], options[:l] ? meth.source_location.last : false, code)
+        render_output(options[:f], options[:l] ? meth.source_location.last : false, code)
         code
       else
         output.puts "No such command: #{command_name}."
