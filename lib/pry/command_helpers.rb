@@ -35,12 +35,11 @@ class Pry
         end
       end
       
+      
       def stagger_output(text)
-        if RUBY_PLATFORM =~ Regexp.union(/win32/, /mingw32/)
-          simple_pager(text)
-        else
-          lesspipe { |less| less.puts text }
-        end
+        lesspipe { |less| less.puts text }
+      rescue Exception
+        simple_pager(text)
       end
       
       def add_line_numbers(lines, start_line)
