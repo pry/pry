@@ -1,6 +1,8 @@
 class Pry
   class Commands < CommandBase
     module CommandHelpers 
+
+      private
       
       def meth_name_from_binding(b)
         meth_name = b.eval('__method__')
@@ -19,7 +21,8 @@ class Pry
         target.eval("_dir_ = $_file_temp")
       end
 
-      def stagger_output(text)
+      # a simple pager for systems without `less`. A la windows.
+      def simple_pager(text)
         page_size = 22
         text_array = text.lines.to_a
         text_array.each_slice(page_size) do |chunk|
@@ -31,9 +34,18 @@ class Pry
           end
         end
       end
-
+      
+      def stagger_output(text)
+        if RUBY_PLATFORM =~ Regexp.union(/win32/, /mingw32/)
+          simple_pager(text)
+        else
+          lesspipe { |less| less.puts text }
+        end
+      end
+      
       def add_line_numbers(lines, start_line)
-        lines.each_line.each_with_index.map do |line, idx|
+        line_array = lines.each_line.to_a
+        line_array.each_with_index.map do |line, idx|
           adjusted_index = idx + start_line
           if Pry.color
             cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
@@ -46,15 +58,15 @@ class Pry
 
       # only add line numbers if start_line is not false
       # if start_line is not false then add line numbers starting with start_line
-      def render_output(should_stagger, start_line, doc)
+      def render_output(should_flood, start_line, doc)
         if start_line
           doc = add_line_numbers(doc, start_line)
         end
 
-        if should_stagger
-          stagger_output(doc)
-        else
+        if should_flood
           output.puts doc
+        else
+          stagger_output(doc)
         end
       end
 
@@ -73,7 +85,7 @@ class Pry
         if !meth_name
           return nil
         end
- 
+        
         if options[:M]
           target.eval("instance_method(:#{meth_name})")
         elsif options[:m]
@@ -161,11 +173,110 @@ class Pry
         CodeRay.scan(contents, language_detected).term
       end
 
-      def read_between_the_lines(file_name, start_line, end_line)
-        content = File.read(File.expand_path(file_name))
-        content.each_line.to_a[start_line..end_line].join
+      # convert negative line numbers to positive by wrapping around
+      # last line (as per array indexing with negative numbers)
+      def normalized_line_number(line_number, total_lines)
+        line_number < 0 ? line_number + total_lines : line_number
       end
       
+      # returns the file content between the lines and the normalized
+      # start and end line numbers.
+      def read_between_the_lines(file_name, start_line, end_line)
+        content = File.read(File.expand_path(file_name))
+        lines_array = content.each_line.to_a
+
+        [lines_array[start_line..end_line].join, normalized_line_number(start_line, lines_array.size),
+         normalized_line_number(end_line, lines_array.size)]
+      end
+
+      # documentation related helpers
+      def strip_color_codes(str)
+        str.gsub(/\e\[.*?(\d)+m/, '')
+      end
+
+      def process_rdoc(comment, code_type)
+        comment = comment.dup
+        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
+          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
+          gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
+          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+          gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
+      end
+
+      def process_yardoc_tag(comment, tag)
+        in_tag_block = nil
+        output = comment.lines.map do |v|
+          if in_tag_block && v !~ /^\S/
+            strip_color_codes(strip_color_codes(v))
+          elsif in_tag_block
+            in_tag_block = false
+            v
+          else
+            in_tag_block = true if v =~ /^@#{tag}/
+            v
+          end
+        end.join
+      end
+
+      def process_yardoc(comment)
+        yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
+                     "deprecate", "example"]
+        (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
+          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+      end
+
+      def process_comment_markup(comment, code_type)
+        process_yardoc process_rdoc(comment, code_type)
+      end
+
+      # strip leading whitespace but preserve indentation
+      def strip_leading_whitespace(text)
+        return text if text.empty?
+        leading_spaces = text.lines.first[/^(\s+)/, 1]
+        text.gsub(/^#{leading_spaces}/, '')
+      end
+
+      def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
+        comment = comment.dup
+        comment.gsub!(/\A\#+?$/, '')
+        comment.gsub!(/^\s*#/, '')
+        strip_leading_whitespace(comment)
+      end
+
+      def strip_comments_from_c_code(code)
+        code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
+      end
+
+      # thanks to epitron for this method
+      def lesspipe(*args)
+        if args.any? and args.last.is_a?(Hash)
+          options = args.pop
+        else
+          options = {}
+        end
+        
+        output = args.first if args.any?
+        
+        params = []
+        params << "-R" unless options[:color] == false
+        params << "-S" unless options[:wrap] == true
+        params << "-F" unless options[:always] == true
+        if options[:tail] == true
+          params << "+\\>"
+          $stderr.puts "Seeking to end of stream..."
+        end
+        params << "-X"
+        
+        IO.popen("less #{params * ' '}", "w") do |less|
+          if output
+            less.puts output
+          else
+            yield less
+          end
+        end
+      end      
+
     end
   end
 end
