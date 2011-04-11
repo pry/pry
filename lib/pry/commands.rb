@@ -511,7 +511,7 @@ e.g show-doc hello_method
       
       doc = process_comment_markup(doc, code_type)
       
-      output.puts make_header(meth, code_type)
+      output.puts make_header(meth, code_type, doc)
 
       render_output(options[:f], false, doc)
       doc
@@ -578,7 +578,7 @@ e.g: show-method hello_method
         set_file_and_dir_locals(meth.source_location.first)
       end
 
-      output.puts make_header(meth, code_type)
+      output.puts make_header(meth, code_type, code)
       if Pry.color
         code = CodeRay.scan(code, code_type).term
       end
@@ -594,7 +594,7 @@ e.g: show-method hello_method
 
     alias_command "show-source", "show-method", ""
 
-    command "show-command", "Show sourcecode for a Pry command, e.g: show-command cd" do |*args|
+    command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
       options = {}
       target = target()
       command_name = nil
@@ -636,7 +636,7 @@ e.g: show-command show-method
         set_file_and_dir_locals(file)
         check_for_dynamically_defined_method(meth)
 
-        output.puts make_header(meth, :ruby)
+        output.puts make_header(meth, :ruby, code)
 
         if Pry.color
           code = CodeRay.scan(code, :ruby).term
