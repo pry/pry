@@ -1,9 +1,14 @@
+direc = File.dirname(__FILE__)
+require "#{direc}/command_base_helpers"
+
 class Pry
 
   # Basic command functionality. All user-defined commands must
   # inherit from this class. It provides the `command` method.
   class CommandBase
     class << self
+      include CommandBaseHelpers
+      
       attr_accessor :commands
       attr_accessor :opts, :output, :target
 
@@ -39,17 +44,22 @@ class Pry
       #   # Greet somebody
       def command(names, description="No description.", options={}, &block)
         options = {
-          :keep_retval => false
+          :keep_retval => false,
+          :requires_gem => nil
         }.merge!(options)
         
         @commands ||= {}
 
-        Array(names).each do |name|
-          commands[name] = {
-            :description => description,
-            :action => block,
-            :keep_retval => options[:keep_retval]
-          }
+        if command_dependencies_met?(options)
+          Array(names).each do |name|
+            commands[name] = {
+              :description => description,
+              :action => block,
+              :keep_retval => options[:keep_retval]
+            }
+          end
+        else
+          create_command_stub(names, description, options, block)
         end
       end
 
@@ -144,6 +154,39 @@ class Pry
           output.puts "No info for command: #{cmd}"
         end
       end
+    end
+
+    command "install", "Install a disabled command." do |name|
+      stub_info = commands[name][:stub_info]
+
+      if !stub_info
+        output.puts "Not a command stub. Nothing to do."
+        next
+      end
+
+      output.puts "Attempting to install `#{name}` command..."
+      
+      require 'rubygems/dependency_installer'
+      gems_to_install = Array(stub_info[:requires_gem])
+
+      gem_install_failed = false
+      gems_to_install.each do |g|
+        next if gem_installed?(g)
+        output.puts "Installing `#{g}` gem..."
+
+        begin
+          Gem::DependencyInstaller.new.install(g) 
+        rescue Gem::GemNotFoundException
+          output.puts "Required Gem: `#{g}` not found. Aborting command installation."
+          gem_install_failed = true
+          next
+        end
+      end
+      next if gem_install_failed
+      
+      Gem.refresh
+      load "#{File.dirname(__FILE__)}/commands.rb"
+      output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
     end
 
     # Ensures that commands can be inherited
