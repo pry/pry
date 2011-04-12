@@ -434,8 +434,9 @@ describe Pry do
               end
             end
 
-            Command2.commands.keys.size.should == 2
+            Command2.commands.keys.size.should == 3
             Command2.commands.keys.include?("help").should == true
+            Command2.commands.keys.include?("install").should == true
             Command2.commands.keys.include?("h").should == true
 
             Object.remove_const(:Command2)
