@@ -23,6 +23,9 @@ class Pry
       Pry.start(target)
     end
 
+    command ".<shell command>", "All text following a '.' is forwarded to the shell." do
+    end
+
     command "exit-program", "End the current program. Aliases: quit-program, !!!" do
       exit
     end
@@ -34,15 +37,15 @@ class Pry
       run target, ".ri", *args
     end
 
-    command "gist-method", "" do |*args|
+    command "gist-method", "Gist a method to github.", :requires_gem => "gist" do |*args|
       options = { }
       meth_name = nil
       
       OptionParser.new do |opts|
-        opts.banner = %{Usage: show-command [OPTIONS] [CMD]
+        opts.banner = %{Usage: gist-method [OPTIONS] [METH]
 Gist the method (doc or source) to github.
 e.g: gist -m my_method
-e.g gist -d my_method
+e.g: gist -d my_method
 --
 }
         opts.on("-m", "--method", "Gist a method's source.") do |line|
@@ -60,6 +63,8 @@ e.g gist -d my_method
       end.order(args) do |v|
         meth_name = v
       end
+
+      next if options[:h]
 
       meth_name = meth_name_from_binding(target) if !meth_name
 
