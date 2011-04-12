@@ -30,6 +30,60 @@ class Pry
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
 
+    command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
+      run target, ".ri", *args
+    end
+
+    command "gist-method", "" do |*args|
+      options = { }
+      meth_name = nil
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: show-command [OPTIONS] [CMD]
+Gist the method (doc or source) to github.
+e.g: gist -m my_method
+e.g gist -d my_method
+--
+}
+        opts.on("-m", "--method", "Gist a method's source.") do |line|
+          options[:m] = true
+        end
+
+        opts.on("-d", "--doc", "Gist a method's documentation.") do 
+          options[:d] = true
+        end
+
+        opts.on_tail("-h", "--help", "This message.") do 
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        meth_name = v
+      end
+
+      meth_name = meth_name_from_binding(target) if !meth_name
+
+      if (meth = get_method_object(meth_name, target, options)).nil?
+        output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
+        next
+      end
+
+      type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
+      if !options[:d]
+        content, code_type = code_and_code_type_for(meth)
+      else
+        content, code_type = doc_and_code_type_for(meth)
+        no_color do
+          content = process_comment_markup(content, code_type)
+        end
+        code_type = :plain
+      end
+      
+      IO.popen("gist -p -t #{type_map[code_type]} -", "w") do |gist|
+        gist.puts content
+      end
+    end
+
     command "gem-cd", "Change working directory to specified gem's directory." do |gem_name|
       require 'rubygems'
       gem_spec = Gem.source_index.find_name(gem_name).first
@@ -491,16 +545,8 @@ e.g show-doc hello_method
         next
       end
 
-      case code_type = code_type_for(meth)
-      when nil
-        next
-      when :c
-        doc = Pry::MethodInfo.info_for(meth).docstring
-      when :ruby
-        doc = meth.comment
-        doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
-        set_file_and_dir_locals(meth.source_location.first)
-      end
+      doc, code_type = doc_and_code_type_for(meth)
+      next if !doc
 
       next output.puts("No documentation found.") if doc.empty?
       
@@ -514,7 +560,7 @@ e.g show-doc hello_method
 
     alias_command "?", "show-doc", ""
 
-    command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: show-source" do |*args|
+    command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
       options = {}
       target = target()
       meth_name = nil
@@ -562,16 +608,8 @@ e.g: show-method hello_method
         next
       end
     
-      case code_type = code_type_for(meth)
-      when nil
-        next
-      when :c
-        code = Pry::MethodInfo.info_for(meth).source
-        code = strip_comments_from_c_code(code)
-      when :ruby
-        code = strip_leading_whitespace(meth.source)
-        set_file_and_dir_locals(meth.source_location.first)
-      end
+      code, code_type = code_and_code_type_for(meth)
+      next if !code
 
       output.puts make_header(meth, code_type, code)
       if Pry.color
@@ -588,6 +626,7 @@ e.g: show-method hello_method
     end
 
     alias_command "show-source", "show-method", ""
+    alias_command "$", "show-method", ""
 
     command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
       options = {}
