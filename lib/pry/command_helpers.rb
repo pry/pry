@@ -27,7 +27,7 @@ class Pry
         $_file_temp = File.expand_path(file_name)
         $_dir_temp =  File.dirname($_file_temp)
         target.eval("_file_ = $_file_temp")
-        target.eval("_dir_ = $_file_temp")
+        target.eval("_dir_ = $_dir_temp")
       end
 
       # a simple pager for systems without `less`. A la windows.
@@ -88,6 +88,46 @@ class Pry
       def remove_first_word(text)
         text.split.drop(1).join(' ')
       end
+
+      # turn off color for duration of block
+      def no_color(&block)
+        old_color_state = Pry.color
+        Pry.color = false
+        yield
+        ensure
+          Pry.color = old_color_state
+      end
+
+      def code_and_code_type_for(meth)
+        case code_type = code_type_for(meth)
+        when nil
+          return nil
+        when :c
+          code = Pry::MethodInfo.info_for(meth).source
+          code = strip_comments_from_c_code(code)
+        when :ruby
+          code = strip_leading_whitespace(meth.source)
+          set_file_and_dir_locals(meth.source_location.first)
+        end
+
+        [code, code_type]
+      end
+
+      def doc_and_code_type_for(meth)
+        case code_type = code_type_for(meth)
+        when nil
+          return nil
+        when :c
+          doc = Pry::MethodInfo.info_for(meth).docstring
+        when :ruby
+          doc = meth.comment
+          doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
+          set_file_and_dir_locals(meth.source_location.first)
+        end
+
+        [doc, code_type]
+      end
+
 
       def get_method_object(meth_name, target, options)
         if !meth_name
