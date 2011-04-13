@@ -37,6 +37,56 @@ class Pry
       run target, ".ri", *args
     end
 
+    command "stat", "View method information and set _file_ and _dir_ locals" do |*args|
+      options = {}
+      target = target()
+      meth_name = nil
+      
+      OptionParser.new do |opts|
+        opts.banner = %{Usage: stat [OPTIONS] [METH]
+Show method information for method METH and set _file_ and _dir_ locals. 
+e.g: stat hello_method
+--
+}
+        opts.on("-M", "--instance-methods", "Operate on instance methods.") do 
+          options[:M] = true
+        end
+
+        opts.on("-m", "--methods", "Operate on methods.") do 
+          options[:m] = true
+        end
+
+        opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
+          target = Pry.binding_for(target.eval(context))
+        end
+
+        opts.on_tail("-h", "--help", "This message.") do 
+          output.puts opts
+          options[:h] = true
+        end
+      end.order(args) do |v|
+        meth_name = v
+      end
+
+      next if options[:h]
+
+      meth_name = meth_name_from_binding(target) if !meth_name
+
+      if (meth = get_method_object(meth_name, target, options)).nil?
+        output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
+        next
+      end
+
+      code, code_type = code_and_code_type_for(meth)
+      next if !code
+      doc, code_type = doc_and_code_type_for(meth)
+
+      output.puts make_header(meth, code_type, code)
+      output.puts "Method Language: #{code_type.capitalize}"
+      output.puts "Method type: #{meth.is_a?(Method) ? "Bound" : "Unbound"}"
+      output.puts "Comment length: #{doc.empty? ? 'No comment.' : doc.lines.count.to_s + ' lines.'}"
+    end
+
     command "gist-method", "Gist a method to github.", :requires_gem => "gist" do |*args|
       options = { }
       meth_name = nil
@@ -175,7 +225,7 @@ e.g: gist -d my_method
       end
      
       set_file_and_dir_locals(file) 
-      output.puts "\nFrom #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
+      output.puts "\n#{bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
       
       # This method inspired by http://rubygems.org/gems/ir_b
       File.open(file).each_with_index do |line, index|
