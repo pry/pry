@@ -106,7 +106,6 @@ class Pry
         [doc, code_type]
       end
 
-
       def get_method_object(meth_name, target, options)
         if !meth_name
           return nil
@@ -131,7 +130,7 @@ class Pry
       
       def make_header(meth, code_type, content)
         file, line = meth.source_location
-        num_lines = "Number of lines: #{content.each_line.count}"
+        num_lines = "Number of lines: #{bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
           "\n#{bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"

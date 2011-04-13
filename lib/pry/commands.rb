@@ -82,13 +82,14 @@ e.g: stat hello_method
       doc, code_type = doc_and_code_type_for(meth)
 
       output.puts make_header(meth, code_type, code)
-      output.puts "Method Language: #{code_type.capitalize}"
-      output.puts "Method type: #{meth.is_a?(Method) ? "Bound" : "Unbound"}"
-      output.puts "Comment length: #{doc.empty? ? 'No comment.' : doc.lines.count.to_s + ' lines.'}"
+      output.puts bold("Method Name: ") + meth_name
+      output.puts bold("Method Language: ") + code_type.to_s.capitalize
+      output.puts bold("Method type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
+      output.puts bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
     end
 
     command "gist-method", "Gist a method to github.", :requires_gem => "gist" do |*args|
-      options = { }
+      options = {}
       meth_name = nil
       
       OptionParser.new do |opts|
