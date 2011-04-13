@@ -146,7 +146,11 @@ class Pry
         output.puts
         help_text = heading("Command List:") + "\n" 
         command_info.each do |k, data|
-          help_text << ("#{k}".ljust(18) + data[:description] + "\n") if !data[:description].empty?
+          if !data[:stub_info]
+            help_text << ("#{k}".ljust(18) + data[:description] + "\n") if !data[:description].empty?
+          else
+            help_text << (bold("#{k}".ljust(18) + data[:description] + "\n")) if !data[:description].empty?
+          end
         end
         stagger_output(help_text)
       else
