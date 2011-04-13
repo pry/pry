@@ -15,24 +15,47 @@ class Pry
 
     def_delegators :@pry_instance, :commands, :nesting, :output
     
+    # Is the string a command valid?
+    # @param [String] val The string passed in from the Pry prompt.
+    # @return [Boolean] Whether the string is a valid command.
     def valid_command?(val)
       system_command?(val) || pry_command?(val)
     end
 
+    # Is the string a valid system command?
+    # @param [String] val The string passed in from the Pry prompt.
+    # @return [Boolean] Whether the string is a valid system command.
     def system_command?(val)
       !!(SYSTEM_COMMAND_REGEX =~ val)
     end
 
+    # Is the string a valid pry command?
+    # A Pry command is a command that is not a system command.
+    # @param [String] val The string passed in from the Pry prompt.
+    # @return [Boolean] Whether the string is a valid Pry command.
     def pry_command?(val)
       !!command_matched(val).first
     end
 
+    # Revaluate the string (str) and perform interpolation.
+    # @param [String] str The string to reevaluate with interpolation.
+    # @param [Binding] target The context where the string should be
+    #   reevaluated in.
+    # @return [String] The reevaluated string with interpolations
+    #   applied (if any).
     def interpolate_string(str, target)
       dumped_str = str.dump
       dumped_str.gsub!(/\\\#\{/, '#{')
       target.eval(dumped_str)
     end
-    
+
+    # Execute a given system command.
+    # The commands first have interpolation applied against the
+    # `target` context.
+    # All system command are forwarded to a shell. Note that the `cd`
+    # command is special-cased and is converted internallly to a `Dir.chdir`
+    # @param [String] val The system command to execute.
+    # @param [Binding] target The context in which to perform string interpolation.
     def execute_system_command(val, target)
       SYSTEM_COMMAND_REGEX  =~ val
       cmd = interpolate_string($1, target)
