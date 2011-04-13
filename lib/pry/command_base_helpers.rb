@@ -36,6 +36,73 @@ class Pry
         end
       end
 
+      def bold(text)
+        Pry.color ? "\e[1m#{text}\e[0m" : text
+      end
+
+      # formatting
+      def heading(text)
+        text = "#{text}\n--"
+        Pry.color ? "\e[1m#{text}\e[0m": text
+      end
+
+      def page_size
+        27
+      end
+      
+      # a simple pager for systems without `less`. A la windows.
+      def simple_pager(text)
+        text_array = text.lines.to_a
+        text_array.each_slice(page_size) do |chunk|
+          output.puts chunk.join
+          break if chunk.size < page_size
+          if text_array.size > page_size
+            output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
+            break if $stdin.gets.chomp == "q"
+          end
+        end
+      end
+      
+      # Try to use `less` for paging, if it fails then use simple_pager
+      def stagger_output(text)
+        if text.lines.count < page_size
+          output.puts text
+          return
+        end
+        lesspipe { |less| less.puts text }
+      rescue Exception
+        simple_pager(text)
+      end
+
+      # thanks to epitron for this method
+      def lesspipe(*args)
+        if args.any? and args.last.is_a?(Hash)
+          options = args.pop
+        else
+          options = {}
+        end
+        
+        output = args.first if args.any?
+        
+        params = []
+        params << "-R" unless options[:color] == false
+        params << "-S" unless options[:wrap] == true
+        params << "-F" unless options[:always] == true
+        if options[:tail] == true
+          params << "+\\>"
+          $stderr.puts "Seeking to end of stream..."
+        end
+        params << "-X"
+        
+        IO.popen("less #{params * ' '}", "w") do |less|
+          if output
+            less.puts output
+          else
+            yield less
+          end
+        end
+      end      
+
     end
   end
 end

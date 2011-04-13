@@ -29,28 +29,7 @@ class Pry
         target.eval("_file_ = $_file_temp")
         target.eval("_dir_ = $_dir_temp")
       end
-
-      # a simple pager for systems without `less`. A la windows.
-      def simple_pager(text)
-        page_size = 22
-        text_array = text.lines.to_a
-        text_array.each_slice(page_size) do |chunk|
-          output.puts chunk.join
-          break if chunk.size < page_size
-          if text_array.size > page_size
-            output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
-            break if $stdin.gets.chomp == "q"
-          end
-        end
-      end
-      
-      # Try to use `less` for paging, if it fails then use simple_pager
-      def stagger_output(text)
-        lesspipe { |less| less.puts text }
-      rescue Exception
-        simple_pager(text)
-      end
-      
+   
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
@@ -64,7 +43,6 @@ class Pry
         end.join
       end
 
-      # only add line numbers if start_line is not false
       # if start_line is not false then add line numbers starting with start_line
       def render_output(should_flood, start_line, doc)
         if start_line
@@ -156,9 +134,9 @@ class Pry
         num_lines = "Number of lines: #{content.each_line.count}"
         case code_type
         when :ruby
-          "\nFrom #{file} @ line #{line}:\n#{num_lines}\n\n"
+          "\n#{bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
-          "\nFrom Ruby Core (C Method):\n#{num_lines}\n\n"
+          "\n#{bold('From:')} Ruby Core (C Method):\n#{num_lines}\n\n"
         end
       end
 
@@ -196,7 +174,7 @@ class Pry
         {
           [".c", ".h"] => :c,
           [".cpp", ".hpp", ".cc", ".h", "cxx"] => :cpp,
-          [".rb", "Rakefile"] => :ruby,
+          [".rb", "Rakefile", ".irbrc", ".gemspec", ".pryrc"] => :ruby,
           ".py" => :python,
           ".diff" => :diff,
           ".css" => :css,
@@ -296,35 +274,6 @@ class Pry
       def strip_comments_from_c_code(code)
         code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
       end
-
-      # thanks to epitron for this method
-      def lesspipe(*args)
-        if args.any? and args.last.is_a?(Hash)
-          options = args.pop
-        else
-          options = {}
-        end
-        
-        output = args.first if args.any?
-        
-        params = []
-        params << "-R" unless options[:color] == false
-        params << "-S" unless options[:wrap] == true
-        params << "-F" unless options[:always] == true
-        if options[:tail] == true
-          params << "+\\>"
-          $stderr.puts "Seeking to end of stream..."
-        end
-        params << "-X"
-        
-        IO.popen("less #{params * ' '}", "w") do |less|
-          if output
-            less.puts output
-          else
-            yield less
-          end
-        end
-      end      
 
     end
   end

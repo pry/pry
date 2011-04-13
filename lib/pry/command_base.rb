@@ -143,10 +143,12 @@ class Pry
       command_info = opts[:commands]
 
       if !cmd
-        output.puts "\e[1mCommand list:\e[0m\n--"
+        output.puts
+        help_text = heading("Command List:") + "\n" 
         command_info.each do |k, data|
-          output.puts "#{k}".ljust(18) + data[:description] if !data[:description].empty?
+          help_text << ("#{k}".ljust(18) + data[:description] + "\n") if !data[:description].empty?
         end
+        stagger_output(help_text)
       else
         if command_info[cmd]
           output.puts command_info[cmd][:description]
