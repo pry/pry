@@ -84,7 +84,8 @@ e.g: stat hello_method
       output.puts make_header(meth, code_type, code)
       output.puts bold("Method Name: ") + meth_name
       output.puts bold("Method Language: ") + code_type.to_s.capitalize
-      output.puts bold("Method type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
+      output.puts bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
+      output.puts bold("Method Arity: ") + meth.arity.to_s
       output.puts bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
     end
 

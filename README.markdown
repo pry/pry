@@ -3,9 +3,23 @@ Pry
 
 (C) John Mair (banisterfiend) 2011
 
-_attach an irb-like session to any object at runtime_
+_Ruby voyeurism_
 
-Pry is a simple Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
+Pry is a powerful alternative to the standard IRB shell for Ruby. It is
+written from scratch to provide a number of advanced features, some of
+these include:
+
+* Runtime invocation
+* Syntax highlighting
+* Command shell integration
+* Source code browsing (including core C source with the pry-doc gem)
+* Documentation browsing 
+* Exotic object support (BasicObject instances, IClasses, ...)
+* A Powerful and flexible command system
+* Gisting ability
+* Many convenience commands
+
+Pry is a Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
 manipulation of objects during the running of a program.
 
 In some sense it is the opposite of IRB in that you bring a REPL

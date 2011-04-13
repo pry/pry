@@ -70,7 +70,8 @@ class Pry
         system(cmd)
       end
 
-      val.clear
+      # Tick, tock, im getting rid of this shit soon.
+      val.replace("")
     end
     
     # Determine whether a Pry command was matched and return command data
@@ -154,6 +155,7 @@ class Pry
         ret_val = commands.instance_exec(*args_with_corrected_arity, &action)
       end
 
+      # Tick, tock, im getting rid of this shit soon.
       options[:val].clear
       
       ret_val
