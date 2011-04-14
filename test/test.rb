@@ -380,7 +380,7 @@ describe Pry do
               end
             end
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello"), :output => str_output, :commands => Command68).rep
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
             str_output.string.should =~ /:kept_hello/
 
             Object.remove_const(:Command68)
@@ -393,7 +393,7 @@ describe Pry do
               end
             end
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello"), :output => str_output, :commands => Command68).rep
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
             (str_output.string =~ /:kept_hello/).should == nil
 
             Object.remove_const(:Command68)

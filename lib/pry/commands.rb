@@ -27,14 +27,27 @@ class Pry
     command ".<shell command>", "All text following a '.' is forwarded to the shell." do
     end
 
-    command "hist", "Show Readline history" do |start_line, end_line|
-      if !start_line
+    command "hist", "Show and replay Readline history" do |*args|
+      require 'slop'
+      if args.empty?
         text = add_line_numbers(Readline::HISTORY.to_a.join("\n"), 0)
         stagger_output(text)
         next
       end
 
-      actions = Readline::HISTORY.to_a[start_line.to_i..end_line.to_i].join("\n") + "\n_pry_.input=Readline\n"
+      opts = Slop.parse(args) do
+        banner "Usage: hist [-rSTART..END]"
+        on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |r|
+          options[:r].argument_value = r.to_i if r.is_a?(String)
+        end
+        on :h, :help, 'Show this message.', :tail => true do
+          output.puts help
+        end        
+      end
+
+      next if opts.h?
+
+      actions = Array(Readline::HISTORY.to_a[opts[:r]]).join("\n") + "\n"
       Pry.active_instance.input = StringIO.new(actions)
     end
 
