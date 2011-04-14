@@ -193,10 +193,7 @@ class Pry
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      if valid_expression?(eval_string)
-        redo if null_input?(val)
-        break 
-      end
+      break if valid_expression?(eval_string) && !null_input?(val)
     end
 
     @suppress_output = true if eval_string =~ /;\Z/
@@ -276,10 +273,22 @@ class Pry
       # as it has a second parameter.
       input.readline(current_prompt, true)
     else
-      if input.method(:readline).arity == 1
-        input.readline(current_prompt)
-      else
-        input.readline
+      begin
+        if input.method(:readline).arity == 1
+          input.readline(current_prompt)
+        else
+          input.readline
+        end
+      rescue Exception => ex
+        self.input = Readline
+        ""
+
+        # FIX ME!!!
+        # failing test is due to null_input?() being true for a
+        # command that doesn't return a value. This causes a EOFError
+        # exception for a 'rep' (as in test) as it makes the read loop
+        # redo and so it tries to read from a non-existent string
+        # binding.pry
       end
     end
   end
