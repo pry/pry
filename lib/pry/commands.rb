@@ -27,9 +27,15 @@ class Pry
     command ".<shell command>", "All text following a '.' is forwarded to the shell." do
     end
 
-    command "hist", "Show Readline history" do 
-      text = add_line_numbers(Readline::HISTORY.to_a.join("\n"), 0)
-      stagger_output(text)
+    command "hist", "Show Readline history" do |start_line, end_line|
+      if !start_line
+        text = add_line_numbers(Readline::HISTORY.to_a.join("\n"), 0)
+        stagger_output(text)
+        next
+      end
+
+      actions = Readline::HISTORY.to_a[start_line.to_i..end_line.to_i].join("\n") + "\n_pry_.input=Readline\n"
+      Pry.active_instance.input = StringIO.new(actions)
     end
 
     command "exit-program", "End the current program. Aliases: quit-program, !!!" do
