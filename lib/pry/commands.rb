@@ -23,7 +23,13 @@ class Pry
       Pry.start(target)
     end
 
+    # this cannot be accessed, it's just for help purposed.
     command ".<shell command>", "All text following a '.' is forwarded to the shell." do
+    end
+
+    command "hist", "Show Readline history" do 
+      text = add_line_numbers(Readline::HISTORY.to_a.join("\n"), 0)
+      stagger_output(text)
     end
 
     command "exit-program", "End the current program. Aliases: quit-program, !!!" do
