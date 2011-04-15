@@ -143,7 +143,7 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    print.call output, result if should_print?(result)
+    show(result) if should_print?(result)
   end
 
   # Perform a read-eval
@@ -193,13 +193,17 @@ class Pry
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      break if valid_expression?(eval_string) && !null_input?(val)
+      break if valid_expression?(eval_string) && !null_input?(val)  || input.eof?
     end
 
     @suppress_output = true if eval_string =~ /;\Z/
     
     eval_string
-  end 
+  end
+
+  def show(result)
+    print.call output, result 
+  end
 
   # Returns true if input is "" and a command is not returning a
   # value.
