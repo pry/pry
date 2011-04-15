@@ -193,7 +193,7 @@ class Pry
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      break if valid_expression?(eval_string) && !null_input?(val)  || input.eof?
+      break if valid_expression?(eval_string) && !null_input?(val)
     end
 
     @suppress_output = true if eval_string =~ /;\Z/
