@@ -151,7 +151,8 @@ class Pry
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the read-eval-print
   # @return [Object] The result of the eval or an `Exception` object in case of
-  #   error. In the latter case, you can check whether the exception
+  #   error. In the latter case, you can check whether the exception was raised
+  #   or is just the result of the expression using #last_result_is_exception?
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
