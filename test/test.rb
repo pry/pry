@@ -205,7 +205,7 @@ describe Pry do
           pry_tester.rep
 
           str_output.string.should =~ /horsey/
-        end
+        end    
       end
 
       describe "Object#pry" do
@@ -379,6 +379,30 @@ describe Pry do
         end
 
         describe "commands" do
+          it 'should interpolate ruby code into commands' do
+            klass = Class.new(Pry::CommandBase) do
+              command "hello", "", :keep_retval => true do |arg|
+                arg
+              end
+            end
+
+            $test_interpolation = "bing"
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("hello #{$test_interpolation}"), :output => str_output, :commands => klass).rep
+            str_output.string.should =~ /bing/
+            $test_interpolation = nil
+          end
+
+          it 'should create a comand in  a nested context and that command should be accessible from the parent' do
+            str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit")
+            str_output = StringIO.new
+            Pry.input = str_input
+            obj = Object.new
+            Pry.new(:output => str_output).repl(obj)
+            Pry.input = Readline
+            str_output.string.should =~ /@x/
+          end
+
           it 'should define a command that keeps its return value' do
             class Command68 < Pry::CommandBase
               command "hello", "", :keep_retval => true do
@@ -500,7 +524,7 @@ describe Pry do
               end
 
               command "run_v" do
-                run target, "v"
+                run "v"
               end
             end
 
