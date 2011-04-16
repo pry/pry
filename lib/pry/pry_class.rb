@@ -1,9 +1,9 @@
 # @author John Mair (banisterfiend)
 class Pry
 
-  # The RC Files to load. 
+  # The RC Files to load.
   RC_FILES = ["~/.pryrc"]
-  
+
   # class accessors
   class << self
 
@@ -49,6 +49,10 @@ class Pry
     #   Pry instances.
     attr_accessor :print
 
+    # @return [Proc] The Proc to use for printing by default by all
+    #   Pry instances.
+    attr_accessor :exception_handler
+
     # Get/Set the Hash that defines Pry hooks used by default by all Pry
     # instances.
     # @return [Hash] The hooks used by default by all Pry instances.
@@ -57,7 +61,7 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
-    
+
     # Get/Set the Proc that defines extra Readline completions (on top
     # of the ones defined for IRB).
     # @return [Proc] The Proc that defines extra Readline completions (on top
@@ -76,11 +80,11 @@ class Pry
     attr_accessor :cmd_ret_value
 
     # Determines whether colored output is enabled.
-    # @return [Boolean] 
+    # @return [Boolean]
     attr_accessor :color
 
     # Determines whether the rc file (~/.pryrc) should be loaded.
-    # @return [Boolean] 
+    # @return [Boolean]
     attr_accessor :should_load_rc
 
     # Set to true if Pry is invoked from command line using `pry` executable
@@ -101,7 +105,7 @@ class Pry
       load(file_name) if File.exists?(file_name)
     end
   end
-  
+
   # Start a Pry REPL.
   # This method also loads the files specified in `Pry::RC_FILES` the
   # first time it is invoked.
@@ -115,7 +119,7 @@ class Pry
       load_rc
       @rc_loaded = true
     end
-    
+
     new(options).repl(target)
   end
 
@@ -169,23 +173,23 @@ class Pry
   def self.run_command(arg_string, options={})
     name, arg_string = arg_string.split(/\s+/, 2)
     arg_string = "" if !arg_string
-    
+
     options = {
       :context => TOPLEVEL_BINDING,
       :show_output => false,
       :output => Pry.output,
       :commands => Pry.commands
     }.merge!(options)
-    
+
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
-    
+
     # FIXME! ugly hack to get around broken methods in both YARD and RBX
     if RUBY_VERSION =~ /1.9/
       commands = options[:commands].dup
     else
       commands = options[:commands].clone
     end
-      
+
     commands.output = options[:show_output] ? options[:output] : null_output
     commands.target = Pry.binding_for(options[:context])
 
@@ -205,6 +209,7 @@ class Pry
     @commands = Pry::Commands
     @prompt = DEFAULT_PROMPT
     @print = DEFAULT_PRINT
+    @exception_handler = DEFAULT_EXCEPTION_HANDLER
     @hooks = DEFAULT_HOOKS
     @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     @color = true
