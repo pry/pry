@@ -1,19 +1,16 @@
 class Pry
-
-  # The default print object - only show first line of backtrace and
-  # prepend output with `=>`
   DEFAULT_PRINT = proc do |output, value|
-    case value
-    when Exception
-      output.puts "#{value.class}: #{value.message}"
-      output.puts "from #{value.backtrace.first}"
+    if Pry.color
+      output.puts "=> #{CodeRay.scan(Pry.view(value), :ruby).term}"
     else
-      if Pry.color
-        output.puts "=> #{CodeRay.scan(Pry.view(value), :ruby).term}"
-      else
-        output.puts "=> #{Pry.view(value)}"
-      end
+      output.puts "=> #{Pry.view(value)}"
     end
   end
+
+  # Will only show the first line of the backtrace
+  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception|
+    output.puts "#{exception.class}: #{exception.message}"
+    output.puts "from #{exception.backtrace.first}"
+  end
 end
-  
+

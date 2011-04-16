@@ -6,7 +6,8 @@ class Pry
 
   # The list of configuration options.
   CONFIG_OPTIONS = [:input, :output, :commands, :print,
-                   :prompt, :hooks, :custom_completions]
+                    :exception_handler, :prompt, :hooks,
+                    :custom_completions]
 
   attr_accessor *CONFIG_OPTIONS
 
@@ -17,8 +18,8 @@ class Pry
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
-  # @option options [#readline] :input The object to use for input. 
-  # @option options [#puts] :output The object to use for output. 
+  # @option options [#readline] :input The object to use for input.
+  # @option options [#puts] :output The object to use for output.
   # @option options [Pry::CommandBase] :commands The object to use for commands. (see commands.rb)
   # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
   # @option options [Array<Proc>] :default_prompt The array of Procs to use for the prompts. (see prompts.rb)
@@ -91,7 +92,7 @@ class Pry
 
     # If break_data is an array, then the last element is the return value
     break_level, return_value = Array(break_data)
-    
+
     # keep throwing until we reach the desired nesting level
     if nesting_level != break_level
       throw :breakout, break_data
@@ -113,7 +114,7 @@ class Pry
     target_self = target.eval('self')
 
     repl_prologue(target)
-    
+
     # cannot rely on nesting.level as
     # nesting.level changes with new sessions
     nesting_level = nesting.size
@@ -129,7 +130,7 @@ class Pry
 
     # if one was provided, return the return value
     return return_value if return_value
-    
+
     # otherwise return the target_self
     target_self
   end
@@ -149,7 +150,8 @@ class Pry
   # Perform a read-eval
   # If no parameter is given, default to top-level (main).
   # @param [Object, Binding] target The receiver of the read-eval-print
-  # @return [Object] The result of the eval or an `Exception` object in case of error.
+  # @return [Object] The result of the eval or an `Exception` object in case of
+  #   error. In the latter case, you can check whether the exception
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
@@ -164,6 +166,8 @@ class Pry
     Pry.active_instance = self
     target.eval("_pry_ = ::Pry.active_instance")
 
+    @last_result_is_exception = false
+
     # eval the expression and save to last_result
     # Do not want __FILE__, __LINE__ here because we need to distinguish
     # (eval) methods for show-method and friends.
@@ -172,6 +176,7 @@ class Pry
   rescue SystemExit => e
     exit
   rescue Exception => e
+    @last_result_is_exception = true
     set_last_exception(e, target)
   end
 
@@ -193,17 +198,21 @@ class Pry
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      break if valid_expression?(eval_string) 
+      break if valid_expression?(eval_string)
     end
 
     @suppress_output = true if eval_string =~ /;\Z/ || null_input?(val)
-    
+
     eval_string
   end
 
   # FIXME should delete this method? it's exposing an implementation detail!
   def show_result(result)
-    print.call output, result 
+    if last_result_is_exception?
+      exception_handler.call output, result
+    else
+      print.call output, result
+    end
   end
 
   # Returns true if input is "" and a command is not returning a
@@ -226,9 +235,9 @@ class Pry
     # exit session if we receive EOF character
     if !val
       output.puts
-      throw(:breakout, nesting.level) 
+      throw(:breakout, nesting.level)
     end
-    
+
     val
   end
 
@@ -240,7 +249,7 @@ class Pry
   def process_line(val, eval_string, target)
     val.rstrip!
     Pry.cmd_ret_value = @command_processor.process_commands(val, eval_string, target)
-    
+
     if Pry.cmd_ret_value
       eval_string << "Pry.cmd_ret_value\n"
     else
@@ -264,6 +273,13 @@ class Pry
   def set_last_exception(ex, target)
     Pry.last_exception = ex
     target.eval("_ex_ = ::Pry.last_exception")
+  end
+
+  # @return [Boolean] True if the last result is an exception that was raised,
+  #   as opposed to simply an instance of Exception (like the result of
+  #   Exception.new)
+  def last_result_is_exception?
+    @last_result_is_exception
   end
 
   # Returns the next line of input to be used by the pry instance.
@@ -306,7 +322,7 @@ class Pry
   def should_print?(result)
     !@suppress_output || result.is_a?(Exception)
   end
-  
+
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
   # @param [Boolean] first_line Whether this is the first line of input
