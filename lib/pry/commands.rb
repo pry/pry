@@ -2,6 +2,7 @@ direc = File.dirname(__FILE__)
 
 require "optparse"
 require "method_source"
+require 'rubygems/dependency_installer'
 require "#{direc}/command_base"
 require "#{direc}/pry_instance"
 require "#{direc}/command_helpers"
@@ -59,6 +60,33 @@ class Pry
 
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
+
+    command "gem", "gem stuff" do |*args|
+      if args.first == "install"
+        gem_name = args[1]
+        output.puts "Attempting to install gem: #{bold(gem_name)}"
+        begin
+          Gem::DependencyInstaller.new.install(gem_name)
+          output.puts "Gem #{bold(gem_name)} successfully installed."
+        rescue Gem::GemNotFoundException
+          output.puts "Required Gem: #{bold(gem_name)} not found."
+          next
+        rescue Gem::FilePermissionError
+          output.puts "FilePermissionError, trying `sudo`..."
+          if system("sudo gem", *args)
+            output.puts "Gem #{bold(gem_name)} successfully installed."
+          else
+            output.puts "Gem #{bold(gem_name)} could not be installed."
+            next
+          end
+        end
+        
+        Gem.refresh
+        output.puts "Refreshed gem cache."
+      else
+        system "gem", *args
+      end
+    end
 
     command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
       run target, ".ri", *args
@@ -191,11 +219,11 @@ e.g: gist -d my_method
 
     command "shell-mode", "Toggle shell mode. Bring in pwd prompt and file completion." do
       case Pry.active_instance.prompt
-      when Pry::FILE_PROMPT
+      when Pry::SHELL_PROMPT
         Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
         Pry.active_instance.custom_completions = Pry::DEFAULT_CUSTOM_COMPLETIONS
       else
-        Pry.active_instance.prompt = Pry::FILE_PROMPT
+        Pry.active_instance.prompt = Pry::SHELL_PROMPT
         Pry.active_instance.custom_completions = Pry::FILE_COMPLETIONS
         Readline.completion_proc = Pry::InputCompleter.build_completion_proc target,
         Pry.active_instance.instance_eval(&Pry::FILE_COMPLETIONS)
@@ -288,7 +316,7 @@ e.g: gist -d my_method
       throw(:breakout, [0, target.eval(str)])
     end
 
-    alias_command "!@", "exit-all", ""
+    alias_command "!!@", "exit-all", ""
 
     command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
