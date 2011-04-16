@@ -89,7 +89,7 @@ class Pry
     end
 
     command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
-      run target, ".ri", *args
+      system "ri", *args
     end
 
     command "stat", "View method information and set _file_ and _dir_ locals" do |*args|
