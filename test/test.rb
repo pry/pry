@@ -55,6 +55,24 @@ describe Pry do
         pry_tester.rep(Hello)
         Hello.const_defined?(:Nested).should == true
       end
+
+      it 'should suppress output if input ends in a ";" (single line)' do
+        o = Object.new
+        str_output = StringIO.new
+        
+        pry_tester = Pry.new(:input => InputTester.new("x = 5;"), :output => str_output)
+        pry_tester.rep(o)
+        str_output.string.should == ""
+      end
+
+      it 'should suppress output if input ends in a ";" (multi-line)' do
+        o = Object.new
+        str_output = StringIO.new
+        
+        pry_tester = Pry.new(:input => InputTester.new("def self.blah", ":test", "end;"), :output => str_output)
+        pry_tester.rep(o)
+        str_output.string.should == ""
+      end
     end
 
     describe "repl" do
@@ -69,18 +87,6 @@ describe Pry do
 
           o.instance_variable_get(:@x).should == 10
         end
-
-        # # this is now deprecated
-        # it 'should execute start session and end session hooks' do
-        #   next
-        #   input = InputTester.new("exit")
-        #   str_output = StringIO.new
-        #   o = Object.new
-          
-        #   pry_tester = Pry.start(o, :input => input, :output => str_output)
-        #   str_output.string.should =~ /Beginning.*#{o}/
-        #   str_output.string.should =~ /Ending.*#{o}/
-        # end
       end
 
       describe "test loading rc files" do
@@ -382,6 +388,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
             str_output.string.should =~ /:kept_hello/
+            str_output.string.should =~ /=>/
 
             Object.remove_const(:Command68)
           end
@@ -395,10 +402,10 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
             (str_output.string =~ /:kept_hello/).should == nil
+            str_output.string !~ /=>/
 
             Object.remove_const(:Command68)
           end
-          
           
           it 'should set the commands default, and the default should be overridable' do
             class Command0 < Pry::CommandBase

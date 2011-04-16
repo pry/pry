@@ -143,7 +143,7 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    show(result) if should_print?(result)
+    show_result(result) if should_print?(result)
   end
 
   # Perform a read-eval
@@ -159,7 +159,6 @@ class Pry
       # Readline tab completion
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
-
 
     # save the pry instance to active_instance
     Pry.active_instance = self
@@ -190,18 +189,20 @@ class Pry
     @suppress_output = false
     eval_string = ""
 
+    val = ""
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
-      break if valid_expression?(eval_string) && !null_input?(val)
+      break if valid_expression?(eval_string) 
     end
 
-    @suppress_output = true if eval_string =~ /;\Z/
+    @suppress_output = true if eval_string =~ /;\Z/ || null_input?(val)
     
     eval_string
   end
 
-  def show(result)
+  # FIXME should delete this method? it's exposing an implementation detail!
+  def show_result(result)
     print.call output, result 
   end
 
