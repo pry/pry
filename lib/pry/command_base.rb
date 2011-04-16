@@ -1,4 +1,5 @@
 direc = File.dirname(__FILE__)
+require 'rubygems/dependency_installer'
 require "#{direc}/command_base_helpers"
 
 class Pry
@@ -93,7 +94,7 @@ class Pry
         command_processor =  CommandProcessor.new(target.eval('_pry_'))
         
         if command_processor.system_command?(name)
-          command_processor.execute_system_command("#{name} #{args.join}", target)
+          command_processor.execute_system_command("#{name} #{args.join(' ')}", target)
         else
           action = opts[:commands][name][:action]
           instance_exec(*args, &action)
@@ -171,8 +172,6 @@ class Pry
       end
 
       output.puts "Attempting to install `#{name}` command..."
-      
-      require 'rubygems/dependency_installer'
       gems_to_install = Array(stub_info[:requires_gem])
 
       gem_install_failed = false
