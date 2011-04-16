@@ -28,9 +28,11 @@ class Pry
     end
 
     command "hist", "Show and replay Readline history" do |*args|
+      hist_array = Readline::HISTORY.to_a
+      
       require 'slop'
       if args.empty?
-        text = add_line_numbers(Readline::HISTORY.to_a.join("\n"), 0)
+        text = add_line_numbers(hist_array.join("\n"), 0)
         stagger_output(text)
         next
       end
@@ -47,7 +49,7 @@ class Pry
 
       next if opts.h?
 
-      actions = Array(Readline::HISTORY.to_a[opts[:r]]).join("\n") + "\n"
+      actions = Array(hist_array[opts[:r]]).join("\n") + "\n"
       Pry.active_instance.input = StringIO.new(actions)
     end
 
