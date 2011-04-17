@@ -129,7 +129,7 @@ class Pry
   # @return [String] The string representation of `obj`.
   def self.view(obj)
     case obj
-    when String, Hash, Array, Symbol, nil
+    when String, Hash, Array, Symbol, Exception, nil
       obj.inspect
     else
       obj.to_s
@@ -183,7 +183,7 @@ class Pry
 
     null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
 
-    # FIXME! ugly hack to get around broken methods in both YARD and RBX
+    # FIXME! ugly hack to get around broken methods in both YARV and RBX
     if RUBY_VERSION =~ /1.9/
       commands = options[:commands].dup
     else
