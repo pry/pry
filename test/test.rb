@@ -56,6 +56,15 @@ describe Pry do
         Hello.const_defined?(:Nested).should == true
       end
 
+      it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
+        o = Object.new
+        str_output = StringIO.new
+
+        pry_tester = Pry.new(:input => InputTester.new("Exception.new;"), :output => str_output)
+        pry_tester.rep(o)
+        str_output.string.should == ""
+      end
+
       it 'should suppress output if input ends in a ";" (single line)' do
         o = Object.new
         str_output = StringIO.new
@@ -64,6 +73,7 @@ describe Pry do
         pry_tester.rep(o)
         str_output.string.should == ""
       end
+      
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
         o = Object.new
