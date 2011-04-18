@@ -129,13 +129,14 @@ class Pry
       end
       
       def make_header(meth, code_type, content)
-        file, line = meth.source_location
         num_lines = "Number of lines: #{bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
+          file, line = meth.source_location
           "\n#{bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
-          "\n#{bold('From:')} Ruby Core (C Method):\n#{num_lines}\n\n"
+          file = Pry::MethodInfo.info_for(meth).file
+          "\n#{bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
         end
       end
 
