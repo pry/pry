@@ -301,7 +301,7 @@ class Pry
         else
           input.readline
         end
-        
+
       rescue EOFError
         self.input = Readline
         ""

@@ -6,7 +6,7 @@ class Pry
 
   # Implements tab completion for Readline in Pry
   module InputCompleter
-    
+
     if Readline.respond_to?("basic_word_break_characters=")
       Readline.basic_word_break_characters= " \t\n\"\\'`><=;|&{("
     end

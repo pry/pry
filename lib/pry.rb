@@ -15,7 +15,7 @@ if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
   begin
     require 'win32console'
   rescue LoadError
-    $stderr.puts "Need to `gem install win32console`" 
+    $stderr.puts "Need to `gem install win32console`"
     exit 1
   end
 end

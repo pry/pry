@@ -9,7 +9,7 @@ class Pry
   class CommandBase
     class << self
       include CommandBaseHelpers
-      
+
       attr_accessor :commands
       attr_accessor :opts, :output, :target
 
@@ -17,7 +17,7 @@ class Pry
       # that the location where the block is defined has the `opts`
       # method in scope.
       private
-      
+
       # Defines a new Pry command.
       # @param [String, Array] names The name of the command (or array of
       #   command name aliases).
@@ -48,7 +48,7 @@ class Pry
           :keep_retval => false,
           :requires_gem => nil
         }.merge!(options)
-        
+
         @commands ||= {}
 
         if command_dependencies_met?(options)
@@ -91,7 +91,7 @@ class Pry
       #   end
       def run(name, *args)
         command_processor =  CommandProcessor.new(target.eval('_pry_'))
-        
+
         if command_processor.system_command?(name)
           command_processor.execute_system_command("#{name} #{args.join(' ')}", target)
         else
@@ -139,13 +139,13 @@ class Pry
         commands[name][:description] = description
       end
     end
-    
+
     command "help", "This menu." do |cmd|
       command_info = opts[:commands]
 
       if !cmd
         output.puts
-        help_text = heading("Command List:") + "\n" 
+        help_text = heading("Command List:") + "\n"
         command_info.each do |k, data|
           if !data[:stub_info]
             help_text << ("#{k}".ljust(18) + data[:description] + "\n") if !data[:description].empty?
@@ -180,7 +180,7 @@ class Pry
         output.puts "Installing `#{g}` gem..."
 
         begin
-          Gem::DependencyInstaller.new.install(g) 
+          Gem::DependencyInstaller.new.install(g)
         rescue Gem::GemNotFoundException
           output.puts "Required Gem: `#{g}` not found. Aborting command installation."
           gem_install_failed = true
@@ -188,7 +188,7 @@ class Pry
         end
       end
       next if gem_install_failed
-      
+
       Gem.refresh
       load "#{File.dirname(__FILE__)}/commands.rb"
       output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
@@ -198,6 +198,6 @@ class Pry
     def self.inherited(klass)
       klass.commands = commands.dup
     end
-    
+
   end
 end

@@ -3,7 +3,7 @@ class Pry
     module CommandBaseHelpers
 
       private
-      
+
       def gem_installed?(gem_name)
         require 'rubygems'
         !!Gem.source_index.find_name(gem_name).first
@@ -49,16 +49,16 @@ class Pry
       #
       [ :gray, :red, :green, :yellow, :blue, :purple, :cyan, :white ].each_with_index do |color, i|
         define_method "bright_#{color}" do |str|
-          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str 
+          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
         end
-        
+
         define_method color do |str|
           Pry.color ? "\033[0;#{30+i}m#{str}\033[0m" : str
         end
       end
       alias_method :magenta, :purple
       alias_method :bright_magenta, :bright_purple
-      
+
       def bold(text)
         Pry.color ? "\e[1m#{text}\e[0m" : text
       end
@@ -72,7 +72,7 @@ class Pry
       def page_size
         27
       end
-      
+
       # a simple pager for systems without `less`. A la windows.
       def simple_pager(text)
         text_array = text.lines.to_a
@@ -80,12 +80,12 @@ class Pry
           output.puts chunk.join
           break if chunk.size < page_size
           if text_array.size > page_size
-            output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>" 
+            output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>"
             break if $stdin.gets.chomp == "q"
           end
         end
       end
-      
+
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
       def stagger_output(text)
@@ -105,9 +105,9 @@ class Pry
         else
           options = {}
         end
-        
+
         output = args.first if args.any?
-        
+
         params = []
         params << "-R" unless options[:color] == false
         params << "-S" unless options[:wrap] == true
@@ -117,7 +117,7 @@ class Pry
           $stderr.puts "Seeking to end of stream..."
         end
         params << "-X"
-        
+
         IO.popen("less #{params * ' '}", "w") do |less|
           if output
             less.puts output
@@ -125,10 +125,10 @@ class Pry
             yield less
           end
         end
-      end      
+      end
 
     end
   end
 end
 
-      
+

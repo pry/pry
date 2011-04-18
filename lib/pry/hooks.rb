@@ -2,7 +2,7 @@ class Pry
 
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = {
-    
+
     :before_session => proc do |out, target|
       # ensure we're actually in a method
       meth_name = target.eval('__method__')
