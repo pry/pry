@@ -88,11 +88,10 @@ describe Pry do
         o = Exception.new
         str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("self"),
-                             :output => str_output)
-
         was_called = false
-        pry_tester.exception_handler = proc { was_called = true }
+        pry_tester = Pry.new(:input => InputTester.new("self"),
+                             :output => str_output,
+                             :exception_handler => proc { was_called = true })
 
         pry_tester.rep(o)
         was_called.should == false
@@ -102,11 +101,10 @@ describe Pry do
         o = Exception.new
         str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("raise self"),
-                             :output => str_output)
-
         was_called = false
-        pry_tester.exception_handler = proc { was_called = true }
+        pry_tester = Pry.new(:input => InputTester.new("raise self"),
+                             :output => str_output,
+                             :exception_handler => proc { was_called = true })
 
         pry_tester.rep(o)
         was_called.should == true
@@ -405,7 +403,7 @@ describe Pry do
           it "should execute command and show output with :show_output => true flag" do
             str = StringIO.new
             Pry.output = str
-            result = Pry.run_command "ls -av", :context => RCTest, :show_output => true
+            result = Pry.run_command "ls -afv", :context => RCTest, :show_output => true
             str.string.should =~ /global variables/
             Pry.output = $stdout
           end
