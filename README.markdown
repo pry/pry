@@ -1,34 +1,24 @@
-Pry
-=============
-
+![Alt text](http://dl.dropbox.com/u/26521875/Solid%20Light%20%281%29.png)
+ 
 (C) John Mair (banisterfiend) 2011
 
-_Ruby voyeurism_
+_Get to the code_
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
 these include:
 
+* Syntax higlighting
+* Navigation around state (`cd`, `ls` and friends)
 * Runtime invocation
-* Syntax highlighting
 * Command shell integration
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing 
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
-* Gisting ability
-* Many convenience commands
+* Ability to view and replay history
+* Many convenience commands inspired by IPython and SLIME
 
-Pry is a Ruby REPL (Read-Eval-Print-Loop) that specializes in the interactive
-manipulation of objects during the running of a program.
-
-In some sense it is the opposite of IRB in that you bring a REPL
-session to your code (with Pry) instead of bringing your code to a
-REPL session (as with IRB).
-
-It is not based on the IRB codebase, and implements some unique REPL
-commands such as `show-method`, `show-doc`, `ls` and `cd` (type `help`
-to get a full list).
 
 Pry is also fairly flexible and allows significant user
 [customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
