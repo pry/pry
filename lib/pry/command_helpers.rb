@@ -275,6 +275,28 @@ class Pry
         code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
       end
 
+      def prompt(message, options="Yn")
+        opts      = options.scan(/./)
+        optstring = opts.join("/") # case maintained
+        defaults  = opts.select{|o| o.upcase == o }
+        opts      = opts.map{|o| o.downcase}
+        
+        raise "Error: Too many default values for the prompt: #{default.inspect}" if defaults.size > 1
+        
+        default = defaults.first
+        
+        output.print "#{message} (#{optstring}) "
+         
+        loop do
+          case line = Pry.input.readline.downcase
+          when *opts
+            return line
+          when ""
+            return default.downcase
+          end
+        end
+      end
+      
     end
   end
 end

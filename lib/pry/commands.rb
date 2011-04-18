@@ -264,6 +264,33 @@ e.g: gist -d my_method
       output.puts "Last result: #{Pry.view(Pry.last_result)}"
     end
 
+    
+    command "require", "Require gem(s)" do |*gems|
+      gems = gems.join(' ').gsub(',', '').split(/\s+/)
+      gems.each do |gem|
+        begin
+          if require gem
+            output.puts "#{gem.yellow} loaded"
+          else
+            output.puts "#{gem.white} already loaded"
+          end
+          
+        rescue LoadError => e
+          
+          if gem_installed? gem
+            output.puts e.inspect
+          else
+            output.puts "#{gem.red} not found"
+            if prompt("Install the gem?") == "y"
+              run "gem", "install", gem
+            end
+          end
+          
+        end # rescue
+      end # gems
+    end    
+    
+    
     command "whereami", "Show the code context for the session. Shows AROUND lines around the invocation line. AROUND defaults to 5 lines. " do |num|
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')
