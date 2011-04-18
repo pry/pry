@@ -63,9 +63,10 @@ class Pry
         end
       end
       
-      # Try to use `less` for paging, if it fails then use simple_pager
+      # Try to use `less` for paging, if it fails then use
+      # simple_pager. Also do not page if Pry.pager is falsey
       def stagger_output(text)
-        if text.lines.count < page_size
+        if text.lines.count < page_size || !Pry.pager
           output.puts text
           return
         end
