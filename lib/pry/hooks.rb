@@ -4,18 +4,14 @@ class Pry
   DEFAULT_HOOKS = {
     
     :before_session => proc do |out, target|
-     # out.puts "Beginning Pry session for #{Pry.view_clip(target.eval('self'))}"
-
       # ensure we're actually in a method
       meth_name = target.eval('__method__')
       file = target.eval('__FILE__')
 
       # /unknown/ for rbx
-      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != ""
+      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
         Pry.run_command "whereami 5", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
       end
     end,
-    
-#    :after_session => proc { |out, target| out.puts "Ending Pry session for #{Pry.view_clip(target.eval('self'))}" }
   }
 end

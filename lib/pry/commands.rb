@@ -278,7 +278,7 @@ e.g: gist -d my_method
       meth_name = meth_name_from_binding(target)
       meth_name = "N/A" if !meth_name
 
-      if file =~ /(\(.*\))|<.*>/ || file == ""
+      if file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e"
         output.puts "Cannot find local context. Did you use `binding.pry` ?"
         next
       end
@@ -313,7 +313,7 @@ e.g: gist -d my_method
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end
     
-    command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !@" do 
+    command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !!@" do 
       str = remove_first_word(opts[:val])
       throw(:breakout, [0, target.eval(str)])
     end
@@ -322,7 +322,6 @@ e.g: gist -d my_method
 
     command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
       options = {}
-      
       # Set target local to the default -- note that we can set a different target for
       # ls if we like: e.g ls my_var
       target = target()
@@ -393,6 +392,10 @@ Shows local and instance variables by default.
           options[:f] = true
         end
 
+        opts.on("--grep REG", "Regular expression to be used.") do |reg|
+          options[:grep] = Regexp.new(reg)
+        end
+
         opts.on_tail("-h", "--help", "Show this message.") do
           output.puts opts
           options[:h] = true
@@ -410,12 +413,15 @@ Shows local and instance variables by default.
                        :l => true,
                        :i => true,
                        :k => true
-                     }) if options.empty? || (options.size == 1 && options[:v])
+                     }) if options.empty? || (options.size == 1 && options[:v]) || (options.size == 1 && options[:grep])
+
+      options[:grep] = // if !options[:grep]
+
 
       # Display public methods by default if -m or -M switch is used.
       options[:P] = true if (options[:m] || options[:M]) && !(options[:p] || options[:r] || options[:j])
       
-      info = {}
+      info = {} 
       target_self = target.eval('self')
 
       # ensure we have a real boolean and not a `nil` (important when
@@ -469,10 +475,11 @@ Shows local and instance variables by default.
         info.sort_by { |k, v| v.last }.each do |k, v|
           if !v.first.empty?
             text <<  "#{k}:\n--\n"
+            filtered_list = v.first.grep options[:grep]
             if Pry.color
-              text << CodeRay.scan(Pry.view(v.first), :ruby).term + "\n"
+              text << CodeRay.scan(Pry.view(filtered_list), :ruby).term + "\n"
             else
-              text << Pry.view(v.first) + "\n"
+              text << Pry.view(filtered_list) + "\n"
             end
             text << "\n\n"
           end
@@ -487,6 +494,7 @@ Shows local and instance variables by default.
       # plain
       else
         list = info.values.sort_by(&:last).map(&:first).inject(&:+)
+        list = list.grep(options[:grep]) if list
         list.uniq! if list
         if Pry.color
           text << CodeRay.scan(Pry.view(list), :ruby).term + "\n"
