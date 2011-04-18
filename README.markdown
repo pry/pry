@@ -1,5 +1,4 @@
-![Alt text](http://dl.dropbox.com/u/26521875/pry_logo.png)
-![Alt text](http://dl.dropbox.com/u/26521875/Solid%20Light%20%281%29.png)
+![Alt text](![Alt text](http://dl.dropbox.com/u/26521875/pry_logo2.png)
  
 (C) John Mair (banisterfiend) 2011
 
@@ -97,9 +96,7 @@ Example: Runtime invocation
 
 Pry can be invoked in the middle of a running program. It opens a Pry
 session at the point it’s called and makes all program state at that
-point available.
-
-When the session ends the program continues with any
+point available. When the session ends the program continues with any
 modifications you made to it.
 
 This functionality can be used for such things as: debugging,
@@ -136,7 +133,7 @@ Pry session:
     => nil
     pry(main)> exit
 
-    # program resumes here.
+    program resumes here.
     
 
 Features and limitations
