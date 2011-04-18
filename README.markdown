@@ -8,7 +8,7 @@ Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
 these include:
 
-* Syntax higlighting
+* Syntax highlighting
 * Navigation around state (`cd`, `ls` and friends)
 * Runtime invocation
 * Command shell integration
@@ -17,7 +17,7 @@ these include:
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
-* Many convenience commands inspired by IPython and SLIME
+* Many convenience commands inspired by IPython and other advanced REPLs
 
 
 Pry is also fairly flexible and allows significant user
@@ -46,81 +46,29 @@ Pry, then:
 2. Run the test: `gem test pry`
 3. Finally choose 'Yes' to upload the results. 
 
-Example: Interacting with an object at runtime
+Example: Navigating around state
 ---------------------------------------
 
-With the `Object#pry` method we can pry (open an irb-like session) on
-an object. In the example below we open a Pry session for the `Test` class and execute a method and add
-an instance variable. The current thread is taken over by the Pry REPL loop for the duration of the session.
-
-    require 'pry'
-
-    class Test
-      def self.hello() "hello world" end
-    end
-
-    Test.pry
-
-    # Pry session begins on stdin
-    Beginning Pry session for Test
-    pry(Test)> self
-    => Test
-    pry(Test)> hello
-    => "hello world"
-    pry(Test)> @y = 20
-    => 20
-    pry(Test)> exit
-    Ending Pry session for Test
-
-    # program resumes here
-
-If we now inspect the `Test` object we can see our changes have had
-effect:
-
-    Test.instance_variable_get(:@y) #=> 20
-
-### Alternative Syntax
-
-You can also use the `Pry.start(obj)` or `pry(obj)` syntax to start a pry session on
-`obj`. e.g
-
-    Pry.start(5)
-    Beginning Pry session for 5
-    pry(5)>
-
-OR
-
-    pry(6)
-    beginning Pry session for 6
-    pry(6)>
-
-Example: Pry sessions can nest
------------------------------------------------
+Pry allows us to pop in and out of different scopes (objects) using
+the `cd` command. To view what variables and methods are available
+within a particular scope we use the versatile `ls` command. 
 
 Here we will begin Pry at top-level, then pry on a class and then on
 an instance variable inside that class:
 
-    # Pry.start() without parameters begins a Pry session on top-level (main)
-    Pry.start
-    Beginning Pry session for main
     pry(main)> class Hello
     pry(main)*   @x = 20
     pry(main)* end
     => 20
     pry(main)> cd Hello
-    Beginning Pry session for Hello
-    pry(Hello):1> instance_variables
+    pry(Hello):1> ls -i
     => [:@x]
     pry(Hello):1> cd @x
-    Beginning Pry session for 20
     pry(20:2)> self + 10
     => 30
     pry(20:2)> cd ..
-    Ending Pry session for 20
     pry(Hello):1> cd ..
-    Ending Pry session for Hello
     pry(main)> cd ..
-    Ending Pry session for main
 
 The number after the `:` in the pry prompt indicates the nesting
 level. To display more information about nesting, use the `nesting`
@@ -142,21 +90,6 @@ the `jump-to` command:
     Ending Pry session for 100
     => 100
     pry(Hello):1>
-
-If we just want to go back one level of nesting we can of course
-use the `quit` or `exit` or `back` commands.
-
-To break out of all levels of Pry nesting and return immediately to the
-calling process use `exit-all`:
-
-    pry("friend":3)> exit-all
-    Ending Pry session for "friend"
-    Ending Pry session for 100
-    Ending Pry session for Hello
-    Ending Pry session for main
-    => main
-
-    # program resumes here
 
 Features and limitations
 ------------------------
