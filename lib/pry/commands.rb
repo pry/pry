@@ -2,6 +2,7 @@ direc = File.dirname(__FILE__)
 
 require "optparse"
 require "method_source"
+require 'slop'
 require 'rubygems/dependency_installer'
 require "#{direc}/command_base"
 require "#{direc}/pry_instance"
@@ -31,26 +32,23 @@ class Pry
     command "hist", "Show and replay Readline history" do |*args|
       hist_array = Readline::HISTORY.to_a
       
-      require 'slop'
       if args.empty?
         text = add_line_numbers(hist_array.join("\n"), 0)
         stagger_output(text)
         next
       end
 
-      opts = Slop.parse(args) do
-        banner "Usage: hist [-rSTART..END]"
-        on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |r|
-          options[:r].argument_value = r.to_i if r.is_a?(String)
-        end
-        on :h, :help, 'Show this message.', :tail => true do
-          output.puts help
+      opts = Slop.parse(args) do |opt|
+        opt.banner "Usage: hist [--replay START..END]\ne.g hist --replay 2..8"
+        opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range
+        opt.on :h, :help, 'Show this message.', :tail => true do
+          output.puts opt.help
         end        
       end
 
       next if opts.h?
 
-      actions = Array(hist_array[opts[:r]]).join("\n") + "\n"
+      actions = Array(hist_array[opts[:replay]]).join("\n") + "\n"
       Pry.active_instance.input = StringIO.new(actions)
     end
 
