@@ -36,6 +36,29 @@ class Pry
         end
       end
 
+      #
+      # Color helpers:
+      #   gray, red, green, yellow, blue, purple, cyan, white,
+      #   and bright_red, bright_green, etc...
+      #
+      # ANSI color codes:
+      #   \033 => escape
+      #     30 => color base
+      #      1 => bright
+      #      0 => normal
+      #
+      [ :gray, :red, :green, :yellow, :blue, :purple, :cyan, :white ].each_with_index do |color, i|
+        define_method "bright_#{color}" do |str|
+          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str 
+        end
+        
+        define_method color do |str|
+          Pry.color ? "\033[0;#{30+i}m#{str}\033[0m" : str
+        end
+      end
+      alias_method :magenta, :purple
+      alias_method :bright_magenta, :bright_purple
+      
       def bold(text)
         Pry.color ? "\e[1m#{text}\e[0m" : text
       end
