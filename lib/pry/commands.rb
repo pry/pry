@@ -532,7 +532,17 @@ Shows local and instance variables by default.
         list
       end
     end
-
+  
+    command "lls", "List local files using 'ls'" do |*args|
+      cmd = ".ls"
+      cmd << " --color=always" if Pry.color
+      run target, cmd, *args
+    end
+  
+    command "lcd", "Change the current (working) directory" do |*args|
+      run target, ".cd", *args
+    end
+    
     command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
