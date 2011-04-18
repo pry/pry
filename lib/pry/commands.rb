@@ -61,35 +61,33 @@ class Pry
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
 
-    command "gem", "gem stuff" do |*args|
-      if args.first == "install"
-        gem_name = args[1]
-        output.puts "Attempting to install gem: #{bold(gem_name)}"
-        begin
+    command "gem-install", "gem stuff" do |gem_name|
+      gem_home = Gem.instance_variable_get(:@gem_home)
+      output.puts "Attempting to install gem: #{bold(gem_name)}"
+      
+      begin
+        if File.writable?(gem_home)
           Gem::DependencyInstaller.new.install(gem_name)
           output.puts "Gem #{bold(gem_name)} successfully installed."
-        rescue Gem::GemNotFoundException
-          output.puts "Required Gem: #{bold(gem_name)} not found."
-          next
-        rescue Gem::FilePermissionError
-          output.puts "FilePermissionError, trying `sudo`..."
-          if system("sudo gem", *args)
+        else
+          if system("sudo gem install #{gem_name}")
             output.puts "Gem #{bold(gem_name)} successfully installed."
           else
             output.puts "Gem #{bold(gem_name)} could not be installed."
             next
           end
         end
-        
-        Gem.refresh
-        output.puts "Refreshed gem cache."
-      else
-        system "gem", *args
+      rescue Gem::GemNotFoundException
+        output.puts "Required Gem: #{bold(gem_name)} not found."
+        next
       end
+        
+      Gem.refresh
+      output.puts "Refreshed gem cache."
     end
 
     command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
-      system "ri", *args
+      run ".ri", *args
     end
 
     command "stat", "View method information and set _file_ and _dir_ locals" do |*args|
@@ -141,6 +139,12 @@ e.g: stat hello_method
       output.puts bold("Method Language: ") + code_type.to_s.capitalize
       output.puts bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
       output.puts bold("Method Arity: ") + meth.arity.to_s
+
+      name_map = { :req => "Required:", :opt => "Optional:", :rest => "Rest:" }
+      if meth.respond_to?(:parameters)
+        output.puts bold("Method Parameters: ") + meth.parameters.group_by(&:first).
+          map { |k, v| "#{name_map[k]} #{v.map { |kk, vv| vv ? vv.to_s : "noname" }.join(", ")}" }.join(". ")
+      end
       output.puts bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
     end
 
@@ -387,6 +391,10 @@ Shows local and instance variables by default.
           options[:v] = true
         end
 
+        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do 
+          options[:f] = true
+        end
+
         opts.on_tail("-h", "--help", "Show this message.") do
           output.puts opts
           options[:h] = true
@@ -454,20 +462,28 @@ Shows local and instance variables by default.
       info["constants"] = [Array(target_self.is_a?(Module) ? target.eval("constants(#{csuper})") :
                                  target.eval("self.class.constants(#{csuper})")).uniq.sort, i += 1] if options[:c] || options[:a]
 
+      text = ""
+
       # verbose output?
       if options[:v]
-
         # verbose
+        
         info.sort_by { |k, v| v.last }.each do |k, v|
           if !v.first.empty?
-            output.puts "#{k}:\n--"
+            text <<  "#{k}:\n--\n"
             if Pry.color
-              output.puts CodeRay.scan(Pry.view(v.first), :ruby).term
+              text << CodeRay.scan(Pry.view(v.first), :ruby).term + "\n"
             else
-              output.puts Pry.view(v.first)
+              text << Pry.view(v.first) + "\n"
             end
-            output.puts
+            text << "\n\n"
           end
+        end
+
+        if !options[:f]
+          stagger_output(text)
+        else
+          output.puts text
         end
 
       # plain
@@ -475,9 +491,14 @@ Shows local and instance variables by default.
         list = info.values.sort_by(&:last).map(&:first).inject(&:+)
         list.uniq! if list
         if Pry.color
-          output.puts CodeRay.scan(Pry.view(list), :ruby).term
+          text << CodeRay.scan(Pry.view(list), :ruby).term + "\n"
         else
-          output.puts Pry.view(list)
+          text <<  Pry.view(list) + "\n"
+        end
+        if !options[:f]
+          stagger_output(text)
+        else
+          output.puts text
         end
         list
       end
