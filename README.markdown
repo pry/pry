@@ -1,5 +1,5 @@
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo.png)
-
+![Alt text](http://dl.dropbox.com/u/26521875/Solid%20Light%20%281%29.png)
  
 (C) John Mair (banisterfiend) 2011
 
