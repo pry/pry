@@ -265,7 +265,7 @@ e.g: gist -d my_method
     end
 
     
-    command "require", "Require gem(s)" do |*gems|
+    command "require", "Requires gem(s). No need for quotes! (If the gem isn't installed, it will ask if you want to install it.)" do |*gems|
       gems = gems.join(' ').gsub(',', '').split(/\s+/)
       gems.each do |gem|
         begin
