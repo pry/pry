@@ -144,7 +144,7 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    show_result(result) if should_print?(result)
+    show_result(result) if should_print?
   end
 
   # Perform a read-eval
@@ -301,27 +301,20 @@ class Pry
         else
           input.readline
         end
-      rescue Exception => ex
+        
+      rescue EOFError
         self.input = Readline
         ""
-
-        # FIX ME!!!
-        # failing test is due to null_input?() being true for a
-        # command that doesn't return a value. This causes a EOFError
-        # exception for a 'rep' (as in test) as it makes the read loop
-        # redo and so it tries to read from a non-existent string
-        # binding.pry
       end
     end
   end
 
   # Whether the print proc should be invoked.
-  # Currently only invoked if the output is not suppressed OR the output
+  # Currently only invoked if the output is not suppressed OR the last result
   # is an exception regardless of suppression.
-  # @param [Object] result The result of evaluation stage of the REPL
   # @return [Boolean] Whether the print proc should be invoked.
-  def should_print?(result)
-    !@suppress_output || result.is_a?(Exception)
+  def should_print?
+    !@suppress_output || last_result_is_exception?
   end
 
   # Returns the appropriate prompt to use.
