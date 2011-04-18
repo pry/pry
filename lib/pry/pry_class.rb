@@ -49,7 +49,7 @@ class Pry
     #   Pry instances.
     attr_accessor :print
 
-    # @return [Proc] The Proc to use for printing by default by all
+    # @return [Proc] The Proc to use for printing exceptions by default by all
     #   Pry instances.
     attr_accessor :exception_handler
 
@@ -82,6 +82,10 @@ class Pry
     # Determines whether colored output is enabled.
     # @return [Boolean]
     attr_accessor :color
+
+    # Determines whether paging (of long blocks of text) is enabled.
+    # @return [Boolean]
+    attr_accessor :pager
 
     # Determines whether the rc file (~/.pryrc) should be loaded.
     # @return [Boolean]
@@ -213,6 +217,7 @@ class Pry
     @hooks = DEFAULT_HOOKS
     @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     @color = true
+    @pager = true
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
