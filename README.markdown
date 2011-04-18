@@ -1,4 +1,5 @@
-![Alt text](http://dl.dropbox.com/u/26521875/Solid%20Light%20%281%29.png)
+![Alt text](http://dl.dropbox.com/u/26521875/pry_logo.png)
+
  
 (C) John Mair (banisterfiend) 2011
 
@@ -10,7 +11,7 @@ these include:
 
 * Syntax highlighting
 * Navigation around state (`cd`, `ls` and friends)
-* Runtime invocation
+* Runtime invocation (use Pry as a developer console or debugger)
 * Command shell integration
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing 
@@ -90,6 +91,53 @@ the `jump-to` command:
     Ending Pry session for 100
     => 100
     pry(Hello):1>
+
+Example: Runtime invocation
+---------------------------------------
+
+Pry can be invoked in the middle of a running program. It opens a Pry
+session at the point it’s called and makes all program state at that
+point available.
+
+When the session ends the program continues with any
+modifications you made to it.
+
+This functionality can be used for such things as: debugging,
+implementing developer consoles, and applying hot patches.
+
+code:
+
+    # test.rb
+    require 'pry'
+    
+    class A
+      def hello() puts "hello world!" end
+    end
+    
+    a = A.new
+    
+    # start a REPL session
+    binding.pry
+    
+    # program resumes here (after pry session)
+    puts "program resumes here."
+
+Pry session:
+
+    pry(main)> a.hello
+    hello world!
+    => nil
+    pry(main)> def a.goodbye
+    pry(main)*   puts "goodbye cruel world!"
+    pry(main)* end
+    => nil
+    pry(main)> a.goodbye
+    goodbye cruel world!
+    => nil
+    pry(main)> exit
+
+    # program resumes here.
+    
 
 Features and limitations
 ------------------------
