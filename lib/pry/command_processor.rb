@@ -62,7 +62,19 @@ class Pry
 
       if cmd =~ /^cd\s+(.+)/i
         begin
-          Dir.chdir(File.expand_path($1))
+          @@cd_history ||= []
+          if $1 == "-"
+            dest = @@cd_history.pop || Dir.pwd
+          elsif $1 == "-h"
+            p [:hist, @@cd_history]
+            return
+          else
+            dest = File.expand_path($1)
+          end
+          
+          @@cd_history << Dir.pwd
+          Dir.chdir(dest)
+          output.puts "=> #{dest.inspect}"
         rescue Errno::ENOENT
           output.puts "No such directory: #{$1}"
         end
