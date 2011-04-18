@@ -285,14 +285,15 @@ class Pry
         
         default = defaults.first
         
-        output.print "#{message} (#{optstring}) "
-         
         loop do
-          case line = Pry.input.readline.downcase
+          response = Pry.input.readline("#{message} (#{optstring}) ").downcase
+          case response
           when *opts
-            return line
+            return response
           when ""
             return default.downcase
+          else
+            output.puts "  |_ Invalid option: #{response.inspect}. Try again."
           end
         end
       end

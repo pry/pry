@@ -270,9 +270,9 @@ e.g: gist -d my_method
       gems.each do |gem|
         begin
           if require gem
-            output.puts "#{gem.yellow} loaded"
+            output.puts "#{bright_yellow(gem)} loaded"
           else
-            output.puts "#{gem.white} already loaded"
+            output.puts "#{bright_white(gem)} already loaded"
           end
           
         rescue LoadError => e
@@ -280,7 +280,7 @@ e.g: gist -d my_method
           if gem_installed? gem
             output.puts e.inspect
           else
-            output.puts "#{gem.red} not found"
+            output.puts "#{bright_red(gem)} not found"
             if prompt("Install the gem?") == "y"
               run "gem", "install", gem
             end
