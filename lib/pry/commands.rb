@@ -59,6 +59,21 @@ class Pry
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
 
+    command "gem", "rrrrrrrrrubygems!" do |*args|
+      gem_home = Gem.instance_variable_get(:@gem_home)
+      
+      command = ["gem"] + args
+      command.unshift "sudo" unless File.writable?(gem_home)
+      
+      output.puts "Executing: #{bright_yellow command.join(' ')}"
+      if system(*command)
+        Gem.refresh
+        output.puts "Refreshed gem cache."
+      else
+        output.puts "Gem failed."
+      end
+    end
+    
     command "gem-install", "gem stuff" do |gem_name|
       gem_home = Gem.instance_variable_get(:@gem_home)
       output.puts "Attempting to install gem: #{bold(gem_name)}"
@@ -289,6 +304,8 @@ e.g: gist -d my_method
         end # rescue
       end # gems
     end    
+    
+    alias_command "req", "require", ""
     
     
     command "whereami", "Show the code context for the session. Shows AROUND lines around the invocation line. AROUND defaults to 5 lines. " do |num|
