@@ -6,15 +6,15 @@ class Pry
     SYSTEM_COMMAND_REGEX = /^#{Regexp.escape(SYSTEM_COMMAND_DELIMITER)}(.*)/
 
     extend Forwardable
-    
+
     attr_accessor :pry_instance
-    
+
     def initialize(pry_instance)
       @pry_instance = pry_instance
     end
 
     def_delegators :@pry_instance, :commands, :nesting, :output
-    
+
     # Is the string a command valid?
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid command.
@@ -59,7 +59,7 @@ class Pry
     def execute_system_command(val, target)
       SYSTEM_COMMAND_REGEX  =~ val
       cmd = interpolate_string($1, target)
-      
+
       if cmd =~ /^cd\s+(.+)/i
         begin
           Dir.chdir(File.expand_path($1))
@@ -73,7 +73,7 @@ class Pry
       # Tick, tock, im getting rid of this shit soon.
       val.replace("")
     end
-    
+
     # Determine whether a Pry command was matched and return command data
     # and argument string.
     # This method should not need to be invoked directly.
@@ -114,7 +114,7 @@ class Pry
       args = args_string ? Shellwords.shellwords(args_string) : []
       action = cmd_data[:action]
       keep_retval = cmd_data[:keep_retval]
-      
+
       options = {
         :val => val,
         :eval_string => eval_string,
@@ -157,7 +157,7 @@ class Pry
 
       # Tick, tock, im getting rid of this shit soon.
       options[:val].clear
-      
+
       ret_val
     end
   end

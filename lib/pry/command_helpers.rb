@@ -1,18 +1,18 @@
 class Pry
   class Commands < CommandBase
-    module CommandHelpers 
+    module CommandHelpers
 
       private
 
       def try_to_load_pry_doc
 
-        # YARD crashes on rbx, so do not require it 
+        # YARD crashes on rbx, so do not require it
         if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
           require "pry-doc"
         end
       rescue LoadError
       end
-      
+
       def meth_name_from_binding(b)
         meth_name = b.eval('__method__')
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
@@ -29,7 +29,7 @@ class Pry
         target.eval("_file_ = $_file_temp")
         target.eval("_dir_ = $_dir_temp")
       end
-   
+
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
@@ -110,7 +110,7 @@ class Pry
         if !meth_name
           return nil
         end
-        
+
         if options[:M]
           target.eval("instance_method(:#{meth_name})")
         elsif options[:m]
@@ -127,7 +127,7 @@ class Pry
           end
         end
       end
-      
+
       def make_header(meth, code_type, content)
         num_lines = "Number of lines: #{bold(content.each_line.count.to_s)}"
         case code_type
@@ -147,11 +147,11 @@ class Pry
       def should_use_pry_doc?(meth)
         Pry.has_pry_doc && is_a_c_method?(meth)
       end
-      
+
       def code_type_for(meth)
         # only C methods
         if should_use_pry_doc?(meth)
-          info = Pry::MethodInfo.info_for(meth) 
+          info = Pry::MethodInfo.info_for(meth)
           if info && info.source
             code_type = :c
           else
@@ -169,7 +169,7 @@ class Pry
         end
         code_type
       end
-      
+
       def file_map
         {
           [".c", ".h"] => :c,
@@ -188,7 +188,7 @@ class Pry
           ".json" => :json
         }
       end
-      
+
       def syntax_highlight_by_file_type_or_specified(contents, file_name, file_type)
         _, language_detected = file_map.find do |k, v|
           Array(k).any? do |matcher|
@@ -205,7 +205,7 @@ class Pry
       def normalized_line_number(line_number, total_lines)
         line_number < 0 ? line_number + total_lines : line_number
       end
-      
+
       # returns the file content between the lines and the normalized
       # start and end line numbers.
       def read_between_the_lines(file_name, start_line, end_line)
@@ -280,11 +280,11 @@ class Pry
         optstring = opts.join("/") # case maintained
         defaults  = opts.select{|o| o.upcase == o }
         opts      = opts.map{|o| o.downcase}
-        
+
         raise "Error: Too many default values for the prompt: #{default.inspect}" if defaults.size > 1
-        
+
         default = defaults.first
-        
+
         loop do
           response = Pry.input.readline("#{message} (#{optstring}) ").downcase
           case response
@@ -297,7 +297,7 @@ class Pry
           end
         end
       end
-      
+
     end
   end
 end
