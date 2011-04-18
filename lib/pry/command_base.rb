@@ -95,6 +95,7 @@ class Pry
         if command_processor.system_command?(name)
           command_processor.execute_system_command("#{name} #{args.join(' ')}", target)
         else
+          raise "#{name.inspect} is not a valid pry command." unless opts[:commands].include? name
           action = opts[:commands][name][:action]
           instance_exec(*args, &action)
         end
