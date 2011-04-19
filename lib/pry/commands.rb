@@ -670,8 +670,8 @@ e.g show-doc hello_method
 
       meth_name = args.shift
       if meth_name
-        if meth_name.include?('#') && !opts.context?
-          context, meth_name = meth_name.split '#', 2
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
+          context, meth_name = $1, $2
           target = Pry.binding_for(target.eval(context))
         end
       else
@@ -723,8 +723,8 @@ e.g: show-method hello_method
 
       meth_name = args.shift
       if meth_name
-        if meth_name.include?('#') && !opts.context?
-          context, meth_name = meth_name.split '#', 2
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
+          context, meth_name = $1, $2
           target = Pry.binding_for(target.eval(context))
         end
       else
