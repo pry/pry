@@ -673,43 +673,36 @@ e.g: eval-file -c self "hello.rb"
     end
 
     command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
-      options = {}
       target = target()
-      meth_name = nil
 
-      OptionParser.new do |opts|
-        opts.banner = %{Usage: show-doc [OPTIONS] [METH]
+      opts = Slop.parse!(args) do |opts|
+        opts.banner %{Usage: show-doc [OPTIONS] [METH]
 Show the comments above method METH. Tries instance methods first and then methods by default.
 e.g show-doc hello_method
 --
 }
-        opts.on("-M", "--instance-methods", "Operate on instance methods.") do
-          options[:M] = true
-        end
-
-        opts.on("-m", "--methods", "Operate on methods.") do
-          options[:m] = true
-        end
-
-        opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
-          target = Pry.binding_for(target.eval(context))
-        end
-
-        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do
-          options[:f] = true
-        end
-
-        opts.on_tail("-h", "--help", "This message.") do
+        opts.on :M, "instance-methods", "Operate on instance methods."
+        opts.on :m, :methods, "Operate on methods."
+        opts.on :c, :context, "Select object context to run under.", true
+        opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
+        opts.on :h, :help, "This message." do
           output.puts opts
-          options[:h] = true
         end
-      end.order(args) do |v|
-        meth_name = v
       end
 
-      next if options[:h]
+      next if opts.help?
 
-      if (meth = get_method_object(meth_name, target, options)).nil?
+      meth_name = args.shift
+      if meth_name
+        if meth_name.include?('#') && !opts.context?
+          context, meth_name = meth_name.split '#', 2
+          target = Pry.binding_for(target.eval(context))
+        end
+      else
+        meth_name = meth_name_from_binding(target)
+      end
+
+      if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
         next
       end
@@ -723,7 +716,7 @@ e.g show-doc hello_method
 
       output.puts make_header(meth, code_type, doc)
 
-      render_output(options[:f], false, doc)
+      render_output(opts.flood?, false, doc)
       doc
     end
 
