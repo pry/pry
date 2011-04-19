@@ -683,7 +683,9 @@ e.g show-doc hello_method
 }
         opts.on :M, "instance-methods", "Operate on instance methods."
         opts.on :m, :methods, "Operate on methods."
-        opts.on :c, :context, "Select object context to run under.", true
+        opts.on :c, :context, "Select object context to run under.", true do |context|
+          target = Pry.binding_for(target.eval(context))
+        end
         opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
         opts.on :h, :help, "This message." do
           output.puts opts
@@ -735,7 +737,9 @@ e.g: show-method hello_method
         opts.on :M, "instance-methods", "Operate on instance methods."
         opts.on :m, :methods, "Operate on methods."
         opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
-        opts.on :c, :context, "Select object context to run under.", true
+        opts.on :c, :context, "Select object context to run under.", true do |context|
+          target = Pry.binding_for(target.eval(context))
+        end
         opts.on :h, :help, "This message." do
           output.puts opts
         end
