@@ -25,7 +25,7 @@ class Pry
       Pry.start(target)
     end
 
-    # this cannot be accessed, it's just for help purposed.
+    # this cannot be accessed, it's just for help purposes.
     command ".<shell command>", "All text following a '.' is forwarded to the shell." do
     end
 
@@ -58,21 +58,6 @@ class Pry
 
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
-
-    #command "gem", "rrrrrrrrrubygems!" do |*args|
-    #  gem_home = Gem.instance_variable_get(:@gem_home)
-    #
-    #  command = ["gem"] + args
-    #  command.unshift "sudo" unless File.writable?(gem_home)
-    #
-    #  output.puts "Executing: #{bright_yellow command.join(' ')}"
-    #  if system(*command)
-    #    Gem.refresh
-    #    output.puts "Refreshed gem cache."
-    #  else
-    #    output.puts "Gem failed."
-    #  end
-    #end
 
     command "gem-install", "Install a gem" do |gem_name|
       gem_home = Gem.instance_variable_get(:@gem_home)
@@ -540,7 +525,7 @@ Shows local and instance variables by default.
       run ".cd", *args
     end
 
-    command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
+    command "cat", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
       start_line = 0
@@ -548,9 +533,9 @@ Shows local and instance variables by default.
       file_type = nil
 
       OptionParser.new do |opts|
-        opts.banner = %{Usage: cat-file [OPTIONS] FILE
+        opts.banner = %{Usage: cat [OPTIONS] FILE
 Cat a file. Defaults to displaying whole file. Syntax highlights file if type is recognized.
-e.g: cat-file hello.rb
+e.g: cat hello.rb
 --
 }
         opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
@@ -644,17 +629,6 @@ e.g: eval-file -c self "hello.rb"
       new_constants = Object.constants - old_constants
       output.puts "Brought in the following top-level constants: #{new_constants.inspect}" if !new_constants.empty?
     end
-
-    command "cat", "Show output of VAR.inspect. Aliases: inspect" do |obj|
-      if !obj
-        output.puts "Must provide an object to inspect."
-        next
-      end
-
-      output.puts Pry.view(target.eval("#{obj}"))
-    end
-
-    alias_command "inspect", "cat", ""
 
     command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|
       if !obj
