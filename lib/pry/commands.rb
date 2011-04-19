@@ -529,17 +529,17 @@ Shows local and instance variables by default.
         list
       end
     end
-  
+
     command "lls", "List local files using 'ls'" do |*args|
       cmd = ".ls"
       cmd << " --color=always" if Pry.color
       run cmd, *args
     end
-  
+
     command "lcd", "Change the current (working) directory" do |*args|
       run ".cd", *args
     end
-    
+
     command "cat-file", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
       options= {}
       file_name = nil
@@ -730,49 +730,37 @@ e.g show-doc hello_method
     alias_command "?", "show-doc", ""
 
     command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
-      options = {}
       target = target()
-      meth_name = nil
 
-      OptionParser.new do |opts|
-        opts.banner = %{Usage: show-method [OPTIONS] [METH]
+      opts = Slop.parse!(args) do |opts|
+        opts.banner %{Usage: show-method [OPTIONS] [METH]
 Show the source for method METH. Tries instance methods first and then methods by default.
 e.g: show-method hello_method
 --
 }
-        opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
-          options[:l] = true
-        end
-
-        opts.on("-M", "--instance-methods", "Operate on instance methods.") do
-          options[:M] = true
-        end
-
-        opts.on("-m", "--methods", "Operate on methods.") do
-          options[:m] = true
-        end
-
-        opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do
-          options[:f] = true
-        end
-
-        opts.on("-c", "--context CONTEXT", "Select object context to run under.") do |context|
-          target = Pry.binding_for(target.eval(context))
-        end
-
-        opts.on_tail("-h", "--help", "This message.") do
+        opts.on :l, "line-numbers", "Show line numbers."
+        opts.on :M, "instance-methods", "Operate on instance methods."
+        opts.on :m, :methods, "Operate on methods."
+        opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
+        opts.on :c, :context, "Select object context to run under.", true
+        opts.on :h, :help, "This message." do
           output.puts opts
-          options[:h] = true
         end
-      end.order(args) do |v|
-        meth_name = v
       end
 
-      next if options[:h]
+      next if opts.help?
 
-      meth_name = meth_name_from_binding(target) if !meth_name
+      meth_name = args.shift
+      if meth_name
+        if meth_name.include?('#') && !opts.context?
+          context, meth_name = meth_name.split '#', 2
+          target = Pry.binding_for(target.eval(context))
+        end
+      else
+        meth_name = meth_name_from_binding(target)
+      end
 
-      if (meth = get_method_object(meth_name, target, options)).nil?
+      if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
         next
       end
@@ -786,11 +774,11 @@ e.g: show-method hello_method
       end
 
       start_line = false
-      if options[:l]
+      if opts.l?
         start_line = meth.source_location ? meth.source_location.last : 1
       end
 
-      render_output(options[:f], start_line, code)
+      render_output(opts.flood?, start_line, code)
       code
     end
 
