@@ -71,7 +71,7 @@ class Pry
           
           @@cd_history << Dir.pwd
           Dir.chdir(dest)
-          output.puts "=> #{dest.inspect}"
+          output.puts "=> #{dest}"
         rescue Errno::ENOENT
           output.puts "No such directory: #{dest}"
         end
