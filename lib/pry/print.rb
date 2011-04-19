@@ -1,7 +1,9 @@
+require "awesome_print"
+
 class Pry
   DEFAULT_PRINT = proc do |output, value|
     if Pry.color
-      output.puts "=> #{CodeRay.scan(Pry.view(value), :ruby).term}"
+      output.puts "=> #{value.ai}"#"#{CodeRay.scan(Pry.view(value), :ruby).term}"
     else
       output.puts "=> #{Pry.view(value)}"
     end

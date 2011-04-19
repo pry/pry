@@ -1,5 +1,4 @@
-![Alt text](http://dl.dropbox.com/u/26521875/pry_logo2.png)
- 
+![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_shade.png)
 (C) John Mair (banisterfiend) 2011
 
 _Get to the code_
@@ -50,7 +49,7 @@ Example: Navigating around state
 ---------------------------------------
 
 Pry allows us to pop in and out of different scopes (objects) using
-the `cd` command. To view what variables and methods are available
+the `cd` command. To view which variables and methods are available
 within a particular scope we use the versatile `ls` command. 
 
 Here we will begin Pry at top-level, then pry on a class and then on
@@ -100,7 +99,7 @@ point available. When the session ends the program continues with any
 modifications you made to it.
 
 This functionality can be used for such things as: debugging,
-implementing developer consoles, and applying hot patches.
+implementing developer consoles and applying hot patches.
 
 code:
 
@@ -134,7 +133,32 @@ Pry session:
     pry(main)> exit
 
     program resumes here.
-    
+
+Command Shell Integration
+--------------------------
+
+A line of input that begins with a '.' will be forwarded to the
+command shell. This enables us to navigate the file system, spawn
+an editor, and run git and rake directly from within Pry.
+
+Further, we can use the `shell-mode` command to incorporate the
+present working directory into the Pry prompt and bring in (very
+limited at this stage, sorry) file name completion.
+We can also interpolate Ruby code directly into the shell by
+using the normal `#{}` string interpolation syntax.
+
+
+
+
+
+In the code below we're going to switch to `shell-mode` and use the
+`gem-cd` command to enter the home directory for a gem and examine
+some of the files there, we will also show off some interpolation.
+
+
+
+
+
 
 Features and limitations
 ------------------------

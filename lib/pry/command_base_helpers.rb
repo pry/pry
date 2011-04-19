@@ -4,7 +4,7 @@ class Pry
 
       private
 
-      def gem_installed?(gem_name)
+     def gem_installed?(gem_name)
         require 'rubygems'
         !!Gem.source_index.find_name(gem_name).first
       end
@@ -94,8 +94,9 @@ class Pry
           return
         end
         lesspipe { |less| less.puts text }
-      rescue Exception
+      rescue Errno::ENOENT
         simple_pager(text)
+      rescue Errno::EPIPE
       end
       
       #
