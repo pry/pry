@@ -276,7 +276,7 @@ e.g: gist -d my_method
           else
             output.puts "#{bright_red(gem)} not found"
             if prompt("Install the gem?") == "y"
-              run "gem", "install", gem
+              run "gem-install", gem
             end
           end
 
