@@ -9,61 +9,46 @@ rescue LoadError
   require 'rubygems'
   require 'pry'
 end
-require 'optparse'
 
-# defaults
-options = {
-  :context_string => "TOPLEVEL_BINDING",
-  :loadrc => true
-}
-
-OptionParser.new do |opts|
-  opts.banner = %{Usage: pry [OPTIONS] 
+opts = Slop.parse do
+  banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See: `https://github.com/banister` for more information.
 --
 }
-  opts.on("-r", "--require FILE", "`require` a Ruby script at startup.") do |file|
-    require file
-  end
 
-  opts.on("-e", "--exec CODE", "A line of Ruby code to execute in context before the session starts.") do |code|
-    options[:code] = code
-  end
+  on :e, :exec, "A line of code to execute in context before the session starts", true
+  on :f, "Surpress loading of ~/.pryrc"
+  on "no-color", "Disable syntax highlighting for session"
 
-  opts.on("-f", "Suppress loading of ~/.pryrc") do 
-    options[:loadrc] = false
-  end
-
-  opts.on("--no-color", "Start session without syntax highlighting.") do 
-    Pry.color = false
-  end
-
-  opts.on("--simple-prompt", "Simple prompt mode.") do 
+  on "simple-prompt", "Enable simple prompt mode" do
     Pry.prompt = Pry::SIMPLE_PROMPT
   end
 
-  opts.on("-I LOADPATH", "Specify $LOAD_PATH directory.") do  |load_path|
-    $LOAD_PATH << load_path
+  on :r, :require, "`require` a Ruby script at startup", true do |file|
+    require file
   end
 
-  opts.on("-v", "--version", "Display the Pry version.") do
+  on :I, "Add a path to the $LOAD_PATH", true do |path|
+    $LOAD_PATH << path
+  end
+
+  on :v, :version, "Display the Pry version" do
     puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
     exit
   end
 
-  opts.on("-c", "--context CONTEXT",
-          "Start the session in the specified context. Equivalent to `context.pry` in a session.") do |context|
+  on(:c, :context,
+    "Start the session in the specified context. Equivalent to `context.pry` in a session.",
+    true,
+    :default => "TOPLEVEL_BINDING"
+    )
 
-    # save the context name
-    options[:context_string] = context
-  end
-
-  opts.on_tail("-h", "--help", "This message.") do 
-    puts opts
+  on :h, :help, "This message" do
+    puts help
     exit
   end
-end.parse!
+end
 
 # invoked via cli
 Pry.cli = true
@@ -76,14 +61,14 @@ class Pry::Commands
 end
 
 # load ~/.pryrc, if not suppressed with -f option
-Pry.should_load_rc = false if !options[:loadrc]
+Pry.should_load_rc = !opts.f?
 
 # create the actual context
-context = Pry.binding_for(eval(options[:context_string]))
+context = Pry.binding_for(eval(opts[:context]))
 
 # run code passed with `-e`, if there is any.
-if options[:code]
-  Pry.new(:input => StringIO.new(options[:code]), :print => proc {}).rep(context)
+if opts.exec?
+  Pry.new(:input => StringIO.new(opts[:exec]), :print => proc {}).rep(context)
 end
 
 # start the session
