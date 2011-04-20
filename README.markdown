@@ -1,4 +1,5 @@
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_shade.png)
+
 (C) John Mair (banisterfiend) 2011
 
 _Get to the code_
@@ -147,16 +148,32 @@ limited at this stage, sorry) file name completion.
 We can also interpolate Ruby code directly into the shell by
 using the normal `#{}` string interpolation syntax.
 
-
-
-
-
 In the code below we're going to switch to `shell-mode` and use the
 `gem-cd` command to enter the home directory for a gem and examine
-some of the files there, we will also show off some interpolation.
+some of the files there: 
 
+    pry(main)> shell-mode 
+    pry main:/home/john/ruby/projects/pry $ .ls
+    bin  CHANGELOG	examples  lib  LICENSE	pkg  Rakefile  README.markdown  TAGS  test  TODO  wiki
+    pry main:/home/john/ruby/projects/pry $ gem-cd yard
+    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4 $ .ls
+    benchmarks  bin  ChangeLog  docs  LEGAL  lib  LICENSE  Rakefile  README.md  spec  templates
+    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4 $ .cd lib
+    => /home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib
+    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .ls
+    rubygems_plugin.rb  yard  yard.rb
+    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .emacsclient yard.rb &
+    
+We can also interpolate Ruby code into the Shell commands. In the
+example below we use the shell command `cat` on a random file from the
+current directory and count the number of lines in that file with
+`wc`:
 
+    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .cat #{Dir['*.*'].sample} | wc -l
+    54
 
+Code Browsing
+---------------
 
 
 
