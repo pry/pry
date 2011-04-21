@@ -46,14 +46,13 @@ Pry, then:
 2. Run the test: `gem test pry`
 3. Finally choose 'Yes' to upload the results. 
 
-Example: Navigating around state
----------------------------------------
+### Navigating around state
 
 Pry allows us to pop in and out of different scopes (objects) using
 the `cd` command. To view which variables and methods are available
-within a particular scope we use the versatile `ls` command. 
+within a particular scope we use the versatile [ls command.](https://gist.github.com/c0fc686ef923c8b87715)
 
-Here we will begin Pry at top-level, then pry on a class and then on
+Here we will begin Pry at top-level, then Pry on a class and then on
 an instance variable inside that class:
 
     pry(main)> class Hello
@@ -91,8 +90,7 @@ the `jump-to` command:
     => 100
     pry(Hello):1>
 
-Example: Runtime invocation
----------------------------------------
+### Runtime invocation
 
 Pry can be invoked in the middle of a running program. It opens a Pry
 session at the point it’s called and makes all program state at that
@@ -135,46 +133,96 @@ Pry session:
 
     program resumes here.
 
-Command Shell Integration
---------------------------
+### Command Shell Integration
 
 A line of input that begins with a '.' will be forwarded to the
 command shell. This enables us to navigate the file system, spawn
-an editor, and run git and rake directly from within Pry.
+editors, and run git and rake directly from within Pry.
 
 Further, we can use the `shell-mode` command to incorporate the
-present working directory into the Pry prompt and bring in (very
-limited at this stage, sorry) file name completion.
+present working directory into the Pry prompt and bring in (limited at this stage, sorry) file name completion.
 We can also interpolate Ruby code directly into the shell by
 using the normal `#{}` string interpolation syntax.
 
-In the code below we're going to switch to `shell-mode` and use the
-`gem-cd` command to enter the home directory for a gem and examine
-some of the files there: 
-
-    pry(main)> shell-mode 
-    pry main:/home/john/ruby/projects/pry $ .ls
-    bin  CHANGELOG	examples  lib  LICENSE	pkg  Rakefile  README.markdown  TAGS  test  TODO  wiki
-    pry main:/home/john/ruby/projects/pry $ gem-cd yard
-    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4 $ .ls
-    benchmarks  bin  ChangeLog  docs  LEGAL  lib  LICENSE  Rakefile  README.md  spec  templates
-    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4 $ .cd lib
-    => /home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib
-    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .ls
-    rubygems_plugin.rb  yard  yard.rb
-    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .emacsclient yard.rb &
+In the code below we're going to switch to `shell-mode` and edit the
+.pryrc file in the home directory. We'll then cat its contents and
+reload the file.
     
-We can also interpolate Ruby code into the Shell commands. In the
+    pry(main)> shell-mode   
+    pry main:/home/john/ruby/projects/pry $ .cd ~
+    => /home/john
+    pry main:/home/john $ .emacsclient .pryrc
+    pry main:/home/john $ .cat .pryrc
+    def hello_world
+      puts "hello world!"
+    end
+    pry main:/home/john $ load ".pryrc"
+    => true
+    pry main:/home/john $ hello_world 
+    hello world!
+
+We can also interpolate Ruby code into the shell. In the
 example below we use the shell command `cat` on a random file from the
 current directory and count the number of lines in that file with
 `wc`:
 
-    pry main:/home/john/.rvm/gems/ruby-1.9.2-head/gems/yard-0.6.4/lib $ .cat #{Dir['*.*'].sample} | wc -l
-    54
+    pry main:/home/john $ .cat #{Dir['*.*'].sample} | wc -l
+    44
+    
+### Code Browsing
 
-Code Browsing
----------------
+You can browse method source code with the `show-method` command. Nearly all Ruby methods (and some C methods, with the pry-doc
+gem) can have their source viewed. Code that is longer than a page is
+sent through a pager (such as less), and all code is properly syntax
+highlighted (even C code).
 
+The `show-method` command accepts two syntaxes, the typical ri
+`Class#method` syntax and also simply the name of a method that's in
+scope. You can optionally pass the `-l` option to show-method to
+include line numbers in the output.
+
+In the following example we will enter the `Pry` class, list the
+instance methods beginning with 're' and display the source code for the `rep` method:
+    
+    pry(main)> cd Pry
+    pry(Pry):1> ls -M --grep ^re
+    [:re, :readline, :rep, :repl, :repl_epilogue, :repl_prologue, :retrieve_line]
+    pry(Pry):1> show-method rep -l
+    
+    From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
+    Number of lines: 6
+    
+    143: def rep(target=TOPLEVEL_BINDING)
+    144:   target = Pry.binding_for(target)
+    145:   result = re(target)
+    146: 
+    147:   show_result(result) if should_print?
+    148: end
+
+Note that we can also view C methods (from Ruby Core) using the
+`pry-doc` gem; we also show off the alternate syntax for
+`show-method`:
+    
+    pry(main)> show-method Array#select
+    
+    From: array.c in Ruby Core (C Method):
+    Number of lines: 15
+        
+    static VALUE
+    rb_ary_select(VALUE ary)
+    {
+        VALUE result;
+        long i;
+    
+        RETURN_ENUMERATOR(ary, 0, 0);
+        result = rb_ary_new2(RARRAY_LEN(ary));
+        for (i = 0; i < RARRAY_LEN(ary); i++) {
+        if (RTEST(rb_yield(RARRAY_PTR(ary)[i]))) {
+            rb_ary_push(result, rb_ary_elt(ary, i));
+        }
+        }
+        return result;
+    }
 
 
 Features and limitations
@@ -336,8 +384,7 @@ features, see the `examples/` directory.
 * `example_commands_override.rb` - An advanced `commands` example.
 * `example_image_edit.rb`        - A simple image editor using a Pry REPL (requires `Gosu` and `TexPlay` gems).
 
-Customizing Pry
----------------
+### Customizing Pry
 
 Pry allows a large degree of customization. 
 
