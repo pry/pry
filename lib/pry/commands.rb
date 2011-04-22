@@ -143,7 +143,7 @@ e.g: stat hello_method
       output.puts bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
     end
 
-    command "gist-method", "Gist a method to github.", :requires_gem => "gist" do |*args|
+    command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
       opts = Slop.parse!(args) do |opts|
         opts.banner = %{Usage: gist-method [OPTIONS] [METH]
 Gist the method (doc or source) to github.
@@ -553,7 +553,7 @@ Shows local and instance variables by default.
       run ".cd", *args
     end
 
-    command "cat", "Show output of file FILE. Type `cat-file --help` for more information." do |*args|
+    command "cat", "Show output of file FILE. Type `cat --help` for more information." do |*args|
       options= {}
       file_name = nil
       start_line = 0
