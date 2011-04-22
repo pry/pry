@@ -269,6 +269,26 @@ e.g: gist -d my_method
       end # gems
     end
 
+
+    command "gems", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |arg|
+      gems = Gem.source_index.gems.values.group_by(&:name)
+      if arg
+        query = Regexp.new(arg, Regexp::IGNORECASE)
+        gems = gems.select { |gemname, specs| gemname =~ query }
+      end
+
+      gems.each do |gemname, specs|
+        versions = specs.map(&:version).sort.reverse.map(&:to_s)
+        versions = ["<bright_green>#{versions.first}</bright_green>"] +
+                   versions[1..-1].map{|v| "<green>#{v}</green>" }
+
+        gemname = highlight(gemname, query) if query
+        result = "<white>#{gemname} <grey>(#{versions.join ', '})</grey>"
+        output.puts colorize(result)
+      end
+    end
+
+
     command "whereami", "Show the code context for the session. Shows AROUND lines around the invocation line. AROUND defaults to 5 lines. " do |num|
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')

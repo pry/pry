@@ -2,7 +2,7 @@ class Pry
   class CommandBase
     module CommandBaseHelpers
 
-      private
+     private
 
      def gem_installed?(gem_name)
         require 'rubygems'
@@ -47,7 +47,7 @@ class Pry
       #      1 => bright
       #      0 => normal
       #
-      [ :gray, :red, :green, :yellow, :blue, :purple, :cyan, :white ].each_with_index do |color, i|
+      [ :black, :red, :green, :yellow, :blue, :purple, :cyan, :white ].each_with_index do |color, i|
         define_method "bright_#{color}" do |str|
           Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
         end
@@ -58,9 +58,64 @@ class Pry
       end
       alias_method :magenta, :purple
       alias_method :bright_magenta, :bright_purple
+      alias_method :grey, :bright_black
+      alias_method :gray, :bright_black
 
       def bold(text)
         Pry.color ? "\e[1m#{text}\e[0m" : text
+      end
+
+      #
+      # Colorize a string that has "color tags".
+      #
+      # Examples:
+      #    puts colorize("<light_green><magenta>*</magenta> Hey mom! I am <light_blue>SO</light_blue> colored right now.</light_green>")
+      #
+      def colorize(string)
+        stack = []
+
+        # split the string into tags and literal strings
+        tokens          = string.split(/(<\/?[\w\d_]+>)/)
+        tokens.delete_if { |token| token.size == 0 }
+
+        result        = ""
+
+        tokens.each do |token|
+
+          # token is an opening tag!
+
+          if /<([\w\d_]+)>/ =~ token and respond_to?($1) #valid_tag?($1)
+            stack.push $1
+
+          # token is a closing tag!
+
+          elsif /<\/([\w\d_]+)>/ =~ token and respond_to?($1) # valid_tag?($1)
+
+            # if this color is on the stack somwehere...
+            if pos = stack.rindex($1)
+              # close the tag by removing it from the stack
+              stack.delete_at pos
+            else
+              raise "Error: tried to close an unopened color tag -- #{token}"
+            end
+
+          # token is a literal string!
+
+          else
+
+            color = (stack.last || "white")
+            #color = BBS_COLOR_TABLE[color.to_i] if color =~ /^\d+$/
+            result << send(color, token) # colorize the result
+
+          end
+
+        end
+
+        result
+      end
+
+      def highlight(string, regexp, highlight_color=:bright_yellow)
+        highlighted = string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
       end
 
       # formatting
@@ -98,7 +153,7 @@ class Pry
         simple_pager(text)
       rescue Errno::EPIPE
       end
-      
+
       #
       # Create scrollable output via less!
       #
@@ -115,7 +170,7 @@ class Pry
       # * Allow colour
       # * Don't wrap lines longer than the screen
       # * Quit immediately (without paging) if there's less than one screen of text.
-      # 
+      #
       # You can change these options by passing a hash to `lesspipe`, like so:
       #
       #   lesspipe(:wrap=>false) { |less| less.puts essay.to_s }
