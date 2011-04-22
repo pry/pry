@@ -266,11 +266,11 @@ e.g: gist -d my_method
           end
 
         end # rescue
-      end # gems
+      end # gems.each
     end
 
 
-    command "gems", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |arg|
+    command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |arg|
       gems = Gem.source_index.gems.values.group_by(&:name)
       if arg
         query = Regexp.new(arg, Regexp::IGNORECASE)
@@ -289,7 +289,7 @@ e.g: gist -d my_method
     end
 
 
-    command "whereami", "Show the code context for the session. Shows AROUND lines around the invocation line. AROUND defaults to 5 lines. " do |num|
+    command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
       file = target.eval('__FILE__')
       line_num = target.eval('__LINE__')
       klass = target.eval('self.class')

@@ -47,19 +47,38 @@ class Pry
       #      1 => bright
       #      0 => normal
       #
-      [ :black, :red, :green, :yellow, :blue, :purple, :cyan, :white ].each_with_index do |color, i|
-        define_method "bright_#{color}" do |str|
-          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
-        end
 
+      COLORS = {
+         "black" => 0,
+         "red" => 1,
+         "green" => 2,
+         "yellow" => 3,
+         "blue" => 4,
+         "purple" => 5,
+         "magenta" => 5,
+         "cyan" => 6,
+         "white" => 7
+      }
+
+      COLORS.each do |color, i|
         define_method color do |str|
           Pry.color ? "\033[0;#{30+i}m#{str}\033[0m" : str
         end
+
+        define_method "bright_#{color}" do |str|
+          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
+        end
       end
-      alias_method :magenta, :purple
-      alias_method :bright_magenta, :bright_purple
+
       alias_method :grey, :bright_black
       alias_method :gray, :bright_black
+
+      require 'set'
+      VALID_COLORS = Set.new(
+        COLORS.keys +
+        COLORS.keys.map{|k| "bright_#{k}" } +
+        ["grey", "gray"]
+      )
 
       def bold(text)
         Pry.color ? "\e[1m#{text}\e[0m" : text
@@ -84,12 +103,12 @@ class Pry
 
           # token is an opening tag!
 
-          if /<([\w\d_]+)>/ =~ token and respond_to?($1) #valid_tag?($1)
+          if /<([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) #valid_tag?($1)
             stack.push $1
 
           # token is a closing tag!
 
-          elsif /<\/([\w\d_]+)>/ =~ token and respond_to?($1) # valid_tag?($1)
+          elsif /<\/([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) # valid_tag?($1)
 
             # if this color is on the stack somwehere...
             if pos = stack.rindex($1)
