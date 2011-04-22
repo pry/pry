@@ -1,5 +1,3 @@
-require "awesome_print"
-
 class Pry
   DEFAULT_PRINT = proc do |output, value|
     if Pry.color
