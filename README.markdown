@@ -49,10 +49,11 @@ Pry, then:
 ### Navigating around state
 
 Pry allows us to pop in and out of different scopes (objects) using
-the `cd` command. To view which variables and methods are available
+the `cd` command. This enables us to explore the run-time view of a
+program or library. To view which variables and methods are available
 within a particular scope we use the versatile [ls command.](https://gist.github.com/c0fc686ef923c8b87715)
 
-Here we will begin Pry at top-level, then Pry on a class and then on
+Here we will begin Pryy at top-level, then Pry on a class and then on
 an instance variable inside that class:
 
     pry(main)> class Hello
@@ -235,8 +236,7 @@ last command as well as the directory containing that file.
 
 You can then use these special locals in conjunction with shell
 commands to do such things as change directory into the directory
-containing the file, open the file in an editor, `cat` out the entire
-file, and so on.
+containing the file, open the file in an editor, display the file using `cat`, and so on.
 
 In the following example we wil use Pry to fix a bug in a method:
     
@@ -266,7 +266,64 @@ In the following example we wil use Pry to fix a bug in a method:
       puts "hello #{name}"
       puts "how are you?"
     end
+
+
+Documentation Browsing
+-----------------------
+
+One use-case for Pry is to explore a program at run-time by `cd`-ing
+in and out of objects and viewing and invoking methods. In the course
+of exploring it may be useful to read the documentation for a
+specific method that you come across. Like `show-method` the `show-doc` command supports
+two syntaxes - the normal `ri` syntax as well as accepting the name of
+any method that is currently in scope.
+
+The Pry documentation system does not rely on pre-generated `rdoc` or
+`ri`, instead it grabs the comments directly above the method on
+demand. This results in speedier documentation retrieval and allows
+the Pry system to retrieve documentation for methods that would not be
+picked up by `rdoc`. Pry also has a basic understanding of both the
+rdoc and yard formats and will attempt to syntax highlight the
+documentation appropriately.
+
+The `ri` functionality is very good however and
+has an advantage over Pry's system in that it allows documentation
+lookup for classes as well as methods. Pry therefore has good
+integration with  `ri` through the `ri` command. The syntax
+for the command is exactly as it would be in command-line -
+and so it is not necessary to quote strings.
+
+In our example we will enter the `Gem` class and view the
+documentation for the `try_activate` method:
+
+    pry(main)> cd Gem
+    pry(Gem):1> ? try_activate
     
+    From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb @ line 201:
+    Number of lines: 3
+    
+    Try to activate a gem containing path. Returns true if
+    activation succeeded or wasn't needed because it was already
+    activated. Returns false if it can't find the path in a gem.
+    pry(Gem):1>
+
+We can also use `ri` in the normal way:
+
+    pry(main) ri Array#each
+    ----------------------------------------------------------- Array#each
+         array.each {|item| block }   ->   array
+    ------------------------------------------------------------------------
+         Calls _block_ once for each element in _self_, passing that element
+         as a parameter.
+    
+            a = [ "a", "b", "c" ]
+            a.each {|x| print x, " -- " }
+    
+         produces:
+    
+            a -- b -- c --
+    
+        
 Features and limitations
 ------------------------
 
