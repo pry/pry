@@ -171,6 +171,8 @@ current directory and count the number of lines in that file with
     
 ### Code Browsing
 
+#### show-method
+
 You can browse method source code with the `show-method` command. Nearly all Ruby methods (and some C methods, with the pry-doc
 gem) can have their source viewed. Code that is longer than a page is
 sent through a pager (such as less), and all code is properly syntax
@@ -224,7 +226,47 @@ Note that we can also view C methods (from Ruby Core) using the
         return result;
     }
 
+#### Special locals
 
+Some commands such as `show-method`, `show-doc`, `show-command` `stat`
+and `cat` update the `_file_` and `_dir_` local variables after they
+run. These locals contain the full path to the file involved in the
+last command as well as the directory containing that file.
+
+You can then use these special locals in conjunction with shell
+commands to do such things as change directory into the directory
+containing the file, open the file in an editor, `cat` out the entire
+file, and so on.
+
+In the following example we wil use Pry to fix a bug in a method:
+    
+    pry(main)> greet "john"
+    hello johnhow are you?=> nil
+    pry(main)> show-method greet
+    
+    From: /Users/john/ruby/play/bug.rb @ line 2:
+    Number of lines: 4
+    
+    def greet(name)
+      print "hello #{name}"
+      print "how are you?"
+    end
+    pry(main)> .emacsclient #{_file_}
+    pry(main)> load _file_
+    pry(main)> greet "john"
+    hello john
+    how are you?
+    => nil
+    pry(main)> show-method greet
+    
+    From: /Users/john/ruby/play/bug.rb @ line 2:
+    Number of lines: 4
+    
+    def greet(name)
+      puts "hello #{name}"
+      puts "how are you?"
+    end
+    
 Features and limitations
 ------------------------
 

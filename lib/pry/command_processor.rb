@@ -71,12 +71,13 @@ class Pry
           
           @@cd_history << Dir.pwd
           Dir.chdir(dest)
-          output.puts "=> #{dest}"
         rescue Errno::ENOENT
           output.puts "No such directory: #{dest}"
         end
       else
-        system(cmd)
+        if !system(cmd)
+          output.puts "Error: could not execute system command #{cmd}"
+        end
       end
 
       # Tick, tock, im getting rid of this shit soon.
