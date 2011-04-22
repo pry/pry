@@ -110,8 +110,15 @@ e.g: stat hello_method
       next if opts.help?
 
       meth_name = args.shift
-      meth_name = meth_name_from_binding(target) if !meth_name
-
+      if meth_name
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
+          context, meth_name = $1, $2
+          target = Pry.binding_for(target.eval(context))
+        end
+      else
+        meth_name = meth_name_from_binding(target)
+      end
+      
       if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
         next
@@ -123,6 +130,7 @@ e.g: stat hello_method
 
       output.puts make_header(meth, code_type, code)
       output.puts bold("Method Name: ") + meth_name
+      output.puts bold("Method Owner: ") + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
       output.puts bold("Method Language: ") + code_type.to_s.capitalize
       output.puts bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
       output.puts bold("Method Arity: ") + meth.arity.to_s
