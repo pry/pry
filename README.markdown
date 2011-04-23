@@ -418,7 +418,7 @@ avaiable.
 
 ### Other Features and limitations
 
-#### Features:
+#### Other Features:
 
 * Pry can be invoked both at the command-line and used as a more
 powerful alternative to IRB or it can be invoked at runtime and used
@@ -431,6 +431,11 @@ as a developer consoler / debugger.
 * Use `_ex_` to recover the last exception.
 * Use `_file_` and `_dir_` to refer to the associated file or
   directory containing the definition for a method.
+* A trailing ';' on an entered expression suppresses the display of
+  the evaluation output.
+* Typing `!` on a line by itself will clear the input buffer - useful for
+  getting you out of a situation where the parsing process
+  goes wrong and you get stuck in an endless read loop.
 * Pry supports tab completion.
 * Pry has multi-line support built in.
 * Use `^d` (control-d) to quickly break out of a session.
@@ -448,86 +453,15 @@ for reading; `Pry#re` for eval; `Pry#rep` for printing; and `Pry#repl`
 for the loop (`Pry.start` simply wraps `Pry.new.repl`). You can
 invoke any of these methods directly depending on exactly what aspect of the functionality you need.
 
-###Limitations:
+#### Limitations:
 
 * Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
-* `method_source` functionality does not work in JRuby.
-* 1.9 support requires `Ripper` - some implementations may not support this.
-
-Commands
------------
-
-### The Pry API:
-
-* `Pry.start()` Starts a Read-Eval-Print-Loop on the object it
-receives as a parameter. In the case of no parameter it operates on
-top-level (main). It can receive any object or a `Binding`
-object as parameter. `Pry.start()` is implemented as `Pry.new.repl()`
-* `obj.pry` and `pry(obj)` may also be used as alternative syntax to
-`Pry.start(obj)`.
-
-  However there are some differences. `obj.pry` opens
-a Pry session on the receiver whereas `Pry.start` (with no parameter)
-will start a Pry session on top-level. The other form of the `pry`
-method: `pry(obj)` will also start a Pry session on its parameter.
-
-  The `pry` method invoked by itself, with no explict receiver and no
-parameter will start a Pry session on the implied receiver. It is
-perhaps more useful to invoke it in this form `pry(binding)` or
-`binding.pry` so as to get access to locals in the current context.
-
-  Another difference is that `Pry.start()` accepts a second parameter
-that is a hash of configuration options (discussed further, below).
-
-* If, for some reason you do not want to 'loop' then use `Pry.new.rep()`; it
-only performs the Read-Eval-Print section of the REPL - it ends the
-session after just one line of input. It takes the same parameters as
-`Pry#repl()`
-* Likewise `Pry#re()` only performs the Read-Eval section of the REPL,
-it returns the result of the evaluation or an Exception object in
-case of error. It also takes the same parameters as `Pry#repl()`
-* Similarly `Pry#r()` only performs the Read section of the REPL, only
-returning the Ruby expression (as a string). It takes the same parameters as all the others.
-* `Pry.run_command COMMAND` enables you to invoke Pry commands outside
-of a session, e.g `Pry.run_command "ls -m", :context => MyObject`. See
-docs for more info.
-
-### Session commands
-
-Pry supports a few commands inside the session itself. These commands are
-not methods and must start at the beginning of a line, with no
-whitespace in between.
-
-If you want to access a method of the same name, prefix the invocation by whitespace.
-
-* Typing `!` on a line by itself will clear the input buffer - useful for
-  getting you out of a situation where the parsing process
-  goes wrong and you get stuck in an endless read loop.
-* `status` shows status information about the current session.
-* `whereami AROUND` shows the code context of the session. Shows
-  AROUND lines either side of the current line.
-* `version` Show Pry version information
-* `help` shows the list of session commands with brief explanations.
-* `toggle-color` turns on and off syntax highlighting.
-* `simple-prompt` toggles the simple prompt mode.
-* `exit` or `quit` or `back` or `^d` (control-d) will end the current Pry session and go
-  back to the calling process or back one level of nesting (if there
-  are nested sessions).
-* `ls [OPTIONS] [VAR]` returns a list of local variables, instance variables, and
-  methods, etc. Highly flexible. See `ls --help` for more info.
-* `cat VAR` Calls `inspect` on `VAR`
-* `cd VAR` Starts a `Pry` session on the variable VAR. E.g `cd @x`
-(use `cd ..` to go back).
-* `show-method [OPTIONS] METH` Displays the sourcecode for the method
-  `METH`. e.g `show-method hello`. See `show-method --help` for more info.
-* `show-doc [OPTIONS] METH` Displays comments for `METH`. See `show-doc
-  --help` for more info.
-* `show-command COMMAND` Displays the sourcecode for the given Pry
-  command. e.g: `show-command cd`
-* `jump-to NEST_LEVEL`  Unwinds the Pry stack (nesting level) until the appropriate nesting level is reached.
-* `exit-all` breaks out of all Pry nesting levels and returns to the
-  calling process.
-
+* `method_source` functionality does not work in JRuby with Ruby 1.8
+* Color support does not work in JRUby with Ruby 1.9 (due to a
+  limitation in JRuby's regex).
+* Tab completion is currently a bit broken/limited this will have a
+   major overhaul in a future version.
+   
 Syntax Highlighting
 --------------------
 
@@ -580,3 +514,15 @@ Contact
 -------
 
 Problems or questions contact me at [github](http://github.com/banister)
+
+Contributors
+------------
+
+The Pry team consists of:
+
+banisterfiend
+epitron
+injekt
+Mon_Ouie
+
+
