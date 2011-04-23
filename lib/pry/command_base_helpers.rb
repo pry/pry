@@ -162,12 +162,19 @@ class Pry
 
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
+      # FIXME! Another JRuby hack
       def stagger_output(text)
         if text.lines.count < page_size || !Pry.pager
           output.puts text
           return
         end
-        lesspipe { |less| less.puts text }
+
+        # FIXME! Another JRuby hack
+        if const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+          simple_pager(text)
+        else
+          lesspipe { |less| less.puts text }
+        end
       rescue Errno::ENOENT
         simple_pager(text)
       rescue Errno::EPIPE
