@@ -159,7 +159,7 @@ We can also interpolate Ruby code directly into the shell by
 using the normal `#{}` string interpolation syntax.
 
 In the code below we're going to switch to `shell-mode` and edit the
-.pryrc file in the home directory. We'll then cat its contents and
+`.pryrc` file in the home directory. We'll then cat its contents and
 reload the file.
     
     pry(main)> shell-mode   
@@ -394,7 +394,7 @@ with a semi-colon which causes expression evaluation output to be suppressed.
 
 ### Gist integration
 
-If the `gist` gem installed then Method source or documentation can be gisted to github with the
+If the `gist` gem is installed then method source or documentation can be gisted to github with the
 `gist-method` command. The `gist-method` command accepts the same two
 syntaxes as `show-method`. In the example below we will gist the C source
 code for the `Symbol#to_proc` method to github:
@@ -411,7 +411,7 @@ You can see the actual gist generated here: https://gist.github.com/5332c38afc46
 Many other commands are available in Pry; to see the full list type
 `help` at the prompt. A short description of each command is provided
 with basic instructions for use; some commands have a more extensive
-help that can be accessed via typeing `command_name --help`. A command
+help that can be accessed via typing `command_name --help`. A command
 will typically say in its description if the `--help` option is
 avaiable.
 
@@ -431,7 +431,7 @@ as a developer consoler / debugger.
 * Use `_ex_` to recover the last exception.
 * Use `_file_` and `_dir_` to refer to the associated file or
   directory containing the definition for a method.
-* A trailing ';' on an entered expression suppresses the display of
+* A trailing `;` on an entered expression suppresses the display of
   the evaluation output.
 * Typing `!` on a line by itself will clear the input buffer - useful for
   getting you out of a situation where the parsing process
@@ -457,7 +457,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 
 * Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
 * `method_source` functionality does not work in JRuby with Ruby 1.8
-* Color support does not work in JRUby with Ruby 1.9 (due to a
+* Color support does not work in JRuby with Ruby 1.9 (due to a
   limitation in JRuby's regex).
 * Tab completion is currently a bit broken/limited this will have a
    major overhaul in a future version.
@@ -469,23 +469,6 @@ Syntax highlighting is on by default in Pry. You can toggle it on and
 off in a session by using the `toggle-color` command. Alternatively,
 you can turn it off permanently by putting the line `Pry.color =
 false` in your `~/.pryrc` file.
-
-Bindings and objects
---------------------
-
-Pry ultimately operates on `Binding` objects. If you invoke Pry with a
-Binding object it uses that Binding. If you invoke Pry with anything
-other than a `Binding`, Pry will generate a Binding for that
-object and use that.
-
-If you want to open a Pry session on the current context and capture
-the locals you should use: `binding.pry`. If you do not care about
-capturing the locals you can simply use `pry` (which will generate a
-fresh `Binding` for the receiver).
-
-Top-level is a special case; you can start a Pry session on top-level
-*and* capture locals by simply using: `pry`. This is because Pry
-automatically uses `TOPLEVEL_BINDING` for the top-level object (main).
 
 Example Programs
 ----------------
@@ -520,9 +503,9 @@ Contributors
 
 The Pry team consists of:
 
-banisterfiend
-epitron
-injekt
-Mon_Ouie
+* [banisterfiend](http://github.com/banister)
+* [epitron](http://github.com/epitron)
+* [injekt](http://github.com/injekt)
+* [Mon_Ouie](http://github.com/mon_ouie)
 
 
