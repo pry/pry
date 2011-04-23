@@ -163,6 +163,8 @@ e.g: gist -d my_method
 
       next if opts.help?
 
+      # This needs to be extracted into its own method as it's shared
+      # by show-method and show-doc and stat commands 
       meth_name = args.shift
       if meth_name
         if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ 
