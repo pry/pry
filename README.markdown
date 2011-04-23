@@ -8,17 +8,18 @@ Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
 these include:
 
+* Source code browsing (including core C source with the pry-doc gem)
+* Documentation browsing
+* Live help system
 * Syntax highlighting
+* Command shell integration (start editors, run git, and rake from within Pry)
+* Gist integration
 * Navigation around state (`cd`, `ls` and friends)
 * Runtime invocation (use Pry as a developer console or debugger)
-* Command shell integration
-* Source code browsing (including core C source with the pry-doc gem)
-* Documentation browsing 
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
 * Many convenience commands inspired by IPython and other advanced REPLs
-
 
 Pry is also fairly flexible and allows significant user
 [customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
@@ -48,25 +49,16 @@ Pry, then:
 
 ### Commands
 
-Nearly all functionality in a Pry session is implemented as
-commands. Commands are not methods and must start at the beginning of a line, with no
+Nearly every piece of functionality in a Pry session is implemented as
+a command. Commands are not methods and must start at the beginning of a line, with no
 whitespace in between. Commands support a flexible syntax and allow
-'options' in the same way as shell commands, for example the follow
-Pry command will show the source code for an instance method and
-include line numbers:
-    
-    pry(Pry):1> show-method -M rep -l
-    
-    From: /Users/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
-    Number of lines: 6
-    
-    143: def rep(target=TOPLEVEL_BINDING)
-    144:   target = Pry.binding_for(target)
-    145:   result = re(target)
-    146: 
-    147:   show_result(result) if should_print?
-    148: end
-    
+'options' in the same way as shell commands, for example the following
+Pry command will show a list of all private instance methods (in
+scope) that begin with 'pa'
+
+    pry(YARD::Parser::SourceParser):5> ls -Mp --grep pa
+    [:parser_class, :parser_type=, :parser_type_for_filename]
+
 ### Navigating around state
 
 Pry allows us to pop in and out of different scopes (objects) using
@@ -74,7 +66,7 @@ the `cd` command. This enables us to explore the run-time view of a
 program or library. To view which variables and methods are available
 within a particular scope we use the versatile [ls command.](https://gist.github.com/c0fc686ef923c8b87715)
 
-Here we will begin Pryy at top-level, then Pry on a class and then on
+Here we will begin Pry at top-level, then Pry on a class and then on
 an instance variable inside that class:
 
     pry(main)> class Hello
@@ -400,27 +392,45 @@ we can continue to add instance methods to the class:
 Also note that in the above the line `Hello.new.goodbye_world;` ends
 with a semi-colon which causes expression evaluation output to be suppressed.    
 
+### Gist integration
 
-Features and limitations
-------------------------
+If the `gist` gem installed then Method source or documentation can be gisted to github with the
+`gist-method` command. The `gist-method` command accepts the same two
+syntaxes as `show-method`. In the example below we will gist the C source
+code for the `Symbol#to_proc` method to github:
+    
+    pry(main)> gist-method Symbol#to_proc
+    https://gist.github.com/5332c38afc46d902ce46
+    pry(main)> 
+    
+You can see the actual gist generated here: https://gist.github.com/5332c38afc46d902ce46
 
-Pry is an irb-like clone with an emphasis on interactively examining
-and manipulating objects during the running of a program.
 
-Its primary utility is probably in debugging, though it may have other
-uses (such as implementing a quake-like console for games, for example). Here is a
-list of Pry's features along with some of its limitations given at the
-end.
+### Live Help System
 
-###Features:
+Many other commands are available in Pry; to see the full list type
+`help` at the prompt. A short description of each command is provided
+with basic instructions for use; some commands have a more extensive
+help that can be accessed via typeing `command_name --help`. A command
+will typically say in its description if the `--help` option is
+avaiable.
 
-* Pry can be invoked at any time and on any object in the running program.
+
+### Other Features and limitations
+
+#### Features:
+
+* Pry can be invoked both at the command-line and used as a more
+powerful alternative to IRB or it can be invoked at runtime and used
+as a developer consoler / debugger.
 * Additional documentation and source code for Ruby Core methods are supported when the `pry-doc` gem is installed.
 * Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
 * Pry comes with syntax highlighting on by default just use the `toggle-color` command to turn it on and off.
 * Use `_` to recover last result.
 * Use `_pry_` to reference the Pry instance managing the current session.
 * Use `_ex_` to recover the last exception.
+* Use `_file_` and `_dir_` to refer to the associated file or
+  directory containing the definition for a method.
 * Pry supports tab completion.
 * Pry has multi-line support built in.
 * Use `^d` (control-d) to quickly break out of a session.
