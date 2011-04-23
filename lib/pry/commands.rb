@@ -144,6 +144,8 @@ e.g: stat hello_method
     end
 
     command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
+      target = target()
+      
       opts = Slop.parse!(args) do |opts|
         opts.banner = %{Usage: gist-method [OPTIONS] [METH]
 Gist the method (doc or source) to github.
@@ -162,8 +164,15 @@ e.g: gist -d my_method
       next if opts.help?
 
       meth_name = args.shift
-      meth_name = meth_name_from_binding(target) if !meth_name
-
+      if meth_name
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ 
+          context, meth_name = $1, $2
+          target = Pry.binding_for(target.eval(context))
+        end
+      else
+        meth_name = meth_name_from_binding(target)
+      end
+      
       if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
         next
