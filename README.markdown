@@ -164,7 +164,6 @@ reload the file.
     
     pry(main)> shell-mode   
     pry main:/home/john/ruby/projects/pry $ .cd ~
-    => /home/john
     pry main:/home/john $ .emacsclient .pryrc
     pry main:/home/john $ .cat .pryrc
     def hello_world
@@ -506,6 +505,6 @@ The Pry team consists of:
 * [banisterfiend](http://github.com/banister)
 * [epitron](http://github.com/epitron)
 * [injekt](http://github.com/injekt)
-* [Mon_Ouie](http://github.com/mon_ouie)
+* [Mon_Ouie](http://github.com/mon-ouie)
 
 
