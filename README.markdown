@@ -44,8 +44,29 @@ Pry, then:
 
 1. Install rubygems-test: `gem install rubygems-test`
 2. Run the test: `gem test pry`
-3. Finally choose 'Yes' to upload the results. 
+3. Finally choose 'Yes' to upload the results.
 
+### Commands
+
+Nearly all functionality in a Pry session is implemented as
+commands. Commands are not methods and must start at the beginning of a line, with no
+whitespace in between. Commands support a flexible syntax and allow
+'options' in the same way as shell commands, for example the follow
+Pry command will show the source code for an instance method and
+include line numbers:
+    
+    pry(Pry):1> show-method -M rep -l
+    
+    From: /Users/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
+    Number of lines: 6
+    
+    143: def rep(target=TOPLEVEL_BINDING)
+    144:   target = Pry.binding_for(target)
+    145:   result = re(target)
+    146: 
+    147:   show_result(result) if should_print?
+    148: end
+    
 ### Navigating around state
 
 Pry allows us to pop in and out of different scopes (objects) using
@@ -229,7 +250,7 @@ Note that we can also view C methods (from Ruby Core) using the
 
 #### Special locals
 
-Some commands such as `show-method`, `show-doc`, `show-command` `stat`
+Some commands such as `show-method`, `show-doc`, `show-command`, `stat`
 and `cat` update the `_file_` and `_dir_` local variables after they
 run. These locals contain the full path to the file involved in the
 last command as well as the directory containing that file.
@@ -268,8 +289,7 @@ In the following example we wil use Pry to fix a bug in a method:
     end
 
 
-Documentation Browsing
------------------------
+### Documentation Browsing
 
 One use-case for Pry is to explore a program at run-time by `cd`-ing
 in and out of objects and viewing and invoking methods. In the course
@@ -286,18 +306,18 @@ picked up by `rdoc`. Pry also has a basic understanding of both the
 rdoc and yard formats and will attempt to syntax highlight the
 documentation appropriately.
 
-The `ri` functionality is very good however and
+Nonetheless The `ri` functionality is very good and
 has an advantage over Pry's system in that it allows documentation
 lookup for classes as well as methods. Pry therefore has good
 integration with  `ri` through the `ri` command. The syntax
 for the command is exactly as it would be in command-line -
-and so it is not necessary to quote strings.
+so it is not necessary to quote strings.
 
 In our example we will enter the `Gem` class and view the
 documentation for the `try_activate` method:
 
     pry(main)> cd Gem
-    pry(Gem):1> ? try_activate
+    pry(Gem):1> show-doc try_activate
     
     From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb @ line 201:
     Number of lines: 3
@@ -323,7 +343,64 @@ We can also use `ri` in the normal way:
     
             a -- b -- c --
     
-        
+
+### History
+
+Readline history can be viewed and replayed using the `hist`
+command. When `hist` is invoked with no arguments it simply displays
+the history (passing the output through a pager if necessary))
+when the `--replay` option is used a line or a range of lines of
+history can be replayed.
+
+In the example below we will enter a few lines in a Pry session and
+then view history; we will then replay one of those lines:
+    
+    pry(main)> hist
+    0: hist -h
+    1: ls
+    2: ls
+    3: show-method puts
+    4: x = rand
+    5: hist
+    pry(main)> hist --replay 3
+    
+    From: io.c in Ruby Core (C Method):
+    Number of lines: 8
+    
+    static VALUE
+    rb_f_puts(int argc, VALUE *argv, VALUE recv)
+    {
+        if (recv == rb_stdout) {
+        return rb_io_puts(argc, argv, recv);
+        }
+        return rb_funcall2(rb_stdout, rb_intern("puts"), argc, argv);
+    }
+    
+In the next example we will replay a range of lines in history. Note
+that we replay to a point where a class definition is still open and so
+we can continue to add instance methods to the class:
+
+    pry(main)> hist
+    0: class Hello
+    1:   def hello_world
+    2:     puts "hello world!"
+    3:   end
+    4: end
+    5: hist
+    pry(main)> hist --replay 0..3
+    pry(main)* def goodbye_world
+    pry(main)*   puts "goodbye world!"
+    pry(main)* end
+    pry(main)* end
+    => nil
+    pry(main)> Hello.new.goodbye_world;
+    goodbye world!
+    pry(main)>
+
+Also note that in the above the line `Hello.new.goodbye_world;` ends
+with a semi-colon which causes expression evaluation output to be suppressed.    
+
+
 Features and limitations
 ------------------------
 
