@@ -18,7 +18,7 @@ See: `https://github.com/banister` for more information.
 }
 
   on :e, :exec, "A line of code to execute in context before the session starts", true
-  on :f, "Surpress loading of ~/.pryrc"
+  on :f, "Supress loading of ~/.pryrc"
   on "no-color", "Disable syntax highlighting for session"
 
   on "simple-prompt", "Enable simple prompt mode" do
