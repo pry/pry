@@ -10,7 +10,7 @@ rescue LoadError
   require 'pry'
 end
 
-opts = Slop.parse do
+opts = Slop.parse(:help => true) do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See: `https://github.com/banister` for more information.
@@ -43,11 +43,6 @@ See: `https://github.com/banister` for more information.
     true,
     :default => "TOPLEVEL_BINDING"
     )
-
-  on :h, :help, "This message" do
-    puts help
-    exit
-  end
 end
 
 # invoked via cli
