@@ -455,6 +455,9 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 #### Limitations:
 
 * Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
+* JRuby not officially supported due to currently too many quirks and
+ strange behaviour. Nonetheless most functionality should still work
+ OK in JRuby. Full JRuby support coming in a future version.
 * `method_source` functionality does not work in JRuby with Ruby 1.8
 * Color support does not work in JRuby with Ruby 1.9 (due to a
   limitation in JRuby's regex).
@@ -491,6 +494,22 @@ features, see the `examples/` directory.
 Pry allows a large degree of customization. 
 
 [Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
+
+Future Directions
+-----------------
+
+Many new features are planned such as:
+
+* Much improved tab completion (using [Bond](http://github.com/cldwalker/bond))
+* Improved JRuby support
+* Support for viewing source-code of binary gems and C stdlib
+* git integration
+* Much improved documentation system, better support for YARD
+* A proper plugin system
+* Get rid of `.` prefix for shell commands in `shell-mode`
+* Better support for code and method reloading
+* Extended and more sophisticated command system, allowing piping
+between commands and running commands in background
 
 Contact
 -------
