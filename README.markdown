@@ -21,6 +21,11 @@ these include:
 * Ability to view and replay history
 * Many convenience commands inspired by IPython and other advanced REPLs
 
+Pry also aims to be more than an IRB replacement; it is an
+attempt to bring REPL driven programming to the Ruby language. It is
+currently not nearly as powerful as tools like [SLIME](http://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
+general direction Pry is heading.
+
 Pry is also fairly flexible and allows significant user
 [customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
 is trivial to set it to read from any object that has a `readline` method and write to any object that has a
