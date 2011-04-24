@@ -464,16 +464,14 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 * Tab completion is currently a bit broken/limited this will have a
    major overhaul in a future version.
    
-Syntax Highlighting
---------------------
+### Syntax Highlighting
 
 Syntax highlighting is on by default in Pry. You can toggle it on and
 off in a session by using the `toggle-color` command. Alternatively,
 you can turn it off permanently by putting the line `Pry.color =
 false` in your `~/.pryrc` file.
 
-Example Programs
-----------------
+### Example Programs
 
 Pry comes bundled with a few example programs to illustrate some
 features, see the `examples/` directory.
@@ -495,8 +493,7 @@ Pry allows a large degree of customization.
 
 [Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
 
-Future Directions
------------------
+### Future Directions
 
 Many new features are planned such as:
 
@@ -511,13 +508,11 @@ Many new features are planned such as:
 * Extended and more sophisticated command system, allowing piping
 between commands and running commands in background
 
-Contact
--------
+### Contact
 
 Problems or questions contact me at [github](http://github.com/banister)
 
-Contributors
-------------
+### Contributors
 
 The Pry team consists of:
 
