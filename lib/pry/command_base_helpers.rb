@@ -170,7 +170,7 @@ class Pry
         end
 
         # FIXME! Another JRuby hack
-        if const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+        if Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
           simple_pager(text)
         else
           lesspipe { |less| less.puts text }
