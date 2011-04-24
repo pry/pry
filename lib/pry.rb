@@ -19,7 +19,8 @@ end
 require "pry/version"
 require "pry/hooks"
 require "pry/print"
-require "pry/command_base"
+require "pry/command_set"
+require "pry/command_base" # to be romved
 require "pry/commands"
 require "pry/prompts"
 require "pry/custom_completions"
