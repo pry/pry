@@ -1,12 +1,10 @@
-direc = File.dirname(__FILE__)
-
 require "optparse"
 require "method_source"
 require 'slop'
 require 'rubygems/dependency_installer'
-require "#{direc}/command_base"
-require "#{direc}/pry_instance"
-require "#{direc}/command_helpers"
+require "pry/command_base"
+require "pry/pry_instance"
+require "pry/command_helpers"
 
 class Pry
 
@@ -118,7 +116,7 @@ e.g: stat hello_method
       else
         meth_name = meth_name_from_binding(target)
       end
-      
+
       if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
         next
@@ -145,7 +143,7 @@ e.g: stat hello_method
 
     command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
       target = target()
-      
+
       opts = Slop.parse!(args) do |opts|
         opts.banner = %{Usage: gist-method [OPTIONS] [METH]
 Gist the method (doc or source) to github.
@@ -165,17 +163,17 @@ e.g: gist -d my_method
       next if opts.help?
 
       # This needs to be extracted into its own method as it's shared
-      # by show-method and show-doc and stat commands 
+      # by show-method and show-doc and stat commands
       meth_name = args.shift
       if meth_name
-        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ 
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/
           context, meth_name = $1, $2
           target = Pry.binding_for(target.eval(context))
         end
       else
         meth_name = meth_name_from_binding(target)
       end
-      
+
       if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
         output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
         next
