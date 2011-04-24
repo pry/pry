@@ -113,7 +113,10 @@ the `jump-to` command:
 
 Pry can be invoked in the middle of a running program. It opens a Pry
 session at the point it's called and makes all program state at that
-point available. When the session ends the program continues with any
+point available. It can be invoked on any object using the
+`my_object.pry` syntax or on the current binding (or any binding)
+using `binding.pry`. The Pry session will then begin within the scope
+of the object (or binding). When the session ends the program continues with any
 modifications you made to it.
 
 This functionality can be used for such things as: debugging,
