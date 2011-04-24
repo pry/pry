@@ -36,7 +36,8 @@ end
 
 desc "run pry"
 task :pry do
-  require "#{direc}/lib/pry"
+  $LOAD_PATH.unshift "#{direc}/lib"
+  require 'pry'
   binding.pry
 end
 
@@ -51,7 +52,7 @@ namespace :ruby do
     s.add_dependency("method_source",">=0.4.0")
     s.platform = Gem::Platform::RUBY
   end
-  
+
   Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
@@ -61,7 +62,7 @@ end
 [:mingw32, :mswin32].each do |v|
   namespace v do
     spec = Gem::Specification.new do |s|
-      apply_spec_defaults(s)        
+      apply_spec_defaults(s)
       s.add_dependency("method_source",">=0.4.0")
       s.add_dependency("win32console", ">=1.3.0")
       s.platform = "i386-#{v}"
@@ -80,7 +81,7 @@ namespace :jruby do
     s.add_dependency("method_source",">=0.4.0")
     s.platform = "java"
   end
-  
+
   Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false

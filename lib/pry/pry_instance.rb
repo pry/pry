@@ -1,6 +1,4 @@
-direc = File.dirname(__FILE__)
-
-require "#{direc}/command_processor.rb"
+require "pry/command_processor.rb"
 
 class Pry
 

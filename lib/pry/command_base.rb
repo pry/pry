@@ -1,6 +1,5 @@
-direc = File.dirname(__FILE__)
 require 'rubygems/dependency_installer'
-require "#{direc}/command_base_helpers"
+require "pry/command_base_helpers"
 
 class Pry
 
