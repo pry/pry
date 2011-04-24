@@ -107,7 +107,7 @@ the `jump-to` command:
 ### Runtime invocation
 
 Pry can be invoked in the middle of a running program. It opens a Pry
-session at the point it’s called and makes all program state at that
+session at the point it's called and makes all program state at that
 point available. When the session ends the program continues with any
 modifications you made to it.
 
