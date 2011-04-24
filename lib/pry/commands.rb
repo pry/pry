@@ -59,7 +59,7 @@ class Pry
     alias_command "quit-program", "exit-program", ""
     alias_command "!!!", "exit-program", ""
 
-    command "gem-install", "Install a gem" do |gem_name|
+    command "gem-install", "Install a gem and refresh the gem cache." do |gem_name|
       gem_home = Gem.instance_variable_get(:@gem_home)
       output.puts "Attempting to install gem: #{bold(gem_name)}"
 
@@ -149,6 +149,7 @@ e.g: stat hello_method
       opts = Slop.parse!(args) do |opts|
         opts.banner = %{Usage: gist-method [OPTIONS] [METH]
 Gist the method (doc or source) to github.
+Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
 e.g: gist -m my_method
 e.g: gist -d my_method
 --
