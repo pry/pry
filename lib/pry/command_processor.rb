@@ -76,7 +76,7 @@ class Pry
         end
       else
         if !system(cmd)
-          output.puts "Error: could not execute system command #{cmd}"
+          output.puts "Error: there was a problem executing system command: #{cmd}"
         end
       end
 
