@@ -557,7 +557,6 @@ Shows local and instance variables by default.
 
     command "lls", "List local files using 'ls'" do |*args|
       cmd = ".ls"
-      cmd << " --color=always" if Pry.color
       run cmd, *args
     end
 
