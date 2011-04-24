@@ -29,7 +29,7 @@ class Pry
     command ".<shell command>", "All text following a '.' is forwarded to the shell." do
     end
 
-    command "hist", "Show and replay Readline history" do |*args|
+    command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
       hist_array = Readline::HISTORY.to_a
 
       if args.empty?
@@ -39,7 +39,7 @@ class Pry
       end
 
       opts = Slop.parse(args) do |opt|
-        opt.banner "Usage: hist [--replay START..END]\ne.g hist --replay 2..8"
+        opt.banner "Usage: hist [--replay START..END]\nView and replay history\ne.g hist --replay 2..8"
         opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range
         opt.on :h, :help, 'Show this message.', :tail => true do
           output.puts opt.help
@@ -88,7 +88,7 @@ class Pry
       run ".ri", *args
     end
 
-    command "stat", "View method information and set _file_ and _dir_ locals" do |*args|
+    command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
       target = target()
 
       opts = Slop.parse!(args) do |opts|
