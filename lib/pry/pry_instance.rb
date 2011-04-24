@@ -54,7 +54,7 @@ class Pry
   # @return [Pry] The parent of the current Pry session.
   def parent
     idx = Pry.sessions.index(self)
-    Pry.sessions[idx - 1] if idx > 0
+    Pry.sessions[idx - 1] if idx && idx > 0
   end
 
   # Execute the hook `hook_name`, if it is defined.
