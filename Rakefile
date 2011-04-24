@@ -77,7 +77,7 @@ end
 namespace :jruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source","=0.2.0")
+    s.add_dependency("method_source",">=0.4.0")
     s.platform = "java"
   end
   
