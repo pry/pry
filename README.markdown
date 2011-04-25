@@ -420,7 +420,7 @@ You can use `edit-method Class#method` or `edit-method my_method`
 your favorite editor. Pry has knowledge of a few different editors and
 will attempt to open the file at the line the method is defined.
 
-You can set the editor to use by assigning to the `Pry.editor=`
+You can set the editor to use by assigning to the `Pry.editor`
 accessor. `Pry.editor` will default to `$EDITOR` or failing that will
 use `nano` as the backup default. The file that is edited will be
 automatically reloaded after exiting the editor - reloading can be
@@ -431,7 +431,6 @@ and open the `Pry#repl` method for editing:
 
     pry(main)> Pry.editor = "emacsclient"
     pry(main)> edit-method Pry#repl
-
 
 ### Live Help System
 
