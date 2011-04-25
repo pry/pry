@@ -98,6 +98,11 @@ class Pry
     # Set to true if the pry-doc extension is loaded.
     # @return [Boolean]
     attr_accessor :has_pry_doc
+
+    # The default editor to use. Defaults to $EDITOR or nano if
+    # $EDITOR is not defined.
+    # @return [String]
+    attr_accessor :editor
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -216,6 +221,7 @@ class Pry
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
+    @editor = ENV['EDITOR'] ? ENV['EDITOR'] : "nano"
   end
 
   self.reset_defaults
