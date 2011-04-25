@@ -19,7 +19,7 @@ class Pry
       end
     end
 
-    include Pry::CommandBase::CommandBaseHelpers
+    include Pry::Helpers::BaseHelpers
 
     attr_reader :commands
     attr_reader :name
