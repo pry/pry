@@ -5,6 +5,7 @@ class Pry
     attr_accessor :output
     attr_accessor :target
     attr_accessor :opts
+    attr_accessor :commands
 
     include Pry::CommandBase::CommandBaseHelpers
     include Pry::CommandHelpers
