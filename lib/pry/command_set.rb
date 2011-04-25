@@ -128,7 +128,7 @@ class Pry
 
           commands.each do |key, command|
             if command.description
-              help_text << "#{k}".ljust(18) + command.description + "\n"
+              help_text << "#{key}".ljust(18) + command.description + "\n"
             end
           end
 
