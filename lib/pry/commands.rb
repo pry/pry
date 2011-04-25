@@ -50,6 +50,57 @@ class Pry
       Pry.active_instance.input = StringIO.new(actions)
     end
 
+    command "edit-method", "Edit a method. Type `edit-method --help` for more info." do |*args|
+      target = target()
+
+      opts = Slop.parse!(args) do |opts|
+        opts.banner %{Usage: edit-method [OPTIONS] [METH]
+Edit the method METH in an editor.
+Ensure #{bold("Pry.editor")} is set to your editor of choice.
+e.g: edit-method hello_method
+--
+}
+        opts.on :M, "instance-methods", "Operate on instance methods."
+        opts.on :m, :methods, "Operate on methods."
+        opts.on "no-reload", "Do not automatically reload the method's file after editting."
+        opts.on :c, :context, "Select object context to run under.", true do |context|
+          target = Pry.binding_for(target.eval(context))
+        end
+        opts.on :h, :help, "This message." do
+          output.puts opts
+        end
+      end
+
+      next if opts.help?
+
+      meth_name = args.shift
+      if meth_name
+        if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
+          context, meth_name = $1, $2
+          target = Pry.binding_for(target.eval(context))
+        end
+      else
+        meth_name = meth_name_from_binding(target)
+      end
+
+      if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+        output.puts "Invalid method name: #{meth_name}."
+        next
+      end
+
+      next output.puts "Error: No editor set!\nEnsure that #{bold("Pry.editor")} is set to your editor of choice." if !Pry.editor
+
+      if is_a_c_method?(meth)
+        output.puts "Error: Can't edit a C method."
+      elsif is_a_dynamically_defined_method?(meth)
+        output.puts "Error: Can't edit an eval method."
+      else
+        file, line = meth.source_location
+        run ".#{editor_with_start_line(line)}", file
+        load file if !opts["no-reload"]
+      end
+    end
+
     command "exit-program", "End the current program. Aliases: quit-program, !!!" do
       exit
     end
