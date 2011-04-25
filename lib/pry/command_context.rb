@@ -7,7 +7,7 @@ class Pry
     attr_accessor :opts
     attr_accessor :commands
 
-    include Pry::CommandBase::CommandBaseHelpers
-    include Pry::CommandHelpers
+    include Pry::Helpers::BaseHelpers
+    include Pry::Helpers::CommandHelpers
   end
 end
