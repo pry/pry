@@ -10,7 +10,8 @@ class Pry
   class CommandSet
     class Command < Struct.new(:name, :description, :options, :block)
       def call(context, *args)
-        context.instance_exec(*args, &block)
+        ret = context.instance_exec(*args, &block)
+        ret if options[:keep_retval]
       end
     end
 
@@ -89,7 +90,7 @@ class Pry
     def alias_command(new_name, old_name, desc = nil)
       commands[new_name] = commands[old_name].dup
       commands[new_name].name = new_name
-      commands[new_name].description = desc
+      commands[new_name].description = desc if desc
     end
 
     # Runs a command.

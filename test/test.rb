@@ -801,10 +801,6 @@ describe Pry::CommandSet do
     @set.name.should == :some_name
   end
 
-  it 'should have no commands' do
-    @set.commands.should.be.empty
-  end
-
   it 'should call the block used for the command when it is called' do
     run = false
     @set.command 'foo' do
@@ -910,5 +906,15 @@ describe Pry::CommandSet do
     @set.desc 'foo', 'baz'
 
     @set.commands['foo'].description.should == 'baz'
+  end
+
+  it 'should return nil for commands by default' do
+    @set.command('foo') { 3 }
+    @set.run_command(nil, 'foo').should == nil
+  end
+
+  it 'should be able to keep return values' do
+    @set.command('foo', '', :keep_retval => true) { 3 }
+    @set.run_command(nil, 'foo').should == 3
   end
 end
