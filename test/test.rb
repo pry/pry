@@ -904,4 +904,11 @@ describe Pry::CommandSet do
     @set.run_command nil, 'bar'
     run.should == true
   end
+
+  it 'should be able to change the descritpions of methods' do
+    @set.command('foo', 'bar') {}
+    @set.desc 'foo', 'baz'
+
+    @set.commands['foo'].description.should == 'baz'
+  end
 end
