@@ -46,12 +46,38 @@ class Pry
     def render_output(should_flood, start_line, doc)
       if start_line
         doc = add_line_numbers(doc, start_line)
-      end
 
-      if should_flood
-        output.puts doc
+        if should_flood
+          output.puts doc
+        else
+          stagger_output(doc)
+        end
+      end
+    end
+
+    def editor_with_start_line(line_number)
+      case Pry.editor
+      when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
+        "#{Pry.editor} +#{line_number}"
+      when /^mate/
+        "#{Pry.editor} -l#{line_number}"
       else
-        stagger_output(doc)
+        if RUBY_PLATFORM =~ /mswin|mingw/
+          Pry.editor
+        else
+          "#{Pry.editor} +#{line_number}"
+        end
+      end
+    end
+
+    def is_a_dynamically_defined_method?(meth)
+      file, _ = meth.source_location
+      !!(file =~ /(\(.*\))|<.*>/)
+    end
+
+    def check_for_dynamically_defined_method(meth)
+      if is_a_dynamically_defined_method?(meth)
+        raise "Cannot retrieve source for dynamically defined method."
       end
     end
 

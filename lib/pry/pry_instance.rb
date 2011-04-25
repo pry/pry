@@ -54,12 +54,7 @@ class Pry
   # @return [Pry] The parent of the current Pry session.
   def parent
     idx = Pry.sessions.index(self)
-
-    if idx > 0
-      Pry.sessions[idx - 1]
-    else
-      nil
-    end
+    Pry.sessions[idx - 1] if idx > 0
   end
 
   # Execute the hook `hook_name`, if it is defined.
@@ -125,12 +120,7 @@ class Pry
     end
 
     return_value = repl_epilogue(target, nesting_level, break_data)
-
-    # if one was provided, return the return value
-    return return_value if return_value
-
-    # otherwise return the target_self
-    target_self
+    return_value || target_self
   end
 
   # Perform a read-eval-print.
@@ -356,10 +346,9 @@ class Pry
     #   valid_expression?("class Hello; end") #=> true
     def valid_expression?(code)
       RubyParser.new.parse(code)
+      true
     rescue Racc::ParseError, SyntaxError
       false
-    else
-      true
     end
   end
 end

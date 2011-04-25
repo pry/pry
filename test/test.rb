@@ -1,6 +1,8 @@
 direc = File.dirname(__FILE__)
 $LOAD_PATH.unshift "#{direc}/../lib"
 
+$LOAD_PATH.unshift "#{direc}/../lib"
+
 require 'rubygems'
 require 'bacon'
 require "pry"
