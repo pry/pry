@@ -206,6 +206,14 @@ class Pry
     end
   end
 
+  def self.default_editor_for_platform
+    if RUBY_PLATFORM =~ /mswin|mingw/
+      ENV['EDITOR'] ? ENV['EDITOR'] : "notepad"
+    else
+      ENV['EDITOR'] ? ENV['EDITOR'] : "nano"
+    end
+  end
+
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @input = Readline
@@ -221,7 +229,7 @@ class Pry
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
-    @editor = ENV['EDITOR'] ? ENV['EDITOR'] : "nano"
+    @editor = default_editor_for_platform
   end
 
   self.reset_defaults
