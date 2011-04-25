@@ -424,7 +424,7 @@ You can set the editor to use by assigning to the `Pry.editor=`
 accessor. `Pry.editor` will default to `$EDITOR` or failing that will
 use `nano` as the backup default. The file that is edited will be
 automatically reloaded after exiting the editor - reloading can be
-suppressed by passing the --no-reload option to `edit-method`
+suppressed by passing the `--no-reload` option to `edit-method`
 
 In the example below we will set our default editor to "emacsclient"
 and open the `Pry#repl` method for editing:
