@@ -143,10 +143,10 @@ class Pry
       context = CommandContext.new
 
       # set some useful methods to be used by the action blocks
-      context.opts     = options
-      context.target   = target
-      context.output   = output
-      context.commands = commands.commands
+      context.opts        = options
+      context.target      = target
+      context.output      = output
+      context.command_set = commands
 
       ret = commands.run_command(context, command, *args)
 

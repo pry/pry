@@ -195,10 +195,10 @@ class Pry
     context = CommandContext.new
     commands = options[:commands]
 
-    context.opts     = {}
-    context.output   = options[:show_output] ? options[:output] : null_output
-    context.target   = Pry.binding_for(options[:context])
-    context.commands = commands.commands
+    context.opts        = {}
+    context.output      = options[:show_output] ? options[:output] : null_output
+    context.target      = Pry.binding_for(options[:context])
+    context.command_set = commands
 
     commands.run_command(context, name, *Shellwords.shellwords(arg_string))
   end
