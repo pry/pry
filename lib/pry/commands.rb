@@ -9,9 +9,8 @@ require "pry/command_helpers"
 class Pry
 
   # Default commands used by Pry.
-  class Commands < CommandBase
+  Commands = Pry::CommandSet.new :default do
     extend CommandHelpers
-
     try_to_load_pry_doc
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do

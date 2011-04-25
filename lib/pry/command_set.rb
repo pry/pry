@@ -25,6 +25,7 @@ class Pry
       @name     = name
       @commands = {}
 
+      define_default_commands
       import(*imported_sets)
 
       instance_eval(&block) if block
@@ -82,11 +83,13 @@ class Pry
     end
 
     # Aliases a command
-    # @param [String] new_name new name of the command
-    # @param [String] old_name old name of the command
-    def alias_command(new_name, old_name)
+    # @param [String] new_name New name of the command.
+    # @param [String] old_name Old name of the command.
+    # @pasam [String, nil] desc New description of the command.
+    def alias_command(new_name, old_name, desc = nil)
       commands[new_name] = commands[old_name].dup
       commands[new_name].name = new_name
+      commands[new_name].description = desc
     end
 
     # Runs a command.
@@ -113,6 +116,30 @@ class Pry
     #   end
     def desc(name, description)
       commands[name].description = description
+    end
+
+    private
+    def define_default_commands
+      command "help", "This menu." do |cmd|
+        if !cmd
+          output.puts
+          help_text = heading("Command List: ") + "\n"
+
+          commands.each do |key, command|
+            if command.description
+              help_text << "#{k}".ljust(18) + command.description + "\n"
+            end
+          end
+
+          stagger_output(help_text)
+        else
+          if command = comands[cmd]
+            output.puts command.description
+          else
+            output.puts "No info for command: #{cmd}"
+          end
+        end
+      end
     end
   end
 end
