@@ -5,7 +5,15 @@ class Pry
     attr_accessor :output
     attr_accessor :target
     attr_accessor :opts
-    attr_accessor :commands
+    attr_accessor :command_set
+
+    def run(name, *args)
+      command_set.run_command(self, name, *args)
+    end
+
+    def commands
+      command_set.commands
+    end
 
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
