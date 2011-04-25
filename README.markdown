@@ -11,6 +11,7 @@ these include:
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing
 * Live help system
+* Open methods in editors (`edit-method Class#method`)
 * Syntax highlighting
 * Command shell integration (start editors, run git, and rake from within Pry)
 * Gist integration
@@ -126,16 +127,16 @@ code:
 
     # test.rb
     require 'pry'
-    
+
     class A
       def hello() puts "hello world!" end
     end
-    
+
     a = A.new
-    
+
     # start a REPL session
     binding.pry
-    
+
     # program resumes here (after pry session)
     puts "program resumes here."
 
@@ -169,8 +170,8 @@ using the normal `#{}` string interpolation syntax.
 In the code below we're going to switch to `shell-mode` and edit the
 `.pryrc` file in the home directory. We'll then cat its contents and
 reload the file.
-    
-    pry(main)> shell-mode   
+
+    pry(main)> shell-mode
     pry main:/home/john/ruby/projects/pry $ .cd ~
     pry main:/home/john $ .emacsclient .pryrc
     pry main:/home/john $ .cat .pryrc
@@ -179,7 +180,7 @@ reload the file.
     end
     pry main:/home/john $ load ".pryrc"
     => true
-    pry main:/home/john $ hello_world 
+    pry main:/home/john $ hello_world
     hello world!
 
 We can also interpolate Ruby code into the shell. In the
@@ -189,7 +190,7 @@ current directory and count the number of lines in that file with
 
     pry main:/home/john $ .cat #{Dir['*.*'].sample} | wc -l
     44
-    
+
 ### Code Browsing
 
 #### show-method
@@ -206,37 +207,37 @@ include line numbers in the output.
 
 In the following example we will enter the `Pry` class, list the
 instance methods beginning with 're' and display the source code for the `rep` method:
-    
+
     pry(main)> cd Pry
     pry(Pry):1> ls -M --grep ^re
     [:re, :readline, :rep, :repl, :repl_epilogue, :repl_prologue, :retrieve_line]
     pry(Pry):1> show-method rep -l
-    
+
     From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
     Number of lines: 6
-    
+
     143: def rep(target=TOPLEVEL_BINDING)
     144:   target = Pry.binding_for(target)
     145:   result = re(target)
-    146: 
+    146:
     147:   show_result(result) if should_print?
     148: end
 
 Note that we can also view C methods (from Ruby Core) using the
 `pry-doc` gem; we also show off the alternate syntax for
 `show-method`:
-    
+
     pry(main)> show-method Array#select
-    
+
     From: array.c in Ruby Core (C Method):
     Number of lines: 15
-        
+
     static VALUE
     rb_ary_select(VALUE ary)
     {
         VALUE result;
         long i;
-    
+
         RETURN_ENUMERATOR(ary, 0, 0);
         result = rb_ary_new2(RARRAY_LEN(ary));
         for (i = 0; i < RARRAY_LEN(ary); i++) {
@@ -259,14 +260,14 @@ commands to do such things as change directory into the directory
 containing the file, open the file in an editor, display the file using `cat`, and so on.
 
 In the following example we wil use Pry to fix a bug in a method:
-    
+
     pry(main)> greet "john"
     hello johnhow are you?=> nil
     pry(main)> show-method greet
-    
+
     From: /Users/john/ruby/play/bug.rb @ line 2:
     Number of lines: 4
-    
+
     def greet(name)
       print "hello #{name}"
       print "how are you?"
@@ -278,10 +279,10 @@ In the following example we wil use Pry to fix a bug in a method:
     how are you?
     => nil
     pry(main)> show-method greet
-    
+
     From: /Users/john/ruby/play/bug.rb @ line 2:
     Number of lines: 4
-    
+
     def greet(name)
       puts "hello #{name}"
       puts "how are you?"
@@ -317,10 +318,10 @@ documentation for the `try_activate` method:
 
     pry(main)> cd Gem
     pry(Gem):1> show-doc try_activate
-    
+
     From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb @ line 201:
     Number of lines: 3
-    
+
     Try to activate a gem containing path. Returns true if
     activation succeeded or wasn't needed because it was already
     activated. Returns false if it can't find the path in a gem.
@@ -334,14 +335,14 @@ We can also use `ri` in the normal way:
     ------------------------------------------------------------------------
          Calls _block_ once for each element in _self_, passing that element
          as a parameter.
-    
+
             a = [ "a", "b", "c" ]
             a.each {|x| print x, " -- " }
-    
+
          produces:
-    
+
             a -- b -- c --
-    
+
 
 ### History
 
@@ -353,7 +354,7 @@ history can be replayed.
 
 In the example below we will enter a few lines in a Pry session and
 then view history; we will then replay one of those lines:
-    
+
     pry(main)> hist
     0: hist -h
     1: ls
@@ -362,10 +363,10 @@ then view history; we will then replay one of those lines:
     4: x = rand
     5: hist
     pry(main)> hist --replay 3
-    
+
     From: io.c in Ruby Core (C Method):
     Number of lines: 8
-    
+
     static VALUE
     rb_f_puts(int argc, VALUE *argv, VALUE recv)
     {
@@ -374,7 +375,7 @@ then view history; we will then replay one of those lines:
         }
         return rb_funcall2(rb_stdout, rb_intern("puts"), argc, argv);
     }
-    
+
 In the next example we will replay a range of lines in history. Note
 that we replay to a point where a class definition is still open and so
 we can continue to add instance methods to the class:
@@ -397,7 +398,7 @@ we can continue to add instance methods to the class:
     pry(main)>
 
 Also note that in the above the line `Hello.new.goodbye_world;` ends
-with a semi-colon which causes expression evaluation output to be suppressed.    
+with a semi-colon which causes expression evaluation output to be suppressed.
 
 ### Gist integration
 
@@ -405,12 +406,31 @@ If the `gist` gem is installed then method source or documentation can be gisted
 `gist-method` command. The `gist-method` command accepts the same two
 syntaxes as `show-method`. In the example below we will gist the C source
 code for the `Symbol#to_proc` method to github:
-    
+
     pry(main)> gist-method Symbol#to_proc
     https://gist.github.com/5332c38afc46d902ce46
-    pry(main)> 
-    
-You can see the actual gist generated here: https://gist.github.com/5332c38afc46d902ce46
+    pry(main)>
+
+You can see the actual gist generated here: [https://gist.github.com/5332c38afc46d902ce46](https://gist.github.com/5332c38afc46d902ce46)
+
+### Edit methods
+
+You can use `edit-method Class#method` or `edit-method my_method`
+(if the method is in scope) to open a method for editing directly in
+your favorite editor. Pry has knowledge of a few different editors and
+will attempt to open the file at the line the method is defined.
+
+You can set the editor to use by assigning to the `Pry.editor=`
+accessor. `Pry.editor` will default to `$EDITOR` or failing that will
+use `nano` as the backup default. The file that is edited will be
+automatically reloaded after exiting the editor - reloading can be
+suppressed by passing the --no-reload option to `edit-method`
+
+In the example below we will set our default editor to "emacsclient"
+and open the `Pry#repl` method for editing:
+
+    pry(main)> Pry.editor = "emacsclient"
+    pry(main)> edit-method Pry#repl
 
 
 ### Live Help System
@@ -471,7 +491,7 @@ invoke any of these methods directly depending on exactly what aspect of the fun
   limitation in JRuby's regex).
 * Tab completion is currently a bit broken/limited this will have a
    major overhaul in a future version.
-   
+
 ### Syntax Highlighting
 
 Syntax highlighting is on by default in Pry. You can toggle it on and
@@ -497,7 +517,7 @@ features, see the `examples/` directory.
 
 ### Customizing Pry
 
-Pry allows a large degree of customization. 
+Pry allows a large degree of customization.
 
 [Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
 
