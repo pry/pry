@@ -19,8 +19,8 @@ end
 require "pry/version"
 require "pry/hooks"
 require "pry/print"
+require "pry/command_base" # to be removed
 require "pry/command_set"
-require "pry/command_base" # to be romved
 require "pry/commands"
 require "pry/command_context"
 require "pry/prompts"
