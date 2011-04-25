@@ -102,5 +102,17 @@ class Pry
         raise NoCommandError.new(name, self)
       end
     end
+
+    # Sets the description for a command (replacing the old
+    # description.)
+    # @param [String] name The command name.
+    # @param [String] description The command description.
+    # @example
+    #   MyCommands = Pry::CommandSet.new :test do
+    #     desc "help", "help description"
+    #   end
+    def desc(name, description)
+      commands[name].description = description
+    end
   end
 end
