@@ -98,6 +98,11 @@ class Pry
     # Set to true if the pry-doc extension is loaded.
     # @return [Boolean]
     attr_accessor :has_pry_doc
+
+    # The default editor to use. Defaults to $EDITOR or nano if
+    # $EDITOR is not defined.
+    # @return [String]
+    attr_accessor :editor
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -198,6 +203,14 @@ class Pry
     commands.run_command(context, name, *Shellwords.shellwords(arg_string))
   end
 
+  def self.default_editor_for_platform
+    if RUBY_PLATFORM =~ /mswin|mingw/
+      ENV['EDITOR'] ? ENV['EDITOR'] : "notepad"
+    else
+      ENV['EDITOR'] ? ENV['EDITOR'] : "nano"
+    end
+  end
+
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @input = Readline
@@ -213,6 +226,7 @@ class Pry
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
+    @editor = default_editor_for_platform
   end
 
   self.reset_defaults
