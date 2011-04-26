@@ -8,7 +8,15 @@ class Pry
     attr_accessor :command_set
 
     def run(name, *args)
-      command_set.run_command(self, name, *args)
+      if name.start_with? "."
+        cmd = name[1..-1]
+
+        unless system("#{cmd} #{args.join(' ')}")
+          output.puts "Error: there was a problem executing system command: #{cmd}"
+        end
+      else
+        command_set.run_command(self, name, *args)
+      end
     end
 
     def commands
