@@ -48,12 +48,12 @@ class Pry
       def render_output(should_flood, start_line, doc)
         if start_line
           doc = add_line_numbers(doc, start_line)
+        end
 
-          if should_flood
-            output.puts doc
-          else
-            stagger_output(doc)
-          end
+        if should_flood
+          output.puts doc
+        else
+          stagger_output(doc)
         end
       end
 
