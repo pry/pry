@@ -444,7 +444,7 @@ avaiable.
 ### Use Pry as your Rails 3 Console
 
 This is currently a hack, but follow the gist kindly provided by
-MyArtChannel: (https://gist.github.com/941174)[https://gist.github.com/941174]
+MyArtChannel: [https://gist.github.com/941174](https://gist.github.com/941174)
 
 
 ### Other Features and limitations
