@@ -148,7 +148,7 @@ class Pry
           help_text = heading("Command List: ") + "\n"
 
           commands.each do |key, command|
-            if command.description
+            if command.description && !command.description.empty?
               help_text << "#{key}".ljust(18) + command.description + "\n"
             end
           end
