@@ -56,9 +56,28 @@ class Pry
         end
       end
 
-      def check_for_dynamically_defined_method(meth)
+      def editor_with_start_line(line_number)
+        case Pry.editor
+        when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
+          "#{Pry.editor} +#{line_number}"
+        when /^mate/
+          "#{Pry.editor} -l#{line_number}"
+        else
+          if RUBY_PLATFORM =~ /mswin|mingw/
+            Pry.editor
+          else
+            "#{Pry.editor} +#{line_number}"
+          end
+        end
+      end
+
+      def is_a_dynamically_defined_method?(meth)
         file, _ = meth.source_location
-        if file =~ /(\(.*\))|<.*>/
+        !!(file =~ /(\(.*\))|<.*>/)
+      end
+
+      def check_for_dynamically_defined_method(meth)
+        if is_a_dynamically_defined_method?(meth)
           raise "Cannot retrieve source for dynamically defined method."
         end
       end

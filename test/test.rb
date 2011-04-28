@@ -1,8 +1,10 @@
 direc = File.dirname(__FILE__)
 
+$LOAD_PATH.unshift "#{direc}/../lib"
+
 require 'rubygems'
 require 'bacon'
-require "#{direc}/../lib/pry"
+require "pry"
 require "#{direc}/test_helper"
 
 puts "Ruby Version #{RUBY_VERSION}"
@@ -73,7 +75,7 @@ describe Pry do
         pry_tester.rep(o)
         str_output.string.should == ""
       end
-      
+
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
         o = Object.new
