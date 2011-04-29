@@ -18,7 +18,6 @@ def apply_spec_defaults(s)
   s.author = "John Mair (banisterfiend)"
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
-  s.require_path = 'lib'
   s.add_dependency("ruby_parser",">=2.0.5")
   s.add_dependency("coderay",">=0.9.7")
   s.add_dependency("slop",">=1.5.3")
