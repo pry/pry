@@ -1,3 +1,10 @@
+unless Object.const_defined? 'Pry'
+  $:.unshift File.expand_path '../../lib', __FILE__
+  require 'pry'
+end
+
+require 'bacon'
+
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
 Pry.color = false
