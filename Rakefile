@@ -18,15 +18,16 @@ def apply_spec_defaults(s)
   s.author = "John Mair (banisterfiend)"
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
-  s.add_dependency("ruby_parser",">=2.0.5")
-  s.add_dependency("coderay",">=0.9.7")
-  s.add_dependency("slop",">=1.5.3")
-  s.add_development_dependency("bacon",">=1.1.0")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
+  s.add_dependency("ruby_parser",">=2.0.5")
+  s.add_dependency("coderay",">=0.9.7")
+  s.add_dependency("slop",">=1.5.3")
+  s.add_dependency("method_source",">=0.4.0")
+  s.add_development_dependency("bacon",">=1.1.0")
 end
 
 task :test do
@@ -48,7 +49,6 @@ end
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source",">=0.4.0")
     s.platform = Gem::Platform::RUBY
   end
 
@@ -62,7 +62,6 @@ end
   namespace v do
     spec = Gem::Specification.new do |s|
       apply_spec_defaults(s)
-      s.add_dependency("method_source",">=0.4.0")
       s.add_dependency("win32console", ">=1.3.0")
       s.platform = "i386-#{v}"
     end
@@ -77,7 +76,6 @@ end
 namespace :jruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source",">=0.4.0")
     s.platform = "java"
   end
 
