@@ -26,8 +26,7 @@ def apply_spec_defaults(s)
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
-  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*", "examples/**/*.rb",
-                "test/*.rb", "test/testrc", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
+  s.files = `git ls-files`.split("\n")
 end
 
 task :test do
