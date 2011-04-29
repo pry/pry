@@ -1,9 +1,7 @@
-$:.unshift 'lib'
-
-direc = File.dirname(__FILE__)
-
 require 'rake/clean'
 require 'rake/gempackagetask'
+
+$:.unshift 'lib'
 require 'pry/version'
 
 CLOBBER.include("**/*~", "**/*#*", "**/*.log")
