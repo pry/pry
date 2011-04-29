@@ -27,6 +27,7 @@ def apply_spec_defaults(s)
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
+  s.test_files = `git ls-files -- test/*`.split("\n")
 end
 
 task :test do
