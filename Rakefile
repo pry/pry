@@ -1,10 +1,12 @@
+$:.unshift 'lib'
+
 direc = File.dirname(__FILE__)
 
 require 'rake/clean'
 require 'rake/gempackagetask'
-require "#{direc}/lib/pry/version"
+require 'pry/version'
 
-CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log")
+CLOBBER.include("**/*~", "**/*#*", "**/*.log")
 CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
 
 def apply_spec_defaults(s)
@@ -33,7 +35,6 @@ end
 
 desc "run pry"
 task :pry do
-  $LOAD_PATH.unshift "#{direc}/lib"
   require 'pry'
   binding.pry
 end
