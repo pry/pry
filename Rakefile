@@ -1,14 +1,11 @@
-dlext = Config::CONFIG['DLEXT']
-direc = File.dirname(__FILE__)
-
 require 'rake/clean'
 require 'rake/gempackagetask'
-require "#{direc}/lib/pry/version"
 
-CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
-CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
-              "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "**/*#*", "**/*#*.*",
-              "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
+$:.unshift 'lib'
+require 'pry/version'
+
+CLOBBER.include("**/*~", "**/*#*", "**/*.log")
+CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
 
 def apply_spec_defaults(s)
   s.name = "pry"
@@ -18,25 +15,24 @@ def apply_spec_defaults(s)
   s.author = "John Mair (banisterfiend)"
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
-  s.require_path = 'lib'
-  s.add_dependency("ruby_parser",">=2.0.5")
-  s.add_dependency("coderay",">=0.9.7")
-  s.add_dependency("slop",">=1.5.3")
-  s.add_development_dependency("bacon",">=1.1.0")
   s.homepage = "http://banisterfiend.wordpress.com"
   s.has_rdoc = 'yard'
   s.executables = ["pry"]
-  s.files = Dir["ext/**/extconf.rb", "ext/**/*.h", "ext/**/*.c", "lib/**/*", "examples/**/*.rb",
-                "test/*.rb", "test/testrc", "CHANGELOG", "LICENSE", "README.markdown", "Rakefile", ".gemtest"]
+  s.files = `git ls-files`.split("\n")
+  s.test_files = `git ls-files -- test/*`.split("\n")
+  s.add_dependency("ruby_parser",">=2.0.5")
+  s.add_dependency("coderay",">=0.9.7")
+  s.add_dependency("slop",">=1.5.3")
+  s.add_dependency("method_source",">=0.4.0")
+  s.add_development_dependency("bacon",">=1.1.0")
 end
 
 task :test do
-  sh "bacon #{direc}/test/test.rb"
+  sh "bacon -Itest -rubygems test/test.rb"
 end
 
 desc "run pry"
 task :pry do
-  $LOAD_PATH.unshift "#{direc}/lib"
   require 'pry'
   binding.pry
 end
@@ -49,7 +45,6 @@ end
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source",">=0.4.0")
     s.platform = Gem::Platform::RUBY
   end
 
@@ -63,7 +58,6 @@ end
   namespace v do
     spec = Gem::Specification.new do |s|
       apply_spec_defaults(s)
-      s.add_dependency("method_source",">=0.4.0")
       s.add_dependency("win32console", ">=1.3.0")
       s.platform = "i386-#{v}"
     end
@@ -78,7 +72,6 @@ end
 namespace :jruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("method_source",">=0.4.0")
     s.platform = "java"
   end
 
