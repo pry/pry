@@ -1,14 +1,11 @@
-dlext = Config::CONFIG['DLEXT']
 direc = File.dirname(__FILE__)
 
 require 'rake/clean'
 require 'rake/gempackagetask'
 require "#{direc}/lib/pry/version"
 
-CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log", "**/*.o")
-CLEAN.include("ext/**/*.#{dlext}", "ext/**/*.log", "ext/**/*.o",
-              "ext/**/*~", "ext/**/*#*", "ext/**/*.obj", "**/*#*", "**/*#*.*",
-              "ext/**/*.def", "ext/**/*.pdb", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
+CLOBBER.include("**/*.#{dlext}", "**/*~", "**/*#*", "**/*.log")
+CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
 
 def apply_spec_defaults(s)
   s.name = "pry"
