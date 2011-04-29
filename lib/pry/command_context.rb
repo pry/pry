@@ -6,14 +6,13 @@ class Pry
     attr_accessor :target
     attr_accessor :opts
     attr_accessor :command_set
+    attr_accessor :command_processor
 
     def run(name, *args)
       if name.start_with? "."
         cmd = name[1..-1]
-
-        unless system("#{cmd} #{args.join(' ')}")
-          output.puts "Error: there was a problem executing system command: #{cmd}"
-        end
+        command_processor.execute_system_command(Shellwords.join([name] + args),
+                                                 target)
       else
         command_set.run_command(self, name, *args)
       end

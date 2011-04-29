@@ -148,6 +148,8 @@ class Pry
       context.output      = output
       context.command_set = commands
 
+      context.command_processor = self
+
       ret = commands.run_command(context, command, *args)
 
       # Tick, tock, im getting rid of this shit soon.
