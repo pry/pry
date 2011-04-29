@@ -1,12 +1,4 @@
-direc = File.dirname(__FILE__)
-$LOAD_PATH.unshift "#{direc}/../lib"
-
-$LOAD_PATH.unshift "#{direc}/../lib"
-
-require 'rubygems'
-require 'bacon'
-require "pry"
-require "#{direc}/test_helper"
+require 'test_helper'
 
 puts "Ruby Version #{RUBY_VERSION}"
 puts "Testing Pry #{Pry::VERSION}"
@@ -136,7 +128,7 @@ describe Pry do
 
         it "should run the rc file only once" do
           Pry.should_load_rc = true
-          Pry::RC_FILES << "#{direc}/testrc"
+          Pry::RC_FILES << File.expand_path("../testrc", __FILE__)
 
           Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
