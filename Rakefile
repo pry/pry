@@ -28,7 +28,7 @@ def apply_spec_defaults(s)
 end
 
 task :test do
-  sh "bacon -Itest -rubygems test/test.rb"
+  sh "bacon -Itest -rubygems -a"
 end
 
 desc "run pry"
