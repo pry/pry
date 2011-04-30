@@ -869,7 +869,7 @@ e.g: show-command show-method
       end
 
       if commands[command_name]
-        meth = commands[command_name][:action]
+        meth = commands[command_name].block
 
         code = strip_leading_whitespace(meth.source)
         file, line = meth.source_location
