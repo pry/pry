@@ -30,7 +30,7 @@ class Pry
     default_options.merge!(options)
 
     CONFIG_OPTIONS.each do |key|
-      instance_variable_set("@#{key}", default_options[key])
+      send "#{key}=", default_options[key]
     end
 
     @command_processor = CommandProcessor.new(self)
@@ -318,6 +318,63 @@ class Pry
     else
       Array(prompt).last.call(target_self, nesting.level)
     end
+  end
+
+  # the array that the prompt stack is stored in
+  def prompt_stack
+    @prompt_stack ||= Array.new
+  end
+  private :prompt_stack
+
+  # The current prompt, this is the prompt at the top of the prompt stack.
+  # @return [Array<Proc>] Current prompt.
+  # @example
+  #    push_prompt(Pry::SIMPLE_PROMPT)
+  #    prompt # => Pry::SIMPLE_PROMPT
+  def prompt
+    prompt_stack.last
+  end
+
+  # Replaces the current prompt with the new prompt.
+  # Does not change the rest of the prompt stack.
+  # @param [Array<Proc>] new_prompt
+  # @return [Array<Proc>] new_prompt
+  # @example
+  #    pry.prompt = Pry::SIMPLE_PROMPT # => Pry::SIMPLE_PROMPT
+  #    pry.prompt # => Pry::SIMPLE_PROMPT
+  def prompt=(new_prompt)
+    if prompt_stack.empty?
+      push_prompt new_prompt
+    else
+      prompt_stack[-1] = new_prompt
+    end
+  end
+
+  # Pushes the current prompt onto a stack that it can be restored from later.
+  # Use this if you wish to temporarily change the prompt.
+  # @param [Array<Proc>] new_prompt
+  # @return [Array<Proc>] new_prompt
+  # @example
+  #    new_prompt = [ proc { '>' }, proc { '>>' } ]
+  #    push_prompt(new_prompt) # => new_prompt
+  def push_prompt(new_prompt)
+    prompt_stack.push new_prompt
+  end
+
+  # Pops the current prompt off of the prompt stack.
+  # If the prompt you are popping is the last prompt, it will not be popped.
+  # Use this to restore the previous prompt.
+  # @return [Array<Proc>] Prompt being popped.
+  # @example
+  #    prompt1 = [ proc { '>' }, proc { '>>' } ]
+  #    prompt2 = [ proc { '$' }, proc { '>' } ]
+  #    pry = Pry.new :prompt => prompt1
+  #    pry.push_prompt(prompt2)
+  #    pry.pop_prompt # => prompt2
+  #    pry.pop_prompt # => prompt1
+  #    pry.pop_prompt # => prompt1
+  def pop_prompt
+    if prompt_stack.size > 1 then prompt_stack.pop else prompt end
   end
 
   if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"

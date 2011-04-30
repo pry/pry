@@ -744,6 +744,67 @@ describe Pry do
             Pry.new.select_prompt(true, 0).should == "test prompt> "
             Pry.new.select_prompt(false, 0).should == "test prompt* "
           end
+
+          describe 'storing and restoring the prompt' do
+            before do
+              make = lambda do |name,i|
+                prompt = [ proc { "#{i}>" } , proc { "#{i+1}>" } ]
+                (class << prompt; self; end).send(:define_method, :inspect) { "<Prompt-#{name}>" }
+                prompt
+              end
+              @a , @b , @c = make[:a,0] , make[:b,1] , make[:c,2]
+              @pry = Pry.new :prompt => @a
+            end
+            it 'should have a prompt stack' do
+              @pry.push_prompt @b
+              @pry.push_prompt @c
+              @pry.prompt.should == @c
+              @pry.pop_prompt
+              @pry.prompt.should == @b
+              @pry.pop_prompt
+              @pry.prompt.should == @a
+            end
+
+            it 'should restore overridden prompts when returning from file-mode' do
+              pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
+                            :prompt => [ proc { 'P>' } ] * 2
+              pry.select_prompt(true, 0).should == "P>"
+              pry.re
+              pry.select_prompt(true, 0).should =~ /\Apry .* \$ \z/
+              pry.re
+              pry.select_prompt(true, 0).should == "P>"
+            end
+
+            it '#pop_prompt should return the popped prompt' do
+              @pry.push_prompt @b
+              @pry.push_prompt @c
+              @pry.pop_prompt.should == @c
+              @pry.pop_prompt.should == @b
+            end
+
+            it 'should not pop the last prompt' do
+              @pry.push_prompt @b
+              @pry.pop_prompt.should == @b
+              @pry.pop_prompt.should == @a
+              @pry.pop_prompt.should == @a
+              @pry.prompt.should == @a
+            end
+
+            describe '#prompt= should replace the current prompt with the new prompt' do
+              it 'when only one prompt on the stack' do
+                @pry.prompt = @b
+                @pry.prompt.should == @b
+                @pry.pop_prompt.should == @b
+                @pry.pop_prompt.should == @b
+              end
+              it 'when several prompts on the stack' do
+                @pry.push_prompt @b
+                @pry.prompt = @c
+                @pry.pop_prompt.should == @c
+                @pry.pop_prompt.should == @a
+              end
+            end
+          end
         end
 
         it 'should set the hooks default, and the default should be overridable' do
