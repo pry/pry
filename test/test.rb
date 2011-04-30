@@ -386,56 +386,56 @@ describe Pry do
           str_output2.string.should =~ /7/
         end
 
-        describe "Pry.run_command" do
-          before do
-            class RCTest
-              def a() end
-              B = 20
-              @x = 10
-            end
-          end
+        # describe "Pry.run_command" do
+        #   before do
+        #     class RCTest
+        #       def a() end
+        #       B = 20
+        #       @x = 10
+        #     end
+        #   end
 
-          after do
-            Object.remove_const(:RCTest)
-          end
+        #   after do
+        #     Object.remove_const(:RCTest)
+        #   end
 
-          it "should execute command in the appropriate object context" do
-            result = Pry.run_command "ls", :context => RCTest
-            result.map(&:to_sym).should == [:@x]
-          end
+        #   it "should execute command in the appropriate object context" do
+        #     result = Pry.run_command "ls", :context => RCTest
+        #     result.map(&:to_sym).should == [:@x]
+        #   end
 
-          it "should execute command with parameters in the appropriate object context" do
-            result = Pry.run_command "ls -M", :context => RCTest
-            result.map(&:to_sym).should == [:a]
-          end
+        #   it "should execute command with parameters in the appropriate object context" do
+        #     result = Pry.run_command "ls -M", :context => RCTest
+        #     result.map(&:to_sym).should == [:a]
+        #   end
 
-          it "should execute command and show output with :show_output => true flag" do
-            str = StringIO.new
-            Pry.output = str
-            result = Pry.run_command "ls -afv", :context => RCTest, :show_output => true
-            str.string.should =~ /global variables/
-            Pry.output = $stdout
-          end
+        #   it "should execute command and show output with :show_output => true flag" do
+        #     str = StringIO.new
+        #     Pry.output = str
+        #     result = Pry.run_command "ls -afv", :context => RCTest, :show_output => true
+        #     str.string.should =~ /global variables/
+        #     Pry.output = $stdout
+        #   end
 
-          it "should execute command with multiple parameters" do
-            result = Pry.run_command "ls -c -M RCTest"
-            result.map(&:to_sym).should == [:a, :B]
-          end
-        end
+        #   it "should execute command with multiple parameters" do
+        #     result = Pry.run_command "ls -c -M RCTest"
+        #     result.map(&:to_sym).should == [:a, :B]
+        #   end
+        # end
 
         describe "commands" do
           it 'should interpolate ruby code into commands' do
-            klass = Class.new(Pry::CommandBase) do
+            klass = Pry::CommandSet.new :test do
               command "hello", "", :keep_retval => true do |arg|
                 arg
               end
             end
 
-            $test_interpolation = "bing"
+            @test_interpolation = "bing"
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello #{$test_interpolation}"), :output => str_output, :commands => klass).rep
+            Pry.new(:input => StringIO.new("hello #{@test_interpolation}"), :output => str_output, :commands => klass).rep
             str_output.string.should =~ /bing/
-            $test_interpolation = nil
+            @test_interpolation = nil
           end
 
           it 'should create a comand in  a nested context and that command should be accessible from the parent' do
@@ -449,47 +449,43 @@ describe Pry do
           end
 
           it 'should define a command that keeps its return value' do
-            class Command68 < Pry::CommandBase
+            klass = Pry::CommandSet.new :test do
               command "hello", "", :keep_retval => true do
                 :kept_hello
               end
             end
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
             str_output.string.should =~ /:kept_hello/
             str_output.string.should =~ /=>/
-
-            Object.remove_const(:Command68)
           end
 
           it 'should define a command that does NOT keep its return value' do
-            class Command68 < Pry::CommandBase
+            klass = Pry::CommandSet.new :test do
               command "hello", "", :keep_retval => false do
                 :kept_hello
               end
             end
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => Command68).rep
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
             (str_output.string =~ /:kept_hello/).should == nil
             str_output.string !~ /=>/
-
-            Object.remove_const(:Command68)
           end
 
           it 'should set the commands default, and the default should be overridable' do
-            class Command0 < Pry::CommandBase
+            klass = Pry::CommandSet.new :test do
               command "hello" do
                 output.puts "hello world"
               end
             end
 
-            Pry.commands = Command0
+            Pry.commands = klass
 
             str_output = StringIO.new
             Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
             str_output.string.should =~ /hello world/
 
-            class Command1 < Pry::CommandBase
+            other_klass = Pry::CommandSet.new :test2 do
               command "goodbye", "" do
                 output.puts "goodbye world"
               end
@@ -497,73 +493,55 @@ describe Pry do
 
             str_output = StringIO.new
 
-            Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => Command1).rep
+            Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => other_klass).rep
             str_output.string.should =~ /goodbye world/
-
-            Object.remove_const(:Command0)
-            Object.remove_const(:Command1)
           end
 
           it 'should inherit "help" command from Pry::CommandBase' do
-            class Command2 < Pry::CommandBase
+            klass = Pry::CommandSet.new :test do
               command "h", "h command" do
               end
             end
 
-            Command2.commands.keys.size.should == 3
-            Command2.commands.keys.include?("help").should == true
-            Command2.commands.keys.include?("install").should == true
-            Command2.commands.keys.include?("h").should == true
-
-            Object.remove_const(:Command2)
+            klass.commands.keys.size.should == 3
+            klass.commands.keys.include?("help").should == true
+            klass.commands.keys.include?("install").should == true
+            klass.commands.keys.include?("h").should == true
           end
 
           it 'should inherit commands from Pry::Commands' do
-            class Command3 < Pry::Commands
+            klass = Pry::CommandSet.new :test, Pry::Commands do
               command "v" do
               end
             end
 
-            Command3.commands.include?("nesting").should == true
-            Command3.commands.include?("jump-to").should == true
-            Command3.commands.include?("cd").should == true
-            Command3.commands.include?("v").should == true
-
-            Object.remove_const(:Command3)
+            klass.commands.include?("nesting").should == true
+            klass.commands.include?("jump-to").should == true
+            klass.commands.include?("cd").should == true
+            klass.commands.include?("v").should == true
           end
 
           it 'should alias a command with another command' do
-            class Command6 < Pry::CommandBase
+              klass = Pry::CommandSet.new :test do
               alias_command "help2", "help"
             end
 
-            Command6.commands["help2"].should == Command6.commands["help"]
-            # str_output = StringIO.new
-            # Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command3).rep
-            # str_output.string.should =~ /v command/
 
-            Object.remove_const(:Command6)
+              klass.commands["help2"].block.should == klass.commands["help"].block
           end
 
           it 'should change description of a command using desc' do
-
-            class Command7 < Pry::Commands
-            end
-
-            orig = Command7.commands["help"][:description]
-
-            class Command7
+            klass = Pry::CommandSet.new :test do; end
+            orig = klass.commands["help"].description
+            klass.instance_eval do
               desc "help", "blah"
             end
-
-            Command7.commands["help"][:description].should.not == orig
-            Command7.commands["help"][:description].should == "blah"
-
-            Object.remove_const(:Command7)
+            klass.commands["help"].description.should.not == orig
+            klass.commands["help"].description.should == "blah"
           end
 
           it 'should run a command from within a command' do
-            class Command01 < Pry::Commands
+            klass = Pry::CommandSet.new :test do
               command "v" do
                 output.puts "v command"
               end
@@ -574,69 +552,56 @@ describe Pry do
             end
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => Command01).rep
+            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => klass).rep
             str_output.string.should =~ /v command/
-
-            Object.remove_const(:Command01)
           end
 
           it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
-            class Command3 < Pry::Commands
+            klass = Pry::CommandSet.new :test do
               command "v" do
                 output.puts "#{target.eval('self')}"
               end
             end
 
-            class Command4 < Command3
+            child_klass = Pry::CommandSet.new :test2, klass do
             end
 
             str_output = StringIO.new
             Pry.new(:print => proc {}, :input => InputTester.new("v"),
-                    :output => str_output, :commands => Command4).rep("john")
+                    :output => str_output, :commands => child_klass).rep("john")
 
             str_output.string.rstrip.should == "john"
-
-            Object.remove_const(:Command3)
-            Object.remove_const(:Command4)
           end
 
           it 'should import commands from another command object' do
-            Object.remove_const(:Command77) if Object.const_defined?(:Command77)
-
-            class Command77 < Pry::CommandBase
-              import_from Pry::Commands, "status", "jump-to"
+            klass = Pry::CommandSet.new :test do
+              import_from Pry::Commands, "ls", "jump-to"
             end
 
-            str_output = StringIO.new
-            Pry.new(:print => proc {}, :input => InputTester.new("status"),
-                    :output => str_output, :commands => Command77).rep("john")
-            str_output.string.should =~ /Status:/
-
-            Object.remove_const(:Command77)
-          end
+              klass.commands.include?("ls").should == true
+              klass.commands.include?("jump-to").should == true
+            end
 
           it 'should delete some inherited commands when using delete method' do
-            class Command3 < Pry::Commands
+            klass = Pry::CommandSet.new :test, Pry::Commands do
               command "v" do
               end
 
-              delete "show_doc", "show_method"
+              delete "show-doc", "show-method"
               delete "ls"
             end
 
-            Command3.commands.include?("nesting").should == true
-            Command3.commands.include?("jump-to").should == true
-            Command3.commands.include?("cd").should == true
-            Command3.commands.include?("v").should == true
-            Command3.commands.include?("show_doc").should == false
-            Command3.commands.include?("show_method").should == false
-            Command3.commands.include?("ls").should == false
-
-            Object.remove_const(:Command3)
+            klass.commands.include?("nesting").should == true
+            klass.commands.include?("jump-to").should == true
+            klass.commands.include?("cd").should == true
+            klass.commands.include?("v").should == true
+            klass.commands.include?("show-doc").should == false
+            klass.commands.include?("show-method").should == false
+            klass.commands.include?("ls").should == false
           end
 
           it 'should override some inherited commands' do
-            class Command3 < Pry::Commands
+            klass = Pry::CommandSet.new :test, Pry::Commands do
               command "jump-to" do
                 output.puts "jump-to the music"
               end
@@ -650,14 +615,13 @@ describe Pry do
             Pry.print = proc {}
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => Command3).rep
+            Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => klass).rep
             str_output.string.rstrip.should == "jump-to the music"
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => Command3).rep
+            Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => klass).rep
             str_output.string.rstrip.should == "help to the music"
 
-            Object.remove_const(:Command3)
 
             Pry.reset_defaults
             Pry.color = false
