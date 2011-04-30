@@ -17,6 +17,20 @@ describe Pry do
         Object.send(:remove_const, :Hello)
       end
 
+      # bug fix for https://github.com/banister/pry/issues/93
+      it 'should not leak pry constants into Object namespace' do
+        input_string = "VERSION == ::Pry::VERSION"
+        str_output = StringIO.new
+        o = Object.new
+        pry_tester = Pry.new(:input => StringIO.new(input_string),
+                             :output => str_output,
+                             :exception_handler => proc { |_, exception| @excep = exception },
+                             :print => proc {}
+                             ).rep(o)
+
+        @excep.is_a?(NameError).should == true
+      end
+
       it 'should set an ivar on an object' do
         input_string = "@x = 10"
         input = InputTester.new(input_string)
