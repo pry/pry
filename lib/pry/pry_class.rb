@@ -101,7 +101,16 @@ class Pry
 
     # The default editor to use. Defaults to $EDITOR or nano if
     # $EDITOR is not defined.
-    # @return [String]
+    # If `editor` is a String then that string is used as the shell
+    # command to invoke the editor. If `editor` is callable (e.g a
+    # Proc) then `file` and `line` are passed in as parameters and the
+    # return value of that callable invocation is used as the exact
+    # shell command to invoke the editor.
+    # @example String
+    #   Pry.editor = "emacsclient"
+    # @example Callable
+    #   Pry.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
+    # @return [String, #call]
     attr_accessor :editor
   end
 
