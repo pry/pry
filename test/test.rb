@@ -925,4 +925,46 @@ describe Pry::CommandSet do
     @set.command('foo', '', :keep_retval => true) { 3 }
     @set.run_command(nil, 'foo').should == 3
   end
+
+  it 'should be able to have its own helpers' do
+    @set.command('foo') do
+      should.respond_to :my_helper
+    end
+
+    @set.helpers do
+      def my_helper; end
+    end
+
+    @set.run_command(Pry::CommandContext.new, 'foo')
+    Pry::CommandContext.new.should.not.respond_to :my_helper
+  end
+
+  it 'should not recreate a new heler module when helpers is called' do
+    @set.command('foo') do
+      should.respond_to :my_helper
+      should.respond_to :my_other_helper
+    end
+
+    @set.helpers do
+      def my_helper; end
+    end
+
+    @set.helpers do
+      def my_other_helper; end
+    end
+
+    @set.run_command(Pry::CommandContext.new, 'foo')
+  end
+
+  it 'should import helpers from imported sets' do
+    imported_set = Pry::CommandSet.new :test do
+      helpers do
+        def imported_helper_method; end
+      end
+    end
+
+    @set.import imported_set
+    @set.command('foo') { should.respond_to :imported_helper_method }
+    @set.run_command(Pry::CommandContext.new, 'foo')
+  end
 end

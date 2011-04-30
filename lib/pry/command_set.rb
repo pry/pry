@@ -23,14 +23,16 @@ class Pry
 
     attr_reader :commands
     attr_reader :name
+    attr_reader :helper_module
 
     # @param [Symbol] name Name of the command set
     # @param [Array<CommandSet>] imported_sets Sets which will be imported
     #   automatically
     # @yield Optional block run to define commands
     def initialize(name, *imported_sets, &block)
-      @name     = name
-      @commands = {}
+      @name          = name
+      @commands      = {}
+      @helper_module = Module.new
 
       define_default_commands
       import(*imported_sets)
@@ -94,7 +96,10 @@ class Pry
     # @param [Array<CommandSet>] sets Command sets, all of the commands of which
     #   will be imported.
     def import(*sets)
-      sets.each { |set| commands.merge! set.commands }
+      sets.each do |set|
+        commands.merge! set.commands
+        helper_module.send :include, set.helper_module
+      end
     end
 
     # Imports some commands from a set
@@ -121,6 +126,8 @@ class Pry
     # @param [Array<Object>] args Arguments passed to the command
     # @raise [NoCommandError] If the command is not defined in this set
     def run_command(context, name, *args)
+      context.extend helper_module
+
       if command = commands[name]
         command.call(context, *args)
       else
@@ -138,6 +145,22 @@ class Pry
     #   end
     def desc(name, description)
       commands[name].description = description
+    end
+
+    # Defines helpers methods for this command sets.
+    # Those helpers are only defined in this command set.
+    #
+    # @yield A block defining helper methods
+    # @example
+    #   helpers do
+    #     def hello
+    #       puts "Hello!"
+    #     end
+    #
+    #     include OtherModule
+    #   end
+    def helpers(&block)
+      helper_module.class_eval(&block)
     end
 
     private
