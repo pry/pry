@@ -441,6 +441,11 @@ help that can be accessed via typing `command_name --help`. A command
 will typically say in its description if the `--help` option is
 avaiable.
 
+### Use Pry as your Rails 3 Console
+
+This is currently a hack, but follow the gist kindly provided by
+MyArtChannel: [https://gist.github.com/941174](https://gist.github.com/941174)
+
 
 ### Other Features and limitations
 
