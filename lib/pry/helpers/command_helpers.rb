@@ -57,17 +57,17 @@ class Pry
         end
       end
 
-      def editor_with_start_line(line_number)
+      def start_line_for_editor(line_number)
         case Pry.editor
         when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
-          "#{Pry.editor} +#{line_number}"
+          "+#{line_number}"
         when /^mate/
-          "#{Pry.editor} -l#{line_number}"
+          "-l#{line_number}"
         else
           if RUBY_PLATFORM =~ /mswin|mingw/
-            Pry.editor
+            ""
           else
-            "#{Pry.editor} +#{line_number}"
+            "+#{line_number}"
           end
         end
       end

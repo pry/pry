@@ -53,6 +53,7 @@ e.g: edit-method hello_method
         opts.on :M, "instance-methods", "Operate on instance methods."
         opts.on :m, :methods, "Operate on methods."
         opts.on "no-reload", "Do not automatically reload the method's file after editting."
+        opts.on :n, "no-jump", "Do not fast forward editor to first line of method."
         opts.on :c, :context, "Select object context to run under.", true do |context|
           target = Pry.binding_for(target.eval(context))
         end
@@ -84,9 +85,20 @@ e.g: edit-method hello_method
         output.puts "Error: Can't edit a C method."
       elsif is_a_dynamically_defined_method?(meth)
         output.puts "Error: Can't edit an eval method."
+
+      # editor is invoked here
       else
         file, line = meth.source_location
-        run ".#{editor_with_start_line(line)}", file
+
+        if Pry.editor.respond_to?(:call)
+          editor_invocation = Pry.editor.call(file, line)
+        else
+          # only use start line if -n option is not used
+          start_line_syntax = opts.n? ? "" : start_line_for_editor(line)
+          editor_invocation = "#{Pry.editor} #{start_line_syntax} #{file}"
+        end
+
+        run ".#{editor_invocation}"
         load file if !opts["no-reload"]
       end
     end
