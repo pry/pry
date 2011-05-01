@@ -106,6 +106,7 @@ class Pry
     # @param [CommandSet] set Set to import commands from
     # @param [Array<String>] names Commands to import
     def import_from(set, *names)
+      helper_module.send :include, set.helper_module
       names.each { |name| commands[name] = set.commands[name] }
     end
 
