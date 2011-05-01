@@ -486,13 +486,13 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 
 #### Limitations:
 
-* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
+* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8
+  MRI. But many other commands do work in Ruby 1.8 MRI, e.g
+  `show-method`, due to a functional 1.8 source_location implementation.
 * JRuby not officially supported due to currently too many quirks and
  strange behaviour. Nonetheless most functionality should still work
  OK in JRuby. Full JRuby support coming in a future version.
 * `method_source` functionality does not work in JRuby with Ruby 1.8
-* Color support does not work in JRuby with Ruby 1.9 (due to a
-  limitation in JRuby's regex).
 * Tab completion is currently a bit broken/limited this will have a
    major overhaul in a future version.
 

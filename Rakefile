@@ -9,7 +9,7 @@ CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc
 
 def apply_spec_defaults(s)
   s.name = "pry"
-  s.summary = "attach an irb-like session to any object at runtime"
+  s.summary = "an IRB alternative and runtime developer console"
   s.version = Pry::VERSION
   s.date = Time.now.strftime '%Y-%m-%d'
   s.author = "John Mair (banisterfiend)"
@@ -21,7 +21,7 @@ def apply_spec_defaults(s)
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
   s.add_dependency("ruby_parser",">=2.0.5")
-  s.add_dependency("coderay",">=0.9.7")
+  s.add_dependency("coderay",">=0.9.8")
   s.add_dependency("slop",">=1.5.3")
   s.add_dependency("method_source",">=0.4.0")
   s.add_development_dependency("bacon",">=1.1.0")
