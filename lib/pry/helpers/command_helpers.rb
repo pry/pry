@@ -138,9 +138,9 @@ class Pry
           return nil
         end
 
-        if options[:M]
+        if options["instance-methods"]
           target.eval("instance_method(:#{meth_name})")
-        elsif options[:m]
+        elsif options[:methods]
           target.eval("method(:#{meth_name})")
         else
           begin
