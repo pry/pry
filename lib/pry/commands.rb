@@ -272,10 +272,10 @@ e.g: gist -d my_method
     command "shell-mode", "Toggle shell mode. Bring in pwd prompt and file completion." do
       case Pry.active_instance.prompt
       when Pry::SHELL_PROMPT
-        Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
+        Pry.active_instance.pop_prompt
         Pry.active_instance.custom_completions = Pry::DEFAULT_CUSTOM_COMPLETIONS
       else
-        Pry.active_instance.prompt = Pry::SHELL_PROMPT
+        Pry.active_instance.push_prompt Pry::SHELL_PROMPT
         Pry.active_instance.custom_completions = Pry::FILE_COMPLETIONS
         Readline.completion_proc = Pry::InputCompleter.build_completion_proc target,
         Pry.active_instance.instance_eval(&Pry::FILE_COMPLETIONS)
