@@ -32,8 +32,3 @@ require "pry/completion"
 require "pry/core_extensions"
 require "pry/pry_class"
 require "pry/pry_instance"
-
-# TEMPORARY HACK FOR BUG IN JRUBY 1.9 REGEX (which kills CodeRay)
-if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE =~ /jruby/
-  Pry.color = false
-end
