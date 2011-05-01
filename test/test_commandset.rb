@@ -167,4 +167,18 @@ describe Pry::CommandSet do
     @set.command('foo') { should.respond_to :imported_helper_method }
     @set.run_command(Pry::CommandContext.new, 'foo')
   end
+
+  it 'should import helpers even if only some commands are imported' do
+    imported_set = Pry::CommandSet.new :test do
+      helpers do
+        def imported_helper_method; end
+      end
+
+      command('bar') {}
+    end
+
+    @set.import_from imported_set, 'bar'
+    @set.command('foo') { should.respond_to :imported_helper_method }
+    @set.run_command(Pry::CommandContext.new, 'foo')
+  end
 end
