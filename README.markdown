@@ -443,7 +443,7 @@ avaiable.
 
 ### Use Pry as your Rails Console
 
-    ruby -rpry -r./config/environment -e 'Pry.start'
+    pry -r./config/environment
 
 MyArtChannel has kindly provided a hack to replace the `rails console` command in Rails 3: [https://gist.github.com/941174](https://gist.github.com/941174) This is not recommended for code bases with multiple developers, as they may not all want to use Pry.
 
