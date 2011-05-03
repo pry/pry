@@ -22,7 +22,7 @@ def apply_spec_defaults(s)
   s.test_files = `git ls-files -- test/*`.split("\n")
   s.add_dependency("ruby_parser",">=2.0.5")
   s.add_dependency("coderay",">=0.9.7")
-  s.add_dependency("slop",">=1.5.3")
+  s.add_dependency("slop",">=1.5.5")
   s.add_dependency("method_source",">=0.4.0")
   s.add_development_dependency("bacon",">=1.1.0")
 end
