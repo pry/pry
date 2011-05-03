@@ -134,23 +134,35 @@ class Pry
       end
 
       def get_method_object(meth_name, target, options)
+        if meth_name
+          if meth_name =~ /(\S+)\#(\S+)\Z/
+            context, meth_name = $1, $2
+            target = Pry.binding_for(target.eval(context))
+            options["instance-methods"] = true
+            options[:methods] = false
+          elsif meth_name =~ /(\S+)\.(\S+)\Z/
+            context, meth_name = $1, $2
+            target = Pry.binding_for(target.eval(context))
+            options["instance-methods"] = false
+            options[:methods] = true
+          end
+        else
+          meth_name = meth_name_from_binding(target)
+        end
+
         if !meth_name
           return nil
         end
 
         if options["instance-methods"]
-          target.eval("instance_method(:#{meth_name})")
+          target.eval("instance_method(:#{meth_name})") rescue nil
         elsif options[:methods]
-          target.eval("method(:#{meth_name})")
+          target.eval("method(:#{meth_name})") rescue nil
         else
           begin
             target.eval("instance_method(:#{meth_name})")
           rescue
-            begin
-              target.eval("method(:#{meth_name})")
-            rescue
-              return nil
-            end
+            target.eval("method(:#{meth_name})") rescue nil
           end
         end
       end
