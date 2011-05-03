@@ -87,7 +87,7 @@ class Pry
     end
 
     # Removes some commands from the set
-    # @param [Arary<String>] names name of the commands to remove
+    # @param [Array<String>] names name of the commands to remove
     def delete(*names)
       names.each { |name| commands.delete name }
     end
