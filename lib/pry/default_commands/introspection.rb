@@ -27,15 +27,6 @@ e.g: show-method hello_method
         next if opts.help?
 
         meth_name = args.shift
-        if meth_name
-          if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
-            context, meth_name = $1, $2
-            target = Pry.binding_for(target.eval(context))
-          end
-        else
-          meth_name = meth_name_from_binding(target)
-        end
-
         if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
           next
@@ -141,15 +132,6 @@ e.g: edit-method hello_method
         next if opts.help?
 
         meth_name = args.shift
-        if meth_name
-          if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
-            context, meth_name = $1, $2
-            target = Pry.binding_for(target.eval(context))
-          end
-        else
-          meth_name = meth_name_from_binding(target)
-        end
-
         if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}."
           next

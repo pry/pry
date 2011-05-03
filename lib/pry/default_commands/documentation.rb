@@ -30,15 +30,6 @@ e.g show-doc hello_method
         next if opts.help?
 
         meth_name = args.shift
-        if meth_name
-          if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
-            context, meth_name = $1, $2
-            target = Pry.binding_for(target.eval(context))
-          end
-        else
-          meth_name = meth_name_from_binding(target)
-        end
-
         if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
           next
@@ -48,11 +39,8 @@ e.g show-doc hello_method
         next if !doc
 
         next output.puts("No documentation found.") if doc.empty?
-
         doc = process_comment_markup(doc, code_type)
-
         output.puts make_header(meth, code_type, doc)
-
         render_output(opts.flood?, false, doc)
         doc
       end
@@ -82,15 +70,6 @@ e.g: stat hello_method
         next if opts.help?
 
         meth_name = args.shift
-        if meth_name
-          if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/ && !opts.context?
-            context, meth_name = $1, $2
-            target = Pry.binding_for(target.eval(context))
-          end
-        else
-          meth_name = meth_name_from_binding(target)
-        end
-
         if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
           next
@@ -139,15 +118,6 @@ e.g: gist -d my_method
         # This needs to be extracted into its own method as it's shared
         # by show-method and show-doc and stat commands
         meth_name = args.shift
-        if meth_name
-          if meth_name =~ /\A([^\.\#]+)[\.\#](.+)\z/
-            context, meth_name = $1, $2
-            target = Pry.binding_for(target.eval(context))
-          end
-        else
-          meth_name = meth_name_from_binding(target)
-        end
-
         if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
           next
@@ -168,7 +138,6 @@ e.g: gist -d my_method
           gist.puts content
         end
       end
-
 
     end
 
