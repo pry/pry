@@ -3,6 +3,8 @@
 # (C) John Mair (banisterfiend)
 # MIT license
 
+$0 = 'pry'
+
 begin
   require 'pry'
 rescue LoadError
