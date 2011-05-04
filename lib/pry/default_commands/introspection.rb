@@ -157,7 +157,9 @@ e.g: edit-method hello_method
           end
 
           run ".#{editor_invocation}"
-          load file if !opts["no-reload"]
+          silence_warnings do
+            load file if !opts["no-reload"]
+          end
         end
       end
 
