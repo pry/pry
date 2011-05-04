@@ -147,6 +147,7 @@ e.g: edit-method hello_method
           # editor is invoked here
         else
           file, line = meth.source_location
+          set_file_and_dir_locals(file)
 
           if Pry.editor.respond_to?(:call)
             editor_invocation = Pry.editor.call(file, line)
