@@ -30,8 +30,8 @@ class Pry
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
-        adjusted_index = idx + start_line
-        "#{colorize adjusted_index}: #{line}"
+          adjusted_index = idx + start_line
+          "#{colorize adjusted_index}: #{line}"
         end.join
       end
 
