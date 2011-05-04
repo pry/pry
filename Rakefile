@@ -81,7 +81,6 @@ namespace :jruby do
   end
 end
 
-
 desc "build all platform gems at once"
 task :gems => [:clean, :rmgems, "ruby:gem", "jruby:gem", "mswin32:gem", "mingw32:gem"]
 
@@ -90,7 +89,7 @@ task :rmgems => ["ruby:clobber_package"]
 
 desc "build and push latest gems"
 task :pushgems => :gems do
-  chdir("#{direc}/pkg") do
+  chdir("#{File.dirname(__FILE__)}/pkg") do
     Dir["*.gem"].each do |gemfile|
       sh "gem push #{gemfile}"
     end
