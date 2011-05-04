@@ -21,6 +21,11 @@ class Pry
             Pry.active_instance.input = StringIO.new(actions)
           end
 
+          opt.on :c, :clear, 'Clear the history' do
+            Readline::HISTORY.clear
+            output.puts 'History cleared.'
+          end
+
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             history.pop
             matches = history.grep Regexp.new(pattern)
@@ -29,7 +34,7 @@ class Pry
           end
 
           opt.on :h, :help, 'Show this message.', :tail => true do
-            output.puts opt.help unless opt.g? || opt.r?
+            output.puts opt.help unless opt.g? || opt.r? || opt.c?
           end
 
           opt.on_empty do
