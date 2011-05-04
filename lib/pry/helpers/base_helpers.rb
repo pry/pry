@@ -14,6 +14,15 @@ class Pry
         end
       end
 
+      # turn off color for duration of block
+      def no_color(&block)
+        old_color_state = Pry.color
+        Pry.color = false
+        yield
+      ensure
+        Pry.color = old_color_state
+      end
+
       def gem_installed?(gem_name)
         require 'rubygems'
         !!Gem.source_index.find_name(gem_name).first
@@ -24,6 +33,14 @@ class Pry
         Array(options[:requires_gem]).all? do |g|
           gem_installed?(g)
         end
+      end
+
+      def set_file_and_dir_locals(file_name)
+        return if !target
+        $_file_temp = File.expand_path(file_name)
+        $_dir_temp =  File.dirname($_file_temp)
+        target.eval("_file_ = $_file_temp")
+        target.eval("_dir_ = $_dir_temp")
       end
 
       def stub_proc(name, options)

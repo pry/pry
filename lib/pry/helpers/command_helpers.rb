@@ -23,14 +23,6 @@ class Pry
         end
       end
 
-      def set_file_and_dir_locals(file_name)
-        return if !target
-        $_file_temp = File.expand_path(file_name)
-        $_dir_temp =  File.dirname($_file_temp)
-        target.eval("_file_ = $_file_temp")
-        target.eval("_dir_ = $_dir_temp")
-      end
-
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
