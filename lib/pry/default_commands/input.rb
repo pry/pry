@@ -21,8 +21,15 @@ class Pry
             Pry.active_instance.input = StringIO.new(actions)
           end
 
+          opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
+            history.pop
+            matches = history.grep Regexp.new(pattern)
+            text = add_line_numbers matches.join("\n"), 0 
+            stagger_output text
+          end
+
           opt.on :h, :help, 'Show this message.', :tail => true do
-            output.puts opt.help
+            output.puts opt.help unless opt.g? || opt.r?
           end
 
           opt.on_empty do
