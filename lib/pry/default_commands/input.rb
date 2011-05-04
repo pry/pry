@@ -24,21 +24,21 @@ class Pry
           end
 
           opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
-            unless opt.g?
+            unless opt.grep?
               actions = history[range].join("\n") + "\n"
               Pry.active_instance.input = StringIO.new(actions)
             end
           end
 
           opt.on :c, :clear, 'Clear the history' do
-            unless opt.g?
+            unless opt.grep?
               Readline::HISTORY.clear
               output.puts 'History cleared.'
             end
           end
 
           opt.on :h, :help, 'Show this message.', :tail => true do
-            unless opt.g?
+            unless opt.grep?
               output.puts opt.help 
             end
           end
