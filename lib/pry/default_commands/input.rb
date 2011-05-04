@@ -17,10 +17,14 @@ class Pry
                      "e.g hist --replay 2..8"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
+            pattern = Regexp.new pattern
             history.pop
-            matches = history.grep Regexp.new(pattern)
-            text = add_line_numbers matches.join("\n"), 0
-            stagger_output text
+            
+            history.each_with_index do |element, index|
+              if element =~ pattern
+                output.puts "#{colorize index}: #{element}"
+              end
+            end
           end
 
           opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
