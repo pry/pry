@@ -9,12 +9,24 @@ class Pry
   # different sets, aliased, removed, etc.
   class CommandSet
     class Command < Struct.new(:name, :description, :options, :block)
+
       def call(context, *args)
         if stub_block = options[:stub_info]
           context.instance_eval(&stub_block)
         else
-          ret = context.instance_exec(*args, &block)
+          ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
           ret if options[:keep_retval]
+        end
+      end
+
+      private
+      def correct_arg_arity(arity, args)
+        case arity <=> 0
+        when -1
+          args
+        when 1, 0
+          # Keep 1.8 happy
+          args.values_at *0..(arity - 1)
         end
       end
     end
