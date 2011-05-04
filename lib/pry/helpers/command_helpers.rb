@@ -57,21 +57,6 @@ class Pry
         end
       end
 
-      def start_line_for_editor(line_number)
-        case Pry.editor
-        when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
-          "+#{line_number}"
-        when /^mate/
-          "-l#{line_number}"
-        else
-          if RUBY_PLATFORM =~ /mswin|mingw/
-            ""
-          else
-            "+#{line_number}"
-          end
-        end
-      end
-
       def is_a_dynamically_defined_method?(meth)
         file, _ = meth.source_location
         !!(file =~ /(\(.*\))|<.*>/)
