@@ -2,9 +2,19 @@ class Pry
   module Helpers
 
     module BaseHelpers
-     module_function
+      module_function
 
-     def gem_installed?(gem_name)
+      def silence_warnings
+        old_verbose = $VERBOSE
+        $VERBOSE = nil
+        begin
+          yield
+        ensure
+          $VERBOSE = old_verbose
+        end
+      end
+
+      def gem_installed?(gem_name)
         require 'rubygems'
         !!Gem.source_index.find_name(gem_name).first
       end
@@ -49,15 +59,15 @@ class Pry
       #
 
       COLORS = {
-         "black" => 0,
-         "red" => 1,
-         "green" => 2,
-         "yellow" => 3,
-         "blue" => 4,
-         "purple" => 5,
-         "magenta" => 5,
-         "cyan" => 6,
-         "white" => 7
+        "black" => 0,
+        "red" => 1,
+        "green" => 2,
+        "yellow" => 3,
+        "blue" => 4,
+        "purple" => 5,
+        "magenta" => 5,
+        "cyan" => 6,
+        "white" => 7
       }
 
       COLORS.each do |color, i|
@@ -75,10 +85,10 @@ class Pry
 
       require 'set'
       VALID_COLORS = Set.new(
-        COLORS.keys +
-        COLORS.keys.map{|k| "bright_#{k}" } +
-        ["grey", "gray"]
-      )
+                             COLORS.keys +
+                             COLORS.keys.map{|k| "bright_#{k}" } +
+                             ["grey", "gray"]
+                             )
 
       def bold(text)
         Pry.color ? "\e[1m#{text}\e[0m" : text
@@ -106,7 +116,7 @@ class Pry
           if /<([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) #valid_tag?($1)
             stack.push $1
 
-          # token is a closing tag!
+            # token is a closing tag!
 
           elsif /<\/([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) # valid_tag?($1)
 
@@ -118,7 +128,7 @@ class Pry
               raise "Error: tried to close an unopened color tag -- #{token}"
             end
 
-          # token is a literal string!
+            # token is a literal string!
 
           else
 
