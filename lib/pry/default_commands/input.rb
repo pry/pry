@@ -16,11 +16,6 @@ class Pry
                      "View and replay history\n" \
                      "e.g hist --replay 2..8"
 
-          opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
-            actions = history[range].join("\n") + "\n"
-            Pry.active_instance.input = StringIO.new(actions)
-          end
-
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             history.pop
             matches = history.grep Regexp.new(pattern)
@@ -28,8 +23,24 @@ class Pry
             stagger_output text
           end
 
+          opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
+            unless opt.grep?
+              actions = history[range].join("\n") + "\n"
+              Pry.active_instance.input = StringIO.new(actions)
+            end
+          end
+
+          opt.on :c, :clear, 'Clear the history' do
+            unless opt.grep?
+              Readline::HISTORY.clear
+              output.puts 'History cleared.'
+            end
+          end
+
           opt.on :h, :help, 'Show this message.', :tail => true do
-            output.puts opt.help unless opt.g? || opt.r?
+            unless opt.grep?
+              output.puts opt.help 
+            end
           end
 
           opt.on_empty do
