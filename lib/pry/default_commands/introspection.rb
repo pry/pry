@@ -169,7 +169,7 @@ e.g: edit-method hello_method
           when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
             "+#{line_number}"
           when /^mate/, /^geany/
-            "-l#{line_number}"
+            "-l #{line_number}"
           else
             if RUBY_PLATFORM =~ /mswin|mingw/
               ""
