@@ -11,12 +11,6 @@ class Pry
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         history = Readline::HISTORY.to_a
 
-        if args.empty?
-          text = add_line_numbers history.join("\n"), 0
-          stagger_output text
-          next
-        end
-
         Slop.parse(args) do |opt|
           opt.banner "Usage: hist [--replay START..END]\n" \
                      "View and replay history\n" \
@@ -29,6 +23,11 @@ class Pry
 
           opt.on :h, :help, 'Show this message.', :tail => true do
             output.puts opt.help
+          end
+
+          opt.on_empty do
+            text = add_line_numbers history.join("\n"), 0
+            stagger_output text
           end
         end
       end
