@@ -25,7 +25,7 @@ class Pry
 
           opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
             unless opt.grep?
-              actions = history[range].join("\n") + "\n"
+              actions = Array(history[range]).join("\n") + "\n"
               Pry.active_instance.input = StringIO.new(actions)
             end
           end
@@ -39,7 +39,7 @@ class Pry
 
           opt.on :h, :help, 'Show this message.', :tail => true do
             unless opt.grep?
-              output.puts opt.help 
+              output.puts opt.help
             end
           end
 
