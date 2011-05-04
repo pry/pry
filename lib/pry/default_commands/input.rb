@@ -9,28 +9,29 @@ class Pry
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
-        hist_array = Readline::HISTORY.to_a
+        history = Readline::HISTORY.to_a
 
         if args.empty?
-          text = add_line_numbers(hist_array.join("\n"), 0)
-          stagger_output(text)
+          text = add_line_numbers history.join("\n"), 0
+          stagger_output text
           next
         end
 
-        opts = Slop.parse(args) do |opt|
-          opt.banner "Usage: hist [--replay START..END]\nView and replay history\ne.g hist --replay 2..8"
-          opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range
+        Slop.parse(args) do |opt|
+          opt.banner "Usage: hist [--replay START..END]\n" \
+                     "View and replay history\n" \
+                     "e.g hist --replay 2..8"
+
+          opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
+            actions = history[range].join("\n") + "\n"
+            Pry.active_instance.input = StringIO.new(actions)
+          end
+
           opt.on :h, :help, 'Show this message.', :tail => true do
             output.puts opt.help
           end
         end
-
-        next if opts.h?
-
-        actions = Array(hist_array[opts[:replay]]).join("\n") + "\n"
-        Pry.active_instance.input = StringIO.new(actions)
       end
-
 
     end
 
