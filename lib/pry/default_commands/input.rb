@@ -12,9 +12,7 @@ class Pry
         history = Readline::HISTORY.to_a
 
         Slop.parse(args) do |opt|
-          opt.banner "Usage: hist [--replay START..END]\n" \
-                     "View and replay history\n" \
-                     "e.g hist --replay 2..8"
+          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             pattern = Regexp.new pattern
