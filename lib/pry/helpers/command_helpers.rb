@@ -23,16 +23,15 @@ class Pry
         end
       end
 
+      def colorize text
+        Pry.color ? CodeRay.scan(text.to_s, :ruby).term : text
+      end
+
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
           adjusted_index = idx + start_line
-          if Pry.color
-            cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
-            "#{cindex}: #{line}"
-          else
-            "#{idx}: #{line}"
-          end
+          "#{colorize adjusted_index}: #{line}"
         end.join
       end
 
