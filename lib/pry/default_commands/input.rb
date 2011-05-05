@@ -12,20 +12,22 @@ class Pry
         history = Readline::HISTORY.to_a
 
         Slop.parse(args) do |opt|
-          opt.banner "Usage: hist [--replay START..END]\n" \
-                     "View and replay history\n" \
-                     "e.g hist --replay 2..8"
+          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
+            pattern = Regexp.new pattern
             history.pop
-            matches = history.grep Regexp.new(pattern)
-            text = add_line_numbers matches.join("\n"), 0
-            stagger_output text
+            
+            history.each_with_index do |element, index|
+              if element =~ pattern
+                output.puts "#{colorize index}: #{element}"
+              end
+            end
           end
 
           opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
             unless opt.grep?
-              actions = history[range].join("\n") + "\n"
+              actions = Array(history[range]).join("\n") + "\n"
               Pry.active_instance.input = StringIO.new(actions)
             end
           end
@@ -39,7 +41,7 @@ class Pry
 
           opt.on :h, :help, 'Show this message.', :tail => true do
             unless opt.grep?
-              output.puts opt.help 
+              output.puts opt.help
             end
           end
 
