@@ -5,7 +5,8 @@ $:.unshift 'lib'
 require 'pry/version'
 
 CLOBBER.include("**/*~", "**/*#*", "**/*.log")
-CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake", "**/*.rbc")
+CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake",
+              "**/*.rbc", "**/.#*.*")
 
 def apply_spec_defaults(s)
   s.name = "pry"

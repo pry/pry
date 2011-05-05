@@ -8,6 +8,14 @@ class Pry
         opts[:eval_string].clear
       end
 
+      command "amend-line", "Amend the previous line of input." do |replacement_line|
+        replacement_line = "" if !replacement_line
+        input_array = opts[:eval_string].each_line.to_a[0..-2] + [remove_first_word(opts[:val]) + "\n"]
+        opts[:eval_string].replace input_array.join("\n")
+      end
+
+      alias_command "%", "amend-line"
+
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         history = Readline::HISTORY.to_a
 
@@ -17,7 +25,7 @@ class Pry
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             pattern = Regexp.new pattern
             history.pop
-            
+
             history.each_with_index do |element, index|
               if element =~ pattern
                 output.puts "#{colorize index}: #{element}"
