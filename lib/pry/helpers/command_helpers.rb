@@ -58,14 +58,6 @@ class Pry
         text.split.drop(1).join(' ')
       end
 
-      # turn off color for duration of block
-      def no_color(&block)
-        old_color_state = Pry.color
-        Pry.color = false
-        yield
-      ensure
-        Pry.color = old_color_state
-      end
 
       def code_and_code_type_for(meth)
         case code_type = code_type_for(meth)
