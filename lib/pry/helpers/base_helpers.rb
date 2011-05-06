@@ -14,6 +14,10 @@ class Pry
         end
       end
 
+      def remove_first_word(text)
+        text.split.drop(1).join(' ')
+      end
+
       # turn off color for duration of block
       def no_color(&block)
         old_color_state = Pry.color
