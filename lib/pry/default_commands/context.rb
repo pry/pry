@@ -19,7 +19,7 @@ class Pry
           next
         end
 
-        Pry.start target.eval("#{obj}")
+        Pry.start target.eval(opts[:arg_string])
       end
 
       command "nesting", "Show nesting information." do
