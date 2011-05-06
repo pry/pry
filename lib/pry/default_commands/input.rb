@@ -17,9 +17,8 @@ class Pry
       alias_command "%", "amend-line", ""
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
-        history = Readline::HISTORY.to_a
-
         Slop.parse(args) do |opt|
+          history = Readline::HISTORY.to_a
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
