@@ -45,12 +45,10 @@ class Pry
 
         gems.each do |gemname, specs|
           versions = specs.map(&:version).sort.reverse.map(&:to_s)
-          versions = ["<bright_green>#{versions.first}</bright_green>"] +
-            versions[1..-1].map{|v| "<green>#{v}</green>" }
+          versions = ["#{bright_green versions.first}"] + versions[1..-1].map{|v| "#{green v}" }
 
           gemname = highlight(gemname, query) if query
-          result = "<white>#{gemname} <grey>(#{versions.join ', '})</grey>"
-          output.puts colorize(result)
+          output.puts "#{white gemname} (#{grey(versions.join ', ')})"
         end
       end
 
