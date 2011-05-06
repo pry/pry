@@ -8,13 +8,13 @@ class Pry
         opts[:eval_string].clear
       end
 
-      command "amend-line", "Amend the previous line of input." do |replacement_line|
+      command "amend-line", "Amend the previous line of input. Aliases: %" do |replacement_line|
         replacement_line = "" if !replacement_line
-        input_array = opts[:eval_string].each_line.to_a[0..-2] + [remove_first_word(opts[:val]) + "\n"]
+        input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:ni_arg_string] + "\n"]
         opts[:eval_string].replace input_array.join("\n")
       end
 
-      alias_command "%", "amend-line"
+      alias_command "%", "amend-line", ""
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         history = Readline::HISTORY.to_a
