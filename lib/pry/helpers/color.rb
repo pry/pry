@@ -1,6 +1,7 @@
 class Pry
   module Helpers
 
+    # The methods defined on {Color} are available to custom commands.
     module Color
  
       extend self
@@ -31,14 +32,27 @@ class Pry
       alias_method :grey, :bright_black
       alias_method :gray, :bright_black
       
+
+      # Remove any color codes from _text_.
+      #
+      # @param  [String, #to_s] text
+      # @return [String] _text_ stripped of any color codes.
       def strip_color text
-        text.gsub /\e\[.*?(\d)+m/, ''
+        text.to_s.gsub /\e\[.*?(\d)+m/, ''
       end
 
+      # Returns _text_ as bold text for use on a terminal.  
+      # _Pry.color_ must be true for this method to perform any transformations.
+      #
+      # @param [String, #to_s] text
+      # @return [String] _text_ 
       def bold text
         Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
       end
 
+      # Executes _block_ with _Pry.color_ set to false.
+      #
+      # @param [Proc]
       def no_color &block
         boolean = Pry.color
         Pry.color = false
