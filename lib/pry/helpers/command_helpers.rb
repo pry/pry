@@ -27,7 +27,7 @@ class Pry
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
           adjusted_index = idx + start_line
-          "#{blue adjusted_index}: #{line}"
+          "#{text.blue adjusted_index}: #{line}"
         end.join
       end
 
