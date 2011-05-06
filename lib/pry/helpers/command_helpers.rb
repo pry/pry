@@ -23,15 +23,16 @@ class Pry
         end
       end
 
-      def colorize text
-        Pry.color ? CodeRay.scan(text.to_s, :ruby).term : text
-      end
-
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
           adjusted_index = idx + start_line
-          "#{colorize adjusted_index}: #{line}"
+          if Pry.color
+            cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
+            "#{cindex}: #{line}"
+          else
+            "#{idx}: #{line}"
+          end
         end.join
       end
 
@@ -64,19 +65,6 @@ class Pry
         if file =~ /(\(.*\))|<.*>/
           raise "Cannot retrieve source for dynamically defined method."
         end
-      end
-
-      def remove_first_word(text)
-        text.split.drop(1).join(' ')
-      end
-
-      # turn off color for duration of block
-      def no_color(&block)
-        old_color_state = Pry.color
-        Pry.color = false
-        yield
-      ensure
-        Pry.color = old_color_state
       end
 
       def code_and_code_type_for(meth)
