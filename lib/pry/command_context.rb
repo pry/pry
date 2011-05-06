@@ -25,5 +25,6 @@ class Pry
 
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Color
   end
 end
