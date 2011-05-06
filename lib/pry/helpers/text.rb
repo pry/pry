@@ -1,8 +1,9 @@
 class Pry
   module Helpers
 
-    # The methods defined on {Color} are available to custom commands.
-    module Color
+    # The methods defined on {Text} are available to custom commands.  
+    # See {Pry::CommandContext#text}, which returns an object that responds to all methods defined here.
+    module Text
  
       extend self
 
