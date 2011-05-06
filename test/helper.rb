@@ -10,6 +10,26 @@ Pry::RC_FILES.clear
 Pry.color = false
 Pry.should_load_rc = false
 
+def redirect_global_pry_input(new_io)
+  old_io = Pry.input
+    Pry.input = new_io
+    begin
+      yield
+    ensure
+      Pry.input = old_io
+    end
+end
+
+def redirect_global_pry_output(new_io)
+  old_io = Pry.output
+    Pry.output = new_io
+    begin
+      yield
+    ensure
+      Pry.output = old_io
+    end
+end
+
 class Module
   public :remove_const
 end
