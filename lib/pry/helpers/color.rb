@@ -28,6 +28,9 @@ class Pry
         end
       end
 
+      alias_method :grey, :bright_black
+      alias_method :gray, :bright_black
+      
       def strip_color text
         text.gsub /\e\[.*?(\d)+m/, ''
       end
