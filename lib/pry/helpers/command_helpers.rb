@@ -23,15 +23,11 @@ class Pry
         end
       end
 
-      def colorize text
-        Pry.color ? CodeRay.scan(text.to_s, :ruby).term : text
-      end
-
       def add_line_numbers(lines, start_line)
         line_array = lines.each_line.to_a
         line_array.each_with_index.map do |line, idx|
           adjusted_index = idx + start_line
-          "#{colorize adjusted_index}: #{line}"
+          "#{blue adjusted_index}: #{line}"
         end.join
       end
 
@@ -229,11 +225,6 @@ class Pry
 
         [lines_array[start_line..end_line].join, normalized_line_number(start_line, lines_array.size),
          normalized_line_number(end_line, lines_array.size)]
-      end
-
-      # documentation related helpers
-      def strip_color_codes(str)
-        str.gsub(/\e\[.*?(\d)+m/, '')
       end
 
       def process_rdoc(comment, code_type)

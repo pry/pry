@@ -18,14 +18,7 @@ class Pry
         text.split.drop(1).join(' ')
       end
 
-      # turn off color for duration of block
-      def no_color(&block)
-        old_color_state = Pry.color
-        Pry.color = false
-        yield
-      ensure
-        Pry.color = old_color_state
-      end
+
 
       def gem_installed?(gem_name)
         require 'rubygems'
@@ -67,53 +60,6 @@ class Pry
         end
       end
 
-      #
-      # Color helpers:
-      #   gray, red, green, yellow, blue, purple, cyan, white,
-      #   and bright_red, bright_green, etc...
-      #
-      # ANSI color codes:
-      #   \033 => escape
-      #     30 => color base
-      #      1 => bright
-      #      0 => normal
-      #
-
-      COLORS = {
-        "black" => 0,
-        "red" => 1,
-        "green" => 2,
-        "yellow" => 3,
-        "blue" => 4,
-        "purple" => 5,
-        "magenta" => 5,
-        "cyan" => 6,
-        "white" => 7
-      }
-
-      COLORS.each do |color, i|
-        define_method color do |str|
-          Pry.color ? "\033[0;#{30+i}m#{str}\033[0m" : str
-        end
-
-        define_method "bright_#{color}" do |str|
-          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
-        end
-      end
-
-      alias_method :grey, :bright_black
-      alias_method :gray, :bright_black
-
-      require 'set'
-      VALID_COLORS = Set.new(
-                             COLORS.keys +
-                             COLORS.keys.map{|k| "bright_#{k}" } +
-                             ["grey", "gray"]
-                             )
-
-      def bold(text)
-        Pry.color ? "\e[1m#{text}\e[0m" : text
-      end
 
       #
       # Colorize a string that has "color tags".
