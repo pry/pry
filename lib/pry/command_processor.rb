@@ -118,6 +118,7 @@ class Pry
       # no command was matched, so return to caller
       return if !pry_command?(val)
 
+      ni_val = val.dup
       val.replace interpolate_string(val, target)
       command, args_string = command_matched(val)
 
@@ -125,6 +126,9 @@ class Pry
 
       options = {
         :val => val,
+        :arg_string => Pry::Helpers::BaseHelpers.remove_first_word(val),
+        :ni_val => ni_val,
+        :ni_arg_string => Pry::Helpers::BaseHelpers.remove_first_word(ni_val),
         :eval_string => eval_string,
         :nesting => nesting,
         :commands => commands.commands
