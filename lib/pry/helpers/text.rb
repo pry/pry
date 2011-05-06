@@ -54,6 +54,7 @@ class Pry
       # Executes _block_ with _Pry.color_ set to false.
       #
       # @param [Proc]
+      # @return [void]
       def no_color &block
         boolean = Pry.color
         Pry.color = false
