@@ -60,56 +60,6 @@ class Pry
         end
       end
 
-
-      #
-      # Colorize a string that has "color tags".
-      #
-      # Examples:
-      #    puts colorize("<light_green><magenta>*</magenta> Hey mom! I am <light_blue>SO</light_blue> colored right now.</light_green>")
-      #
-      def colorize(string)
-        stack = []
-
-        # split the string into tags and literal strings
-        tokens          = string.split(/(<\/?[\w\d_]+>)/)
-        tokens.delete_if { |token| token.size == 0 }
-
-        result        = ""
-
-        tokens.each do |token|
-
-          # token is an opening tag!
-
-          if /<([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) #valid_tag?($1)
-            stack.push $1
-
-            # token is a closing tag!
-
-          elsif /<\/([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) # valid_tag?($1)
-
-            # if this color is on the stack somwehere...
-            if pos = stack.rindex($1)
-              # close the tag by removing it from the stack
-              stack.delete_at pos
-            else
-              raise "Error: tried to close an unopened color tag -- #{token}"
-            end
-
-            # token is a literal string!
-
-          else
-
-            color = (stack.last || "white")
-            #color = BBS_COLOR_TABLE[color.to_i] if color =~ /^\d+$/
-            result << send(color, token) # colorize the result
-
-          end
-
-        end
-
-        result
-      end
-
       def highlight(string, regexp, highlight_color=:bright_yellow)
         highlighted = string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
       end
