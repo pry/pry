@@ -25,7 +25,7 @@ class Pry
 
     def text
       @text ||= Class.new do
-        extend Pry::Helpers::Color
+        extend Pry::Helpers::Text
       end
     end
 
