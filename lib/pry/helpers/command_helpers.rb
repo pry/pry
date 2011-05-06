@@ -23,14 +23,6 @@ class Pry
         end
       end
 
-      def add_line_numbers(lines, start_line)
-        line_array = lines.each_line.to_a
-        line_array.each_with_index.map do |line, idx|
-          adjusted_index = idx + start_line
-          "#{text.blue adjusted_index}: #{line}"
-        end.join
-      end
-
       # if start_line is not false then add line numbers starting with start_line
       def render_output(should_flood, start_line, doc)
         if start_line

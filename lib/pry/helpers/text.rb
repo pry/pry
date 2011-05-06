@@ -62,6 +62,18 @@ class Pry
         Pry.color = boolean
       end
 
+      # Returns _text_ in a numbered list, beginning at _offset_.
+      # 
+      # @param  [String, #each_line] text
+      # @param  [Fixnum] offset
+      # @return [String]
+      def with_line_numbers text, offset
+        lines = text.each_line.to_a
+        lines.each_with_index.map do |line, index|
+          adjusted_index = index + offset
+          "#{self.blue adjusted_index}: #{line}"
+        end.join
+      end
     end
 
   end
