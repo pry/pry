@@ -27,7 +27,7 @@ class Pry
 
             history.each_with_index do |element, index|
               if element =~ pattern
-                output.puts "#{blue index}: #{element}"
+                output.puts "#{text.blue index}: #{element}"
               end
             end
           end

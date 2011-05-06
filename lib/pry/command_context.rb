@@ -23,8 +23,13 @@ class Pry
       command_set.commands
     end
 
+    def text
+      @text ||= Class.new do
+        extend Pry::Helpers::Color
+      end
+    end
+
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
-    include Pry::Helpers::Color
   end
 end
