@@ -53,8 +53,8 @@ class Pry
           end
 
           opt.on_empty do
-            text = add_line_numbers history.join("\n"), 0
-            stagger_output text
+            list = text.with_line_numbers history.join("\n"), 0
+            stagger_output list
           end
         end
       end
