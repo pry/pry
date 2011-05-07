@@ -1,8 +1,8 @@
 class Pry
-  class CommandBase
-    module CommandBaseHelpers
+  module Helpers
 
-     private
+    module BaseHelpers
+     module_function
 
      def gem_installed?(gem_name)
         require 'rubygems'
@@ -237,5 +237,3 @@ class Pry
     end
   end
 end
-
-

@@ -47,8 +47,7 @@ class Pry
 end
 
 
-class CommandTester < Pry::CommandBase
-
+CommandTester = Pry::CommandSet.new :test do
   command "command1", "command 1 test" do
     output.puts "command1"
   end

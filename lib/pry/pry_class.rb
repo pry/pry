@@ -190,20 +190,17 @@ class Pry
       :commands => Pry.commands
     }.merge!(options)
 
-    null_output = Object.new.tap { |v| v.instance_eval { def puts(*) end } }
+    null_output = StringIO.new
 
+    context = CommandContext.new
     commands = options[:commands]
 
-    commands.output = options[:show_output] ? options[:output] : null_output
-    commands.target = Pry.binding_for(options[:context])
+    context.opts        = {}
+    context.output      = options[:show_output] ? options[:output] : null_output
+    context.target      = Pry.binding_for(options[:context])
+    context.command_set = commands
 
-    cmd = commands.commands[name]
-    if cmd
-      action = cmd[:action]
-      commands.instance_exec(*Shellwords.shellwords(arg_string), &action)
-    else
-      raise "No such Pry command: #{name}"
-    end
+    commands.run_command(context, name, *Shellwords.shellwords(arg_string))
   end
 
   def self.default_editor_for_platform

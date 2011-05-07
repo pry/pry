@@ -48,7 +48,7 @@ end
 # invoked via cli
 Pry.cli = true
 
-class Pry::Commands
+Pry::Commands.instance_eval do
   command "reset", "Reset the REPL to a clean state." do
     output.puts "Pry reset."
     exec("pry")
