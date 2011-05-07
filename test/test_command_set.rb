@@ -2,11 +2,7 @@ require 'helper'
 
 describe Pry::CommandSet do
   before do
-    @set = Pry::CommandSet.new(:some_name)
-  end
-
-  it 'should use the name specified at creation' do
-    @set.name.should == :some_name
+    @set = Pry::CommandSet.new
   end
 
   it 'should call the block used for the command when it is called' do
@@ -54,7 +50,7 @@ describe Pry::CommandSet do
   it 'should be able to import some commands from other sets' do
     run = false
 
-    other_set = Pry::CommandSet.new :foo do
+    other_set = Pry::CommandSet.new do
       command('foo') { run = true }
       command('bar') {}
     end
@@ -72,7 +68,7 @@ describe Pry::CommandSet do
   it 'should be able to import a whole set' do
     run = []
 
-    other_set = Pry::CommandSet.new :foo do
+    other_set = Pry::CommandSet.new do
       command('foo') { run << true }
       command('bar') { run << true }
     end
@@ -88,7 +84,7 @@ describe Pry::CommandSet do
     run = false
     @set.command('foo') { run = true }
 
-    Pry::CommandSet.new(:other, @set).run_command nil, 'foo'
+    Pry::CommandSet.new(@set).run_command nil, 'foo'
     run.should == true
   end
 
@@ -157,7 +153,7 @@ describe Pry::CommandSet do
   end
 
   it 'should import helpers from imported sets' do
-    imported_set = Pry::CommandSet.new :test do
+    imported_set = Pry::CommandSet.new do
       helpers do
         def imported_helper_method; end
       end
@@ -169,7 +165,7 @@ describe Pry::CommandSet do
   end
 
   it 'should import helpers even if only some commands are imported' do
-    imported_set = Pry::CommandSet.new :test do
+    imported_set = Pry::CommandSet.new do
       helpers do
         def imported_helper_method; end
       end

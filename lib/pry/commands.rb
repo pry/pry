@@ -9,7 +9,7 @@ require "pry/default_commands/easter_eggs"
 class Pry
 
   # Default commands used by Pry.
-  Commands = Pry::CommandSet.new :default do
+  Commands = Pry::CommandSet.new do
     import DefaultCommands::Documentation
     import DefaultCommands::Gems
     import DefaultCommands::Context

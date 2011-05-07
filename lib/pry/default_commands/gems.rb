@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Gems = Pry::CommandSet.new :gems do
+    Gems = Pry::CommandSet.new do
 
       command "gem-install", "Install a gem and refresh the gem cache." do |gem_name|
         gem_home = Gem.instance_variable_get(:@gem_home)
