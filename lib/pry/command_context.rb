@@ -24,7 +24,7 @@ class Pry
     end
 
     def text
-      @text ||= Object.new.extend Pry::Helpers::Text
+      @text ||= Pry::Helpers::Text
     end
 
     include Pry::Helpers::BaseHelpers
