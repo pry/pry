@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    EasterEggs = Pry::CommandSet.new :easter_eggs do
+    EasterEggs = Pry::CommandSet.new do
 
       command "game", "" do |highest|
         highest = highest ? highest.to_i : 100

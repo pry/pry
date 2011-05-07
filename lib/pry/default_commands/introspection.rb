@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Introspection = Pry::CommandSet.new :introspection do
+    Introspection = Pry::CommandSet.new do
 
       command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
         target = target()
