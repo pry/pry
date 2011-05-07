@@ -1,8 +1,9 @@
 class Pry
-  class Commands < CommandBase
+  module Helpers
+
     module CommandHelpers
 
-      private
+      module_function
 
       def try_to_load_pry_doc
 
@@ -82,6 +83,13 @@ class Pry
         end
       end
 
+      def check_for_dynamically_defined_method(meth)
+        file, _ = meth.source_location
+        if file =~ /(\(.*\))|<.*>/
+          raise "Cannot retrieve source for dynamically defined method."
+        end
+      end
+
       def remove_first_word(text)
         text.split.drop(1).join(' ')
       end
@@ -91,8 +99,8 @@ class Pry
         old_color_state = Pry.color
         Pry.color = false
         yield
-        ensure
-          Pry.color = old_color_state
+      ensure
+        Pry.color = old_color_state
       end
 
       def code_and_code_type_for(meth)
@@ -318,5 +326,6 @@ class Pry
       end
 
     end
+
   end
 end

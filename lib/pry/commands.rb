@@ -1,18 +1,8 @@
-require "optparse"
-require "method_source"
-require 'slop'
-require 'rubygems/dependency_installer'
-require "pry/command_base"
-require "pry/pry_instance"
-require "pry/command_helpers"
-
 class Pry
 
   # Default commands used by Pry.
-  class Commands < CommandBase
-    extend CommandHelpers
-
-    try_to_load_pry_doc
+  Commands = Pry::CommandSet.new :default do
+    Helpers::CommandHelpers.try_to_load_pry_doc
 
     command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
       output.puts "Input buffer cleared!"
@@ -879,7 +869,7 @@ e.g: show-command show-method
       end
 
       if commands[command_name]
-        meth = commands[command_name][:action]
+        meth = commands[command_name].block
 
         code = strip_leading_whitespace(meth.source)
         file, line = meth.source_location
