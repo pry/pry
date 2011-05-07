@@ -425,7 +425,7 @@ describe Pry do
 
         describe "commands" do
           it 'should interpolate ruby code into commands' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "hello", "", :keep_retval => true do |arg|
                 arg
               end
@@ -449,7 +449,7 @@ describe Pry do
           end
 
           it 'should define a command that keeps its return value' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "hello", "", :keep_retval => true do
                 :kept_hello
               end
@@ -461,7 +461,7 @@ describe Pry do
           end
 
           it 'should define a command that does NOT keep its return value' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "hello", "", :keep_retval => false do
                 :kept_hello
               end
@@ -473,7 +473,7 @@ describe Pry do
           end
 
           it 'should set the commands default, and the default should be overridable' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "hello" do
                 output.puts "hello world"
               end
@@ -485,7 +485,7 @@ describe Pry do
             Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
             str_output.string.should =~ /hello world/
 
-            other_klass = Pry::CommandSet.new :test2 do
+            other_klass = Pry::CommandSet.new do
               command "goodbye", "" do
                 output.puts "goodbye world"
               end
@@ -498,7 +498,7 @@ describe Pry do
           end
 
           it 'should inherit "help" command from Pry::CommandBase' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "h", "h command" do
               end
             end
@@ -510,7 +510,7 @@ describe Pry do
           end
 
           it 'should inherit commands from Pry::Commands' do
-            klass = Pry::CommandSet.new :test, Pry::Commands do
+            klass = Pry::CommandSet.new Pry::Commands do
               command "v" do
               end
             end
@@ -522,7 +522,7 @@ describe Pry do
           end
 
           it 'should alias a command with another command' do
-              klass = Pry::CommandSet.new :test do
+              klass = Pry::CommandSet.new do
               alias_command "help2", "help"
             end
 
@@ -531,7 +531,7 @@ describe Pry do
           end
 
           it 'should change description of a command using desc' do
-            klass = Pry::CommandSet.new :test do; end
+            klass = Pry::CommandSet.new do; end
             orig = klass.commands["help"].description
             klass.instance_eval do
               desc "help", "blah"
@@ -541,7 +541,7 @@ describe Pry do
           end
 
           it 'should run a command from within a command' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "v" do
                 output.puts "v command"
               end
@@ -557,13 +557,13 @@ describe Pry do
           end
 
           it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               command "v" do
                 output.puts "#{target.eval('self')}"
               end
             end
 
-            child_klass = Pry::CommandSet.new :test2, klass do
+            child_klass = Pry::CommandSet.new klass do
             end
 
             str_output = StringIO.new
@@ -574,7 +574,7 @@ describe Pry do
           end
 
           it 'should import commands from another command object' do
-            klass = Pry::CommandSet.new :test do
+            klass = Pry::CommandSet.new do
               import_from Pry::Commands, "ls", "jump-to"
             end
 
@@ -583,7 +583,7 @@ describe Pry do
             end
 
           it 'should delete some inherited commands when using delete method' do
-            klass = Pry::CommandSet.new :test, Pry::Commands do
+            klass = Pry::CommandSet.new Pry::Commands do
               command "v" do
               end
 
@@ -601,7 +601,7 @@ describe Pry do
           end
 
           it 'should override some inherited commands' do
-            klass = Pry::CommandSet.new :test, Pry::Commands do
+            klass = Pry::CommandSet.new Pry::Commands do
               command "jump-to" do
                 output.puts "jump-to the music"
               end

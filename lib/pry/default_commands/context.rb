@@ -3,7 +3,7 @@ require "pry/default_commands/ls"
 class Pry
   module DefaultCommands
 
-    Context = Pry::CommandSet.new :context do
+    Context = Pry::CommandSet.new do
       import Ls
 
       command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|

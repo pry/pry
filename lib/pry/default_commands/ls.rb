@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Ls = Pry::CommandSet.new :ls do
+    Ls = Pry::CommandSet.new do
 
       command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
         options = {}

@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Documentation = Pry::CommandSet.new :gems do
+    Documentation = Pry::CommandSet.new do
 
       command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
         run ".ri", *args

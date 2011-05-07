@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Shell = Pry::CommandSet.new :shell do
+    Shell = Pry::CommandSet.new do
 
       # this cannot be accessed, it's just for help purposes.
       command ".<shell command>", "All text following a '.' is forwarded to the shell." do

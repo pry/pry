@@ -1,7 +1,7 @@
 class Pry
   module DefaultCommands
 
-    Input = Pry::CommandSet.new :input do
+    Input = Pry::CommandSet.new do
 
       command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
         output.puts "Input buffer cleared!"
