@@ -34,15 +34,12 @@ class Pry
     include Pry::Helpers::BaseHelpers
 
     attr_reader :commands
-    attr_reader :name
     attr_reader :helper_module
 
-    # @param [Symbol] name Name of the command set
     # @param [Array<CommandSet>] imported_sets Sets which will be imported
     #   automatically
     # @yield Optional block run to define commands
-    def initialize(name, *imported_sets, &block)
-      @name          = name
+    def initialize(*imported_sets, &block)
       @commands      = {}
       @helper_module = Module.new
 
@@ -65,7 +62,7 @@ class Pry
     #   parameters passed into the block will be strings. Successive
     #   command parameters are separated by whitespace at the Pry prompt.
     # @example
-    #   MyCommands = Pry::CommandSet.new :mine do
+    #   MyCommands = Pry::CommandSet.new do
     #     command "greet", "Greet somebody" do |name|
     #       puts "Good afternoon #{name.capitalize}!"
     #     end
@@ -153,7 +150,7 @@ class Pry
     # @param [String] name The command name.
     # @param [String] description The command description.
     # @example
-    #   MyCommands = Pry::CommandSet.new :test do
+    #   MyCommands = Pry::CommandSet.new do
     #     desc "help", "help description"
     #   end
     def desc(name, description)
