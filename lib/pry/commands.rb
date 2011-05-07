@@ -55,9 +55,9 @@ class Pry
       gems.each do |gem|
         begin
           if require gem
-            output.puts "#{bright_yellow(gem)} loaded"
+            output.puts "#{text.bright_yellow(gem)} loaded"
           else
-            output.puts "#{bright_white(gem)} already loaded"
+            output.puts "#{text.bright_white(gem)} already loaded"
           end
 
         rescue LoadError => e
@@ -65,7 +65,7 @@ class Pry
           if gem_installed? gem
             output.puts e.inspect
           else
-            output.puts "#{bright_red(gem)} not found"
+            output.puts "#{text.bright_red(gem)} not found"
             if prompt("Install the gem?") == "y"
               run "gem-install", gem
             end

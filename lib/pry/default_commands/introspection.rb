@@ -113,7 +113,7 @@ e.g: show-command show-method
         opts = Slop.parse!(args) do |opts|
           opts.banner %{Usage: edit-method [OPTIONS] [METH]
 Edit the method METH in an editor.
-Ensure #{bold("Pry.editor")} is set to your editor of choice.
+Ensure #{text.bold("Pry.editor")} is set to your editor of choice.
 e.g: edit-method hello_method
 --
 }
@@ -137,7 +137,7 @@ e.g: edit-method hello_method
           next
         end
 
-        next output.puts "Error: No editor set!\nEnsure that #{bold("Pry.editor")} is set to your editor of choice." if !Pry.editor
+        next output.puts "Error: No editor set!\nEnsure that #{text.bold("Pry.editor")} is set to your editor of choice." if !Pry.editor
 
         if is_a_c_method?(meth)
           output.puts "Error: Can't edit a C method."

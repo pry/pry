@@ -5,22 +5,22 @@ class Pry
 
       command "gem-install", "Install a gem and refresh the gem cache." do |gem_name|
         gem_home = Gem.instance_variable_get(:@gem_home)
-        output.puts "Attempting to install gem: #{bold(gem_name)}"
+        output.puts "Attempting to install gem: #{text.bold gem_name}"
 
         begin
           if File.writable?(gem_home)
             Gem::DependencyInstaller.new.install(gem_name)
-            output.puts "Gem #{bold(gem_name)} successfully installed."
+            output.puts "Gem #{text.bold gem_name} successfully installed."
           else
             if system("sudo gem install #{gem_name}")
-              output.puts "Gem #{bold(gem_name)} successfully installed."
+              output.puts "Gem #{text.bold gem_name} successfully installed."
             else
-              output.puts "Gem #{bold(gem_name)} could not be installed."
+              output.puts "Gem #{text.bold gem_name} could not be installed."
               next
             end
           end
         rescue Gem::GemNotFoundException
-          output.puts "Required Gem: #{bold(gem_name)} not found."
+          output.puts "Required Gem: #{text.bold gem_name} not found."
           next
         end
 
@@ -45,10 +45,10 @@ class Pry
 
         gems.each do |gemname, specs|
           versions = specs.map(&:version).sort.reverse.map(&:to_s)
-          versions = ["#{bright_green versions.first}"] + versions[1..-1].map{|v| "#{green v}" }
+          versions = ["#{text.bright_green versions.first}"] + versions[1..-1].map{|v| "#{text.green v}" }
 
           gemname = highlight(gemname, query) if query
-          output.puts "#{white gemname} (#{grey(versions.join ', ')})"
+          output.puts "#{text.white gemname} (#{text.grey(versions.join ', ')})"
         end
       end
 

@@ -80,18 +80,18 @@ e.g: stat hello_method
         doc, code_type = doc_and_code_type_for(meth)
 
         output.puts make_header(meth, code_type, code)
-        output.puts bold("Method Name: ") + meth_name
-        output.puts bold("Method Owner: ") + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
-        output.puts bold("Method Language: ") + code_type.to_s.capitalize
-        output.puts bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
-        output.puts bold("Method Arity: ") + meth.arity.to_s
+        output.puts text.bold("Method Name: ") + meth_name
+        output.puts text.bold("Method Owner: ") + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
+        output.puts text.bold("Method Language: ") + code_type.to_s.capitalize
+        output.puts text.bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
+        output.puts text.bold("Method Arity: ") + meth.arity.to_s
 
         name_map = { :req => "Required:", :opt => "Optional:", :rest => "Rest:" }
         if meth.respond_to?(:parameters)
-          output.puts bold("Method Parameters: ") + meth.parameters.group_by(&:first).
+          output.puts text.bold("Method Parameters: ") + meth.parameters.group_by(&:first).
             map { |k, v| "#{name_map[k]} #{v.map { |kk, vv| vv ? vv.to_s : "noname" }.join(", ")}" }.join(". ")
         end
-        output.puts bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
+        output.puts text.bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
       end
 
       command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
@@ -128,7 +128,7 @@ e.g: gist -d my_method
           content, code_type = code_and_code_type_for(meth)
         else
           content, code_type = doc_and_code_type_for(meth)
-          no_color do
+          text.no_color do
             content = process_comment_markup(content, code_type)
           end
           code_type = :plain

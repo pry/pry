@@ -26,7 +26,7 @@ class Pry
       # if start_line is not false then add line numbers starting with start_line
       def render_output(should_flood, start_line, doc)
         if start_line
-          doc = add_line_numbers(doc, start_line)
+          doc = Pry::Helpers::Text.with_line_numbers doc, start_line
         end
 
         if should_flood
@@ -124,14 +124,14 @@ class Pry
       end
 
       def make_header(meth, code_type, content)
-        num_lines = "Number of lines: #{bold(content.each_line.count.to_s)}"
+        num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
           file, line = meth.source_location
-          "\n#{bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
+          "\n#{Pry::Helpers::Text.bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
           file = Pry::MethodInfo.info_for(meth).file
-          "\n#{bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
+          "\n#{Pry::Helpers.Text.bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
         end
       end
 
@@ -225,7 +225,7 @@ class Pry
         in_tag_block = nil
         output = comment.lines.map do |v|
           if in_tag_block && v !~ /^\S/
-            strip_color_codes(strip_color_codes(v))
+            Pry::Helpers::Text.strip_color Pry::Helpers::Text.strip_color(v)
           elsif in_tag_block
             in_tag_block = false
             v

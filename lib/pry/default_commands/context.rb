@@ -97,7 +97,7 @@ class Pry
         end
 
         set_file_and_dir_locals(file)
-        output.puts "\n#{bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
+        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
 
         # This method inspired by http://rubygems.org/gems/ir_b
         File.open(file).each_with_index do |line, index|
