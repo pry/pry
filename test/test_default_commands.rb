@@ -7,11 +7,10 @@ describe Pry::Commands do
       b = Pry.binding_for(Object.new)
       b.eval("x = :mon_ouie")
 
-      redirect_global_pry_input(InputTester.new("cd x", "exit-all")) do
+      redirect_global_pry_input(InputTester.new("cd x", "self.should == :mon_ouie;", "exit-all")) do
         Pry.new(:output => str_output).rep(b)
       end
 
-      str_output.string.should =~ /:mon_ouie/
     end
 
     it 'should cd into complex input (with spaces)' do
