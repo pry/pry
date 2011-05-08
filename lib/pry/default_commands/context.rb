@@ -7,19 +7,21 @@ class Pry
       import Ls
 
       command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|
-        if !obj
+        case obj
+        when nil
           output.puts "Must provide an object."
           next
-        end
-
-        throw(:breakout, opts[:nesting].level) if obj == ".."
-
-        if obj == "/"
+        when ".."
+          throw(:breakout, opts[:nesting].level)
+        when "/"
           throw(:breakout, 1) if opts[:nesting].level > 0
           next
+        when "::"
+          TOPLEVEL_BINDING.pry
+          next
+        else
+          Pry.start target.eval(opts[:arg_string])
         end
-
-        Pry.start target.eval(opts[:arg_string])
       end
 
       command "nesting", "Show nesting information." do
