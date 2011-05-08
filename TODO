@@ -1,13 +1,39 @@
 
+ROADMAP
+
 FUTURE
-* allows pipes (|) for commands
+--------
+* Pry server and Pry client for SLIME style remote repl connectinos.
+* i18n support
+
+0.9.0
+Major features
+--------------
+* Restructure command system and helpers (almost complete)
+* Delete unnecessary commands, add a couple of new ones (e.g amend-line)
+* Readline history
+* Plugin support
+* Support Rubinius core methods
+* in[] and out[] arrays
+* Improve test coverage (test some commands, etc)
+
+Minor changes
+-------------
+* improve edit-method support for various editors
+* ensure all commands have appropriate error handing and informative error messages
+* show-doc should include signature of method
+
+Optional
+--------
+* multi-line readline support
+
 
 0.8.0
 * allow #{} interpolation of all commands
 * update documentation! new commands and features and change in behaviour of `run`
 * add ; at end of line to suppress return value output
 * Remove message spam (before/after hooks)
-* stop commands returning a value 
+* stop commands returning a value
 * use `redo` in the r() method when encounter a command
 * shell functionality should just use system(), but redirect in and
    out to Pry.input and Pry.output by reassining $stdin and $stdout
