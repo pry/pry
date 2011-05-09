@@ -33,9 +33,11 @@ class Pry
           end
 
           opt.on :e, :exclude, 'Exclude pry and system commands from the history.' do
-            history.each_with_index do |element, index|
-              unless command_processor.valid_command? element
-                output.puts "#{text.blue index}: #{element}"
+            unless opt.grep?
+              history.each_with_index do |element, index|
+                unless command_processor.valid_command? element
+                  output.puts "#{text.blue index}: #{element}"
+                end
               end
             end
           end
