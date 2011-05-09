@@ -32,6 +32,14 @@ class Pry
             end
           end
 
+          opt.on :e, :exclude, 'Exclude pry and system commands from the history.' do
+            history.each_with_index do |element, index|
+              unless command_processor.valid_command? element
+                output.puts "#{text.blue index}: #{element}"
+              end
+            end
+          end
+
           opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
             unless opt.grep?
               actions = Array(history[range]).join("\n") + "\n"
