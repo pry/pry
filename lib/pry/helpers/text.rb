@@ -64,7 +64,7 @@ class Pry
 
         # Returns _text_ in a numbered list, beginning at _offset_.
         # 
-        # @param  [String, #each_line] text
+        # @param  [#each_line] text
         # @param  [Fixnum] offset
         # @return [String]
         def with_line_numbers text, offset
