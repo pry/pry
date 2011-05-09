@@ -22,7 +22,7 @@ class Pry
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
-            pattern = Regexp.new pattern
+            pattern = Regexp.new opts[:arg_string].split(/ /)[1]
             history.pop
 
             history.each_with_index do |element, index|
