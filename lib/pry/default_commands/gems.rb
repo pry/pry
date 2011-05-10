@@ -3,29 +3,26 @@ class Pry
 
     Gems = Pry::CommandSet.new do
 
-      command "gem-install", "Install a gem and refresh the gem cache." do |gem_name|
-        gem_home = Gem.instance_variable_get(:@gem_home)
-        output.puts "Attempting to install gem: #{text.bold gem_name}"
+      command "gem-install", "Install a gem and refresh the gem cache." do |gem|
+        if gem
+          output.puts "Attempting to install gem: '#{text.green gem}'"
 
-        begin
-          if File.writable?(gem_home)
-            Gem::DependencyInstaller.new.install(gem_name)
-            output.puts "Gem #{text.bold gem_name} successfully installed."
+          if File.writable? Gem.dir
+            installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
+            installer.install gem
+            output.puts "Gem '#{text.green gem}' installed."
+          elsif File.writable? Gem.user_dir 
+            installer = Gem::DependencyInstaller.new :install_dir => Gem.user_dir
+            installer.install gem
+            output.puts "Gem '#{text.green gem}' installed to your user directory"
           else
-            if system("sudo gem install #{gem_name}")
-              output.puts "Gem #{text.bold gem_name} successfully installed."
-            else
-              output.puts "Gem #{text.bold gem_name} could not be installed."
-              next
-            end
+            output.puts "Insufficient permissions to install `#{gem}`"
           end
-        rescue Gem::GemNotFoundException
-          output.puts "Required Gem: #{text.bold gem_name} not found."
-          next
-        end
 
-        Gem.refresh
-        output.puts "Refreshed gem cache."
+          Gem.refresh
+        else
+          output.puts "A gem name is a required argument."
+        end
       end
 
       command "gem-cd", "Change working directory to specified gem's directory." do |gem|
