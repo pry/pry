@@ -19,7 +19,7 @@ class Pry
 
           Gem.refresh
         else
-          output.puts "A gem name is a required argument."
+          output.puts "gem-install requires the name of a gem as an argument."
         end
       end
 
