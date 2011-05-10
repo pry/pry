@@ -38,19 +38,22 @@ class Pry
       end
 
 
-      command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |arg|
+      command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |pattern|
+        pattern = Regexp.new pattern.to_s, Regexp::IGNORECASE
         gems = Gem.source_index.gems.values.group_by(&:name)
-        if arg
-          query = Regexp.new(arg, Regexp::IGNORECASE)
-          gems = gems.select { |gemname, specs| gemname =~ query }
-        end
 
-        gems.each do |gemname, specs|
-          versions = specs.map(&:version).sort.reverse.map(&:to_s)
-          versions = ["#{text.bright_green versions.first}"] + versions[1..-1].map{|v| "#{text.green v}" }
+        gems.each do |gem, specs|
+          if gem =~ pattern
+            specs.sort! do |a,b| 
+              Gem::Version.new(b.version) <=> Gem::Version.new(a.version) 
+            end
+            
+            versions = specs.map.with_index do |spec, index|
+              index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s) 
+            end
 
-          gemname = highlight(gemname, query) if query
-          output.puts "#{text.white gemname} (#{text.grey(versions.join ', ')})"
+            output.puts "#{text.white gem} (#{versions.join ', '})"
+          end
         end
       end
 
