@@ -28,11 +28,13 @@ class Pry
         output.puts "Refreshed gem cache."
       end
 
-      command "gem-cd", "Change working directory to specified gem's directory." do |gem_name|
-        require 'rubygems'
-        gem_spec = Gem.source_index.find_name(gem_name).first
-        next output.puts("Gem `#{gem_name}` not found.") if !gem_spec
-        Dir.chdir(File.expand_path(gem_spec.full_gem_path))
+      command "gem-cd", "Change working directory to specified gem's directory." do |gem|
+        if gem
+          spec = Gem.source_index.find_name(gem).first
+          spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
+        else
+          output.puts 'gem-cd requires the name of a gem as an argument.'
+        end
       end
 
 
