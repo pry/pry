@@ -5,8 +5,6 @@ class Pry
 
       command "gem-install", "Install a gem and refresh the gem cache." do |gem|
         if gem
-          output.puts "Attempting to install gem: '#{text.green gem}'"
-
           if File.writable? Gem.dir
             installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
             installer.install gem
@@ -16,7 +14,7 @@ class Pry
             installer.install gem
             output.puts "Gem '#{text.green gem}' installed to your user directory"
           else
-            output.puts "Insufficient permissions to install `#{gem}`"
+            output.puts "Insufficient permissions to install `#{text.green gem}`"
           end
 
           Gem.refresh
