@@ -25,20 +25,24 @@ class Pry
             pattern = Regexp.new opts[:arg_string].split(/ /)[1]
             history.pop
 
-            history.each_with_index do |element, index|
+            history.map!.with_index do |element, index|
               if element =~ pattern
-                output.puts "#{text.blue index}: #{element}"
+                "#{text.blue index}: #{element}"
               end
             end
+
+            stagger_output history.compact.join "\n"
           end
 
           opt.on :e, :exclude, 'Exclude pry and system commands from the history.' do
             unless opt.grep?
-              history.each_with_index do |element, index|
+              history.map!.with_index do |element, index|
                 unless command_processor.valid_command? element
-                  output.puts "#{text.blue index}: #{element}"
+                  "#{text.blue index}: #{element}"
                 end
               end
+
+              stagger_output history.compact.join "\n"
             end
           end
 
