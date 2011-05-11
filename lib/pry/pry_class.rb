@@ -146,12 +146,7 @@ class Pry
   # @param obj The object to view.
   # @return [String] The string representation of `obj`.
   def self.view(obj)
-    case obj
-    when String, Hash, Array, Symbol, Exception, nil
-      obj.inspect
-    else
-      obj.to_s
-    end
+    obj.inspect
 
   rescue NoMethodError
     "unknown"
