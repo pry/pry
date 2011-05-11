@@ -137,11 +137,16 @@ class Pry
     # @raise [NoCommandError] If the command is not defined in this set
     def run_command(context, name, *args)
       context.extend helper_module
+      command = commands[name]
 
-      if command = commands[name]
-        command.call(context, *args)
-      else
+      if command.nil?
         raise NoCommandError.new(name, self)
+      end
+
+      if args.size < command.options[:arguments_required].to_i
+        puts "The command '#{command.name}' requires #{command.options[:arguments_required]} argument(s)."
+      else
+        command.call(context, *args)
       end
     end
 
