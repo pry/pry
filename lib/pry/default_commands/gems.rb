@@ -4,19 +4,18 @@ class Pry
     Gems = Pry::CommandSet.new do
 
       command "gem-install", "Install a gem and refresh the gem cache.", :argument_required => true do |gem|
-        if File.writable? Gem.dir
-          installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
+        begin
+          destination = File.writable?(Gem.dir) ? Gem.dir : Gem.user_dir
+          installer = Gem::DependencyInstaller.new :install_dir => destination
           installer.install gem
-          output.puts "Gem '#{text.green gem}' installed."
-        elsif File.writable? Gem.user_dir 
-          installer = Gem::DependencyInstaller.new :install_dir => Gem.user_dir
-          installer.install gem
-          output.puts "Gem '#{text.green gem}' installed to your user directory"
-        else
+        rescue Errno::EACCES
           output.puts "Insufficient permissions to install `#{text.green gem}`"
+        rescue Gem::GemNotFoundException
+          output.puts "Gem `#{text.green gem}` not found."
+        else
+          Gem.refresh
+          output.puts "Gem `#{text.green gem}` installed."
         end
-
-        Gem.refresh
       end
 
       command "gem-cd", "Change working directory to specified gem's directory.", :argument_required => true do |gem|
