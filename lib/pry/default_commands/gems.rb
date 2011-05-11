@@ -3,7 +3,7 @@ class Pry
 
     Gems = Pry::CommandSet.new do
 
-      command "gem-install", "Install a gem and refresh the gem cache.", :arguments_required => 1 do |gem|
+      command "gem-install", "Install a gem and refresh the gem cache.", :argument_required => true do |gem|
         if File.writable? Gem.dir
           installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
           installer.install gem
@@ -19,7 +19,7 @@ class Pry
         Gem.refresh
       end
 
-      command "gem-cd", "Change working directory to specified gem's directory.", :arguments_required => 1 do |gem|
+      command "gem-cd", "Change working directory to specified gem's directory.", :argument_required => true do |gem|
         spec = Gem.source_index.find_name(gem).first
         spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
       end
