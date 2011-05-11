@@ -3,33 +3,25 @@ class Pry
 
     Gems = Pry::CommandSet.new do
 
-      command "gem-install", "Install a gem and refresh the gem cache." do |gem|
-        if gem
-          if File.writable? Gem.dir
-            installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
-            installer.install gem
-            output.puts "Gem '#{text.green gem}' installed."
-          elsif File.writable? Gem.user_dir 
-            installer = Gem::DependencyInstaller.new :install_dir => Gem.user_dir
-            installer.install gem
-            output.puts "Gem '#{text.green gem}' installed to your user directory"
-          else
-            output.puts "Insufficient permissions to install `#{text.green gem}`"
-          end
-
-          Gem.refresh
+      command "gem-install", "Install a gem and refresh the gem cache.", :arguments_required => 1 do |gem|
+        if File.writable? Gem.dir
+          installer = Gem::DependencyInstaller.new :install_dir => Gem.dir
+          installer.install gem
+          output.puts "Gem '#{text.green gem}' installed."
+        elsif File.writable? Gem.user_dir 
+          installer = Gem::DependencyInstaller.new :install_dir => Gem.user_dir
+          installer.install gem
+          output.puts "Gem '#{text.green gem}' installed to your user directory"
         else
-          output.puts "gem-install requires the name of a gem as an argument."
+          output.puts "Insufficient permissions to install `#{text.green gem}`"
         end
+
+        Gem.refresh
       end
 
-      command "gem-cd", "Change working directory to specified gem's directory." do |gem|
-        if gem
-          spec = Gem.source_index.find_name(gem).first
-          spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
-        else
-          output.puts 'gem-cd requires the name of a gem as an argument.'
-        end
+      command "gem-cd", "Change working directory to specified gem's directory.", :arguments_required => 1 do |gem|
+        spec = Gem.source_index.find_name(gem).first
+        spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
       end
 
 
