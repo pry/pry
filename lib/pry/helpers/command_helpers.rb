@@ -131,7 +131,7 @@ class Pry
           "\n#{Pry::Helpers::Text.bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
           file = Pry::MethodInfo.info_for(meth).file
-          "\n#{Pry::Helpers.Text.bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
+          "\n#{Pry::Helpers::Text.bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
         end
       end
 
