@@ -5,6 +5,7 @@ require "pry/default_commands/context"
 require "pry/default_commands/input"
 require "pry/default_commands/shell"
 require "pry/default_commands/introspection"
+require "pry/default_commands/user_command_api"
 require "pry/default_commands/easter_eggs"
 
 class Pry
