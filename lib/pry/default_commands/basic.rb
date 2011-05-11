@@ -20,19 +20,13 @@ class Pry
         output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
       end
 
-      command "command", "To honor Mon-Ouie" do |arg|
-        next output.puts("Provide an arg!") if arg.nil?
+      command "import", "Import a command set" do |command_set_name|
+        next output.puts "Provide a command set name" if command_set.nil?
 
-        prime_string = "command #{opts[:arg_string]}\n"
-        command_string = Pry.active_instance.r(target, prime_string)
-
-        opts[:eval_string].replace <<-HERE
-          _pry_.commands.instance_eval do
-            #{command_string}
-          end
-        HERE
-
+        set = target.eval(opts[:arg_string])
+        Pry.active_instance.commands.import set
       end
+
     end
 
   end
