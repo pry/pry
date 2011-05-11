@@ -178,10 +178,9 @@ class Pry
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
-  def r(target=TOPLEVEL_BINDING)
+  def r(target=TOPLEVEL_BINDING, eval_string="")
     target = Pry.binding_for(target)
     @suppress_output = false
-    eval_string = ""
 
     val = ""
     loop do

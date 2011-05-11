@@ -44,6 +44,31 @@ class Pry
         end
       end
 
+      command "req", "Requires gem(s). No need for quotes! (If the gem isn't installed, it will ask if you want to install it.)" do |*gems|
+        gems = gems.join(' ').gsub(',', '').split(/\s+/)
+        gems.each do |gem|
+          begin
+            if require gem
+              output.puts "#{text.bright_yellow(gem)} loaded"
+            else
+              output.puts "#{text.bright_white(gem)} already loaded"
+            end
+
+          rescue LoadError => e
+
+            if gem_installed? gem
+              output.puts e.inspect
+            else
+              output.puts "#{text.bright_red(gem)} not found"
+              if prompt("Install the gem?") == "y"
+                run "gem-install", gem
+              end
+            end
+
+          end # rescue
+        end # gems.each
+      end
+
     end
   end
 end
