@@ -26,20 +26,18 @@ class Pry
 
       command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |pattern|
         pattern = Regexp.new pattern.to_s, Regexp::IGNORECASE
-        gems = Gem.source_index.gems.values.group_by(&:name)
+        gems = Gem.source_index.find_name(pattern).group_by(&:name)
 
         gems.each do |gem, specs|
-          if gem =~ pattern
-            specs.sort! do |a,b| 
-              Gem::Version.new(b.version) <=> Gem::Version.new(a.version) 
-            end
-            
-            versions = specs.map.with_index do |spec, index|
-              index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s) 
-            end
-
-            output.puts "#{text.white gem} (#{versions.join ', '})"
+          specs.sort! do |a,b| 
+            Gem::Version.new(b.version) <=> Gem::Version.new(a.version) 
           end
+          
+          versions = specs.map.with_index do |spec, index|
+            index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s) 
+          end
+
+          output.puts "#{text.white gem} (#{versions.join ', '})"
         end
       end
 
