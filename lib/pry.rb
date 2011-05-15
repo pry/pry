@@ -22,6 +22,7 @@ end
 require "pry/version"
 require "pry/hooks"
 require "pry/print"
+require "pry/history_array"
 require "pry/helpers"
 require "pry/command_set"
 require "pry/commands"
