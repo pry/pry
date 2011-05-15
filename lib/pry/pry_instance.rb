@@ -169,7 +169,11 @@ class Pry
     # Do not want __FILE__, __LINE__ here because we need to distinguish
     # (eval) methods for show-method and friends.
     # This also sets the `_` local for the session.
-    set_last_result(target.eval(r(target)), target)
+    code = r(target)
+    res = set_last_result(target.eval(code), target)
+
+    @input_array << code
+    res
   rescue SystemExit => e
     exit
   rescue Exception => e
@@ -199,7 +203,6 @@ class Pry
 
     @suppress_output = true if eval_string =~ /;\Z/ || null_input?(val)
 
-    @input_array << eval_string
     eval_string
   end
 
