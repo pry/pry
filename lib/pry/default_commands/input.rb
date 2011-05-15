@@ -19,7 +19,7 @@ class Pry
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
           history = Readline::HISTORY.to_a 
-          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head X] [--tail X] [--help]\n"
+          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             pattern = Regexp.new opts[:arg_string].split(/ /)[1]
@@ -34,16 +34,18 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :h, :head, 'Display the first X items of history', true, :as => Integer do |limit| 
+          opt.on :h, :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit| 
             unless opt.grep?
+              limit = 10 if limit.nil?
               list  = history.first limit
               lines = text.with_line_numbers list.join("\n"), 0 
               stagger_output lines
             end
           end
 
-          opt.on :t, :tail, 'Display the last X items of history', true, :as => Integer do |limit|
-            unless opt.grep?
+          opt.on :t, :tail, 'Display the last N items of history', :optional => true, :as => Integer do |limit|
+            unless opt.grep? 
+              limit  = 10 if limit.nil?
               offset = history.size-limit
               offset = offset < 0 ? 0 : offset
 
