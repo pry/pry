@@ -95,6 +95,8 @@ e.g: stat hello_method
       end
 
       command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
+        require 'gist'
+
         target = target()
 
         opts = Slop.parse!(args) do |opts|
@@ -134,9 +136,11 @@ e.g: gist -d my_method
           code_type = :plain
         end
 
-        IO.popen("gist#{' -p' if opts.p?} -t #{type_map[code_type]} -", "w") do |gist|
-          gist.puts content
-        end
+        link = Gist.write([:extension => ".#{type_map[code_type]}",
+                           :input => content],
+                          opts.p?)
+
+        output.puts "Gist created at #{link}"
       end
 
     end
