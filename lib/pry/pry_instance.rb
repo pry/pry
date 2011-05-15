@@ -34,6 +34,9 @@ class Pry
     end
 
     @command_processor = CommandProcessor.new(self)
+
+    @input_array  = HistoryArray.new(100)
+    @output_array = HistoryArray.new(100)
   end
 
   # Get nesting data.
@@ -72,7 +75,10 @@ class Pry
 
     # Make sure special locals exist
     target.eval("_pry_ = ::Pry.active_instance")
-    target.eval("_ = ::Pry.last_result")
+    target.eval("_     = ::Pry.last_result")
+    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+
     self.session_target = target
   end
 
@@ -154,6 +160,8 @@ class Pry
     # save the pry instance to active_instance
     Pry.active_instance = self
     target.eval("_pry_ = ::Pry.active_instance")
+    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
 
     @last_result_is_exception = false
 
@@ -191,6 +199,7 @@ class Pry
 
     @suppress_output = true if eval_string =~ /;\Z/ || null_input?(val)
 
+    @input_array << eval_string
     eval_string
   end
 
@@ -251,6 +260,7 @@ class Pry
   # @param [Binding] target The binding to set `_` on.
   def set_last_result(result, target)
     Pry.last_result = result
+    @output_array << result
     target.eval("_ = ::Pry.last_result")
   end
 

@@ -84,7 +84,7 @@ class Pry
     end
 
     def inspect
-      to_a.inspect
+      "#<#{self.class} size=#{size} first=#{@count - size} max_size=#{max_size}>"
     end
 
     # @return [Integer] Maximum amount of objects in the array
