@@ -18,8 +18,8 @@ class Pry
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
-          history = Readline::HISTORY.to_a
-          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
+          history = Readline::HISTORY.to_a 
+          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head X] [--tail X] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             pattern = Regexp.new opts[:arg_string].split(/ /)[1]
@@ -34,6 +34,25 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
+          opt.on :h, :head, 'Display the first X items of history', true, :as => Integer do |limit| 
+            unless opt.grep?
+              list  = history.first limit
+              lines = text.with_line_numbers list.join("\n"), 0 
+              stagger_output lines
+            end
+          end
+
+          opt.on :t, :tail, 'Display the last X items of history', true, :as => Integer do |limit|
+            unless opt.grep?
+              offset = history.size-limit
+              offset = offset < 0 ? 0 : offset
+
+              list  = history.last limit
+              lines = text.with_line_numbers list.join("\n"), offset
+              stagger_output lines
+            end
+          end
+
           opt.on :e, :exclude, 'Exclude pry and system commands from the history.' do
             unless opt.grep?
               history.map!.with_index do |element, index|
@@ -41,7 +60,6 @@ class Pry
                   "#{text.blue index}: #{element}"
                 end
               end
-
               stagger_output history.compact.join "\n"
             end
           end
@@ -67,8 +85,8 @@ class Pry
           end
 
           opt.on_empty do
-            list = text.with_line_numbers history.join("\n"), 0
-            stagger_output list
+            lines = text.with_line_numbers history.join("\n"), 0
+            stagger_output lines
           end
         end
       end
