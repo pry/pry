@@ -36,7 +36,7 @@ class Pry
 
           opt.on :h, :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit| 
             unless opt.grep?
-              limit = 10 if limit.nil?
+              limit ||= 10
               list  = history.first limit
               lines = text.with_line_numbers list.join("\n"), 0 
               stagger_output lines
@@ -45,7 +45,7 @@ class Pry
 
           opt.on :t, :tail, 'Display the last N items of history', :optional => true, :as => Integer do |limit|
             unless opt.grep? 
-              limit  = 10 if limit.nil?
+              limit ||= 10 
               offset = history.size-limit
               offset = offset < 0 ? 0 : offset
 
