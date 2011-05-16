@@ -53,34 +53,24 @@ e.g: show-method hello_method
       alias_command "$", "show-method", ""
 
       command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
-        options = {}
         target = target()
-        command_name = nil
 
-        OptionParser.new do |opts|
+        opts = Slop.parse!(args) do |opts|
           opts.banner = %{Usage: show-command [OPTIONS] [CMD]
 Show the source for command CMD.
 e.g: show-command show-method
 --
 }
-          opts.on("-l", "--line-numbers", "Show line numbers.") do |line|
-            options[:l] = true
-          end
-
-          opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do
-            options[:f] = true
-          end
-
-          opts.on_tail("-h", "--help", "This message.") do
+          opts.on :l, "line-numbers", "Show line numbers."
+          opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opts.on :h, :help, "This message." do
             output.puts opts
-            options[:h] = true
           end
-        end.order(args) do |v|
-          command_name = v
         end
 
-        next if options[:h]
+        next if opts.help?
 
+        command_name = args.shift
         if !command_name
           output.puts "You must provide a command name."
           next
@@ -100,7 +90,7 @@ e.g: show-command show-method
             code = CodeRay.scan(code, :ruby).term
           end
 
-          render_output(options[:f], options[:l] ? meth.source_location.last : false, code)
+          render_output(opts.flood?, opts.l? ? meth.source_location.last : false, code)
           code
         else
           output.puts "No such command: #{command_name}."
