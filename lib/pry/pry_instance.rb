@@ -175,6 +175,7 @@ class Pry
   # Ruby expression is received.
   # Pry commands are also accepted here and operate on the target.
   # @param [Object, Binding] target The receiver of the read.
+  # @param [String] eval_string Optionally Prime `eval_string` with a start value.
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
@@ -290,7 +291,7 @@ class Pry
         end
 
       rescue EOFError
-        self.input = Readline
+        self.input = Pry.input
         ""
       end
     end
