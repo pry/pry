@@ -114,6 +114,14 @@ class Pry
     attr_accessor :editor
   end
 
+
+  @plugin_manager ||= PluginManager.new
+  @plugin_manager.locate_plugins
+
+  def self.plugins
+    @plugin_manager.plugins
+  end
+
   # Load the rc files given in the `Pry::RC_FILES` array.
   # Defaults to loading just `~/.pryrc`. This method can also
   # be used to reload the files if they have changed.
@@ -135,6 +143,7 @@ class Pry
   def self.start(target=TOPLEVEL_BINDING, options={})
     if should_load_rc && !@rc_loaded
       load_rc
+      @plugin_manager.load_plugins
       @rc_loaded = true
     end
 

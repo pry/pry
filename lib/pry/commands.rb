@@ -5,8 +5,10 @@ require "pry/default_commands/context"
 require "pry/default_commands/input"
 require "pry/default_commands/shell"
 require "pry/default_commands/introspection"
-require "pry/default_commands/user_command_api"
 require "pry/default_commands/easter_eggs"
+
+require "pry/extended_commands/user_command_api"
+require "pry/extended_commands/experimental"
 
 class Pry
 
@@ -16,11 +18,12 @@ class Pry
     import DefaultCommands::Documentation
     import DefaultCommands::Gems
     import DefaultCommands::Context
-    import DefaultCommands::Input, DefaultCommands::Shell
+    import DefaultCommands::Input
+    import DefaultCommands::Shell
     import DefaultCommands::Introspection
     import DefaultCommands::EasterEggs
 
-    Helpers::CommandHelpers.try_to_load_pry_doc
+#    Helpers::CommandHelpers.try_to_load_pry_doc
 
   end
 end
