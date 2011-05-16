@@ -142,8 +142,8 @@ class Pry
       if command.nil?
         raise NoCommandError.new(name, self)
       end
-      
-      if command.options[:argument_required] && args.size == 0
+
+      if command.options[:argument_required] && args.empty?
         puts "The command '#{command.name}' requires an argument."
       else
         command.call(context, *args)
