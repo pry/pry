@@ -34,7 +34,7 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :h, :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit| 
+          opt.on :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit| 
             unless opt.grep?
               limit ||= 10
               list  = history.first limit
