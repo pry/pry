@@ -374,7 +374,7 @@ class Pry
   #    pry.pop_prompt # => prompt1
   #    pry.pop_prompt # => prompt1
   def pop_prompt
-    if prompt_stack.size > 1 then prompt_stack.pop else prompt end
+    prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
   if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"
