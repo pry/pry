@@ -90,7 +90,7 @@ class Pry
     # @param [String] val The line of input.
     # @return [Array] The command data and arg string pair
     def command_matched(val)
-      _, cmd_data = commands.commands.find do |name, cmd_data|
+      _, cmd_data = commands.commands.find do |name, data|
         /^#{Regexp.escape(name)}(?!\S)(?:\s+(.+))?/ =~ val
       end
 

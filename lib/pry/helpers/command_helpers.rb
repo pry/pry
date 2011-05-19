@@ -42,12 +42,6 @@ class Pry
       end
 
       def check_for_dynamically_defined_method(meth)
-        if is_a_dynamically_defined_method?(meth)
-          raise "Cannot retrieve source for dynamically defined method."
-        end
-      end
-
-      def check_for_dynamically_defined_method(meth)
         file, _ = meth.source_location
         if file =~ /(\(.*\))|<.*>/
           raise "Cannot retrieve source for dynamically defined method."
@@ -262,7 +256,7 @@ class Pry
       end
 
       def strip_comments_from_c_code(code)
-        code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
+        code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
       end
 
       def prompt(message, options="Yn")

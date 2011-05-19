@@ -38,7 +38,7 @@ class Pry
         # @param  [String, #to_s] text
         # @return [String] _text_ stripped of any color codes.
         def strip_color text
-          text.to_s.gsub /\e\[.*?(\d)+m/, ''
+          text.to_s.gsub(/\e\[.*?(\d)+m/ , '')
         end
 
         # Returns _text_ as bold text for use on a terminal.  

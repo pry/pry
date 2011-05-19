@@ -27,20 +27,20 @@ class Pry
         start_line = 0
         end_line = -1
 
-        opts = Slop.parse!(args) do |opts|
-          opts.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
+        opts = Slop.parse!(args) do |opt|
+          opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
             start_line = line - 1
           end
 
-          opts.on :e, :end, "End line (defaults to end of file). Line -1 is the last line", true, :as => Integer do |line|
+          opt.on :e, :end, "End line (defaults to end of file). Line -1 is the last line", true, :as => Integer do |line|
             end_line = line - 1
           end
 
-          opts.on :l, "line-numbers", "Show line numbers."
-          opts.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
-          opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opts.on :h, :help, "This message." do
-            output.puts opts
+          opt.on :l, "line-numbers", "Show line numbers."
+          opt.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
+          opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :h, :help, "This message." do
+            output.puts opt
           end
         end
 
