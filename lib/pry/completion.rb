@@ -14,28 +14,29 @@ class Pry
     Readline.completion_append_character = nil
 
     ReservedWords = [
-                     "BEGIN", "END",
-                     "alias", "and",
-                     "begin", "break",
-                     "case", "class",
-                     "def", "defined", "do",
-                     "else", "elsif", "end", "ensure",
-                     "false", "for",
-                     "if", "in",
-                     "module",
-                     "next", "nil", "not",
-                     "or",
-                     "redo", "rescue", "retry", "return",
-                     "self", "super",
-                     "then", "true",
-                     "undef", "unless", "until",
-                     "when", "while",
-                     "yield",
-                    ]
+      "BEGIN", "END",
+      "alias", "and",
+      "begin", "break",
+      "case", "class",
+      "def", "defined", "do",
+      "else", "elsif", "end", "ensure",
+      "false", "for",
+      "if", "in",
+      "module",
+      "next", "nil", "not",
+      "or",
+      "redo", "rescue", "retry", "return",
+      "self", "super",
+      "then", "true",
+      "undef", "unless", "until",
+      "when", "while",
+      "yield" ]
 
-    Operators = ["%", "&", "*", "**", "+",  "-",  "/",
-                 "<", "<<", "<=", "<=>", "==", "===", "=~", ">", ">=", ">>",
-                 "[]", "[]=", "^", "!", "!=", "!~"]
+    Operators = [
+      "%", "&", "*", "**", "+",  "-",  "/",
+      "<", "<<", "<=", "<=>", "==", "===", "=~", ">", ">=", ">>",
+      "[]", "[]=", "^", "!", "!=", "!~"
+    ]
 
     # Return a new completion proc for use by Readline.
     # @param [Binding] target The current binding context.
@@ -188,13 +189,13 @@ class Pry
 
     def self.select_message(receiver, message, candidates)
       candidates.grep(/^#{message}/).collect do |e|
-	case e
-	when /^[a-zA-Z_]/
-	  receiver + "." + e
-	when /^[0-9]/
-	when *Operators
-	  #receiver + " " + e
-	end
+      	case e
+      	when /^[a-zA-Z_]/
+      	  receiver + "." + e
+      	when /^[0-9]/
+      	when *Operators
+      	  #receiver + " " + e
+      	end
       end
     end
   end
