@@ -27,6 +27,10 @@ class Pry
         Pry.active_instance.commands.import set
       end
 
+      command "reset", "Reset the REPL to a clean state." do
+        output.puts "Pry reset."
+        exec "pry"
+      end
     end
 
   end
