@@ -1,3 +1,5 @@
+require 'forwardable'
+
 # @author John Mair (banisterfiend)
 class Pry
 
@@ -6,6 +8,7 @@ class Pry
 
   # class accessors
   class << self
+    extend Forwardable
 
     # Get nesting data.
     # This method should not need to be accessed directly.
@@ -112,14 +115,9 @@ class Pry
     #   Pry.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
     # @return [String, #call]
     attr_accessor :editor
-  end
 
-
-  @plugin_manager ||= PluginManager.new
-  @plugin_manager.locate_plugins
-
-  def self.plugins
-    @plugin_manager.plugins
+    # forwardables
+    def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -143,7 +141,7 @@ class Pry
   def self.start(target=TOPLEVEL_BINDING, options={})
     if should_load_rc && !@rc_loaded
       load_rc
-      @plugin_manager.load_plugins
+      load_plugins
       @rc_loaded = true
     end
 
@@ -240,9 +238,14 @@ class Pry
     @rc_loaded = false
     @cli = false
     @editor = default_editor_for_platform
+    @plugin_manager ||= PluginManager.new
   end
 
-  self.reset_defaults
+  # Basic initialization.
+  def self.init
+    reset_defaults
+    locate_plugins
+  end
 
   @nesting = []
   def @nesting.level
@@ -273,3 +276,5 @@ class Pry
     end
   end
 end
+
+Pry.init

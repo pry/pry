@@ -1,9 +1,13 @@
 class Pry
   class PluginManager
+
     PRY_PLUGIN_PREFIX = /^pry-/
+
+    PluginNotFound = Class.new(LoadError)
 
     class Plugin
       attr_accessor :name, :gem_name, :enabled
+      attr_reader :active
 
       def initialize(name, gem_name, enabled)
         @name, @gem_name, @enabled = name, gem_name, enabled
@@ -13,6 +17,25 @@ class Pry
       def disable!
         self.enabled = false
       end
+
+      # Enable a plugin.
+      def enable!
+        self.enabled = true
+      end
+
+      # Active the plugin (require the gem).
+      def activate!
+        begin
+          Pry::Helpers::BaseHelpers.silence_warnings do
+            require gem_name
+          end
+        rescue LoadError
+          raise PluginNotFound, "The plugin '#{gem_name}' was not found!"
+        end
+        @active = true
+      end
+
+      alias active? active
       alias enabled? enabled
     end
 
@@ -22,10 +45,11 @@ class Pry
 
     # Find all installed Pry plugins and store them in an internal array.
     def locate_plugins
+      Gem.refresh
       Gem.source_index.find_name('').each do |gem|
         next if gem.name !~ PRY_PLUGIN_PREFIX
         plugin_name = gem.name.split('-', 2).last
-        @plugins << Plugin.new(plugin_name, gem.name, true)
+        @plugins << Plugin.new(plugin_name, gem.name, true) if !gem_located?(gem.name)
       end
       @plugins
     end
@@ -43,8 +67,13 @@ class Pry
     # Require all enabled plugins, disabled plugins are skipped.
     def load_plugins
       @plugins.each do |plugin|
-        require plugin.gem_name if plugin.enabled?
+        plugin.activate! if plugin.enabled?
       end
+    end
+
+    private
+    def gem_located?(gem_name)
+      @plugins.any? { |plugin| plugin.gem_name == gem_name }
     end
   end
 
