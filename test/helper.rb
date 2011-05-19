@@ -10,6 +10,25 @@ Pry::RC_FILES.clear
 Pry.color = false
 Pry.should_load_rc = false
 
+# sample doc
+def sample_method
+  :sample
+end
+
+def redirect_global_pry_input_output(new_in, new_out)
+  old_in = Pry.input
+  old_out = Pry.output
+
+  Pry.input = new_in
+  Pry.output = new_out
+  begin
+    yield
+  ensure
+    Pry.input = old_in
+    Pry.output = old_out
+  end
+end
+
 def redirect_global_pry_input(new_io)
   old_io = Pry.input
     Pry.input = new_io
