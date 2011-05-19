@@ -402,8 +402,7 @@ class Pry
     #   valid_expression?("class Hello") #=> false
     #   valid_expression?("class Hello; end") #=> true
     def valid_expression?(code)
-      RubyParser.new.parse(code)
-      true
+      !!RubyParser.new.parse(code)
     rescue Racc::ParseError, SyntaxError
       false
     end
