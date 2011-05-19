@@ -1,13 +1,15 @@
 require "pry/command_processor.rb"
 
+# @attr prompt
 class Pry
 
-  # The list of configuration options.
-  CONFIG_OPTIONS = [:input, :output, :commands, :print,
-                    :exception_handler, :prompt, :hooks,
-                    :custom_completions]
-
-  attr_accessor *CONFIG_OPTIONS
+  attr_accessor :input
+  attr_accessor :output
+  attr_accessor :commands
+  attr_accessor :print
+  attr_accessor :exception_handler
+  attr_accessor :hooks
+  attr_accessor :custom_completions
 
   # Returns the target binding for the session. Note that altering this
   # attribute will not change the target binding.
@@ -24,16 +26,42 @@ class Pry
   # @option options [Proc] :print The Proc to use for the 'print'
   #   component of the REPL. (see print.rb)
   def initialize(options={})
+    defaults   = {}
+    attributes = [ 
+                   :input, :output, :commands, :print,
+                   :exception_handler, :hooks, :custom_completions,
+                   :prompt 
+                 ]
 
-    default_options = {}
-    CONFIG_OPTIONS.each { |v| default_options[v] = Pry.send(v) }
-    default_options.merge!(options)
-
-    CONFIG_OPTIONS.each do |key|
-      send "#{key}=", default_options[key]
+    attributes.each do |attribute|
+      defaults[attribute] = Pry.send attribute
     end
 
+    defaults.merge!(options).each_key do |key|
+      send "#{key}=", defaults[key]
+    end
+ 
     @command_processor = CommandProcessor.new(self)
+  end
+
+  # The current prompt.  
+  # This is the prompt at the top of the prompt stack.
+  # 
+  # @example
+  #    self.prompt = Pry::SIMPLE_PROMPT
+  #    self.prompt # => Pry::SIMPLE_PROMPT
+  #
+  # @return [Array<Proc>] Current prompt.
+  def prompt
+    prompt_stack.last
+  end
+
+  def prompt=(new_prompt)
+    if prompt_stack.empty?
+      push_prompt new_prompt
+    else
+      prompt_stack[-1] = new_prompt
+    end
   end
 
   # Get nesting data.
@@ -325,30 +353,6 @@ class Pry
     @prompt_stack ||= Array.new
   end
   private :prompt_stack
-
-  # The current prompt, this is the prompt at the top of the prompt stack.
-  # @return [Array<Proc>] Current prompt.
-  # @example
-  #    push_prompt(Pry::SIMPLE_PROMPT)
-  #    prompt # => Pry::SIMPLE_PROMPT
-  def prompt
-    prompt_stack.last
-  end
-
-  # Replaces the current prompt with the new prompt.
-  # Does not change the rest of the prompt stack.
-  # @param [Array<Proc>] new_prompt
-  # @return [Array<Proc>] new_prompt
-  # @example
-  #    pry.prompt = Pry::SIMPLE_PROMPT # => Pry::SIMPLE_PROMPT
-  #    pry.prompt # => Pry::SIMPLE_PROMPT
-  def prompt=(new_prompt)
-    if prompt_stack.empty?
-      push_prompt new_prompt
-    else
-      prompt_stack[-1] = new_prompt
-    end
-  end
 
   # Pushes the current prompt onto a stack that it can be restored from later.
   # Use this if you wish to temporarily change the prompt.

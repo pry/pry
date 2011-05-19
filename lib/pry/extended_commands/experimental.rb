@@ -17,7 +17,7 @@ class Pry
 
       command "play-method", "Play a method source as input" do |*args|
         target = target()
-        opt = Slop.parse!(args) do |opt|
+        opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: play-method [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
@@ -26,7 +26,7 @@ class Pry
           end
         end
 
-        next if opt.help?
+        next if opts.help?
 
         meth_name = args.shift
         if (meth = get_method_object(meth_name, target, {})).nil?
@@ -37,7 +37,7 @@ class Pry
         code, code_type = code_and_code_type_for(meth)
         next if !code
 
-        slice = opt[:l] ? opt[:l] : (0..-1)
+        slice = opts[:l] ? opts[:l] : (0..-1)
 
         sliced_code = code.each_line.to_a[slice].join("\n")
 

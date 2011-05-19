@@ -6,21 +6,20 @@ class Pry
       command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner %{Usage: show-method [OPTIONS] [METH]
-Show the source for method METH. Tries instance methods first and then methods by default.
-e.g: show-method hello_method
---
-}
-          opts.on :l, "line-numbers", "Show line numbers."
-          opts.on :M, "instance-methods", "Operate on instance methods."
-          opts.on :m, :methods, "Operate on methods."
-          opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opts.on :c, :context, "Select object context to run under.", true do |context|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: show-method [OPTIONS] [METH]\n" \
+                     "Show the source for method METH. Tries instance methods first and then methods by default.\n" \
+                     "e.g: show-method hello_method"
+  
+          opt.on :l, "line-numbers", "Show line numbers."
+          opt.on :M, "instance-methods", "Operate on instance methods."
+          opt.on :m, :methods, "Operate on methods."
+          opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
-          opts.on :h, :help, "This message." do
-            output.puts opts
+          opt.on :h, :help, "This message." do
+            output.puts opt
           end
         end
 
@@ -55,16 +54,15 @@ e.g: show-method hello_method
       command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner = %{Usage: show-command [OPTIONS] [CMD]
-Show the source for command CMD.
-e.g: show-command show-method
---
-}
-          opts.on :l, "line-numbers", "Show line numbers."
-          opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opts.on :h, :help, "This message." do
-            output.puts opts
+        opts = Slop.parse!(args) do |opt|
+          opt.banner = "Usage: show-command [OPTIONS] [CMD]\n" \
+                       "Show the source for command CMD.\n" \
+                       "e.g: show-command show-method"
+
+          opt.on :l, "line-numbers", "Show line numbers."
+          opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :h, :help, "This message." do
+            output.puts opt
           end
         end
 
@@ -100,22 +98,21 @@ e.g: show-command show-method
       command "edit-method", "Edit a method. Type `edit-method --help` for more info." do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner %{Usage: edit-method [OPTIONS] [METH]
-Edit the method METH in an editor.
-Ensure #{text.bold("Pry.editor")} is set to your editor of choice.
-e.g: edit-method hello_method
---
-}
-          opts.on :M, "instance-methods", "Operate on instance methods."
-          opts.on :m, :methods, "Operate on methods."
-          opts.on "no-reload", "Do not automatically reload the method's file after editting."
-          opts.on :n, "no-jump", "Do not fast forward editor to first line of method."
-          opts.on :c, :context, "Select object context to run under.", true do |context|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: edit-method [OPTIONS] [METH]\n" \
+                      "Edit the method METH in an editor.\n" \
+                      "Ensure #{text.bold("Pry.editor")} is set to your editor of choice.\n" \
+                      "e.g: edit-method hello_method"
+
+          opt.on :M, "instance-methods", "Operate on instance methods."
+          opt.on :m, :methods, "Operate on methods."
+          opt.on "no-reload", "Do not automatically reload the method's file after editting."
+          opt.on :n, "no-jump", "Do not fast forward editor to first line of method."
+          opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
-          opts.on :h, :help, "This message." do
-            output.puts opts
+          opt.on :h, :help, "This message." do
+            output.puts opt
           end
         end
 
