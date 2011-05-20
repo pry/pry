@@ -12,13 +12,14 @@ class Pry
         replacement_line = "" if !replacement_line
         input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:ni_arg_string] + "\n"]
         opts[:eval_string].replace input_array.join("\n")
+        binding.pry
       end
 
       alias_command "%", "amend-line", ""
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
-          history = Readline::HISTORY.to_a 
+          history = Readline::HISTORY.to_a
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
@@ -34,18 +35,18 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit| 
+          opt.on :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit|
             unless opt.grep?
               limit ||= 10
               list  = history.first limit
-              lines = text.with_line_numbers list.join("\n"), 0 
+              lines = text.with_line_numbers list.join("\n"), 0
               stagger_output lines
             end
           end
 
           opt.on :t, :tail, 'Display the last N items of history', :optional => true, :as => Integer do |limit|
-            unless opt.grep? 
-              limit ||= 10 
+            unless opt.grep?
+              limit ||= 10
               offset = history.size-limit
               offset = offset < 0 ? 0 : offset
 
