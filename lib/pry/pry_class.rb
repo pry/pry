@@ -1,3 +1,4 @@
+require 'ostruct'
 require 'forwardable'
 
 # @author John Mair (banisterfiend)
@@ -64,6 +65,11 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
+    # Get the array of Procs to be used for the prompts by default by
+    # all Pry instances.
+    # @return [Array<Proc>] The array of Procs to be used for the
+    #   prompts by default by all Pry instances.
+    attr_accessor :prompt
 
     # Get/Set the Proc that defines extra Readline completions (on top
     # of the ones defined for IRB).
@@ -72,23 +78,18 @@ class Pry
     #   Pry.custom_completions = proc { Dir.entries('.') }
     attr_accessor :custom_completions
 
-    # Get the array of Procs to be used for the prompts by default by
-    # all Pry instances.
-    # @return [Array<Proc>] The array of Procs to be used for the
-    #   prompts by default by all Pry instances.
-    attr_accessor :prompt
 
     # Value returned by last executed Pry command.
     # @return [Object] The command value
     attr_accessor :cmd_ret_value
 
-    # Determines whether colored output is enabled.
-    # @return [Boolean]
-    attr_accessor :color
+    # # Determines whether colored output is enabled.
+    # # @return [Boolean]
+    # attr_accessor :color
 
-    # Determines whether paging (of long blocks of text) is enabled.
-    # @return [Boolean]
-    attr_accessor :pager
+    # # Determines whether paging (of long blocks of text) is enabled.
+    # # @return [Boolean]
+    # attr_accessor :pager
 
     # Determines whether the rc file (~/.pryrc) should be loaded.
     # @return [Boolean]
@@ -97,10 +98,6 @@ class Pry
     # Set to true if Pry is invoked from command line using `pry` executable
     # @return [Boolean]
     attr_accessor :cli
-
-    # Set to true if the pry-doc extension is loaded.
-    # @return [Boolean]
-    attr_accessor :has_pry_doc
 
     # The default editor to use. Defaults to $EDITOR or nano if
     # $EDITOR is not defined.
@@ -116,8 +113,15 @@ class Pry
     # @return [String, #call]
     attr_accessor :editor
 
-    # forwardables
+    # @return [OpenStruct] Return Pry's config object.
+    attr_accessor :config
+
+    # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
+
+    # config forwardables
+    def_delegators :@config, :input, :output, :commands, :prompt, :print, :exception_handler, :hooks, :color, :pager, :editor, :has_pry_doc,
+                             :input=, :output=, :commands=, :prompt=, :print=, :exception_handler=, :hooks=, :color=, :pager=, :editor=, :has_pry_doc=
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -224,25 +228,27 @@ class Pry
 
   # Set all the configurable options back to their default values
   def self.reset_defaults
-    @input = Readline
-    @output = $stdout
-    @commands = Pry::Commands
-    @prompt = DEFAULT_PROMPT
-    @print = DEFAULT_PRINT
-    @exception_handler = DEFAULT_EXCEPTION_HANDLER
-    @hooks = DEFAULT_HOOKS
+    config.input = Readline
+    config.output = $stdout
+    config.commands = Pry::Commands
+    config.prompt = DEFAULT_PROMPT
+    config.print = DEFAULT_PRINT
+    config.exception_handler = DEFAULT_EXCEPTION_HANDLER
+    config.hooks = DEFAULT_HOOKS
+    config.color = true
+    config.pager = true
+    config.editor = default_editor_for_platform
+
     @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
-    @color = true
-    @pager = true
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
-    @editor = default_editor_for_platform
-    @plugin_manager ||= PluginManager.new
   end
 
   # Basic initialization.
   def self.init
+    @config ||= OpenStruct.new
+    @plugin_manager ||= PluginManager.new
     reset_defaults
     locate_plugins
   end
