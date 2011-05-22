@@ -23,7 +23,7 @@ class Pry
         self.enabled = true
       end
 
-      # Active the plugin (require the gem).
+      # Activate the plugin (require the gem).
       def activate!
         begin
           Pry::Helpers::BaseHelpers.silence_warnings do
