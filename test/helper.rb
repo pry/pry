@@ -15,7 +15,7 @@ def sample_method
   :sample
 end
 
-def redirect_global_pry_input_output(new_in, new_out)
+def redirect_pry_io(new_in, new_out)
   old_in = Pry.input
   old_out = Pry.output
 
