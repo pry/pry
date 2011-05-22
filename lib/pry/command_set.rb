@@ -77,7 +77,12 @@ class Pry
     def command(names, description="No description.", options={}, &block)
       first_name = Array(names).first
 
-      options = {:requires_gem => []}.merge(options)
+      options = {
+        :requires_gem => [],
+        :keep_retval => false,
+        :argument_required => false,
+        :interpolate => true
+      }.merge!(options)
 
       unless command_dependencies_met? options
         gems_needed = Array(options[:requires_gem])

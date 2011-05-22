@@ -34,7 +34,16 @@ class Pry
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid Pry command.
     def pry_command?(val)
-      !!command_matched(val).first
+      !!(command_matched(val)[0])
+    end
+
+    def convert_to_regex(obj)
+      case obj
+      when String
+        Regexp.escape(obj)
+      else
+        obj
+      end
     end
 
     # Revaluate the string (str) and perform interpolation.
@@ -90,11 +99,11 @@ class Pry
     # @param [String] val The line of input.
     # @return [Array] The command data and arg string pair
     def command_matched(val)
-      _, cmd_data = commands.commands.find do |name, data|
-        /^#{Regexp.escape(name)}(?!\S)(?:\s+(.+))?/ =~ val
+      _, cmd_data = commands.commands.find do |name, cmd_data|
+        /^#{convert_to_regex(name)}(?!\S)/ =~ val
       end
 
-      [cmd_data, $1]
+      [cmd_data, (Regexp.last_match ? Regexp.last_match.captures : nil), (Regexp.last_match ? Regexp.last_match.end(0) : nil)]
     end
 
     # Process Pry commands. Pry commands are not Ruby methods and are evaluated
@@ -118,20 +127,21 @@ class Pry
       # no command was matched, so return to caller
       return if !pry_command?(val)
 
-      ni_val = val.dup
-      val.replace interpolate_string(val, target)
-      command, args_string = command_matched(val)
+      command, captures, pos = command_matched(val)
 
-      args = args_string ? Shellwords.shellwords(args_string) : []
+      val.replace interpolate_string(val, target) if command.options[:interpolate]
+
+      arg_string = val[pos..-1]
+
+      args = arg_string ? Shellwords.shellwords(arg_string) : []
 
       options = {
         :val => val,
-        :arg_string => Pry::Helpers::BaseHelpers.remove_first_word(val),
-        :ni_val => ni_val,
-        :ni_arg_string => Pry::Helpers::BaseHelpers.remove_first_word(ni_val),
+        :arg_string => arg_string,
         :eval_string => eval_string,
         :nesting => nesting,
-        :commands => commands.commands
+        :commands => commands.commands,
+        :captures => captures
       }
 
       execute_command(target, command.name, options, *args)

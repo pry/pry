@@ -8,11 +8,11 @@ class Pry
         opts[:eval_string].clear
       end
 
-      command "amend-line", "Amend the previous line of input. Aliases: %" do |replacement_line|
+      command "amend-line", "Amend the previous line of input. Aliases: %", :interpolate => false do |replacement_line|
         replacement_line = "" if !replacement_line
-        input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:ni_arg_string] + "\n"]
+        input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
         opts[:eval_string].replace input_array.join("\n")
-        binding.pry
+#        binding.pry
       end
 
       alias_command "%", "amend-line", ""
