@@ -2,10 +2,47 @@ require 'helper'
 
 describe "Pry::Commands" do
 
+  describe "hist" do
+    before do
+      Readline::HISTORY.clear
+      @hist = Readline::HISTORY
+    end
+
+    it 'should display the correct history' do
+      @hist.push "hello"
+      @hist.push "world"
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /hello\n.*world/
+    end
+
+    it 'should replay history correctly (single item)' do
+      @hist.push "cd :hello"
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --replay 0", "self", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /hello/
+    end
+
+    it 'should replay a range of history correctly (range of items)' do
+      @hist.push ":hello"
+      @hist.push ":carl"
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --replay 0..1", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /:hello\n.*:carl/
+    end
+
+  end
+
   describe "show-method" do
     it 'should output a method\'s source' do
       str_output = StringIO.new
-      redirect_global_pry_input_output(InputTester.new("show-method sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-method sample_method", "exit-all"), str_output) do
         Pry.new.repl(TOPLEVEL_BINDING)
       end
 
@@ -14,7 +51,7 @@ describe "Pry::Commands" do
 
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
-      redirect_global_pry_input_output(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
         Pry.new.repl(TOPLEVEL_BINDING)
       end
 
@@ -26,7 +63,7 @@ describe "Pry::Commands" do
 
       o = Object.new
       def o.sample
-        redirect_global_pry_input_output(InputTester.new("show-method", "exit-all"), $str_output) do
+        redirect_pry_io(InputTester.new("show-method", "exit-all"), $str_output) do
           binding.pry
         end
       end
@@ -41,7 +78,7 @@ describe "Pry::Commands" do
 
       o = Object.new
       def o.sample
-        redirect_global_pry_input_output(InputTester.new("show-method -l", "exit-all"), $str_output) do
+        redirect_pry_io(InputTester.new("show-method -l", "exit-all"), $str_output) do
           binding.pry
         end
       end
@@ -56,7 +93,7 @@ describe "Pry::Commands" do
   describe "show-doc" do
     it 'should output a method\'s documentation' do
       str_output = StringIO.new
-      redirect_global_pry_input_output(InputTester.new("show-doc sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-doc sample_method", "exit-all"), str_output) do
         Pry.new.repl(TOPLEVEL_BINDING)
       end
 
@@ -68,7 +105,7 @@ describe "Pry::Commands" do
 
       o = Object.new
       def o.sample
-        redirect_global_pry_input_output(InputTester.new("show-doc", "exit-all"), $str_output) do
+        redirect_pry_io(InputTester.new("show-doc", "exit-all"), $str_output) do
           binding.pry
         end
       end
@@ -85,7 +122,7 @@ describe "Pry::Commands" do
       b = Pry.binding_for(Object.new)
       b.eval("x = :mon_ouie")
 
-      redirect_global_pry_input_output(InputTester.new("cd x", "self.should == :mon_ouie;", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd x", "self.should == :mon_ouie;", "exit-all"), StringIO.new) do
         Pry.new.repl(b)
       end
     end
@@ -94,7 +131,7 @@ describe "Pry::Commands" do
       b = Pry.binding_for(:outer)
       b.eval("x = :inner")
 
-      redirect_global_pry_input_output(InputTester.new("cd x", "self.should == :inner;", "cd ..", "self.should == :outer", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd x", "self.should == :inner;", "cd ..", "self.should == :outer", "exit-all"), StringIO.new) do
         Pry.new.repl(b)
       end
     end
@@ -103,7 +140,7 @@ describe "Pry::Commands" do
       b = Pry.binding_for(:outer)
       b.eval("x = :inner")
 
-      redirect_global_pry_input_output(InputTester.new("cd x", "self.should == :inner;", "cd 5", "self.should == 5", "cd /", "self.should == :outer", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd x", "self.should == :inner;", "cd 5", "self.should == 5", "cd /", "self.should == :outer", "exit-all"), StringIO.new) do
         Pry.new.repl(b)
       end
     end
@@ -111,7 +148,7 @@ describe "Pry::Commands" do
     it 'should start a session on TOPLEVEL_BINDING with cd ::' do
       b = Pry.binding_for(:outer)
 
-      redirect_global_pry_input_output(InputTester.new("cd ::", "self.should == TOPLEVEL_BINDING.eval('self')", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd ::", "self.should == TOPLEVEL_BINDING.eval('self')", "exit-all"), StringIO.new) do
         Pry.new.repl(5)
       end
     end
@@ -122,7 +159,7 @@ describe "Pry::Commands" do
         :mon_ouie
       end
 
-      redirect_global_pry_input_output(InputTester.new("cd hello 1, 2, 3", "self.should == :mon_ouie", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd hello 1, 2, 3", "self.should == :mon_ouie", "exit-all"), StringIO.new) do
         Pry.new.repl(o)
       end
     end
