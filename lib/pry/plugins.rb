@@ -6,8 +6,7 @@ class Pry
     PluginNotFound = Class.new(LoadError)
 
     class Plugin
-      attr_accessor :name, :gem_name, :enabled
-      attr_reader :active
+      attr_accessor :name, :gem_name, :enabled, :active
 
       def initialize(name, gem_name, enabled)
         @name, @gem_name, @enabled = name, gem_name, enabled
@@ -26,13 +25,12 @@ class Pry
       # Activate the plugin (require the gem).
       def activate!
         begin
-          Pry::Helpers::BaseHelpers.silence_warnings do
-            require gem_name
-          end
+          require gem_name
         rescue LoadError
           raise PluginNotFound, "The plugin '#{gem_name}' was not found!"
         end
-        @active = true
+        self.active = true
+        self.enabled = true
       end
 
       alias active? active
