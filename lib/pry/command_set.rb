@@ -134,6 +134,7 @@ class Pry
       commands[new_name].description = desc if desc
     end
 
+    $i = 0
     # Runs a command.
     # @param [Object] context Object which will be used as self during the
     #   command.
@@ -151,7 +152,7 @@ class Pry
       if command.options[:argument_required] && args.empty?
         puts "The command '#{command.name}' requires an argument."
       else
-        command.call(context, *args)
+        command.call context, *args
       end
     end
 
