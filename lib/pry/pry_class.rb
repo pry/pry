@@ -226,8 +226,7 @@ class Pry
     end
   end
 
-  # Set all the configurable options back to their default values
-  def self.reset_defaults
+  def self.set_config_options
     config.input = Readline
     config.output = $stdout
     config.commands = Pry::Commands
@@ -238,6 +237,11 @@ class Pry
     config.color = true
     config.pager = true
     config.editor = default_editor_for_platform
+  end
+
+  # Set all the configurable options back to their default values
+  def self.reset_defaults
+    set_config_options
 
     @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     @should_load_rc = true
