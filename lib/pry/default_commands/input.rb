@@ -12,7 +12,6 @@ class Pry
         replacement_line = "" if !replacement_line
         input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
         opts[:eval_string].replace input_array.join("\n")
-#        binding.pry
       end
 
       alias_command "%", "amend-line", ""
