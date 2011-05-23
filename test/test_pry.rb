@@ -386,43 +386,6 @@ describe Pry do
           str_output2.string.should =~ /7/
         end
 
-        # describe "Pry.run_command" do
-        #   before do
-        #     class RCTest
-        #       def a() end
-        #       B = 20
-        #       @x = 10
-        #     end
-        #   end
-
-        #   after do
-        #     Object.remove_const(:RCTest)
-        #   end
-
-        #   it "should execute command in the appropriate object context" do
-        #     result = Pry.run_command "ls", :context => RCTest
-        #     result.map(&:to_sym).should == [:@x]
-        #   end
-
-        #   it "should execute command with parameters in the appropriate object context" do
-        #     result = Pry.run_command "ls -M", :context => RCTest
-        #     result.map(&:to_sym).should == [:a]
-        #   end
-
-        #   it "should execute command and show output with :show_output => true flag" do
-        #     str = StringIO.new
-        #     Pry.output = str
-        #     result = Pry.run_command "ls -afv", :context => RCTest, :show_output => true
-        #     str.string.should =~ /global variables/
-        #     Pry.output = $stdout
-        #   end
-
-        #   it "should execute command with multiple parameters" do
-        #     result = Pry.run_command "ls -c -M RCTest"
-        #     result.map(&:to_sym).should == [:a, :B]
-        #   end
-        # end
-
         describe "commands" do
           it 'should interpolate ruby code into commands' do
             klass = Pry::CommandSet.new do
@@ -431,11 +394,25 @@ describe Pry do
               end
             end
 
-            @test_interpolation = "bing"
+            $test_interpolation = "bing"
             str_output = StringIO.new
-            Pry.new(:input => StringIO.new("hello #{@test_interpolation}"), :output => str_output, :commands => klass).rep
+            Pry.new(:input => StringIO.new('hello #{$test_interpolation}'), :output => str_output, :commands => klass).rep
             str_output.string.should =~ /bing/
-            @test_interpolation = nil
+            $test_interpolation = nil
+          end
+
+          it 'should NOT interpolate ruby code into commands if :interpolate => false' do
+            klass = Pry::CommandSet.new do
+              command "hello", "", :keep_retval => true, :interpolate => false do |arg|
+                arg
+              end
+            end
+
+            $test_interpolation = "bing"
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new('hello #{$test_interpolation}'), :output => str_output, :commands => klass).rep
+            str_output.string.should =~ /test_interpolation/
+            $test_interpolation = nil
           end
 
           it 'should create a comand in  a nested context and that command should be accessible from the parent' do
@@ -469,7 +446,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
             (str_output.string =~ /:kept_hello/).should == nil
-            str_output.string !~ /=>/
+              str_output.string !~ /=>/
           end
 
           it 'should set the commands default, and the default should be overridable' do
@@ -485,342 +462,342 @@ describe Pry do
             Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
             str_output.string.should =~ /hello world/
 
-            other_klass = Pry::CommandSet.new do
-              command "goodbye", "" do
-                output.puts "goodbye world"
+                other_klass = Pry::CommandSet.new do
+                command "goodbye", "" do
+                  output.puts "goodbye world"
+                end
               end
+
+              str_output = StringIO.new
+
+              Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => other_klass).rep
+              str_output.string.should =~ /goodbye world/
             end
 
-            str_output = StringIO.new
-
-            Pry.new(:input => InputTester.new("goodbye"), :output => str_output, :commands => other_klass).rep
-            str_output.string.should =~ /goodbye world/
-          end
-
-          it 'should inherit "help" command from Pry::CommandBase' do
-            klass = Pry::CommandSet.new do
-              command "h", "h command" do
-              end
-            end
-
-            klass.commands.keys.size.should == 3
-            klass.commands.keys.include?("help").should == true
-            klass.commands.keys.include?("install").should == true
-            klass.commands.keys.include?("h").should == true
-          end
-
-          it 'should inherit commands from Pry::Commands' do
-            klass = Pry::CommandSet.new Pry::Commands do
-              command "v" do
-              end
-            end
-
-            klass.commands.include?("nesting").should == true
-            klass.commands.include?("jump-to").should == true
-            klass.commands.include?("cd").should == true
-            klass.commands.include?("v").should == true
-          end
-
-          it 'should alias a command with another command' do
+            it 'should inherit "help" command from Pry::CommandBase' do
               klass = Pry::CommandSet.new do
-              alias_command "help2", "help"
+                command "h", "h command" do
+                end
+              end
+
+              klass.commands.keys.size.should == 3
+              klass.commands.keys.include?("help").should == true
+              klass.commands.keys.include?("install").should == true
+              klass.commands.keys.include?("h").should == true
             end
+
+            it 'should inherit commands from Pry::Commands' do
+              klass = Pry::CommandSet.new Pry::Commands do
+                command "v" do
+                end
+              end
+
+              klass.commands.include?("nesting").should == true
+              klass.commands.include?("jump-to").should == true
+              klass.commands.include?("cd").should == true
+              klass.commands.include?("v").should == true
+            end
+
+            it 'should alias a command with another command' do
+              klass = Pry::CommandSet.new do
+                alias_command "help2", "help"
+              end
 
 
               klass.commands["help2"].block.should == klass.commands["help"].block
-          end
-
-          it 'should change description of a command using desc' do
-            klass = Pry::CommandSet.new do; end
-            orig = klass.commands["help"].description
-            klass.instance_eval do
-              desc "help", "blah"
             end
-            klass.commands["help"].description.should.not == orig
-            klass.commands["help"].description.should == "blah"
-          end
 
-          it 'should run a command from within a command' do
-            klass = Pry::CommandSet.new do
-              command "v" do
-                output.puts "v command"
+            it 'should change description of a command using desc' do
+              klass = Pry::CommandSet.new do; end
+              orig = klass.commands["help"].description
+              klass.instance_eval do
+                desc "help", "blah"
+              end
+              klass.commands["help"].description.should.not == orig
+              klass.commands["help"].description.should == "blah"
+            end
+
+            it 'should run a command from within a command' do
+              klass = Pry::CommandSet.new do
+                command "v" do
+                  output.puts "v command"
+                end
+
+                command "run_v" do
+                  run "v"
+                end
               end
 
-              command "run_v" do
-                run "v"
+              str_output = StringIO.new
+              Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => klass).rep
+              str_output.string.should =~ /v command/
+            end
+
+            it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
+              klass = Pry::CommandSet.new do
+                command "v" do
+                  output.puts "#{target.eval('self')}"
+                end
               end
-            end
 
-            str_output = StringIO.new
-            Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => klass).rep
-            str_output.string.should =~ /v command/
-          end
-
-          it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
-            klass = Pry::CommandSet.new do
-              command "v" do
-                output.puts "#{target.eval('self')}"
+              child_klass = Pry::CommandSet.new klass do
               end
+
+              str_output = StringIO.new
+              Pry.new(:print => proc {}, :input => InputTester.new("v"),
+                      :output => str_output, :commands => child_klass).rep("john")
+
+              str_output.string.rstrip.should == "john"
             end
 
-            child_klass = Pry::CommandSet.new klass do
-            end
-
-            str_output = StringIO.new
-            Pry.new(:print => proc {}, :input => InputTester.new("v"),
-                    :output => str_output, :commands => child_klass).rep("john")
-
-            str_output.string.rstrip.should == "john"
-          end
-
-          it 'should import commands from another command object' do
-            klass = Pry::CommandSet.new do
-              import_from Pry::Commands, "ls", "jump-to"
-            end
+            it 'should import commands from another command object' do
+              klass = Pry::CommandSet.new do
+                import_from Pry::Commands, "ls", "jump-to"
+              end
 
               klass.commands.include?("ls").should == true
               klass.commands.include?("jump-to").should == true
             end
 
-          it 'should delete some inherited commands when using delete method' do
-            klass = Pry::CommandSet.new Pry::Commands do
-              command "v" do
+            it 'should delete some inherited commands when using delete method' do
+              klass = Pry::CommandSet.new Pry::Commands do
+                command "v" do
+                end
+
+                delete "show-doc", "show-method"
+                delete "ls"
               end
 
-              delete "show-doc", "show-method"
-              delete "ls"
+              klass.commands.include?("nesting").should == true
+              klass.commands.include?("jump-to").should == true
+              klass.commands.include?("cd").should == true
+              klass.commands.include?("v").should == true
+              klass.commands.include?("show-doc").should == false
+              klass.commands.include?("show-method").should == false
+              klass.commands.include?("ls").should == false
             end
 
-            klass.commands.include?("nesting").should == true
-            klass.commands.include?("jump-to").should == true
-            klass.commands.include?("cd").should == true
-            klass.commands.include?("v").should == true
-            klass.commands.include?("show-doc").should == false
-            klass.commands.include?("show-method").should == false
-            klass.commands.include?("ls").should == false
+            it 'should override some inherited commands' do
+              klass = Pry::CommandSet.new Pry::Commands do
+                command "jump-to" do
+                  output.puts "jump-to the music"
+                end
+
+                command "help" do
+                  output.puts "help to the music"
+                end
+              end
+
+              # suppress evaluation output
+              Pry.print = proc {}
+
+              str_output = StringIO.new
+              Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => klass).rep
+              str_output.string.rstrip.should == "jump-to the music"
+
+              str_output = StringIO.new
+              Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => klass).rep
+              str_output.string.rstrip.should == "help to the music"
+
+
+              Pry.reset_defaults
+              Pry.color = false
+            end
           end
 
-          it 'should override some inherited commands' do
-            klass = Pry::CommandSet.new Pry::Commands do
-              command "jump-to" do
-                output.puts "jump-to the music"
-              end
+          it "should set the print default, and the default should be overridable" do
+            new_print = proc { |out, value| out.puts value }
+            Pry.print =  new_print
 
-              command "help" do
-                output.puts "help to the music"
-              end
+            Pry.new.print.should == Pry.print
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
+            str_output.string.should == "test\n"
+
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("\"test\""), :output => str_output,
+                    :print => proc { |out, value| out.puts value.reverse }).rep
+            str_output.string.should == "tset\n"
+
+            Pry.new.print.should == Pry.print
+            str_output = StringIO.new
+            Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
+            str_output.string.should == "test\n"
+          end
+
+          describe "pry return values" do
+            it 'should return the target object' do
+              Pry.start(self, :input => StringIO.new("exit"), :output => Pry::NullOutput).should == self
             end
 
-            # suppress evaluation output
-            Pry.print = proc {}
+            it 'should return the parameter given to exit' do
+              Pry.start(self, :input => StringIO.new("exit 10"), :output => Pry::NullOutput).should == 10
+            end
+
+            it 'should return the parameter (multi word string) given to exit' do
+              Pry.start(self, :input => StringIO.new("exit \"john mair\""), :output => Pry::NullOutput).should == "john mair"
+            end
+
+            it 'should return the parameter (function call) given to exit' do
+              Pry.start(self, :input => StringIO.new("exit 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
+            end
+
+            it 'should return the parameter (self) given to exit' do
+              Pry.start("carl", :input => StringIO.new("exit self"), :output => Pry::NullOutput).should == "carl"
+            end
+          end
+
+          describe "prompts" do
+            it 'should set the prompt default, and the default should be overridable (single prompt)' do
+              new_prompt = proc { "test prompt> " }
+              Pry.prompt =  new_prompt
+
+              Pry.new.prompt.should == Pry.prompt
+              Pry.new.select_prompt(true, 0).should == "test prompt> "
+              Pry.new.select_prompt(false, 0).should == "test prompt> "
+
+              new_prompt = proc { "A" }
+              pry_tester = Pry.new(:prompt => new_prompt)
+              pry_tester.prompt.should == new_prompt
+              pry_tester.select_prompt(true, 0).should == "A"
+              pry_tester.select_prompt(false, 0).should == "A"
+
+              Pry.new.prompt.should == Pry.prompt
+              Pry.new.select_prompt(true, 0).should == "test prompt> "
+              Pry.new.select_prompt(false, 0).should == "test prompt> "
+            end
+
+            it 'should set the prompt default, and the default should be overridable (multi prompt)' do
+              new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
+              Pry.prompt =  new_prompt
+
+              Pry.new.prompt.should == Pry.prompt
+              Pry.new.select_prompt(true, 0).should == "test prompt> "
+              Pry.new.select_prompt(false, 0).should == "test prompt* "
+
+              new_prompt = [proc { "A" }, proc { "B" }]
+              pry_tester = Pry.new(:prompt => new_prompt)
+              pry_tester.prompt.should == new_prompt
+              pry_tester.select_prompt(true, 0).should == "A"
+              pry_tester.select_prompt(false, 0).should == "B"
+
+              Pry.new.prompt.should == Pry.prompt
+              Pry.new.select_prompt(true, 0).should == "test prompt> "
+              Pry.new.select_prompt(false, 0).should == "test prompt* "
+            end
+
+            describe 'storing and restoring the prompt' do
+              before do
+                make = lambda do |name,i|
+                  prompt = [ proc { "#{i}>" } , proc { "#{i+1}>" } ]
+                  (class << prompt; self; end).send(:define_method, :inspect) { "<Prompt-#{name}>" }
+                  prompt
+                end
+                @a , @b , @c = make[:a,0] , make[:b,1] , make[:c,2]
+                @pry = Pry.new :prompt => @a
+              end
+              it 'should have a prompt stack' do
+                @pry.push_prompt @b
+                @pry.push_prompt @c
+                @pry.prompt.should == @c
+                @pry.pop_prompt
+                @pry.prompt.should == @b
+                @pry.pop_prompt
+                @pry.prompt.should == @a
+              end
+
+              it 'should restore overridden prompts when returning from file-mode' do
+                pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
+                :prompt => [ proc { 'P>' } ] * 2
+                pry.select_prompt(true, 0).should == "P>"
+                pry.re
+                pry.select_prompt(true, 0).should =~ /\Apry .* \$ \z/
+                pry.re
+                pry.select_prompt(true, 0).should == "P>"
+              end
+
+              it '#pop_prompt should return the popped prompt' do
+                @pry.push_prompt @b
+                @pry.push_prompt @c
+                @pry.pop_prompt.should == @c
+                @pry.pop_prompt.should == @b
+              end
+
+              it 'should not pop the last prompt' do
+                @pry.push_prompt @b
+                @pry.pop_prompt.should == @b
+                @pry.pop_prompt.should == @a
+                @pry.pop_prompt.should == @a
+                @pry.prompt.should == @a
+              end
+
+              describe '#prompt= should replace the current prompt with the new prompt' do
+                it 'when only one prompt on the stack' do
+                  @pry.prompt = @b
+                  @pry.prompt.should == @b
+                  @pry.pop_prompt.should == @b
+                  @pry.pop_prompt.should == @b
+                end
+                it 'when several prompts on the stack' do
+                  @pry.push_prompt @b
+                  @pry.prompt = @c
+                  @pry.pop_prompt.should == @c
+                  @pry.pop_prompt.should == @a
+                end
+              end
+            end
+          end
+
+          it 'should set the hooks default, and the default should be overridable' do
+            Pry.input = InputTester.new("exit")
+            Pry.hooks = {
+              :before_session => proc { |out,_| out.puts "HELLO" },
+              :after_session => proc { |out,_| out.puts "BYE" }
+            }
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("jump-to"), :output => str_output, :commands => klass).rep
-            str_output.string.rstrip.should == "jump-to the music"
+            Pry.new(:output => str_output).repl
+            str_output.string.should =~ /HELLO/
+            str_output.string.should =~ /BYE/
+
+            Pry.input.rewind
 
             str_output = StringIO.new
-            Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => klass).rep
-            str_output.string.rstrip.should == "help to the music"
+            Pry.new(:output => str_output,
+                    :hooks => {
+                      :before_session => proc { |out,_| out.puts "MORNING" },
+                      :after_session => proc { |out,_| out.puts "EVENING" }
+                    }
+                    ).repl
 
+            str_output.string.should =~ /MORNING/
+            str_output.string.should =~ /EVENING/
+
+            # try below with just defining one hook
+            Pry.input.rewind
+            str_output = StringIO.new
+            Pry.new(:output => str_output,
+                    :hooks => {
+                      :before_session => proc { |out,_| out.puts "OPEN" }
+                    }
+                    ).repl
+
+            str_output.string.should =~ /OPEN/
+
+            Pry.input.rewind
+            str_output = StringIO.new
+            Pry.new(:output => str_output,
+                    :hooks => {
+                      :after_session => proc { |out,_| out.puts "CLOSE" }
+                    }
+                    ).repl
+
+            str_output.string.should =~ /CLOSE/
 
             Pry.reset_defaults
             Pry.color = false
           end
         end
-
-        it "should set the print default, and the default should be overridable" do
-          new_print = proc { |out, value| out.puts value }
-          Pry.print =  new_print
-
-          Pry.new.print.should == Pry.print
-          str_output = StringIO.new
-          Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
-          str_output.string.should == "test\n"
-
-          str_output = StringIO.new
-          Pry.new(:input => InputTester.new("\"test\""), :output => str_output,
-                  :print => proc { |out, value| out.puts value.reverse }).rep
-          str_output.string.should == "tset\n"
-
-          Pry.new.print.should == Pry.print
-          str_output = StringIO.new
-          Pry.new(:input => InputTester.new("\"test\""), :output => str_output).rep
-          str_output.string.should == "test\n"
-        end
-
-        describe "pry return values" do
-          it 'should return the target object' do
-            Pry.start(self, :input => StringIO.new("exit"), :output => Pry::NullOutput).should == self
-          end
-
-          it 'should return the parameter given to exit' do
-            Pry.start(self, :input => StringIO.new("exit 10"), :output => Pry::NullOutput).should == 10
-          end
-
-          it 'should return the parameter (multi word string) given to exit' do
-            Pry.start(self, :input => StringIO.new("exit \"john mair\""), :output => Pry::NullOutput).should == "john mair"
-          end
-
-          it 'should return the parameter (function call) given to exit' do
-            Pry.start(self, :input => StringIO.new("exit 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
-          end
-
-          it 'should return the parameter (self) given to exit' do
-            Pry.start("carl", :input => StringIO.new("exit self"), :output => Pry::NullOutput).should == "carl"
-          end
-        end
-
-        describe "prompts" do
-          it 'should set the prompt default, and the default should be overridable (single prompt)' do
-            new_prompt = proc { "test prompt> " }
-            Pry.prompt =  new_prompt
-
-            Pry.new.prompt.should == Pry.prompt
-            Pry.new.select_prompt(true, 0).should == "test prompt> "
-            Pry.new.select_prompt(false, 0).should == "test prompt> "
-
-            new_prompt = proc { "A" }
-            pry_tester = Pry.new(:prompt => new_prompt)
-            pry_tester.prompt.should == new_prompt
-            pry_tester.select_prompt(true, 0).should == "A"
-            pry_tester.select_prompt(false, 0).should == "A"
-
-            Pry.new.prompt.should == Pry.prompt
-            Pry.new.select_prompt(true, 0).should == "test prompt> "
-            Pry.new.select_prompt(false, 0).should == "test prompt> "
-          end
-
-          it 'should set the prompt default, and the default should be overridable (multi prompt)' do
-            new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
-            Pry.prompt =  new_prompt
-
-            Pry.new.prompt.should == Pry.prompt
-            Pry.new.select_prompt(true, 0).should == "test prompt> "
-            Pry.new.select_prompt(false, 0).should == "test prompt* "
-
-            new_prompt = [proc { "A" }, proc { "B" }]
-            pry_tester = Pry.new(:prompt => new_prompt)
-            pry_tester.prompt.should == new_prompt
-            pry_tester.select_prompt(true, 0).should == "A"
-            pry_tester.select_prompt(false, 0).should == "B"
-
-            Pry.new.prompt.should == Pry.prompt
-            Pry.new.select_prompt(true, 0).should == "test prompt> "
-            Pry.new.select_prompt(false, 0).should == "test prompt* "
-          end
-
-          describe 'storing and restoring the prompt' do
-            before do
-              make = lambda do |name,i|
-                prompt = [ proc { "#{i}>" } , proc { "#{i+1}>" } ]
-                (class << prompt; self; end).send(:define_method, :inspect) { "<Prompt-#{name}>" }
-                prompt
-              end
-              @a , @b , @c = make[:a,0] , make[:b,1] , make[:c,2]
-              @pry = Pry.new :prompt => @a
-            end
-            it 'should have a prompt stack' do
-              @pry.push_prompt @b
-              @pry.push_prompt @c
-              @pry.prompt.should == @c
-              @pry.pop_prompt
-              @pry.prompt.should == @b
-              @pry.pop_prompt
-              @pry.prompt.should == @a
-            end
-
-            it 'should restore overridden prompts when returning from file-mode' do
-              pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
-                            :prompt => [ proc { 'P>' } ] * 2
-              pry.select_prompt(true, 0).should == "P>"
-              pry.re
-              pry.select_prompt(true, 0).should =~ /\Apry .* \$ \z/
-              pry.re
-              pry.select_prompt(true, 0).should == "P>"
-            end
-
-            it '#pop_prompt should return the popped prompt' do
-              @pry.push_prompt @b
-              @pry.push_prompt @c
-              @pry.pop_prompt.should == @c
-              @pry.pop_prompt.should == @b
-            end
-
-            it 'should not pop the last prompt' do
-              @pry.push_prompt @b
-              @pry.pop_prompt.should == @b
-              @pry.pop_prompt.should == @a
-              @pry.pop_prompt.should == @a
-              @pry.prompt.should == @a
-            end
-
-            describe '#prompt= should replace the current prompt with the new prompt' do
-              it 'when only one prompt on the stack' do
-                @pry.prompt = @b
-                @pry.prompt.should == @b
-                @pry.pop_prompt.should == @b
-                @pry.pop_prompt.should == @b
-              end
-              it 'when several prompts on the stack' do
-                @pry.push_prompt @b
-                @pry.prompt = @c
-                @pry.pop_prompt.should == @c
-                @pry.pop_prompt.should == @a
-              end
-            end
-          end
-        end
-
-        it 'should set the hooks default, and the default should be overridable' do
-          Pry.input = InputTester.new("exit")
-          Pry.hooks = {
-            :before_session => proc { |out,_| out.puts "HELLO" },
-            :after_session => proc { |out,_| out.puts "BYE" }
-          }
-
-          str_output = StringIO.new
-          Pry.new(:output => str_output).repl
-          str_output.string.should =~ /HELLO/
-          str_output.string.should =~ /BYE/
-
-          Pry.input.rewind
-
-          str_output = StringIO.new
-          Pry.new(:output => str_output,
-                  :hooks => {
-                    :before_session => proc { |out,_| out.puts "MORNING" },
-                    :after_session => proc { |out,_| out.puts "EVENING" }
-                  }
-                  ).repl
-
-          str_output.string.should =~ /MORNING/
-          str_output.string.should =~ /EVENING/
-
-          # try below with just defining one hook
-          Pry.input.rewind
-          str_output = StringIO.new
-          Pry.new(:output => str_output,
-                  :hooks => {
-                    :before_session => proc { |out,_| out.puts "OPEN" }
-                  }
-                  ).repl
-
-          str_output.string.should =~ /OPEN/
-
-          Pry.input.rewind
-          str_output = StringIO.new
-          Pry.new(:output => str_output,
-                  :hooks => {
-                    :after_session => proc { |out,_| out.puts "CLOSE" }
-                  }
-                  ).repl
-
-          str_output.string.should =~ /CLOSE/
-
-          Pry.reset_defaults
-          Pry.color = false
-        end
       end
     end
   end
-end
