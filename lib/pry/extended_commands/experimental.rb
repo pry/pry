@@ -7,8 +7,16 @@ class Pry
         output.puts opts[:eval_string]
       end
 
-      command "power" do
-        instance_eval opts[:ni_arg_string]
+      command /rue-(\d)/, "Experimental amend-line, where the N in rue-N represents line to replace", :interpolate => false do |replacement_line|
+        replacement_line = "" if !replacement_line
+        input_array = opts[:eval_string].each_line.to_a
+        line_number = opts[:captures].first.to_i
+        input_array[line_number] = opts[:arg_string]
+        opts[:eval_string].replace input_array.join("\n")
+      end
+
+      command /:(.*)/, "Experimental shell forwarder, forward all lines after ':' to shell" do
+        system(opts[:captures].first)
       end
 
       command "play-string", "Play a string as input" do
