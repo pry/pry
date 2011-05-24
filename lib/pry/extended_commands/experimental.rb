@@ -3,16 +3,16 @@ class Pry
 
     Experimental = Pry::CommandSet.new do
 
-      command "show-eval", "Show the current eval_string" do
-        output.puts opts[:eval_string]
+      command "show-input", "Show the current eval_string" do
+        render_output(false, 0, Pry.color ? CodeRay.scan(opts[:eval_string], :ruby).term : opts[:eval_string])
       end
 
       command /rue-(\d)/, "Experimental amend-line, where the N in rue-N represents line to replace", :interpolate => false do |replacement_line|
         replacement_line = "" if !replacement_line
         input_array = opts[:eval_string].each_line.to_a
         line_number = opts[:captures].first.to_i
-        input_array[line_number] = opts[:arg_string]
-        opts[:eval_string].replace input_array.join("\n")
+        input_array[line_number] = opts[:arg_string] + "\n"
+        opts[:eval_string].replace input_array.join
       end
 
       command /:(.*)/, "Experimental shell forwarder, forward all lines after ':' to shell" do
