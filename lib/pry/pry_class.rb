@@ -117,10 +117,10 @@ class Pry
     attr_accessor :config
 
     # @return [Fixnum] The current input line.
-    attr_accessor :current_expr
+    attr_accessor :current_line
 
     # @return [Array] The Array of evaluated expressions.
-    attr_accessor :expr_store
+    attr_accessor :line_buffer
 
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
@@ -253,8 +253,8 @@ class Pry
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
-    @current_expr = 0
-    @expr_store = {}
+    @current_line = 0
+    @line_buffer = []
   end
 
   # Basic initialization.
