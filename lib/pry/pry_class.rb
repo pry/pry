@@ -253,8 +253,8 @@ class Pry
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
-    @current_expr = -1
-    @expr_store = []
+    @current_expr = 0
+    @expr_store = {}
   end
 
   # Basic initialization.

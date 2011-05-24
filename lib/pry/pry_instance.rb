@@ -191,8 +191,10 @@ class Pry
     # This also sets the `_` local for the session.
     expr = r(target)
 
-    Pry.expr_store << expr
-    set_last_result(target.eval(expr, "(pry)", Pry.current_expr += 1), target)
+    Pry.expr_store[Pry.current_expr] =  expr
+    result = set_last_result(target.eval(expr, "(pry)", Pry.current_expr), target)
+    Pry.current_expr += 1000
+    result
   rescue SystemExit => e
     exit
   rescue Exception => e
