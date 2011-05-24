@@ -92,6 +92,45 @@ describe "Pry::Commands" do
       $str_output = nil
     end
 
+    it 'should output a method\'s source for a method defined inside pry' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def dyna_method", ":testing", "end", "show-method dyna_method"), str_output) do
+        Pry.new.repl(TOPLEVEL_BINDING)
+      end
+
+      str_output.string.should =~ /def dyna_method/
+      Object.remove_method :dyna_method
+    end
+
+    it 'should output a method\'s source for a method defined inside pry, even if exceptions raised before hand' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("bad code", "123", "bad code 2", "1 + 2", "def dyna_method", ":testing", "end", "show-method dyna_method"), str_output) do
+        Pry.new.repl(TOPLEVEL_BINDING)
+      end
+
+      str_output.string.should =~ /def dyna_method/
+      Object.remove_method :dyna_method
+    end
+
+    it 'should output an instance method\'s source for a method defined inside pry' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-method A#yo"), str_output) do
+        Pry.new.repl(TOPLEVEL_BINDING)
+      end
+
+      str_output.string.should =~ /def yo/
+      Object.remove_const :A
+    end
+
+    it 'should output an instance method\'s source for a method defined inside pry using define_method' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "end", "show-method A#yup"), str_output) do
+        Pry.new.repl(TOPLEVEL_BINDING)
+      end
+
+      str_output.string.should =~ /define_method\(:yup\)/
+      Object.remove_const :A
+    end
   end
 
   describe "show-doc" do

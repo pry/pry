@@ -51,6 +51,7 @@ end
 
 class Module
   public :remove_const
+  public :remove_method
 end
 
 class << Pry
