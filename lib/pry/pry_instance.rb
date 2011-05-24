@@ -27,10 +27,10 @@ class Pry
   #   component of the REPL. (see print.rb)
   def initialize(options={})
     defaults   = {}
-    attributes = [ 
+    attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt 
+                   :prompt
                  ]
 
     attributes.each do |attribute|
@@ -40,13 +40,13 @@ class Pry
     defaults.merge!(options).each_key do |key|
       send "#{key}=", defaults[key]
     end
- 
+
     @command_processor = CommandProcessor.new(self)
   end
 
-  # The current prompt.  
+  # The current prompt.
   # This is the prompt at the top of the prompt stack.
-  # 
+  #
   # @example
   #    self.prompt = Pry::SIMPLE_PROMPT
   #    self.prompt # => Pry::SIMPLE_PROMPT
@@ -189,7 +189,10 @@ class Pry
     # Do not want __FILE__, __LINE__ here because we need to distinguish
     # (eval) methods for show-method and friends.
     # This also sets the `_` local for the session.
-    set_last_result(target.eval(r(target)), target)
+    expr = r(target)
+
+    Pry.expr_store << expr
+    set_last_result(target.eval(expr, "(pry)", Pry.current_expr += 1), target)
   rescue SystemExit => e
     exit
   rescue Exception => e

@@ -116,6 +116,12 @@ class Pry
     # @return [OpenStruct] Return Pry's config object.
     attr_accessor :config
 
+    # @return [Fixnum] The current input line.
+    attr_accessor :current_expr
+
+    # @return [Array] The Array of evaluated expressions.
+    attr_accessor :expr_store
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -226,7 +232,7 @@ class Pry
     end
   end
 
-  def self.set_config_options
+  def self.set_config_defaults
     config.input = Readline
     config.output = $stdout
     config.commands = Pry::Commands
@@ -241,12 +247,14 @@ class Pry
 
   # Set all the configurable options back to their default values
   def self.reset_defaults
-    set_config_options
+    set_config_defaults
 
     @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     @should_load_rc = true
     @rc_loaded = false
     @cli = false
+    @current_expr = -1
+    @expr_store = []
   end
 
   # Basic initialization.
