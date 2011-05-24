@@ -11,7 +11,7 @@ class Pry
       command "amend-line", "Amend the previous line of input. Aliases: %", :interpolate => false do |replacement_line|
         replacement_line = "" if !replacement_line
         input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
-        opts[:eval_string].replace input_array.join("\n")
+        opts[:eval_string].replace input_array.join
       end
 
       alias_command "%", "amend-line", ""
