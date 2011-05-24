@@ -180,27 +180,21 @@ class Pry
     end
 
     # save the pry instance to active_instance
-    Pry.active_instance = self
-    target.eval("_pry_ = ::Pry.active_instance")
+    set_active_instance(target)
 
     @last_result_is_exception = false
 
-    # eval the expression and save to last_result
-    # Do not want __FILE__, __LINE__ here because we need to distinguish
-    # (eval) methods for show-method and friends.
-    # This also sets the `_` local for the session.
     expr = r(target)
 
     Pry.line_buffer.push(*expr.each_line)
-    result = set_last_result(target.eval(expr, "(pry)", Pry.current_line), target)
-    result
+    set_last_result(target.eval(expr, "(pry)", Pry.current_line), target)
   rescue SystemExit => e
     exit
   rescue Exception => e
     @last_result_is_exception = true
     set_last_exception(e, target)
   ensure
-    Pry.current_line += expr.each_line.to_a.size
+    Pry.current_line += expr.each_line.count if expr
   end
 
   # Perform a read.
@@ -297,6 +291,14 @@ class Pry
   def set_last_exception(ex, target)
     Pry.last_exception = ex
     target.eval("_ex_ = ::Pry.last_exception")
+  end
+
+  # Set the active instance for a session.
+  # This method should not need to be invoked directly.
+  # @param [Binding] target The binding to set `_ex_` on.
+  def set_active_instance(target)
+    Pry.active_instance = self
+    target.eval("_pry_ = ::Pry.active_instance")
   end
 
   # @return [Boolean] True if the last result is an exception that was raised,
