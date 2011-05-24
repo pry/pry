@@ -191,15 +191,16 @@ class Pry
     # This also sets the `_` local for the session.
     expr = r(target)
 
-    Pry.expr_store[Pry.current_expr] =  expr
-    result = set_last_result(target.eval(expr, "(pry)", Pry.current_expr), target)
-    Pry.current_expr += 1000
+    Pry.line_buffer.push(*expr.each_line)
+    result = set_last_result(target.eval(expr, "(pry)", Pry.current_line), target)
     result
   rescue SystemExit => e
     exit
   rescue Exception => e
     @last_result_is_exception = true
     set_last_exception(e, target)
+  ensure
+    Pry.current_line += expr.each_line.to_a.size
   end
 
   # Perform a read.
@@ -220,6 +221,7 @@ class Pry
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
+
       break if valid_expression?(eval_string)
     end
 

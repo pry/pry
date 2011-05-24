@@ -62,9 +62,9 @@ class Pry
           code = strip_comments_from_c_code(code)
         when :ruby
           if meth.source_location.first == "(pry)"
-            bucket = (meth.source_location.last / 1000) * 1000
-            line = meth.source_location.last % 1000
-            p = Pry.new(:input => StringIO.new(Pry.expr_store[bucket].each_line.to_a[line..-1].join)).r(target)
+
+            start_line = meth.source_location.last
+            p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
             code = strip_leading_whitespace(p)
           else
             code = strip_leading_whitespace(meth.source)
