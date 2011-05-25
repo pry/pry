@@ -122,6 +122,10 @@ class Pry
     # @return [Array] The Array of evaluated expressions.
     attr_accessor :line_buffer
 
+    # @return [String] The __FILE__ for the `eval()`. Should be "(pry)"
+    #   by default.
+    attr_accessor :eval_path
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -255,6 +259,7 @@ class Pry
     @cli = false
     @current_line = 0
     @line_buffer = []
+    @eval_path = "(pry)"
   end
 
   # Basic initialization.

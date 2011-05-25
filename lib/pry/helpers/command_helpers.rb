@@ -43,7 +43,7 @@ class Pry
 
       def check_for_dynamically_defined_method(meth)
         file, _ = meth.source_location
-        if file =~ /(\(.*\))|<.*>/ && file != "(pry)"
+        if file =~ /(\(.*\))|<.*>/ && file != Pry.eval_path
           raise "Cannot retrieve source for dynamically defined method."
         end
       end
@@ -61,7 +61,7 @@ class Pry
           code = Pry::MethodInfo.info_for(meth).source
           code = strip_comments_from_c_code(code)
         when :ruby
-          if meth.source_location.first == "(pry)"
+          if meth.source_location.first == Pry.eval_path
 
             start_line = meth.source_location.last
             p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
