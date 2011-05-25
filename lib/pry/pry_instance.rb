@@ -187,7 +187,7 @@ class Pry
     expr = r(target)
 
     Pry.line_buffer.push(*expr.each_line)
-    set_last_result(target.eval(expr, "(pry)", Pry.current_line), target)
+    set_last_result(target.eval(expr, Pry.eval_path, Pry.current_line), target)
   rescue SystemExit => e
     exit
   rescue Exception => e
