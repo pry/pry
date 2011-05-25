@@ -75,7 +75,7 @@ class Pry
 
           opt.on :c, :clear, 'Clear the history' do
             unless opt.grep?
-              Readline::HISTORY.clear
+              Readline::HISTORY.shift until Readline::HISTORY.empty?
               output.puts 'History cleared.'
             end
           end
