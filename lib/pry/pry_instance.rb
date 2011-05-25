@@ -179,11 +179,8 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
-    # save the pry instance to active_instance
-    set_active_instance(target)
-
     @last_result_is_exception = false
-
+    set_active_instance(target)
     expr = r(target)
 
     Pry.line_buffer.push(*expr.each_line)
