@@ -5,16 +5,30 @@ class Pry
 
       command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
         output.puts "Input buffer cleared!"
-        opts[:eval_string].clear
+        eval_string.clear
       end
 
-      command "amend-line", "Amend the previous line of input. Aliases: %", :interpolate => false do |replacement_line|
+      command "show-input", "Show the current eval_string" do
+        render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
+      end
+
+
+      # command "amend-line", "Amend the previous line of input. Aliases: %", :interpolate => false do |replacement_line|
+      #   replacement_line = "" if !replacement_line
+      #   input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
+      #   opts[:eval_string].replace input_array.join
+      # end
+
+      command /amend-line-?(\d+)?/, "Experimental amend-line, where the N in amend-line-N represents line to replace. Aliases: %N",
+      :interpolate => false, :listing => "amend-line-N"  do |line_number, replacement_line|
         replacement_line = "" if !replacement_line
-        input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
-        opts[:eval_string].replace input_array.join
+        input_array = eval_string.each_line.to_a
+        line_num = line_number.to_i
+        input_array[line_num] = arg_string + "\n"
+        eval_string.replace input_array.join
       end
 
-      alias_command "%", "amend-line", ""
+      alias_command /%(\d+)?/, /amend-line-?(\d+)?/, ""
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
