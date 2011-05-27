@@ -144,7 +144,7 @@ class Pry
         :captures => captures
       }
 
-      execute_command(target, command.name, options, *captures, *args)
+      execute_command(target, command.name, options, *(captures + args))
     end
 
     # Execute a Pry command.
