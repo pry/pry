@@ -19,7 +19,7 @@ class Pry
       end
 
       command "gem-cd", "Change working directory to specified gem's directory.", :argument_required => true do |gem|
-        spec = Gem.source_index.find_name(gem).first
+        spec = Gem.source_index.find_name(gem).sort { |a,b| Gem::Version.new(b.version) <=> Gem::Version.new(a.version) }.first
         spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
       end
 

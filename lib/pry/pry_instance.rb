@@ -37,8 +37,8 @@ class Pry
       defaults[attribute] = Pry.send attribute
     end
 
-    defaults.merge!(options).each_key do |key|
-      send "#{key}=", defaults[key]
+    defaults.merge!(options).each do |method, argument|
+      send "#{method}=", argument
     end
 
     @command_processor = CommandProcessor.new(self)
