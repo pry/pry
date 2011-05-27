@@ -188,8 +188,6 @@ class Pry
 
   # Run a Pry command from outside a session. The commands available are
   # those referenced by `Pry.commands` (the default command set).
-  # Command output is suppresed by default, this is because the return
-  # value (if there is one) is likely to be more useful.
   # @param [String] arg_string The Pry command (including arguments,
   #   if any).
   # @param [Hash] options Optional named parameters.
@@ -197,35 +195,24 @@ class Pry
   # @option options [Object, Binding] :context The object context to run the
   #   command under. Defaults to `TOPLEVEL_BINDING` (main).
   # @option options [Boolean] :show_output Whether to show command
-  #   output. Defaults to false.
+  #   output. Defaults to true.
   # @example Run at top-level with no output.
   #   Pry.run_command "ls"
   # @example Run under Pry class, returning only public methods.
   #   Pry.run_command "ls -m", :context => Pry
   # @example Display command output.
   #   Pry.run_command "ls -av", :show_output => true
-  def self.run_command(arg_string, options={})
-    name, arg_string = arg_string.split(/\s+/, 2)
-    arg_string = "" if !arg_string
-
+  def self.run_command(command_string, options={})
     options = {
       :context => TOPLEVEL_BINDING,
-      :show_output => false,
+      :show_output => true,
       :output => Pry.output,
       :commands => Pry.commands
     }.merge!(options)
 
-    null_output = StringIO.new
+    output = options[:show_output] ? options[:output] : StringIO.new
 
-    context = CommandContext.new
-    commands = options[:commands]
-
-    context.opts        = {}
-    context.output      = options[:show_output] ? options[:output] : null_output
-    context.target      = Pry.binding_for(options[:context])
-    context.command_set = commands
-
-    commands.run_command(context, name, *Shellwords.shellwords(arg_string))
+    Pry.new(:output => output, :input => StringIO.new(command_string), :commands => options[:commands]).rep(options[:context])
   end
 
   def self.default_editor_for_platform
