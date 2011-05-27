@@ -131,7 +131,6 @@ class Pry
       commands[new_name].description = desc if desc
     end
 
-    $i = 0
     # Runs a command.
     # @param [Object] context Object which will be used as self during the
     #   command.
