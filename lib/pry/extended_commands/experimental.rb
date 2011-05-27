@@ -3,9 +3,6 @@ class Pry
 
     Experimental = Pry::CommandSet.new do
 
-      command "show-input", "Show the current eval_string" do
-        render_output(false, 0, Pry.color ? CodeRay.scan(opts[:eval_string], :ruby).term : opts[:eval_string])
-      end
 
       command /rue-(\d)/, "Experimental amend-line, where the N in rue-N represents line to replace", :interpolate => false do |replacement_line|
         replacement_line = "" if !replacement_line
@@ -15,8 +12,13 @@ class Pry
         opts[:eval_string].replace input_array.join
       end
 
-      command /:(.*)/, "Experimental shell forwarder, forward all lines after ':' to shell" do
-        system(opts[:captures].first)
+      command /\.(.*)/, "Experimental shell forwarder, forward all lines after '.' to shell", :listing => ".cute baby" do
+        cmd = captures.first
+        if cmd =~ /^cd\s+(.+)/i
+          Dir.chdir File.expand_path($1)
+        else
+          system(captures.first)
+        end
       end
 
       command "play-string", "Play a string as input" do

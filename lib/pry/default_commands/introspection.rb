@@ -10,7 +10,7 @@ class Pry
           opt.banner "Usage: show-method [OPTIONS] [METH]\n" \
                      "Show the source for method METH. Tries instance methods first and then methods by default.\n" \
                      "e.g: show-method hello_method"
-  
+
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
@@ -74,21 +74,24 @@ class Pry
           next
         end
 
-        if commands[command_name]
-          meth = commands[command_name].block
+        if find_command(command_name)
+          block = find_command(command_name).block
 
-          code = strip_leading_whitespace(meth.source)
-          file, line = meth.source_location
-          set_file_and_dir_locals(file)
-          check_for_dynamically_defined_method(meth)
+          code, _ = code_and_code_type_for(block)
+          next if !code
 
-          output.puts make_header(meth, :ruby, code)
+          output.puts make_header(block, :ruby, code)
 
           if Pry.color
             code = CodeRay.scan(code, :ruby).term
           end
 
-          render_output(opts.flood?, opts.l? ? meth.source_location.last : false, code)
+          start_line = false
+          if opts.l?
+            start_line = block.source_location ? block.source_location.last : 1
+          end
+
+          render_output(opts.flood?, opts.l? ? block.source_location.last : false, code)
           code
         else
           output.puts "No such command: #{command_name}."
