@@ -4,6 +4,9 @@ class Pry
   class CommandContext
     attr_accessor :output
     attr_accessor :target
+    attr_accessor :captures
+    attr_accessor :eval_string
+    attr_accessor :arg_string
     attr_accessor :opts
     attr_accessor :command_set
     attr_accessor :command_processor
