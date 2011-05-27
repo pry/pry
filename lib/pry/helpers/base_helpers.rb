@@ -18,7 +18,12 @@ class Pry
         text.split.drop(1).join(' ')
       end
 
+      def find_command(name)
+        command_match = commands.find { |_, command| command.options[:listing] == name }
 
+        return command_match.last if command_match
+        nil
+      end
 
       def gem_installed?(gem_name)
         require 'rubygems'
