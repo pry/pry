@@ -3,25 +3,6 @@ class Pry
 
     EasterEggs = Pry::CommandSet.new do
 
-      command "game", "" do |highest|
-        highest = highest ? highest.to_i : 100
-        num = rand(highest)
-        output.puts "Guess the number between 0-#{highest}: ('.' to quit)"
-        count = 0
-        while(true)
-          count += 1
-          str = Readline.readline("game > ", true)
-          break if str == "." || !str
-          val = str.to_i
-          output.puts "Too large!" if val > num
-          output.puts "Too small!" if val < num
-          if val == num
-            output.puts "Well done! You guessed right! It took you #{count} guesses."
-            break
-          end
-        end
-      end
-
       command "east-coker", "" do
         text = %{
 --
