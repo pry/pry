@@ -2,7 +2,7 @@ require 'forwardable'
 
 class Pry
   class CommandProcessor
-    SYSTEM_COMMAND_DELIMITER = "."
+    SYSTEM_COMMAND_DELIMITER = "^"
     SYSTEM_COMMAND_REGEX = /^#{Regexp.escape(SYSTEM_COMMAND_DELIMITER)}(.*)/
 
     extend Forwardable
@@ -131,7 +131,7 @@ class Pry
 
       val.replace interpolate_string(val, target) if command.options[:interpolate]
 
-      arg_string = val[pos..-1]
+      arg_string = val[pos..-1].strip
 
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
@@ -144,7 +144,7 @@ class Pry
         :captures => captures
       }
 
-      execute_command(target, command.name, options, *args)
+      execute_command(target, command.name, options, *captures, *args)
     end
 
     # Execute a Pry command.
@@ -160,6 +160,9 @@ class Pry
       context.opts        = options
       context.target      = target
       context.output      = output
+      context.captures    = options[:captures]
+      context.eval_string = options[:eval_string]
+      context.arg_string  = options[:arg_string]
       context.command_set = commands
 
       context.command_processor = self
