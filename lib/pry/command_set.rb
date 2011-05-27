@@ -50,8 +50,7 @@ class Pry
     end
 
     # Defines a new Pry command.
-    # @param [String, Array] names The name of the command (or array of
-    #   command name aliases).
+    # @param [String] name The name of the command
     # @param [String] description A description of the command.
     # @param [Hash] options The optional configuration parameters.
     # @option options [Boolean] :keep_retval Whether or not to use return value
@@ -74,14 +73,14 @@ class Pry
     #   # Good afternoon John!
     #   # pry(main)> help greet
     #   # Greet somebody
-    def command(names, description="No description.", options={}, &block)
-      first_name = Array(names).first
+    def command(name, description="No description.", options={}, &block)
 
       options = {
         :requires_gem => [],
         :keep_retval => false,
         :argument_required => false,
-        :interpolate => true
+        :interpolate => true,
+        :listing => name
       }.merge!(options)
 
       unless command_dependencies_met? options
@@ -89,15 +88,13 @@ class Pry
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
 
         options[:stub_info] = proc do
-          output.puts "\n#{first_name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
+          output.puts "\n#{name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
           output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
-          output.puts "Type `install #{first_name}` to install the required gems and activate this command."
+          output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end
 
-      Array(names).each do |name|
-        commands[name] = Command.new(name, description, options, block)
-      end
+      commands[name] = Command.new(name, description, options, block)
     end
 
     # Removes some commands from the set
@@ -183,8 +180,10 @@ class Pry
       helper_module.class_eval(&block)
     end
 
+
     private
     def define_default_commands
+
       command "help", "This menu." do |cmd|
         if !cmd
           output.puts
@@ -192,13 +191,13 @@ class Pry
 
           commands.each do |key, command|
             if command.description && !command.description.empty?
-              help_text << "#{key}".ljust(18) + command.description + "\n"
+              help_text << "#{command.options[:listing]}".ljust(18) + command.description + "\n"
             end
           end
 
           stagger_output(help_text)
         else
-          if command = commands[cmd]
+          if command = find_command(cmd)
             output.puts command.description
           else
             output.puts "No info for command: #{cmd}"
@@ -207,7 +206,8 @@ class Pry
       end
 
       command "install", "Install a disabled command." do |name|
-        stub_info = commands[name].options[:stub_info]
+        command = find_command(name)
+        stub_info = command.options[:stub_info]
 
         if !stub_info
           output.puts "Not a command stub. Nothing to do."
@@ -215,7 +215,7 @@ class Pry
         end
 
         output.puts "Attempting to install `#{name}` command..."
-        gems_to_install = Array(commands[name].options[:requires_gem])
+        gems_to_install = Array(command.options[:requires_gem])
 
         gem_install_failed = false
         gems_to_install.each do |g|
@@ -233,7 +233,7 @@ class Pry
         next if gem_install_failed
 
         Gem.refresh
-        commands[name].options.delete :stub_info
+        command.options.delete :stub_info
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end
     end
