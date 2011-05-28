@@ -69,7 +69,7 @@ class Pry
             end
           end
 
-          opt.on :e, :exclude, 'Exclude pry and system commands from the history.' do
+          opt.on :e, :exclude, 'Exclude pry commands from the history.' do
             unless opt.grep?
               history.map!.with_index do |element, index|
                 unless command_processor.valid_command? element
