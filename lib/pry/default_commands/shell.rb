@@ -3,8 +3,19 @@ class Pry
 
     Shell = Pry::CommandSet.new do
 
-      # this cannot be accessed, it's just for help purposes.
-      command ".<shell command>", "All text following a '.' is forwarded to the shell." do
+      command /\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>" do |cmd|
+        if cmd =~ /^cd\s+(.+)/i
+          begin
+            Dir.chdir File.expand_path($1)
+          rescue Errno::ENOENT
+            output.puts "No such directory: #{dest}"
+          end
+
+        else
+          if !system(cmd)
+            output.puts "Error: there was a problem executing system command: #{cmd}"
+          end
+        end
       end
 
       command "shell-mode", "Toggle shell mode. Bring in pwd prompt and file completion." do
@@ -21,7 +32,6 @@ class Pry
       end
 
       alias_command "file-mode", "shell-mode", ""
-
 
       command "cat", "Show output of file FILE. Type `cat --help` for more information." do |*args|
         start_line = 0

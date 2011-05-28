@@ -12,14 +12,6 @@ class Pry
         opts[:eval_string].replace input_array.join
       end
 
-      command /\.(.*)/, "Experimental shell forwarder, forward all lines after '.' to shell", :listing => ".cute baby" do
-        cmd = captures.first
-        if cmd =~ /^cd\s+(.+)/i
-          Dir.chdir File.expand_path($1)
-        else
-          system(captures.first)
-        end
-      end
 
       command "play-string", "Play a string as input" do
         Pry.active_instance.input = StringIO.new(opts[:arg_string])

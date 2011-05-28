@@ -2,9 +2,6 @@ require 'forwardable'
 
 class Pry
   class CommandProcessor
-    SYSTEM_COMMAND_DELIMITER = "^"
-    SYSTEM_COMMAND_REGEX = /^#{Regexp.escape(SYSTEM_COMMAND_DELIMITER)}(.*)/
-
     extend Forwardable
 
     attr_accessor :pry_instance
@@ -19,18 +16,11 @@ class Pry
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid command.
     def valid_command?(val)
-      system_command?(val) || pry_command?(val)
+      pry_command?(val)
     end
 
-    # Is the string a valid system command?
-    # @param [String] val The string passed in from the Pry prompt.
-    # @return [Boolean] Whether the string is a valid system command.
-    def system_command?(val)
-      !!(SYSTEM_COMMAND_REGEX =~ val)
-    end
 
     # Is the string a valid pry command?
-    # A Pry command is a command that is not a system command.
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid Pry command.
     def pry_command?(val)
@@ -58,40 +48,6 @@ class Pry
       target.eval(dumped_str)
     end
 
-    # Execute a given system command.
-    # The commands first have interpolation applied against the
-    # `target` context.
-    # All system command are forwarded to a shell. Note that the `cd`
-    # command is special-cased and is converted internallly to a `Dir.chdir`
-    # @param [String] val The system command to execute.
-    # @param [Binding] target The context in which to perform string interpolation.
-    def execute_system_command(val, target)
-      SYSTEM_COMMAND_REGEX  =~ val
-      cmd = interpolate_string($1, target)
-
-      if cmd =~ /^cd\s+(.+)/i
-        begin
-          @@cd_history ||= []
-          if $1 == "-"
-            dest = @@cd_history.pop || Dir.pwd
-          else
-            dest = File.expand_path($1)
-          end
-
-          @@cd_history << Dir.pwd
-          Dir.chdir(dest)
-        rescue Errno::ENOENT
-          output.puts "No such directory: #{dest}"
-        end
-      else
-        if !system(cmd)
-          output.puts "Error: there was a problem executing system command: #{cmd}"
-        end
-      end
-
-      # Tick, tock, im getting rid of this shit soon.
-      val.replace("")
-    end
 
     # Determine whether a Pry command was matched and return command data
     # and argument string.
@@ -118,11 +74,6 @@ class Pry
     def process_commands(val, eval_string, target)
       def val.clear() replace("") end
       def eval_string.clear() replace("") end
-
-      if system_command?(val)
-        execute_system_command(val, target)
-        return
-      end
 
       # no command was matched, so return to caller
       return if !pry_command?(val)

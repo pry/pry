@@ -12,14 +12,7 @@ class Pry
     attr_accessor :command_processor
 
     def run(name, *args)
-      if name.start_with? "."
-        cmd = name[1..-1]
-        command_processor.
-          execute_system_command([name, Shellwords.join(args)].join(' '),
-                                 target)
-      else
-        command_set.run_command(self, name, *args)
-      end
+      command_set.run_command(self, name, *args)
     end
 
     def commands
