@@ -177,4 +177,14 @@ describe Pry::CommandSet do
     @set.command('foo') { should.respond_to :imported_helper_method }
     @set.run_command(Pry::CommandContext.new, 'foo')
   end
+
+  it 'should provide a :listing for a command that defaults to its name' do
+    @set.command 'foo', "" do;end
+    @set.commands['foo'].options[:listing].should == 'foo'
+  end
+
+  it 'should provide a :listing for a command that differs from its name' do
+    @set.command 'foo', "", :listing => 'bar' do;end
+    @set.commands['foo'].options[:listing].should == 'bar'
+  end
 end

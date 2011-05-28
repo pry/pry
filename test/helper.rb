@@ -8,6 +8,7 @@ require 'bacon'
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
 Pry.color = false
+Pry.pager = false
 Pry.should_load_rc = false
 
 # sample doc
