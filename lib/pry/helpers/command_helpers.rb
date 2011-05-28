@@ -141,7 +141,7 @@ class Pry
       end
 
       def should_use_pry_doc?(meth)
-        Pry.has_pry_doc && is_a_c_method?(meth)
+        Pry.config.has_pry_doc && is_a_c_method?(meth)
       end
 
       def code_type_for(meth)

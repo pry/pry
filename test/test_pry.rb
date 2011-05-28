@@ -135,13 +135,18 @@ describe Pry do
       end
 
       describe "test loading rc files" do
+
+        before do
+          Pry.instance_variable_set(:@initial_session, true)
+        end
+
         after do
           Pry::RC_FILES.clear
-          Pry.should_load_rc = false
+          Pry.config.should_load_rc = false
         end
 
         it "should run the rc file only once" do
-          Pry.should_load_rc = true
+          Pry.config.should_load_rc = true
           Pry::RC_FILES << File.expand_path("../testrc", __FILE__)
 
           Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
@@ -153,17 +158,17 @@ describe Pry do
           Object.remove_const(:TEST_RC)
         end
 
-        it "should not run the rc file at all if Pry.should_load_rc is false" do
-          Pry.should_load_rc = false
+        it "should not run the rc file at all if Pry.config.should_load_rc is false" do
+          Pry.config.should_load_rc = false
           Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
           Object.const_defined?(:TEST_RC).should == false
         end
 
         it "should not load the rc file if #repl method invoked" do
-          Pry.should_load_rc = true
+          Pry.config.should_load_rc = true
           Pry.new(:input => StringIO.new("exit\n"), :output => Pry::NullOutput).repl(self)
           Object.const_defined?(:TEST_RC).should == false
-          Pry.should_load_rc = false
+          Pry.config.should_load_rc = false
         end
       end
 
@@ -219,9 +224,7 @@ describe Pry do
             val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
           end
         end
-
       end
-
 
       describe "commands" do
         it 'should run a command with no parameter' do
@@ -492,13 +495,15 @@ describe Pry do
           end
 
           it 'should create a command in  a nested context and that command should be accessible from the parent' do
-            str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit")
-            str_output = StringIO.new
-            Pry.input = str_input
-            obj = Object.new
-            Pry.new(:output => str_output).repl(obj)
-            Pry.input = Readline
-            str_output.string.should =~ /@x/
+            redirect_pry_io(StringIO.new, StringIO.new) do
+              str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit")
+              str_output = StringIO.new
+              Pry.input = str_input
+              obj = Object.new
+              Pry.new(:output => str_output).repl(obj)
+              Pry.input = Readline
+              str_output.string.should =~ /@x/
+            end
           end
 
           it 'should define a command that keeps its return value' do

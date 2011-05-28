@@ -8,7 +8,7 @@ describe "Pry::Commands" do
 
   describe "hist" do
     push_first_hist_line = lambda do |hist, line|
-      hist.push line while hist.empty?
+      hist.push line
     end
 
     before do
@@ -82,7 +82,7 @@ describe "Pry::Commands" do
       str_output.string.should =~ /x\n\d+:.*y\n\d+:.*z/
     end
 
-    # strangeness in this test is due to bug in Readling::HISTORY not
+    # strangeness in this test is due to bug in Readline::HISTORY not
     # always registering first line of input
     it 'should return first N lines in history with --head switch' do
       push_first_hist_line.call(@hist, "0")
