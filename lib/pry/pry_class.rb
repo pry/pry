@@ -1,5 +1,6 @@
 require 'ostruct'
 require 'forwardable'
+require 'pry/config'
 
 # @author John Mair (banisterfiend)
 class Pry
@@ -10,6 +11,12 @@ class Pry
   # class accessors
   class << self
     extend Forwardable
+
+    # convenience method
+    def self.delegate_accessors(delagatee, *names)
+      def_delegators delagatee, *names
+      def_delegators delagatee, *names.map { |v| "#{v}=" }
+    end
 
     # Get nesting data.
     # This method should not need to be accessed directly.
@@ -31,46 +38,6 @@ class Pry
     # @return [Pry] The active Pry instance.
     attr_accessor :active_instance
 
-    # Get/Set the object to use for input by default by all Pry instances.
-    # @return [#readline] The object to use for input by default by all
-    #   Pry instances.
-    attr_accessor :input
-
-    # Get/Set the object to use for output by default by all Pry instances.
-    # @return [#puts] The object to use for output by default by all
-    #   Pry instances.
-    attr_accessor :output
-
-    # Get/Set the object to use for commands by default by all Pry instances.
-    # @return [Pry::CommandBase] The object to use for commands by default by all
-    #   Pry instances.
-    attr_accessor :commands
-
-    # Get/Set the Proc to use for printing by default by all Pry
-    # instances.
-    # This is the 'print' component of the REPL.
-    # @return [Proc] The Proc to use for printing by default by all
-    #   Pry instances.
-    attr_accessor :print
-
-    # @return [Proc] The Proc to use for printing exceptions by default by all
-    #   Pry instances.
-    attr_accessor :exception_handler
-
-    # Get/Set the Hash that defines Pry hooks used by default by all Pry
-    # instances.
-    # @return [Hash] The hooks used by default by all Pry instances.
-    # @example
-    #   Pry.hooks :before_session => proc { puts "hello" },
-    #     :after_session => proc { puts "goodbye" }
-    attr_accessor :hooks
-
-    # Get the array of Procs to be used for the prompts by default by
-    # all Pry instances.
-    # @return [Array<Proc>] The array of Procs to be used for the
-    #   prompts by default by all Pry instances.
-    attr_accessor :prompt
-
     # Get/Set the Proc that defines extra Readline completions (on top
     # of the ones defined for IRB).
     # @return [Proc] The Proc that defines extra Readline completions (on top
@@ -78,43 +45,9 @@ class Pry
     #   Pry.custom_completions = proc { Dir.entries('.') }
     attr_accessor :custom_completions
 
-
     # Value returned by last executed Pry command.
     # @return [Object] The command value
     attr_accessor :cmd_ret_value
-
-    # # Determines whether colored output is enabled.
-    # # @return [Boolean]
-    # attr_accessor :color
-
-    # # Determines whether paging (of long blocks of text) is enabled.
-    # # @return [Boolean]
-    # attr_accessor :pager
-
-    # Determines whether the rc file (~/.pryrc) should be loaded.
-    # @return [Boolean]
-    attr_accessor :should_load_rc
-
-    # Set to true if Pry is invoked from command line using `pry` executable
-    # @return [Boolean]
-    attr_accessor :cli
-
-    # The default editor to use. Defaults to $EDITOR or nano if
-    # $EDITOR is not defined.
-    # If `editor` is a String then that string is used as the shell
-    # command to invoke the editor. If `editor` is callable (e.g a
-    # Proc) then `file` and `line` are passed in as parameters and the
-    # return value of that callable invocation is used as the exact
-    # shell command to invoke the editor.
-    # @example String
-    #   Pry.editor = "emacsclient"
-    # @example Callable
-    #   Pry.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
-    # @return [String, #call]
-    attr_accessor :editor
-
-    # @return [OpenStruct] Return Pry's config object.
-    attr_accessor :config
 
     # @return [Fixnum] The current input line.
     attr_accessor :current_line
@@ -126,12 +59,17 @@ class Pry
     #   by default.
     attr_accessor :eval_path
 
+    # @return [OpenStruct] Return Pry's config object.
+    attr_accessor :config
+
+    # @return [Boolean] Whether Pry was activated from the command line.
+    attr_accessor :cli
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
-    # config forwardables
-    def_delegators :@config, :input, :output, :commands, :prompt, :print, :exception_handler, :hooks, :color, :pager, :editor, :has_pry_doc,
-                             :input=, :output=, :commands=, :prompt=, :print=, :exception_handler=, :hooks=, :color=, :pager=, :editor=, :has_pry_doc=
+    delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
+      :hooks, :color, :pager, :editor
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -153,10 +91,15 @@ class Pry
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
-    if should_load_rc && !@rc_loaded
-      load_rc
-      load_plugins
-      @rc_loaded = true
+    if initial_session?
+      # note these have to be loaded here rather than in pry_instance as
+      # we only want them loaded once per entire Pry lifetime, not
+      # multiple times per each new session (i.e in debugging)
+      load_rc if Pry.config.should_load_rc
+      load_history if Pry.config.history.load
+      load_plugins if Pry.config.should_load_plugins
+
+      @initial_session = false
     end
 
     new(options).repl(target)
@@ -184,6 +127,18 @@ class Pry
     else
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
     end
+  end
+
+  # Load Readline history if required.
+  def self.load_history
+    history_file = File.expand_path(Pry.config.history.file)
+    Readline::HISTORY.push(*File.readlines(history_file).map(&:chomp)) if File.exists?(history_file)
+  end
+
+  # @return [Boolean] Whether this is the first time a Pry session has
+  #   been started since loading the Pry class.
+  def self.initial_session?
+    @initial_session
   end
 
   # Run a Pry command from outside a session. The commands available are
@@ -234,25 +189,33 @@ class Pry
     config.color = true
     config.pager = true
     config.editor = default_editor_for_platform
+    config.should_load_rc = true
+    config.should_load_plugins = true
+
+    config.history ||= OpenStruct.new
+    config.history.save = true
+    config.history.load = true
+    config.history.file = File.expand_path("~/.pry_history")
   end
 
   # Set all the configurable options back to their default values
   def self.reset_defaults
     set_config_defaults
 
-    @custom_completions = DEFAULT_CUSTOM_COMPLETIONS
-    @should_load_rc = true
-    @rc_loaded = false
-    @cli = false
-    @current_line = 0
-    @line_buffer = []
-    @eval_path = "(pry)"
+    @initial_session = true
+
+    self.custom_completions = DEFAULT_CUSTOM_COMPLETIONS
+    self.cli = false
+    self.current_line = 0
+    self.line_buffer = []
+    self.eval_path = "(pry)"
   end
 
   # Basic initialization.
   def self.init
-    @config ||= OpenStruct.new
     @plugin_manager ||= PluginManager.new
+
+    self.config ||= Config.new
     reset_defaults
     locate_plugins
   end

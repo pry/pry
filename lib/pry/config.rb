@@ -43,13 +43,6 @@ class Pry
     #   prompts by default by all Pry instances.
     attr_accessor :prompt
 
-    # Get/Set the Proc that defines extra Readline completions (on top
-    # of the ones defined for IRB).
-    # @return [Proc] The Proc that defines extra Readline completions (on top
-    # @example Add file names to completion list
-    #   Pry.custom_completions = proc { Dir.entries('.') }
-    attr_accessor :custom_completions
-
     # The default editor to use. Defaults to $EDITOR or nano if
     # $EDITOR is not defined.
     # If `editor` is a String then that string is used as the shell
@@ -73,6 +66,10 @@ class Pry
     # Determines whether the rc file (~/.pryrc) should be loaded.
     # @return [Boolean]
     attr_accessor :should_load_rc
+
+    # Determines whether plugins should be loaded.
+    # @return [Boolean]
+    attr_accessor :should_load_plugins
   end
 end
 

@@ -51,7 +51,7 @@ end
 Pry.cli = true
 
 # load ~/.pryrc, if not suppressed with -f option
-Pry.should_load_rc = !opts.f?
+Pry.config.should_load_rc = !opts.f?
 
 # create the actual context
 context = Pry.binding_for(eval(opts[:context]))
