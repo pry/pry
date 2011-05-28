@@ -12,18 +12,11 @@ class Pry
         render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-
-      # command "amend-line", "Amend the previous line of input. Aliases: %", :interpolate => false do |replacement_line|
-      #   replacement_line = "" if !replacement_line
-      #   input_array = opts[:eval_string].each_line.to_a[0..-2] + [opts[:arg_string] + "\n"]
-      #   opts[:eval_string].replace input_array.join
-      # end
-
       command /amend-line-?(\d+)?/, "Experimental amend-line, where the N in amend-line-N represents line to replace. Aliases: %N",
       :interpolate => false, :listing => "amend-line-N"  do |line_number, replacement_line|
         replacement_line = "" if !replacement_line
         input_array = eval_string.each_line.to_a
-        line_num = line_number.to_i
+        line_num = line_number ? line_number.to_i : input_array.size - 1
         input_array[line_num] = arg_string + "\n"
         eval_string.replace input_array.join
       end
@@ -36,7 +29,7 @@ class Pry
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
-            pattern = Regexp.new opts[:arg_string].split(/ /)[1]
+            pattern = Regexp.new arg_string.split(/ /)[1]
             history.pop
 
             history.map!.with_index do |element, index|
