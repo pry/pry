@@ -50,12 +50,23 @@ class Pry
     end
 
     # Defines a new Pry command.
-    # @param [String] name The name of the command
+    # @param [String, Regexp] name The name of the command. Can be
+    #   Regexp as well as String.
     # @param [String] description A description of the command.
     # @param [Hash] options The optional configuration parameters.
     # @option options [Boolean] :keep_retval Whether or not to use return value
     #   of the block for return of `command` or just to return `nil`
     #   (the default).
+    # @option options [Array<String>] :requires_gem Whether the command has
+    #   any gem dependencies, if it does and dependencies not met then
+    #   command is disabled and a stub proc giving instructions to
+    #   install command is provided.
+    # @option options [Boolean] :interpolate Whether string #{} based
+    #   interpolation is applied to the command arguments before
+    #   executing the command. Defaults to true.
+    # @option options [String] :listing The listing name of the
+    #   command. That is the name by which the command is looked up by
+    #   help and by show-command. Necessary for regex based commands.
     # @yield The action to perform. The parameters in the block
     #   determines the parameters the command will receive. All
     #   parameters passed into the block will be strings. Successive
@@ -73,6 +84,19 @@ class Pry
     #   # Good afternoon John!
     #   # pry(main)> help greet
     #   # Greet somebody
+    # @example Regexp command
+    #   MyCommands = Pry::CommandSet.new do
+    #     command /number-(\d+)/, "number-N regex command", :listing => "number" do |num, name|
+    #       puts "hello #{name}, nice number: #{num}"
+    #     end
+    #   end
+    #
+    #   # From pry:
+    #   # pry(main)> _pry_.commands = MyCommands
+    #   # pry(main)> number-10 john
+    #   # hello john, nice number: 10
+    #   # pry(main)> help number
+    #   # number-N regex command
     def command(name, description="No description.", options={}, &block)
 
       options = {
