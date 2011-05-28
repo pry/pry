@@ -37,8 +37,8 @@ class Pry
       defaults[attribute] = Pry.send attribute
     end
 
-    defaults.merge!(options).each do |method, argument|
-      send "#{method}=", argument
+    defaults.merge!(options).each_key do |key|
+      send "#{key}=", defaults[key]
     end
 
     @command_processor = CommandProcessor.new(self)
@@ -76,6 +76,11 @@ class Pry
   # @param v nesting data.
   def nesting=(v)
     self.class.nesting = v
+  end
+
+  # @return [Boolean] Whether current session is the top-level session.
+  def finished_top_level_session?
+    nesting.empty?
   end
 
   # Return parent of current Pry session.
@@ -118,6 +123,8 @@ class Pry
     if nesting_level != break_level
       throw :breakout, break_data
     end
+
+    save_history if Pry.config.history.save && finished_top_level_session?
 
     return_value
   end
@@ -337,6 +344,11 @@ class Pry
   # @return [Boolean] Whether the print proc should be invoked.
   def should_print?
     !@suppress_output || last_result_is_exception?
+  end
+
+  # Save readline history to a file.
+  def save_history
+    File.open(Pry.config.history.file, 'w') {|f| f.write Readline::HISTORY.to_a.map(&:chomp).join("\n") }
   end
 
   # Returns the appropriate prompt to use.
