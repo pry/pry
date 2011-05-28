@@ -415,7 +415,83 @@ describe Pry do
             $test_interpolation = nil
           end
 
-          it 'should create a comand in  a nested context and that command should be accessible from the parent' do
+          it 'should create a command with a space in its name' do
+            set = Pry::CommandSet.new do
+              command "hello baby", "" do
+                output.puts "hello baby command"
+              end
+            end
+
+            str_output = StringIO.new
+            redirect_pry_io(InputTester.new("hello baby", "exit-all"), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello baby command/
+          end
+
+          it 'should create a command with a space in its name and pass an argument' do
+            set = Pry::CommandSet.new do
+              command "hello baby", "" do |arg|
+                output.puts "hello baby command #{arg}"
+              end
+            end
+
+            str_output = StringIO.new
+            redirect_pry_io(InputTester.new("hello baby john"), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello baby command john/
+          end
+
+          it 'should create a regex command and be able to invoke it' do
+            set = Pry::CommandSet.new do
+              command /hello(.)/, "" do
+                c = captures.first
+                output.puts "hello#{c}"
+              end
+            end
+
+            str_output = StringIO.new
+            redirect_pry_io(InputTester.new("hello1"), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello1/
+          end
+
+          it 'should create a regex command and pass captures into the args list before regular arguments' do
+            set = Pry::CommandSet.new do
+              command /hello(.)/, "" do |c1, a1|
+                output.puts "hello #{c1} #{a1}"
+              end
+            end
+
+            str_output = StringIO.new
+            redirect_pry_io(InputTester.new("hello1 baby"), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello 1 baby/
+          end
+
+          it 'if a regex capture is missing it should be nil' do
+            set = Pry::CommandSet.new do
+              command /hello(.)?/, "" do |c1, a1|
+                output.puts "hello #{c1.inspect} #{a1}"
+              end
+            end
+
+            str_output = StringIO.new
+            redirect_pry_io(InputTester.new("hello baby"), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello nil baby/
+          end
+
+          it 'should create a command in  a nested context and that command should be accessible from the parent' do
             str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit")
             str_output = StringIO.new
             Pry.input = str_input
@@ -502,8 +578,6 @@ describe Pry do
               klass = Pry::CommandSet.new do
                 alias_command "help2", "help"
               end
-
-
               klass.commands["help2"].block.should == klass.commands["help"].block
             end
 
