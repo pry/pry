@@ -348,7 +348,7 @@ class Pry
 
   # Save readline history to a file.
   def save_history
-    File.open Pry.config.history.file, 'a' do |f| 
+    File.open Pry.config.history.file, 'w' do |f| 
       f.write Readline::HISTORY.to_a.join("\n") 
     end
   end
