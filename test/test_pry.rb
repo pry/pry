@@ -294,6 +294,11 @@ describe Pry do
           Pry.binding_for(_main_.call).should == TOPLEVEL_BINDING
           Pry.binding_for(_main_.call).should == Pry.binding_for(_main_.call)
         end
+
+        it 'should return a binding with the right self for procs' do
+          proc = Proc.new {}
+          Pry.binding_for(proc).eval("self").should.equal? proc
+        end
       end
 
 
