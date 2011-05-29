@@ -20,7 +20,7 @@ class Pry
           TOPLEVEL_BINDING.pry
           next
         else
-          Pry.start target.eval(opts[:arg_string])
+          Pry.start target.eval(arg_string)
         end
       end
 
@@ -54,16 +54,14 @@ class Pry
       end
 
       command "exit", "End the current Pry session. Accepts optional return value. Aliases: quit, back" do
-        str = remove_first_word(opts[:val])
-        throw(:breakout, [opts[:nesting].level, target.eval(str)])
+        throw(:breakout, [opts[:nesting].level, target.eval(arg_string)])
       end
 
       alias_command "quit", "exit", ""
       alias_command "back", "exit", ""
 
       command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !!@" do
-        str = remove_first_word(opts[:val])
-        throw(:breakout, [0, target.eval(str)])
+        throw(:breakout, [0, target.eval(arg_string)])
       end
 
       alias_command "!!@", "exit-all", ""
@@ -76,7 +74,7 @@ class Pry
       alias_command "!!!", "exit-program", ""
 
       command "!pry", "Start a Pry session on current self; this even works mid-expression." do
-        Pry.start(target)
+        target.pry
       end
 
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
