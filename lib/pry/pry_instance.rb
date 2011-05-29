@@ -1,6 +1,5 @@
 require "pry/command_processor.rb"
 
-# @attr prompt
 class Pry
 
   attr_accessor :input
@@ -78,7 +77,7 @@ class Pry
     self.class.nesting = v
   end
 
-  # @return [Boolean] Whether current session is the top-level session.
+  # @return [Boolean] Whether top-level session has ended.
   def finished_top_level_session?
     nesting.empty?
   end
@@ -228,7 +227,7 @@ class Pry
     eval_string
   end
 
-  # FIXME should delete this method? it's exposing an implementation detail!
+  # Output the result or pass to an exception handler (if result is an exception).
   def show_result(result)
     if last_result_is_exception?
       exception_handler.call output, result
@@ -348,8 +347,9 @@ class Pry
 
   # Save readline history to a file.
   def save_history
-    File.open Pry.config.history.file, 'w' do |f| 
-      f.write Readline::HISTORY.to_a.join("\n") 
+    history_file = File.expand_path(Pry.config.history.file)
+    File.open(history_file, 'w') do |f|
+      f.write Readline::HISTORY.to_a.join("\n")
     end
   end
 
