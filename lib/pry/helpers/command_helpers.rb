@@ -42,14 +42,8 @@ class Pry
       end
 
       def check_for_dynamically_defined_method(meth)
-        if is_a_dynamically_defined_method?(meth)
-          raise "Cannot retrieve source for dynamically defined method."
-        end
-      end
-
-      def check_for_dynamically_defined_method(meth)
         file, _ = meth.source_location
-        if file =~ /(\(.*\))|<.*>/
+        if file =~ /(\(.*\))|<.*>/ && file != Pry.eval_path
           raise "Cannot retrieve source for dynamically defined method."
         end
       end
@@ -67,7 +61,14 @@ class Pry
           code = Pry::MethodInfo.info_for(meth).source
           code = strip_comments_from_c_code(code)
         when :ruby
-          code = strip_leading_whitespace(meth.source)
+          if meth.source_location.first == Pry.eval_path
+
+            start_line = meth.source_location.last
+            p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
+            code = strip_leading_whitespace(p)
+          else
+            code = strip_leading_whitespace(meth.source)
+          end
           set_file_and_dir_locals(meth.source_location.first)
         end
 
@@ -140,7 +141,7 @@ class Pry
       end
 
       def should_use_pry_doc?(meth)
-        Pry.has_pry_doc && is_a_c_method?(meth)
+        Pry.config.has_pry_doc && is_a_c_method?(meth)
       end
 
       def code_type_for(meth)
@@ -214,8 +215,8 @@ class Pry
       def process_rdoc(comment, code_type)
         comment = comment.dup
         comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
+          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
+          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
           gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
@@ -262,7 +263,7 @@ class Pry
       end
 
       def strip_comments_from_c_code(code)
-        code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
+        code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
       end
 
       def prompt(message, options="Yn")

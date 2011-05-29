@@ -2,9 +2,6 @@ require 'forwardable'
 
 class Pry
   class CommandProcessor
-    SYSTEM_COMMAND_DELIMITER = "."
-    SYSTEM_COMMAND_REGEX = /^#{Regexp.escape(SYSTEM_COMMAND_DELIMITER)}(.*)/
-
     extend Forwardable
 
     attr_accessor :pry_instance
@@ -19,22 +16,24 @@ class Pry
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid command.
     def valid_command?(val)
-      system_command?(val) || pry_command?(val)
+      pry_command?(val)
     end
 
-    # Is the string a valid system command?
-    # @param [String] val The string passed in from the Pry prompt.
-    # @return [Boolean] Whether the string is a valid system command.
-    def system_command?(val)
-      !!(SYSTEM_COMMAND_REGEX =~ val)
-    end
 
     # Is the string a valid pry command?
-    # A Pry command is a command that is not a system command.
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid Pry command.
     def pry_command?(val)
-      !!command_matched(val).first
+      !!(command_matched(val)[0])
+    end
+
+    def convert_to_regex(obj)
+      case obj
+      when String
+        Regexp.escape(obj)
+      else
+        obj
+      end
     end
 
     # Revaluate the string (str) and perform interpolation.
@@ -49,40 +48,6 @@ class Pry
       target.eval(dumped_str)
     end
 
-    # Execute a given system command.
-    # The commands first have interpolation applied against the
-    # `target` context.
-    # All system command are forwarded to a shell. Note that the `cd`
-    # command is special-cased and is converted internallly to a `Dir.chdir`
-    # @param [String] val The system command to execute.
-    # @param [Binding] target The context in which to perform string interpolation.
-    def execute_system_command(val, target)
-      SYSTEM_COMMAND_REGEX  =~ val
-      cmd = interpolate_string($1, target)
-
-      if cmd =~ /^cd\s+(.+)/i
-        begin
-          @@cd_history ||= []
-          if $1 == "-"
-            dest = @@cd_history.pop || Dir.pwd
-          else
-            dest = File.expand_path($1)
-          end
-
-          @@cd_history << Dir.pwd
-          Dir.chdir(dest)
-        rescue Errno::ENOENT
-          output.puts "No such directory: #{dest}"
-        end
-      else
-        if !system(cmd)
-          output.puts "Error: there was a problem executing system command: #{cmd}"
-        end
-      end
-
-      # Tick, tock, im getting rid of this shit soon.
-      val.replace("")
-    end
 
     # Determine whether a Pry command was matched and return command data
     # and argument string.
@@ -91,10 +56,10 @@ class Pry
     # @return [Array] The command data and arg string pair
     def command_matched(val)
       _, cmd_data = commands.commands.find do |name, cmd_data|
-        /^#{Regexp.escape(name)}(?!\S)(?:\s+(.+))?/ =~ val
+        /^#{convert_to_regex(name)}(?!\S)/ =~ val
       end
 
-      [cmd_data, $1]
+      [cmd_data, (Regexp.last_match ? Regexp.last_match.captures : nil), (Regexp.last_match ? Regexp.last_match.end(0) : nil)]
     end
 
     # Process Pry commands. Pry commands are not Ruby methods and are evaluated
@@ -110,31 +75,27 @@ class Pry
       def val.clear() replace("") end
       def eval_string.clear() replace("") end
 
-      if system_command?(val)
-        execute_system_command(val, target)
-        return
-      end
-
       # no command was matched, so return to caller
       return if !pry_command?(val)
 
-      ni_val = val.dup
-      val.replace interpolate_string(val, target)
-      command, args_string = command_matched(val)
+      command, captures, pos = command_matched(val)
 
-      args = args_string ? Shellwords.shellwords(args_string) : []
+      val.replace interpolate_string(val, target) if command.options[:interpolate]
+
+      arg_string = val[pos..-1].strip
+
+      args = arg_string ? Shellwords.shellwords(arg_string) : []
 
       options = {
         :val => val,
-        :arg_string => Pry::Helpers::BaseHelpers.remove_first_word(val),
-        :ni_val => ni_val,
-        :ni_arg_string => Pry::Helpers::BaseHelpers.remove_first_word(ni_val),
+        :arg_string => arg_string,
         :eval_string => eval_string,
         :nesting => nesting,
-        :commands => commands.commands
+        :commands => commands.commands,
+        :captures => captures
       }
 
-      execute_command(target, command.name, options, *args)
+      execute_command(target, command.name, options, *(captures + args))
     end
 
     # Execute a Pry command.
@@ -150,6 +111,9 @@ class Pry
       context.opts        = options
       context.target      = target
       context.output      = output
+      context.captures    = options[:captures]
+      context.eval_string = options[:eval_string]
+      context.arg_string  = options[:arg_string]
       context.command_set = commands
 
       context.command_processor = self

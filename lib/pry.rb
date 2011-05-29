@@ -1,6 +1,65 @@
 # (C) John Mair (banisterfiend) 2011
 # MIT License
 
+class Pry
+  # The default hooks - display messages when beginning and ending Pry sessions.
+  DEFAULT_HOOKS = {
+    :before_session => proc do |out, target|
+      # ensure we're actually in a method
+      meth_name = target.eval('__method__')
+      file = target.eval('__FILE__')
+
+      # /unknown/ for rbx
+      if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
+        Pry.run_command "whereami 5", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
+      end
+    end
+  }
+
+  # The default prints
+  DEFAULT_PRINT = proc do |output, value|
+    if Pry.color
+      output.puts "=> #{CodeRay.scan(Pry.view(value), :ruby).term}"
+    else
+      output.puts "=> #{Pry.view(value)}"
+    end
+  end
+
+  # Will only show the first line of the backtrace
+  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception|
+    output.puts "#{exception.class}: #{exception.message}"
+    output.puts "from #{exception.backtrace.first}"
+  end
+
+  # The default prompt; includes the target and nesting level
+  DEFAULT_PROMPT = [
+    proc { |target_self, nest_level|
+      if nest_level == 0
+        "pry(#{Pry.view_clip(target_self)})> "
+      else
+        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}> "
+      end
+    },
+
+    proc { |target_self, nest_level|
+      if nest_level == 0
+        "pry(#{Pry.view_clip(target_self)})* "
+      else
+        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}* "
+      end
+    }
+  ]
+
+  # A simple prompt - doesn't display target or nesting level
+  SIMPLE_PROMPT = [proc { ">> " }, proc { ">* " }]
+
+  SHELL_PROMPT = [
+    proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+    proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+  ]
+
+end
+
 require "method_source"
 require 'shellwords'
 require "readline"
@@ -20,16 +79,14 @@ if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
 end
 
 require "pry/version"
-require "pry/hooks"
-require "pry/print"
 require "pry/history_array"
 require "pry/helpers"
 require "pry/command_set"
 require "pry/commands"
 require "pry/command_context"
-require "pry/prompts"
 require "pry/custom_completions"
 require "pry/completion"
+require "pry/plugins"
 require "pry/core_extensions"
 require "pry/pry_class"
 require "pry/pry_instance"
