@@ -194,6 +194,6 @@ Shows local and instance variables by default.
                             end
 
 
-      end
     end
   end
+end
