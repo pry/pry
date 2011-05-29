@@ -30,13 +30,13 @@ class Object
       begin
         instance_eval %{
           def __binding_impl__
-            binding
+            Kernel.binding
           end
         }
       rescue TypeError
         self.class.class_eval %{
           def __binding_impl__
-            binding
+            Kernel.binding
           end
         }
       end
