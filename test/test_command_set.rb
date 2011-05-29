@@ -31,7 +31,7 @@ describe Pry::CommandSet do
     @set.run_command true, 'foo'
   end
 
-  it 'should raise an error when calling an undefined comand' do
+  it 'should raise an error when calling an undefined command' do
     @set.command('foo') {}
     lambda {
       @set.run_command nil, 'bar'
@@ -135,7 +135,7 @@ describe Pry::CommandSet do
     Pry::CommandContext.new.should.not.respond_to :my_helper
   end
 
-  it 'should not recreate a new heler module when helpers is called' do
+  it 'should not recreate a new helper module when helpers is called' do
     @set.command('foo') do
       should.respond_to :my_helper
       should.respond_to :my_other_helper
@@ -176,5 +176,15 @@ describe Pry::CommandSet do
     @set.import_from imported_set, 'bar'
     @set.command('foo') { should.respond_to :imported_helper_method }
     @set.run_command(Pry::CommandContext.new, 'foo')
+  end
+
+  it 'should provide a :listing for a command that defaults to its name' do
+    @set.command 'foo', "" do;end
+    @set.commands['foo'].options[:listing].should == 'foo'
+  end
+
+  it 'should provide a :listing for a command that differs from its name' do
+    @set.command 'foo', "", :listing => 'bar' do;end
+    @set.commands['foo'].options[:listing].should == 'bar'
   end
 end
