@@ -70,6 +70,17 @@ class Pry
     # Determines whether plugins should be loaded.
     # @return [Boolean]
     attr_accessor :should_load_plugins
+
+    # Config option for history.
+    # sub-options include hist.file, hist.load, and hist.save
+    # hist.file is the file to save/load history too, e.g
+    # Pry.config.history.file = "~/.pry_history".
+    # hist.load is a boolean that determines whether history will be
+    # loaded from hist.file at session start.
+    # hist.save is a boolean that determines whether history will be
+    # saved to hist.file at session end.
+    # @return [OpenStruct]
+    attr_accessor :history
   end
 end
 
