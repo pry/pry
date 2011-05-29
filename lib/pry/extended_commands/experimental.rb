@@ -4,14 +4,14 @@ class Pry
     Experimental = Pry::CommandSet.new do
 
 
-      command /rue-(\d)/, "Experimental amend-line, where the N in rue-N represents line to replace", :interpolate => false do |replacement_line|
-        replacement_line = "" if !replacement_line
-        input_array = opts[:eval_string].each_line.to_a
-        line_number = opts[:captures].first.to_i
-        input_array[line_number] = opts[:arg_string] + "\n"
-        opts[:eval_string].replace input_array.join
-      end
+      command "reload-method", "Reload the source specifically for a method", :requires_gem => "method_reload" do |meth_name|
+        if (meth = get_method_object(meth_name, target, {})).nil?
+          output.puts "Invalid method name: #{meth_name}."
+          next
+        end
 
+        meth.reload
+      end
 
       command "play-string", "Play a string as input" do
         Pry.active_instance.input = StringIO.new(opts[:arg_string])
