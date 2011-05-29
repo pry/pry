@@ -1,5 +1,5 @@
 class Pry
-  module DefaultCommands
+  module ExtendedCommands
 
     UserCommandAPI = Pry::CommandSet.new do
 

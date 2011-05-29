@@ -7,8 +7,42 @@ require 'bacon'
 
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
-Pry.color = false
-Pry.should_load_rc = false
+
+# in case the tests call reset_defaults, ensure we reset them to
+# amended (test friendly) values
+class << Pry
+  alias_method :orig_reset_defaults, :reset_defaults
+  def reset_defaults
+    orig_reset_defaults
+
+    Pry.color = false
+    Pry.pager = false
+    Pry.config.should_load_rc = false
+    Pry.config.history.load = false
+    Pry.config.history.save = false
+  end
+end
+
+Pry.reset_defaults
+
+# sample doc
+def sample_method
+  :sample
+end
+
+def redirect_pry_io(new_in, new_out)
+  old_in = Pry.input
+  old_out = Pry.output
+
+  Pry.input = new_in
+  Pry.output = new_out
+  begin
+    yield
+  ensure
+    Pry.input = old_in
+    Pry.output = old_out
+  end
+end
 
 def redirect_global_pry_input(new_io)
   old_io = Pry.input
@@ -32,15 +66,9 @@ end
 
 class Module
   public :remove_const
+  public :remove_method
 end
 
-class << Pry
-  alias_method :orig_reset_defaults, :reset_defaults
-  def reset_defaults
-    orig_reset_defaults
-    Pry.color = false
-  end
-end
 
 class InputTester
   def initialize(*actions)

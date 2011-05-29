@@ -4,19 +4,16 @@ class Pry
   class CommandContext
     attr_accessor :output
     attr_accessor :target
+    attr_accessor :captures
+    attr_accessor :eval_string
+    attr_accessor :arg_string
     attr_accessor :opts
     attr_accessor :command_set
     attr_accessor :command_processor
 
-    def run(name, *args)
-      if name.start_with? "."
-        cmd = name[1..-1]
-        command_processor.
-          execute_system_command([name, Shellwords.join(args)].join(' '),
-                                 target)
-      else
-        command_set.run_command(self, name, *args)
-      end
+    def run(command_string, *args)
+      complete_string = "#{command_string} #{args.join(" ")}"
+      command_processor.process_commands(complete_string, eval_string, target)
     end
 
     def commands

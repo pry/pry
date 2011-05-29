@@ -10,9 +10,9 @@ class Pry
       command "simple-prompt", "Toggle the simple prompt." do
         case Pry.active_instance.prompt
         when Pry::SIMPLE_PROMPT
-          Pry.active_instance.prompt = Pry::DEFAULT_PROMPT
+          Pry.active_instance.pop_prompt
         else
-          Pry.active_instance.prompt = Pry::SIMPLE_PROMPT
+          Pry.active_instance.push_prompt Pry::SIMPLE_PROMPT
         end
       end
 
@@ -27,6 +27,10 @@ class Pry
         Pry.active_instance.commands.import set
       end
 
+      command "reset", "Reset the REPL to a clean state." do
+        output.puts "Pry reset."
+        exec "pry"
+      end
     end
 
   end

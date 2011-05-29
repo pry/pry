@@ -10,20 +10,19 @@ class Pry
       command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner %{Usage: show-doc [OPTIONS] [METH]
-Show the comments above method METH. Tries instance methods first and then methods by default.
-e.g show-doc hello_method
---
-}
-          opts.on :M, "instance-methods", "Operate on instance methods."
-          opts.on :m, :methods, "Operate on methods."
-          opts.on :c, :context, "Select object context to run under.", true do |context|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner = "Usage: show-doc [OPTIONS] [METH]\n" \
+                       "Show the comments above method METH. Tries instance methods first and then methods by default.\n" \
+                       "e.g show-doc hello_method"
+
+          opt.on :M, "instance-methods", "Operate on instance methods."
+          opt.on :m, :methods, "Operate on methods."
+          opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
-          opts.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opts.on :h, :help, "This message." do
-            output.puts opts
+          opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :h, :help, "This message." do
+            output.puts opt
           end
         end
 
@@ -51,19 +50,18 @@ e.g show-doc hello_method
       command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner %{Usage: stat [OPTIONS] [METH]
-Show method information for method METH and set _file_ and _dir_ locals.
-e.g: stat hello_method
---
-}
-          opts.on :M, "instance-methods", "Operate on instance methods."
-          opts.on :m, :methods, "Operate on methods."
-          opts.on :c, :context, "Select object context to run under.", true do |context|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: stat [OPTIONS] [METH]\n" \
+                     "Show method information for method METH and set _file_ and _dir_ locals." \
+                     "e.g: stat hello_method"
+
+          opt.on :M, "instance-methods", "Operate on instance methods."
+          opt.on :m, :methods, "Operate on methods."
+          opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
-          opts.on :h, :help, "This message" do
-            output.puts opts
+          opt.on :h, :help, "This message" do
+            output.puts opt
           end
         end
 
@@ -99,19 +97,18 @@ e.g: stat hello_method
 
         target = target()
 
-        opts = Slop.parse!(args) do |opts|
-          opts.banner = %{Usage: gist-method [OPTIONS] [METH]
-Gist the method (doc or source) to github.
-Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
-e.g: gist -m my_method
-e.g: gist -d my_method
---
-}
-          opts.on :m, :method, "Gist a method's source."
-          opts.on :d, :doc, "Gist a method's documentation."
-          opts.on :p, :private, "Create a private gist (default: true)", :default => true
-          opts.on :h, :help, "This message" do
-            output.puts opts
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: gist-method [OPTIONS] [METH]\n" \
+                     "Gist the method (doc or source) to github.\n" \
+                     "Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.\n" \
+                     "e.g: gist -m my_method\n" \
+                     "e.g: gist -d my_method\n"
+
+          opt.on :m, :method, "Gist a method's source."
+          opt.on :d, :doc, "Gist a method's documentation."
+          opt.on :p, :private, "Create a private gist (default: true)", :default => true
+          opt.on :h, :help, "This message" do
+            output.puts opt
           end
         end
 
