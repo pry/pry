@@ -34,8 +34,7 @@ end
 
 desc "run pry"
 task :pry do
-  require 'pry'
-  binding.pry
+  load 'bin/pry'
 end
 
 desc "show pry version"
