@@ -617,6 +617,49 @@ describe Pry do
               str_output.string.should =~ /v command/
             end
 
+            it 'should run a regex command from within a command' do
+              klass = Pry::CommandSet.new do
+                command /v(.*)?/ do |arg|
+                  output.puts "v #{arg}"
+                end
+
+                command "run_v" do
+                  run "vbaby"
+                end
+              end
+
+              str_output = StringIO.new
+              redirect_pry_io(InputTester.new("run_v"), str_output) do
+                Pry.new(:commands => klass).rep
+              end
+
+              str_output.string.should =~ /v baby/
+            end
+
+            it 'should run a command from within a command with arguments' do
+              klass = Pry::CommandSet.new do
+                command /v(\w+)/ do |arg1, arg2|
+                  output.puts "v #{arg1} #{arg2}"
+                end
+
+                command "run_v_explicit_parameter" do
+                  run "vbaby", "param"
+                end
+
+                command "run_v_embedded_parameter" do
+                  run "vbaby param"
+                end
+              end
+
+              ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
+                str_output = StringIO.new
+                redirect_pry_io(InputTester.new(cmd), str_output) do
+                  Pry.new(:commands => klass).rep
+                end
+                str_output.string.should =~ /v baby param/
+              end
+            end
+
             it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
               klass = Pry::CommandSet.new do
                 command "v" do
