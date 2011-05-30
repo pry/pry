@@ -23,7 +23,7 @@ class Pry
       command "import", "Import a command set" do |command_set_name|
         next output.puts "Provide a command set name" if command_set.nil?
 
-        set = target.eval(opts[:arg_string])
+        set = target.eval(arg_string)
         Pry.active_instance.commands.import set
       end
 
