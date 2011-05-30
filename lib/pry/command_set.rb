@@ -5,7 +5,7 @@ class Pry
     end
   end
 
-  # This class used to create sets of commands. Commands can be impoted from
+  # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
     class Command < Struct.new(:name, :description, :options, :block)
