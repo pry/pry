@@ -14,7 +14,7 @@ class Pry
       end
 
       command "play-string", "Play a string as input" do
-        Pry.active_instance.input = StringIO.new(opts[:arg_string])
+        Pry.active_instance.input = StringIO.new(arg_string)
       end
 
       command "play-method", "Play a method source as input" do |*args|
