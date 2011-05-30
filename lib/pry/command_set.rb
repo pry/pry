@@ -31,6 +31,7 @@ class Pry
       end
     end
 
+    include Enumerable
     include Pry::Helpers::BaseHelpers
 
     attr_reader :commands
@@ -119,6 +120,16 @@ class Pry
       end
 
       commands[name] = Command.new(name, description, options, block)
+    end
+
+    def each &block
+      if block_given?
+        @commands.each do |name, struct|
+          yield(name, struct)
+        end
+      else
+        @commands.to_enum
+      end
     end
 
     # Removes some commands from the set
