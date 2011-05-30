@@ -13,39 +13,36 @@ class Pry
         meth.reload
       end
 
-      command "play-string", "Play a string as input" do
-        Pry.active_instance.input = StringIO.new(arg_string)
-      end
-
-      command "play-method", "Play a method source as input" do |*args|
-        target = target()
-        opts = Slop.parse!(args) do |opt|
+      command "play", "Play a string as input" do |*args|
+        Slop.parse!(args) do |opt|
           opt.banner "Usage: play-method [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
+          opt.on :m, :method, 'Play a method.', true do |meth_name|
+            if (meth = get_method_object(meth_name, target, {})).nil?
+              output.puts "Invalid method name: #{meth_name}."
+              next
+            end
+            code, code_type = code_and_code_type_for(meth)
+            next if !code
+
+            range = opt.l? ? opt[:l] : (0..-1)
+
+            Pry.active_instance.input = StringIO.new(code[range])
+          end
+
+          opt.on :f, "file", 'The line (or range of lines) to replay.', true do |file_name|
+            text = File.read File.expand_path(file_name)
+            range = opt.l? ? opt[:l] : (0..-1)
+
+            Pry.active_instance.input = StringIO.new(text[range])
+          end
+
           opt.on :h, :help, "This message." do
             output.puts opt
           end
         end
-
-        next if opts.help?
-
-        meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, {})).nil?
-          output.puts "Invalid method name: #{meth_name}. Type `play-method --help` for help"
-          next
-        end
-
-        code, code_type = code_and_code_type_for(meth)
-        next if !code
-
-        slice = opts[:l] ? opts[:l] : (0..-1)
-
-        sliced_code = code.each_line.to_a[slice].join("\n")
-
-        Pry.active_instance.input = StringIO.new(sliced_code)
       end
-
     end
   end
 end
