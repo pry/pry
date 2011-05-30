@@ -216,6 +216,11 @@ class Pry
     end
 
 
+    # @return [Array] The list of commands provided by the command set.
+    def list_commands
+      commands.keys
+    end
+
     private
     def define_default_commands
 
