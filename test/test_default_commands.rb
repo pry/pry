@@ -166,6 +166,8 @@ describe "Pry::Commands" do
       $str_output = nil
     end
 
+    # dynamically defined method source retrieval is only supported in
+    # 1.9 - where Method#source_location is native
     if RUBY_VERSION =~ /1.9/
       it 'should output a method\'s source for a method defined inside pry' do
         str_output = StringIO.new
@@ -290,6 +292,109 @@ describe "Pry::Commands" do
         o.pry
       end
       $obj.should == :mon_ouie
+    end
+  end
+
+  # show-command only works in implementations that support Proc#source_location
+  if Proc.method_defined?(:source_location)
+    describe "show-command" do
+      it 'should show source for an ordinary command' do
+        set = Pry::CommandSet.new do
+          import_from Pry::Commands, "show-command"
+          command "foo" do
+            :body_of_foo
+          end
+        end
+        str_output = StringIO.new
+        redirect_pry_io(InputTester.new("show-command foo"), str_output) do
+          Pry.new(:commands => set).rep
+        end
+        str_output.string.should =~ /:body_of_foo/
+      end
+
+      it 'should show source for a command with spaces in its name' do
+        set = Pry::CommandSet.new do
+          import_from Pry::Commands, "show-command"
+          command "foo bar" do
+            :body_of_foo_bar
+          end
+        end
+        str_output = StringIO.new
+        redirect_pry_io(InputTester.new("show-command \"foo bar\""), str_output) do
+          Pry.new(:commands => set).rep
+        end
+        str_output.string.should =~ /:body_of_foo_bar/
+      end
+
+      it 'should show source for a command by listing name' do
+        set = Pry::CommandSet.new do
+          import_from Pry::Commands, "show-command"
+          command /foo(.*)/, "", :listing => "bar" do
+            :body_of_foo_regex
+          end
+        end
+        str_output = StringIO.new
+        redirect_pry_io(InputTester.new("show-command bar"), str_output) do
+          Pry.new(:commands => set).rep
+        end
+        str_output.string.should =~ /:body_of_foo_regex/
+      end
+    end
+  end
+
+  describe "help" do
+    it 'should display help for a specific command' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("help ls", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.each_line.count.should == 1
+      str_output.string.should =~ /ls --help/
+    end
+
+    it 'should display help for a regex command with a "listing"' do
+      set = Pry::CommandSet.new do
+        command /bar(.*)/, "Test listing", :listing => "foo" do
+        end
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("help foo"), str_output) do
+        Pry.new(:commands => set).rep
+      end
+      str_output.string.each_line.count.should == 1
+      str_output.string.should =~ /Test listing/
+    end
+
+    it 'should display help for a command with a spaces in its name' do
+      set = Pry::CommandSet.new do
+        command "command with spaces", "description of a command with spaces" do
+        end
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("help \"command with spaces\""), str_output) do
+        Pry.new(:commands => set).rep
+      end
+      str_output.string.each_line.count.should == 1
+      str_output.string.should =~ /description of a command with spaces/
+    end
+
+    it 'should display help for all commands with a description' do
+      set = Pry::CommandSet.new do
+        command /bar(.*)/, "Test listing", :listing => "foo" do; end
+        command "b", "description for b", :listing => "foo" do; end
+        command "c" do;end
+        command "d", "" do;end
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("help"), str_output) do
+        Pry.new(:commands => set).rep
+      end
+      str_output.string.should =~ /Test listing/
+      str_output.string.should =~ /description for b/
+      str_output.string.should =~ /No description/
     end
   end
 end
