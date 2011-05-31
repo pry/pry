@@ -23,31 +23,10 @@ class Pry
         end
       end
 
-      def set_file_and_dir_locals(file_name)
-        return if !target
-        $_file_temp = File.expand_path(file_name)
-        $_dir_temp =  File.dirname($_file_temp)
-        target.eval("_file_ = $_file_temp")
-        target.eval("_dir_ = $_dir_temp")
-      end
-
-      def add_line_numbers(lines, start_line)
-        line_array = lines.each_line.to_a
-        line_array.each_with_index.map do |line, idx|
-          adjusted_index = idx + start_line
-          if Pry.color
-            cindex = CodeRay.scan("#{adjusted_index}", :ruby).term
-            "#{cindex}: #{line}"
-          else
-            "#{idx}: #{line}"
-          end
-        end.join
-      end
-
       # if start_line is not false then add line numbers starting with start_line
       def render_output(should_flood, start_line, doc)
         if start_line
-          doc = add_line_numbers(doc, start_line)
+          doc = Pry::Helpers::Text.with_line_numbers doc, start_line
         end
 
         if should_flood
@@ -57,50 +36,16 @@ class Pry
         end
       end
 
-      def editor_with_start_line(line_number)
-        case Pry.editor
-        when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
-          "#{Pry.editor} +#{line_number}"
-        when /^mate/
-          "#{Pry.editor} -l#{line_number}"
-        else
-          if RUBY_PLATFORM =~ /mswin|mingw/
-            Pry.editor
-          else
-            "#{Pry.editor} +#{line_number}"
-          end
-        end
-      end
-
       def is_a_dynamically_defined_method?(meth)
         file, _ = meth.source_location
         !!(file =~ /(\(.*\))|<.*>/)
       end
 
       def check_for_dynamically_defined_method(meth)
-        if is_a_dynamically_defined_method?(meth)
-          raise "Cannot retrieve source for dynamically defined method."
-        end
-      end
-
-      def check_for_dynamically_defined_method(meth)
         file, _ = meth.source_location
-        if file =~ /(\(.*\))|<.*>/
+        if file =~ /(\(.*\))|<.*>/ && file != Pry.eval_path
           raise "Cannot retrieve source for dynamically defined method."
         end
-      end
-
-      def remove_first_word(text)
-        text.split.drop(1).join(' ')
-      end
-
-      # turn off color for duration of block
-      def no_color(&block)
-        old_color_state = Pry.color
-        Pry.color = false
-        yield
-      ensure
-        Pry.color = old_color_state
       end
 
       def code_and_code_type_for(meth)
@@ -111,7 +56,14 @@ class Pry
           code = Pry::MethodInfo.info_for(meth).source
           code = strip_comments_from_c_code(code)
         when :ruby
-          code = strip_leading_whitespace(meth.source)
+          if meth.source_location.first == Pry.eval_path
+
+            start_line = meth.source_location.last
+            p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
+            code = strip_leading_whitespace(p)
+          else
+            code = strip_leading_whitespace(meth.source)
+          end
           set_file_and_dir_locals(meth.source_location.first)
         end
 
@@ -134,36 +86,48 @@ class Pry
       end
 
       def get_method_object(meth_name, target, options)
+        if meth_name
+          if meth_name =~ /(\S+)\#(\S+)\Z/
+            context, meth_name = $1, $2
+            target = Pry.binding_for(target.eval(context))
+            options["instance-methods"] = true
+            options[:methods] = false
+          elsif meth_name =~ /(\S+)\.(\S+)\Z/
+            context, meth_name = $1, $2
+            target = Pry.binding_for(target.eval(context))
+            options["instance-methods"] = false
+            options[:methods] = true
+          end
+        else
+          meth_name = meth_name_from_binding(target)
+        end
+
         if !meth_name
           return nil
         end
 
-        if options[:M]
-          target.eval("instance_method(:#{meth_name})")
-        elsif options[:m]
-          target.eval("method(:#{meth_name})")
+        if options["instance-methods"]
+          target.eval("instance_method(:#{meth_name})") rescue nil
+        elsif options[:methods]
+          target.eval("method(:#{meth_name})") rescue nil
         else
           begin
             target.eval("instance_method(:#{meth_name})")
           rescue
-            begin
-              target.eval("method(:#{meth_name})")
-            rescue
-              return nil
-            end
+            target.eval("method(:#{meth_name})") rescue nil
           end
         end
       end
 
       def make_header(meth, code_type, content)
-        num_lines = "Number of lines: #{bold(content.each_line.count.to_s)}"
+        num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
           file, line = meth.source_location
-          "\n#{bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
+          "\n#{Pry::Helpers::Text.bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
           file = Pry::MethodInfo.info_for(meth).file
-          "\n#{bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
+          "\n#{Pry::Helpers::Text.bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
         end
       end
 
@@ -172,7 +136,7 @@ class Pry
       end
 
       def should_use_pry_doc?(meth)
-        Pry.has_pry_doc && is_a_c_method?(meth)
+        Pry.config.has_pry_doc && is_a_c_method?(meth)
       end
 
       def code_type_for(meth)
@@ -243,16 +207,11 @@ class Pry
          normalized_line_number(end_line, lines_array.size)]
       end
 
-      # documentation related helpers
-      def strip_color_codes(str)
-        str.gsub(/\e\[.*?(\d)+m/, '')
-      end
-
       def process_rdoc(comment, code_type)
         comment = comment.dup
         comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[34m#{$1}\e[0m" : $1 }.
+          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
+          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
           gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
@@ -262,7 +221,7 @@ class Pry
         in_tag_block = nil
         output = comment.lines.map do |v|
           if in_tag_block && v !~ /^\S/
-            strip_color_codes(strip_color_codes(v))
+            Pry::Helpers::Text.strip_color Pry::Helpers::Text.strip_color(v)
           elsif in_tag_block
             in_tag_block = false
             v
@@ -299,7 +258,7 @@ class Pry
       end
 
       def strip_comments_from_c_code(code)
-        code.sub /\A\s*\/\*.*?\*\/\s*/m, ''
+        code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
       end
 
       def prompt(message, options="Yn")
