@@ -18,6 +18,7 @@ class << Pry
     Pry.color = false
     Pry.pager = false
     Pry.config.should_load_rc = false
+    Pry.config.should_load_plugins = false
     Pry.config.history.load = false
     Pry.config.history.save = false
   end
