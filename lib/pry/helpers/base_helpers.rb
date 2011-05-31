@@ -6,7 +6,7 @@ class Pry
 
      def gem_installed?(gem_name)
         require 'rubygems'
-        !!Gem.source_index.find_name(gem_name).first
+        !Gem::Specification.find_all_by_name(gem_name).empty?
       end
 
       def command_dependencies_met?(options)

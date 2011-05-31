@@ -238,8 +238,8 @@ e.g: gist -d my_method
 
     command "gem-cd", "Change working directory to specified gem's directory." do |gem_name|
       require 'rubygems'
-      gem_spec = Gem.source_index.find_name(gem_name).first
-      next output.puts("Gem `#{gem_name}` not found.") if !gem_spec
+      gem_spec  = Gem::Specification.find_all_by_name(gem_name).first # find_by_name raises Gem::LoadError which is irksome
+      next output.puts("Gem `#{gem_name}` not found.") unless gem_spec
       Dir.chdir(File.expand_path(gem_spec.full_gem_path))
     end
 
@@ -330,13 +330,13 @@ e.g: gist -d my_method
 
 
     command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |arg|
-      gems = Gem.source_index.gems.values.group_by(&:name)
       if arg
         query = Regexp.new(arg, Regexp::IGNORECASE)
-        gems = gems.select { |gemname, specs| gemname =~ query }
+      else
+        query = //
       end
 
-      gems.each do |gemname, specs|
+      Gem::Specification.select{|spec| spec.name =~ query }.group_by(&:name).each do |gemname, specs|
         versions = specs.map(&:version).sort.reverse.map(&:to_s)
         versions = ["<bright_green>#{versions.first}</bright_green>"] +
                    versions[1..-1].map{|v| "<green>#{v}</green>" }
