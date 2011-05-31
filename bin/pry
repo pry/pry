@@ -3,6 +3,8 @@
 # (C) John Mair (banisterfiend)
 # MIT license
 
+$0 = 'pry'
+
 begin
   require 'pry'
 rescue LoadError
@@ -48,15 +50,8 @@ end
 # invoked via cli
 Pry.cli = true
 
-Pry::Commands.instance_eval do
-  command "reset", "Reset the REPL to a clean state." do
-    output.puts "Pry reset."
-    exec("pry")
-  end
-end
-
 # load ~/.pryrc, if not suppressed with -f option
-Pry.should_load_rc = !opts.f?
+Pry.config.should_load_rc = !opts.f?
 
 # create the actual context
 context = Pry.binding_for(eval(opts[:context]))
