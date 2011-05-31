@@ -17,7 +17,6 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.homepage = "http://banisterfiend.wordpress.com"
-  s.has_rdoc = 'yard'
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
