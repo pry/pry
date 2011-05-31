@@ -441,11 +441,11 @@ help that can be accessed via typing `command_name --help`. A command
 will typically say in its description if the `--help` option is
 avaiable.
 
-### Use Pry as your Rails 3 Console
+### Use Pry as your Rails Console
 
-This is currently a hack, but follow the gist kindly provided by
-MyArtChannel: [https://gist.github.com/941174](https://gist.github.com/941174)
+    pry -r./config/environment
 
+MyArtChannel has kindly provided a hack to replace the `rails console` command in Rails 3: [https://gist.github.com/941174](https://gist.github.com/941174) This is not recommended for code bases with multiple developers, as they may not all want to use Pry.
 
 ### Other Features and limitations
 
@@ -486,13 +486,13 @@ invoke any of these methods directly depending on exactly what aspect of the fun
 
 #### Limitations:
 
-* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8.
+* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8
+  MRI. But many other commands do work in Ruby 1.8 MRI, e.g
+  `show-method`, due to a functional 1.8 source_location implementation.
 * JRuby not officially supported due to currently too many quirks and
  strange behaviour. Nonetheless most functionality should still work
  OK in JRuby. Full JRuby support coming in a future version.
 * `method_source` functionality does not work in JRuby with Ruby 1.8
-* Color support does not work in JRuby with Ruby 1.9 (due to a
-  limitation in JRuby's regex).
 * Tab completion is currently a bit broken/limited this will have a
    major overhaul in a future version.
 
