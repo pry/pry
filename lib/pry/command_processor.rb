@@ -16,14 +16,6 @@ class Pry
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid command.
     def valid_command?(val)
-      pry_command?(val)
-    end
-
-
-    # Is the string a valid pry command?
-    # @param [String] val The string passed in from the Pry prompt.
-    # @return [Boolean] Whether the string is a valid Pry command.
-    def pry_command?(val)
       !!(command_matched(val)[0])
     end
 
@@ -48,7 +40,6 @@ class Pry
       target.eval(dumped_str)
     end
 
-
     # Determine whether a Pry command was matched and return command data
     # and argument string.
     # This method should not need to be invoked directly.
@@ -72,18 +63,13 @@ class Pry
     #   multi-line input.
     # @param [Binding] target The receiver of the commands.
     def process_commands(val, eval_string, target)
-      def val.clear() replace("") end
-      def eval_string.clear() replace("") end
-
-      # no command was matched, so return to caller
-      return if !pry_command?(val)
-
       command, captures, pos = command_matched(val)
 
+      # no command was matched, so return to caller
+      return if !command
+
       val.replace interpolate_string(val, target) if command.options[:interpolate]
-
       arg_string = val[pos..-1].strip
-
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
       options = {
@@ -121,7 +107,7 @@ class Pry
       ret = commands.run_command(context, command, *args)
 
       # Tick, tock, im getting rid of this shit soon.
-      options[:val].clear
+      options[:val].replace("")
 
       ret
     end
