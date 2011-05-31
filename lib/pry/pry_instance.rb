@@ -103,8 +103,8 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("_pry_ = ::Pry.active_instance")
-    target.eval("_ = ::Pry.last_result")
+    set_active_instance(target)
+    set_last_result(Pry.last_result, target)
     self.session_target = target
   end
 
