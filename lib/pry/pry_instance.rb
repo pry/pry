@@ -2,12 +2,13 @@ require "pry/command_processor.rb"
 
 class Pry
 
-  # The list of configuration options.
-  CONFIG_OPTIONS = [:input, :output, :commands, :print,
-                    :exception_handler, :prompt, :hooks,
-                    :custom_completions]
-
-  attr_accessor *CONFIG_OPTIONS
+  attr_accessor :input
+  attr_accessor :output
+  attr_accessor :commands
+  attr_accessor :print
+  attr_accessor :exception_handler
+  attr_accessor :hooks
+  attr_accessor :custom_completions
 
   # Returns the target binding for the session. Note that altering this
   # attribute will not change the target binding.
@@ -24,16 +25,42 @@ class Pry
   # @option options [Proc] :print The Proc to use for the 'print'
   #   component of the REPL. (see print.rb)
   def initialize(options={})
+    defaults   = {}
+    attributes = [
+                   :input, :output, :commands, :print,
+                   :exception_handler, :hooks, :custom_completions,
+                   :prompt
+                 ]
 
-    default_options = {}
-    CONFIG_OPTIONS.each { |v| default_options[v] = Pry.send(v) }
-    default_options.merge!(options)
+    attributes.each do |attribute|
+      defaults[attribute] = Pry.send attribute
+    end
 
-    CONFIG_OPTIONS.each do |key|
-      instance_variable_set("@#{key}", default_options[key])
+    defaults.merge!(options).each_key do |key|
+      send "#{key}=", defaults[key]
     end
 
     @command_processor = CommandProcessor.new(self)
+  end
+
+  # The current prompt.
+  # This is the prompt at the top of the prompt stack.
+  #
+  # @example
+  #    self.prompt = Pry::SIMPLE_PROMPT
+  #    self.prompt # => Pry::SIMPLE_PROMPT
+  #
+  # @return [Array<Proc>] Current prompt.
+  def prompt
+    prompt_stack.last
+  end
+
+  def prompt=(new_prompt)
+    if prompt_stack.empty?
+      push_prompt new_prompt
+    else
+      prompt_stack[-1] = new_prompt
+    end
   end
 
   # Get nesting data.
@@ -48,6 +75,11 @@ class Pry
   # @param v nesting data.
   def nesting=(v)
     self.class.nesting = v
+  end
+
+  # @return [Boolean] Whether top-level session has ended.
+  def finished_top_level_session?
+    nesting.empty?
   end
 
   # Return parent of current Pry session.
@@ -71,8 +103,8 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("_pry_ = ::Pry.active_instance")
-    target.eval("_ = ::Pry.last_result")
+    set_active_instance(target)
+    set_last_result(Pry.last_result, target)
     self.session_target = target
   end
 
@@ -90,6 +122,8 @@ class Pry
     if nesting_level != break_level
       throw :breakout, break_data
     end
+
+    save_history if Pry.config.history.save && finished_top_level_session?
 
     return_value
   end
@@ -151,22 +185,19 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
-    # save the pry instance to active_instance
-    Pry.active_instance = self
-    target.eval("_pry_ = ::Pry.active_instance")
-
     @last_result_is_exception = false
+    set_active_instance(target)
+    expr = r(target)
 
-    # eval the expression and save to last_result
-    # Do not want __FILE__, __LINE__ here because we need to distinguish
-    # (eval) methods for show-method and friends.
-    # This also sets the `_` local for the session.
-    set_last_result(target.eval(r(target)), target)
+    Pry.line_buffer.push(*expr.each_line)
+    set_last_result(target.eval(expr, Pry.eval_path, Pry.current_line), target)
   rescue SystemExit => e
     exit
   rescue Exception => e
     @last_result_is_exception = true
     set_last_exception(e, target)
+  ensure
+    Pry.current_line += expr.each_line.count if expr
   end
 
   # Perform a read.
@@ -175,18 +206,19 @@ class Pry
   # Ruby expression is received.
   # Pry commands are also accepted here and operate on the target.
   # @param [Object, Binding] target The receiver of the read.
+  # @param [String] eval_string Optionally Prime `eval_string` with a start value.
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
-  def r(target=TOPLEVEL_BINDING)
+  def r(target=TOPLEVEL_BINDING, eval_string="")
     target = Pry.binding_for(target)
     @suppress_output = false
-    eval_string = ""
 
     val = ""
     loop do
       val = retrieve_line(eval_string, target)
       process_line(val, eval_string, target)
+
       break if valid_expression?(eval_string)
     end
 
@@ -195,7 +227,7 @@ class Pry
     eval_string
   end
 
-  # FIXME should delete this method? it's exposing an implementation detail!
+  # Output the result or pass to an exception handler (if result is an exception).
   def show_result(result)
     if last_result_is_exception?
       exception_handler.call output, result
@@ -264,6 +296,14 @@ class Pry
     target.eval("_ex_ = ::Pry.last_exception")
   end
 
+  # Set the active instance for a session.
+  # This method should not need to be invoked directly.
+  # @param [Binding] target The binding to set `_ex_` on.
+  def set_active_instance(target)
+    Pry.active_instance = self
+    target.eval("_pry_ = ::Pry.active_instance")
+  end
+
   # @return [Boolean] True if the last result is an exception that was raised,
   #   as opposed to simply an instance of Exception (like the result of
   #   Exception.new)
@@ -291,7 +331,7 @@ class Pry
         end
 
       rescue EOFError
-        self.input = Readline
+        self.input = Pry.input
         ""
       end
     end
@@ -303,6 +343,14 @@ class Pry
   # @return [Boolean] Whether the print proc should be invoked.
   def should_print?
     !@suppress_output || last_result_is_exception?
+  end
+
+  # Save readline history to a file.
+  def save_history
+    history_file = File.expand_path(Pry.config.history.file)
+    File.open(history_file, 'w') do |f|
+      f.write Readline::HISTORY.to_a.join("\n")
+    end
   end
 
   # Returns the appropriate prompt to use.
@@ -318,6 +366,39 @@ class Pry
     else
       Array(prompt).last.call(target_self, nesting.level)
     end
+  end
+
+  # the array that the prompt stack is stored in
+  def prompt_stack
+    @prompt_stack ||= Array.new
+  end
+  private :prompt_stack
+
+  # Pushes the current prompt onto a stack that it can be restored from later.
+  # Use this if you wish to temporarily change the prompt.
+  # @param [Array<Proc>] new_prompt
+  # @return [Array<Proc>] new_prompt
+  # @example
+  #    new_prompt = [ proc { '>' }, proc { '>>' } ]
+  #    push_prompt(new_prompt) # => new_prompt
+  def push_prompt(new_prompt)
+    prompt_stack.push new_prompt
+  end
+
+  # Pops the current prompt off of the prompt stack.
+  # If the prompt you are popping is the last prompt, it will not be popped.
+  # Use this to restore the previous prompt.
+  # @return [Array<Proc>] Prompt being popped.
+  # @example
+  #    prompt1 = [ proc { '>' }, proc { '>>' } ]
+  #    prompt2 = [ proc { '$' }, proc { '>' } ]
+  #    pry = Pry.new :prompt => prompt1
+  #    pry.push_prompt(prompt2)
+  #    pry.pop_prompt # => prompt2
+  #    pry.pop_prompt # => prompt1
+  #    pry.pop_prompt # => prompt1
+  def pop_prompt
+    prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
   if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"
