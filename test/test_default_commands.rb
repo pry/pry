@@ -225,14 +225,16 @@ describe "Pry::Commands" do
       $str_output = StringIO.new
 
       o = Object.new
+
+      # sample comment
       def o.sample
         redirect_pry_io(InputTester.new("show-doc", "exit-all"), $str_output) do
           binding.pry
-        end
+       end
       end
       o.sample
 
-      $str_output.string.should =~ /sample doc/
+      $str_output.string.should =~ /sample comment/
       $str_output = nil
     end
   end
