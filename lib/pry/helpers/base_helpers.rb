@@ -2,9 +2,26 @@ class Pry
   module Helpers
 
     module BaseHelpers
-     module_function
+      module_function
 
-     def gem_installed?(gem_name)
+      def silence_warnings
+        old_verbose = $VERBOSE
+        $VERBOSE = nil
+        begin
+          yield
+        ensure
+          $VERBOSE = old_verbose
+        end
+      end
+
+      def find_command(name)
+        command_match = commands.find { |_, command| command.options[:listing] == name }
+
+        return command_match.last if command_match
+        nil
+      end
+
+      def gem_installed?(gem_name)
         require 'rubygems'
         Gem::Specification.respond_to?(:find_all_by_name) ? !Gem::Specification.find_all_by_name(gem_name).empty? : Gem.source_index.find_name(gem_name).first
       end
@@ -16,12 +33,22 @@ class Pry
         end
       end
 
+      def set_file_and_dir_locals(file_name)
+        return if !target
+        $_file_temp = File.expand_path(file_name)
+        $_dir_temp =  File.dirname($_file_temp)
+        target.eval("_file_ = $_file_temp")
+        target.eval("_dir_ = $_dir_temp")
+      end
+
       def stub_proc(name, options)
         gems_needed = Array(options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
         proc do
-          output.puts "\n#{name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
+          output.puts "\nThe command '#{name}' requires the following gems to be installed: #{(gems_needed.join(", "))}"
+          output.puts "-"
           output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
+          output.puts "-"
           output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end
@@ -34,103 +61,6 @@ class Pry
             :stub_info => options
           }
         end
-      end
-
-      #
-      # Color helpers:
-      #   gray, red, green, yellow, blue, purple, cyan, white,
-      #   and bright_red, bright_green, etc...
-      #
-      # ANSI color codes:
-      #   \033 => escape
-      #     30 => color base
-      #      1 => bright
-      #      0 => normal
-      #
-
-      COLORS = {
-         "black" => 0,
-         "red" => 1,
-         "green" => 2,
-         "yellow" => 3,
-         "blue" => 4,
-         "purple" => 5,
-         "magenta" => 5,
-         "cyan" => 6,
-         "white" => 7
-      }
-
-      COLORS.each do |color, i|
-        define_method color do |str|
-          Pry.color ? "\033[0;#{30+i}m#{str}\033[0m" : str
-        end
-
-        define_method "bright_#{color}" do |str|
-          Pry.color ? "\033[1;#{30+i}m#{str}\033[0m" : str
-        end
-      end
-
-      alias_method :grey, :bright_black
-      alias_method :gray, :bright_black
-
-      require 'set'
-      VALID_COLORS = Set.new(
-        COLORS.keys +
-        COLORS.keys.map{|k| "bright_#{k}" } +
-        ["grey", "gray"]
-      )
-
-      def bold(text)
-        Pry.color ? "\e[1m#{text}\e[0m" : text
-      end
-
-      #
-      # Colorize a string that has "color tags".
-      #
-      # Examples:
-      #    puts colorize("<light_green><magenta>*</magenta> Hey mom! I am <light_blue>SO</light_blue> colored right now.</light_green>")
-      #
-      def colorize(string)
-        stack = []
-
-        # split the string into tags and literal strings
-        tokens          = string.split(/(<\/?[\w\d_]+>)/)
-        tokens.delete_if { |token| token.size == 0 }
-
-        result        = ""
-
-        tokens.each do |token|
-
-          # token is an opening tag!
-
-          if /<([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) #valid_tag?($1)
-            stack.push $1
-
-          # token is a closing tag!
-
-          elsif /<\/([\w\d_]+)>/ =~ token and VALID_COLORS.include?($1) # valid_tag?($1)
-
-            # if this color is on the stack somwehere...
-            if pos = stack.rindex($1)
-              # close the tag by removing it from the stack
-              stack.delete_at pos
-            else
-              raise "Error: tried to close an unopened color tag -- #{token}"
-            end
-
-          # token is a literal string!
-
-          else
-
-            color = (stack.last || "white")
-            #color = BBS_COLOR_TABLE[color.to_i] if color =~ /^\d+$/
-            result << send(color, token) # colorize the result
-
-          end
-
-        end
-
-        result
       end
 
       def highlight(string, regexp, highlight_color=:bright_yellow)

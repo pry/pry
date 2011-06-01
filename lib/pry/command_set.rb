@@ -5,32 +5,44 @@ class Pry
     end
   end
 
-  # This class used to create sets of commands. Commands can be impoted from
+  # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
     class Command < Struct.new(:name, :description, :options, :block)
+
       def call(context, *args)
         if stub_block = options[:stub_info]
           context.instance_eval(&stub_block)
         else
-          ret = context.instance_exec(*args, &block)
+          ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
           ret if options[:keep_retval]
+        end
+      end
+
+      private
+      def correct_arg_arity(arity, args)
+        case arity <=> 0
+        when -1
+          args
+        when 1, 0
+          # Keep 1.8 happy
+          args.values_at 0..(arity - 1)
         end
       end
     end
 
+    include Enumerable
     include Pry::Helpers::BaseHelpers
 
     attr_reader :commands
-    attr_reader :name
+    attr_reader :helper_module
 
-    # @param [Symbol] name Name of the command set
     # @param [Array<CommandSet>] imported_sets Sets which will be imported
     #   automatically
     # @yield Optional block run to define commands
-    def initialize(name, *imported_sets, &block)
-      @name     = name
-      @commands = {}
+    def initialize(*imported_sets, &block)
+      @commands      = {}
+      @helper_module = Module.new
 
       define_default_commands
       import(*imported_sets)
@@ -39,19 +51,29 @@ class Pry
     end
 
     # Defines a new Pry command.
-    # @param [String, Array] names The name of the command (or array of
-    #   command name aliases).
+    # @param [String, Regexp] name The name of the command. Can be
+    #   Regexp as well as String.
     # @param [String] description A description of the command.
     # @param [Hash] options The optional configuration parameters.
     # @option options [Boolean] :keep_retval Whether or not to use return value
     #   of the block for return of `command` or just to return `nil`
     #   (the default).
+    # @option options [Array<String>] :requires_gem Whether the command has
+    #   any gem dependencies, if it does and dependencies not met then
+    #   command is disabled and a stub proc giving instructions to
+    #   install command is provided.
+    # @option options [Boolean] :interpolate Whether string #{} based
+    #   interpolation is applied to the command arguments before
+    #   executing the command. Defaults to true.
+    # @option options [String] :listing The listing name of the
+    #   command. That is the name by which the command is looked up by
+    #   help and by show-command. Necessary for regex based commands.
     # @yield The action to perform. The parameters in the block
     #   determines the parameters the command will receive. All
     #   parameters passed into the block will be strings. Successive
     #   command parameters are separated by whitespace at the Pry prompt.
     # @example
-    #   MyCommands = Pry::CommandSet.new :mine do
+    #   MyCommands = Pry::CommandSet.new do
     #     command "greet", "Greet somebody" do |name|
     #       puts "Good afternoon #{name.capitalize}!"
     #     end
@@ -63,29 +85,49 @@ class Pry
     #   # Good afternoon John!
     #   # pry(main)> help greet
     #   # Greet somebody
-    def command(names, description="No description.", options={}, &block)
-      first_name = Array(names).first
+    # @example Regexp command
+    #   MyCommands = Pry::CommandSet.new do
+    #     command /number-(\d+)/, "number-N regex command", :listing => "number" do |num, name|
+    #       puts "hello #{name}, nice number: #{num}"
+    #     end
+    #   end
+    #
+    #   # From pry:
+    #   # pry(main)> _pry_.commands = MyCommands
+    #   # pry(main)> number-10 john
+    #   # hello john, nice number: 10
+    #   # pry(main)> help number
+    #   # number-N regex command
+    def command(name, description="No description.", options={}, &block)
 
-      options = {:requires_gem => []}.merge(options)
+      options = {
+        :requires_gem => [],
+        :keep_retval => false,
+        :argument_required => false,
+        :interpolate => true,
+        :listing => name
+      }.merge!(options)
 
       unless command_dependencies_met? options
         gems_needed = Array(options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
 
         options[:stub_info] = proc do
-          output.puts "\n#{first_name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
-          output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
-          output.puts "Type `install #{first_name}` to install the required gems and activate this command."
+          output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+          output.puts "-"
+          output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end
 
-      Array(names).each do |name|
-        commands[name] = Command.new(name, description, options, block)
-      end
+      commands[name] = Command.new(name, description, options, block)
+    end
+
+    def each &block
+      @commands.each(&block) 
     end
 
     # Removes some commands from the set
-    # @param [Arary<String>] names name of the commands to remove
+    # @param [Array<String>] names name of the commands to remove
     def delete(*names)
       names.each { |name| commands.delete name }
     end
@@ -94,20 +136,24 @@ class Pry
     # @param [Array<CommandSet>] sets Command sets, all of the commands of which
     #   will be imported.
     def import(*sets)
-      sets.each { |set| commands.merge! set.commands }
+      sets.each do |set|
+        commands.merge! set.commands
+        helper_module.send :include, set.helper_module
+      end
     end
 
     # Imports some commands from a set
     # @param [CommandSet] set Set to import commands from
     # @param [Array<String>] names Commands to import
     def import_from(set, *names)
+      helper_module.send :include, set.helper_module
       names.each { |name| commands[name] = set.commands[name] }
     end
 
     # Aliases a command
     # @param [String] new_name New name of the command.
     # @param [String] old_name Old name of the command.
-    # @pasam [String, nil] desc New description of the command.
+    # @param [String, nil] desc New description of the command.
     def alias_command(new_name, old_name, desc = nil)
       commands[new_name] = commands[old_name].dup
       commands[new_name].name = new_name
@@ -121,10 +167,17 @@ class Pry
     # @param [Array<Object>] args Arguments passed to the command
     # @raise [NoCommandError] If the command is not defined in this set
     def run_command(context, name, *args)
-      if command = commands[name]
-        command.call(context, *args)
-      else
+      context.extend helper_module
+      command = commands[name]
+
+      if command.nil?
         raise NoCommandError.new(name, self)
+      end
+
+      if command.options[:argument_required] && args.empty?
+        puts "The command '#{command.name}' requires an argument."
+      else
+        command.call context, *args
       end
     end
 
@@ -133,15 +186,38 @@ class Pry
     # @param [String] name The command name.
     # @param [String] description The command description.
     # @example
-    #   MyCommands = Pry::CommandSet.new :test do
+    #   MyCommands = Pry::CommandSet.new do
     #     desc "help", "help description"
     #   end
     def desc(name, description)
       commands[name].description = description
     end
 
+    # Defines helpers methods for this command sets.
+    # Those helpers are only defined in this command set.
+    #
+    # @yield A block defining helper methods
+    # @example
+    #   helpers do
+    #     def hello
+    #       puts "Hello!"
+    #     end
+    #
+    #     include OtherModule
+    #   end
+    def helpers(&block)
+      helper_module.class_eval(&block)
+    end
+
+
+    # @return [Array] The list of commands provided by the command set.
+    def list_commands
+      commands.keys
+    end
+
     private
     def define_default_commands
+
       command "help", "This menu." do |cmd|
         if !cmd
           output.puts
@@ -149,13 +225,13 @@ class Pry
 
           commands.each do |key, command|
             if command.description && !command.description.empty?
-              help_text << "#{key}".ljust(18) + command.description + "\n"
+              help_text << "#{command.options[:listing]}".ljust(18) + command.description + "\n"
             end
           end
 
           stagger_output(help_text)
         else
-          if command = commands[cmd]
+          if command = find_command(cmd)
             output.puts command.description
           else
             output.puts "No info for command: #{cmd}"
@@ -164,7 +240,8 @@ class Pry
       end
 
       command "install", "Install a disabled command." do |name|
-        stub_info = commands[name].options[:stub_info]
+        command = find_command(name)
+        stub_info = command.options[:stub_info]
 
         if !stub_info
           output.puts "Not a command stub. Nothing to do."
@@ -172,7 +249,7 @@ class Pry
         end
 
         output.puts "Attempting to install `#{name}` command..."
-        gems_to_install = Array(commands[name].options[:requires_gem])
+        gems_to_install = Array(command.options[:requires_gem])
 
         gem_install_failed = false
         gems_to_install.each do |g|
@@ -190,7 +267,17 @@ class Pry
         next if gem_install_failed
 
         Gem.refresh
-        commands[name].options.delete :stub_info
+        gems_to_install.each do |g|
+          begin
+            require g
+          rescue LoadError
+            output.puts "Required Gem: `#{g}` installed but not found?!. Aborting command installation."
+            gem_install_failed = true
+          end
+        end
+        next if gem_install_failed
+
+        command.options.delete :stub_info
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end
     end
