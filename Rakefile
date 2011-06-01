@@ -56,7 +56,7 @@ namespace :ruby do
   task :gemspec do
     File.open("#{spec.name}-#{spec.version}.gemspec", "w") do |f|
       f << spec.to_ruby
-end
+    end
   end
 end
 
