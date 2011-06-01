@@ -48,6 +48,36 @@ class Pry
         end
       end
 
+      ########### RBX HELPERS #############
+      def rbx_core?(meth)
+        defined?(RUBY_ENGINE) &&
+          RUBY_ENGINE =~ /rbx/ &&
+          meth.source_location &&
+          meth.source_location.first.start_with?("kernel")
+      end
+
+      def rvm_ruby?(path)
+        !!(path =~ /\.rvm/)
+      end
+
+      def rbx_core_code_for(meth)
+        if rvm_ruby?(Rubinius::BIN_PATH)
+          rvm_rbx_core_code_for(meth)
+        else
+          # NOT implemented
+        end
+      end
+
+      def rvm_rbx_core_code_for(meth)
+        ruby_name = File.dirname(Rubinius::BIN_PATH).split("/").last
+        source_path = File.join(File.dirname(File.dirname(File.dirname(Rubinius::BIN_PATH))),  "src", ruby_name)
+        file_name = File.join(source_path, meth.source_location.first)
+        start_line = meth.source_location.last
+        MethodSource.source_helper([file_name, start_line])
+      end
+
+      ######### END RBX HELPERS ###############
+
       def code_and_code_type_for(meth)
         case code_type = code_type_for(meth)
         when nil
@@ -57,12 +87,15 @@ class Pry
           code = strip_comments_from_c_code(code)
         when :ruby
           if meth.source_location.first == Pry.eval_path
-
             start_line = meth.source_location.last
             p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
             code = strip_leading_whitespace(p)
           else
-            code = strip_leading_whitespace(meth.source)
+            if rbx_core?(meth)
+              code = strip_leading_whitespace(rbx_core_code_for(meth))
+            else
+              code = strip_leading_whitespace(meth.source)
+            end
           end
           set_file_and_dir_locals(meth.source_location.first)
         end
