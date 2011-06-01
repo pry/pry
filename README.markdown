@@ -1,4 +1,4 @@
-![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_shade.png)
+![Alt text](http://dl.dropbox.com/u/15761219/pry_horizontal_red.png)
 
 (C) John Mair (banisterfiend) 2011
 
