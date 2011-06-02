@@ -69,38 +69,43 @@ class Pry
       end
 
       def rbx_core_code_or_doc_for(meth, code_or_doc)
-        if rvm_ruby?(Rubinius::BIN_PATH)
-          rvm_rbx_core_code_or_doc_for(meth, code_or_doc)
-        else
-          std_rbx_core_code_or_doc_for(meth, code_or_doc)
+        path_line = rbx_core_path_line_for(meth)
+
+        case code_or_doc
+        when :code
+          MethodSource.source_helper(path_line)
+        when :doc
+          MethodSource.comment_helper(path_line)
         end
       end
 
-      def std_rbx_core_code_or_doc_for(meth, code_or_doc)
+      def rbx_core_path_line_for(meth)
+        if rvm_ruby?(Rubinius::BIN_PATH)
+          rvm_rbx_core_path_line_for(meth)
+        else
+          std_rbx_core_path_line_for(meth)
+        end
+      end
+
+      def std_rbx_core_path_line_for(meth)
         file_name = File.join(Rubinius::BIN_PATH, "..", meth.source_location.first)
         raise "Cannot find rbx core source" if !File.exists?(file_name)
-        start_line meth.source_location.last
 
-        case code_or_doc
-        when :code
-          MethodSource.source_helper([file_name, start_line])
-        when :doc
-          MethodSource.comment_helper([file_name, start_line])
-        end
-      end
-
-      def rvm_rbx_core_code_or_doc_for(meth, code_or_doc)
-        ruby_name = File.dirname(Rubinius::BIN_PATH).split("/").last
-        source_path = File.join(File.dirname(File.dirname(File.dirname(Rubinius::BIN_PATH))),  "src", ruby_name)
-        file_name = File.join(source_path, meth.source_location.first)
         start_line = meth.source_location.last
 
-        case code_or_doc
-        when :code
-          MethodSource.source_helper([file_name, start_line])
-        when :doc
-          MethodSource.comment_helper([file_name, start_line])
-        end
+        [file_name, start_line]
+      end
+
+      def rvm_rbx_core_path_line_for(meth)
+        ruby_name = File.dirname(Rubinius::BIN_PATH).split("/").last
+        source_path = File.join(File.dirname(File.dirname(File.dirname(Rubinius::BIN_PATH))),  "src", ruby_name)
+
+        file_name = File.join(source_path, meth.source_location.first)
+        raise "Cannot find rbx core source" if !File.exists?(file_name)
+
+        start_line = meth.source_location.last
+
+        [file_name, start_line]
       end
 
       ######### END RBX HELPERS ###############
