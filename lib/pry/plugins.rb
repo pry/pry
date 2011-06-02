@@ -1,9 +1,9 @@
 class Pry
   class PluginManager
-
     PRY_PLUGIN_PREFIX = /^pry-/
-
     PluginNotFound = Class.new(LoadError)
+
+    MessageSink = Object.new.tap { |o| def o.method_missing(*args) end }
 
     class Plugin
       attr_accessor :name, :gem_name, :enabled, :active
@@ -55,7 +55,7 @@ class Pry
     # @return [Hash] A hash with all plugin names (minus the 'pry-') as
     #   keys and Plugin objects as values.
     def plugins
-      h = {}
+      h = Pry.config.plugins.strict_loading ? {} : Hash.new { MessageSink }
       @plugins.each do |plugin|
         h[plugin.name] = plugin
       end
