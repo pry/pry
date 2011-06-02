@@ -1,7 +1,4 @@
-direc = File.dirname(__FILE__)
-
-require 'rubygems'
-require "#{direc}/../lib/pry"
+require File.expand_path(File.join(File.dirname(__FILE__), 'helper'))
 
 class MathCommands < Pry::CommandBase
   command "greet", "Greet a person, e.g: greet john" do |name|
