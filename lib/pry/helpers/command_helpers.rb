@@ -61,19 +61,46 @@ class Pry
       end
 
       def rbx_core_code_for(meth)
+        rbx_core_code_or_doc_for(meth, :code)
+      end
+
+      def rbx_core_doc_for(meth)
+        rbx_core_code_or_doc_for(meth, :doc)
+      end
+
+      def rbx_core_code_or_doc_for(meth, code_or_doc)
         if rvm_ruby?(Rubinius::BIN_PATH)
-          rvm_rbx_core_code_for(meth)
+          rvm_rbx_core_code_or_doc_for(meth, code_or_doc)
         else
-          # NOT implemented
+          std_rbx_core_code_or_doc_for(meth, code_or_doc)
         end
       end
 
-      def rvm_rbx_core_code_for(meth)
+      def std_rbx_core_code_or_doc_for(meth, code_or_doc)
+        file_name = File.join(Rubinius::BIN_PATH, "..", meth.source_location.first)
+        raise "Cannot find rbx core source" if !File.exists?(file_name)
+        start_line meth.source_location.last
+
+        case code_or_doc
+        when :code
+          MethodSource.source_helper([file_name, start_line])
+        when :doc
+          MethodSource.comment_helper([file_name, start_line])
+        end
+      end
+
+      def rvm_rbx_core_code_or_doc_for(meth, code_or_doc)
         ruby_name = File.dirname(Rubinius::BIN_PATH).split("/").last
         source_path = File.join(File.dirname(File.dirname(File.dirname(Rubinius::BIN_PATH))),  "src", ruby_name)
         file_name = File.join(source_path, meth.source_location.first)
         start_line = meth.source_location.last
-        MethodSource.source_helper([file_name, start_line])
+
+        case code_or_doc
+        when :code
+          MethodSource.source_helper([file_name, start_line])
+        when :doc
+          MethodSource.comment_helper([file_name, start_line])
+        end
       end
 
       ######### END RBX HELPERS ###############
@@ -110,8 +137,11 @@ class Pry
         when :c
           doc = Pry::MethodInfo.info_for(meth).docstring
         when :ruby
-          doc = meth.comment
-          doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
+          if rbx_core?(meth)
+            doc = strip_leading_hash_and_whitespace_from_ruby_comments(rbx_core_doc_for(meth))
+          else
+            doc = strip_leading_hash_and_whitespace_from_ruby_comments(meth.comment)
+          end
           set_file_and_dir_locals(meth.source_location.first)
         end
 
