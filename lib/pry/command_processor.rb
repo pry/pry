@@ -63,12 +63,19 @@ class Pry
     #   multi-line input.
     # @param [Binding] target The receiver of the commands.
     def process_commands(val, eval_string, target)
-      command, captures, pos = command_matched(val)
 
       # no command was matched, so return to caller
-      return if !command
+      return if !valid_command?(val)
+      command, captures, pos = command_matched(val)
 
-      val.replace interpolate_string(val, target) if command.options[:interpolate]
+
+      # perform ruby interpolation for commands
+      if command.options[:interpolate]
+        val.replace interpolate_string(val, target)
+ #       command, captures, pos = command_matched(val)
+#        captures = captures.map { |v| interpolate_string(v, target) if v }
+      end
+
       arg_string = val[pos..-1].strip
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
