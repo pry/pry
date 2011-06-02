@@ -1,7 +1,4 @@
-direc = File.dirname(__FILE__)
-
-require 'rubygems'
-require "#{direc}/../lib/pry"
+require File.expand_path(File.join(File.dirname(__FILE__), 'helper'))
 
 # Inherit standard command set, but tweak them by importing some and
 # overriding others.
@@ -18,7 +15,7 @@ class MyCommands < Pry::CommandBase
 
   # analogy to Ruby's native alias_method idiom for decorating a method
   alias_command "old_status", "status", ""
-  
+
   # Invoke one command from within another using `run`
   command "status", "Modified status."  do |x|
     output.puts "About to show status, are you ready?"
