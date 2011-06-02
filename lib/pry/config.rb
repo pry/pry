@@ -81,6 +81,13 @@ class Pry
     # saved to hist.file at session end.
     # @return [OpenStruct]
     attr_accessor :history
+
+    # Config option for plugins:
+    # sub-options include:
+    # `plugins.enabled` (Boolean) to toggle the loading of plugins on and off wholesale. (defaults to true)
+    # `plugins.strict_loading` (Boolean) which toggles whether referring to a non-existent plugin should raise an exception (defaults to `false`)
+    # @return [OpenStruct]
+    attr_accessor :plugins
   end
 end
 

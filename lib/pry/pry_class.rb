@@ -96,7 +96,7 @@ class Pry
       # we only want them loaded once per entire Pry lifetime, not
       # multiple times per each new session (i.e in debugging)
       load_rc if Pry.config.should_load_rc
-      load_plugins if Pry.config.should_load_plugins
+      load_plugins if Pry.config.plugins.enabled
       load_history if Pry.config.history.load
 
       @initial_session = false
@@ -190,7 +190,10 @@ class Pry
     config.pager = true
     config.editor = default_editor_for_platform
     config.should_load_rc = true
-    config.should_load_plugins = true
+
+    config.plugins ||= OpenStruct.new
+    config.plugins.enabled = true
+    config.plugins.strict_loading = true
 
     config.history ||= OpenStruct.new
     config.history.save = true
