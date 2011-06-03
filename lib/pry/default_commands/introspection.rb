@@ -136,12 +136,7 @@ class Pry
 
           # editor is invoked here
         else
-          if rbx_core?(meth)
-            file, line = rbx_core_path_line_for(meth)
-          else
-            file, line = meth.source_location
-          end
-
+          file, line = path_line_for(meth)
           set_file_and_dir_locals(file)
 
           if Pry.editor.respond_to?(:call)
