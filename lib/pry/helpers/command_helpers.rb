@@ -15,15 +15,15 @@ class Pry
       end
 
       # if start_line is not false then add line numbers starting with start_line
-      def render_output(should_flood, start_line, doc)
+      def render_output(should_flood, start_line, text)
         if start_line
-          doc = Pry::Helpers::Text.with_line_numbers doc, start_line
+          text = Pry::Helpers::Text.with_line_numbers text, start_line
         end
 
         if should_flood
-          output.puts doc
+          output.puts text
         else
-          stagger_output(doc)
+          stagger_output(text)
         end
       end
 
