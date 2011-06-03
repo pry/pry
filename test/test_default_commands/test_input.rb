@@ -20,6 +20,28 @@ describe "Pry::DefaultCommands::Input" do
     end
   end
 
+  describe "show-input" do
+    it 'should correctly show the current lines in the input buffer' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing/
+    end
+  end
+
+  describe "!" do
+    it 'should correctly clear the input buffer ' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "!", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      stripped_output = str_output.string.strip!
+      stripped_output.each_line.count.should == 1
+      stripped_output.should =~ /Input buffer cleared!/
+    end
+  end
+
   describe "hist" do
     push_first_hist_line = lambda do |hist, line|
       hist.push line
