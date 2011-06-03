@@ -22,7 +22,7 @@ See: `https://github.com/banister` for more information.
   on :e, :exec, "A line of code to execute in context before the session starts", true
   on :f, "Suppress loading of ~/.pryrc"
   on "no-color", "Disable syntax highlighting for session"
-
+  on "no-plugins", "Suppress loading of plugins."
   on "simple-prompt", "Enable simple prompt mode" do
     Pry.prompt = Pry::SIMPLE_PROMPT
   end
@@ -52,6 +52,9 @@ Pry.cli = true
 
 # load ~/.pryrc, if not suppressed with -f option
 Pry.config.should_load_rc = !opts.f?
+
+# suppress plugins if given --no-plugins optino
+Pry.config.plugins.enabled = false if opts["no-plugins"]
 
 # create the actual context
 context = Pry.binding_for(eval(opts[:context]))

@@ -159,7 +159,6 @@ class Pry
         end
       end
 
-
       helpers do
 
         def start_line_for_editor(line_number)
