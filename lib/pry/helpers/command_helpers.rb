@@ -5,15 +5,6 @@ class Pry
 
       module_function
 
-      def try_to_load_pry_doc
-
-        # YARD crashes on rbx, so do not require it
-        if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
-          require "pry-doc"
-        end
-      rescue LoadError
-      end
-
       def meth_name_from_binding(b)
         meth_name = b.eval('__method__')
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
