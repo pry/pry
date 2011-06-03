@@ -129,7 +129,7 @@ class Pry
               code = strip_leading_whitespace(meth.source)
             end
           end
-          set_file_and_dir_locals(meth.source_location.first)
+          set_file_and_dir_locals(path_line_for(meth).first)
         end
 
         [code, code_type]
@@ -147,7 +147,7 @@ class Pry
           else
             doc = strip_leading_hash_and_whitespace_from_ruby_comments(meth.comment)
           end
-          set_file_and_dir_locals(meth.source_location.first)
+          set_file_and_dir_locals(path_line_for(meth).first)
         end
 
         [doc, code_type]
@@ -187,11 +187,19 @@ class Pry
         end
       end
 
+      def path_line_for(meth)
+        if rbx_core?(meth)
+          rbx_core_path_line_for(meth)
+        else
+          meth.source_location
+        end
+      end
+
       def make_header(meth, code_type, content)
         num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
-          file, line = meth.source_location
+          file, line = path_line_for(meth)
           "\n#{Pry::Helpers::Text.bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
           file = Pry::MethodInfo.info_for(meth).file
