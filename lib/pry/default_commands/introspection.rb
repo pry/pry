@@ -109,8 +109,8 @@ class Pry
 
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
-          opt.on "no-reload", "Do not automatically reload the method's file after editting."
-          opt.on :n, "no-jump", "Do not fast forward editor to first line of method."
+          opt.on :n, "no-reload", "Do not automatically reload the method's file after editting."
+          opt.on "no-jump", "Do not fast forward editor to first line of method."
           opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
@@ -143,13 +143,13 @@ class Pry
             editor_invocation = Pry.editor.call(file, line)
           else
             # only use start line if -n option is not used
-            start_line_syntax = opts.n? ? "" : start_line_for_editor(line)
+            start_line_syntax = opts["no-jump"] ? "" : start_line_for_editor(line)
             editor_invocation = "#{Pry.editor} #{start_line_syntax} #{file}"
           end
 
           run ".#{editor_invocation}"
           silence_warnings do
-            load file if !opts["no-reload"]
+            load file if !opts.n?
           end
         end
       end
