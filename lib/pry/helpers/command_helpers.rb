@@ -5,15 +5,6 @@ class Pry
 
       module_function
 
-      def try_to_load_pry_doc
-
-        # YARD crashes on rbx, so do not require it
-        if !Object.const_defined?(:RUBY_ENGINE) || RUBY_ENGINE !~ /rbx/
-          require "pry-doc"
-        end
-      rescue LoadError
-      end
-
       def meth_name_from_binding(b)
         meth_name = b.eval('__method__')
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
@@ -24,15 +15,15 @@ class Pry
       end
 
       # if start_line is not false then add line numbers starting with start_line
-      def render_output(should_flood, start_line, doc)
+      def render_output(should_flood, start_line, text)
         if start_line
-          doc = Pry::Helpers::Text.with_line_numbers doc, start_line
+          text = Pry::Helpers::Text.with_line_numbers text, start_line
         end
 
         if should_flood
-          output.puts doc
+          output.puts text
         else
-          stagger_output(doc)
+          stagger_output(text)
         end
       end
 
@@ -48,6 +39,68 @@ class Pry
         end
       end
 
+      ########### RBX HELPERS #############
+      def rbx_core?(meth)
+        defined?(RUBY_ENGINE) &&
+          RUBY_ENGINE =~ /rbx/ &&
+          meth.source_location &&
+          meth.source_location.first.start_with?("kernel")
+      end
+
+      def rvm_ruby?(path)
+        !!(path =~ /\.rvm/)
+      end
+
+      def rbx_core_code_for(meth)
+        rbx_core_code_or_doc_for(meth, :code)
+      end
+
+      def rbx_core_doc_for(meth)
+        rbx_core_code_or_doc_for(meth, :doc)
+      end
+
+      def rbx_core_code_or_doc_for(meth, code_or_doc)
+        path_line = rbx_core_path_line_for(meth)
+
+        case code_or_doc
+        when :code
+          MethodSource.source_helper(path_line)
+        when :doc
+          MethodSource.comment_helper(path_line)
+        end
+      end
+
+      def rbx_core_path_line_for(meth)
+        if rvm_ruby?(Rubinius::BIN_PATH)
+          rvm_rbx_core_path_line_for(meth)
+        else
+          std_rbx_core_path_line_for(meth)
+        end
+      end
+
+      def std_rbx_core_path_line_for(meth)
+        file_name = File.join(Rubinius::BIN_PATH, "..", meth.source_location.first)
+        raise "Cannot find rbx core source" if !File.exists?(file_name)
+
+        start_line = meth.source_location.last
+
+        [file_name, start_line]
+      end
+
+      def rvm_rbx_core_path_line_for(meth)
+        ruby_name = File.dirname(Rubinius::BIN_PATH).split("/").last
+        source_path = File.join(File.dirname(File.dirname(File.dirname(Rubinius::BIN_PATH))),  "src", ruby_name)
+
+        file_name = File.join(source_path, meth.source_location.first)
+        raise "Cannot find rbx core source" if !File.exists?(file_name)
+
+        start_line = meth.source_location.last
+
+        [file_name, start_line]
+      end
+
+      ######### END RBX HELPERS ###############
+
       def code_and_code_type_for(meth)
         case code_type = code_type_for(meth)
         when nil
@@ -57,14 +110,17 @@ class Pry
           code = strip_comments_from_c_code(code)
         when :ruby
           if meth.source_location.first == Pry.eval_path
-
             start_line = meth.source_location.last
             p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
             code = strip_leading_whitespace(p)
           else
-            code = strip_leading_whitespace(meth.source)
+            if rbx_core?(meth)
+              code = strip_leading_whitespace(rbx_core_code_for(meth))
+            else
+              code = strip_leading_whitespace(meth.source)
+            end
           end
-          set_file_and_dir_locals(meth.source_location.first)
+          set_file_and_dir_locals(path_line_for(meth).first)
         end
 
         [code, code_type]
@@ -77,9 +133,12 @@ class Pry
         when :c
           doc = Pry::MethodInfo.info_for(meth).docstring
         when :ruby
-          doc = meth.comment
-          doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
-          set_file_and_dir_locals(meth.source_location.first)
+          if rbx_core?(meth)
+            doc = strip_leading_hash_and_whitespace_from_ruby_comments(rbx_core_doc_for(meth))
+          else
+            doc = strip_leading_hash_and_whitespace_from_ruby_comments(meth.comment)
+          end
+          set_file_and_dir_locals(path_line_for(meth).first)
         end
 
         [doc, code_type]
@@ -119,11 +178,19 @@ class Pry
         end
       end
 
+      def path_line_for(meth)
+        if rbx_core?(meth)
+          rbx_core_path_line_for(meth)
+        else
+          meth.source_location
+        end
+      end
+
       def make_header(meth, code_type, content)
         num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"
         case code_type
         when :ruby
-          file, line = meth.source_location
+          file, line = path_line_for(meth)
           "\n#{Pry::Helpers::Text.bold('From:')} #{file} @ line #{line}:\n#{num_lines}\n\n"
         else
           file = Pry::MethodInfo.info_for(meth).file
