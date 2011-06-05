@@ -41,64 +41,65 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :head, 'Display the first N items of history', :optional => true, :as => Integer do |limit|
-            unless opt.grep?
-              limit ||= 10
-              list  = history.first limit
-              lines = text.with_line_numbers list.join("\n"), 0
-              stagger_output lines
-            end
+          opt.on :head, 'Display the first N items of history', 
+                 :optional => true, 
+                 :as       => Integer, 
+                 :unless   => :grep do |limit|
+            
+            limit ||= 10
+            list  = history.first limit
+            lines = text.with_line_numbers list.join("\n"), 0
+            stagger_output lines
           end
 
-          opt.on :t, :tail, 'Display the last N items of history', :optional => true, :as => Integer do |limit|
-            unless opt.grep?
-              limit ||= 10
-              offset = history.size-limit
-              offset = offset < 0 ? 0 : offset
+          opt.on :t, :tail, 'Display the last N items of history', 
+                     :optional => true, 
+                     :as       => Integer,
+                     :unless   => :grep do |limit|
 
-              list  = history.last limit
-              lines = text.with_line_numbers list.join("\n"), offset
-              stagger_output lines
-            end
+            limit ||= 10
+            offset = history.size-limit
+            offset = offset < 0 ? 0 : offset
+
+            list  = history.last limit
+            lines = text.with_line_numbers list.join("\n"), offset
+            stagger_output lines
           end
 
-          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).', true, :as => Range do |range|
-            unless opt.grep?
-              start_line = range.is_a?(Range) ? range.first : range
-              lines = text.with_line_numbers Array(history[range]).join("\n"), start_line
-              stagger_output lines
-            end
+          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).', 
+                 true, 
+                 :as     => Range,
+                 :unless => :grep do |range|
+            
+            start_line = range.is_a?(Range) ? range.first : range
+            lines = text.with_line_numbers Array(history[range]).join("\n"), start_line
+            stagger_output lines
           end
 
-          opt.on :e, :exclude, 'Exclude pry commands from the history.' do
-            unless opt.grep?
-              history.map!.with_index do |element, index|
-                unless command_processor.valid_command? element
-                  "#{text.blue index}: #{element}"
-                end
+          opt.on :e, :exclude, 'Exclude pry commands from the history.', :unless => :grep do
+            history.map!.with_index do |element, index|
+              unless command_processor.valid_command? element
+                "#{text.blue index}: #{element}"
               end
-              stagger_output history.compact.join "\n"
             end
+            stagger_output history.compact.join "\n"
           end
 
-          opt.on :r, :replay, 'The line (or range of lines) to replay.', true, :as => Range do |range|
-            unless opt.grep?
-              actions = Array(history[range]).join("\n") + "\n"
-              Pry.active_instance.input = StringIO.new(actions)
-            end
+          opt.on :r, :replay, 'The line (or range of lines) to replay.', 
+                 true, 
+                 :as     => Range,
+                 :unless => :grep do |range|
+            actions = Array(history[range]).join("\n") + "\n"
+            Pry.active_instance.input = StringIO.new(actions)
           end
 
-          opt.on :c, :clear, 'Clear the history' do
-            unless opt.grep?
-              Readline::HISTORY.shift until Readline::HISTORY.empty?
-              output.puts 'History cleared.'
-            end
+          opt.on :c, :clear, 'Clear the history', :unless => :grep do
+            Readline::HISTORY.shift until Readline::HISTORY.empty?
+            output.puts 'History cleared.'
           end
 
-          opt.on :h, :help, 'Show this message.', :tail => true do
-            unless opt.grep?
-              output.puts opt.help
-            end
+          opt.on :h, :help, 'Show this message.', :tail => true, :unless => :grep do
+            output.puts opt.help
           end
 
           opt.on_empty do
