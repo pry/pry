@@ -28,9 +28,6 @@ class Pry
     refresh(options)
 
     @command_processor = CommandProcessor.new(self)
-
-    @input_array  = HistoryArray.new(100)
-    @output_array = HistoryArray.new(100)
   end
 
   # Refresh the Pry instance settings from the Pry class.
@@ -52,6 +49,10 @@ class Pry
     defaults.merge!(options).each do |key, value|
       send "#{key}=", value
     end
+
+    size = options[:memory_size] || Pry.memory_size
+    @input_array  = Pry::HistoryArray.new(size)
+    @output_array = Pry::HistoryArray.new(size)
 
     true
   end
@@ -120,6 +121,7 @@ class Pry
     target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
 
     set_active_instance(target)
+    @input_array << nil # add empty input so _in_ and _out_ match
     set_last_result(Pry.last_result, target)
 
     self.session_target = target
