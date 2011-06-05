@@ -62,6 +62,14 @@ class Pry
             end
           end
 
+          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).', true, :as => Range do |range|
+            unless opt.grep?
+              start_line = range.is_a?(Range) ? range.first : range
+              lines = text.with_line_numbers Array(history[range]).join("\n"), start_line
+              stagger_output lines
+            end
+          end
+
           opt.on :e, :exclude, 'Exclude pry commands from the history.' do
             unless opt.grep?
               history.map!.with_index do |element, index|

@@ -14,10 +14,6 @@ class Pry
         end
       end
 
-      def remove_first_word(text)
-        text.split.drop(1).join(' ')
-      end
-
       def find_command(name)
         command_match = commands.find { |_, command| command.options[:listing] == name }
 
@@ -49,8 +45,10 @@ class Pry
         gems_needed = Array(options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
         proc do
-          output.puts "\n#{name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
+          output.puts "\nThe command '#{name}' requires the following gems to be installed: #{(gems_needed.join(", "))}"
+          output.puts "-"
           output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
+          output.puts "-"
           output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end

@@ -112,8 +112,8 @@ class Pry
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
 
         options[:stub_info] = proc do
-          output.puts "\n#{name} requires the following gems to be installed: #{(gems_needed.join(", "))}"
-          output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
+          output.puts "\nThe command '#{name}' is unavailable because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+          output.puts "-"
           output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end
@@ -257,6 +257,16 @@ class Pry
         next if gem_install_failed
 
         Gem.refresh
+        gems_to_install.each do |g|
+          begin
+            require g
+          rescue LoadError
+            output.puts "Required Gem: `#{g}` installed but not found?!. Aborting command installation."
+            gem_install_failed = true
+          end
+        end
+        next if gem_install_failed
+
         command.options.delete :stub_info
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end

@@ -11,8 +11,9 @@ class Pry
     attr_accessor :command_set
     attr_accessor :command_processor
 
-    def run(name, *args)
-      command_set.run_command(self, name, *args)
+    def run(command_string, *args)
+      complete_string = "#{command_string} #{args.join(" ")}"
+      command_processor.process_commands(complete_string, eval_string, target)
     end
 
     def commands
