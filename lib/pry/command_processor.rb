@@ -67,16 +67,15 @@ class Pry
       # no command was matched, so return to caller
       return if !valid_command?(val)
       command, captures, pos = command_matched(val)
-
+      arg_string = val[pos..-1].strip
 
       # perform ruby interpolation for commands
       if command.options[:interpolate]
         val.replace interpolate_string(val, target)
- #       command, captures, pos = command_matched(val)
-#        captures = captures.map { |v| interpolate_string(v, target) if v }
+        arg_string.replace interpolate_string(arg_string, target)
+        captures = captures.map { |v| interpolate_string(v, target) if v }
       end
 
-      arg_string = val[pos..-1].strip
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
       options = {
