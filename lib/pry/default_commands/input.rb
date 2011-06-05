@@ -12,8 +12,8 @@ class Pry
         render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-      command /amend-line-?(\d+)?/, "Experimental amend-line, where the N in amend-line-N represents line to replace. Aliases: %N",
-      :interpolate => false, :listing => "amend-line-N"  do |line_number, replacement_line|
+      command(/amend-line-?(\d+)?/, "Experimental amend-line, where the N in amend-line-N represents line to replace. Aliases: %N",
+      :interpolate => false, :listing => "amend-line-N")  do |line_number, replacement_line|
         replacement_line = "" if !replacement_line
         input_array = eval_string.each_line.to_a
         line_num = line_number ? line_number.to_i : input_array.size - 1
@@ -21,7 +21,7 @@ class Pry
         eval_string.replace input_array.join
       end
 
-      alias_command /%(\d+)?/, /amend-line-?(\d+)?/, ""
+      alias_command(/%(\d+)?/, /amend-line-?(\d+)?/, "")
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|

@@ -3,7 +3,7 @@ class Pry
 
     Shell = Pry::CommandSet.new do
 
-      command /\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>" do |cmd|
+      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>") do |cmd|
         if cmd =~ /^cd\s+(.+)/i
           begin
             Dir.chdir File.expand_path($1)
