@@ -6,6 +6,15 @@ puts "With method_source version #{MethodSource::VERSION}"
 puts "--"
 
 describe Pry do
+
+  describe 'warning emissions' do
+    it 'should emit no warnings' do
+      Open4.popen4 'ruby -I lib -r"pry" -W -e "exit"' do |pid, stdin, stdout, stderr|
+        stderr.read.empty?.should == true
+      end
+    end
+  end
+
   describe "open a Pry session on an object" do
     describe "rep" do
       before do

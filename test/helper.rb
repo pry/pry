@@ -4,6 +4,7 @@ unless Object.const_defined? 'Pry'
 end
 
 require 'bacon'
+require 'open4'
 
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
