@@ -48,11 +48,6 @@ class Pry
         end
       end
 
-      def remove_first_word(text)
-        text.split.drop(1).join(' ')
-      end
-
-
       def code_and_code_type_for(meth)
         case code_type = code_type_for(meth)
         when nil

@@ -96,8 +96,8 @@ class Pry
       # we only want them loaded once per entire Pry lifetime, not
       # multiple times per each new session (i.e in debugging)
       load_rc if Pry.config.should_load_rc
-      load_history if Pry.config.history.load
       load_plugins if Pry.config.should_load_plugins
+      load_history if Pry.config.history.load
 
       @initial_session = false
     end

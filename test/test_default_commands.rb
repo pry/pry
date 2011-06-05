@@ -98,6 +98,23 @@ describe "Pry::Commands" do
       str_output.string.each_line.count.should == 4
       str_output.string.should =~ /a\n\d+:.*b\n\d+:.*c/
     end
+
+    # strangeness in this test is due to bug in Readline::HISTORY not
+    # always registering first line of input
+    it 'should show lines between lines A and B with the --show switch' do
+      push_first_hist_line.call(@hist, "0")
+      ("a".."z").each do |v|
+        @hist.push v
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --show 1..4", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.each_line.count.should == 4
+      str_output.string.should =~ /b\n\d+:.*c\n\d+:.*d/
+    end
   end
 
   describe "show-method" do
