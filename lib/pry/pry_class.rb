@@ -69,7 +69,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor
+      :hooks, :color, :pager, :editor, :memory_size
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -199,6 +199,8 @@ class Pry
     config.history.save = true
     config.history.load = true
     config.history.file = File.expand_path("~/.pry_history")
+
+    config.memory_size = 100
   end
 
   # Set all the configurable options back to their default values
