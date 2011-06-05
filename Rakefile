@@ -25,6 +25,7 @@ def apply_spec_defaults(s)
   s.add_dependency("slop","~>1.6.0")
   s.add_dependency("method_source",">=0.4.0")
   s.add_development_dependency("bacon",">=1.1.0")
+  s.add_development_dependency("open4", "~>1.0.1")
 end
 
 task :test do
