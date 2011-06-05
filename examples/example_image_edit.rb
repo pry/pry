@@ -1,7 +1,7 @@
 # Note: this requires you to have Gosu and TexPlay installed.
 # `gem install gosu`
 # `gem install texplay`
-# 
+#
 # Extra instructions for installing Gosu on Linux can be found here:
 # http://code.google.com/p/gosu/wiki/GettingStartedOnLinux
 #
@@ -10,11 +10,7 @@
 #
 # Have fun! :)
 
-direc = File.dirname(__FILE__)
-
-require 'rubygems'
-require "texplay"
-require "#{direc}/../lib/pry"
+require File.expand_path(File.join(File.dirname(__FILE__), 'helper'))
 
 WIDTH = 640
 HEIGHT = 480
@@ -42,12 +38,12 @@ class WinClass < Gosu::Window
     @img.rect 0, 0, @img.width - 1, @img.height - 1
 
     @binding = Pry.binding_for(@img)
-    
+
     @pry_instance = Pry.new(:commands => ImageCommands, :prompt => IMAGE_PROMPT)
   end
 
   def draw
-    @img.draw_rot(WIDTH / 2, HEIGHT / 2, 1, 0, 0.5, 0.5) 
+    @img.draw_rot(WIDTH / 2, HEIGHT / 2, 1, 0, 0.5, 0.5)
   end
 
   def update

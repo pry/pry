@@ -1,7 +1,4 @@
-direc = File.dirname(__FILE__)
-
-require 'rubygems'
-require "#{direc}/../lib/pry"
+require File.expand_path(File.join(File.dirname(__FILE__), 'helper'))
 
 # define a local.
 a = "a local variable"
@@ -14,4 +11,5 @@ end
 # Start pry session at top-level.
 # The local variable `a` and the `hello` method will
 # be accessible.
+puts __LINE__
 binding.pry
