@@ -5,7 +5,7 @@ class Pry
 
       command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop." do
         output.puts "Input buffer cleared!"
-        eval_string.clear
+        eval_string.replace("")
       end
 
       command "show-input", "Show the current eval_string" do

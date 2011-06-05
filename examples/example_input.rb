@@ -1,7 +1,4 @@
-direc = File.dirname(__FILE__)
-
-require 'rubygems'
-require "#{direc}/../lib/pry"
+require File.expand_path(File.join(File.dirname(__FILE__), 'helper'))
 
 # Create a StringIO that contains the input data
 str_input = StringIO.new("puts 'hello world!'\nputs \"I am in \#{self}\"\nexit")

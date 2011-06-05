@@ -297,11 +297,6 @@ describe Pry do
           Pry.binding_for(_main_.call).should == TOPLEVEL_BINDING
           Pry.binding_for(_main_.call).should == Pry.binding_for(_main_.call)
         end
-
-        it 'should return a binding with the right self for procs' do
-          proc = Proc.new {}
-          Pry.binding_for(proc).eval("self").should.equal? proc
-        end
       end
 
 
@@ -484,6 +479,46 @@ describe Pry do
             str_output.string.should =~ /hello 1 baby/
           end
 
+          it 'should create a regex command and interpolate the captures' do
+            set = Pry::CommandSet.new do
+              command /hello (.*)/, "" do |c1|
+                output.puts "hello #{c1}"
+              end
+            end
+
+            str_output = StringIO.new
+            $obj = "bing"
+            redirect_pry_io(InputTester.new('hello #{$obj}'), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello bing/
+            $obj = nil
+          end
+
+          it 'should create a regex command and arg_string should be interpolated' do
+            set = Pry::CommandSet.new do
+              command /hello(\w+)/, "" do |c1, a1, a2, a3|
+                output.puts "hello #{c1} #{a1} #{a2} #{a3}"
+              end
+            end
+
+            str_output = StringIO.new
+            $a1 = "bing"
+            $a2 = "bong"
+            $a3 = "bang"
+            redirect_pry_io(InputTester.new('hellojohn #{$a1} #{$a2} #{$a3}'), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello john bing bong bang/
+
+            $a1 = nil
+            $a2 = nil
+            $a3 = nil
+          end
+
+
           it 'if a regex capture is missing it should be nil' do
             set = Pry::CommandSet.new do
               command /hello(.)?/, "" do |c1, a1|
@@ -615,6 +650,49 @@ describe Pry do
               str_output = StringIO.new
               Pry.new(:input => InputTester.new("run_v"), :output => str_output, :commands => klass).rep
               str_output.string.should =~ /v command/
+            end
+
+            it 'should run a regex command from within a command' do
+              klass = Pry::CommandSet.new do
+                command /v(.*)?/ do |arg|
+                  output.puts "v #{arg}"
+                end
+
+                command "run_v" do
+                  run "vbaby"
+                end
+              end
+
+              str_output = StringIO.new
+              redirect_pry_io(InputTester.new("run_v"), str_output) do
+                Pry.new(:commands => klass).rep
+              end
+
+              str_output.string.should =~ /v baby/
+            end
+
+            it 'should run a command from within a command with arguments' do
+              klass = Pry::CommandSet.new do
+                command /v(\w+)/ do |arg1, arg2|
+                  output.puts "v #{arg1} #{arg2}"
+                end
+
+                command "run_v_explicit_parameter" do
+                  run "vbaby", "param"
+                end
+
+                command "run_v_embedded_parameter" do
+                  run "vbaby param"
+                end
+              end
+
+              ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
+                str_output = StringIO.new
+                redirect_pry_io(InputTester.new(cmd), str_output) do
+                  Pry.new(:commands => klass).rep
+                end
+                str_output.string.should =~ /v baby param/
+              end
             end
 
             it 'should enable an inherited method to access opts and output and target, due to instance_exec' do

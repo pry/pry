@@ -17,7 +17,6 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.homepage = "http://banisterfiend.wordpress.com"
-  s.has_rdoc = 'yard'
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
@@ -34,8 +33,7 @@ end
 
 desc "run pry"
 task :pry do
-  require 'pry'
-  binding.pry
+  load 'bin/pry'
 end
 
 desc "show pry version"
@@ -52,6 +50,13 @@ namespace :ruby do
   Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
+  end
+  
+  desc  "Generate gemspec file"
+  task :gemspec do
+    File.open("#{spec.name}-#{spec.version}.gemspec", "w") do |f|
+      f << spec.to_ruby
+    end
   end
 end
 

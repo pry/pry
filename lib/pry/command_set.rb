@@ -5,7 +5,7 @@ class Pry
     end
   end
 
-  # This class used to create sets of commands. Commands can be impoted from
+  # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
     class Command < Struct.new(:name, :description, :options, :block)
@@ -31,6 +31,7 @@ class Pry
       end
     end
 
+    include Enumerable
     include Pry::Helpers::BaseHelpers
 
     attr_reader :commands
@@ -112,13 +113,17 @@ class Pry
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
 
         options[:stub_info] = proc do
-          output.puts "\nThe command '#{name}' is unavailable because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+          output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
           output.puts "-"
           output.puts "Type `install #{name}` to install the required gems and activate this command."
         end
       end
 
       commands[name] = Command.new(name, description, options, block)
+    end
+
+    def each &block
+      @commands.each(&block) 
     end
 
     # Removes some commands from the set
@@ -204,6 +209,11 @@ class Pry
       helper_module.class_eval(&block)
     end
 
+
+    # @return [Array] The list of commands provided by the command set.
+    def list_commands
+      commands.keys
+    end
 
     private
     def define_default_commands

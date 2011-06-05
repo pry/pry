@@ -1,9 +1,9 @@
 class Pry
   class PluginManager
-
     PRY_PLUGIN_PREFIX = /^pry-/
-
     PluginNotFound = Class.new(LoadError)
+
+    MessageSink = Object.new.tap { |o| def o.method_missing(*args) end }
 
     class Plugin
       attr_accessor :name, :gem_name, :enabled, :active
@@ -44,7 +44,7 @@ class Pry
     # Find all installed Pry plugins and store them in an internal array.
     def locate_plugins
       Gem.refresh
-      Gem.source_index.find_name('').each do |gem|
+      (Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')).each do |gem|
         next if gem.name !~ PRY_PLUGIN_PREFIX
         plugin_name = gem.name.split('-', 2).last
         @plugins << Plugin.new(plugin_name, gem.name, true) if !gem_located?(gem.name)
@@ -55,7 +55,7 @@ class Pry
     # @return [Hash] A hash with all plugin names (minus the 'pry-') as
     #   keys and Plugin objects as values.
     def plugins
-      h = {}
+      h = Pry.config.plugins.strict_loading ? {} : Hash.new { MessageSink }
       @plugins.each do |plugin|
         h[plugin.name] = plugin
       end

@@ -19,12 +19,25 @@ class Pry
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input.
   # @option options [#puts] :output The object to use for output.
-  # @option options [Pry::CommandBase] :commands The object to use for commands. (see commands.rb)
-  # @option options [Hash] :hooks The defined hook Procs (see hooks.rb)
-  # @option options [Array<Proc>] :default_prompt The array of Procs to use for the prompts. (see prompts.rb)
+  # @option options [Pry::CommandBase] :commands The object to use for commands.
+  # @option options [Hash] :hooks The defined hook Procs
+  # @option options [Array<Proc>] :prompt The array of Procs to use for the prompts.
   # @option options [Proc] :print The Proc to use for the 'print'
   #   component of the REPL. (see print.rb)
   def initialize(options={})
+    refresh(options)
+
+    @command_processor = CommandProcessor.new(self)
+
+    @input_array  = HistoryArray.new(100)
+    @output_array = HistoryArray.new(100)
+  end
+
+  # Refresh the Pry instance settings from the Pry class.
+  # Allows options to be specified to override settings from Pry class.
+  # @param [Hash] options The options to override Pry class settings
+  #   for this instance.
+  def refresh(options={})
     defaults   = {}
     attributes = [
                    :input, :output, :commands, :print,
@@ -36,14 +49,11 @@ class Pry
       defaults[attribute] = Pry.send attribute
     end
 
-    defaults.merge!(options).each_key do |key|
-      send "#{key}=", defaults[key]
+    defaults.merge!(options).each do |key, value|
+      send "#{key}=", value
     end
 
-    @command_processor = CommandProcessor.new(self)
-
-    @input_array  = HistoryArray.new(100)
-    @output_array = HistoryArray.new(100)
+    true
   end
 
   # The current prompt.
@@ -106,10 +116,11 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("_pry_ = ::Pry.active_instance")
-    target.eval("_     = ::Pry.last_result")
     target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
     target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+
+    set_active_instance(target)
+    set_last_result(Pry.last_result, target)
 
     self.session_target = target
   end
