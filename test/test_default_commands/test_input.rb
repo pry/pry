@@ -79,7 +79,7 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push ":bucket"
       @hist.push ":ostrich"
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --replay -1", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("hist --replay 3", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /ostrich/
