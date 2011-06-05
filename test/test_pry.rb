@@ -492,10 +492,32 @@ describe Pry do
               Pry.new(:commands => set).rep
             end
 
-#            binding.pry
             str_output.string.should =~ /hello bing/
             $obj = nil
           end
+
+          it 'should create a regex command and arg_string should be interpolated' do
+            set = Pry::CommandSet.new do
+              command /hello(\w+)/, "" do |c1, a1, a2, a3|
+                output.puts "hello #{c1} #{a1} #{a2} #{a3}"
+              end
+            end
+
+            str_output = StringIO.new
+            $a1 = "bing"
+            $a2 = "bong"
+            $a3 = "bang"
+            redirect_pry_io(InputTester.new('hellojohn #{$a1} #{$a2} #{$a3}'), str_output) do
+              Pry.new(:commands => set).rep
+            end
+
+            str_output.string.should =~ /hello john bing bong bang/
+
+            $a1 = nil
+            $a2 = nil
+            $a3 = nil
+          end
+
 
           it 'if a regex capture is missing it should be nil' do
             set = Pry::CommandSet.new do
