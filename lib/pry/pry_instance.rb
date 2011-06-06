@@ -39,7 +39,7 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt
+                   :prompt, :memory_size
                  ]
 
     attributes.each do |attribute|
@@ -49,10 +49,6 @@ class Pry
     defaults.merge!(options).each do |key, value|
       send "#{key}=", value
     end
-
-    size = options[:memory_size] || Pry.memory_size
-    @input_array  = Pry::HistoryArray.new(size)
-    @output_array = Pry::HistoryArray.new(size)
 
     true
   end
@@ -75,6 +71,17 @@ class Pry
     else
       prompt_stack[-1] = new_prompt
     end
+  end
+
+  # @return [Integer] The maximum amount of objects remembered by the _in_ and
+  #   _out_ arrays. Defaults to 100.
+  def memory_size
+    @output_array.max_size
+  end
+
+  def memory_size=(size)
+    @input_array  = Pry::HistoryArray.new(size)
+    @output_array = Pry::HistoryArray.new(size)
   end
 
   # Get nesting data.
