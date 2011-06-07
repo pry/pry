@@ -224,7 +224,6 @@ class Pry
 
     Pry.line_buffer.push(*code.each_line)
     res = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
-    @input_array << code
     res
   rescue SystemExit => e
     exit
@@ -232,6 +231,7 @@ class Pry
     @last_result_is_exception = true
     set_last_exception(e, target)
   ensure
+    @input_array << code
     Pry.current_line += code.each_line.count if code
   end
 
