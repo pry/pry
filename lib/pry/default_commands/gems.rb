@@ -33,12 +33,12 @@ class Pry
                   end
 
         gems.each do |gem, specs|
-          specs.sort! do |a,b| 
-            Gem::Version.new(b.version) <=> Gem::Version.new(a.version) 
+          specs.sort! do |a,b|
+            Gem::Version.new(b.version) <=> Gem::Version.new(a.version)
           end
-          
-          versions = specs.map.with_index do |spec, index|
-            index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s) 
+
+          versions = specs.each_with_index.map do |spec, index|
+            index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s)
           end
 
           output.puts "#{text.white gem} (#{versions.join ', '})"
