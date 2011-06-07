@@ -88,6 +88,9 @@ class Pry
     # `plugins.strict_loading` (Boolean) which toggles whether referring to a non-existent plugin should raise an exception (defaults to `false`)
     # @return [OpenStruct]
     attr_accessor :plugins
+
+    # @return [Integer] Amount of results that will be stored into _out_
+    attr_accessor :memory_size
   end
 end
 

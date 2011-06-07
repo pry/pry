@@ -143,6 +143,56 @@ describe Pry do
         end
       end
 
+      describe "history arrays" do
+        it 'sets _ to the last result' do
+          res   = []
+          input = InputTester.new *[":foo", "self << _", "42", "self << _"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry.repl(res)
+
+          res.should == [:foo, 42]
+        end
+
+        it 'sets _out_ to an array with the result' do
+          res   = {}
+          input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry.repl(res)
+
+          res[:res].should.be.kind_of Pry::HistoryArray
+          res[:res][1..2].should == [:foo, 42]
+        end
+
+        it 'sets _in_ to an array with the entered lines' do
+          res   = {}
+          input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry.repl(res)
+
+          res[:res].should.be.kind_of Pry::HistoryArray
+          res[:res][1..2].should == [":foo\n", "42\n"]
+        end
+
+        it 'uses 100 as the size of _in_ and _out_' do
+          res   = []
+          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry.repl(res)
+
+          res.should == [100, 100]
+        end
+
+        it 'can change the size of the history arrays' do
+          res   = []
+          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput,
+                          :memory_size => 1000)
+          pry.repl(res)
+
+          res.should == [1000, 1000]
+        end
+      end
+
       describe "test loading rc files" do
 
         before do
