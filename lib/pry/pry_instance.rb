@@ -26,6 +26,7 @@ class Pry
   #   component of the REPL. (see print.rb)
   def initialize(options={})
     refresh(options)
+
     @command_processor = CommandProcessor.new(self)
   end
 
@@ -38,7 +39,7 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt
+                   :prompt, :memory_size
                  ]
 
     attributes.each do |attribute|
@@ -48,6 +49,7 @@ class Pry
     defaults.merge!(options).each do |key, value|
       send "#{key}=", value
     end
+
     true
   end
 
@@ -69,6 +71,17 @@ class Pry
     else
       prompt_stack[-1] = new_prompt
     end
+  end
+
+  # @return [Integer] The maximum amount of objects remembered by the _in_ and
+  #   _out_ arrays. Defaults to 100.
+  def memory_size
+    @output_array.max_size
+  end
+
+  def memory_size=(size)
+    @input_array  = Pry::HistoryArray.new(size)
+    @output_array = Pry::HistoryArray.new(size)
   end
 
   # Get nesting data.
@@ -111,8 +124,13 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
+    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+
     set_active_instance(target)
+    @input_array << nil # add empty input so _in_ and _out_ match
     set_last_result(Pry.last_result, target)
+
     self.session_target = target
   end
 
@@ -193,19 +211,28 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
+    # save the pry instance to active_instance
+    Pry.active_instance = self
+
+    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+
     @last_result_is_exception = false
     set_active_instance(target)
-    expr = r(target)
 
-    Pry.line_buffer.push(*expr.each_line)
-    set_last_result(target.eval(expr, Pry.eval_path, Pry.current_line), target)
+    code = r(target)
+
+    Pry.line_buffer.push(*code.each_line)
+    res = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
+    @input_array << code
+    res
   rescue SystemExit => e
     exit
   rescue Exception => e
     @last_result_is_exception = true
     set_last_exception(e, target)
   ensure
-    Pry.current_line += expr.each_line.count if expr
+    Pry.current_line += code.each_line.count if code
   end
 
   # Perform a read.
@@ -292,6 +319,7 @@ class Pry
   # @param [Binding] target The binding to set `_` on.
   def set_last_result(result, target)
     Pry.last_result = result
+    @output_array << result
     target.eval("_ = ::Pry.last_result")
   end
 
