@@ -153,9 +153,9 @@ describe Pry do
           res.should == [:foo, 42]
         end
 
-        it 'sets _out_ to an array with the result' do
+        it 'sets out to an array with the result' do
           res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
+          input = InputTester.new *[":foo", "42", "self[:res] = out"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -163,9 +163,9 @@ describe Pry do
           res[:res][1..2].should == [:foo, 42]
         end
 
-        it 'sets _in_ to an array with the entered lines' do
+        it 'sets inp to an array with the entered lines' do
           res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
+          input = InputTester.new *[":foo", "42", "self[:res] = inp"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -173,9 +173,9 @@ describe Pry do
           res[:res][1..2].should == [":foo\n", "42\n"]
         end
 
-        it 'uses 100 as the size of _in_ and _out_' do
+        it 'uses 100 as the size of inp and out' do
           res   = []
-          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
+          input = InputTester.new *["self << out.max_size << inp.max_size"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -184,7 +184,7 @@ describe Pry do
 
         it 'can change the size of the history arrays' do
           res   = []
-          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
+          input = InputTester.new *["self << out.max_size << inp.max_size"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput,
                           :memory_size => 1000)
           pry.repl(res)

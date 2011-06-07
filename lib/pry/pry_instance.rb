@@ -73,8 +73,8 @@ class Pry
     end
   end
 
-  # @return [Integer] The maximum amount of objects remembered by the _in_ and
-  #   _out_ arrays. Defaults to 100.
+  # @return [Integer] The maximum amount of objects remembered by the inp and
+  #   out arrays. Defaults to 100.
   def memory_size
     @output_array.max_size
   end
@@ -124,11 +124,11 @@ class Pry
     Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
-    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+    target.eval("inp  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
 
     set_active_instance(target)
-    @input_array << nil # add empty input so _in_ and _out_ match
+    @input_array << nil # add empty input so inp and out match
     set_last_result(Pry.last_result, target)
 
     self.session_target = target
@@ -214,8 +214,8 @@ class Pry
     # save the pry instance to active_instance
     Pry.active_instance = self
 
-    target.eval("_in_  = ::Pry.active_instance.instance_eval { @input_array }")
-    target.eval("_out_ = ::Pry.active_instance.instance_eval { @output_array }")
+    target.eval("inp  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
 
     @last_result_is_exception = false
     set_active_instance(target)
