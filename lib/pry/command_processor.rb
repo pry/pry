@@ -12,13 +12,16 @@ class Pry
 
     def_delegators :@pry_instance, :commands, :nesting, :output
 
-    # Is the string a command valid?
+    # Is the string a valid command?
     # @param [String] val The string passed in from the Pry prompt.
     # @return [Boolean] Whether the string is a valid command.
     def valid_command?(val)
-      !!(command_matched(val)[0])
+      !!(command_matched(val, binding)[0])
     end
 
+    # Convert the object to a form that can be interpolated into a
+    # Regexp cleanly.
+    # @return [String] The string to interpolate into a Regexp
     def convert_to_regex(obj)
       case obj
       when String
@@ -44,10 +47,20 @@ class Pry
     # and argument string.
     # This method should not need to be invoked directly.
     # @param [String] val The line of input.
+    # @param [Binding] target The binding to perform string
+    #   interpolation against.
     # @return [Array] The command data and arg string pair
-    def command_matched(val)
+    def command_matched(val, target)
       _, cmd_data = commands.commands.find do |name, data|
-        /^#{convert_to_regex(name)}(?!\S)/ =~ val
+
+        interp_val = interpolate_string(val, target)
+        command_regex = /^#{convert_to_regex(name)}(?!\S)/
+
+        if data.options[:interpolate] && (command_regex =~ interp_val)
+          val.replace interp_val
+        else
+          command_regex =~ val
+        end
       end
 
       [cmd_data, (Regexp.last_match ? Regexp.last_match.captures : nil), (Regexp.last_match ? Regexp.last_match.end(0) : nil)]
@@ -65,16 +78,9 @@ class Pry
     def process_commands(val, eval_string, target)
 
       # no command was matched, so return to caller
-      return if !valid_command?(val)
-      command, captures, pos = command_matched(val)
+      command, captures, pos = command_matched(val, target)
+      return if !command
       arg_string = val[pos..-1].strip
-
-      # perform ruby interpolation for commands
-      if command.options[:interpolate]
-        val.replace interpolate_string(val, target)
-        arg_string.replace interpolate_string(arg_string, target)
-        captures = captures.map { |v| interpolate_string(v, target) if v }
-      end
 
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
