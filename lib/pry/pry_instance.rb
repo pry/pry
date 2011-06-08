@@ -214,7 +214,7 @@ class Pry
     # save the pry instance to active_instance
     Pry.active_instance = self
 
-    target.eval("inp  = ::Pry.active_instance.instance_eval { @input_array }")
+    target.eval("inp = ::Pry.active_instance.instance_eval { @input_array }")
     target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
 
     @last_result_is_exception = false
@@ -229,6 +229,7 @@ class Pry
     exit
   rescue Exception => e
     @last_result_is_exception = true
+    @output_array << e
     set_last_exception(e, target)
   ensure
     @input_array << code
