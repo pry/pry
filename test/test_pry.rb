@@ -191,6 +191,17 @@ describe Pry do
 
           res.should == [1000, 1000]
         end
+
+        it 'store exceptions' do
+          res   = []
+          input = InputTester.new *["foo!","self << inp[-1] << out[-1]"]
+          pry   = Pry.new(:input => input, :output => Pry::NullOutput,
+                          :memory_size => 1000)
+          pry.repl(res)
+
+          res.first.should == "foo!\n"
+          res.last.should.be.kind_of NoMethodError
+        end
       end
 
       describe "test loading rc files" do
