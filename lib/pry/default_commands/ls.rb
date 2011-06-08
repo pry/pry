@@ -180,9 +180,9 @@ Shows local and instance variables by default.
                                 list = list.grep(options[:grep]) if list
                                 list.uniq! if list
                                 if Pry.color
-                                  text << CodeRay.scan(Pry.view(list), :ruby).term + "\n"
+                                  text << CodeRay.scan(list.inspect, :ruby).term + "\n"
                                 else
-                                  text <<  Pry.view(list) + "\n"
+                                  text <<  list.inspect + "\n"
                                 end
                                 if !options[:f]
                                   stagger_output(text)
