@@ -112,7 +112,7 @@ describe "Pry::CommandProcessor" do
     @pry.commands.command("blah") {}
     a = "bl"
     b = "ah"
-    command, captures, pos = @command_processor.command_matched "#{a}#{b}", binding
+    command, captures, pos = @command_processor.command_matched '#{a}#{b}', binding
 
     command.name.should == "blah"
     captures.should == []
