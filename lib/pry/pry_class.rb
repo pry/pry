@@ -105,12 +105,12 @@ class Pry
     new(options).repl(target)
   end
 
-  # A custom version of `Kernel#inspect`.
+  # A custom version of `Kernel#pretty_inspect`.
   # This method should not need to be accessed directly.
   # @param obj The object to view.
   # @return [String] The string representation of `obj`.
   def self.view(obj)
-    obj.inspect
+    obj.pretty_inspect
 
   rescue NoMethodError
     "unknown"
@@ -122,8 +122,8 @@ class Pry
   # @param max_size The maximum number of chars before clipping occurs.
   # @return [String] The string representation of `obj`.
   def self.view_clip(obj, max_size=60)
-    if Pry.view(obj).size < max_size
-      Pry.view(obj)
+    if obj.inspect.size < max_size
+      obj.inspect
     else
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
     end
