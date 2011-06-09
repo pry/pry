@@ -143,8 +143,8 @@ class Pry
             editor_invocation = Pry.editor.call(file, line)
           else
             # only use start line if -n option is not used
-            start_line_syntax = opts["no-jump"] ? "" : start_line_for_editor(line)
-            editor_invocation = "#{Pry.editor} #{start_line_syntax} #{file}"
+            start_line_syntax = opts["no-jump"] ? "" : start_line_for_editor(file, line)
+            editor_invocation = "#{Pry.editor} #{start_line_syntax}"
           end
 
           run ".#{editor_invocation}"
@@ -156,17 +156,21 @@ class Pry
 
       helpers do
 
-        def start_line_for_editor(line_number)
+        def start_line_for_editor(file_name, line_number)
+          file_name.gsub!(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
+
           case Pry.editor
           when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
-            "+#{line_number}"
+            "+#{line_number} #{file_name}"
           when /^mate/, /^geany/
-            "-l #{line_number}"
+            "-l #{line_number} #{file_name}"
+          when /^uedit32/
+            "#{file_name}/#{line_number}"
           else
             if RUBY_PLATFORM =~ /mswin|mingw/
-              ""
+              "#{file_name}"
             else
-              "+#{line_number}"
+              "+#{line_number} #{file_name}"
             end
           end
         end
