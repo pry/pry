@@ -28,6 +28,7 @@ def apply_spec_defaults(s)
   s.add_development_dependency("open4", "~>1.0.1")
 end
 
+desc "Run tests"
 task :test do
   sh "bacon -Itest -rubygems -a"
 end
@@ -55,7 +56,7 @@ namespace :ruby do
   
   desc  "Generate gemspec file"
   task :gemspec do
-    File.open("#{spec.name}-#{spec.version}.gemspec", "w") do |f|
+    File.open("#{spec.name}.gemspec", "w") do |f|
       f << spec.to_ruby
     end
   end
