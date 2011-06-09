@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
+$:.unshift File.expand_path('../lib', __FILE__)
+require 'pry/version'
 
 Gem::Specification.new do |s|
   s.name = %q{pry}
-  s.version = "0.9.0pre3"
+  s.version = Pry::VERSION
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = [%q{John Mair (banisterfiend)}]
