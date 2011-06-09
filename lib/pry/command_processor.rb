@@ -14,9 +14,11 @@ class Pry
 
     # Is the string a valid command?
     # @param [String] val The string passed in from the Pry prompt.
+    # @param [Binding] target The context where the string should be
+    #   interpolated in.
     # @return [Boolean] Whether the string is a valid command.
-    def valid_command?(val)
-      !!(command_matched(val, binding)[0])
+    def valid_command?(val, target=binding)
+      !!(command_matched(val, target)[0])
     end
 
     # Convert the object to a form that can be interpolated into a
@@ -34,7 +36,7 @@ class Pry
     # Revaluate the string (str) and perform interpolation.
     # @param [String] str The string to reevaluate with interpolation.
     # @param [Binding] target The context where the string should be
-    #   reevaluated in.
+    #   interpolated in.
     # @return [String] The reevaluated string with interpolations
     #   applied (if any).
     def interpolate_string(str, target)
