@@ -97,7 +97,7 @@ class Pry
       # multiple times per each new session (i.e in debugging)
       load_rc if Pry.config.should_load_rc
       load_plugins if Pry.config.plugins.enabled
-      load_history if Pry.config.history.instance_variable_get("@table")[:load]
+      load_history if Pry.config.history.should_load #.instance_variable_get("@table")[:load]
 
       @initial_session = false
     end
@@ -196,8 +196,8 @@ class Pry
     config.plugins.strict_loading = true
 
     config.history ||= OpenStruct.new
-    config.history.save = true
-    config.history.load = true
+    config.history.should_save = true
+    config.history.should_load = true
     config.history.file = File.expand_path("~/.pry_history")
 
     config.memory_size = 100
