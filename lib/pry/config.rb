@@ -75,9 +75,9 @@ class Pry
     # sub-options include hist.file, hist.load, and hist.save
     # hist.file is the file to save/load history too, e.g
     # Pry.config.history.file = "~/.pry_history".
-    # hist.load is a boolean that determines whether history will be
+    # hist.should_load is a boolean that determines whether history will be
     # loaded from hist.file at session start.
-    # hist.save is a boolean that determines whether history will be
+    # hist.should_save is a boolean that determines whether history will be
     # saved to hist.file at session end.
     # @return [OpenStruct]
     attr_accessor :history
