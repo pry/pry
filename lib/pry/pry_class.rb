@@ -97,7 +97,7 @@ class Pry
       # multiple times per each new session (i.e in debugging)
       load_rc if Pry.config.should_load_rc
       load_plugins if Pry.config.plugins.enabled
-      load_history if Pry.config.history.should_load #.instance_variable_get("@table")[:load]
+      load_history if Pry.config.history.should_load
 
       @initial_session = false
     end
