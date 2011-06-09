@@ -3,7 +3,6 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
-require 'rubygems'
 require 'bacon'
 require 'open4'
 
