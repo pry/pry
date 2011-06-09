@@ -119,6 +119,59 @@ describe "Pry::CommandProcessor" do
     pos.should == command.name.length
   end
 
+  it 'should correctly match a regex command and interpolation should not break the regex' do
+    regex_command_name = /blah(\d)/
+    @pry.commands.command(regex_command_name) {}
+
+    sample_text = "blah5"
+    a = "5"
+    command, captures, pos = @command_processor.command_matched 'blah#{a}', binding
+
+    command.name.should == regex_command_name
+    captures.should == ["5"]
+    pos.should == sample_text.size
+  end
+
+  it 'should NOT match a regex command that is interpolated when :interpolate => false' do
+    regex_command_name = /blah(\d)/
+    @pry.commands.command(regex_command_name, "", :interpolate => false) {}
+
+    sample_text = "blah5"
+    a = "5"
+    command, captures, pos = @command_processor.command_matched 'blah#{a}', binding
+
+    command.should == nil
+  end
+
+  it 'should correctly match a regex command and interpolation should not break the regex where entire regex command is interpolated' do
+    regex_command_name = /blah(\d)/
+    @pry.commands.command(regex_command_name) {}
+
+    sample_text = "blah5"
+    a = "bl"
+    b = "ah"
+    c = "5"
+
+    command, captures, pos = @command_processor.command_matched '#{a}#{b}#{c}', binding
+
+    command.name.should == regex_command_name
+    captures.should == ["5"]
+    pos.should == sample_text.size
+  end
+
+  it 'should NOT match a regex command where entire regex command is interpolated and :interpolate => false' do
+    regex_command_name = /blah(\d)/
+    @pry.commands.command(regex_command_name, "", :interpolate => false) {}
+
+    sample_text = "blah5"
+    a = "bl"
+    b = "ah"
+    c = "5"
+
+    command, captures, pos = @command_processor.command_matched '#{a}#{b}#{c}', binding
+    command.should == nil
+  end
+
   it 'should NOT match a command whose name is interpolated when :interpolate => false' do
     @pry.commands.command("boast", "", :interpolate => false) {}
     a = "boa"
