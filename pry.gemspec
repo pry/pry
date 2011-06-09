@@ -20,14 +20,14 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby_parser>, [">= 2.0.5"])
       s.add_runtime_dependency(%q<coderay>, [">= 0.9.8"])
-      s.add_runtime_dependency(%q<slop>, ["~> 1.6.0"])
+      s.add_runtime_dependency(%q<slop>, ["~> 1.7.0"])
       s.add_runtime_dependency(%q<method_source>, [">= 0.4.0"])
       s.add_development_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_development_dependency(%q<open4>, ["~> 1.0.1"])
     else
       s.add_dependency(%q<ruby_parser>, [">= 2.0.5"])
       s.add_dependency(%q<coderay>, [">= 0.9.8"])
-      s.add_dependency(%q<slop>, ["~> 1.6.0"])
+      s.add_dependency(%q<slop>, ["~> 1.7.0"])
       s.add_dependency(%q<method_source>, [">= 0.4.0"])
       s.add_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_dependency(%q<open4>, ["~> 1.0.1"])
@@ -35,7 +35,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<ruby_parser>, [">= 2.0.5"])
     s.add_dependency(%q<coderay>, [">= 0.9.8"])
-    s.add_dependency(%q<slop>, ["~> 1.6.0"])
+    s.add_dependency(%q<slop>, ["~> 1.7.0"])
     s.add_dependency(%q<method_source>, [">= 0.4.0"])
     s.add_dependency(%q<bacon>, [">= 1.1.0"])
     s.add_dependency(%q<open4>, ["~> 1.0.1"])
