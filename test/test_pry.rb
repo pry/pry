@@ -1,4 +1,4 @@
-require File.dirname(File.expand_path(__FILE__)) + '/helper'
+require 'helper'
 
 puts "Ruby Version #{RUBY_VERSION}"
 puts "Testing Pry #{Pry::VERSION}"
