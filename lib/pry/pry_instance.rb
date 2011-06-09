@@ -149,7 +149,7 @@ class Pry
       throw :breakout, break_data
     end
 
-    save_history if Pry.config.history.save && finished_top_level_session?
+    save_history if Pry.config.history.should_save && finished_top_level_session?
 
     return_value
   end
