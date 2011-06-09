@@ -19,8 +19,15 @@ describe "Pry::CommandProcessor" do
     valid = @command_processor.valid_command? "blah"
     valid.should == false
 
+
     a = "test-command"
+
+    # not passing in a binding so 'a' shoudn't exist and should cause error
     lambda { @command_processor.valid_command? '#{a}' }.should.raise NameError
+
+    # passing in the optional binding (against which interpolation is performed)
+    valid = @command_processor.valid_command? '#{a}', binding
+    valid.should == true
   end
 
   it 'should correctly match a simple string command' do
