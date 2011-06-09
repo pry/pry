@@ -549,8 +549,6 @@ Problems or questions contact me at [github](http://github.com/banister)
 The Pry team consists of:
 
 * [banisterfiend](http://github.com/banister)
-* [epitron](http://github.com/epitron)
 * [injekt](http://github.com/injekt)
 * [Mon_Ouie](http://github.com/mon-ouie)
-
-
+* [Rob Gleeson](https://github.com/robgleeson)
