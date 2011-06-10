@@ -488,6 +488,21 @@ describe Pry do
             $test_interpolation = nil
           end
 
+          it 'should NOT try to interpolate pure ruby code (no commands) ' do
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new('puts \'#{aggy}\''), :output => str_output).rep
+            str_output.string.should.not =~ /NameError/
+
+            Pry.new(:input => StringIO.new('puts #{aggy}'), :output => str_output).rep
+            str_output.string.should.not =~ /NameError/
+
+            $test_interpolation = "blah"
+            Pry.new(:input => StringIO.new('puts \'#{$test_interpolation}\''), :output => str_output).rep
+
+            str_output.string.should.not =~ /blah/
+            $test_interpolation = nil
+          end
+
           it 'should create a command with a space in its name' do
             set = Pry::CommandSet.new do
               command "hello baby", "" do
