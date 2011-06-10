@@ -18,6 +18,16 @@ describe "Pry::DefaultCommands::Input" do
       end
       str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
     end
+
+    it 'should correctly amend the specified line with string interpolated text' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", 'amend-line puts "#{goodbye}"', "show-input", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts \"\#{goodbye}\"/
+    end
+
   end
 
   describe "show-input" do
