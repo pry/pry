@@ -63,7 +63,7 @@ class Pry
           begin
             interp_val = interpolate_string(val, target)
           rescue NameError
-            return nil
+            next
           end
 
           val.replace interp_val if command_regex =~ interp_val
