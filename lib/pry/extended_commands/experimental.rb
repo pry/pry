@@ -15,16 +15,16 @@ class Pry
 
       command "play", "Play a string as input" do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: play-method [--replay START..END] [--clear] [--grep PATTERN] [--help]\n"
+          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`\n"
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
-
           opt.on :f, "file", 'The line (or range of lines) to replay.', true
-
           opt.on :h, :help, "This message." do
             output.puts opt
           end
+
+          opt.on_noopts { Pry.active_instance.input = StringIO.new(arg_string) }
         end
 
         if opts.m?
@@ -38,28 +38,20 @@ class Pry
 
           range = opts.l? ? opts[:l] : (0..-1)
 
-          Pry.active_instance.input = StringIO.new(code_join(code.each_line.to_a[range]))
+          Pry.active_instance.input = StringIO.new(Array(code.each_line.to_a[range]).join)
         end
 
         if opts.f?
           text_array = File.readlines File.expand_path(opts[:f])
           range = opts.l? ? opts[:l] : (0..-1)
 
-          Pry.active_instance.input = StringIO.new(code_join(text_array[range]))
+          saved_commands = Pry.active_instance.commands
+          Pry.active_instance.commands = Pry::CommandSet.new
+          Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
+          Pry.active_instance.commands = saved_commands
         end
 
       end
-
-      helpers do
-
-        def code_join(arr)
-          arr.map do |v|
-            v.empty? ? "\n" : v
-          end.join
-        end
-
-      end
-
     end
   end
 end
