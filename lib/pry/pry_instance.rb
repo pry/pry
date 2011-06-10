@@ -304,13 +304,13 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @target [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
-    val.rstrip!
     Pry.cmd_ret_value = @command_processor.process_commands(val, eval_string, target)
 
     if Pry.cmd_ret_value
       eval_string << "Pry.cmd_ret_value\n"
     else
-      eval_string << "#{val}\n" if !val.empty?
+      # only commands (with no ret_value) should have an empty `val` so this ignores their result
+      eval_string << "#{val.rstrip}\n" if !val.empty?
     end
   end
 
