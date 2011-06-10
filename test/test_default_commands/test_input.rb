@@ -25,7 +25,7 @@ describe "Pry::DefaultCommands::Input" do
         pry
       end
 
-      str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts \"\#{goodbye}\"/
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts \"\#{goodbye}\"/
     end
 
   end
