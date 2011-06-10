@@ -55,11 +55,18 @@ class Pry
     def command_matched(val, target)
       _, cmd_data = commands.commands.find do |name, data|
 
-        interp_val = interpolate_string(val, target)
         command_regex = /^#{convert_to_regex(name)}(?!\S)/
 
-        if data.options[:interpolate] && (command_regex =~ interp_val)
-          val.replace interp_val
+        if data.options[:interpolate]
+          # If interpolation fails then the command cannot be matched,
+          # so early exit.
+          begin
+            interp_val = interpolate_string(val, target)
+          rescue NameError
+            return nil
+          end
+
+          val.replace interp_val if command_regex =~ interp_val
         else
           command_regex =~ val
         end
