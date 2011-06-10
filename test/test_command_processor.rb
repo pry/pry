@@ -190,4 +190,14 @@ describe "Pry::CommandProcessor" do
 
     command.should == nil
   end
+
+
+  it 'commands that have :interpolate => false should not be interpolated (interpolate_string should *not* be called)' do
+    @pry.commands.command("boast", "", :interpolate => false) {}
+
+    # remember to use '' instead of "" when testing interpolation or
+    # you'll cause yourself incredible confusion
+    lambda { @command_processor.command_matched('boast #{c}', binding) }.should.not.raise NameError
+  end
+
 end
