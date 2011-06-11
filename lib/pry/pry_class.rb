@@ -201,6 +201,7 @@ class Pry
     config.history.file = File.expand_path("~/.pry_history")
 
     config.memory_size = 100
+    config.results_pager = true
   end
 
   # Set all the configurable options back to their default values
