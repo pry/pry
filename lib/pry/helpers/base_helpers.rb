@@ -63,6 +63,14 @@ class Pry
         end
       end
 
+      def colorize_code(code)
+        if Pry.color
+          CodeRay.scan(code, :ruby).term
+        else
+          code
+        end
+      end
+
       def highlight(string, regexp, highlight_color=:bright_yellow)
         highlighted = string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
       end
@@ -93,7 +101,7 @@ class Pry
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
       # FIXME! Another JRuby hack
-      def stagger_output(text)
+      def stagger_output(text, output=output())
         if text.lines.count < page_size || !Pry.pager
           output.puts text
           return

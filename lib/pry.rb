@@ -2,7 +2,7 @@
 # MIT License
 
 require 'pp'
-
+require 'pry/helpers/base_helpers'
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = {
@@ -20,11 +20,7 @@ class Pry
 
   # The default prints
   DEFAULT_PRINT = proc do |output, value|
-    if Pry.color
-      output.puts "=> #{CodeRay.scan(value.pretty_inspect, :ruby).term}"
-    else
-      output.puts "=> #{Pry.view(value)}"
-    end
+    Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(value.pretty_inspect)}", output)
   end
 
   # Will only show the first line of the backtrace
@@ -53,7 +49,7 @@ class Pry
   ]
 
   # A simple prompt - doesn't display target or nesting level
-  SIMPLE_PROMPT = [proc { ">> " }, proc { ">* " }]
+  SIMPLE_PROMPT = [proc { ">> " }, proc { "  | " }]
 
   SHELL_PROMPT = [
     proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },

@@ -22,8 +22,5 @@ class Pry
     import DefaultCommands::Shell
     import DefaultCommands::Introspection
     import DefaultCommands::EasterEggs
-
-#    Helpers::CommandHelpers.try_to_load_pry_doc
-
   end
 end
