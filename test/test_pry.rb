@@ -40,6 +40,17 @@ describe Pry do
         @excep.is_a?(NameError).should == true
       end
 
+      if defined?(BasicObject)
+        it 'should be able to operate inside the BasicObject class' do
+          $obj = nil
+          redirect_pry_io(InputTester.new(":foo", "$obj = _", "exit-all"), StringIO.new) do
+            BasicObject.pry
+          end
+          $obj.should == :foo
+          $obj = nil
+        end
+      end
+
       it 'should set an ivar on an object' do
         input_string = "@x = 10"
         input = InputTester.new(input_string)
