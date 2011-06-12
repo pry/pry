@@ -28,6 +28,30 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts \"\#{goodbye}\"/
     end
 
+    it 'should correctly amend the specified range of lines' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :heart", "amend-line-1..2 puts :bong", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+    end
+
+    it 'should correctly delete a specific line using the ! for content' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-2 !", "show-input", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts :boast\n\d+: puts :heart/
+    end
+
+    it 'should correctly amend the specified range of lines, using negative numbers in range' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-1..-2 puts :bong", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+    end
   end
 
   describe "show-input" do
