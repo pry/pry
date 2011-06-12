@@ -12,7 +12,6 @@ class Pry
         render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-
       command(/amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. `amend-line-N`, where the N in `amend-line-N` represents line to replace.\nCan also specify a range of lines using `amend-line-N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N\ne.g amend-line-1 puts 'hello world!'\ne.g amend-line-1..4 !\n",
       :interpolate => false, :listing => "amend-line-N")  do |start_line_number, end_line_number, replacement_line|
         replacement_line = "" if !replacement_line
@@ -30,6 +29,43 @@ class Pry
       end
 
       alias_command(/%(\d+)?(?:\.\.(-?\d+))?/, /amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "")
+
+      command "play", "Play a string as input" do |*args|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`\n"
+
+          opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
+          opt.on :m, :method, 'Play a method.', true
+          opt.on :f, "file", 'The line (or range of lines) to replay.', true
+          opt.on :h, :help, "This message." do
+            output.puts opt
+          end
+
+          opt.on_noopts { Pry.active_instance.input = StringIO.new(arg_string)  }
+        end
+
+        if opts.m?
+          meth_name = opts[:m]
+          if (meth = get_method_object(meth_name, target, {})).nil?
+            output.puts "Invalid method name: #{meth_name}."
+            next
+          end
+          code, code_type = code_and_code_type_for(meth)
+          next if !code
+
+          range = opts.l? ? opts[:l] : (0..-1)
+
+          Pry.active_instance.input = StringIO.new(Array(code.each_line.to_a[range]).join)
+        end
+
+        if opts.f?
+          text_array = File.readlines File.expand_path(opts[:f])
+          range = opts.l? ? opts[:l] : (0..-1)
+
+          Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
+        end
+
+      end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
@@ -115,7 +151,6 @@ class Pry
           end
         end
       end
-
     end
 
   end
