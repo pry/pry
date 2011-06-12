@@ -76,6 +76,53 @@ describe "Pry::DefaultCommands::Input" do
     end
   end
 
+  describe "play" do
+    it 'should play a string of code (with no args)' do
+      redirect_pry_io(InputTester.new("play :test_string", "exit-all"), str_output = StringIO.new) do
+        pry
+      end
+      str_output.string.should =~ /:test_string/
+    end
+
+    it 'should play an interpolated string of code (with no args)' do
+      $obj = ":test_string_interpolated"
+      redirect_pry_io(InputTester.new('play #{$obj}', "exit-all"), str_output = StringIO.new) do
+        pry
+      end
+      str_output.string.should =~ /:test_string_interpolated/
+    end
+
+    it 'should play a method with the -m switch (a single line)' do
+      $o = Object.new
+      def $o.test_method
+        :test_method_content
+      end
+
+      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 1', "exit-all"), str_output = StringIO.new) do
+        pry
+      end
+
+      str_output.string.should =~ /:test_method_content/
+      $o = nil
+    end
+
+    it 'should play a method with the -m switch (multiple line)' do
+      $o = Object.new
+      def $o.test_method
+        1 + 102
+        5 * 6
+      end
+
+      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 1..2', "exit-all"), str_output = StringIO.new) do
+        pry
+      end
+
+      str_output.string.should =~ /103\n.*30/
+      $o = nil
+    end
+
+  end
+
   describe "hist" do
     push_first_hist_line = lambda do |hist, line|
       hist.push line
