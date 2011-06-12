@@ -12,16 +12,24 @@ class Pry
         render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-      command(/amend-line-?(\d+)?/, "Experimental amend-line, where the N in amend-line-N represents line to replace. Aliases: %N",
-      :interpolate => false, :listing => "amend-line-N")  do |line_number, replacement_line|
+
+      command(/amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. `amend-line-N`, where the N in `amend-line-N` represents line to replace.\nCan also specify a range of lines using `amend-line-N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N\ne.g amend-line-1 puts 'hello world!'\ne.g amend-line-1..4 !\n",
+      :interpolate => false, :listing => "amend-line-N")  do |start_line_number, end_line_number, replacement_line|
         replacement_line = "" if !replacement_line
         input_array = eval_string.each_line.to_a
-        line_num = line_number ? line_number.to_i : input_array.size - 1
-        input_array[line_num] = arg_string + "\n"
+        end_line_number = start_line_number.to_i if !end_line_number
+        line_range = start_line_number ? (start_line_number.to_i..end_line_number.to_i)  : input_array.size - 1
+
+        # delete selected lines if replacement line is '!'
+        if arg_string == "!"
+          input_array.slice!(line_range)
+        else
+          input_array[line_range] = arg_string + "\n"
+        end
         eval_string.replace input_array.join
       end
 
-      alias_command(/%(\d+)?/, /amend-line-?(\d+)?/, "")
+      alias_command(/%(\d+)?(?:\.\.(-?\d+))?/, /amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "")
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
         Slop.parse(args) do |opt|
