@@ -30,7 +30,7 @@ class Pry
 
       alias_command(/%(\d+)?(?:\.\.(-?\d+))?/, /amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "")
 
-      command "play", "Play a string as input" do |*args|
+      command "play", "Play back a string or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`\n"
 
@@ -64,7 +64,6 @@ class Pry
 
           Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
         end
-
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
