@@ -19,6 +19,28 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
     end
 
+    it 'should correctly amend the specified line of input when line number given (negative number)' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line -1 puts :bink", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts :bink/
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line -2 puts :bink", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bink\n\d+: puts :bang/
+    end
+
+    it 'should correctly amend the specified range of lines of input when range of negative numbers given (negative number)' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boat", "amend-line -3..-2 puts :bink", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bink\n\d+: puts :boat/
+    end
+
     it 'should correctly amend the specified line with string interpolated text' do
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", 'amend-line puts "#{goodbye}"', "show-input", "exit-all"), str_output) do
