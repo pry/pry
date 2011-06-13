@@ -12,10 +12,23 @@ class Pry
         render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-      command(/amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. `amend-line-N`, where the N in `amend-line-N` represents line to replace.\nCan also specify a range of lines using `amend-line-N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N\ne.g amend-line-1 puts 'hello world!'\ne.g amend-line-1..4 !\n",
-      :interpolate => false, :listing => "amend-line-N")  do |start_line_number, end_line_number, replacement_line|
+      command(/amend-line.?(\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
+              :interpolate => false, :listing => "amend-line")  do |*args|
+        start_line_number, end_line_number, replacement_line = *args
+
+        opts = Slop.parse!(args.compact) do |opt|
+          opt.banner "Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.\n\nCan also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N\ne.g amend-line 1 puts 'hello world!'\ne.g amend-line 1..4 !\n"
+          opt.on :h, :help, "This message." do
+            output.puts opt
+          end
+        end
+
+        next if opts.h?
+        next output.puts "No input to amend." if eval_string.empty?
+
         replacement_line = "" if !replacement_line
         input_array = eval_string.each_line.to_a
+
         end_line_number = start_line_number.to_i if !end_line_number
         line_range = start_line_number ? (start_line_number.to_i..end_line_number.to_i)  : input_array.size - 1
 
@@ -28,7 +41,7 @@ class Pry
         eval_string.replace input_array.join
       end
 
-      alias_command(/%(\d+)?(?:\.\.(-?\d+))?/, /amend-line-?(\d+)?(?:\.\.(-?\d+))?/, "")
+      alias_command(/%.?(\d+)?(?:\.\.(-?\d+))?/, /amend-line.?(\d+)?(?:\.\.(-?\d+))?/, "")
 
       command "play", "Play back a string or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
