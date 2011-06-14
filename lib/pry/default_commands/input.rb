@@ -50,6 +50,7 @@ class Pry
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
           opt.on :f, "file", 'The line (or range of lines) to replay.', true
+          opt.on :o, "open", 'When used with the -m switch, it plays the entire method except the last line, leaving the method definition "open". `amend-line` can then be used to modify the method.'
           opt.on :h, :help, "This message." do
             output.puts opt
           end
@@ -67,13 +68,17 @@ class Pry
           next if !code
 
           range = opts.l? ? opts[:l] : (0..-1)
+          range = (0..-2) if opts.o?
 
           Pry.active_instance.input = StringIO.new(Array(code.each_line.to_a[range]).join)
         end
 
         if opts.f?
-          text_array = File.readlines File.expand_path(opts[:f])
+          file_name = File.expand_path(opts[:f])
+          next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
+          text_array = File.readlines(file_name)
           range = opts.l? ? opts[:l] : (0..-1)
+          range = (0..-2) if opts.o?
 
           Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
         end
@@ -97,19 +102,19 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :head, 'Display the first N items of history', 
-                 :optional => true, 
-                 :as       => Integer, 
+          opt.on :head, 'Display the first N items of history',
+                 :optional => true,
+                 :as       => Integer,
                  :unless   => :grep do |limit|
-            
+
             limit ||= 10
             list  = history.first limit
             lines = text.with_line_numbers list.join("\n"), 0
             stagger_output lines
           end
 
-          opt.on :t, :tail, 'Display the last N items of history', 
-                     :optional => true, 
+          opt.on :t, :tail, 'Display the last N items of history',
+                     :optional => true,
                      :as       => Integer,
                      :unless   => :grep do |limit|
 
@@ -122,11 +127,11 @@ class Pry
             stagger_output lines
           end
 
-          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).', 
-                 true, 
+          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).',
+                 true,
                  :as     => Range,
                  :unless => :grep do |range|
-            
+
             start_line = range.is_a?(Range) ? range.first : range
             lines = text.with_line_numbers Array(history[range]).join("\n"), start_line
             stagger_output lines
@@ -141,8 +146,8 @@ class Pry
             stagger_output history.compact.join "\n"
           end
 
-          opt.on :r, :replay, 'The line (or range of lines) to replay.', 
-                 true, 
+          opt.on :r, :replay, 'The line (or range of lines) to replay.',
+                 true,
                  :as     => Range,
                  :unless => :grep do |range|
             actions = Array(history[range]).join("\n") + "\n"
