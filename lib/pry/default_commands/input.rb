@@ -85,9 +85,10 @@ class Pry
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
-        Slop.parse(args) do |opt|
-          history = Readline::HISTORY.to_a
-          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help]\n"
+        history = Readline::HISTORY.to_a
+
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
             pattern = Regexp.new arg_string.split(/ /)[1]
@@ -154,6 +155,8 @@ class Pry
             Pry.active_instance.input = StringIO.new(actions)
           end
 
+          opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true, :as => Range
+
           opt.on :c, :clear, 'Clear the history', :unless => :grep do
             Readline::HISTORY.shift until Readline::HISTORY.empty?
             output.puts 'History cleared.'
@@ -168,6 +171,35 @@ class Pry
             stagger_output lines
           end
         end
+
+        # FIXME: hack to save history (this must be refactored)
+        if opts["save"]
+          file_name = nil
+          hist_array = nil
+
+          case opts["save"]
+          when Range
+            hist_array = Array(history[opts["save"]])
+            next output.puts "Must provide a file name." if !args.first
+            file_name = File.expand_path(args.first)
+          when String
+            hist_array = history
+            file_name =  File.expand_path(opts["save"])
+          end
+
+          output.puts "Saving history in #{file_name} ..."
+          # exclude pry commands
+          hist_array.reject! do |element|
+            command_processor.valid_command?(element)
+          end
+
+          File.open(file_name, 'w') do |f|
+            f.write hist_array.join("\n")
+          end
+
+          output.puts "... history saved."
+        end
+
       end
     end
 
