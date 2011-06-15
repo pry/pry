@@ -98,6 +98,38 @@ class Pry
         end
       end
 
+      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
+        opts = Slop.parse!(args) do |opt|
+          opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
+                      "Edit the method FILE in an editor.\n" \
+                      "Ensure #{text.bold("Pry.editor")} is set to your editor of choice.\n" \
+                      "e.g: edit sample.rb"
+
+          opt.on :r, "reload", "Eval file content after editing (using `load`)"
+          opt.on :p, "play", "Use the pry `play` command to eval the file content after editing (instead of the `load` method)."
+          opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
+          opt.on :h, :help, "This message." do
+            output.puts opt
+          end
+        end
+        next if opts.h?
+
+        next output.puts("Need to specify a file.") if !args.first
+        file_name = File.expand_path(args.first)
+
+        invoke_editor(file_name, opts[:l].to_i)
+
+        if opts[:r]
+          silence_warnings do
+            load file_name
+          end
+        elsif opts[:p]
+          silence_warnings do
+            Pry.active_instance.input = StringIO.new(File.readlines(file_name).join)
+          end
+        end
+      end
+
       command "edit-method", "Edit a method. Type `edit-method --help` for more info." do |*args|
         target = target()
 
