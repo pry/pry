@@ -73,7 +73,7 @@ describe "Pry::DefaultCommands::Input" do
         pry
       end
 
-      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts :boast\n\d+: puts :heart/
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :bing\n\d+: puts :boast\n\d+: puts :heart/
     end
 
     it 'should correctly delete a range of lines using the ! for content' do
@@ -82,7 +82,7 @@ describe "Pry::DefaultCommands::Input" do
         pry
       end
 
-      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :heart\n\Z/
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :heart\n\Z/
     end
 
     it 'should correctly delete the previous line using the ! for content' do
@@ -91,7 +91,7 @@ describe "Pry::DefaultCommands::Input" do
         pry
       end
 
-      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts :bang\n\d+: puts :boast\n\Z/
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :bing\n\d+: puts :bang\n\d+: puts :boast\n\Z/
     end
 
     it 'should correctly amend the specified range of lines, using negative numbers in range' do
@@ -99,7 +99,23 @@ describe "Pry::DefaultCommands::Input" do
       redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-1..-2 puts :bong", "show-input", "exit-all"), str_output) do
         pry
       end
-      str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+    end
+
+    it 'should correctly insert a new line of input before a specified line using the > syntax' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1 >puts :inserted", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
+    end
+
+    it 'should correctly insert a new line of input before a specified line using the > syntax (should ignore second value of range)' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1..20 >puts :inserted", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
     end
   end
 
