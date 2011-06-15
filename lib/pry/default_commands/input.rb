@@ -17,7 +17,14 @@ class Pry
         start_line_number, end_line_number, replacement_line = *args
 
         opts = Slop.parse!(args.compact) do |opt|
-          opt.banner "Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.\n\nCan also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N\ne.g amend-line 1 puts 'hello world!'\ne.g amend-line 1..4 !\n"
+          opt.banner %{Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
+
+Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
+e.g amend-line 1 puts 'hello world! # replace line 1'
+e.g amend-line 1..4 !               # delete lines 1..4
+e.g amend-line 3 >puts 'goodbye'    # insert before line 3
+e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
+}
           opt.on :h, :help, "This message." do
             output.puts opt
           end
@@ -35,13 +42,17 @@ class Pry
         # delete selected lines if replacement line is '!'
         if arg_string == "!"
           input_array.slice!(line_range)
+        elsif arg_string.start_with?(">")
+          insert_slot = Array(line_range).first
+          input_array.insert(insert_slot, arg_string[1..-1] + "\n")
         else
           input_array[line_range] = arg_string + "\n"
         end
         eval_string.replace input_array.join
+        run "show-input"
       end
 
-      alias_command(/%.?(\d+)?(?:\.\.(-?\d+))?/, /amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "")
+      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "")
 
       command "play", "Play back a string or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
