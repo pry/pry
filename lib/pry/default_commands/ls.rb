@@ -3,6 +3,16 @@ class Pry
 
     Ls = Pry::CommandSet.new do
 
+      helpers do
+        def trim_methods(options, visibility)
+          if options[:e]
+            []
+          else
+            Object.send("#{visibility}_methods")
+          end
+        end
+      end
+
       command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
         options = {}
         # Set target local to the default -- note that we can set a different target for
@@ -59,8 +69,12 @@ Shows local and instance variables by default.
             options[:j] = true
           end
 
-          opts.on("-s", "--super", "Include superclass entries (relevant to constant and methods options).") do
+          opts.on("-s", "--super", "Include superclass entries excluding Object (relevant to constant and methods options).") do
             options[:s] = true
+          end
+
+          opts.on("-e", "--everything", "Include superclass entries including Object (relevant to constant and methods options).") do
+            options[:e] = true
           end
 
           opts.on("-a", "--all", "Display all types of entries.") do
@@ -126,19 +140,19 @@ Shows local and instance variables by default.
 
                               info["global variables"] = [Array(target.eval("global_variables")).sort, i += 1] if options[:g] || options[:a]
 
-                              info["public methods"] = [Array(target.eval("public_methods(#{options[:s]})")).uniq.sort, i += 1] if (options[:m] && options[:P]) || options[:a]
+                              info["public methods"] = [Array(target.eval("public_methods(#{options[:s]})")).uniq.sort - trim_methods(options, :public), i += 1] if (options[:m] && options[:P]) || options[:a]
 
-                              info["protected methods"] = [Array(target.eval("protected_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:r]) || options[:a]
+                              info["protected methods"] = [Array(target.eval("protected_methods(#{options[:s]})")).sort - trim_methods(options, :protected), i += 1] if (options[:m] && options[:r]) || options[:a]
 
-                              info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:p]) || options[:a]
+                              info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort - trim_methods(options, :private), i += 1] if (options[:m] && options[:p]) || options[:a]
 
                               info["just singleton methods"] = [Array(target.eval("methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:j]) || options[:a]
 
-                              info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
+                              info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(options, :public), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
 
-                              info["protected instance methods"] = [Array(target.eval("protected_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:r]) || options[:a])
+                              info["protected instance methods"] = [Array(target.eval("protected_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(options, :protected), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:r]) || options[:a])
 
-                              info["private instance methods"] = [Array(target.eval("private_instance_methods(#{options[:s]})")).uniq.sort, i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:p]) || options[:a])
+                              info["private instance methods"] = [Array(target.eval("private_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(options, :private), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:p]) || options[:a])
 
                               # dealing with 1.8/1.9 compatibility issues :/
                               csuper = options[:s]
