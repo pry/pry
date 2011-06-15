@@ -139,15 +139,7 @@ class Pry
           file, line = path_line_for(meth)
           set_file_and_dir_locals(file)
 
-          if Pry.editor.respond_to?(:call)
-            editor_invocation = Pry.editor.call(file, line)
-          else
-            # only use start line if -n option is not used
-            start_line_syntax = opts["no-jump"] ? "" : start_line_for_editor(file, line)
-            editor_invocation = "#{Pry.editor} #{start_line_syntax}"
-          end
-
-          run ".#{editor_invocation}"
+          invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
             load file if !opts.n?
           end
@@ -156,7 +148,17 @@ class Pry
 
       helpers do
 
-        def start_line_for_editor(file_name, line_number)
+        def invoke_editor(file, line)
+          if Pry.editor.respond_to?(:call)
+            editor_invocation = Pry.editor.call(file, line)
+          else
+            editor_invocation = "#{Pry.editor} #{start_line_syntax_for_editor(file, line)}"
+          end
+
+          run ".#{editor_invocation}"
+        end
+
+        def start_line_syntax_for_editor(file_name, line_number)
           file_name.gsub!(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
 
           case Pry.editor
