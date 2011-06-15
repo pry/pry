@@ -1,3 +1,21 @@
+??/6/2011 version 0.9.0
+* plugin system
+* regex commands
+* show-method works on methods defined in REPL
+* new command system/API
+* rubinius core support
+* inp/out special locals
+* _ex_ backtrace navigation object (_ex_.line, _ex_.file)
+* readline history saving/loading
+* prompt stack
+* more hooks
+* amend-line
+* play
+* show-input
+* much more comprehensive test suite
+* support for new and old rubygems API
+* changed -s behaviour of ls (now excludes Object methods)
+
 26/3/2011 version 0.7.6.1
 * added slightly better support for YARD
 * now @param and @return tags are colored green and markdown `code` is syntax highlighted using coderay
@@ -24,11 +42,11 @@
 * --color mode for pry commandline
 * clean up requires (put them all in one place)
 * simple-prompt command and toggle-color commandd.
-	
+
 28/2/2011 version 0.6.3
 * Using MethodSource 0.3.4 so 1.8 show-method support provided
 * `Set` class added to list of classes that are inspected
-	
+
 26/2/2011 version 0.6.1
 * !@ command alias for exit_all
 * `cd /` for breaking out to pry top level (jump-to 0)
@@ -40,11 +58,11 @@
 22/2/2011 version 0.5.8
 * Added -c (context) option to show-doc, show-methods and eval-file
 * Fixed up ordering issue of -c and -r parameters to command line pry
-	
+
 21/2/2011 version 0.5.7
 * Added pry executable, auto-loads .pryrc in user's home directory, if it
 	exists.
-	
+
 19/2/2011 version 0.5.5
 * Added Pry.run_command
 * More useful error messages
@@ -65,7 +83,7 @@
 * Get rid of ls_method and ls_imethods (subsumed by more powerful ls)
 * Get rid of show_idoc and show_imethod
 * Add special eval-file command that evals target file in current context
-	
+
 27/1/2011 version 0.4.5
 * fixed show_method (though fragile as it references __binding_impl__
 	directly, making a name change to that method difficult
@@ -99,4 +117,4 @@
 * now rescuing SyntaxError as well as Racc::Parser error in valid_expression?
 8/12/2010 version 0.1.0
 * release!
-	
+
