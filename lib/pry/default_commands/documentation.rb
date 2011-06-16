@@ -40,12 +40,15 @@ class Pry
         next output.puts("No documentation found.") if doc.empty?
         doc = process_comment_markup(doc, code_type)
         output.puts make_header(meth, code_type, doc)
+        if meth.respond_to?(:parameters)
+          output.puts "#{text.bold("signature")}: #{signature_for(meth)}"
+          output.puts
+        end
         render_output(opts.flood?, false, doc)
         doc
       end
 
       alias_command "?", "show-doc", ""
-
 
       command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
         target = target()
@@ -73,23 +76,21 @@ class Pry
           next
         end
 
-        code, code_type = code_and_code_type_for(meth)
-        next if !code
-        doc, code_type = doc_and_code_type_for(meth)
-
-        output.puts make_header(meth, code_type, code)
-        output.puts text.bold("Method Name: ") + meth_name
-        output.puts text.bold("Method Owner: ") + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
-        output.puts text.bold("Method Language: ") + code_type.to_s.capitalize
-        output.puts text.bold("Method Type: ") + (meth.is_a?(Method) ? "Bound" : "Unbound")
-        output.puts text.bold("Method Arity: ") + meth.arity.to_s
-
-        name_map = { :req => "Required:", :opt => "Optional:", :rest => "Rest:" }
-        if meth.respond_to?(:parameters)
-          output.puts text.bold("Method Parameters: ") + meth.parameters.group_by(&:first).
-            map { |k, v| "#{name_map[k]} #{v.map { |kk, vv| vv ? vv.to_s : "noname" }.join(", ")}" }.join(". ")
+        if !is_a_c_method?(meth) && !is_a_dynamically_defined_method?(meth)
+          set_file_and_dir_locals(path_line_for(meth).first)
         end
-        output.puts text.bold("Comment length: ") + (doc.empty? ? 'No comment.' : (doc.lines.count.to_s + ' lines.'))
+
+        output.puts "Method Information:"
+        output.puts "--"
+        output.puts "Name: " + meth_name
+        output.puts "Owner: " + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
+        output.puts "Type: " + (meth.is_a?(Method) ? "Bound" : "Unbound")
+        output.puts "Arity: " + meth.arity.to_s
+
+        if meth.respond_to?(:parameters)
+          output.puts "Method Signature: " + signature_for(meth)
+        end
+
       end
 
       command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
@@ -138,6 +139,23 @@ class Pry
                           opts.p?)
 
         output.puts "Gist created at #{link}"
+      end
+
+      helpers do
+        def signature_for(meth)
+          param_strings = []
+          meth.parameters.each do |kind, name|
+            case kind
+            when :req
+              param_strings << name
+            when :opt
+              param_strings << "#{name}=?"
+            when :rest
+              param_strings << "*#{name}"
+            end
+          end
+          "#{meth.name}(#{param_strings.join(", ")})"
+        end
       end
 
     end
