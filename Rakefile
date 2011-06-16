@@ -22,8 +22,8 @@ def apply_spec_defaults(s)
   s.test_files = `git ls-files -- test/*`.split("\n")
   s.add_dependency("ruby_parser",">=2.0.5")
   s.add_dependency("coderay",">=0.9.8")
-  s.add_dependency("slop","~>1.6.0")
-  s.add_dependency("method_source",">=0.4.0")
+  s.add_dependency("slop","~>1.9.0")
+  s.add_dependency("method_source",">=0.6.0")
   s.add_development_dependency("bacon",">=1.1.0")
   s.add_development_dependency("open4", "~>1.0.1")
 end
@@ -53,7 +53,7 @@ namespace :ruby do
     pkg.need_zip = false
     pkg.need_tar = false
   end
-  
+
   desc  "Generate gemspec file"
   task :gemspec do
     File.open("#{spec.name}.gemspec", "w") do |f|
