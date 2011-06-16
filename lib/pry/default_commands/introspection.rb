@@ -12,6 +12,8 @@ class Pry
                      "e.g: show-method hello_method"
 
           opt.on :l, "line-numbers", "Show line numbers."
+          opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
+
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
@@ -43,6 +45,9 @@ class Pry
         if opts.l?
           start_line = meth.source_location ? meth.source_location.last : 1
         end
+
+        start_line = opts.b? ? 1 : start_line
+
 
         render_output(opts.flood?, start_line, code)
         code
@@ -118,6 +123,7 @@ class Pry
         file_name = File.expand_path(args.first)
 
         invoke_editor(file_name, opts[:l].to_i)
+        set_file_and_dir_locals(file_name)
 
         if opts[:r]
           silence_warnings do

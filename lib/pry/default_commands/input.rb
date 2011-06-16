@@ -8,8 +8,8 @@ class Pry
         eval_string.replace("")
       end
 
-      command "show-input", "Show the current eval_string" do
-        render_output(false, 0, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
+      command "show-input", "Show the contents of the input buffer for the current multi-line expression." do
+        render_output(false, 1, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
       command(/amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
@@ -37,7 +37,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
         input_array = eval_string.each_line.to_a
 
         end_line_number = start_line_number.to_i if !end_line_number
-        line_range = start_line_number ? (start_line_number.to_i..end_line_number.to_i)  : input_array.size - 1
+        line_range = start_line_number ? (one_index_number(start_line_number.to_i)..one_index_number(end_line_number.to_i))  : input_array.size - 1
 
         # delete selected lines if replacement line is '!'
         if arg_string == "!"
@@ -78,7 +78,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           code, code_type = code_and_code_type_for(meth)
           next if !code
 
-          range = opts.l? ? opts[:l] : (0..-1)
+          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
           Pry.active_instance.input = StringIO.new(Array(code.each_line.to_a[range]).join)
@@ -88,7 +88,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           file_name = File.expand_path(opts[:f])
           next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
           text_array = File.readlines(file_name)
-          range = opts.l? ? opts[:l] : (0..-1)
+          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
           Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
@@ -102,7 +102,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
 
           opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
-            pattern = Regexp.new arg_string.split(/ /)[1]
+            pattern = Regexp.new arg_string.strip.split(/ /, 2).last.strip
             history.pop
 
             history.map!.with_index do |element, index|
@@ -212,6 +212,34 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
         end
 
       end
+
+
+      helpers do
+        def one_index_number(line_number)
+          if line_number > 0
+            line_number - 1
+          elsif line_number < 0
+            line_number
+          else
+            line_number
+          end
+        end
+
+        def one_index_range(range)
+          Range.new(one_index_number(range.begin), one_index_number(range.end))
+        end
+
+        def one_index_range_or_number(range_or_number)
+          case range_or_number
+          when Range
+            one_index_range(range_or_number)
+          else
+            one_index_number(range_or_number)
+          end
+        end
+
+      end
+
     end
 
   end
