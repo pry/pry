@@ -13,7 +13,15 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly amend the specified line of input when line number given ' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line-0 def goodbye", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1 def goodbye", "show-input", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
+    end
+
+    it 'should correctly amend the specified line of input when line number given, 0 should behave as 1 ' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 0 def goodbye", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
@@ -61,7 +69,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly amend the specified range of lines' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :heart", "amend-line-1..2 puts :bong", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :heart", "amend-line 2..3 puts :bong", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
@@ -69,7 +77,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly delete a specific line using the ! for content' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-2 !", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 3 !", "show-input", "exit-all"), str_output) do
         pry
       end
 
@@ -78,7 +86,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly delete a range of lines using the ! for content' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 1..3 !", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 2..4 !", "show-input", "exit-all"), str_output) do
         pry
       end
 
@@ -96,7 +104,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly amend the specified range of lines, using negative numbers in range' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-1..-2 puts :bong", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-2..-2 puts :bong", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
@@ -104,7 +112,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly insert a new line of input before a specified line using the > syntax' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1 >puts :inserted", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 2 >puts :inserted", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
@@ -112,7 +120,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly insert a new line of input before a specified line using the > syntax (should ignore second value of range)' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1..20 >puts :inserted", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 2..21 >puts :inserted", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
@@ -163,7 +171,7 @@ describe "Pry::DefaultCommands::Input" do
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 1', "exit-all"), str_output = StringIO.new) do
+      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 2', "exit-all"), str_output = StringIO.new) do
         pry
       end
 
@@ -178,7 +186,7 @@ describe "Pry::DefaultCommands::Input" do
         5 * 6
       end
 
-      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 1..2', "exit-all"), str_output = StringIO.new) do
+      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 2..3', "exit-all"), str_output = StringIO.new) do
         pry
       end
 
@@ -240,13 +248,29 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "pepper"
       @hist.push "orange"
       @hist.push "grape"
+      @hist.push "def blah 1"
+      @hist.push "def boink 2"
+      @hist.push "place holder"
 
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("hist --grep o", "exit-all"), str_output) do
         pry
       end
-
       str_output.string.should =~ /\d:.*?box\n\d:.*?button\n\d:.*?orange/
+
+      # test more than one word in a regex match (def blah)
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --grep def blah", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /def blah 1/
+
+      # test more than one word with leading white space in a regex match (def boink)
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --grep      def boink", "exit-all"), str_output) do
+        pry
+      end
+      str_output.string.should =~ /def boink 2/
     end
 
     it 'should return last N lines in history with --tail switch' do

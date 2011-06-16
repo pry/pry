@@ -20,6 +20,15 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /\d+: def sample/
     end
 
+    it 'should output a method\'s source with line numbers starting at 1' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("show-method -b sample_method", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.should =~ /1: def sample/
+    end
+
     it 'should output a method\'s source if inside method without needing to use method name' do
       $str_output = StringIO.new
 
