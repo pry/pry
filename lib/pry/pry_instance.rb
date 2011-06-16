@@ -302,7 +302,7 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [String] val The line to process.
   # @param [String] eval_string The cumulative lines of input.
-  # @target [Binding] target The target of the Pry session.
+  # @param [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
     Pry.cmd_ret_value = @command_processor.process_commands(val, eval_string, target)
 
@@ -329,6 +329,13 @@ class Pry
   # @param [Exception] ex The exception.
   # @param [Binding] target The binding to set `_ex_` on.
   def set_last_exception(ex, target)
+    class << ex
+      attr_accessor :file, :line
+    end
+
+    ex.backtrace.first =~ /(.*):(\d+)/
+    ex.file, ex.line = $1, $2.to_i
+
     Pry.last_exception = ex
     target.eval("_ex_ = ::Pry.last_exception")
   end
