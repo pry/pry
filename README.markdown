@@ -4,6 +4,15 @@
 
 _Get to the code_
 
+## These docs are now out of date for the 0.9.0 release.
+
+** New documentation will be available shortly, please see the CHANGELOG and Pry's own livehelp system for information in the meantime.
+
+Also note that JRuby is not yet supported in this release, but will be soon.
+
+Thanks **
+
+
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
 these include:
