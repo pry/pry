@@ -6,10 +6,10 @@ class Pry
     MessageSink = Object.new.tap { |o| def o.method_missing(*args) end }
 
     class Plugin
-      attr_accessor :name, :gem_name, :enabled, :active
+      attr_accessor :name, :gem_name, :enabled, :spec, :active
 
-      def initialize(name, gem_name, enabled)
-        @name, @gem_name, @enabled = name, gem_name, enabled
+      def initialize(name, gem_name, spec, enabled)
+        @name, @gem_name, @enabled, @spec = name, gem_name, enabled, spec
       end
 
       # Disable a plugin.
@@ -47,7 +47,7 @@ class Pry
       (Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')).each do |gem|
         next if gem.name !~ PRY_PLUGIN_PREFIX
         plugin_name = gem.name.split('-', 2).last
-        @plugins << Plugin.new(plugin_name, gem.name, true) if !gem_located?(gem.name)
+        @plugins << Plugin.new(plugin_name, gem.name, gem, true) if !gem_located?(gem.name)
       end
       @plugins
     end
