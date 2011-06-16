@@ -77,20 +77,8 @@ end
   end
 end
 
-namespace :jruby do
-  spec = Gem::Specification.new do |s|
-    apply_spec_defaults(s)
-    s.platform = "java"
-  end
-
-  Rake::GemPackageTask.new(spec) do |pkg|
-    pkg.need_zip = false
-    pkg.need_tar = false
-  end
-end
-
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, "ruby:gem", "jruby:gem", "mswin32:gem", "mingw32:gem"]
+task :gems => [:clean, :rmgems, "ruby:gem", "mswin32:gem", "mingw32:gem"]
 
 desc "remove all platform gems"
 task :rmgems => ["ruby:clobber_package"]
