@@ -3,7 +3,7 @@ class Pry
 
     UserCommandAPI = Pry::CommandSet.new do
 
-      command "define-command", "To honor Mon-Ouie" do |arg|
+      command "define-command", "Define a command in the session, use same syntax as `command` method for command API" do |arg|
         next output.puts("Provide an arg!") if arg.nil?
 
         prime_string = "command #{arg_string}\n"
