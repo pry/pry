@@ -12,6 +12,7 @@
 * amend-line
 * play
 * show-input
+* edit
 * much more comprehensive test suite
 * support for new and old rubygems API
 * changed -s behaviour of ls (now excludes Object methods)
