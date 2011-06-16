@@ -89,7 +89,10 @@ class Pry
       # no command was matched, so return to caller
       command, captures, pos = command_matched(val, target)
       return if !command
-      arg_string = val[pos..-1].strip
+      arg_string = val[pos..-1]
+
+      # remove the one leading space if it exists
+      arg_string.slice!(0) if arg_string.start_with?(" ")
 
       args = arg_string ? Shellwords.shellwords(arg_string) : []
 
