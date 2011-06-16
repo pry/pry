@@ -64,12 +64,12 @@ describe Pry do
       end
 
       it 'should make self evaluate to the receiver of the rep session' do
-        o = Object.new
+        o = :john
         str_output = StringIO.new
 
         pry_tester = Pry.new(:input => InputTester.new("self"), :output => str_output)
         pry_tester.rep(o)
-        str_output.string.should =~ /#{o.to_s}/
+        str_output.string.should =~ /:john/
       end
 
       it 'should work with multi-line input' do
