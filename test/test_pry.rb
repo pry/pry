@@ -7,10 +7,12 @@ puts "--"
 
 describe Pry do
 
-  describe 'warning emissions' do
-    it 'should emit no warnings' do
-      Open4.popen4 'ruby -I lib -rubygems -r"pry" -W -e "exit"' do |pid, stdin, stdout, stderr|
-        stderr.read.empty?.should == true
+  if RUBY_PLATFORM !~ /mingw/ && RUBY_PLATFORM !~ /mswin/
+    describe 'warning emissions' do
+      it 'should emit no warnings' do
+        Open4.popen4 'ruby -I lib -rubygems -r"pry" -W -e "exit"' do |pid, stdin, stdout, stderr|
+          stderr.read.empty?.should == true
+        end
       end
     end
   end
