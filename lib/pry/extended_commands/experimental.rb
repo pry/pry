@@ -13,6 +13,7 @@ class Pry
       end
 
       command "blame", "Show blame for a method", :requires_gem => "grit" do |meth_name|
+        require 'grit'
         if (meth = get_method_object(meth_name, target, {})).nil?
           output.puts "Invalid method name: #{meth_name}."
           next
