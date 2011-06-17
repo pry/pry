@@ -4,6 +4,7 @@
 * show-method works on methods defined in REPL
 * new command system/API
 * rubinius core support
+* more backports to ruby 1.8
 * inp/out special locals
 * _ex_ backtrace navigation object (_ex_.line, _ex_.file)
 * readline history saving/loading
@@ -16,6 +17,8 @@
 * much more comprehensive test suite
 * support for new and old rubygems API
 * changed -s behaviour of ls (now excludes Object methods)
+* removed eval-file, lls, lcd, and a few other commands
+
 
 26/3/2011 version 0.7.6.1
 * added slightly better support for YARD
