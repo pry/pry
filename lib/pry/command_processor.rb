@@ -62,7 +62,7 @@ class Pry
           # so early exit.
           begin
             interp_val = interpolate_string(val, target)
-          rescue NameError
+          rescue Exception
             next
           end
 
