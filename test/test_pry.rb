@@ -487,6 +487,15 @@ describe Pry do
             $test_interpolation = nil
           end
 
+          # bug fix for https://github.com/banister/pry/issues/170
+          it 'should not choke on complex string interpolation when checking if ruby code is a command' do
+            redirect_pry_io(InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'), str_output = StringIO.new) do
+              pry
+            end
+
+            str_output.string.should.not =~ /SyntaxError/
+          end
+
           it 'should NOT interpolate ruby code into commands if :interpolate => false' do
             klass = Pry::CommandSet.new do
               command "hello", "", :keep_retval => true, :interpolate => false do |arg|
