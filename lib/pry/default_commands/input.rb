@@ -56,7 +56,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
       command "play", "Play back a string or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`\n"
+          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`"
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
