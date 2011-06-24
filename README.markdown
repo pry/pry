@@ -53,7 +53,7 @@ methods. The additional docs are accessed through the `show-doc` and
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
-* See the [source code](http://github.com/banister/pry)
+* See the [source code](http://github.com/pry/pry)
 
 Pry also has `rubygems-test` support; to participate, first install
 Pry, then:
