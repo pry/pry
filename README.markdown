@@ -8,7 +8,7 @@ _Get to the code_
   soon.**
 
 [Skip to the website](http://pry.github.com) <br />
-[Skip to the wiki]((https://github.com/pry/pry/wiki)
+[Skip to the wiki](https://github.com/pry/pry/wiki)
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
