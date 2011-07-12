@@ -4,15 +4,7 @@
 
 _Get to the code_
 
-## These docs are now out of date for the 0.9.0 release.
-
-**New documentation is slowly becoming available on the [wiki
-   pages](https://github.com/pry/pry/wiki) check there regularly for
-   updated documentation**
-
-Also note that JRuby is not yet supported in this release, but will be soon.
-
-Thanks **
+**Note that JRuby is not yet supported in this release, but will be soon.**
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
@@ -38,7 +30,7 @@ currently not nearly as powerful as tools like [SLIME](http://en.wikipedia.org/w
 general direction Pry is heading.
 
 Pry is also fairly flexible and allows significant user
-[customization](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md). It
+[customization](https://github.com/pry/pry/wiki/Customization-and-configuration)
 is trivial to set it to read from any object that has a `readline` method and write to any object that has a
 `puts` method - many other aspects of Pry are also configurable making
 it a good choice for implementing custom shells.
@@ -53,7 +45,8 @@ methods. The additional docs are accessed through the `show-doc` and
 `show-method` commands.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
-* Read the [documentation](http://rdoc.info/github/banister/pry/master/file/README.markdown)
+* Browse the comprehensive documentation at the [official Pry wiki](https://github.com/pry/pry/wiki)
+* Read the [YARD API documentation](http://rdoc.info/github/pry/pry/master/file/README.markdown)
 * See the [source code](http://github.com/pry/pry)
 
 Pry also has `rubygems-test` support; to participate, first install
@@ -234,7 +227,7 @@ instance methods beginning with 're' and display the source code for the `rep` m
     148: end
 
 Note that we can also view C methods (from Ruby Core) using the
-`pry-doc` gem; we also show off the alternate syntax for
+`pry-doc` plugin; we also show off the alternate syntax for
 `show-method`:
 
     pry(main)> show-method Array#select
@@ -257,47 +250,6 @@ Note that we can also view C methods (from Ruby Core) using the
         }
         return result;
     }
-
-#### Special locals
-
-Some commands such as `show-method`, `show-doc`, `show-command`, `stat`
-and `cat` update the `_file_` and `_dir_` local variables after they
-run. These locals contain the full path to the file involved in the
-last command as well as the directory containing that file.
-
-You can then use these special locals in conjunction with shell
-commands to do such things as change directory into the directory
-containing the file, open the file in an editor, display the file using `cat`, and so on.
-
-In the following example we wil use Pry to fix a bug in a method:
-
-    pry(main)> greet "john"
-    hello johnhow are you?=> nil
-    pry(main)> show-method greet
-
-    From: /Users/john/ruby/play/bug.rb @ line 2:
-    Number of lines: 4
-
-    def greet(name)
-      print "hello #{name}"
-      print "how are you?"
-    end
-    pry(main)> .emacsclient #{_file_}
-    pry(main)> load _file_
-    pry(main)> greet "john"
-    hello john
-    how are you?
-    => nil
-    pry(main)> show-method greet
-
-    From: /Users/john/ruby/play/bug.rb @ line 2:
-    Number of lines: 4
-
-    def greet(name)
-      puts "hello #{name}"
-      puts "how are you?"
-    end
-
 
 ### Documentation Browsing
 
@@ -353,63 +305,6 @@ We can also use `ri` in the normal way:
 
             a -- b -- c --
 
-
-### History
-
-Readline history can be viewed and replayed using the `hist`
-command. When `hist` is invoked with no arguments it simply displays
-the history (passing the output through a pager if necessary))
-when the `--replay` option is used a line or a range of lines of
-history can be replayed.
-
-In the example below we will enter a few lines in a Pry session and
-then view history; we will then replay one of those lines:
-
-    pry(main)> hist
-    0: hist -h
-    1: ls
-    2: ls
-    3: show-method puts
-    4: x = rand
-    5: hist
-    pry(main)> hist --replay 3
-
-    From: io.c in Ruby Core (C Method):
-    Number of lines: 8
-
-    static VALUE
-    rb_f_puts(int argc, VALUE *argv, VALUE recv)
-    {
-        if (recv == rb_stdout) {
-        return rb_io_puts(argc, argv, recv);
-        }
-        return rb_funcall2(rb_stdout, rb_intern("puts"), argc, argv);
-    }
-
-In the next example we will replay a range of lines in history. Note
-that we replay to a point where a class definition is still open and so
-we can continue to add instance methods to the class:
-
-    pry(main)> hist
-    0: class Hello
-    1:   def hello_world
-    2:     puts "hello world!"
-    3:   end
-    4: end
-    5: hist
-    pry(main)> hist --replay 0..3
-    pry(main)* def goodbye_world
-    pry(main)*   puts "goodbye world!"
-    pry(main)* end
-    pry(main)* end
-    => nil
-    pry(main)> Hello.new.goodbye_world;
-    goodbye world!
-    pry(main)>
-
-Also note that in the above the line `Hello.new.goodbye_world;` ends
-with a semi-colon which causes expression evaluation output to be suppressed.
-
 ### Gist integration
 
 If the `gist` gem is installed then method source or documentation can be gisted to github with the
@@ -457,54 +352,12 @@ avaiable.
 
 MyArtChannel has kindly provided a hack to replace the `rails console` command in Rails 3: [https://gist.github.com/941174](https://gist.github.com/941174) This is not recommended for code bases with multiple developers, as they may not all want to use Pry.
 
-### Other Features and limitations
+### Limitations:
 
-#### Other Features:
-
-* Pry can be invoked both at the command-line and used as a more
-powerful alternative to IRB or it can be invoked at runtime and used
-as a developer consoler / debugger.
-* Additional documentation and source code for Ruby Core methods are supported when the `pry-doc` gem is installed.
-* Pry sessions can nest arbitrarily deeply -- to go back one level of nesting type 'exit' or 'quit' or 'back'
-* Pry comes with syntax highlighting on by default just use the `toggle-color` command to turn it on and off.
-* Use `_` to recover last result.
-* Use `_pry_` to reference the Pry instance managing the current session.
-* Use `_ex_` to recover the last exception.
-* Use `_file_` and `_dir_` to refer to the associated file or
-  directory containing the definition for a method.
-* A trailing `;` on an entered expression suppresses the display of
-  the evaluation output.
-* Typing `!` on a line by itself will clear the input buffer - useful for
-  getting you out of a situation where the parsing process
-  goes wrong and you get stuck in an endless read loop.
-* Pry supports tab completion.
-* Pry has multi-line support built in.
-* Use `^d` (control-d) to quickly break out of a session.
-* Pry has special commands not found in many other Ruby REPLs: `show-method`, `show-doc`
-`jump-to`, `ls`, `cd`, `cat`
-* Pry gives good control over nested sessions (important when exploring complicated runtime state)
-* Pry is not based on the IRB codebase.
-* Pry allows significant customizability.
-* Pry uses the [method_source](https://github.com/banister/method_source) gem; so
-this functionality is available to a Pry session.
-* Pry uses [RubyParser](https://github.com/seattlerb/ruby_parser) to
-validate expressions in 1.8, and [Ripper](http://rdoc.info/docs/ruby-core/1.9.2/Ripper) for 1.9.
-* Pry implements all the methods in the REPL chain separately: `Pry#r`
-for reading; `Pry#re` for eval; `Pry#rep` for printing; and `Pry#repl`
-for the loop (`Pry.start` simply wraps `Pry.new.repl`). You can
-invoke any of these methods directly depending on exactly what aspect of the functionality you need.
-
-#### Limitations:
-
-* Some Pry commands (e.g `show-command`) do not work in Ruby 1.8
-  MRI. But many other commands do work in Ruby 1.8 MRI, e.g
-  `show-method`, due to a functional 1.8 source_location implementation.
 * JRuby not officially supported due to currently too many quirks and
- strange behaviour. Nonetheless most functionality should still work
- OK in JRuby. Full JRuby support coming in a future version.
-* `method_source` functionality does not work in JRuby with Ruby 1.8
+ strange behaviour. This will be fixed soon.
 * Tab completion is currently a bit broken/limited this will have a
-   major overhaul in a future version.
+  major overhaul in a future version.
 
 ### Syntax Highlighting
 
@@ -513,39 +366,13 @@ off in a session by using the `toggle-color` command. Alternatively,
 you can turn it off permanently by putting the line `Pry.color =
 false` in your `~/.pryrc` file.
 
-### Example Programs
-
-Pry comes bundled with a few example programs to illustrate some
-features, see the `examples/` directory.
-
-* `example_basic.rb`             - Demonstrate basic Pry functionality
-* `example_input.rb`             - Demonstrates how to set the `input` object.
-* `example_output.rb`            - Demonstrates how to set the `output` object.
-* `example_hooks.rb`             - Demonstrates how to set the `hooks` hash.
-* `example_print.rb`             - Demonstrates how to set the `print` object.
-* `example_prompt.rb`            - Demonstrates how to set the `prompt`.
-* `example_input2.rb`            - An advanced `input` example.
-* `example_commands.rb`          - Implementing a mathematical command set.
-* `example_commands_override.rb` - An advanced `commands` example.
-* `example_image_edit.rb`        - A simple image editor using a Pry REPL (requires `Gosu` and `TexPlay` gems).
-
-### Customizing Pry
-
-Pry allows a large degree of customization.
-
-[Read how to customize Pry here.](http://rdoc.info/github/banister/pry/master/file/wiki/Customizing-pry.md)
-
 ### Future Directions
 
 Many new features are planned such as:
 
 * Much improved tab completion (using [Bond](http://github.com/cldwalker/bond))
 * Improved JRuby support
-* Support for viewing source-code of binary gems and C stdlib
-* git integration
 * Much improved documentation system, better support for YARD
-* A proper plugin system
-* Get rid of `.` prefix for shell commands in `shell-mode`
 * Better support for code and method reloading
 * Extended and more sophisticated command system, allowing piping
 between commands and running commands in background
@@ -559,6 +386,6 @@ Problems or questions contact me at [github](http://github.com/banister)
 The Pry team consists of:
 
 * [banisterfiend](http://github.com/banister)
-* [injekt](http://github.com/injekt)
-* [Mon_Ouie](http://github.com/mon-ouie)
 * [Rob Gleeson](https://github.com/robgleeson)
+* [Mon_Ouie](http://github.com/mon-ouie)
+* [injekt](http://github.com/injekt)
