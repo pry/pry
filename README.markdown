@@ -4,7 +4,11 @@
 
 _Get to the code_
 
-**Note that JRuby is not yet supported in this release, but will be soon.**
+**Note that JRuby is not yet supported in this release, but will be
+  soon.**
+
+[Skip to the website](http://pry.github.com) <br />
+[Skip to the wiki]((https://github.com/pry/pry/wiki)
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
@@ -45,7 +49,7 @@ methods. The additional docs are accessed through the `show-doc` and
 `show-method` commands.
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
-* Browse the comprehensive documentation at the [official Pry wiki](https://github.com/pry/pry/wiki)
+* Browse the comprehensive [documentation at the official Pry wiki](https://github.com/pry/pry/wiki)
 * Read the [YARD API documentation](http://rdoc.info/github/pry/pry/master/file/README.markdown)
 * See the [source code](http://github.com/pry/pry)
 
@@ -195,8 +199,6 @@ current directory and count the number of lines in that file with
     44
 
 ### Code Browsing
-
-#### show-method
 
 You can browse method source code with the `show-method` command. Nearly all Ruby methods (and some C methods, with the pry-doc
 gem) can have their source viewed. Code that is longer than a page is
@@ -370,10 +372,11 @@ false` in your `~/.pryrc` file.
 
 Many new features are planned such as:
 
+* Increase modularity (rely more on plugin system)
 * Much improved tab completion (using [Bond](http://github.com/cldwalker/bond))
 * Improved JRuby support
 * Much improved documentation system, better support for YARD
-* Better support for code and method reloading
+* Better support for code and method reloading and saving code
 * Extended and more sophisticated command system, allowing piping
 between commands and running commands in background
 
