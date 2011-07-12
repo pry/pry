@@ -69,7 +69,7 @@ whitespace in between. Commands support a flexible syntax and allow
 Pry command will show a list of all private instance methods (in
 scope) that begin with 'pa'
 
-    pry(YARD::Parser::SourceParser):5> ls -Mp --grep pa
+    pry(YARD::Parser::SourceParser):5> ls -Mp --grep ^pa
     [:parser_class, :parser_type=, :parser_type_for_filename]
 
 ### Navigating around state
