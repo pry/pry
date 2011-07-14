@@ -164,6 +164,7 @@ class Pry
   #   Pry.new.repl(Object.new)
   def repl(target=TOPLEVEL_BINDING)
 
+    # a line i added
     target = Pry.binding_for(target)
     target_self = target.eval('self')
 
@@ -180,6 +181,7 @@ class Pry
       end
     end
 
+    # another line i added
     return_value = repl_epilogue(target, nesting_level, break_data)
     return_value || target_self
   end
