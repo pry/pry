@@ -10,13 +10,13 @@ CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake",
 
 def apply_spec_defaults(s)
   s.name = "pry"
-  s.summary = "an IRB alternative and runtime developer console"
+  s.summary = "An IRB alternative and runtime developer console"
   s.version = Pry::VERSION
   s.date = Time.now.strftime '%Y-%m-%d'
   s.author = "John Mair (banisterfiend)"
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
-  s.homepage = "http://banisterfiend.wordpress.com"
+  s.homepage = "http://pry.github.com"
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
