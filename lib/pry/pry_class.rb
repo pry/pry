@@ -247,7 +247,7 @@ class Pry
     if target.is_a?(Binding)
       target
     else
-      if target == TOPLEVEL_BINDING.eval('self')
+      if TOPLEVEL_BINDING.eval('self') == target
         TOPLEVEL_BINDING
       else
         target.__binding__
