@@ -207,7 +207,7 @@ class Pry
           when /^uedit32/
             "#{file_name}/#{line_number}"
           when /^jedit/
-            "#{file_name} +#{line_number}"
+            "#{file_name} +line:#{line_number}"
           else
             if RUBY_PLATFORM =~ /mswin|mingw/
               "#{file_name}"
