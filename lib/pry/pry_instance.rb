@@ -163,7 +163,6 @@ class Pry
   # @example
   #   Pry.new.repl(Object.new)
   def repl(target=TOPLEVEL_BINDING)
-
     target = Pry.binding_for(target)
     target_self = target.eval('self')
 
