@@ -147,7 +147,7 @@ class Pry
 
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
-          opt.on :n, "no-reload", "Do not automatically reload the method's file after editting."
+          opt.on :n, "no-reload", "Do not automatically reload the method's file after editing."
           opt.on "no-jump", "Do not fast forward editor to first line of method."
           opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
@@ -179,7 +179,7 @@ class Pry
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
-            load file if !opts.n?
+            load file if !opts.n? && !Pry.config.disable_auto_reload
           end
         end
       end

@@ -75,6 +75,10 @@ class Pry
     # @return [Boolean]
     attr_accessor :should_load_requires
 
+    # Determines whether to disable edit-method's auto-reloading behavior.
+    # @return [Boolean]
+    attr_accessor :disable_auto_reload
+
     # Config option for history.
     # sub-options include hist.file, hist.load, and hist.save
     # hist.file is the file to save/load history too, e.g
