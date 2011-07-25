@@ -1,3 +1,8 @@
+*/7/2011 version 0.9.3
+* hist command now excludes last line of input (the command invocation itself)
+* `pry -r` requires now happen after plugin loading (so as not to interfere with
+* new Pry.config.disable_auto_reload option, for turning off auto reloading by edit-method and related
+
 21/6/2011 version 0.9.2
 * fixed string interpolation bug (caused valid ruby code not to execute, sorry!)
 * fixed `ls` command, so it can properly display members of Object and classes, and BasicObject, etc
