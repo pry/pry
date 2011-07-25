@@ -17,6 +17,23 @@ describe Pry do
     end
   end
 
+  if RUBY_VERSION =~ /1.9/
+    describe "Exotic object support" do
+
+      # regression test for exotic object support
+      it "Should not error when return value is a BasicObject instance" do
+
+        lambda do
+          redirect_pry_io(InputTester.new("BasicObject.new", "exit-all"), StringIO.new) do
+            Pry.start
+          end
+        end.should.not.raise NoMethodError
+
+      end
+    end
+  end
+
+
   describe "Pry.binding_for" do
 
     # regression test for burg's bug (see git history)
