@@ -20,7 +20,11 @@ class Pry
 
   # The default prints
   DEFAULT_PRINT = proc do |output, value|
-    Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(value.pretty_inspect)}", output)
+    begin
+      Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(value.pretty_inspect)}", output)
+    rescue NoMethodError
+      output.puts "=> unknown"
+    end
   end
 
   # Will only show the first line of the backtrace
