@@ -3,6 +3,7 @@
 * `pry -r` requires now happen after plugin loading (so as not to interfere with
 * new Pry.config.disable_auto_reload option, for turning off auto reloading by edit-method and related
 * add better error messages for `cd` command
+* fixed exotic object regression - BasicObject.new etc now return "=> unknown"
 * fix show-doc bug for ruby 1.8 and Kernel.fork
 
 0.9.0
