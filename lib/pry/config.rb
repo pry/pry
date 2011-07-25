@@ -71,6 +71,14 @@ class Pry
     # @return [Boolean]
     attr_accessor :should_load_plugins
 
+    # Determines whether to load files specified with the -r flag.
+    # @return [Boolean]
+    attr_accessor :should_load_requires
+
+    # Determines whether to disable edit-method's auto-reloading behavior.
+    # @return [Boolean]
+    attr_accessor :disable_auto_reload
+
     # Config option for history.
     # sub-options include hist.file, hist.load, and hist.save
     # hist.file is the file to save/load history too, e.g
@@ -88,6 +96,9 @@ class Pry
     # `plugins.strict_loading` (Boolean) which toggles whether referring to a non-existent plugin should raise an exception (defaults to `false`)
     # @return [OpenStruct]
     attr_accessor :plugins
+
+    # @return [Array<String>] Ruby files to be required after loading any plugins.
+    attr_accessor :requires
 
     # @return [Integer] Amount of results that will be stored into out
     attr_accessor :memory_size

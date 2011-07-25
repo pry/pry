@@ -82,6 +82,13 @@ class Pry
     end
   end
 
+  # Load any Ruby files specified with the -r flag on the command line.
+  def self.load_requires
+    Pry.config.requires.each do |file|
+      require file
+    end
+  end
+
   # Start a Pry REPL.
   # This method also loads the files specified in `Pry::RC_FILES` the
   # first time it is invoked.
@@ -97,6 +104,7 @@ class Pry
       # multiple times per each new session (i.e in debugging)
       load_rc if Pry.config.should_load_rc
       load_plugins if Pry.config.plugins.enabled
+      load_requires if Pry.config.should_load_requires
       load_history if Pry.config.history.should_load
 
       @initial_session = false
@@ -190,10 +198,14 @@ class Pry
     config.pager = true
     config.editor = default_editor_for_platform
     config.should_load_rc = true
+    config.disable_auto_reload = false
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
     config.plugins.strict_loading = true
+
+    config.requires ||= []
+    config.should_load_requires = true
 
     config.history ||= OpenStruct.new
     config.history.should_save = true

@@ -46,7 +46,7 @@ See: `https://github.com/banister` for more information.
   end
 
   on :r, :require, "`require` a Ruby script at startup", true do |file|
-    require file
+    Pry.config.requires << file
   end
 
   on :I, "Add a path to the $LOAD_PATH", true do |path|
