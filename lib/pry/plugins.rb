@@ -27,7 +27,7 @@ class Pry
         begin
           require gem_name
         rescue LoadError
-          raise PluginNotFound, "The plugin '#{gem_name}' was not found!"
+          $stderr.puts "Warning: The plugin '#{gem_name}' was not found!"
         end
         self.active = true
         self.enabled = true
