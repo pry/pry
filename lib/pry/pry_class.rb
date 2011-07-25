@@ -198,6 +198,7 @@ class Pry
     config.pager = true
     config.editor = default_editor_for_platform
     config.should_load_rc = true
+    config.disable_auto_reload = false
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
