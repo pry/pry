@@ -96,7 +96,8 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
-        history = Readline::HISTORY.to_a
+        # exclude the current command from history.
+        history = Readline::HISTORY.to_a[0..-2]
 
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
