@@ -95,7 +95,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
         end
       end
 
-      command "hist", "Show and replay Readline history. Type `hist --help` for more info." do |*args|
+      command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
         # exclude the current command from history.
         history = Readline::HISTORY.to_a[0..-2]
 
@@ -214,6 +214,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
       end
 
+      alias_command "history", "hist", ""
 
       helpers do
         def one_index_number(line_number)
