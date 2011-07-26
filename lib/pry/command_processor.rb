@@ -55,7 +55,10 @@ class Pry
     def command_matched(val, target)
       _, cmd_data = commands.commands.find do |name, data|
 
-        command_regex = /^#{convert_to_regex(name)}(?!\S)/
+        prefix = Regexp.escape(Pry.config.command_prefix)
+        prefix = "(?:#{prefix})?" unless data.options[:require_prefix]
+
+        command_regex = /^#{prefix}#{convert_to_regex(name)}(?!\S)/
 
         if data.options[:interpolate]
           # If interpolation fails then the command cannot be matched,

@@ -57,6 +57,11 @@ class Pry
     # @return [String, #call]
     attr_accessor :editor
 
+    # A string that must precede all Pry commands (e.g., if command_prefix is
+    # set to "%", the "cd" command must be invoked as "%cd").
+    # @return [String]
+    attr_accessor :command_prefix
+
     # @return [Boolean] Toggle Pry color on and off.
     attr_accessor :color
 

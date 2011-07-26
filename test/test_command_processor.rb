@@ -93,6 +93,57 @@ describe "Pry::CommandProcessor" do
     pos.should == command.name.length
   end
 
+  it 'should correctly match a command preceded by the command_prefix if one is defined' do
+    Pry.config.command_prefix = "%"
+
+    @pry.commands.command("test-command") {}
+    command, captures, pos = @command_processor.command_matched "%test-command hello", binding
+
+    command.name.should == "test-command"
+    captures.should == []
+    pos.should == "test-command".length + "%".length
+
+    Pry.config.command_prefix = ''
+  end
+
+  it 'should not match a command not preceded by the command_prefix if one is defined' do
+    Pry.config.command_prefix = "%"
+
+    @pry.commands.command("test-command") {}
+    command, captures, pos = @command_processor.command_matched "test-command hello", binding
+
+    command.should == nil
+    captures.should == nil
+
+    Pry.config.command_prefix = ''
+  end
+
+  it 'should match a command preceded by the command_prefix when :require_prefix => false' do
+    Pry.config.command_prefix = "%"
+
+    @pry.commands.command("test-command", "", :require_prefix => false) {}
+    command, captures, pos = @command_processor.command_matched "%test-command hello", binding
+
+    command.name.should == "test-command"
+    captures.should == []
+    pos.should == "test-command".length + "%".length
+
+    Pry.config.command_prefix = ''
+  end
+
+  it 'should match a command not preceded by the command_prefix when :require_prefix => false' do
+    Pry.config.command_prefix = "%"
+
+    @pry.commands.command("test-command", "", :require_prefix => false) {}
+    command, captures, pos = @command_processor.command_matched "test-command hello", binding
+
+    command.name.should == "test-command"
+    captures.should == []
+    pos.should == "test-command".length
+
+    Pry.config.command_prefix = ''
+  end
+
   it 'should correctly match a regex command with spaces in its name' do
     regex_command_name = /test\s+(.+)\s+command/
     @pry.commands.command(regex_command_name) {}
@@ -201,5 +252,4 @@ describe "Pry::CommandProcessor" do
     # you'll cause yourself incredible confusion
     lambda { @command_processor.command_matched('boast #{c}', binding) }.should.not.raise NameError
   end
-
 end
