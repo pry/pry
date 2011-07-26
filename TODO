@@ -5,7 +5,6 @@
 * new Pry.config.disable_auto_reload option, for turning off auto reloading by edit-method and related
 * add better error messages for `cd` command
 * add command_prefix
-* add toggle-command
 * change some command names to include hyphen, e.g version => pry-version, install => install-command
 * do cat --ex and edit --ex
 * add reload-method
