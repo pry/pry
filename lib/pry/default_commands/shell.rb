@@ -3,7 +3,7 @@ class Pry
 
     Shell = Pry::CommandSet.new do
 
-      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :require_prefix => false) do |cmd|
+      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :use_prefix => false) do |cmd|
         if cmd =~ /^cd\s+(.+)/i
           dest = $1
           begin

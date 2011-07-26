@@ -56,7 +56,7 @@ class Pry
       _, cmd_data = commands.commands.find do |name, data|
 
         prefix = Regexp.escape(Pry.config.command_prefix)
-        prefix = "(?:#{prefix})?" unless data.options[:require_prefix]
+        prefix = "(?:#{prefix})?" unless data.options[:use_prefix]
 
         command_regex = /^#{prefix}#{convert_to_regex(name)}(?!\S)/
 

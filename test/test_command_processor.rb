@@ -118,10 +118,10 @@ describe "Pry::CommandProcessor" do
     Pry.config.command_prefix = ''
   end
 
-  it 'should match a command preceded by the command_prefix when :require_prefix => false' do
+  it 'should match a command preceded by the command_prefix when :use_prefix => false' do
     Pry.config.command_prefix = "%"
 
-    @pry.commands.command("test-command", "", :require_prefix => false) {}
+    @pry.commands.command("test-command", "", :use_prefix => false) {}
     command, captures, pos = @command_processor.command_matched "%test-command hello", binding
 
     command.name.should == "test-command"
@@ -131,10 +131,10 @@ describe "Pry::CommandProcessor" do
     Pry.config.command_prefix = ''
   end
 
-  it 'should match a command not preceded by the command_prefix when :require_prefix => false' do
+  it 'should match a command not preceded by the command_prefix when :use_prefix => false' do
     Pry.config.command_prefix = "%"
 
-    @pry.commands.command("test-command", "", :require_prefix => false) {}
+    @pry.commands.command("test-command", "", :use_prefix => false) {}
     command, captures, pos = @command_processor.command_matched "test-command hello", binding
 
     command.name.should == "test-command"
