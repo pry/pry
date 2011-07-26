@@ -107,10 +107,6 @@ class Pry
 
     # @return [Integer] Amount of results that will be stored into out
     attr_accessor :memory_size
-
-    # @return [Boolean] Whether or not evalation results (`=>`) are sent
-    # through a pager.
-    attr_accessor :result_pager
   end
 end
 
