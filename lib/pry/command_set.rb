@@ -243,7 +243,7 @@ class Pry
         end
       end
 
-      command "install", "Install a disabled command." do |name|
+      command "install-command", "Install a disabled command." do |name|
         command = find_command(name)
         stub_info = command.options[:stub_info]
 
