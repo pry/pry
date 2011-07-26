@@ -110,8 +110,10 @@ class Pry
                       "Ensure #{text.bold("Pry.editor")} is set to your editor of choice.\n" \
                       "e.g: edit sample.rb"
 
-          opt.on :r, "reload", "Eval file content after editing (using `load`)"
-          opt.on :p, "play", "Use the pry `play` command to eval the file content after editing (instead of the `load` method)."
+          opt.on :r, "reload", "Eval file content after editing (evals at top level)"
+          opt.on :ex, "Open an editor at the line and file that generated the most recent Exception."
+          opt.on :t, "temp", "Open a temporary file in an editor and eval it in current context after closing."
+          opt.on :p, "play", "Use the pry `play` command to eval the file content after editing."
           opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
           opt.on :h, :help, "This message." do
             output.puts opt
@@ -119,15 +121,34 @@ class Pry
         end
         next if opts.h?
 
-        next output.puts("Need to specify a file.") if !args.first
-        file_name = File.expand_path(args.first)
+        # the context the file will be eval'd in after closing
+        context = TOPLEVEL_BINDING
+        should_reload = opts[:r]
 
-        invoke_editor(file_name, opts[:l].to_i)
+        if opts.ex?
+          next output.puts "No Exception found." if Pry.last_exception.nil?
+
+          file_name = Pry.last_exception.file
+          line = Pry.last_exception.line
+          next output.puts "Exception has no associated file." if file_name.nil?
+          next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
+        elsif opts.t?
+          file_name = Tempfile.new("tmp").tap(&:close).path
+          line = 0
+          should_reload = true
+          context = target
+        else
+          next output.puts("Need to specify a file.") if !args.first
+          file_name = File.expand_path(args.first)
+          line = opts[:l].to_i
+        end
+
+        invoke_editor(file_name, line)
         set_file_and_dir_locals(file_name)
 
-        if opts[:r]
+        if should_reload
           silence_warnings do
-            load file_name
+            context.eval(File.read(file_name))
           end
         elsif opts[:p]
           silence_warnings do
