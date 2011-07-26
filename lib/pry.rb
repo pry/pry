@@ -53,7 +53,7 @@ class Pry
   ]
 
   # A simple prompt - doesn't display target or nesting level
-  SIMPLE_PROMPT = [proc { ">> " }, proc { "  | " }]
+  SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
   SHELL_PROMPT = [
     proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
