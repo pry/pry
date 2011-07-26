@@ -60,7 +60,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
-          opt.on :f, "file", 'The line (or range of lines) to replay.', true
+          opt.on :f, "file", 'The file to replay in context.', true
           opt.on :o, "open", 'When used with the -m switch, it plays the entire method except the last line, leaving the method definition "open". `amend-line` can then be used to modify the method.'
           opt.on :h, :help, "This message." do
             output.puts opt
