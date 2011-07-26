@@ -740,7 +740,7 @@ describe Pry do
 
               klass.commands.keys.size.should == 3
               klass.commands.keys.include?("help").should == true
-              klass.commands.keys.include?("install").should == true
+              klass.commands.keys.include?("install-command").should == true
               klass.commands.keys.include?("h").should == true
             end
 
