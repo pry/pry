@@ -199,6 +199,7 @@ class Pry
     config.editor = default_editor_for_platform
     config.should_load_rc = true
     config.disable_auto_reload = false
+    config.command_prefix = ""
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true

@@ -105,7 +105,8 @@ class Pry
         :keep_retval => false,
         :argument_required => false,
         :interpolate => true,
-        :listing => name
+        :listing => name,
+        :require_prefix => true
       }.merge!(options)
 
       unless command_dependencies_met? options
