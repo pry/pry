@@ -68,6 +68,9 @@ class Pry
     # @option options [String] :listing The listing name of the
     #   command. That is the name by which the command is looked up by
     #   help and by show-command. Necessary for regex based commands.
+    # @option options [Boolean] :use_prefix Whether the command uses
+    #   `Pry.config.command_prefix` prefix (if one is defined). Defaults
+    #   to true.
     # @yield The action to perform. The parameters in the block
     #   determines the parameters the command will receive. All
     #   parameters passed into the block will be strings. Successive
@@ -106,7 +109,7 @@ class Pry
         :argument_required => false,
         :interpolate => true,
         :listing => name,
-        :require_prefix => true
+        :use_prefix => true
       }.merge!(options)
 
       unless command_dependencies_met? options
@@ -124,7 +127,7 @@ class Pry
     end
 
     def each &block
-      @commands.each(&block) 
+      @commands.each(&block)
     end
 
     # Removes some commands from the set
