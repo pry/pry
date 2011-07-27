@@ -119,7 +119,7 @@ class Pry
         options[:stub_info] = proc do
           output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
           output.puts "-"
-          output.puts "Type `install #{name}` to install the required gems and activate this command."
+          output.puts "Type `install-command #{name}` to install the required gems and activate this command."
         end
       end
 
