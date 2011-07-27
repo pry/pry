@@ -1,3 +1,5 @@
+require 'tempfile'
+
 class Pry
   module DefaultCommands
 
@@ -146,13 +148,13 @@ class Pry
         invoke_editor(file_name, line)
         set_file_and_dir_locals(file_name)
 
-        if should_reload
-          silence_warnings do
-            context.eval(File.read(file_name))
-          end
-        elsif opts[:p]
+        if opts[:p]
           silence_warnings do
             Pry.active_instance.input = StringIO.new(File.readlines(file_name).join)
+          end
+        elsif should_reload
+          silence_warnings do
+            context.eval(File.read(file_name))
           end
         end
       end
