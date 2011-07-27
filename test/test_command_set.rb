@@ -187,4 +187,37 @@ describe Pry::CommandSet do
     @set.command 'foo', "", :listing => 'bar' do;end
     @set.commands['foo'].options[:listing].should == 'bar'
   end
+
+  it "should provide a 'help' command" do
+    context = Pry::CommandContext.new
+    context.command_set = @set
+    context.output = StringIO.new
+
+    lambda {
+      @set.run_command(context, 'help')
+    }.should.not.raise
+  end
+
+  it "should sort the output of the 'help' command" do
+    @set.command 'foo', "Fooerizes" do; end
+    @set.command 'goo', "Gooerizes" do; end
+    @set.command 'moo', "Mooerizes" do; end
+    @set.command 'boo', "Booerizes" do; end
+
+    context = Pry::CommandContext.new
+    context.command_set = @set
+    context.output = StringIO.new
+
+    @set.run_command(context, 'help')
+
+    doc = context.output.string
+
+    order = [doc.index("boo"),
+             doc.index("foo"),
+             doc.index("goo"),
+             doc.index("help"),
+             doc.index("moo")]
+
+    order.should == order.sort
+  end
 end

@@ -227,11 +227,11 @@ class Pry
           output.puts
           help_text = heading("Command List: ") + "\n"
 
-          commands.each do |key, command|
+          help_text << commands.map do |key, command|
             if command.description && !command.description.empty?
-              help_text << "#{command.options[:listing]}".ljust(18) + command.description + "\n"
+              "#{command.options[:listing]}".ljust(18) + command.description
             end
-          end
+          end.compact.sort.join("\n")
 
           stagger_output(help_text)
         else
