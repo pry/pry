@@ -49,7 +49,7 @@ class Pry
           end
 
           opt.on :ex, "Show a window of N lines around last exception (defaults to 5).", :optional => true, :as => Integer do |window_size|
-            window_size = window_size ? window_size : 5
+            window_size ||= 5
             ex = Pry.last_exception
             next if !ex
             start_line = (ex.line - 1) - window_size
@@ -82,8 +82,9 @@ class Pry
 
         contents, normalized_start_line, _ = read_between_the_lines(file_name, start_line, end_line)
 
+        # add the arrow pointing to line that caused the exception
         if opts.ex?
-          contents = contents.lines.map.with_index do |line, idx|
+          contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
             if l == (Pry.last_exception.line - 1)
               "=> #{line}"
