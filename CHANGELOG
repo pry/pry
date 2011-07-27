@@ -12,6 +12,8 @@
 * fixed indentation for simple-prompt
 * hist command now excludes last line of input (the command invocation itself)
 * hist now has `history` alias
+* missing plugins no longer raise exception, just print a warning to $stderr
+* fixed jedit editor support
 
 21/6/2011 version 0.9.2
 * fixed string interpolation bug (caused valid ruby code not to execute, sorry!)
