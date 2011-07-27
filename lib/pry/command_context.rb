@@ -11,6 +11,15 @@ class Pry
     attr_accessor :command_set
     attr_accessor :command_processor
 
+    # Run a command from another command.
+    # @param [String] command_string The string that invokes the command
+    # @param [Array] args Further arguments to pass to the command
+    # @example
+    #   run "show-input"
+    # @example
+    #   run ".ls"
+    # @example
+    #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
       complete_string = "#{command_string} #{args.join(" ")}"
       command_processor.process_commands(complete_string, eval_string, target)
