@@ -94,7 +94,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should output an instance method\'s source for a method defined inside pry using define_method' do
         str_output = StringIO.new
-        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "end", "show-method A#yup"), str_output) do
+        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-method A#yup"), str_output) do
           TOPLEVEL_BINDING.pry
         end
 
