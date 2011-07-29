@@ -135,7 +135,7 @@ class Pry
           next output.puts "Exception has no associated file." if file_name.nil?
           next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
         elsif opts.t?
-          file_name = Tempfile.new("tmp").tap(&:close).path
+          file_name = Tempfile.new(["tmp", ".rb"]).tap(&:close).path
           line = 0
           should_reload = true
           context = target
