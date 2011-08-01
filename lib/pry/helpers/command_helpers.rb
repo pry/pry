@@ -255,7 +255,11 @@ class Pry
         end
 
         language_detected = file_type if file_type
-        CodeRay.scan(contents, language_detected).term
+        if Pry.color
+          CodeRay.scan(contents, language_detected).term
+        else
+          contents
+        end
       end
 
       # convert negative line numbers to positive by wrapping around
@@ -326,6 +330,37 @@ class Pry
 
       def strip_comments_from_c_code(code)
         code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
+      end
+
+      def invoke_editor(file, line)
+        if Pry.editor.respond_to?(:call)
+          editor_invocation = Pry.editor.call(file, line)
+        else
+          editor_invocation = "#{Pry.editor} #{start_line_syntax_for_editor(file, line)}"
+        end
+
+        run ".#{editor_invocation}"
+      end
+
+      def start_line_syntax_for_editor(file_name, line_number)
+        file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
+
+        case Pry.editor
+        when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
+          "+#{line_number} #{file_name}"
+        when /^mate/, /^geany/
+          "-l #{line_number} #{file_name}"
+        when /^uedit32/
+          "#{file_name}/#{line_number}"
+        when /^jedit/
+          "#{file_name} +line:#{line_number}"
+        else
+          if RUBY_PLATFORM =~ /mswin|mingw/
+            "#{file_name}"
+          else
+            "+#{line_number} #{file_name}"
+          end
+        end
       end
 
       def prompt(message, options="Yn")

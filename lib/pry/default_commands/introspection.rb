@@ -207,41 +207,6 @@ class Pry
         end
       end
 
-      helpers do
-
-        def invoke_editor(file, line)
-          if Pry.editor.respond_to?(:call)
-            editor_invocation = Pry.editor.call(file, line)
-          else
-            editor_invocation = "#{Pry.editor} #{start_line_syntax_for_editor(file, line)}"
-          end
-
-          run ".#{editor_invocation}"
-        end
-
-        def start_line_syntax_for_editor(file_name, line_number)
-          file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
-
-          case Pry.editor
-          when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
-            "+#{line_number} #{file_name}"
-          when /^mate/, /^geany/
-            "-l #{line_number} #{file_name}"
-          when /^uedit32/
-            "#{file_name}/#{line_number}"
-          when /^jedit/
-            "#{file_name} +line:#{line_number}"
-          else
-            if RUBY_PLATFORM =~ /mswin|mingw/
-              "#{file_name}"
-            else
-              "+#{line_number} #{file_name}"
-            end
-          end
-        end
-
-      end
-
     end
   end
 end
