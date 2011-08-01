@@ -44,6 +44,10 @@ class Pry
         end
       end
 
+      command "req", "Require file(s) and expand their paths." do |*args|
+        args.each { |file_name| require File.expand_path(file_name) }
+      end
+
       command "reset", "Reset the REPL to a clean state." do
         output.puts "Pry reset."
         exec "pry"
