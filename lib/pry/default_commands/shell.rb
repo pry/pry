@@ -48,7 +48,7 @@ class Pry
             end_line = line - 1
           end
 
-          opt.on :ex, "Show a window of N lines around last exception (defaults to 5).", :optional => true, :as => Integer do |window_size|
+          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |window_size|
             window_size ||= 5
             ex = Pry.last_exception
             next if !ex
@@ -86,10 +86,11 @@ class Pry
         if opts.ex?
           contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
+            l_n = l + 1
             if l == (Pry.last_exception.line - 1)
-              "=> #{line}"
+              " =>#{l_n.to_s.rjust(3)}: #{line}"
             else
-              "   #{line}"
+              "#{l_n.to_s.rjust(6)}: #{line}"
             end
           end.join
         end
