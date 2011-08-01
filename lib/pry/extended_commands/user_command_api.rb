@@ -17,6 +17,21 @@ class Pry
 
       end
 
+      command "reload-command", "Reload a command. reload-command CMD_NAME CMD_SET" do |command_name, set_name|
+        cmd = Pry.config.commands.commands[command_name]
+        load cmd.block.source_location.first
+        Pry.config.commands.import target.eval(set_name)
+        Pry.active_instance.commands.import target.eval(set_name)
+      end
+
+      command "edit-command", "Edit a command. edit-command CMD_NAME CMD_SET" do |command_name, set_name|
+        cmd = Pry.config.commands.commands[command_name]
+        invoke_editor(*cmd.block.source_location)
+        load cmd.block.source_location.first
+        Pry.config.commands.import target.eval(set_name)
+        Pry.active_instance.commands.import target.eval(set_name)
+      end
+
     end
   end
 end
