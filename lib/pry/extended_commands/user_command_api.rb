@@ -18,18 +18,34 @@ class Pry
       end
 
       command "reload-command", "Reload a command. reload-command CMD_NAME CMD_SET" do |command_name, set_name|
+        next output.puts "Must provide command name" if command_name.nil?
+        next output.puts "Must provide command set name" if set_name.nil?
+
         cmd = Pry.config.commands.commands[command_name]
-        load cmd.block.source_location.first
+        file_name = cmd.block.source_location.first
+
+        silence_warnings do
+          load file_name
+        end
         Pry.config.commands.import target.eval(set_name)
         Pry.active_instance.commands.import target.eval(set_name)
+        set_file_and_dir_locals(file_name)
       end
 
       command "edit-command", "Edit a command. edit-command CMD_NAME CMD_SET" do |command_name, set_name|
+        next output.puts "Must provide command name" if command_name.nil?
+        next output.puts "Must provide a command set name" if set_name.nil?
+
         cmd = Pry.config.commands.commands[command_name]
+        file_name = cmd.block.source_location.first
+
         invoke_editor(*cmd.block.source_location)
-        load cmd.block.source_location.first
+        silence_warnings do
+          load file_name
+        end
         Pry.config.commands.import target.eval(set_name)
         Pry.active_instance.commands.import target.eval(set_name)
+        set_file_and_dir_locals(file_name)
       end
 
     end
