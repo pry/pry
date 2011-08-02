@@ -181,11 +181,7 @@ Shows local and instance variables by default.
               if !v.first.empty?
                 text <<  "#{k}:\n--\n"
                 filtered_list = v.first.grep options[:grep]
-                if Pry.color
-                  text << CodeRay.scan(Pry.view(filtered_list), :ruby).term + "\n"
-                else
-                  text << Pry.view(filtered_list) + "\n"
-                end
+                text << text().bright_green(filtered_list.join("  "))
                 text << "\n\n"
               end
             end
@@ -201,11 +197,10 @@ Shows local and instance variables by default.
                                 list = info.values.sort_by(&:last).map(&:first).inject(&:+)
                                 list = list.grep(options[:grep]) if list
                                 list.uniq! if list
-                                if Pry.color
-                                  text << CodeRay.scan(list.inspect, :ruby).term + "\n"
-                                else
-                                  text <<  list.inspect + "\n"
-                                end
+
+                                list = [] if !list
+                                text << text().bright_green(list.join("  "))
+
                                 if !options[:f]
                                   stagger_output(text)
                                 else
