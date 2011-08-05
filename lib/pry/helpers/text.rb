@@ -1,10 +1,10 @@
 class Pry
   module Helpers
 
-    # The methods defined on {Text} are available to custom commands via {Pry::CommandContext#text}.  
+    # The methods defined on {Text} are available to custom commands via {Pry::CommandContext#text}.
     module Text
- 
-      COLORS = 
+
+      COLORS =
       {
         "black"   => 0,
         "red"     => 1,
@@ -18,7 +18,7 @@ class Pry
       }
 
       class << self
-        
+
         COLORS.each_pair do |color, value|
           define_method color do |text|
             Pry.color ? "\033[0;#{30+value}m#{text}\033[0m" : text.to_s
@@ -31,7 +31,7 @@ class Pry
 
         alias_method :grey, :bright_black
         alias_method :gray, :bright_black
-        
+
 
         # Remove any color codes from _text_.
         #
@@ -41,11 +41,11 @@ class Pry
           text.to_s.gsub(/\e\[.*?(\d)+m/ , '')
         end
 
-        # Returns _text_ as bold text for use on a terminal.  
+        # Returns _text_ as bold text for use on a terminal.
         # _Pry.color_ must be true for this method to perform any transformations.
         #
         # @param [String, #to_s] text
-        # @return [String] _text_ 
+        # @return [String] _text_
         def bold text
           Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
         end
@@ -63,15 +63,15 @@ class Pry
         end
 
         # Returns _text_ in a numbered list, beginning at _offset_.
-        # 
+        #
         # @param  [#each_line] text
         # @param  [Fixnum] offset
         # @return [String]
-        def with_line_numbers text, offset
+        def with_line_numbers(text, offset, color=:blue)
           lines = text.each_line.to_a
           lines.each_with_index.map do |line, index|
             adjusted_index = index + offset
-            "#{self.blue adjusted_index}: #{line}"
+            "#{self.send(color, adjusted_index)}: #{line}"
           end.join
         end
       end
