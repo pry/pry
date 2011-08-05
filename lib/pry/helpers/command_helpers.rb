@@ -15,9 +15,9 @@ class Pry
       end
 
       # if start_line is not false then add line numbers starting with start_line
-      def render_output(should_flood, start_line, text)
+      def render_output(should_flood, start_line, text, color=:blue)
         if start_line
-          text = Pry::Helpers::Text.with_line_numbers text, start_line
+          text = Pry::Helpers::Text.with_line_numbers text, start_line, color
         end
 
         if should_flood
