@@ -3,7 +3,7 @@ class Pry
 
     Shell = Pry::CommandSet.new do
 
-      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :use_prefix => false) do |cmd|
+      command /\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :use_prefix => false do |cmd|
         if cmd =~ /^cd\s+(.+)/i
           dest = $1
           begin
@@ -80,28 +80,36 @@ class Pry
           next
         end
 
+
         contents, normalized_start_line, _ = read_between_the_lines(file_name, start_line, end_line)
+
+        contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
+
+        if opts.l?
+          contents = text.with_line_numbers contents, start_line
+        end
 
         # add the arrow pointing to line that caused the exception
         if opts.ex?
+          contents = text.with_line_numbers contents, start_line, :bright_red
+
           contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
-            l_n = l + 1
             if l == (Pry.last_exception.line - 1)
-              " =>#{l_n.to_s.rjust(3)}: #{line}"
+              " =>#{line}"
             else
-              "#{l_n.to_s.rjust(6)}: #{line}"
+              "   #{line}"
             end
           end.join
         end
 
-        if Pry.color
-          contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
-        end
-
         set_file_and_dir_locals(file_name)
-        render_output(opts.flood?, opts.l? ? normalized_start_line + 1 : false, contents)
-        contents
+
+        if opts.f?
+          output.puts contents
+        else
+          stagger_output(contents)
+        end
       end
     end
 
