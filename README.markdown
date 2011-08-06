@@ -1,4 +1,4 @@
-![Alt text](http://dl.dropbox.com/u/15761219/pry_horizontal_red.png)
+![Alt text](http://dl.dropbox.com/u/26521875/Pry%20Logo_Lowres.png)
 
 (C) John Mair (banisterfiend) 2011
 
