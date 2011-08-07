@@ -321,6 +321,27 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.each_line.count.should == 4
       str_output.string.should =~ /b\n\d+:.*c\n\d+:.*d/
     end
+
+    it "should not contain duplicated lines" do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("3", "_ += 1", "_ += 1", "hist", "exit-all", :history => @hist), str_output) do
+        pry
+      end
+
+      str_output.string.each_line.grep(/_ \+= 1/).count.should == 1
+    end
+
+    it "should not contain duplicated lines" do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("2 + 2", "", "", "3 + 3", "hist", "exit-all", :history => @hist), str_output) do
+        pry
+      end
+
+      a = str_output.string.each_line.to_a.index{|line| line.include?("2 + 2") }
+      b = str_output.string.each_line.to_a.index{|line| line.include?("3 + 3") }
+
+      (a + 1).should == b
+    end
   end
 
 
