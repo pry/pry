@@ -140,13 +140,27 @@ class Pry
   # Load Readline history if required.
   def self.load_history
     Readline::HISTORY.push(*File.readlines(history_file).map(&:chomp)) if File.exists?(history_file)
+    @loaded_history = Readline::HISTORY.to_a
   end
 
-  # Save Readline history if required.
+  # Save new lines of Readline history if required.
   def self.save_history
-    File.open(history_file, 'w') do |f|
-      f.write Readline::HISTORY.to_a.join("\n")
+    history_to_save = Readline::HISTORY.to_a
+
+    # Omit any history we read from the file.This check is needed because
+    # `hist --clear` would otherwise cause us to not save history in this
+    # session.
+    if history_to_save[0...@loaded_history.size] == @loaded_history
+      history_to_save = history_to_save[@loaded_history.size..-1]
     end
+
+    File.open(history_file, 'a') do |f|
+      f.puts history_to_save.join("\n") if history_to_save.size > 0
+    end
+
+    # Update @loaded_history so that future calls to save_history
+    # will do the right thing.
+    @loaded_history = Readline::HISTORY.to_a
   end
 
   # Get the full path of the history_path for pry.
