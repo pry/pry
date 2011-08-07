@@ -139,8 +139,19 @@ class Pry
 
   # Load Readline history if required.
   def self.load_history
-    history_file = File.expand_path(Pry.config.history.file)
     Readline::HISTORY.push(*File.readlines(history_file).map(&:chomp)) if File.exists?(history_file)
+  end
+
+  # Save Readline history if required.
+  def self.save_history
+    File.open(history_file, 'w') do |f|
+      f.write Readline::HISTORY.to_a.join("\n")
+    end
+  end
+
+  # Get the full path of the history_path for pry.
+  def self.history_file
+    File.expand_path(Pry.config.history.file)
   end
 
   # @return [Boolean] Whether this is the first time a Pry session has

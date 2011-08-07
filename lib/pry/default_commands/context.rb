@@ -67,7 +67,7 @@ class Pry
       alias_command "!!@", "exit-all", ""
 
       command "exit-program", "End the current program. Aliases: quit-program, !!!" do
-        Pry.active_instance.save_history if Pry.config.history.should_save
+        Pry.save_history if Pry.config.history.should_save
         exit
       end
 
