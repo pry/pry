@@ -149,7 +149,7 @@ class Pry
       throw :breakout, break_data
     end
 
-    save_history if Pry.config.history.should_save && finished_top_level_session?
+    Pry.save_history if Pry.config.history.should_save && finished_top_level_session?
 
     return_value
   end
@@ -404,14 +404,6 @@ class Pry
   # @return [Boolean] Whether the print proc should be invoked.
   def should_print?
     !@suppress_output || last_result_is_exception?
-  end
-
-  # Save readline history to a file.
-  def save_history
-    history_file = File.expand_path(Pry.config.history.file)
-    File.open(history_file, 'w') do |f|
-      f.write Readline::HISTORY.to_a.join("\n")
-    end
   end
 
   # Returns the appropriate prompt to use.
