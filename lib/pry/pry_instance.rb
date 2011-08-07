@@ -350,6 +350,11 @@ class Pry
       Pry.line_buffer.push(*code.each_line)
       Pry.current_line += code.each_line.count
     end
+    if Readline::HISTORY.size > 0
+      last = Readline::HISTORY[-1].strip
+      prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[-2].strip : ''
+      Readline::HISTORY.pop if last && (last.empty? || last == prev)
+    end
   end
 
   # Set the active instance for a session.
