@@ -217,23 +217,18 @@ class Pry
     target.eval("inp = ::Pry.active_instance.instance_eval { @input_array }")
     target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
 
-    @last_result_is_exception = false
     set_active_instance(target)
 
     code = r(target)
 
-    Pry.line_buffer.push(*code.each_line)
     res = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     res
   rescue SystemExit => e
     exit
   rescue Exception => e
-    @last_result_is_exception = true
-    @output_array << e
     set_last_exception(e, target)
   ensure
-    @input_array << code
-    Pry.current_line += code.each_line.count if code
+    update_input_history(code)
   end
 
   # Perform a read.
@@ -319,8 +314,10 @@ class Pry
   # @param [Object] result The result.
   # @param [Binding] target The binding to set `_` on.
   def set_last_result(result, target)
-    Pry.last_result = result
+    @last_result_is_exception = false
     @output_array << result
+
+    Pry.last_result = result
     target.eval("_ = ::Pry.last_result")
   end
 
@@ -336,8 +333,23 @@ class Pry
     ex.backtrace.first =~ /(.*):(\d+)/
     ex.file, ex.line = $1, $2.to_i
 
+    @last_result_is_exception = true
+    @output_array << ex
+
     Pry.last_exception = ex
     target.eval("_ex_ = ::Pry.last_exception")
+  end
+
+  # Update Pry's internal state after evalling code.
+  # This method should not need to be invoked directly.
+  # @param [String] code, The code we just eval'd
+  def update_input_history(code)
+    # Always push to the @input_array as the @output_array is always pushed to.
+    @input_array << code
+    if code
+      Pry.line_buffer.push(*code.each_line)
+      Pry.current_line += code.each_line.count
+    end
   end
 
   # Set the active instance for a session.
