@@ -2,6 +2,7 @@ class Pry
   module Helpers
 
     module BaseHelpers
+
       module_function
 
       def silence_warnings
@@ -86,7 +87,7 @@ class Pry
       end
 
       # a simple pager for systems without `less`. A la windows.
-      def simple_pager(text)
+      def simple_pager(text, output=output())
         text_array = text.lines.to_a
         text_array.each_slice(page_size) do |chunk|
           output.puts chunk.join
@@ -109,12 +110,12 @@ class Pry
 
         # FIXME! Another JRuby hack
         if Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
-          simple_pager(text)
+          simple_pager(text, output)
         else
           lesspipe { |less| less.puts text }
         end
       rescue Errno::ENOENT
-        simple_pager(text)
+        simple_pager(text, output)
       rescue Errno::EPIPE
       end
 
