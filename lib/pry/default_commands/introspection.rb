@@ -154,7 +154,7 @@ class Pry
           end
         elsif should_reload
           silence_warnings do
-            context.eval(File.read(file_name))
+            context.eval(File.read(file_name), file_name)
           end
         end
       end
