@@ -19,6 +19,23 @@ class Pry
             Object.send("#{visibility}_instance_methods")
           end
         end
+
+        def ls_color_map
+          {
+            "local variables" => :bright_red,
+            "instance variables" => :bright_blue,
+            "class variables" => :blue,
+            "global variables" => :bright_magenta,
+            "just singleton methods" => :green,
+            "public methods" => :green,
+            "private methods" => :green,
+            "protected methods" => :green,
+            "public instance methods" => :bright_green,
+            "private instance methods" => :bright_green,
+            "protected instance methods" => :bright_green,
+            "constants" => :red
+          }
+        end
       end
 
       command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
@@ -154,7 +171,7 @@ Shows local and instance variables by default.
 
                               info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort - trim_methods(target, options, :private), i += 1] if (options[:m] && options[:p]) || options[:a]
 
-                              info["just singleton methods"] = [Array(target.eval("methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:j]) || options[:a]
+                              info["just singleton methods"] = [Array(target.eval("methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:j]) && !options[:a]
 
                               info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(target, options, :public), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
 
@@ -181,7 +198,7 @@ Shows local and instance variables by default.
               if !v.first.empty?
                 text <<  "#{k}:\n--\n"
                 filtered_list = v.first.grep options[:grep]
-                text << text().bright_green(filtered_list.join("  "))
+                text << text().bright_green(filtered_list.join("   "))
                 text << "\n\n"
               end
             end
@@ -194,12 +211,14 @@ Shows local and instance variables by default.
 
                                 # plain
                               else
-                                list = info.values.sort_by(&:last).map(&:first).inject(&:+)
-                                list = list.grep(options[:grep]) if list
-                                list.uniq! if list
+                                list = info.values.sort_by(&:last).map(&:first)
+                                list = info.sort_by { |k, v| v.last }.map { |k, v| [k, [v.first.grep(options[:grep])], v.last] }
+                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join("  ")); text << "  " }
+                                # list = list.grep(options[:grep]) if list
+                                # list.uniq! if list
 
-                                list = [] if !list
-                                text << text().bright_green(list.join("  "))
+                                # list = [] if !list
+                                # text << text().bright_green(list.join("   "))
 
                                 if !options[:f]
                                   stagger_output(text)
