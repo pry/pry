@@ -342,7 +342,7 @@ class Pry
 
   # Update Pry's internal state after evalling code.
   # This method should not need to be invoked directly.
-  # @param [String] code, The code we just eval'd
+  # @param [String] code The code we just eval'd
   def update_input_history(code)
     # Always push to the @input_array as the @output_array is always pushed to.
     @input_array << code
@@ -351,7 +351,11 @@ class Pry
       Pry.current_line += code.each_line.count
     end
     if Readline::HISTORY.size > 0
-      last = Readline::HISTORY[-1].strip
+      begin
+        last = Readline::HISTORY[-1].strip
+      rescue IndexError
+        return
+      end
       prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[-2].strip : ''
       Readline::HISTORY.pop if last && (last.empty? || last == prev)
     end
