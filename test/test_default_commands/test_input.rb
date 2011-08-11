@@ -333,7 +333,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it "should not contain duplicated lines" do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("2 + 2", "", "", "3 + 3", "hist", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all", :history => @hist), str_output) do
         pry
       end
 
