@@ -7,7 +7,7 @@ _Get to the code_
 **Note that JRuby is not yet supported in this release, but will be
   soon.**
 
-[Skip to the website](http://pry.github.com) <br />
+[Skip to the website (recommended)](http://pry.github.com) <br />
 [Skip to the wiki](https://github.com/pry/pry/wiki)
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
