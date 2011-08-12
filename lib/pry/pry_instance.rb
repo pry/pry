@@ -351,12 +351,17 @@ class Pry
       Pry.current_line += code.each_line.count
     end
     if Readline::HISTORY.size > 0
+
+      # all this fluff is to get around annoying bug in libedit on
+      # ruby 1.8.7
+      final_index = -1
       begin
-        last = Readline::HISTORY[-1].strip
+        Readline::HISTORY[-1]
       rescue IndexError
-        return
+        final_index = -2
       end
-      prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[-2].strip : ''
+      last = Readline::HISTORY[final_index].strip
+      prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[final_index - 1].strip : ''
       Readline::HISTORY.pop if last && (last.empty? || last == prev)
     end
   end
