@@ -211,14 +211,8 @@ Shows local and instance variables by default.
 
                                 # plain
                               else
-                                list = info.values.sort_by(&:last).map(&:first)
                                 list = info.sort_by { |k, v| v.last }.map { |k, v| [k, [v.first.grep(options[:grep])], v.last] }
                                 list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join("  ")); text << "  " }
-                                # list = list.grep(options[:grep]) if list
-                                # list.uniq! if list
-
-                                # list = [] if !list
-                                # text << text().bright_green(list.join("   "))
 
                                 if !options[:f]
                                   stagger_output(text)
