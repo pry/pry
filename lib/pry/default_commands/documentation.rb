@@ -40,8 +40,9 @@ class Pry
         next output.puts("No documentation found.") if doc.empty?
         doc = process_comment_markup(doc, code_type)
         output.puts make_header(meth, code_type, doc)
+        output.puts "#{text.bold("visibility: ")} #{method_visibility(meth).to_s}"
         if meth.respond_to?(:parameters)
-          output.puts "#{text.bold("signature")}: #{signature_for(meth)}"
+          output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
           output.puts
         end
         render_output(opts.flood?, false, doc)
@@ -84,6 +85,7 @@ class Pry
         output.puts "--"
         output.puts "Name: " + meth_name
         output.puts "Owner: " + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
+        output.puts "Visibility: " + method_visibility(meth).to_s
         output.puts "Type: " + (meth.is_a?(Method) ? "Bound" : "Unbound")
         output.puts "Arity: " + meth.arity.to_s
 
@@ -155,6 +157,18 @@ class Pry
             end
           end
           "#{meth.name}(#{param_strings.join(", ")})"
+        end
+
+        def method_visibility(meth)
+          if meth.owner.public_instance_methods.include? meth.name
+            :public
+          elsif meth.owner.protected_instance_methods.include? meth.name
+            :protected
+          elsif meth.owner.private_instance_methods.include? meth.name
+            :private
+          else
+            :none
+          end
         end
       end
 
