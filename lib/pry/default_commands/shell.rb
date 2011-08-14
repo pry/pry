@@ -80,18 +80,16 @@ class Pry
           next
         end
 
-
         contents, normalized_start_line, _ = read_between_the_lines(file_name, start_line, end_line)
-
         contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
 
         if opts.l?
-          contents = text.with_line_numbers contents, start_line
+          contents = text.with_line_numbers contents, start_line + 1
         end
 
         # add the arrow pointing to line that caused the exception
         if opts.ex?
-          contents = text.with_line_numbers contents, start_line, :bright_red
+          contents = text.with_line_numbers contents, start_line + 1, :bright_red
 
           contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
@@ -101,6 +99,10 @@ class Pry
               "   #{line}"
             end
           end.join
+
+          # header for exceptions
+          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')}: #{Pry.last_exception.class}: #{Pry.last_exception.message}"
+          output.puts "#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{Pry.last_exception.line}\n\n"
         end
 
         set_file_and_dir_locals(file_name)
