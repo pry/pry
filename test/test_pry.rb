@@ -517,7 +517,7 @@ describe Pry do
             $test_interpolation = nil
           end
 
-          # bug fix for https://github.com/banister/pry/issues/170
+          # bug fix for https://github.com/pry/pry/issues/170
           it 'should not choke on complex string interpolation when checking if ruby code is a command' do
             redirect_pry_io(InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'), str_output = StringIO.new) do
               pry
