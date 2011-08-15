@@ -53,23 +53,20 @@ class Pry
     #   interpolation against.
     # @return [Array] The command data and arg string pair
     def command_matched(val, target)
-      _, cmd_data = commands.commands.find do |name, data|
+      interpolated_val = begin
+                           interpolate_string(val, target)
+                         rescue Exception
+                           nil
+                         end
 
+      _, cmd_data = commands.commands.find do |name, data|
         prefix = convert_to_regex(Pry.config.command_prefix)
         prefix = "(?:#{prefix})?" unless data.options[:use_prefix]
 
         command_regex = /^#{prefix}#{convert_to_regex(name)}(?!\S)/
 
         if data.options[:interpolate]
-          # If interpolation fails then the command cannot be matched,
-          # so early exit.
-          begin
-            interp_val = interpolate_string(val, target)
-          rescue Exception
-            next
-          end
-
-          val.replace interp_val if command_regex =~ interp_val
+          val.replace interpolated_val if command_regex =~ interpolated_val
         else
           command_regex =~ val
         end
