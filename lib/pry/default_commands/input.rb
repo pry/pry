@@ -66,7 +66,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
             output.puts opt
           end
 
-          opt.on_noopts { Pry.active_instance.input = StringIO.new(arg_string)  }
+          opt.on_noopts { _pry_.input = StringIO.new(arg_string)  }
         end
 
         if opts.m?
@@ -81,7 +81,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
-          Pry.active_instance.input = StringIO.new(Array(code.each_line.to_a[range]).join)
+          _pry_.input = StringIO.new(Array(code.each_line.to_a[range]).join)
         end
 
         if opts.f?
@@ -91,7 +91,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
-          Pry.active_instance.input = StringIO.new(Array(text_array[range]).join)
+          _pry_.input = StringIO.new(Array(text_array[range]).join)
         end
       end
 
@@ -164,7 +164,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
                  :as     => Range,
                  :unless => :grep do |range|
             actions = Array(history[range]).join("\n") + "\n"
-            Pry.active_instance.input = StringIO.new(actions)
+            _pry_.input = StringIO.new(actions)
           end
 
           opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true, :as => Range

@@ -7,7 +7,7 @@ class Pry
         next output.puts("Provide an arg!") if arg.nil?
 
         prime_string = "command #{arg_string}\n"
-        command_string = Pry.active_instance.r(target, prime_string)
+        command_string = _pry_.r(target, prime_string)
 
         eval_string.replace <<-HERE
           _pry_.commands.instance_eval do
@@ -28,7 +28,7 @@ class Pry
           load file_name
         end
         Pry.config.commands.import target.eval(set_name)
-        Pry.active_instance.commands.import target.eval(set_name)
+        _pry_.commands.import target.eval(set_name)
         set_file_and_dir_locals(file_name)
       end
 
@@ -44,7 +44,7 @@ class Pry
           load file_name
         end
         Pry.config.commands.import target.eval(set_name)
-        Pry.active_instance.commands.import target.eval(set_name)
+        _pry_.commands.import target.eval(set_name)
         set_file_and_dir_locals(file_name)
       end
 
