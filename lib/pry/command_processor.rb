@@ -125,6 +125,7 @@ class Pry
       context.eval_string = options[:eval_string]
       context.arg_string  = options[:arg_string]
       context.command_set = commands
+      context._pry_ = @pry_instance
 
       context.command_processor = self
 

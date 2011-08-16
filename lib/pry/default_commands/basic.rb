@@ -8,11 +8,11 @@ class Pry
       end
 
       command "simple-prompt", "Toggle the simple prompt." do
-        case Pry.active_instance.prompt
+        case _pry_.prompt
         when Pry::SIMPLE_PROMPT
-          Pry.active_instance.pop_prompt
+          _pry_.pop_prompt
         else
-          Pry.active_instance.push_prompt Pry::SIMPLE_PROMPT
+          _pry_.push_prompt Pry::SIMPLE_PROMPT
         end
       end
 
@@ -24,7 +24,7 @@ class Pry
         next output.puts "Provide a command set name" if command_set.nil?
 
         set = target.eval(arg_string)
-        Pry.active_instance.commands.import set
+        _pry_.commands.import set
       end
 
       command "reload-method", "Reload the source file that contains the specified method" do |meth_name|
@@ -45,7 +45,7 @@ class Pry
       end
 
       command "req", "Require file(s) and expand their paths." do |*args|
-        args.each { |file_name| require File.expand_path(file_name) }
+        args.each { |file_name| load File.expand_path(file_name) }
       end
 
       command "reset", "Reset the REPL to a clean state." do

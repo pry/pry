@@ -150,7 +150,7 @@ class Pry
 
         if opts[:p]
           silence_warnings do
-            Pry.active_instance.input = StringIO.new(File.readlines(file_name).join)
+            _pry_.input = StringIO.new(File.readlines(file_name).join)
           end
         elsif should_reload
           silence_warnings do
