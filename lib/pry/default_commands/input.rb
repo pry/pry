@@ -75,7 +75,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
             output.puts "Invalid method name: #{meth_name}."
             next
           end
-          code, code_type = code_and_code_type_for(meth)
+          code, _ = code_and_code_type_for(meth)
           next if !code
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)

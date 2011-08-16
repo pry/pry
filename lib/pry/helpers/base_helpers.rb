@@ -73,7 +73,7 @@ class Pry
       end
 
       def highlight(string, regexp, highlight_color=:bright_yellow)
-        highlighted = string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
+        string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
       end
 
       # formatting

@@ -290,7 +290,7 @@ class Pry
 
       def process_yardoc_tag(comment, tag)
         in_tag_block = nil
-        output = comment.lines.map do |v|
+        comment.lines.map do |v|
           if in_tag_block && v !~ /^\S/
             Pry::Helpers::Text.strip_color Pry::Helpers::Text.strip_color(v)
           elsif in_tag_block
