@@ -80,7 +80,7 @@ class Pry
           next
         end
 
-        contents, normalized_start_line, _ = read_between_the_lines(file_name, start_line, end_line)
+        contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
         contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
 
         if opts.l?

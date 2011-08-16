@@ -8,7 +8,6 @@ class Pry
   DEFAULT_HOOKS = {
     :before_session => proc do |out, target|
       # ensure we're actually in a method
-      meth_name = target.eval('__method__')
       file = target.eval('__FILE__')
 
       # /unknown/ for rbx
