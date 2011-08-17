@@ -18,18 +18,6 @@ describe "Pry::CommandProcessor" do
 
     valid = @command_processor.valid_command? "blah"
     valid.should == false
-
-
-    a = "test-command"
-
-    # not passing in a binding so 'a' shouldn't exist and no command
-    # will be matched
-    valid = @command_processor.valid_command?('#{a}')
-    valid.should == false
-
-    # passing in the optional binding (against which interpolation is performed)
-    valid = @command_processor.valid_command? '#{a}', binding
-    valid.should == true
   end
 
   it 'should correctly match a simple string command' do
@@ -168,83 +156,6 @@ describe "Pry::CommandProcessor" do
     pos.should == sample_text.size
   end
 
-  it 'should correctly match a command whose name is interpolated' do
-    @pry.commands.command("blah") {}
-    a = "bl"
-    b = "ah"
-    command, captures, pos = @command_processor.command_matched '#{a}#{b}', binding
-
-    command.name.should == "blah"
-    captures.should == []
-    pos.should == command.name.length
-  end
-
-  it 'should correctly match a regex command and interpolation should not break the regex' do
-    regex_command_name = /blah(\d)/
-    @pry.commands.command(regex_command_name) {}
-
-    sample_text = "blah5"
-    a = "5"
-    command, captures, pos = @command_processor.command_matched 'blah#{a}', binding
-
-    command.name.should == regex_command_name
-    captures.should == ["5"]
-    pos.should == sample_text.size
-  end
-
-  it 'should NOT match a regex command that is interpolated when :interpolate => false' do
-    regex_command_name = /blah(\d)/
-    @pry.commands.command(regex_command_name, "", :interpolate => false) {}
-
-    sample_text = "blah5"
-    a = "5"
-    command, captures, pos = @command_processor.command_matched 'blah#{a}', binding
-
-    command.should == nil
-  end
-
-  it 'should correctly match a regex command and interpolation should not break the regex where entire regex command is interpolated' do
-    regex_command_name = /blah(\d)/
-    @pry.commands.command(regex_command_name) {}
-
-    sample_text = "blah5"
-    a = "bl"
-    b = "ah"
-    c = "5"
-
-    command, captures, pos = @command_processor.command_matched '#{a}#{b}#{c}', binding
-
-    command.name.should == regex_command_name
-    captures.should == ["5"]
-    pos.should == sample_text.size
-  end
-
-  it 'should NOT match a regex command where entire regex command is interpolated and :interpolate => false' do
-    regex_command_name = /blah(\d)/
-    @pry.commands.command(regex_command_name, "", :interpolate => false) {}
-
-    sample_text = "blah5"
-    a = "bl"
-    b = "ah"
-    c = "5"
-
-    command, captures, pos = @command_processor.command_matched '#{a}#{b}#{c}', binding
-    command.should == nil
-  end
-
-  it 'should NOT match a command whose name is interpolated when :interpolate => false' do
-    @pry.commands.command("boast", "", :interpolate => false) {}
-    a = "boa"
-    b = "st"
-
-    # remember to use '' instead of "" when testing interpolation or
-    # you'll cause yourself incredible confusion
-    command, captures, pos = @command_processor.command_matched '#{a}#{b}', binding
-
-    command.should == nil
-  end
-
-
   it 'should not interpolate commands that have :interpolate => false (interpolate_string should *not* be called)' do
     @pry.commands.command("boast", "", :interpolate => false) {}
 
@@ -256,7 +167,7 @@ describe "Pry::CommandProcessor" do
   it 'should only execute the contents of an interpolation once' do
     $obj = 'a'
 
-    redirect_pry_io(InputTester.new('#{$obj.succ!}'), StringIO.new) do
+    redirect_pry_io(InputTester.new('cat #{$obj.succ!}'), StringIO.new) do
       Pry.new.rep
     end
 
