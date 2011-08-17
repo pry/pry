@@ -157,7 +157,7 @@ class Pry
             candidates = []
             ObjectSpace.each_object(Module){|m|
               begin
-                name = m.name
+                name = m.name.to_s
               rescue Exception
                 name = ""
               end
