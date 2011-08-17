@@ -4,6 +4,10 @@
 * fix history saving (should not save all of Readline::HISTORY, but only what changed)
 * prevent blank lines going to Readline::HISTORY (thanks cirwin!)
 * ensure that cat --ex emulates the `whereami` format - includes line numbers and formatted the same, etc
+* fixed bug #200 ( https://github.com/pry/pry/issues/200 )- string interpolation bug (thanks to ryanf)
+* show-doc and stat now display method visibility (update WIKI)
+* got rid of warnings caused by stricter ruby 1.9.3 rules
+* remove interpolation of command names and fix interpolation error messag (update WIKI) (thanks ryanf!)
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
