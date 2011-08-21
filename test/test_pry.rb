@@ -292,7 +292,7 @@ describe Pry do
         end
 
         it 'should nest properly' do
-          Pry.input = InputTester.new("pry", "pry", "pry", "\"nest:\#\{Pry.nesting.level\}\"", "exit_all")
+          Pry.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit_all")
 
           str_output = StringIO.new
           Pry.output = str_output
