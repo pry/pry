@@ -18,11 +18,6 @@ class Pry
       def_delegators delagatee, *names.map { |v| "#{v}=" }
     end
 
-    # Get nesting data.
-    # This method should not need to be accessed directly.
-    # @return [Array] The unparsed nesting information.
-    attr_reader :nesting
-
     # Get last value evaluated by Pry.
     # This method should not need to be accessed directly.
     # @return [Object] The last result.
@@ -261,18 +256,6 @@ class Pry
     self.config ||= Config.new
     reset_defaults
     locate_plugins
-  end
-
-  @nesting = []
-  def @nesting.level
-    last.is_a?(Array) ? last.first : nil
-  end
-
-  # Return all active Pry sessions.
-  # @return [Array<Pry>] Active Pry sessions.
-  def self.sessions
-    # last element in nesting array is the pry instance
-    nesting.map(&:last)
   end
 
   # Return a `Binding` object for `target` or return `target` if it is

@@ -10,7 +10,7 @@ class Pry
       @pry_instance = pry_instance
     end
 
-    def_delegators :@pry_instance, :commands, :nesting, :output
+    def_delegators :@pry_instance, :commands, :output
 
     # Is the string a valid command?
     # @param [String] val The string passed in from the Pry prompt.
@@ -96,7 +96,6 @@ class Pry
         :val => val,
         :arg_string => arg_string,
         :eval_string => eval_string,
-        :nesting => nesting,
         :commands => commands.commands,
         :captures => captures
       }

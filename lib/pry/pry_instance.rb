@@ -10,10 +10,7 @@ class Pry
   attr_accessor :hooks
   attr_accessor :custom_completions
 
-  # Returns the target binding for the session. Note that altering this
-  # attribute will not change the target binding.
-  # @return [Binding] The target object for the session
-  attr_accessor :session_target
+  attr_accessor :binding_stack
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
@@ -28,6 +25,7 @@ class Pry
     refresh(options)
 
     @command_processor = CommandProcessor.new(self)
+    @binding_stack     = []
   end
 
   # Refresh the Pry instance settings from the Pry class.
@@ -84,32 +82,6 @@ class Pry
     @output_array = Pry::HistoryArray.new(size)
   end
 
-  # Get nesting data.
-  # This method should not need to be accessed directly.
-  # @return [Array] The unparsed nesting information.
-  def nesting
-    self.class.nesting
-  end
-
-  # Set nesting data.
-  # This method should not need to be accessed directly.
-  # @param v nesting data.
-  def nesting=(v)
-    self.class.nesting = v
-  end
-
-  # @return [Boolean] Whether top-level session has ended.
-  def finished_top_level_session?
-    nesting.empty?
-  end
-
-  # Return parent of current Pry session.
-  # @return [Pry] The parent of the current Pry session.
-  def parent
-    idx = Pry.sessions.index(self)
-    Pry.sessions[idx - 1] if idx && idx > 0
-  end
-
   # Execute the hook `hook_name`, if it is defined.
   # @param [Symbol] hook_name The hook to execute
   # @param [Array] args The arguments to pass to the hook.
@@ -131,25 +103,21 @@ class Pry
     @input_array << nil # add empty input so inp and out match
     set_last_result(Pry.last_result, target)
 
-    self.session_target = target
+    binding_stack.push target
   end
 
   # Clean-up after the repl session.
   # @param [Binding] target The target binding for the session.
   # @return [Object] The return value of the repl session (if one exists).
-  def repl_epilogue(target, nesting_level, break_data)
-    nesting.pop
+  def repl_epilogue(target, break_data)
     exec_hook :after_session, output, target
 
     # If break_data is an array, then the last element is the return value
-    break_level, return_value = Array(break_data)
+    return_value = break_data
 
-    # keep throwing until we reach the desired nesting level
-    if nesting_level != break_level
-      throw :breakout, break_data
-    end
+    binding_stack.pop
 
-    Pry.save_history if Pry.config.history.should_save && finished_top_level_session?
+    Pry.save_history if Pry.config.history.should_save
 
     return_value
   end
@@ -168,18 +136,13 @@ class Pry
 
     repl_prologue(target)
 
-    # cannot rely on nesting.level as
-    # nesting.level changes with new sessions
-    nesting_level = nesting.size
-
     break_data = catch(:breakout) do
-      nesting.push [nesting.size, target_self, self]
       loop do
-        rep(target)
+        rep(@binding_stack.last)
       end
     end
 
-    return_value = repl_epilogue(target, nesting_level, break_data)
+    return_value = repl_epilogue(target, break_data)
     return_value || target_self
   end
 
@@ -287,7 +250,7 @@ class Pry
     # exit session if we receive EOF character
     if !val
       output.puts
-      throw(:breakout, nesting.level)
+      throw :breakout
     end
 
     val
@@ -424,9 +387,9 @@ class Pry
   def select_prompt(first_line, target_self)
 
     if first_line
-      Array(prompt).first.call(target_self, nesting.level)
+      Array(prompt).first.call(target_self, binding_stack.size - 1)
     else
-      Array(prompt).last.call(target_self, nesting.level)
+      Array(prompt).last.call(target_self, binding_stack.size - 1)
     end
   end
 

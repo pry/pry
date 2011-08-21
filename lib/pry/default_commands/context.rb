@@ -12,15 +12,17 @@ class Pry
           output.puts "Must provide an object."
           next
         when ".."
-          throw(:breakout, opts[:nesting].level)
+          _pry_.binding_stack.pop.eval('self')
+          # throw(:breakout, opts[:nesting].level)
         when "/"
-          throw(:breakout, 1) if opts[:nesting].level > 0
-          next
+          _pry_.binding_stack = [_pry_.binding_stack.first]
+          nil
         when "::"
           TOPLEVEL_BINDING.pry
           next
         else
-          Pry.start target.eval(arg_string)
+          _pry_.binding_stack.push Pry.binding_for(target.eval(arg_string))
+          nil
         end
       end
 
@@ -29,11 +31,11 @@ class Pry
 
         output.puts "Nesting status:"
         output.puts "--"
-        nesting.each do |level, obj|
+        _pry_.binding_stack.each_with_index do |obj, level|
           if level == 0
-            output.puts "#{level}. #{Pry.view_clip(obj)} (Pry top level)"
+            output.puts "#{level}. #{Pry.view_clip(obj.eval('self'))} (Pry top level)"
           else
-            output.puts "#{level}. #{Pry.view_clip(obj)}"
+            output.puts "#{level}. #{Pry.view_clip(obj.eval('self'))}"
           end
         end
       end
@@ -53,12 +55,13 @@ class Pry
         end
       end
 
-      command "exit", "End the current Pry session. Accepts optional return value. Aliases: quit, back" do
-        throw(:breakout, [opts[:nesting].level, target.eval(arg_string)])
+      command "quit", "End the current Pry session. Accepts optional return value. Aliases: exit-all, !!@" do
+        throw(:breakout, target.eval(arg_string))
       end
 
-      alias_command "quit", "exit", ""
-      alias_command "back", "exit", ""
+      alias_command "!!@", "quit", ""
+      alias_command "exit", "quit", ""
+      alias_command "exit-all", "quit", ""
 
       command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !!@" do
         throw(:breakout, [0, target.eval(arg_string)])
