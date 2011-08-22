@@ -244,8 +244,8 @@ class Pry
 
     self.custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     self.cli = false
-    self.current_line = 0
-    self.line_buffer = []
+    self.current_line = 1
+    self.line_buffer = [""]
     self.eval_path = "(pry)"
   end
 
