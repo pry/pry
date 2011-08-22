@@ -1,6 +1,45 @@
 require 'helper'
 
 describe "Pry::DefaultCommands::Context" do
+  describe "quit" do
+    it 'should break out of the repl loop of Pry instance (returning target of session)' do
+      redirect_pry_io(InputTester.new("quit"), StringIO.new) do
+        Pry.new.repl(0).should == 0
+      end
+    end
+
+    it 'should break out of the repl loop of Pry instance wth a user specified value' do
+      redirect_pry_io(InputTester.new("quit 'message'"), StringIO.new) do
+        Pry.new.repl(0).should == 'message'
+      end
+    end
+
+    it 'should quit break of the repl loop even if multiple bindings still on stack' do
+      ins = nil
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "quit 'message'"), StringIO.new) do
+        ins = Pry.new.tap { |v| v.repl(0).should == 'message' }
+      end
+    end
+
+    it 'binding_stack should be empty after breaking out of the repl loop' do
+      ins = nil
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "quit 'message'"), StringIO.new) do
+        ins = Pry.new.tap { |v| v.repl(0) }
+      end
+
+      ins.binding_stack.empty?.should == true
+    end
+
+  end
+
+  describe "exit" do
+    it 'should raise SystemExit' do
+      redirect_pry_io(InputTester.new("exit"), StringIO.new) do
+        lambda { Pry.new.repl(0).should == 0 }.should.raise SystemExit
+      end
+    end
+  end
+
   describe "cd" do
     after do
       $obj = nil
@@ -26,6 +65,15 @@ describe "Pry::DefaultCommands::Context" do
       end
       $inner.should == :inner
       $outer.should == :outer
+    end
+
+    it 'should break out of the repl loop of Pry instance when binding_stack has only one binding' do
+      # redirect_pry_io(InputTester.new("ls"), StringIO.new) do
+      #   o =  Pry.new.tap { |v| v.repl(0) }
+      # end
+
+      Pry.start(0, :input => StringIO.new("cd ..")).should == 0
+
     end
 
     it 'should break out to outer-most session with cd /' do
