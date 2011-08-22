@@ -242,10 +242,19 @@ class Pry
     current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
     val = readline(current_prompt)
 
-    # exit session if we receive EOF character
+    # exit session if we receive EOF character (^D)
     if !val
       output.puts
-      throw :breakout
+      if binding_stack.size == 1
+
+        # ^D at top-level breaks out of loop
+        throw(:breakout)
+      else
+
+        # otherwise just pops a binding
+        binding_stack.pop
+        val = ""
+      end
     end
 
     val
