@@ -175,7 +175,7 @@ describe Pry do
     describe "repl" do
       describe "basic functionality" do
         it 'should set an ivar on an object and exit the repl' do
-          input_strings = ["@x = 10", "exit"]
+          input_strings = ["@x = 10", "quit"]
           input = InputTester.new(*input_strings)
 
           o = Object.new
@@ -262,10 +262,10 @@ describe Pry do
           Pry.config.should_load_rc = true
           Pry::RC_FILES << File.expand_path("../testrc", __FILE__)
 
-          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("quit\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
 
-          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("quit\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
 
           Object.remove_const(:TEST_RC)
@@ -273,13 +273,13 @@ describe Pry do
 
         it "should not run the rc file at all if Pry.config.should_load_rc is false" do
           Pry.config.should_load_rc = false
-          Pry.start(self, :input => StringIO.new("exit\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("quit\n"), :output => Pry::NullOutput)
           Object.const_defined?(:TEST_RC).should == false
         end
 
         it "should not load the rc file if #repl method invoked" do
           Pry.config.should_load_rc = true
-          Pry.new(:input => StringIO.new("exit\n"), :output => Pry::NullOutput).repl(self)
+          Pry.new(:input => StringIO.new("quit\n"), :output => Pry::NullOutput).repl(self)
           Object.const_defined?(:TEST_RC).should == false
           Pry.config.should_load_rc = false
         end
@@ -292,7 +292,7 @@ describe Pry do
         end
 
         it 'should nest properly' do
-          Pry.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit_all")
+          Pry.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all")
 
           str_output = StringIO.new
           Pry.output = str_output
@@ -343,7 +343,7 @@ describe Pry do
         it 'should run a command with no parameter' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester
-          pry_tester.input = InputTester.new("command1", "exit_all")
+          pry_tester.input = InputTester.new("command1", "exit-all")
           pry_tester.commands = CommandTester
 
           str_output = StringIO.new
@@ -357,7 +357,7 @@ describe Pry do
         it 'should run a command with one parameter' do
           pry_tester = Pry.new
           pry_tester.commands = CommandTester
-          pry_tester.input = InputTester.new("command2 horsey", "exit_all")
+          pry_tester.input = InputTester.new("command2 horsey", "exit-all")
           pry_tester.commands = CommandTester
 
           str_output = StringIO.new
@@ -377,7 +377,7 @@ describe Pry do
         end
 
         it "should start a pry session on the receiver (first form)" do
-          Pry.input = InputTester.new("self", "exit")
+          Pry.input = InputTester.new("self", "quit")
 
           str_output = StringIO.new
           Pry.output = str_output
@@ -388,7 +388,7 @@ describe Pry do
         end
 
         it "should start a pry session on the receiver (second form)" do
-          Pry.input = InputTester.new("self", "exit")
+          Pry.input = InputTester.new("self", "quit")
 
           str_output = StringIO.new
           Pry.output = str_output
@@ -446,7 +446,7 @@ describe Pry do
               attr_accessor :prompt
               def readline(prompt)
                 @prompt = prompt
-                "exit"
+                "quit"
               end
             end.new
 
@@ -459,7 +459,7 @@ describe Pry do
 
             arity_zero_input = Class.new do
               def readline
-                "exit"
+                "quit"
               end
             end.new
 
@@ -474,7 +474,7 @@ describe Pry do
 
               def readline(*args)
                 @prompt = args.first
-                "exit"
+                "quit"
               end
             end.new
 
@@ -673,7 +673,7 @@ describe Pry do
 
           it 'should create a command in  a nested context and that command should be accessible from the parent' do
             redirect_pry_io(StringIO.new, StringIO.new) do
-              str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit")
+              str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nquit")
               str_output = StringIO.new
               Pry.input = str_input
               obj = Object.new
@@ -926,23 +926,23 @@ describe Pry do
 
           describe "pry return values" do
             it 'should return the target object' do
-              Pry.start(self, :input => StringIO.new("exit"), :output => Pry::NullOutput).should == self
+              Pry.start(self, :input => StringIO.new("quit"), :output => Pry::NullOutput).should == self
             end
 
-            it 'should return the parameter given to exit' do
-              Pry.start(self, :input => StringIO.new("exit 10"), :output => Pry::NullOutput).should == 10
+            it 'should return the parameter given to quit' do
+              Pry.start(self, :input => StringIO.new("quit 10"), :output => Pry::NullOutput).should == 10
             end
 
-            it 'should return the parameter (multi word string) given to exit' do
-              Pry.start(self, :input => StringIO.new("exit \"john mair\""), :output => Pry::NullOutput).should == "john mair"
+            it 'should return the parameter (multi word string) given to quit' do
+              Pry.start(self, :input => StringIO.new("quit \"john mair\""), :output => Pry::NullOutput).should == "john mair"
             end
 
-            it 'should return the parameter (function call) given to exit' do
-              Pry.start(self, :input => StringIO.new("exit 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
+            it 'should return the parameter (function call) given to quit' do
+              Pry.start(self, :input => StringIO.new("quit 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
             end
 
-            it 'should return the parameter (self) given to exit' do
-              Pry.start("carl", :input => StringIO.new("exit self"), :output => Pry::NullOutput).should == "carl"
+            it 'should return the parameter (self) given to quit' do
+              Pry.start("carl", :input => StringIO.new("quit self"), :output => Pry::NullOutput).should == "carl"
             end
           end
 
@@ -1048,7 +1048,7 @@ describe Pry do
           end
 
           it 'should set the hooks default, and the default should be overridable' do
-            Pry.input = InputTester.new("exit")
+            Pry.input = InputTester.new("quit")
             Pry.hooks = {
               :before_session => proc { |out,_| out.puts "HELLO" },
               :after_session => proc { |out,_| out.puts "BYE" }
