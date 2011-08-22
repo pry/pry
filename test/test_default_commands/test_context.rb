@@ -23,13 +23,41 @@ describe "Pry::DefaultCommands::Context" do
 
     it 'binding_stack should be empty after breaking out of the repl loop' do
       ins = nil
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "quit 'message'"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "quit"), StringIO.new) do
         ins = Pry.new.tap { |v| v.repl(0) }
       end
 
       ins.binding_stack.empty?.should == true
     end
+  end
 
+  describe "jump-to" do
+    it 'should jump to the proper binding index in the stack' do
+      outp = StringIO.new
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", "$blah = self", "quit"), outp) do
+        Pry.start(0)
+      end
+
+      $blah.should == 1
+    end
+
+    it 'should print error when trying to jump to a non-existent binding index' do
+      outp = StringIO.new
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 100", "quit"), outp) do
+        Pry.start(0)
+      end
+
+      outp.string.should =~ /Invalid nest level/
+    end
+
+    it 'should print error when trying to jump to the same binding index' do
+      outp = StringIO.new
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 2", "quit"), outp) do
+        Pry.new.repl(0)
+      end
+
+      outp.string.should =~ /Already/
+    end
   end
 
   describe "exit" do
