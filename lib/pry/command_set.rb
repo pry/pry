@@ -24,9 +24,10 @@ class Pry
         case arity <=> 0
         when -1
           args
-        when 1, 0
-          # Keep 1.8 happy
-          args.values_at 0..(arity - 1)
+        when 0
+          []
+        when 1
+          args[0, arity]
         end
       end
     end
