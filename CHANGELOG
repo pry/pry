@@ -8,6 +8,10 @@
 * show-doc and stat now display method visibility (update WIKI)
 * got rid of warnings caused by stricter ruby 1.9.3 rules
 * remove interpolation of command names and fix interpolation error messag (update WIKI) (thanks ryanf!)
+* 'nested sessions' now use binding stacks (so each instance manages its own collection of bindings without spawning other instances)
+* changed `exit` command so that it now called Kernel#exit (after saving history)
+* 'quit' now behaves like 'exit-all' (and aliased to exit-all) - it breaks out of the repl loop and sets empties the binding_stack
+* 'cd ..' just pops a binding off the binding_stack with special behaviour when only one binding in stack - it breaks out of the repl loop
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
