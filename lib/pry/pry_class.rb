@@ -200,9 +200,9 @@ class Pry
 
   def self.default_editor_for_platform
     if RUBY_PLATFORM =~ /mswin|mingw/
-      ENV['EDITOR'] || "notepad"
+      ENV['VISUAL'] || ENV['EDITOR'] || "notepad"
     else
-      ENV['EDITOR'] || "nano"
+      ENV['VISUAL'] || ENV['EDITOR'] || "nano"
     end
   end
 
