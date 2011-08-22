@@ -12,18 +12,32 @@ class Pry
           output.puts "Must provide an object."
           next
         when ".."
-          _pry_.binding_stack.pop.eval('self')
-          # throw(:breakout, opts[:nesting].level)
+
+          if _pry_.binding_stack.size == 1
+
+            # when breaking out of top-level then behave like `quit` command
+            _pry_.binding_stack.pop
+            throw(:breakout)
+          else
+
+            # otherwise just pop a binding
+            _pry_.binding_stack.pop.eval('self')
+          end
         when "/"
           _pry_.binding_stack = [_pry_.binding_stack.first]
           nil
         when "::"
-          TOPLEVEL_BINDING.pry
-          next
+          _pry_.binding_stack.push TOPLEVEL_BINDING
+          nil
         else
           _pry_.binding_stack.push Pry.binding_for(target.eval(arg_string))
           nil
         end
+      end
+
+      command "switch-to", "Start a new sub-session on a binding in the current stack (numbered by nesting)." do |selection|
+        selection = selection.to_i
+        Pry.start(_pry_.binding_stack[selection])
       end
 
       command "nesting", "Show nesting information." do
@@ -42,40 +56,42 @@ class Pry
 
       command "jump-to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
         break_level = break_level.to_i
-        nesting = opts[:nesting]
+        nesting_level = _pry_.binding_stack.size - 1
 
         case break_level
-        when nesting.level
-          output.puts "Already at nesting level #{nesting.level}"
-        when (0...nesting.level)
-          throw(:breakout, break_level + 1)
+        when nesting_level
+          output.puts "Already at nesting level #{nesting_level}"
+        when (0...nesting_level)
+          _pry_.binding_stack.slice!(break_level + 1, _pry_.binding_stack.size)
+
         else
-          max_nest_level = nesting.level - 1
+          max_nest_level = nesting_level - 1
           output.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
         end
       end
 
       command "quit", "End the current Pry session. Accepts optional return value. Aliases: exit-all, !!@" do
+
+        # clear the binding stack
+        _pry_.binding_stack.replace([])
+
+        # break out of the repl loop
         throw(:breakout, target.eval(arg_string))
       end
 
       alias_command "!!@", "quit", ""
-      alias_command "exit", "quit", ""
       alias_command "exit-all", "quit", ""
-
-      command "exit-all", "End all nested Pry sessions. Accepts optional return value. Aliases: !!@" do
-        throw(:breakout, [0, target.eval(arg_string)])
-      end
 
       alias_command "!!@", "exit-all", ""
 
-      command "exit-program", "End the current program. Aliases: quit-program, !!!" do
+      command "exit", "End the current program. Aliases: exit-program, quit-program, !!!" do
         Pry.save_history if Pry.config.history.should_save
         exit
       end
 
-      alias_command "quit-program", "exit-program", ""
-      alias_command "!!!", "exit-program", ""
+      alias_command "exit-program", "exit", ""
+      alias_command "quit-program", "exit", ""
+      alias_command "!!!", "exit", ""
 
       command "!pry", "Start a Pry session on current self; this even works mid-expression." do
         target.pry
