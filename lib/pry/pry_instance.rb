@@ -112,14 +112,9 @@ class Pry
   def repl_epilogue(target, break_data)
     exec_hook :after_session, output, target
 
-    # If break_data is an array, then the last element is the return value
-    return_value = break_data
-
     binding_stack.pop
-
     Pry.save_history if Pry.config.history.should_save
-
-    return_value
+    break_data
   end
 
   # Start a read-eval-print-loop.
@@ -138,7 +133,7 @@ class Pry
 
     break_data = catch(:breakout) do
       loop do
-        rep(@binding_stack.last)
+        rep(binding_stack.last)
       end
     end
 
