@@ -421,35 +421,18 @@ class Pry
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
-  if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"
-    require 'ripper'
-
-    # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
-    # @param [String] code The code to validate.
-    # @return [Boolean] Whether or not the code is a valid Ruby expression.
-    # @example
-    #   valid_expression?("class Hello") #=> false
-    #   valid_expression?("class Hello; end") #=> true
-    def valid_expression?(code)
-      !!Ripper::SexpBuilder.new(code).parse
+  # Determine if a string of code is a valid Ruby expression.
+  # @param [String] code The code to validate.
+  # @return [Boolean] Whether or not the code is a valid Ruby expression.
+  # @example
+  #   valid_expression?("class Hello") #=> false
+  #   valid_expression?("class Hello; end") #=> true
+  def valid_expression?(code)
+    catch(:ok) do
+      eval("BEGIN { throw :ok }; #{code}")
     end
-
-  else
-    require 'ruby_parser'
-
-    # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
-    # @param [String] code The code to validate.
-    # @return [Boolean] Whether or not the code is a valid Ruby expression.
-    # @example
-    #   valid_expression?("class Hello") #=> false
-    #   valid_expression?("class Hello; end") #=> true
-    def valid_expression?(code)
-      RubyParser.new.parse(code)
-      true
-    rescue Racc::ParseError, SyntaxError
-      false
-    end
+    true
+  rescue SyntaxError
+    false
   end
 end
