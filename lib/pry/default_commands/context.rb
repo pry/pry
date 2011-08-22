@@ -13,13 +13,11 @@ class Pry
           next
         when ".."
 
-          if _pry_.binding_stack.size == 1
-
+          if _pry_.binding_stack.one?
             # when breaking out of top-level then behave like `quit` command
-            _pry_.binding_stack.pop
+            _pry_.binding_stack.clear
             throw(:breakout)
           else
-
             # otherwise just pop a binding
             _pry_.binding_stack.pop.eval('self')
           end
@@ -37,7 +35,12 @@ class Pry
 
       command "switch-to", "Start a new sub-session on a binding in the current stack (numbered by nesting)." do |selection|
         selection = selection.to_i
-        Pry.start(_pry_.binding_stack[selection])
+
+        if selection < 0 || selection > _pry_.binding_stack.size - 1
+          output.puts "Invalid binding index #{selection} - use `nesting` command to view valid indices."
+        else
+          Pry.start(_pry_.binding_stack[selection])
+        end
       end
 
       command "nesting", "Show nesting information." do
@@ -73,7 +76,7 @@ class Pry
       command "quit", "End the current Pry session. Accepts optional return value. Aliases: exit-all, !!@" do
 
         # clear the binding stack
-        _pry_.binding_stack.replace([])
+        _pry_.binding_stack.clear
 
         # break out of the repl loop
         throw(:breakout, target.eval(arg_string))
