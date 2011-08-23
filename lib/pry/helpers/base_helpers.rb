@@ -86,6 +86,11 @@ class Pry
         27
       end
 
+      # are we on Jruby platform?
+      def jruby?
+       Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+      end
+
       # a simple pager for systems without `less`. A la windows.
       def simple_pager(text, output=output())
         text_array = text.lines.to_a
@@ -109,7 +114,7 @@ class Pry
         end
 
         # FIXME! Another JRuby hack
-        if Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+        if jruby?
           simple_pager(text, output)
         else
           lesspipe { |less| less.puts text }

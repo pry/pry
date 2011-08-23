@@ -27,7 +27,12 @@ class Pry
         when 0
           []
         when 1
-          args[0, arity]
+          # another jruby hack
+          if Pry::Helpers::BaseHelpers.jruby?
+            args[0..(arity - 1)]
+          else
+            args.values_at 0..(arity - 1)
+          end
         end
       end
     end
