@@ -223,6 +223,19 @@ class Pry
     else
       print.call output, result
     end
+  rescue Exception => e
+    # Being uber-paranoid here, given that this exception arose because we couldn't
+    # serialize something in the user's program, let's not assume we can serialize
+    # the exception either.
+    begin
+      output.puts "output error: #{e.inspect}"
+    rescue Exception => e
+      if last_result_is_exception?
+        output.puts "output error: failed to show exception"
+      else
+        output.puts "output error: failed to show result"
+      end
+    end
   end
 
   # Returns true if input is "" and a command is not returning a
