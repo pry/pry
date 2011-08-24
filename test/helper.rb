@@ -46,6 +46,17 @@ def redirect_pry_io(new_in, new_out)
   end
 end
 
+def mock_pry(*args)
+  input = InputTester.new(*args)
+  output = StringIO.new
+
+  redirect_pry_io(input, output) do
+    Pry.start
+  end
+
+  output.string
+end
+
 def redirect_global_pry_input(new_io)
   old_io = Pry.input
     Pry.input = new_io
