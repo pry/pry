@@ -103,6 +103,7 @@ class Pry
     @input_array << nil # add empty input so inp and out match
     set_last_result(Pry.last_result, target)
 
+    Pry.active_sessions += 1
     binding_stack.push target
   end
 
@@ -112,8 +113,9 @@ class Pry
   def repl_epilogue(target, break_data)
     exec_hook :after_session, output, target
 
+    Pry.active_sessions -= 1
     binding_stack.pop
-    Pry.save_history if Pry.config.history.should_save
+    Pry.save_history if Pry.config.history.should_save && Pry.active_sessions == 0
     break_data
   end
 
