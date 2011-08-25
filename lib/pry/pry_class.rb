@@ -60,6 +60,9 @@ class Pry
     # @return [Boolean] Whether Pry was activated from the command line.
     attr_accessor :cli
 
+    # @return [Fixnum] The number of active Pry sessions.
+    attr_accessor :active_sessions
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -247,6 +250,7 @@ class Pry
     self.current_line = 1
     self.line_buffer = [""]
     self.eval_path = "(pry)"
+    self.active_sessions = 0
   end
 
   # Basic initialization.
