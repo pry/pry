@@ -44,8 +44,6 @@ class Pry
       end
 
       command "nesting", "Show nesting information." do
-        nesting = opts[:nesting]
-
         output.puts "Nesting status:"
         output.puts "--"
         _pry_.binding_stack.each_with_index do |obj, level|
@@ -57,7 +55,7 @@ class Pry
         end
       end
 
-      command "jump-to", "Jump to a Pry session further up the stack, exiting all sessions below." do |break_level|
+      command "jump-to", "Jump to a binding further up the stack, popping all bindings below." do |break_level|
         break_level = break_level.to_i
         nesting_level = _pry_.binding_stack.size - 1
 
@@ -73,8 +71,7 @@ class Pry
         end
       end
 
-      command "quit", "End the current Pry session. Accepts optional return value. Aliases: exit-all, !!@" do
-
+      command "exit-all", "End the current Pry session (popping all bindings) and returning to caller. Accepts optional return value. Aliases: !!@" do
         # clear the binding stack
         _pry_.binding_stack.clear
 
@@ -82,19 +79,35 @@ class Pry
         throw(:breakout, target.eval(arg_string))
       end
 
-      alias_command "!!@", "quit", ""
-      alias_command "exit-all", "quit", ""
-
       alias_command "!!@", "exit-all", ""
 
-      command "exit", "End the current program. Aliases: exit-program, quit-program, !!!" do
-        Pry.save_history if Pry.config.history.should_save
-        exit
+      command "exit", "Pop the current binding and return to the one immediately prior. Note this does NOT exit the program. Aliases: quit", :keep_retval => true do
+        if _pry_.binding_stack.one?
+          # when breaking out of top-level then behave like `exit-all`
+          _pry_.binding_stack.clear
+          throw(:breakout, target.eval(arg_string))
+        else
+          # otherwise just pop a binding
+          popped_object = _pry_.binding_stack.pop.eval('self')
+
+          # return a user-specified value if given
+          if !arg_string.empty?
+            target.eval(arg_string)
+          else
+            popped_object
+          end
+        end
       end
 
-      alias_command "exit-program", "exit", ""
-      alias_command "quit-program", "exit", ""
-      alias_command "!!!", "exit", ""
+      alias_command "quit", "exit", ""
+
+      command "exit-program", "End the current program. Aliases: quit-program, !!!" do
+        Pry.save_history if Pry.config.history.should_save
+        Kernel.exit
+      end
+
+      alias_command "quit-program", "exit-program", ""
+      alias_command "!!!", "exit-program", ""
 
       command "!pry", "Start a Pry session on current self; this even works mid-expression." do
         target.pry
