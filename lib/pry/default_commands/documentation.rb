@@ -11,7 +11,7 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner = "Usage: show-doc [OPTIONS] [METH]\n" \
+          opt.banner = "Usage: show-doc [OPTIONS] [METH 1] [METH 2] [METH N]\n" \
                        "Show the comments above method METH. Tries instance methods first and then methods by default.\n" \
                        "e.g show-doc hello_method"
 
@@ -28,25 +28,28 @@ class Pry
 
         next if opts.help?
 
-        meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
-          output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
-          next
-        end
+        args = [nil] if args.empty?
+        args.each do |method_name|
+          meth_name = method_name
+          if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+            output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
+            next
+          end
 
-        doc, code_type = doc_and_code_type_for(meth)
-        next if !doc
+          doc, code_type = doc_and_code_type_for(meth)
+          next if !doc
 
-        next output.puts("No documentation found.") if doc.empty?
-        doc = process_comment_markup(doc, code_type)
-        output.puts make_header(meth, code_type, doc)
-        output.puts "#{text.bold("visibility: ")} #{method_visibility(meth).to_s}"
-        if meth.respond_to?(:parameters)
-          output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
-          output.puts
+          next output.puts("No documentation found.") if doc.empty?
+          doc = process_comment_markup(doc, code_type)
+          output.puts make_header(meth, code_type, doc)
+          output.puts "#{text.bold("visibility: ")} #{method_visibility(meth).to_s}"
+          if meth.respond_to?(:parameters)
+            output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
+            output.puts
+          end
+          render_output(opts.flood?, false, doc)
+          doc
         end
-        render_output(opts.flood?, false, doc)
-        doc
       end
 
       alias_command "?", "show-doc", ""
