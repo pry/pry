@@ -170,6 +170,12 @@ describe Pry do
         pry_tester.rep(o)
         was_called.should == true
       end
+
+      it 'should not try to catch intended exceptions' do
+        lambda { mock_pry("raise SystemExit") }.should.raise SystemExit
+        # SIGTERM
+        lambda { mock_pry("raise SignalException.new(15)") }.should.raise SignalException
+      end
     end
 
     describe "repl" do
