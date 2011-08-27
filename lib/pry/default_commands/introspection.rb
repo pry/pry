@@ -9,7 +9,7 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: show-method [OPTIONS] [METH]\n" \
+          opt.banner "Usage: show-method [OPTIONS] [METH 1] [METH 2] [METH N]\n" \
                      "Show the source for method METH. Tries instance methods first and then methods by default.\n" \
                      "e.g: show-method hello_method"
 
@@ -29,30 +29,33 @@ class Pry
 
         next if opts.help?
 
-        meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
-          output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
-          next
+        args = [nil] if args.empty?
+        args.each do |method_name|
+          meth_name = method_name
+          if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+            output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
+            next
+          end
+
+          code, code_type = code_and_code_type_for(meth)
+          next if !code
+
+          output.puts make_header(meth, code_type, code)
+          if Pry.color
+            code = CodeRay.scan(code, code_type).term
+          end
+
+          start_line = false
+          if opts.l?
+            start_line = meth.source_location ? meth.source_location.last : 1
+          end
+
+          start_line = opts.b? ? 1 : start_line
+
+
+          render_output(opts.flood?, start_line, code)
+          code
         end
-
-        code, code_type = code_and_code_type_for(meth)
-        next if !code
-
-        output.puts make_header(meth, code_type, code)
-        if Pry.color
-          code = CodeRay.scan(code, code_type).term
-        end
-
-        start_line = false
-        if opts.l?
-          start_line = meth.source_location ? meth.source_location.last : 1
-        end
-
-        start_line = opts.b? ? 1 : start_line
-
-
-        render_output(opts.flood?, start_line, code)
-        code
       end
 
       alias_command "show-source", "show-method", ""
