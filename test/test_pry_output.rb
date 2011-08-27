@@ -40,9 +40,5 @@ describe Pry do
     it "should warn you about un-inspectable things" do
       mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /output error: #<(NoMethodError|NameError): undefined method `pretty_inspect'/
     end
-
-    it "should warn you when you have badly behaved objects" do
-      mock_pry("class UnCouth; def pretty_inspect(*a); :cussing_symbol; end; end", "UnCouth.new").should =~ /output error: .pretty_inspect didn't return a String/
-    end
   end
 end
