@@ -21,7 +21,7 @@ class Pry
   DEFAULT_PRINT = proc do |output, value|
     stringified = begin
                     value.pretty_inspect
-                  rescue Exception => ex
+                  rescue RescuableException => ex
                     nil
                   end
 
