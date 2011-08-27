@@ -94,7 +94,7 @@ class Pry
           begin
             candidates = eval("#{receiver}.constants.collect{|m| m.to_s}", bind)
             candidates |= eval("#{receiver}.methods.collect{|m| m.to_s}", bind)
-          rescue Exception
+          rescue RescuableException
             candidates = []
           end
           candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
@@ -114,7 +114,7 @@ class Pry
 
           begin
             candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
-          rescue Exception
+          rescue RescuableException
             candidates = []
           end
           select_message(receiver, message, candidates)
@@ -126,7 +126,7 @@ class Pry
 
           begin
             candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
-          rescue Exception
+          rescue RescuableException
             candidates = []
           end
           select_message(receiver, message, candidates)
@@ -149,7 +149,7 @@ class Pry
             # Foo::Bar.func
             begin
               candidates = eval("#{receiver}.methods", bind).collect{|m| m.to_s}
-            rescue Exception
+            rescue RescuableException
               candidates = []
             end
           else
@@ -158,7 +158,7 @@ class Pry
             ObjectSpace.each_object(Module){|m|
               begin
                 name = m.name.to_s
-              rescue Exception
+              rescue RescuableException
                 name = ""
               end
               next if name != "IRB::Context" and
