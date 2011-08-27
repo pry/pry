@@ -10,6 +10,16 @@ describe "Pry::DefaultCommands::Introspection" do
 
       str_output.string.should =~ /def sample/
     end
+    
+    it 'should output multiple methods\' sources' do
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("show-method sample_method another_sample_method", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.should =~ /def sample/
+      str_output.string.should =~ /def another_sample/
+    end
 
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
