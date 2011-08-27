@@ -183,9 +183,7 @@ class Pry
 
     res = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     res
-  rescue SystemExit => e
-    exit
-  rescue Exception => e
+  rescue RescuableException => e
     set_last_exception(e, target)
   ensure
     update_input_history(code)
