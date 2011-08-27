@@ -19,11 +19,21 @@ class Pry
 
   # The default prints
   DEFAULT_PRINT = proc do |output, value|
-    begin
-      Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(value.pretty_inspect)}", output)
-    rescue NoMethodError
-      output.puts "=> unknown"
+    stringified = begin
+                    value.pretty_inspect
+                  rescue Exception => ex
+                    nil
+                  end
+
+    unless String === stringified
+      # Read the class name off of the singleton class to provide a default inspect.
+      klass = (class << value; self; end).ancestors.first
+      stringified = "#<#{klass}:0x#{value.__id__.to_s(16)}>"
+      warning = "output error: #{ex ? ex.inspect : ".pretty_inspect didn't return a String"}"
+      Helpers::BaseHelpers.stagger_output(warning, output)
     end
+
+    Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(stringified)}", output)
   end
 
   # Will only show the first line of the backtrace
