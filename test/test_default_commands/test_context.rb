@@ -87,6 +87,16 @@ describe "Pry::DefaultCommands::Context" do
         lambda { Pry.new.repl(0).should == 0 }.should.raise SystemExit
       end
     end
+
+    it 'should exit the program with the provided value' do
+      redirect_pry_io(InputTester.new("exit-program 66"), StringIO.new) do
+        begin
+          Pry.new.repl(0)
+        rescue SystemExit => e
+          e.status.should == 66
+        end
+      end
+    end
   end
 
   describe "cd" do
