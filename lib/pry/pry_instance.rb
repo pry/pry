@@ -257,19 +257,12 @@ class Pry
 
     # exit session if we receive EOF character (^D)
     if !val
-      output.puts
-      if binding_stack.one?
-        # ^D at top-level breaks out of loop
-        binding_stack.clear
-        throw(:breakout)
-      else
-        # otherwise just pops a binding
-        binding_stack.pop
-        val = ""
-      end
+      output.puts ""
+      Pry.config.control_d_handler.call(eval_string, self)
+      ""
+    else
+      val
     end
-
-    val
   end
 
   # Process the line received.

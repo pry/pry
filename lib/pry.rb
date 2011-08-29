@@ -58,7 +58,25 @@ class Pry
         "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}* "
       end
     }
-  ]
+                   ]
+  # Deal with the ^D key being pressed, different behaviour in
+  # different cases:
+  # 1) In an expression     - behave like `!` command   (clear input buffer)
+  # 2) At top-level session - behave like `exit command (break out of repl loop)
+  # 3) In a nested session  - behave like `cd ..`       (pop a binding)
+  DEFAULT_CONTROL_D_HANDLER = proc do |eval_string, _pry_|
+    if !eval_string.empty?
+      # clear input buffer
+      eval_string.replace("")
+    elsif _pry_.binding_stack.one?
+      # ^D at top-level breaks out of loop
+      _pry_.binding_stack.clear
+      throw(:breakout)
+    else
+      # otherwise just pops a binding
+      _pry_.binding_stack.pop
+    end
+  end
 
   # A simple prompt - doesn't display target or nesting level
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
