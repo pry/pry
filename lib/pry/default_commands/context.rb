@@ -103,7 +103,7 @@ class Pry
 
       command "exit-program", "End the current program. Aliases: quit-program, !!!" do
         Pry.save_history if Pry.config.history.should_save
-        Kernel.exit
+        Kernel.exit target.eval(arg_string).to_i
       end
 
       alias_command "quit-program", "exit-program", ""
