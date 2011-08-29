@@ -112,7 +112,7 @@ class Pry
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
                       "Edit the method FILE in an editor.\n" \
-                      "Ensure #{text.bold("Pry.editor")} is set to your editor of choice.\n" \
+                      "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
                       "e.g: edit sample.rb"
 
           opt.on :r, "reload", "Eval file content after editing (evals at top level)"
@@ -168,7 +168,7 @@ class Pry
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: edit-method [OPTIONS] [METH]\n" \
                       "Edit the method METH in an editor.\n" \
-                      "Ensure #{text.bold("Pry.editor")} is set to your editor of choice.\n" \
+                      "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
                       "e.g: edit-method hello_method"
 
           opt.on :M, "instance-methods", "Operate on instance methods."
@@ -191,7 +191,7 @@ class Pry
           next
         end
 
-        next output.puts "Error: No editor set!\nEnsure that #{text.bold("Pry.editor")} is set to your editor of choice." if !Pry.editor
+        next output.puts "Error: No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice." if !Pry.config.editor
 
         if is_a_c_method?(meth)
           output.puts "Error: Can't edit a C method."

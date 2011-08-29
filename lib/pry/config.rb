@@ -51,9 +51,9 @@ class Pry
     # return value of that callable invocation is used as the exact
     # shell command to invoke the editor.
     # @example String
-    #   Pry.editor = "emacsclient"
+    #   Pry.config.editor = "emacsclient"
     # @example Callable
-    #   Pry.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
+    #   Pry.config.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
     # @return [String, #call]
     attr_accessor :editor
 

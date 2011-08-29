@@ -333,10 +333,10 @@ class Pry
       end
 
       def invoke_editor(file, line)
-        if Pry.editor.respond_to?(:call)
-          editor_invocation = Pry.editor.call(file, line)
+        if Pry.config.editor.respond_to?(:call)
+          editor_invocation = Pry.config.editor.call(file, line)
         else
-          editor_invocation = "#{Pry.editor} #{start_line_syntax_for_editor(file, line)}"
+          editor_invocation = "#{Pry.config.editor} #{start_line_syntax_for_editor(file, line)}"
         end
 
         run ".#{editor_invocation}"
@@ -345,7 +345,7 @@ class Pry
       def start_line_syntax_for_editor(file_name, line_number)
         file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
 
-        case Pry.editor
+        case Pry.config.editor
         when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
           "+#{line_number} #{file_name}"
         when /^mate/, /^geany/
