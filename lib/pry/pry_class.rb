@@ -236,6 +236,8 @@ class Pry
     config.history.should_load = true
     config.history.file = File.expand_path("~/.pry_history")
 
+    config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
+
     config.memory_size = 100
   end
 
