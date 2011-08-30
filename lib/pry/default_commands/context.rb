@@ -109,7 +109,7 @@ class Pry
       alias_command "quit-program", "exit-program", ""
       alias_command "!!!", "exit-program", ""
 
-      command "!pry", "Start a Pry session on current self; this even works mid-expression." do
+      command "!pry", "Start a Pry session on current self; this even works mid multi-line expression." do
         target.pry
       end
 
