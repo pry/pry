@@ -15,6 +15,9 @@
 * show-method and show-doc now accept multiple method names
 * control_d hook added (Pry.config.control_d_handler)
 * behaviour of ^d is now to break out of current expr if in multi-line expr, or break out of current context if nested, or break out of pry repl loop if at top-level
+* can no longer interpolate command name itself e.g #{x}-#{y} where x = "show" and y = "doc"
+* ^C no longer captured
+* got rid of Pry.active_instance, Pry.last_exception and friends.
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)

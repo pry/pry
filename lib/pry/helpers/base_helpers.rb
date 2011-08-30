@@ -36,10 +36,8 @@ class Pry
 
       def set_file_and_dir_locals(file_name)
         return if !target
-        $_file_temp = File.expand_path(file_name)
-        $_dir_temp =  File.dirname($_file_temp)
-        target.eval("_file_ = $_file_temp")
-        target.eval("_dir_ = $_dir_temp")
+        _pry_.inject_local("_file_", File.expand_path(file_name), target)
+        _pry_.inject_local("_dir_", File.dirname(File.expand_path(file_name)), target)
       end
 
       def stub_proc(name, options)

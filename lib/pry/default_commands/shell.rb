@@ -38,6 +38,7 @@ class Pry
         start_line = 0
         end_line = -1
         file_name = nil
+        last_exception = target.eval("_ex_")
 
         opts = Slop.parse!(args) do |opt|
           opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
@@ -50,7 +51,7 @@ class Pry
 
           opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |window_size|
             window_size ||= 5
-            ex = Pry.last_exception
+            ex = last_exception
             next if !ex
             start_line = (ex.line - 1) - window_size
             start_line = start_line < 0 ? 0 : start_line
@@ -93,7 +94,7 @@ class Pry
 
           contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
-            if l == (Pry.last_exception.line - 1)
+            if l == (last_exception.line - 1)
               " =>#{line}"
             else
               "   #{line}"
@@ -101,8 +102,8 @@ class Pry
           end.join
 
           # header for exceptions
-          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')}: #{Pry.last_exception.class}: #{Pry.last_exception.message}"
-          output.puts "#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{Pry.last_exception.line}\n\n"
+          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')}: #{last_exception.class}: #{last_exception.message}"
+          output.puts "#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{last_exception.line}\n\n"
         end
 
         set_file_and_dir_locals(file_name)

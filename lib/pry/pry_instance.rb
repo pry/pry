@@ -71,6 +71,18 @@ class Pry
     end
   end
 
+  # Injects a local variable into the provided binding.
+  # @param [String] name The name of the local to inject.
+  # @param [Object] value The value to set the local to.
+  # @param [Binding] b The binding to set the local on.
+  # @return [Object] The value the local was set to.
+  def inject_local(name, value, b)
+    Thread.current[:__pry_local__] = value
+    b.eval("#{name} = Thread.current[:__pry_local__]")
+  ensure
+    Thread.current[:__pry_local__] = nil
+  end
+
   # @return [Integer] The maximum amount of objects remembered by the inp and
   #   out arrays. Defaults to 100.
   def memory_size
@@ -93,15 +105,17 @@ class Pry
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
     exec_hook :before_session, output, target
-    Pry.active_instance = self
 
     # Make sure special locals exist
-    target.eval("inp  = ::Pry.active_instance.instance_eval { @input_array }")
-    target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
+    inject_local("inp", @input_array, target)
+    inject_local("out", @output_array, target)
+    inject_local("_pry_", self, target)
+    inject_local("_ex_", nil, target)
+    inject_local("file_", nil, target)
+    inject_local("_dir_", nil, target)
+    set_last_result(nil, target)
 
-    set_active_instance(target)
     @input_array << nil # add empty input so inp and out match
-    set_last_result(Pry.last_result, target)
 
     Pry.active_sessions += 1
     binding_stack.push target
@@ -171,13 +185,9 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
-    # save the pry instance to active_instance
-    Pry.active_instance = self
-
-    target.eval("inp = ::Pry.active_instance.instance_eval { @input_array }")
-    target.eval("out = ::Pry.active_instance.instance_eval { @output_array }")
-
-    set_active_instance(target)
+    inject_local("inp", @input_array, target)
+    inject_local("out", @output_array, target)
+    inject_local("_pry_", self, target)
 
     code = r(target)
 
@@ -289,8 +299,7 @@ class Pry
     @last_result_is_exception = false
     @output_array << result
 
-    Pry.last_result = result
-    target.eval("_ = ::Pry.last_result")
+    inject_local("_", result, target)
   end
 
   # Set the last exception for a session.
@@ -308,8 +317,7 @@ class Pry
     @last_result_is_exception = true
     @output_array << ex
 
-    Pry.last_exception = ex
-    target.eval("_ex_ = ::Pry.last_exception")
+    inject_local("_ex_", ex, target)
   end
 
   # Update Pry's internal state after evalling code.
@@ -336,14 +344,6 @@ class Pry
       prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[final_index - 1].strip : ''
       Readline::HISTORY.pop if last && (last.empty? || last == prev)
     end
-  end
-
-  # Set the active instance for a session.
-  # This method should not need to be invoked directly.
-  # @param [Binding] target The binding to set `_ex_` on.
-  def set_active_instance(target)
-    Pry.active_instance = self
-    target.eval("_pry_ = ::Pry.active_instance")
   end
 
   # @return [Boolean] True if the last result is an exception that was raised,

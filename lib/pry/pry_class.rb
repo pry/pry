@@ -18,21 +18,6 @@ class Pry
       def_delegators delagatee, *names.map { |v| "#{v}=" }
     end
 
-    # Get last value evaluated by Pry.
-    # This method should not need to be accessed directly.
-    # @return [Object] The last result.
-    attr_accessor :last_result
-
-    # Get last exception raised.
-    # This method should not need to be accessed directly.
-    # @return [Exception] The last exception.
-    attr_accessor :last_exception
-
-    # Get the active Pry instance that manages the active Pry session.
-    # This method should not need to be accessed directly.
-    # @return [Pry] The active Pry instance.
-    attr_accessor :active_instance
-
     # Get/Set the Proc that defines extra Readline completions (on top
     # of the ones defined for IRB).
     # @return [Proc] The Proc that defines extra Readline completions (on top
