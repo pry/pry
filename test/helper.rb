@@ -27,6 +27,11 @@ end
 
 Pry.reset_defaults
 
+# this is to test exception code (cat --ex)
+def broken_method
+  this method is broken
+end
+
 # sample doc
 def sample_method
   :sample

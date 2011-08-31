@@ -131,12 +131,10 @@ class Pry
         should_reload = opts[:r]
 
         if opts.ex?
-          last_exception = target.eval("_ex_")
+          next output.puts "No Exception found." if _pry_.last_exception.nil?
 
-          next output.puts "No Exception found." if last_exception.nil?
-
-          file_name = last_exception.file
-          line = last_exception.line
+          file_name = _pry_.last_exception.file
+          line = _pry_.last_exception.line
           next output.puts "Exception has no associated file." if file_name.nil?
           next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
         elsif opts.t?

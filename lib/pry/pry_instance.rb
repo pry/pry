@@ -12,6 +12,11 @@ class Pry
 
   attr_accessor :binding_stack
 
+  attr_accessor :last_result
+  attr_accessor :last_exception
+  attr_accessor :last_file
+  attr_accessor :last_dir
+
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input.
@@ -101,19 +106,36 @@ class Pry
     hooks[hook_name].call(*args, &block) if hooks[hook_name]
   end
 
-  # Initialize the repl session.
-  # @param [Binding] target The target binding for the session.
-  def repl_prologue(target)
-    exec_hook :before_session, output, target
-
-    # Make sure special locals exist
+  # Make sure special locals exist at start of session
+  def initialize_special_locals(target)
     inject_local("inp", @input_array, target)
     inject_local("out", @output_array, target)
     inject_local("_pry_", self, target)
     inject_local("_ex_", nil, target)
-    inject_local("file_", nil, target)
+    inject_local("_file_", nil, target)
     inject_local("_dir_", nil, target)
+
+    # without this line we get 1 test failure, ask Mon_Ouie
     set_last_result(nil, target)
+    inject_local("_", nil, target)
+  end
+  private :initialize_special_locals
+
+  def inject_special_locals(target)
+    inject_local("inp", @input_array, target)
+    inject_local("out", @output_array, target)
+    inject_local("_pry_", self, target)
+    inject_local("_ex_", self.last_exception, target)
+    inject_local("_file_", self.last_file, target)
+    inject_local("_dir_", self.last_dir, target)
+    inject_local("_", self.last_result, target)
+  end
+
+  # Initialize the repl session.
+  # @param [Binding] target The target binding for the session.
+  def repl_prologue(target)
+    exec_hook :before_session, output, target
+    initialize_special_locals(target)
 
     @input_array << nil # add empty input so inp and out match
 
@@ -185,14 +207,14 @@ class Pry
       Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
-    inject_local("inp", @input_array, target)
-    inject_local("out", @output_array, target)
-    inject_local("_pry_", self, target)
+    # It's not actually redundant to inject them continually as we may have
+    # moved into the scope of a new Binding (e.g the user typed `cd`)
+    inject_special_locals(target)
 
     code = r(target)
 
-    res = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
-    res
+    result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
+    result
   rescue RescuableException => e
     set_last_exception(e, target)
   ensure
@@ -299,7 +321,7 @@ class Pry
     @last_result_is_exception = false
     @output_array << result
 
-    inject_local("_", result, target)
+    self.last_result = result
   end
 
   # Set the last exception for a session.
@@ -317,7 +339,7 @@ class Pry
     @last_result_is_exception = true
     @output_array << ex
 
-    inject_local("_ex_", ex, target)
+    self.last_exception = ex
   end
 
   # Update Pry's internal state after evalling code.
