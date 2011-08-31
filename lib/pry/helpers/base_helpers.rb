@@ -36,8 +36,11 @@ class Pry
 
       def set_file_and_dir_locals(file_name)
         return if !target
-        _pry_.inject_local("_file_", File.expand_path(file_name), target)
-        _pry_.inject_local("_dir_", File.dirname(File.expand_path(file_name)), target)
+        _pry_.last_file = File.expand_path(file_name)
+        _pry_.inject_local("_file_", _pry_.last_file, target)
+
+        _pry_.last_dir = File.dirname(_pry_.last_file)
+        _pry_.inject_local("_dir_", _pry_.last_dir, target)
       end
 
       def stub_proc(name, options)
