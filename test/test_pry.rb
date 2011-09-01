@@ -204,7 +204,7 @@ describe Pry do
 
         it 'sets out to an array with the result' do
           res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = out"]
+          input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -212,9 +212,9 @@ describe Pry do
           res[:res][1..2].should == [:foo, 42]
         end
 
-        it 'sets inp to an array with the entered lines' do
+        it 'sets _in_ to an array with the entered lines' do
           res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = inp"]
+          input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -222,9 +222,9 @@ describe Pry do
           res[:res][1..2].should == [":foo\n", "42\n"]
         end
 
-        it 'uses 100 as the size of inp and out' do
+        it 'uses 100 as the size of _in_ and _out_' do
           res   = []
-          input = InputTester.new *["self << out.max_size << inp.max_size"]
+          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput)
           pry.repl(res)
 
@@ -233,7 +233,7 @@ describe Pry do
 
         it 'can change the size of the history arrays' do
           res   = []
-          input = InputTester.new *["self << out.max_size << inp.max_size"]
+          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput,
                           :memory_size => 1000)
           pry.repl(res)
@@ -243,7 +243,7 @@ describe Pry do
 
         it 'store exceptions' do
           res   = []
-          input = InputTester.new *["foo!","self << inp[-1] << out[-1]"]
+          input = InputTester.new *["foo!","self << _in_[-1] << _out_[-1]"]
           pry   = Pry.new(:input => input, :output => Pry::NullOutput,
                           :memory_size => 1000)
           pry.repl(res)

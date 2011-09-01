@@ -108,8 +108,8 @@ class Pry
 
   # Make sure special locals exist at start of session
   def initialize_special_locals(target)
-    inject_local("inp", @input_array, target)
-    inject_local("out", @output_array, target)
+    inject_local("_in_", @input_array, target)
+    inject_local("_out_", @output_array, target)
     inject_local("_pry_", self, target)
     inject_local("_ex_", nil, target)
     inject_local("_file_", nil, target)
@@ -122,8 +122,8 @@ class Pry
   private :initialize_special_locals
 
   def inject_special_locals(target)
-    inject_local("inp", @input_array, target)
-    inject_local("out", @output_array, target)
+    inject_local("_in_", @input_array, target)
+    inject_local("_out_", @output_array, target)
     inject_local("_pry_", self, target)
     inject_local("_ex_", self.last_exception, target)
     inject_local("_file_", self.last_file, target)
