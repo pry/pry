@@ -89,7 +89,12 @@ class Pry
 
       # are we on Jruby platform?
       def jruby?
-       Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+        defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+      end
+
+      # are we on rbx platform?
+      def rbx?
+       defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
       end
 
       # a simple pager for systems without `less`. A la windows.

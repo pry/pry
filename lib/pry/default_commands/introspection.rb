@@ -133,7 +133,12 @@ class Pry
         if opts.ex?
           next output.puts "No Exception found." if _pry_.last_exception.nil?
 
-          file_name = _pry_.last_exception.file
+          if is_core_rbx_path?(_pry_.last_exception.file)
+            file_name = rbx_convert_path_to_full(_pry_.last_exception.file)
+          else
+            file_name = _pry_.last_exception.file
+          end
+
           line = _pry_.last_exception.line
           next output.puts "Exception has no associated file." if file_name.nil?
           next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
