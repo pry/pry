@@ -126,7 +126,6 @@ class Pry
 
       ret = commands.run_command(context, command, *args)
 
-      # Tick, tock, im getting rid of this shit soon.
       options[:val].replace("")
 
       ret
