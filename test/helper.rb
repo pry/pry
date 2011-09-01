@@ -25,6 +25,16 @@ class << Pry
   end
 end
 
+# are we on Jruby platform?
+def jruby?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+end
+
+# are we on rbx platform?
+def rbx?
+  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
+end
+
 Pry.reset_defaults
 
 # this is to test exception code (cat --ex)

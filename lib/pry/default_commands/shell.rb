@@ -55,7 +55,11 @@ class Pry
             start_line = (ex.line - 1) - window_size
             start_line = start_line < 0 ? 0 : start_line
             end_line = (ex.line - 1) + window_size
-            file_name = ex.file
+            if is_core_rbx_path?(ex.file)
+              file_name = rbx_convert_path_to_full(ex.file)
+            else
+              file_name = ex.file
+            end
           end
 
           opt.on :l, "line-numbers", "Show line numbers."
@@ -101,7 +105,7 @@ class Pry
           end.join
 
           # header for exceptions
-          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')}: #{_pry_.last_exception.class}: #{_pry_.last_exception.message}"
+          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
           output.puts "#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{_pry_.last_exception.line}\n\n"
         end
 
