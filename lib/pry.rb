@@ -43,7 +43,7 @@ class Pry
 
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
-    proc { |target_self, nest_level|
+    proc { |target_self, nest_level, _|
       if nest_level == 0
         "pry(#{Pry.view_clip(target_self)})> "
       else
@@ -51,7 +51,7 @@ class Pry
       end
     },
 
-    proc { |target_self, nest_level|
+    proc { |target_self, nest_level, _|
       if nest_level == 0
         "pry(#{Pry.view_clip(target_self)})* "
       else
@@ -82,8 +82,8 @@ class Pry
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
   SHELL_PROMPT = [
-    proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
-    proc { |target_self, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+    proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+    proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
   ]
 
   # As a REPL, we often want to catch any unexpected exceptions that may have
