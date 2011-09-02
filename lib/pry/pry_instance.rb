@@ -418,9 +418,9 @@ class Pry
   def select_prompt(first_line, target_self)
 
     if first_line
-      Array(prompt).first.call(target_self, binding_stack.size - 1)
+      Array(prompt).first.call(target_self, binding_stack.size - 1, self)
     else
-      Array(prompt).last.call(target_self, binding_stack.size - 1)
+      Array(prompt).last.call(target_self, binding_stack.size - 1, self)
     end
   end
 
