@@ -7,7 +7,7 @@ _Get to the code_
 **Note that JRuby is not yet supported in this release, but will be
   soon.**
   
- **Don't forget** to  [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
+ **Please** [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
 
 [Skip to the website (recommended)](http://pry.github.com) <br />
 [Skip to the wiki](https://github.com/pry/pry/wiki)
