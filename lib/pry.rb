@@ -2,7 +2,10 @@
 # MIT License
 
 require 'pp'
+require 'set'
+
 require 'pry/helpers/base_helpers'
+
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = {
@@ -86,11 +89,14 @@ class Pry
     proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
   ]
 
+  # Do not catch these exceptions
+  DEFAULT_EXCEPTION_WHITELIST = Set.new([SystemExit, SignalException])
+
   # As a REPL, we often want to catch any unexpected exceptions that may have
   # been raised; however we don't want to go overboard and prevent the user
   # from exiting Pry when they want to.
-  module RescuableException
-    def self.===(exception)
+  module Whitelistable
+    def white_listed?(exception)
       case exception
       # Catch when the user hits ^C (Interrupt < SignalException), and assume
       # that they just wanted to stop the in-progress command (just like bash etc.)
@@ -98,12 +104,45 @@ class Pry
         true
       # Don't catch signals (particularly not SIGTERM) as these are unlikely to be
       # intended for pry itself. We should also make sure that Kernel#exit works.
-      when SystemExit, SignalException
+      when *@exception_whitelist
         false
       # All other exceptions will be caught.
       else
         true
       end
+    end
+  end
+
+  # Sometimes we want to catch pretty much everything no matter what -- like
+  # in the completions.
+  class RescuableException < Exception
+    extend Whitelistable
+    @exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
+    def self.===(exception)
+      white_listed? exception
+    end
+  end
+
+  # Othertimes, we want the user to able to raise an arbitrary exception
+  # upward
+  class WhitelistRescuableException < Exception
+    extend Whitelistable
+
+    # Pass the pry instance to the RescuableException so that it can
+    # know what's in your whitelist
+    #   @returns [WhitelistRescuableException]
+    def self.using(pry_instance)
+      @pry_instance = pry_instance
+      self
+    end
+
+    def self.===(exception)
+      @exception_whitelist = (@pry_instance.exception_whitelist)
+      white_listed? exception
+    ensure
+      # after we're done we do NOT want to remember the last
+      # instance we worked on.
+      @pry_instance = nil
     end
   end
 
