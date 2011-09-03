@@ -13,6 +13,7 @@
 * prevent blank lines going to Readline::HISTORY
 * ensure that cat --ex emulates the `whereami` format - includes line numbers and formatted the same, etc
 * rename inp and out to _inp_ and _out_ otherwise than can overwrite locals by those names when debugging (not good)
+* add source file to stat command
 
 0.9.3
 * hist command now excludes last line of input (the command invocation itself)
