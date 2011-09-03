@@ -25,10 +25,6 @@ class Pry
     #   Pry.custom_completions = proc { Dir.entries('.') }
     attr_accessor :custom_completions
 
-    # Value returned by last executed Pry command.
-    # @return [Object] The command value
-    attr_accessor :cmd_ret_value
-
     # @return [Fixnum] The current input line.
     attr_accessor :current_line
 
