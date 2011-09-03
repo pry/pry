@@ -21,6 +21,7 @@
 * got rid of Pry.active_instance, Pry.last_exception and friends.
 * also special locals now shared among bindings in a pry instance (i.e _ex_ (and friends) re-injected into new binding entered with 'cd')
 * added third parameter to prompts, the pry instance itself (_pry) see https://github.com/pry/pry/issues/233 for why it's important
+* cd behaviour when no args performs the same as `cd /`
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)

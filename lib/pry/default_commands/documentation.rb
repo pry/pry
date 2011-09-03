@@ -43,10 +43,8 @@ class Pry
           doc = process_comment_markup(doc, code_type)
           output.puts make_header(meth, code_type, doc)
           output.puts "#{text.bold("visibility: ")} #{method_visibility(meth).to_s}"
-          if meth.respond_to?(:parameters)
-            output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
-            output.puts
-          end
+          output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
+          output.puts
           render_output(opts.flood?, false, doc)
           doc
         end
@@ -91,11 +89,9 @@ class Pry
         output.puts "Visibility: " + method_visibility(meth).to_s
         output.puts "Type: " + (meth.is_a?(Method) ? "Bound" : "Unbound")
         output.puts "Arity: " + meth.arity.to_s
+        output.puts "Method Signature: " + signature_for(meth)
 
-        if meth.respond_to?(:parameters)
-          output.puts "Method Signature: " + signature_for(meth)
-        end
-
+        output.puts "Source location: " + (meth.source_location ? meth.source_location.join(":") : "Not found.")
       end
 
       command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
@@ -147,21 +143,28 @@ class Pry
       end
 
       helpers do
-        def signature_for(meth)
-          param_strings = []
-          meth.parameters.each do |kind, name|
-            case kind
-            when :req
-              param_strings << name
-            when :opt
-              param_strings << "#{name}=?"
-            when :rest
-              param_strings << "*#{name}"
-            end
-          end
-          "#{meth.name}(#{param_strings.join(", ")})"
-        end
 
+        # paraphrased from awesome_print gem
+        def signature_for(method)
+          if method.respond_to?(:parameters)
+
+            args = method.parameters.inject([]) do |arr, (type, name)|
+              name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
+              arr << case type
+                     when :req        then name.to_s
+                     when :opt, :rest then "*#{name}"
+                     when :block      then "&#{name}"
+                     else '?'
+                     end
+            end
+          else 
+            args = (1..method.arity.abs).map { |i| "arg#{i}" }
+            args[-1] = "*#{args[-1]}" if method.arity < 0
+          end
+
+          "#{method.name}(#{args.join(', ')})"
+        end
+        
         def method_visibility(meth)
           if meth.owner.public_instance_methods.include? meth.name
             :public
