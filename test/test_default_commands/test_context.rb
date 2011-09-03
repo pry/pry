@@ -147,6 +147,18 @@ describe "Pry::DefaultCommands::Context" do
       $outer.should == :outer
     end
 
+    it 'should break out to outer-most session with just cd (no args)' do
+      b = Pry.binding_for(:outer)
+      b.eval("x = :inner")
+
+      redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd", "$outer = self", "exit-all"), StringIO.new) do
+        b.pry
+      end
+      $inner.should == :inner
+      $five.should == 5
+      $outer.should == :outer
+    end
+
     it 'should start a session on TOPLEVEL_BINDING with cd ::' do
       b = Pry.binding_for(:outer)
 

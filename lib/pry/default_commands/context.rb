@@ -8,9 +8,6 @@ class Pry
 
       command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|
         case obj
-        when nil
-          output.puts "Must provide an object."
-          next
         when ".."
 
           if _pry_.binding_stack.one?
@@ -21,7 +18,7 @@ class Pry
             # otherwise just pop a binding
             _pry_.binding_stack.pop.eval('self')
           end
-        when "/"
+        when nil, "/"
           _pry_.binding_stack = [_pry_.binding_stack.first]
           nil
         when "::"
