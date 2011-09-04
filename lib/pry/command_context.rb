@@ -2,6 +2,13 @@ class Pry
   # Command contexts are the objects runing each command.
   # Helper modules can be mixed into this class.
   class CommandContext
+
+    # represents a void return value for a command
+    VOID_VALUE = Object.new
+
+    # give it a nice inspect
+    def VOID_VALUE.inspect() "void" end
+
     attr_accessor :output
     attr_accessor :target
     attr_accessor :captures
@@ -10,6 +17,7 @@ class Pry
     attr_accessor :opts
     attr_accessor :command_set
     attr_accessor :command_processor
+    attr_accessor :void
     attr_accessor :_pry_
 
     # Run a command from another command.

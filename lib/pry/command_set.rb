@@ -15,7 +15,11 @@ class Pry
           context.instance_eval(&stub_block)
         else
           ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
-          ret if options[:keep_retval]
+          if options[:keep_retval]
+            ret
+          else
+            Pry::CommandContext::VOID_VALUE
+          end
         end
       end
 

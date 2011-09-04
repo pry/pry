@@ -713,6 +713,29 @@ describe Pry do
               str_output.string !~ /=>/
           end
 
+          it 'should define a command that keeps its return value even when nil' do
+            klass = Pry::CommandSet.new do
+              command "hello", "", :keep_retval => true do
+                nil
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
+            str_output.string.should =~ /nil/
+            str_output.string.should =~ /=>/
+          end
+
+          it 'should define a command that keeps its return value but does not return when value is void' do
+            klass = Pry::CommandSet.new do
+              command "hello", "", :keep_retval => true do
+                void
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
+            str_output.string.empty?.should == true
+          end
+
           it 'should set the commands default, and the default should be overridable' do
             klass = Pry::CommandSet.new do
               command "hello" do
