@@ -246,7 +246,7 @@ class Pry
       break if valid_expression?(eval_string)
     end
 
-    @suppress_output = true if eval_string =~ /;\Z/ || null_input?(val)
+    @suppress_output = true if eval_string =~ /;\Z/ || null_input?(eval_string)
 
     eval_string
   end
@@ -277,8 +277,9 @@ class Pry
   # value.
   # @param [String] val The input string.
   # @return [Boolean] Whether the input is null.
-  def null_input?(val)
-    val.empty? && Thread.current[:__pry_cmd_ret_value__] == Pry::CommandContext::VOID_VALUE
+  def null_input?(eval_string)
+    result = Thread.current[:__pry_cmd_ret_value__]
+    eval_string.empty? || (eval_string.empty? && result.void_command?)
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
@@ -306,12 +307,21 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
-    Thread.current[:__pry_cmd_ret_value__], keep_retval = @command_processor.process_commands(val, eval_string, target)
+    result = @command_processor.process_commands(val, eval_string, target)
+    Thread.current[:__pry_cmd_result__] = result
 
-    if keep_retval && Thread.current[:__pry_cmd_ret_value__] != Pry::CommandContext::VOID_VALUE
-      eval_string << "Thread.current[:__pry_cmd_ret_value__]\n"
+    # note that `result` wraps the result of command processing; if a
+    # command was matched and invoked then `result.command?` returns true,
+    # otherwise it returns false.
+    if result.command? && !result.void_command?
+
+      # the command is non-void (has a return value) and so we make
+      # the value of the current expression equal to the return value
+      # of the command.
+      eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
     else
-      # only commands (with no ret_value) should have an empty `val` so this ignores their result
+      # only commands should have an empty `val`
+      # so this ignores their result
       eval_string << "#{val.rstrip}\n" if !val.empty?
     end
   end

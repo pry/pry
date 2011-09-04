@@ -33,7 +33,6 @@ describe Pry do
     end
   end
 
-
   describe "Pry.binding_for" do
 
     # regression test for burg's bug (see git history)
@@ -91,6 +90,18 @@ describe Pry do
         pry_tester = Pry.new(:input => input, :output => Pry::NullOutput)
         pry_tester.rep(o)
         o.instance_variable_get(:@x).should == 10
+      end
+
+      it 'should not output anything for no input' do
+        outp = StringIO.new
+
+        # note i could not use mock_pry() for this test for some
+        # reason, as i'd always get "\n" as output instead of ""
+        redirect_pry_io(StringIO.new(""), outp) do
+          Pry.new.rep(self)
+        end
+
+        outp.string.empty?.should == true
       end
 
       it 'should make self evaluate to the receiver of the rep session' do
@@ -735,6 +746,43 @@ describe Pry do
             Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
             str_output.string.empty?.should == true
           end
+
+          it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
+            klass = Pry::CommandSet.new do
+              command "hello", "" do
+                eval_string.replace("6")
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
+            str_output.string.should =~ /6/
+            end
+
+
+          it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
+            klass = Pry::CommandSet.new do
+              command "hello", "", :keep_retval => true do
+                  eval_string.replace("6")
+                  7
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
+              str_output.string.should =~ /7/
+              str_output.string.should.not =~ /6/
+            end
+
+          it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
+            klass = Pry::CommandSet.new do
+              command "hello", "", :keep_retval => true do
+                5
+              end
+            end
+            str_output = StringIO.new
+            Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
+            str_output.string.should =~ /5/
+          end
+
 
           it 'should set the commands default, and the default should be overridable' do
             klass = Pry::CommandSet.new do

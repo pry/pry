@@ -2,6 +2,36 @@ require 'forwardable'
 
 class Pry
   class CommandProcessor
+
+    # Wraps the return result of process_commands, indicates if the
+    # result IS a command and what kind of command (e.g void)
+    class Result
+      attr_reader :retval
+
+      def initialize(is_command, keep_retval = false, retval = nil)
+        @is_command, @keep_retval, @retval = is_command, keep_retval, retval
+      end
+
+      # Is the result a command?
+      # @return [Boolean]
+      def command?
+        @is_command
+      end
+
+      # Is the result a command and if it is, is it a void command?
+      # (one that does not return a value)
+      # @return [Boolean]
+      def void_command?
+        (command? && !keep_retval?) || retval == CommandContext::VOID_VALUE
+      end
+
+      # Is the return value kept for this command? (i.e :keep_retval => true)
+      # @return [Boolean]
+      def keep_retval?
+        @keep_retval
+      end
+    end
+
     extend Forwardable
 
     attr_accessor :pry_instance
@@ -80,13 +110,17 @@ class Pry
     # @param [String] eval_string The cumulative lines of input for
     #   multi-line input.
     # @param [Binding] target The receiver of the commands.
-    # @return [Object] The value returned by the
-    #   command.
+    # @return [Pry::CommandProcessor::Result] A wrapper object
+    #   containing info about the result of the command processing
+    #   (indicating whether it is a command and if it is what kind of
+    #   command it is.
     def process_commands(val, eval_string, target)
 
-      # no command was matched, so return to caller
       command, captures, pos = command_matched(val, target)
-      return if !command
+
+      # no command was matched, so return to caller
+      return Result.new(false) if !command
+
       arg_string = val[pos..-1]
 
       # remove the one leading space if it exists
@@ -104,7 +138,7 @@ class Pry
 
       ret = execute_command(target, command.name, options, *(captures + args))
 
-      [ret, command.options[:keep_retval]]
+      Result.new(true, command.options[:keep_retval], ret)
     end
 
     # Execute a Pry command.
