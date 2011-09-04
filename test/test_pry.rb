@@ -1076,6 +1076,80 @@ describe Pry do
             end
           end
 
+          describe "view_clip used for displaying an object in a truncated format" do
+
+            VC_MAX_LENGTH = 60
+
+            describe "given an object with an #inspect string shorter than the maximum specified" do
+              it "returns the #inspect string" do
+                o = Object.new
+                def o.inspect; "a" * VC_MAX_LENGTH; end
+
+                Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+              end
+            end
+
+            describe "given an object with an #inspect string as long as the maximum specified" do
+              it "returns the #inspect string" do
+                o = Object.new
+                def o.inspect; "a" * VC_MAX_LENGTH; end
+
+                Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+              end
+            end
+
+            describe "given a regular object with an #inspect string longer than the maximum specified" do
+
+              describe "when the object is a regular one" do
+                it "returns a string of the #<class name:object idish> format" do
+                  o = Object.new
+                  def o.inspect; "a" * (VC_MAX_LENGTH + 1); end
+
+                  Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x\d+?/
+                end
+              end
+
+              describe "when the object is a Class or a Module" do
+                describe "without a name (usually a c = Class.new)" do
+                  it "returns a string of the #<class name:object idish> format" do
+                    c, m = Class.new, Module.new
+
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x\d+/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x\d+/
+                  end
+                end
+
+                describe "with a #name longer than the maximum specified" do
+                  it "returns a string of the #<class name:object idish> format" do
+                    c, m = Class.new, Module.new
+
+
+                    def c.name; "a" * (VC_MAX_LENGTH + 1); end
+                    def m.name; "a" * (VC_MAX_LENGTH + 1); end
+
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x\d+/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x\d+/
+                  end
+                end
+
+                describe "with a #name shorter than or equal to the maximum specified" do
+                  it "returns a string of the #<class name:object idish> format" do
+                    c, m = Class.new, Module.new
+
+                    def c.name; "a" * VC_MAX_LENGTH; end
+                    def m.name; "a" * VC_MAX_LENGTH; end
+
+                    Pry.view_clip(c, VC_MAX_LENGTH).should == c.name
+                    Pry.view_clip(m, VC_MAX_LENGTH).should == m.name
+                  end
+                end
+
+              end
+
+            end
+
+          end
+
           it 'should set the hooks default, and the default should be overridable' do
             Pry.input = InputTester.new("exit-all")
             Pry.hooks = {
