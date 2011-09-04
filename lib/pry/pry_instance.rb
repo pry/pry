@@ -278,7 +278,7 @@ class Pry
   # @param [String] val The input string.
   # @return [Boolean] Whether the input is null.
   def null_input?(val)
-    val.empty? && !Thread.current[:__pry_cmd_ret_value__]
+    val.empty? && Thread.current[:__pry_cmd_ret_value__] == Pry::CommandContext::VOID_VALUE
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
@@ -306,9 +306,9 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
-    Thread.current[:__pry_cmd_ret_value__] = @command_processor.process_commands(val, eval_string, target)
+    Thread.current[:__pry_cmd_ret_value__], keep_retval = @command_processor.process_commands(val, eval_string, target)
 
-    if Thread.current[:__pry_cmd_ret_value__]
+    if keep_retval && Thread.current[:__pry_cmd_ret_value__] != Pry::CommandContext::VOID_VALUE
       eval_string << "Thread.current[:__pry_cmd_ret_value__]\n"
     else
       # only commands (with no ret_value) should have an empty `val` so this ignores their result

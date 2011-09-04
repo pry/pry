@@ -108,7 +108,7 @@ class Pry
         end
       end
 
-      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
+      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info", :keep_retval => true do |*args|
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
                       "Edit the method FILE in an editor.\n" \

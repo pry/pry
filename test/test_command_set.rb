@@ -112,14 +112,19 @@ describe Pry::CommandSet do
     @set.commands['foo'].description.should == 'baz'
   end
 
-  it 'should return nil for commands by default' do
+  it 'should return Pry::CommandContext::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    @set.run_command(nil, 'foo').should == nil
+    @set.run_command(nil, 'foo').should == Pry::CommandContext::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
     @set.command('foo', '', :keep_retval => true) { 3 }
     @set.run_command(nil, 'foo').should == 3
+  end
+
+  it 'should be able to keep return values, even if return value is nil' do
+    @set.command('foo', '', :keep_retval => true) { nil }
+    @set.run_command(nil, 'foo').should == nil
   end
 
   it 'should be able to have its own helpers' do

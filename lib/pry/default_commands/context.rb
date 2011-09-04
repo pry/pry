@@ -23,10 +23,10 @@ class Pry
           nil
         when "::"
           _pry_.binding_stack.push TOPLEVEL_BINDING
-          nil
+          void
         else
           _pry_.binding_stack.push Pry.binding_for(target.eval(arg_string))
-          nil
+          void
         end
       end
 

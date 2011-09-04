@@ -80,6 +80,8 @@ class Pry
     # @param [String] eval_string The cumulative lines of input for
     #   multi-line input.
     # @param [Binding] target The receiver of the commands.
+    # @return [Object] The value returned by the
+    #   command.
     def process_commands(val, eval_string, target)
 
       # no command was matched, so return to caller
@@ -100,7 +102,9 @@ class Pry
         :captures => captures
       }
 
-      execute_command(target, command.name, options, *(captures + args))
+      ret = execute_command(target, command.name, options, *(captures + args))
+
+      [ret, command.options[:keep_retval]]
     end
 
     # Execute a Pry command.
@@ -109,6 +113,7 @@ class Pry
     # @param [String] command The name of the command to be run.
     # @param [Hash] options The options to set on the Commands object.
     # @param [Array] args The command arguments.
+    # @return [Object] The value returned by the command
     def execute_command(target, command, options, *args)
       context = CommandContext.new
 
@@ -120,6 +125,7 @@ class Pry
       context.eval_string = options[:eval_string]
       context.arg_string  = options[:arg_string]
       context.command_set = commands
+      context.void        = Pry::CommandContext::VOID_VALUE
       context._pry_ = @pry_instance
 
       context.command_processor = self
