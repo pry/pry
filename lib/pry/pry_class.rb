@@ -108,12 +108,17 @@ class Pry
   # @param obj The object to view.
   # @param max_size The maximum number of chars before clipping occurs.
   # @return [String] The string representation of `obj`.
-  def self.view_clip(obj, max_size=60)
-    if obj.inspect.size < max_size
+  def self.view_clip(obj, max_length = 60)
+    if obj.kind_of?(Module) && obj.name && obj.name != "" && obj.name.to_s.length <= max_length
+      obj.name.to_s
+    elsif obj.inspect.length <= max_length
       obj.inspect
-    else
+    else 
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
     end
+
+  rescue
+    "unknown"
   end
 
   # Load Readline history if required.
