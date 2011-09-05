@@ -35,7 +35,6 @@ class Pry
             end
 
           rescue RescuableException => e
-            puts "exception was: #{e.inspect}"
             output.puts "Bad object path: #{arg_string}. Failed trying to resolve: #{context}"
             resolve_failure = true
           end
