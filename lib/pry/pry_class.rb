@@ -48,7 +48,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size
+      :hooks, :color, :pager, :editor, :memory_size, :exception_whitelist
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -223,6 +223,8 @@ class Pry
     config.history.file = File.expand_path("~/.pry_history")
 
     config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
+
+    config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
 
     config.memory_size = 100
   end

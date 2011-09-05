@@ -31,6 +31,44 @@ describe "Pry::DefaultCommands::Context" do
     end
   end
 
+  describe "raise-up" do
+    it "should raise the exception with raise-up" do
+      redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError"),StringIO.new) do
+        lambda { Pry.new.repl(0) }.should.raise NoMethodError
+      end
+    end
+
+    it "should raise an unamed exception with raise-up" do
+      redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'"),StringIO.new) do
+        lambda { Pry.new.repl(0) }.should.raise RuntimeError, "noreally"
+      end
+    end
+
+    it "should eat the exception at the last new pry instance on raise-up" do
+      b = Pry.binding_for(:outer)
+      b.eval("x = :inner")
+
+      redirect_pry_io(InputTester.new("x.pry", "raise NoMethodError",
+        "$inner = self", "raise-up NoMethodError", "$outer = self", "exit-all"),StringIO.new) do
+        b.pry
+      end
+      $inner.should == :inner
+      $outer.should == :outer
+    end
+
+    it "cd does not create a new instance, and raise-up doesn't respect the binding stack" do
+      b = Pry.binding_for(:outer)
+      b.eval("x = :inner")
+      redirect_pry_io(InputTester.new("cd x", "raise NoMethodError","$inner = self",
+        "deep = :deep", "cd deep","$deep = self","raise-up NoMethodError", "$outer = self", "exit-all"),StringIO.new) do
+        lambda { b.pry }.should.raise NoMethodError
+      end
+      $deep.should == :deep
+      $inner.should == :inner
+      $outer.should == :outer
+    end
+  end
+
   describe "exit" do
     it 'should pop a binding with exit' do
       b = Pry.binding_for(:outer)

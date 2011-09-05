@@ -111,6 +111,10 @@ class Pry
     # @return [Proc] The proc that manages ^D presses in the REPL.
     #   The proc is passed the current eval_string and the current pry instance.
     attr_accessor :control_d_handler
+
+    # @return [Set] A set of exception classes that are NOT caught by the
+    #   REPL.
+    attr_accessor :exception_whitelist
   end
 end
 

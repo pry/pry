@@ -96,6 +96,21 @@ class Pry
         end
       end
 
+      command "raise-up", "Raise an exception to the last time you invoked #pry, adding it the ignored exception list just this once" do |exc|
+        # we don't want to add this exception to the global ignore list
+        unless _pry_.has_own_attribute? :exception_whitelist
+          _pry_.exception_whitelist = Pry.exception_whitelist.dup
+        end
+        exc = Object.const_get(exc) rescue exc
+        #attempt to see if it matches a known exception type
+        if (exc.is_a?(Class) and exc < Exception)
+          _pry_.exception_whitelist << exc
+        else
+          _pry_.exception_whitelist << RuntimeError
+        end
+        Kernel.raise exc
+      end
+
       alias_command "quit", "exit", ""
 
       command "exit-program", "End the current program. Aliases: quit-program, !!!" do

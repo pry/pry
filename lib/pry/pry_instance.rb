@@ -9,6 +9,7 @@ class Pry
   attr_accessor :exception_handler
   attr_accessor :hooks
   attr_accessor :custom_completions
+  attr_accessor :exception_whitelist
 
   attr_accessor :binding_stack
 
@@ -45,7 +46,7 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size
+                   :prompt, :memory_size, :exception_whitelist
                  ]
 
     attributes.each do |attribute|
@@ -57,6 +58,12 @@ class Pry
     end
 
     true
+  end
+
+  # Has this Pry instance overridden the given class config attribute?
+  # @param [Symbol] attribute, the attribute to inquire about
+  def has_own_attribute? attribute
+    !(Pry.send(attribute).equal?(self.send(attribute)))
   end
 
   # The current prompt.
@@ -218,7 +225,7 @@ class Pry
 
     result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     result
-  rescue RescuableException => e
+  rescue WhitelistRescuableException.using(self) => e
     set_last_exception(e, target)
   ensure
     update_input_history(code)
@@ -258,13 +265,13 @@ class Pry
     else
       print.call output, result
     end
-  rescue RescuableException => e
+  rescue WhitelistRescuableException.using(self) => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
     # serialize something in the user's program, let's not assume we can serialize
     # the exception either.
     begin
       output.puts "output error: #{e.inspect}"
-    rescue RescuableException => e
+    rescue WhitelistRescuableException.using(self) => e
       if last_result_is_exception?
         output.puts "output error: failed to show exception"
       else

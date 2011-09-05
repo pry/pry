@@ -1,4 +1,5 @@
 require 'helper'
+require 'ruby-debug'
 
 puts "Ruby Version #{RUBY_VERSION}"
 puts "Testing Pry #{Pry::VERSION}"
@@ -186,6 +187,47 @@ describe Pry do
         lambda { mock_pry("raise SystemExit") }.should.raise SystemExit
         # SIGTERM
         lambda { mock_pry("raise SignalException.new(15)") }.should.raise SignalException
+        lambda { mock_pry("raise Exception")}.should.not.raise Exception
+      end
+
+      it 'should be able to specify exceptions not to catch' do
+        Pry.config.exception_whitelist << NoMethodError
+        lambda { mock_pry("raise NoMethodError")}.should.raise NoMethodError
+        Pry.config.exception_whitelist.delete NoMethodError
+        lambda { mock_pry("raise NoMethodError","exit-all")}.should.not.raise NoMethodError
+      end
+
+      it 'should be able to specify exceptions not to raise on an instance level' do
+        o = Exception.new
+        input = InputTester.new("raise NoMethodError","raise SystemExit", "raise ArgumentError")
+        output = StringIO.new
+        raised_exceptions = []
+
+        pry_instance = Pry.new(:input => input,
+                               :output => output,
+                               :exception_whitelist => [ArgumentError],
+                               :exception_handler => proc { |o,e| raised_exceptions << e })
+
+        lambda { pry_instance.repl(o) }.should.raise ArgumentError
+
+        raised_exceptions.each do |ex|
+          [NoMethodError, SystemExit].should.include ex.class
+          [ArgumentError].should.not.include ex.class
+        end
+
+        raised_exceptions.clear
+        input.rewind
+        #uses the defaults
+        pry_instance_again = Pry.new(:input => input,
+                                     :output => output,
+                                     :exception_handler => proc { |o, e| raised_exceptions << e })
+
+        lambda { pry_instance_again.repl(o) }.should.raise SystemExit
+
+        raised_exceptions.each do |ex|
+          [NoMethodError].should.include ex.class
+          [SystemExit, ArgumentError].should.not.include ex.class
+        end
       end
     end
 
