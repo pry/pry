@@ -130,7 +130,7 @@ end
 require "pry/version"
 require "pry/history_array"
 require "pry/helpers"
-require "pry/input_history"
+require "pry/history"
 require "pry/command_set"
 require "pry/commands"
 require "pry/command_context"
