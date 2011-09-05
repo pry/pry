@@ -246,7 +246,7 @@ class Pry
       break if valid_expression?(eval_string)
     end
 
-    @suppress_output = true if eval_string =~ /;\Z/ || null_input?(eval_string)
+    @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?
 
     eval_string
   end
@@ -271,15 +271,6 @@ class Pry
         output.puts "output error: failed to show result"
       end
     end
-  end
-
-  # Returns true if input is "" and a command is not returning a
-  # value.
-  # @param [String] val The input string.
-  # @return [Boolean] Whether the input is null.
-  def null_input?(eval_string)
-    result = Thread.current[:__pry_cmd_ret_value__]
-    eval_string.empty? || (eval_string.empty? && result.void_command?)
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
@@ -315,7 +306,7 @@ class Pry
     # otherwise it returns false.
     if result.command? && !result.void_command?
 
-      # the command is non-void (has a return value) and so we make
+      # the command that was invoked was non-void (had a return value) and so we make
       # the value of the current expression equal to the return value
       # of the command.
       eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
