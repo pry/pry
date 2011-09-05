@@ -154,7 +154,7 @@ class Pry
 
     Pry.active_sessions -= 1
     binding_stack.pop
-    Pry.history.save if Pry.config.history.should_save && Pry.active_sessions == 0
+    Pry.save_history if Pry.config.history.should_save && Pry.active_sessions == 0
     break_data
   end
 
