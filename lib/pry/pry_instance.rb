@@ -356,20 +356,6 @@ class Pry
       Pry.line_buffer.push(*code.each_line)
       Pry.current_line += code.each_line.count
     end
-    if Readline::HISTORY.size > 0
-
-      # all this fluff is to get around annoying bug in libedit on
-      # ruby 1.8.7
-      final_index = -1
-      begin
-        Readline::HISTORY[-1]
-      rescue IndexError
-        final_index = -2
-      end
-      last = Readline::HISTORY[final_index].strip
-      prev = Readline::HISTORY.size > 1 ? Readline::HISTORY[final_index - 1].strip : ''
-      Readline::HISTORY.pop if last && (last.empty? || last == prev)
-    end
   end
 
   # @return [Boolean] True if the last result is an exception that was raised,
@@ -386,10 +372,9 @@ class Pry
   def readline(current_prompt="> ")
 
     if input == Readline
-
-      # Readline must be treated differently
-      # as it has a second parameter.
-      input.readline(current_prompt, true)
+      line = input.readline(current_prompt, false)
+      Pry.input_history << line
+      line
     else
       begin
         if input.method(:readline).arity == 1

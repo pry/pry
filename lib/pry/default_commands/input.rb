@@ -97,7 +97,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
         # exclude the current command from history.
-        history = Readline::HISTORY.to_a[0..-2]
+        history = Pry.input_history.to_a[0..-2]
 
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
@@ -132,7 +132,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
                      :unless   => :grep do |limit|
 
             limit ||= 10
-            offset = history.size-limit
+            offset = history.size - limit
             offset = offset < 0 ? 0 : offset
 
             list  = history.last limit
@@ -170,7 +170,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true, :as => Range
 
           opt.on :c, :clear, 'Clear the history', :unless => :grep do
-            Readline::HISTORY.shift until Readline::HISTORY.empty?
+            Pry.input_history.clear
             output.puts 'History cleared.'
           end
 
