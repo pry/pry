@@ -127,12 +127,7 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with cd ..' do
-      # redirect_pry_io(InputTester.new("ls"), StringIO.new) do
-      #   o =  Pry.new.tap { |v| v.repl(0) }
-      # end
-
       Pry.start(0, :input => StringIO.new("cd ..")).should == 0
-
     end
 
     it 'should break out to outer-most session with cd /' do
@@ -159,9 +154,79 @@ describe "Pry::DefaultCommands::Context" do
       $outer.should == :outer
     end
 
-    it 'should start a session on TOPLEVEL_BINDING with cd ::' do
-      b = Pry.binding_for(:outer)
+    it 'should cd into an object and its ivar using cd obj/@ivar syntax' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
 
+      redirect_pry_io(InputTester.new("cd $obj/@x", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 3
+      $result[1].eval('self').should == $obj
+      $result[2].eval('self').should == 66
+    end
+
+    it 'should cd into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
+
+      redirect_pry_io(InputTester.new("cd $obj/@x/", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 3
+      $result[1].eval('self').should == $obj
+      $result[2].eval('self').should == 66
+    end
+
+    it 'should cd into previous object and its local using cd ../local syntax' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
+
+      redirect_pry_io(InputTester.new("cd $obj", "local = :local", "cd @x", "cd ../local", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 3
+      $result[1].eval('self').should == $obj
+      $result[2].eval('self').should == :local
+    end
+
+    it 'should cd into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
+
+      redirect_pry_io(InputTester.new("cd $obj/@x/..", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 2
+      $result[1].eval('self').should == $obj
+    end
+
+    it 'should cd into an object and its ivar and back and then into another ivar using cd obj/@ivar/../@y syntax' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
+      $obj.instance_variable_set(:@y, 79)
+
+      redirect_pry_io(InputTester.new("cd $obj/@x/../@y", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 3
+      $result[1].eval('self').should == $obj
+      $result[2].eval('self').should == 79
+    end
+
+    it 'should cd back to top-level and then into another ivar using cd /@ivar/ syntax' do
+      $obj = Object.new
+      $obj.instance_variable_set(:@x, 66)
+      TOPLEVEL_BINDING.eval('@z = 20')
+
+      redirect_pry_io(InputTester.new("cd $obj/@x/", "cd /@z", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+        Pry.start
+      end
+      $result.size.should == 2
+      $result[1].eval('self').should == 20
+    end
+
+    it 'should start a session on TOPLEVEL_BINDING with cd ::' do
       redirect_pry_io(InputTester.new("cd ::", "$obj = self", "exit-all"), StringIO.new) do
         5.pry
       end

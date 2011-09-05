@@ -689,15 +689,13 @@ describe Pry do
           end
 
           it 'should create a command in  a nested context and that command should be accessible from the parent' do
-            redirect_pry_io(StringIO.new, StringIO.new) do
-              str_input = StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all")
-              str_output = StringIO.new
-              Pry.input = str_input
-              obj = Object.new
-              Pry.new(:output => str_output).repl(obj)
-              Pry.input = Readline
-              str_output.string.should =~ /@x/
+            str_output = StringIO.new
+            x = "@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"
+            redirect_pry_io(StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"), str_output) do
+              Pry.new.repl(0)
             end
+
+            str_output.string.should =~ /@x/
           end
 
           it 'should define a command that keeps its return value' do
