@@ -108,16 +108,16 @@ class Pry
         end
       end
 
-      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info", :keep_retval => true do |*args|
+      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
-                      "Edit the method FILE in an editor.\n" \
-                      "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
+                      "Edit the method FILE in an editor.\nWhen no file given, opens editor with contents of input buffer and evals after closing." \
+                      "\nEnsure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
                       "e.g: edit sample.rb"
 
           opt.on :r, "reload", "Eval file content after editing (evals at top level)"
           opt.on :ex, "Open an editor at the line and file that generated the most recent Exception."
-          opt.on :t, "temp", "Open a temporary file in an editor and eval it in current context after closing."
+          opt.on :t, "temp", "Open a temporary file in an editor with contents of input buffer and eval it in current context after closing (same as `edit` with no args)"
           opt.on :p, "play", "Use the pry `play` command to eval the file content after editing."
           opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
           opt.on :h, :help, "This message." do
@@ -127,7 +127,6 @@ class Pry
         next if opts.h?
 
         # the context the file will be eval'd in after closing
-        context = TOPLEVEL_BINDING
         should_reload = opts[:r]
 
         if opts.ex?
@@ -142,15 +141,14 @@ class Pry
           line = _pry_.last_exception.line
           next output.puts "Exception has no associated file." if file_name.nil?
           next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-        elsif opts.t?
+        elsif opts.t? || arg_string.empty?
           file_name = Tempfile.new(["tmp", ".rb"]).tap(&:close).path
-          line = 0
+          File.open(file_name, "w") { |f| f.puts eval_string } if !eval_string.empty?
+          line = eval_string.lines.count + 1
           should_reload = true
-          context = target
         else
-          next output.puts("Need to specify a file.") if !args.first
-          file_name = File.expand_path(args.first)
-          line = opts[:l].to_i
+          file_name, line = File.expand_path(args.first).split(/:/)
+          line = line ? line.to_i : opts[:l].to_i
         end
 
         invoke_editor(file_name, line)
@@ -162,7 +160,7 @@ class Pry
           end
         elsif should_reload
           silence_warnings do
-            context.eval(File.read(file_name), file_name)
+            eval_string.replace(File.read(file_name))
           end
         end
       end
