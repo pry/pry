@@ -123,8 +123,13 @@ class Pry
 
   # Load Readline history if required.
   def self.load_history
-    Readline::HISTORY.push(*File.readlines(history_file).map(&:chomp)) if File.exists?(history_file)
-    @loaded_history = Readline::HISTORY.to_a
+    @loaded_history = []
+    if File.exists?(history_file)
+      File.foreach(history_file) do |line|
+        Readline::HISTORY << line.chomp
+        @loaded_history   << line.chomp
+      end
+    end
   end
 
   # Save new lines of Readline history if required.
