@@ -38,6 +38,9 @@ class Pry
     # @return [OpenStruct] Return Pry's config object.
     attr_accessor :config
 
+    # @return [InputHistory] TODO: put something here
+    attr_accessor :input_history
+
     # @return [Boolean] Whether Pry was activated from the command line.
     attr_accessor :cli
 
@@ -123,33 +126,12 @@ class Pry
 
   # Load Readline history if required.
   def self.load_history
-    @loaded_history = []
-    if File.exists?(history_file)
-      File.foreach(history_file) do |line|
-        Readline::HISTORY << line.chomp
-        @loaded_history   << line.chomp
-      end
-    end
+    Pry.input_history.load(history_file) if File.exists?(history_file)
   end
 
   # Save new lines of Readline history if required.
   def self.save_history
-    history_to_save = Readline::HISTORY.to_a
-
-    # Omit any history we read from the file.This check is needed because
-    # `hist --clear` would otherwise cause us to not save history in this
-    # session.
-    if history_to_save[0...@loaded_history.size] == @loaded_history
-      history_to_save = history_to_save[@loaded_history.size..-1]
-    end
-
-    File.open(history_file, 'a') do |f|
-      f.puts history_to_save.join("\n") if history_to_save.size > 0
-    end
-
-    # Update @loaded_history so that future calls to save_history
-    # will do the right thing.
-    @loaded_history = Readline::HISTORY.to_a
+    Pry.input_history.save(history_file)
   end
 
   # Get the full path of the history_path for pry.
@@ -249,8 +231,9 @@ class Pry
   # Basic initialization.
   def self.init
     @plugin_manager ||= PluginManager.new
-
     self.config ||= Config.new
+    self.input_history ||= InputHistory.new
+
     reset_defaults
     locate_plugins
   end

@@ -202,8 +202,8 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     before do
-      Readline::HISTORY.shift until Readline::HISTORY.empty?
-      @hist = Readline::HISTORY
+      Pry.input_history.clear
+      @hist = Pry.input_history
     end
 
     it 'should display the correct history' do
