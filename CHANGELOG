@@ -23,6 +23,12 @@
 * renamed inp and out to _in_ and _out_ (to avoid collisions with actual locals in debugging scope)
 * added third parameter to prompts, the pry instance itself (_pry) see https://github.com/pry/pry/issues/233 for why it's important
 * cd behaviour when no args performs the same as `cd /`
+* commands with keep_retval can now return nil (to suppress output now return 'void' instead)
+* Pry::CommandProcessor::Result introduced
+* Pry.view_clip() modified to be more robust and properly display Class#name
+* edit command when invoked with no args now works like edit -t
+* when edit is invoked (with no args or with -t) inside a multi-line expression input buffer, it dumps that buffer into a temp file and takes you to it
+* got rid of Pry#null_input? since all that was needed was eval_string.empty?
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
