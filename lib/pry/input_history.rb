@@ -1,5 +1,5 @@
 class Pry
-  class InputHistory
+  class History
     def initialize
       @history = []
       @first_new_line = 0 # TODO: rename this

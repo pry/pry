@@ -202,8 +202,8 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     before do
-      Pry.input_history.clear
-      @hist = Pry.input_history
+      Pry.history.clear
+      @hist = Pry.history
     end
 
     it 'should display the correct history' do

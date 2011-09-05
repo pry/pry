@@ -38,8 +38,8 @@ class Pry
     # @return [OpenStruct] Return Pry's config object.
     attr_accessor :config
 
-    # @return [InputHistory] TODO: put something here
-    attr_accessor :input_history
+    # @return [History] TODO: put something here
+    attr_accessor :history
 
     # @return [Boolean] Whether Pry was activated from the command line.
     attr_accessor :cli
@@ -126,12 +126,12 @@ class Pry
 
   # Load Readline history if required.
   def self.load_history
-    Pry.input_history.load(history_file) if File.exists?(history_file)
+    Pry.history.load(history_file) if File.exists?(history_file)
   end
 
   # Save new lines of Readline history if required.
   def self.save_history
-    Pry.input_history.save(history_file)
+    Pry.history.save(history_file)
   end
 
   # Get the full path of the history_path for pry.
@@ -232,7 +232,7 @@ class Pry
   def self.init
     @plugin_manager ||= PluginManager.new
     self.config ||= Config.new
-    self.input_history ||= InputHistory.new
+    self.history ||= History.new
 
     reset_defaults
     locate_plugins

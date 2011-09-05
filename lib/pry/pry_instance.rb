@@ -154,7 +154,7 @@ class Pry
 
     Pry.active_sessions -= 1
     binding_stack.pop
-    Pry.save_history if Pry.config.history.should_save && Pry.active_sessions == 0
+    Pry.history.save if Pry.config.history.should_save && Pry.active_sessions == 0
     break_data
   end
 
@@ -373,7 +373,7 @@ class Pry
 
     if input == Readline
       line = input.readline(current_prompt, false)
-      Pry.input_history << line
+      Pry.history << line
       line
     else
       begin
