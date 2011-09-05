@@ -373,7 +373,7 @@ class Pry
 
     if input == Readline
       line = input.readline(current_prompt, false)
-      Pry.history << line
+      Pry.history << line.dup if line
       line
     else
       begin
