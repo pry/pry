@@ -14,6 +14,12 @@
 * ensure that cat --ex emulates the `whereami` format - includes line numbers and formatted the same, etc
 * rename inp and out to _inp_ and _out_ otherwise than can overwrite locals by those names when debugging (not good)
 * add source file to stat command
+* make plugins use hash instead of array
+* ensure edit -t has 'edit' alias (no parameters) and dumps eval_string into buffer
+* whitelist exceptions
+* hooks system
+* jruby shell command support
+*
 
 0.9.3
 * hist command now excludes last line of input (the command invocation itself)
