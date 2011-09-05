@@ -1162,8 +1162,8 @@ describe Pry do
                   it "returns a string of the #<class name:object idish> format" do
                     c, m = Class.new, Module.new
 
-                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x\d+/
-                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x\d+/
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x.*?/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x.*?/
                   end
                 end
 
@@ -1175,8 +1175,8 @@ describe Pry do
                     def c.name; "a" * (VC_MAX_LENGTH + 1); end
                     def m.name; "a" * (VC_MAX_LENGTH + 1); end
 
-                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x\d+/
-                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x\d+/
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x.*?/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x.*?/
                   end
                 end
 
