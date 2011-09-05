@@ -6,28 +6,44 @@ class Pry
     Context = Pry::CommandSet.new do
       import Ls
 
-      command "cd", "Start a Pry session on VAR (use `cd ..` to go back and `cd /` to return to Pry top-level)",  :keep_retval => true do |obj|
-        case obj
-        when ".."
+      command "cd", "Move into a new context (use `cd ..` to go back and `cd /` to return to Pry top-level). Complex syntax (e.g cd ../@x/y) also supported."  do |obj|
+        path   = arg_string.split(/\//)
+        stack  = _pry_.binding_stack.dup
 
-          if _pry_.binding_stack.one?
-            # when breaking out of top-level then behave like `quit` command
-            _pry_.binding_stack.clear
-            throw(:breakout)
-          else
-            # otherwise just pop a binding
-            _pry_.binding_stack.pop.eval('self')
+        # special case when we only get a single "/", return to root
+        stack  = [stack.first] if path.empty?
+
+        resolve_failure = false
+        path.each do |context|
+          begin
+            case context.chomp
+            when ""
+              stack = [stack.first]
+            when "::"
+              stack.push(TOPLEVEL_BINDING)
+            when "."
+              next
+            when ".."
+              if stack.one?
+                _pry_.binding_stack.clear
+                throw(:breakout)
+              else
+                stack.pop
+              end
+            else
+              stack.push(Pry.binding_for(stack.last.eval(context)))
+            end
+
+          rescue RescuableException => e
+            puts "exception was: #{e.inspect}"
+            output.puts "Bad object path: #{arg_string}. Failed trying to resolve: #{context}"
+            resolve_failure = true
           end
-        when nil, "/"
-          _pry_.binding_stack = [_pry_.binding_stack.first]
-          nil
-        when "::"
-          _pry_.binding_stack.push TOPLEVEL_BINDING
-          void
-        else
-          _pry_.binding_stack.push Pry.binding_for(target.eval(arg_string))
-          void
         end
+
+        next if resolve_failure
+
+        _pry_.binding_stack = stack
       end
 
       command "switch-to", "Start a new sub-session on a binding in the current stack (numbered by nesting)." do |selection|

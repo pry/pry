@@ -299,6 +299,8 @@ class Pry
   # @param [Binding] target The target of the Pry session.
   def process_line(val, eval_string, target)
     result = @command_processor.process_commands(val, eval_string, target)
+
+    # set a temporary (just so we can inject the value we want into eval_string)
     Thread.current[:__pry_cmd_result__] = result
 
     # note that `result` wraps the result of command processing; if a
