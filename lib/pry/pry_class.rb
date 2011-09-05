@@ -38,7 +38,7 @@ class Pry
     # @return [OpenStruct] Return Pry's config object.
     attr_accessor :config
 
-    # @return [History] TODO: put something here
+    # @return [History] Return Pry's line history object.
     attr_accessor :history
 
     # @return [Boolean] Whether Pry was activated from the command line.
