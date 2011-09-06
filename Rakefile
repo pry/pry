@@ -23,7 +23,7 @@ def apply_spec_defaults(s)
   s.add_dependency("ruby_parser",">=2.0.5")
   s.add_dependency("coderay",">=0.9.8")
   s.add_dependency("slop","~>2.1.0")
-  s.add_dependency("method_source",">=0.6.0")
+  s.add_dependency("method_source",">=0.6.5")
   s.add_development_dependency("bacon",">=1.1.0")
   s.add_development_dependency("open4", "~>1.0.1")
 end
@@ -61,6 +61,20 @@ namespace :ruby do
     end
   end
 end
+
+namespace :jruby do
+  spec = Gem::Specification.new do |s|
+    apply_spec_defaults(s)
+    s.add_dependency("spoon", ">=0.0.1")
+    s.platform = "java"
+  end
+
+  Rake::GemPackageTask.new(spec) do |pkg|
+    pkg.need_zip = false
+    pkg.need_tar = false
+  end
+end
+
 
 [:mingw32, :mswin32].each do |v|
   namespace v do

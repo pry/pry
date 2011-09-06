@@ -30,6 +30,7 @@
 * when edit is invoked (with no args or with -t) inside a multi-line expression input buffer, it dumps that buffer into a temp file and takes you to it
 * got rid of Pry#null_input? since all that was needed was eval_string.empty?
 * cd command now supports complex syntax: cd ../@y/y/../z
+* JRuby is no longer a 2nd class citizen, almost full JRuby support, passing 100% tests
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
