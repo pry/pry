@@ -150,19 +150,24 @@ describe "Pry::DefaultCommands::Input" do
   end
 
   describe "play" do
-    it 'should play a string of code (with no args)' do
-      redirect_pry_io(InputTester.new("play :test_string", "exit-all"), str_output = StringIO.new) do
-        pry
+    it 'should play a string variable  (with no args)' do
+      b = binding
+      b.eval('x = "\"hello\""')
+      redirect_pry_io(InputTester.new("play x", "exit-all"), str_output = StringIO.new) do
+        Pry.start b, :hooks => {}
       end
-      str_output.string.should =~ /:test_string/
+      str_output.string.should =~ /hello/
     end
 
-    it 'should play an interpolated string of code (with no args)' do
-      $obj = ":test_string_interpolated"
-      redirect_pry_io(InputTester.new('play #{$obj}', "exit-all"), str_output = StringIO.new) do
-        pry
+    it 'should play a string variable  (with no args) using --lines to select what to play' do
+      b = binding
+      b.eval('x = "\"hello\"\n\"goodbye\"\n\"love\""')
+      redirect_pry_io(InputTester.new("play x --lines 1", "exit-all"), str_output = StringIO.new) do
+        Pry.start b, :hooks => {}
       end
-      str_output.string.should =~ /:test_string_interpolated/
+      str_output.string.should =~ /hello/
+      str_output.string.should.not =~ /love/
+      str_output.string.should.not =~ /goodbye/
     end
 
     it 'should play a method with the -m switch (a single line)' do
