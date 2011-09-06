@@ -54,9 +54,9 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
       alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "")
 
-      command "play", "Play back a string or a method or a file as input. Type `play --help` for more information." do |*args|
+      command "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string\ne.g `play puts 'hello world'` #=> \"hello world\"\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`"
+          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string variable\ne.g `play _in_[20] --lines 1..3`\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`"
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
@@ -65,8 +65,6 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           opt.on :h, :help, "This message." do
             output.puts opt
           end
-
-          opt.on_noopts { _pry_.input = StringIO.new(arg_string)  }
         end
 
         if opts.m?
@@ -82,9 +80,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           range = (0..-2) if opts.o?
 
           _pry_.input = StringIO.new(Array(code.each_line.to_a[range]).join)
-        end
-
-        if opts.f?
+        elsif opts.f?
           file_name = File.expand_path(opts[:f])
           next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
           text_array = File.readlines(file_name)
@@ -92,6 +88,13 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           range = (0..-2) if opts.o?
 
           _pry_.input = StringIO.new(Array(text_array[range]).join)
+        else
+          code = target.eval(args.first)
+
+          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.o?
+
+          eval_string << Array(code.each_line.to_a[range]).join
         end
       end
 
