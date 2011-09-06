@@ -17,7 +17,6 @@ class Pry
     attr_accessor :opts
     attr_accessor :command_set
     attr_accessor :command_processor
-    attr_accessor :void
     attr_accessor :_pry_
 
     # Run a command from another command.
@@ -40,6 +39,10 @@ class Pry
 
     def text
       Pry::Helpers::Text
+    end
+
+    def void
+      VOID_VALUE
     end
 
     include Pry::Helpers::BaseHelpers
