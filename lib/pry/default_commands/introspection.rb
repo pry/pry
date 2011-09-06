@@ -116,7 +116,8 @@ class Pry
                       "e.g: edit sample.rb"
 
           opt.on :r, "reload", "Eval file content after editing (evals at top level)"
-          opt.on :ex, "Open an editor at the line and file that generated the most recent Exception."
+          opt.on :n, "no-reload", "Do not automatically reload the file after editing (only applies to --ex and -t)."
+          opt.on :ex, "Open an editor at the line and file that generated the most recent Exception, reloads file after editing."
           opt.on :t, "temp", "Open a temporary file in an editor with contents of input buffer and eval it in current context after closing (same as `edit` with no args)"
           opt.on :p, "play", "Use the pry `play` command to eval the file content after editing."
           opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
@@ -126,8 +127,8 @@ class Pry
         end
         next if opts.h?
 
-        # the context the file will be eval'd in after closing
-        should_reload = opts[:r]
+        should_reload_at_top_level = opts[:r]
+        should_reload_locally      = false
 
         if opts.ex?
           next output.puts "No Exception found." if _pry_.last_exception.nil?
@@ -141,11 +142,14 @@ class Pry
           line = _pry_.last_exception.line
           next output.puts "Exception has no associated file." if file_name.nil?
           next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-        elsif opts.t? || arg_string.empty?
+
+          should_reload_at_top_level = opts[:n] ? false : true
+
+        elsif opts.t? || args.first.nil?
           file_name = Tempfile.new(["tmp", ".rb"]).tap(&:close).path
           File.open(file_name, "w") { |f| f.puts eval_string } if !eval_string.empty?
           line = eval_string.lines.count + 1
-          should_reload = true
+          should_reload_locally = opts[:n] ? false : true
         else
           file_name, line = File.expand_path(args.first).split(/:/)
           line = line ? line.to_i : opts[:l].to_i
@@ -158,9 +162,13 @@ class Pry
           silence_warnings do
             _pry_.input = StringIO.new(File.readlines(file_name).join)
           end
-        elsif should_reload
+        elsif should_reload_locally
           silence_warnings do
             eval_string.replace(File.read(file_name))
+          end
+        elsif should_reload_at_top_level
+          silence_warnings do
+            TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
           end
         end
       end
