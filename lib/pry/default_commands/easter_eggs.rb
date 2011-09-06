@@ -3,7 +3,7 @@ class Pry
 
     EasterEggs = Pry::CommandSet.new do
 
-      command(/s\/(.*?)\/(.*?)/, "") do |source, dest|
+      command(/!s\/(.*?)\/(.*?)/, "") do |source, dest|
         eval_string.gsub!(/#{source}/) { dest }
         run "show-input"
       end
