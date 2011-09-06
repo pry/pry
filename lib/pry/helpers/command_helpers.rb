@@ -357,7 +357,13 @@ class Pry
           editor_invocation = "#{Pry.config.editor} #{start_line_syntax_for_editor(file, line)}"
         end
 
-        run ".#{editor_invocation}"
+        if jruby?
+          require 'spoon'
+          pid = Spoon.spawnp(*editor_invocation.split)
+          Process.waitpid(pid)
+        else
+          run ".#{editor_invocation}"
+        end
       end
 
       def start_line_syntax_for_editor(file_name, line_number)
