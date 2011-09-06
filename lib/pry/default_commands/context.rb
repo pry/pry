@@ -34,7 +34,7 @@ class Pry
               stack.push(Pry.binding_for(stack.last.eval(context)))
             end
 
-          rescue RescuableException => e
+          rescue RescuableException
             output.puts "Bad object path: #{arg_string}. Failed trying to resolve: #{context}"
             resolve_failure = true
           end
@@ -146,6 +146,7 @@ class Pry
 
         set_file_and_dir_locals(file)
         output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
+
 
         # This method inspired by http://rubygems.org/gems/ir_b
         File.open(file).each_with_index do |line, index|
