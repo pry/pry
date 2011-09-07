@@ -151,7 +151,11 @@ class Pry
           line = eval_string.lines.count + 1
           should_reload_locally = opts[:n] ? false : true
         else
-          file_name, line = File.expand_path(args.first).split(/:/)
+          # break up into file:line
+          /(:(\d+))?$/ =~ File.expand_path(args.first)
+
+          # $` is pre-match
+          file_name, line = [$`, $2]
           line = line ? line.to_i : opts[:l].to_i
         end
 
