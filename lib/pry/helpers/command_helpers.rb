@@ -373,6 +373,9 @@ class Pry
       def start_line_syntax_for_editor(file_name, line_number)
         file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
 
+        # special case 0th line
+        return file_name if line_number <= 0
+
         case Pry.config.editor
         when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
           "+#{line_number} #{file_name}"
