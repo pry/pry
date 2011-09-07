@@ -95,17 +95,6 @@ class Pry
     new(options).repl(target)
   end
 
-  # A custom version of `Kernel#pretty_inspect`.
-  # This method should not need to be accessed directly.
-  # @param obj The object to view.
-  # @return [String] The string representation of `obj`.
-  def self.view(obj)
-    obj.pretty_inspect
-
-  rescue NoMethodError
-    "unknown"
-  end
-
   # A version of `Pry.view` that clips the output to `max_size` chars.
   # In case of > `max_size` chars the `#<Object...> notation is used.
   # @param obj The object to view.
@@ -116,7 +105,7 @@ class Pry
       obj.name.to_s
     elsif obj.inspect.length <= max_length
       obj.inspect
-    else 
+    else
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
     end
 
@@ -199,7 +188,6 @@ class Pry
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
-    config.plugins.strict_loading = true
 
     config.requires ||= []
     config.should_load_requires = true
@@ -212,6 +200,15 @@ class Pry
     config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
 
     config.memory_size = 100
+
+    Pry.config.ls ||= OpenStruct.new
+    Pry.config.ls.local_var_color = :bright_red
+    Pry.config.ls.instance_var_color = :bright_blue
+    Pry.config.ls.class_var_color = :blue
+    Pry.config.ls.global_var_color = :bright_magenta
+    Pry.config.ls.method_color = :green
+    Pry.config.ls.instance_method_color = :bright_green
+    Pry.config.ls.constant_color = :yellow
   end
 
   # Set all the configurable options back to their default values

@@ -22,18 +22,18 @@ class Pry
 
         def ls_color_map
           {
-            "local variables" => :bright_red,
-            "instance variables" => :bright_blue,
-            "class variables" => :blue,
-            "global variables" => :bright_magenta,
-            "just singleton methods" => :green,
-            "public methods" => :green,
-            "private methods" => :green,
-            "protected methods" => :green,
-            "public instance methods" => :bright_green,
-            "private instance methods" => :bright_green,
-            "protected instance methods" => :bright_green,
-            "constants" => :red
+            "local variables" => Pry.config.ls.local_var_color,
+            "instance variables" => Pry.config.ls.instance_var_color,
+            "class variables" => Pry.config.ls.class_var_color,
+            "global variables" => Pry.config.ls.global_var_color,
+            "just singleton methods" => Pry.config.ls.method_color,
+            "public methods" => Pry.config.ls.method_color,
+            "private methods" => Pry.config.ls.method_color,
+            "protected methods" => Pry.config.ls.method_color,
+            "public instance methods" => Pry.config.ls.instance_method_color,
+            "private instance methods" => Pry.config.ls.instance_method_color,
+            "protected instance methods" => Pry.config.ls.instance_method_color,
+            "constants" => Pry.config.ls.constant_color
           }
         end
       end
@@ -198,7 +198,7 @@ Shows local and instance variables by default.
               if !v.first.empty?
                 text <<  "#{k}:\n--\n"
                 filtered_list = v.first.grep options[:grep]
-                text << text().bright_green(filtered_list.join("   "))
+                text << text().send(ls_color_map[k], (filtered_list.join("   ")))
                 text << "\n\n"
               end
             end
