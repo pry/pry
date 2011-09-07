@@ -358,9 +358,13 @@ class Pry
         end
 
         if jruby?
-          require 'spoon'
-          pid = Spoon.spawnp(*editor_invocation.split)
-          Process.waitpid(pid)
+          begin
+            require 'spoon'
+            pid = Spoon.spawnp(*editor_invocation.split)
+            Process.waitpid(pid)
+          rescue FFI::NotFoundError
+            run ".#{editor_invocation}"
+          end
         else
           run ".#{editor_invocation}"
         end
