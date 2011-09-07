@@ -129,7 +129,13 @@ class Pry
         when :ruby
           if meth.source_location.first == Pry.eval_path
             start_line = meth.source_location.last
-            p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join)).r(target)
+
+            # FIXME this line below needs to be refactored, WAY too
+            # much of a hack. We pass nothing to prompt because if
+            # prompt uses #inspect (or #pretty_inspect) on the context
+            # it can hang the session if the object being inspected on
+            # is enormous see: https://github.com/pry/pry/issues/245
+            p = Pry.new(:input => StringIO.new(Pry.line_buffer[start_line..-1].join), :prompt => proc {""}, :hooks => {}).r(target)
             code = strip_leading_whitespace(p)
           else
             if rbx_core?(meth)
