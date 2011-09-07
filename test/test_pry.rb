@@ -1126,21 +1126,28 @@ describe Pry do
 
             VC_MAX_LENGTH = 60
 
-            describe "given an object with an #inspect string shorter than the maximum specified" do
-              it "returns the #inspect string" do
+            describe "given an object with an #inspect string" do
+              it "returns the #<> format of the object (never use inspect)" do
                 o = Object.new
                 def o.inspect; "a" * VC_MAX_LENGTH; end
 
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
+              end
+            end
+
+            describe "given the 'main' object" do
+              it "returns the #inspect of main (special case)" do
+                o = TOPLEVEL_BINDING.eval('self')
                 Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
               end
             end
 
             describe "given an object with an #inspect string as long as the maximum specified" do
-              it "returns the #inspect string" do
+              it "returns the #<> format of the object (never use inspect)" do
                 o = Object.new
                 def o.inspect; "a" * VC_MAX_LENGTH; end
 
-                Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
               end
             end
 
@@ -1151,7 +1158,7 @@ describe Pry do
                   o = Object.new
                   def o.inspect; "a" * (VC_MAX_LENGTH + 1); end
 
-                  Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x\d+?/
+                  Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
                 end
               end
 
