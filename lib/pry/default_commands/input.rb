@@ -89,6 +89,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
           _pry_.input = StringIO.new(Array(text_array[range]).join)
         else
+          next output.puts "Error: no input to play command" if !args.first
           code = target.eval(args.first)
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
