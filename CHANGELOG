@@ -31,6 +31,7 @@
 * got rid of Pry#null_input? since all that was needed was eval_string.empty?
 * cd command now supports complex syntax: cd ../@y/y/../z
 * JRuby is no longer a 2nd class citizen, almost full JRuby support, passing 100% tests
+* added Pry::NAV_PROMPT (great new navigation prompt, per robgleeson) and Pry::SIMPLE_PRINT for simple (IRB-style) print output (just using inspect)
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
