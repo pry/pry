@@ -35,6 +35,16 @@ class Pry
     Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(stringified)}", output)
   end
 
+  # may be convenient when working with enormous objects and
+  # pretty_print is too slow
+  SIMPLE_PRINT = proc do |output, value|
+    begin
+      output.puts "=> #{value.inspect}"
+    rescue RescuableException
+      output.puts "=> unknown"
+    end
+  end
+
   # Will only show the first line of the backtrace
   DEFAULT_EXCEPTION_HANDLER = proc do |output, exception|
     output.puts "#{exception.class}: #{exception.message}"
@@ -84,7 +94,21 @@ class Pry
   SHELL_PROMPT = [
     proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
     proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
-  ]
+                 ]
+
+  # A prompt that includes the full object path as well as
+  # input/output (_in_ and _out_) information. Good for navigation.
+  NAV_PROMPT = [
+                 proc do |_, level, pry|
+                   tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                   "[#{pry.input_array.size}] (pry) #{tree}: #{level}> "
+                 end,
+                 proc do |_, level, pry|
+                   tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                   "[#{pry.input_array.size}] (pry) #{tree}: #{level}* "
+                 end,
+                ]
+
 
   # As a REPL, we often want to catch any unexpected exceptions that may have
   # been raised; however we don't want to go overboard and prevent the user
