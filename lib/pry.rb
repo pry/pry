@@ -6,13 +6,13 @@ require 'pry/helpers/base_helpers'
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = {
-    :before_session => proc do |out, target|
+    :before_session => proc do |out, target, _pry_|
       # ensure we're actually in a method
       file = target.eval('__FILE__')
 
       # /unknown/ for rbx
       if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
-        Pry.run_command "whereami 5", :output => out, :show_output => true, :context => target, :commands => Pry::Commands
+        _pry_.process_line("whereami 5", "", target)
       end
     end
   }
