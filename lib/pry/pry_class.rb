@@ -101,9 +101,10 @@ class Pry
   # @param max_size The maximum number of chars before clipping occurs.
   # @return [String] The string representation of `obj`.
   def self.view_clip(obj, max_length = 60)
-    if obj.kind_of?(Module) && obj.name && obj.name != "" && obj.name.to_s.length <= max_length
+    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
-    elsif obj.inspect.length <= max_length
+    elsif TOPLEVEL_BINDING.eval('self') == obj
+      # special case for 'main' object :)
       obj.inspect
     else
       "#<#{obj.class}:%#x>" % (obj.object_id << 1)
@@ -160,7 +161,7 @@ class Pry
 
     output = options[:show_output] ? options[:output] : StringIO.new
 
-    Pry.new(:output => output, :input => StringIO.new(command_string), :commands => options[:commands]).rep(options[:context])
+    Pry.new(:output => output, :input => StringIO.new(command_string), :commands => options[:commands], :prompt => proc {""}, :hooks => {}).rep(options[:context])
   end
 
   def self.default_editor_for_platform
