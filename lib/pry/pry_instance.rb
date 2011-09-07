@@ -137,7 +137,7 @@ class Pry
   # Initialize the repl session.
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
-    exec_hook :before_session, output, target
+    exec_hook :before_session, output, target, self
     initialize_special_locals(target)
 
     @input_array << nil # add empty input so inp and out match
@@ -150,7 +150,7 @@ class Pry
   # @param [Binding] target The target binding for the session.
   # @return [Object] The return value of the repl session (if one exists).
   def repl_epilogue(target, break_data)
-    exec_hook :after_session, output, target
+    exec_hook :after_session, output, target, self
 
     Pry.active_sessions -= 1
     binding_stack.pop

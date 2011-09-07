@@ -1199,8 +1199,8 @@ describe Pry do
           it 'should set the hooks default, and the default should be overridable' do
             Pry.input = InputTester.new("exit-all")
             Pry.hooks = {
-              :before_session => proc { |out,_| out.puts "HELLO" },
-              :after_session => proc { |out,_| out.puts "BYE" }
+              :before_session => proc { |out,_,_| out.puts "HELLO" },
+              :after_session => proc { |out,_,_| out.puts "BYE" }
             }
 
             str_output = StringIO.new
@@ -1213,8 +1213,8 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => {
-                      :before_session => proc { |out,_| out.puts "MORNING" },
-                      :after_session => proc { |out,_| out.puts "EVENING" }
+                      :before_session => proc { |out,_,_| out.puts "MORNING" },
+                      :after_session => proc { |out,_,_| out.puts "EVENING" }
                     }
                     ).repl
 
@@ -1226,7 +1226,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => {
-                      :before_session => proc { |out,_| out.puts "OPEN" }
+                      :before_session => proc { |out,_,_| out.puts "OPEN" }
                     }
                     ).repl
 
@@ -1236,7 +1236,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => {
-                      :after_session => proc { |out,_| out.puts "CLOSE" }
+                      :after_session => proc { |out,_,_| out.puts "CLOSE" }
                     }
                     ).repl
 
