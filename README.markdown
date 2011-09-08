@@ -4,9 +4,6 @@
 
 _Get to the code_
 
-**Note that JRuby is not yet supported in this release, but will be
-  soon.**
-  
  **Please** [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
 
 [Skip to the website (recommended)](http://pry.github.com) <br />
@@ -28,11 +25,11 @@ these include:
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
-* Many convenience commands inspired by IPython and other advanced REPLs
+* Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
 
 Pry also aims to be more than an IRB replacement; it is an
 attempt to bring REPL driven programming to the Ruby language. It is
-currently not nearly as powerful as tools like [SLIME](http://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
+currently not as powerful as tools like [SLIME](http://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
 general direction Pry is heading.
 
 Pry is also fairly flexible and allows significant user
@@ -358,8 +355,6 @@ MyArtChannel has kindly provided a hack to replace the `rails console` command i
 
 ### Limitations:
 
-* JRuby not officially supported due to currently too many quirks and
- strange behaviour. This will be fixed soon.
 * Tab completion is currently a bit broken/limited this will have a
   major overhaul in a future version.
 
@@ -376,7 +371,6 @@ Many new features are planned such as:
 
 * Increase modularity (rely more on plugin system)
 * Much improved tab completion (using [Bond](http://github.com/cldwalker/bond))
-* Improved JRuby support
 * Much improved documentation system, better support for YARD
 * Better support for code and method reloading and saving code
 * Extended and more sophisticated command system, allowing piping
@@ -388,9 +382,6 @@ Problems or questions contact me at [github](http://github.com/banister)
 
 ### Contributors
 
-The Pry team consists of:
-
-* [banisterfiend](http://github.com/banister)
-* [Rob Gleeson](https://github.com/robgleeson)
-* [Mon_Ouie](http://github.com/mon-ouie)
-* [injekt](http://github.com/injekt)
+Pry is primarily the work of [John Mair (banisterfiend)]((http://github.com/banister)), for full list
+of contributors see the
+[CONTRIBUTORS](https://github.com/pry/pry/blob/master/CONTRIBUTORS) file.
