@@ -1142,6 +1142,20 @@ describe Pry do
               end
             end
 
+            describe "given the a Numeric, String or Symbol object" do
+              [1, 2.0, -5, "hello", :test].each do |o|
+                it "returns the #inspect of the special-cased immediate object: #{o}" do
+                  Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+                end
+              end
+
+              # only testing with String here :)
+              it "returns #<> format of the special-cased immediate object if #inspect is longer than maximum" do
+                o = "o" * (VC_MAX_LENGTH + 1)
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /String:0x.*?/
+              end
+            end
+
             describe "given an object with an #inspect string as long as the maximum specified" do
               it "returns the #<> format of the object (never use inspect)" do
                 o = Object.new
