@@ -212,7 +212,7 @@ Shows local and instance variables by default.
                                 # plain
                               else
                                 list = info.sort_by { |k, v| v.last }.map { |k, v| [k, [v.first.grep(options[:grep])], v.last] }
-                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join(Pry.config.ls.separator)); text << "  " }
+                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join(Pry.config.ls.separator)); text << Pry.config.ls.separator }
 
                                 if !options[:f]
                                   stagger_output(text)
