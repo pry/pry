@@ -19,7 +19,6 @@
 * whitelist exceptions
 * hooks system
 * jruby shell command support
-*
 
 0.9.3
 * hist command now excludes last line of input (the command invocation itself)

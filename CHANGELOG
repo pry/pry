@@ -1,4 +1,20 @@
-*/8/2011 version 0.9.4
+8/9/2011 version 0.9.4
+
+MAJOR NEW FEATURES:
+- JRuby support, including show-method/edit-method and editor integration on both 1.8 and 1.9 versions
+- extended cd syntax: cd ../@x/y
+- play command now works much better with _in_ array (this is a very powerful feature, esp with Pry::NAV_PROMPT)
+- history saving/loading is now lightning fast
+- 'edit' (entered by itself) now opens current lines in input buffer in an editor, and evals on exit
+- 'edit' command is also, in general more intelligent
+- ls output no longer in array format, and colors can be configured, e.g: Pry.config.ls.ivar_color = :bright_blue
+- new switch-to command for moving around the binding stack without exiting out of sessions
+- more sophisticated prompts, Pry::NAV_PROMPT to ease deep spelunking of code
+- major bug fix for windows systems
+- much better support for huge objects, should no longer hang pry (see #245)
+- cat --ex and edit --ex now work better
+
+complete CHANGELOG:
 * tempfile should end in .rb (for edit -t)
 * ls output should not be in array format
 * fix history saving (should not save all of Readline::HISTORY, but only what changed)
@@ -9,8 +25,6 @@
 * got rid of warnings caused by stricter ruby 1.9.3 rules
 * remove interpolation of command names and fix interpolation error messag (update WIKI) (thanks ryanf!)
 * 'nested sessions' now use binding stacks (so each instance manages its own collection of bindings without spawning other instances)
-* changed `exit` command so that it now called Kernel#exit (after saving history)
-* 'quit' now behaves like 'exit-all' (and aliased to exit-all) - it breaks out of the repl loop and sets empties the binding_stack
 * 'cd ..' just pops a binding off the binding_stack with special behaviour when only one binding in stack - it breaks out of the repl loop
 * added switch-to command (like jump-to but doesnt unwind the stack)
 * show-method and show-doc now accept multiple method names
