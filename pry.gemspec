@@ -2,20 +2,20 @@
 
 Gem::Specification.new do |s|
   s.name = %q{pry}
-  s.version = "0.9.4pre1"
+  s.version = "0.9.5"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
-  s.authors = [%q{John Mair (banisterfiend)}]
-  s.date = %q{2011-09-07}
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.authors = ["John Mair (banisterfiend)"]
+  s.date = %q{2011-09-09}
   s.description = %q{An IRB alternative and runtime developer console}
   s.email = %q{jrmair@gmail.com}
-  s.executables = [%q{pry}]
-  s.files = [%q{.document}, %q{.gemtest}, %q{.gitignore}, %q{.yardopts}, %q{CHANGELOG}, %q{CONTRIBUTORS}, %q{LICENSE}, %q{README.markdown}, %q{Rakefile}, %q{TODO}, %q{bin/pry}, %q{examples/example_basic.rb}, %q{examples/example_command_override.rb}, %q{examples/example_commands.rb}, %q{examples/example_hooks.rb}, %q{examples/example_image_edit.rb}, %q{examples/example_input.rb}, %q{examples/example_input2.rb}, %q{examples/example_output.rb}, %q{examples/example_print.rb}, %q{examples/example_prompt.rb}, %q{examples/helper.rb}, %q{lib/pry.rb}, %q{lib/pry/command_context.rb}, %q{lib/pry/command_processor.rb}, %q{lib/pry/command_set.rb}, %q{lib/pry/commands.rb}, %q{lib/pry/completion.rb}, %q{lib/pry/config.rb}, %q{lib/pry/core_extensions.rb}, %q{lib/pry/custom_completions.rb}, %q{lib/pry/default_commands/basic.rb}, %q{lib/pry/default_commands/context.rb}, %q{lib/pry/default_commands/documentation.rb}, %q{lib/pry/default_commands/easter_eggs.rb}, %q{lib/pry/default_commands/gems.rb}, %q{lib/pry/default_commands/input.rb}, %q{lib/pry/default_commands/introspection.rb}, %q{lib/pry/default_commands/ls.rb}, %q{lib/pry/default_commands/shell.rb}, %q{lib/pry/extended_commands/experimental.rb}, %q{lib/pry/extended_commands/user_command_api.rb}, %q{lib/pry/helpers.rb}, %q{lib/pry/helpers/base_helpers.rb}, %q{lib/pry/helpers/command_helpers.rb}, %q{lib/pry/helpers/text.rb}, %q{lib/pry/history.rb}, %q{lib/pry/history_array.rb}, %q{lib/pry/plugins.rb}, %q{lib/pry/pry_class.rb}, %q{lib/pry/pry_instance.rb}, %q{lib/pry/version.rb}, %q{pry.gemspec}, %q{test/helper.rb}, %q{test/test_command_helpers.rb}, %q{test/test_command_processor.rb}, %q{test/test_command_set.rb}, %q{test/test_completion.rb}, %q{test/test_default_commands.rb}, %q{test/test_default_commands/test_context.rb}, %q{test/test_default_commands/test_documentation.rb}, %q{test/test_default_commands/test_gems.rb}, %q{test/test_default_commands/test_input.rb}, %q{test/test_default_commands/test_introspection.rb}, %q{test/test_default_commands/test_shell.rb}, %q{test/test_history_array.rb}, %q{test/test_pry.rb}, %q{test/test_pry_history.rb}, %q{test/test_pry_output.rb}, %q{test/test_special_locals.rb}, %q{test/testrc}, %q{wiki/Customizing-pry.md}, %q{wiki/Home.md}]
+  s.executables = ["pry"]
+  s.files = [".document", ".gemtest", ".gitignore", ".yardopts", "CHANGELOG", "CONTRIBUTORS", "LICENSE", "README.markdown", "Rakefile", "TODO", "bin/pry", "examples/example_basic.rb", "examples/example_command_override.rb", "examples/example_commands.rb", "examples/example_hooks.rb", "examples/example_image_edit.rb", "examples/example_input.rb", "examples/example_input2.rb", "examples/example_output.rb", "examples/example_print.rb", "examples/example_prompt.rb", "examples/helper.rb", "lib/pry.rb", "lib/pry/command_context.rb", "lib/pry/command_processor.rb", "lib/pry/command_set.rb", "lib/pry/commands.rb", "lib/pry/completion.rb", "lib/pry/config.rb", "lib/pry/core_extensions.rb", "lib/pry/custom_completions.rb", "lib/pry/default_commands/basic.rb", "lib/pry/default_commands/context.rb", "lib/pry/default_commands/documentation.rb", "lib/pry/default_commands/easter_eggs.rb", "lib/pry/default_commands/gems.rb", "lib/pry/default_commands/input.rb", "lib/pry/default_commands/introspection.rb", "lib/pry/default_commands/ls.rb", "lib/pry/default_commands/shell.rb", "lib/pry/extended_commands/experimental.rb", "lib/pry/extended_commands/user_command_api.rb", "lib/pry/helpers.rb", "lib/pry/helpers/base_helpers.rb", "lib/pry/helpers/command_helpers.rb", "lib/pry/helpers/text.rb", "lib/pry/history.rb", "lib/pry/history_array.rb", "lib/pry/plugins.rb", "lib/pry/pry_class.rb", "lib/pry/pry_instance.rb", "lib/pry/version.rb", "pry.gemspec", "test/helper.rb", "test/test_command_helpers.rb", "test/test_command_processor.rb", "test/test_command_set.rb", "test/test_completion.rb", "test/test_default_commands.rb", "test/test_default_commands/test_context.rb", "test/test_default_commands/test_documentation.rb", "test/test_default_commands/test_gems.rb", "test/test_default_commands/test_input.rb", "test/test_default_commands/test_introspection.rb", "test/test_default_commands/test_shell.rb", "test/test_history_array.rb", "test/test_pry.rb", "test/test_pry_history.rb", "test/test_pry_output.rb", "test/test_special_locals.rb", "test/testrc", "wiki/Customizing-pry.md", "wiki/Home.md"]
   s.homepage = %q{http://pry.github.com}
-  s.require_paths = [%q{lib}]
-  s.rubygems_version = %q{1.8.6}
+  s.require_paths = ["lib"]
+  s.rubygems_version = %q{1.7.2}
   s.summary = %q{An IRB alternative and runtime developer console}
-  s.test_files = [%q{test/helper.rb}, %q{test/test_command_helpers.rb}, %q{test/test_command_processor.rb}, %q{test/test_command_set.rb}, %q{test/test_completion.rb}, %q{test/test_default_commands.rb}, %q{test/test_default_commands/test_context.rb}, %q{test/test_default_commands/test_documentation.rb}, %q{test/test_default_commands/test_gems.rb}, %q{test/test_default_commands/test_input.rb}, %q{test/test_default_commands/test_introspection.rb}, %q{test/test_default_commands/test_shell.rb}, %q{test/test_history_array.rb}, %q{test/test_pry.rb}, %q{test/test_pry_history.rb}, %q{test/test_pry_output.rb}, %q{test/test_special_locals.rb}, %q{test/testrc}]
+  s.test_files = ["test/helper.rb", "test/test_command_helpers.rb", "test/test_command_processor.rb", "test/test_command_set.rb", "test/test_completion.rb", "test/test_default_commands.rb", "test/test_default_commands/test_context.rb", "test/test_default_commands/test_documentation.rb", "test/test_default_commands/test_gems.rb", "test/test_default_commands/test_input.rb", "test/test_default_commands/test_introspection.rb", "test/test_default_commands/test_shell.rb", "test/test_history_array.rb", "test/test_pry.rb", "test/test_pry_history.rb", "test/test_pry_output.rb", "test/test_special_locals.rb", "test/testrc"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
@@ -24,14 +24,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<ruby_parser>, [">= 2.0.5"])
       s.add_runtime_dependency(%q<coderay>, [">= 0.9.8"])
       s.add_runtime_dependency(%q<slop>, ["~> 2.1.0"])
-      s.add_runtime_dependency(%q<method_source>, [">= 0.6.0"])
+      s.add_runtime_dependency(%q<method_source>, [">= 0.6.5"])
       s.add_development_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_development_dependency(%q<open4>, ["~> 1.0.1"])
     else
       s.add_dependency(%q<ruby_parser>, [">= 2.0.5"])
       s.add_dependency(%q<coderay>, [">= 0.9.8"])
       s.add_dependency(%q<slop>, ["~> 2.1.0"])
-      s.add_dependency(%q<method_source>, [">= 0.6.0"])
+      s.add_dependency(%q<method_source>, [">= 0.6.5"])
       s.add_dependency(%q<bacon>, [">= 1.1.0"])
       s.add_dependency(%q<open4>, ["~> 1.0.1"])
     end
@@ -39,7 +39,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<ruby_parser>, [">= 2.0.5"])
     s.add_dependency(%q<coderay>, [">= 0.9.8"])
     s.add_dependency(%q<slop>, ["~> 2.1.0"])
-    s.add_dependency(%q<method_source>, [">= 0.6.0"])
+    s.add_dependency(%q<method_source>, [">= 0.6.5"])
     s.add_dependency(%q<bacon>, [">= 1.1.0"])
     s.add_dependency(%q<open4>, ["~> 1.0.1"])
   end

@@ -1,4 +1,4 @@
-0.9.4
+0.9.5
 * include method visiblity in show-doc and stat output
 * tempfile should end in .rb (for edit -t)
 * ls output should not be in array format
