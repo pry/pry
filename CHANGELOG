@@ -34,6 +34,8 @@
 * added Pry::NAV_PROMPT (great new navigation prompt, per robgleeson) and Pry::SIMPLE_PRINT for simple (IRB-style) print output (just using inspect)
 * _pry_ now passed as 3rd parameter to :before_session hook
 * ls colors now configurable via Pry.config.ls.local_var_color = :bright_red etc
+* ls separator configurable via, e.g Pry.config.ls.separator = "  "
+* Pry.view_clip() now only calls inspect on a few immediates, otherwise uses the #<> syntax, which has been truncated further to exclude teh mem address, again related to #245
 
 */7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)

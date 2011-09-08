@@ -106,10 +106,10 @@ class Pry
     elsif TOPLEVEL_BINDING.eval('self') == obj
       # special case for 'main' object :)
       obj.inspect
-    elsif [String, Numeric, Symbol].any? { |v| v === obj } && obj.inspect.length <= max_length
+    elsif [String, Numeric, Symbol, nil, true, false].any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
     else
-      "#<#{obj.class}:%#x>" % (obj.object_id << 1)
+      "#<#{obj.class}>"#:%x>"# % (obj.object_id << 1)
     end
 
   rescue RescuableException
