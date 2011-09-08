@@ -2,7 +2,7 @@ require 'helper'
 
 describe "Pry::DefaultCommands::Input" do
 
-  describe "amend-line-N" do
+  describe "amend-line" do
     it 'should correctly amend the last line of input when no line number specified ' do
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("def hello", "puts :bing", "amend-line puts :blah", "show-input", "exit-all"), str_output) do
@@ -104,7 +104,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should correctly amend the specified range of lines, using negative numbers in range' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line-2..-2 puts :bong", "show-input", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 2..-2 puts :bong", "show-input", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
