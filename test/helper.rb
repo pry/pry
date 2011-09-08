@@ -52,7 +52,11 @@ def another_sample_method
   :another_sample
 end
 
-def redirect_pry_io(new_in, new_out)
+# Set I/O streams.
+#
+# Out defaults to an anonymous StringIO.
+#
+def redirect_pry_io(new_in, new_out = StringIO.new)
   old_in = Pry.input
   old_out = Pry.output
 
