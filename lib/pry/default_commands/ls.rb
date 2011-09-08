@@ -198,7 +198,7 @@ Shows local and instance variables by default.
               if !v.first.empty?
                 text <<  "#{k}:\n--\n"
                 filtered_list = v.first.grep options[:grep]
-                text << text().send(ls_color_map[k], (filtered_list.join("   ")))
+                text << text().send(ls_color_map[k], (filtered_list.join(Pry.config.ls.separator)))
                 text << "\n\n"
               end
             end
@@ -212,7 +212,7 @@ Shows local and instance variables by default.
                                 # plain
                               else
                                 list = info.sort_by { |k, v| v.last }.map { |k, v| [k, [v.first.grep(options[:grep])], v.last] }
-                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join("  ")); text << "  " }
+                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join(Pry.config.ls.separator)); text << "  " }
 
                                 if !options[:f]
                                   stagger_output(text)

@@ -212,6 +212,8 @@ class Pry
     Pry.config.ls.method_color = :green
     Pry.config.ls.instance_method_color = :bright_green
     Pry.config.ls.constant_color = :yellow
+
+    Pry.config.ls.separator = "  "
   end
 
   # Set all the configurable options back to their default values
