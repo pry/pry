@@ -95,11 +95,12 @@ class Pry
     new(options).repl(target)
   end
 
-  # A version of `Pry.view` that clips the output to `max_size` chars.
-  # In case of > `max_size` chars the `#<Object...> notation is used.
+  # A version of `Pry.view` that clips the output to `max_length` chars.
+  # In case of > `max_length` chars the `#<Object...> notation is used.
   # @param obj The object to view.
-  # @param max_size The maximum number of chars before clipping occurs.
+  # @param max_length The maximum number of chars before clipping occurs.
   # @return [String] The string representation of `obj`.
+  #
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
