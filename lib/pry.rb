@@ -45,6 +45,11 @@ class Pry
     end
   end
 
+  # useful when playing with truly enormous objects
+  CLIPPED_PRINT = proc do |output, value|
+    output.puts "=> #{Pry.view_clip(value)}"
+  end
+
   # Will only show the first line of the backtrace
   DEFAULT_EXCEPTION_HANDLER = proc do |output, exception|
     output.puts "#{exception.class}: #{exception.message}"
@@ -53,22 +58,23 @@ class Pry
 
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
-    proc { |target_self, nest_level, _|
-      if nest_level == 0
-        "pry(#{Pry.view_clip(target_self)})> "
-      else
-        "pry(#{Pry.view_clip(target_self)}):#{nest_level}> "
-      end
-    },
+                    proc { |target_self, nest_level, _|
+                      if nest_level == 0
+                        "pry(#{Pry.view_clip(target_self)})> "
+                      else
+                        "pry(#{Pry.view_clip(target_self)}):#{nest_level}> "
+                      end
+                    },
 
-    proc { |target_self, nest_level, _|
-      if nest_level == 0
-        "pry(#{Pry.view_clip(target_self)})* "
-      else
-        "pry(#{Pry.view_clip(target_self)}):#{nest_level}* "
-      end
-    }
+                    proc { |target_self, nest_level, _|
+                      if nest_level == 0
+                        "pry(#{Pry.view_clip(target_self)})* "
+                      else
+                        "pry(#{Pry.view_clip(target_self)}):#{nest_level}* "
+                      end
+                    }
                    ]
+
   # Deal with the ^D key being pressed, different behaviour in
   # different cases:
   # 1) In an expression     - behave like `!` command   (clear input buffer)
@@ -92,22 +98,22 @@ class Pry
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
   SHELL_PROMPT = [
-    proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
-    proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                  ]
 
   # A prompt that includes the full object path as well as
   # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
-                 proc do |_, level, pry|
-                   tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                   "[#{pry.input_array.size}] (pry) #{tree}: #{level}> "
-                 end,
-                 proc do |_, level, pry|
-                   tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                   "[#{pry.input_array.size}] (pry) #{tree}: #{level}* "
-                 end,
-                ]
+                proc do |_, level, pry|
+                  tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{pry.input_array.size}] (pry) #{tree}: #{level}> "
+                end,
+                proc do |_, level, pry|
+                  tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{pry.input_array.size}] (pry) #{tree}: #{level}* "
+                end,
+               ]
 
 
   # As a REPL, we often want to catch any unexpected exceptions that may have
@@ -116,15 +122,15 @@ class Pry
   module RescuableException
     def self.===(exception)
       case exception
-      # Catch when the user hits ^C (Interrupt < SignalException), and assume
-      # that they just wanted to stop the in-progress command (just like bash etc.)
+        # Catch when the user hits ^C (Interrupt < SignalException), and assume
+        # that they just wanted to stop the in-progress command (just like bash etc.)
       when Interrupt
         true
-      # Don't catch signals (particularly not SIGTERM) as these are unlikely to be
-      # intended for pry itself. We should also make sure that Kernel#exit works.
+        # Don't catch signals (particularly not SIGTERM) as these are unlikely to be
+        # intended for pry itself. We should also make sure that Kernel#exit works.
       when SystemExit, SignalException
         false
-      # All other exceptions will be caught.
+        # All other exceptions will be caught.
       else
         true
       end
