@@ -1131,7 +1131,7 @@ describe Pry do
                 o = Object.new
                 def o.inspect; "a" * VC_MAX_LENGTH; end
 
-                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
               end
             end
 
@@ -1152,7 +1152,7 @@ describe Pry do
               # only testing with String here :)
               it "returns #<> format of the special-cased immediate object if #inspect is longer than maximum" do
                 o = "o" * (VC_MAX_LENGTH + 1)
-                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /String:0x.*?/
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<String/
               end
             end
 
@@ -1161,7 +1161,7 @@ describe Pry do
                 o = Object.new
                 def o.inspect; "a" * VC_MAX_LENGTH; end
 
-                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
+                Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
               end
             end
 
@@ -1172,7 +1172,7 @@ describe Pry do
                   o = Object.new
                   def o.inspect; "a" * (VC_MAX_LENGTH + 1); end
 
-                  Pry.view_clip(o, VC_MAX_LENGTH).should =~ /Object:0x.*?/
+                  Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
                 end
               end
 
@@ -1181,8 +1181,8 @@ describe Pry do
                   it "returns a string of the #<class name:object idish> format" do
                     c, m = Class.new, Module.new
 
-                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x.*?/
-                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x.*?/
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /#<Class/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /#<Module/
                   end
                 end
 
@@ -1194,8 +1194,8 @@ describe Pry do
                     def c.name; "a" * (VC_MAX_LENGTH + 1); end
                     def m.name; "a" * (VC_MAX_LENGTH + 1); end
 
-                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /Class:0x.*?/
-                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /Module:0x.*?/
+                    Pry.view_clip(c, VC_MAX_LENGTH).should =~ /#<Class/
+                    Pry.view_clip(m, VC_MAX_LENGTH).should =~ /#<Module/
                   end
                 end
 
