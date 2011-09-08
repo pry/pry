@@ -5,7 +5,8 @@ describe Pry do
 
   before do
     Pry.history.clear
-    @hist = Tempfile.new(["tmp", ".pry_history"]).tap(&:close).path
+    @file = Tempfile.new(["tmp", ".pry_history"])
+    @hist = @file.path
     File.open(@hist, 'w') {|f| f << "1\n2\n3\n" }
     @old_hist = Pry.config.history.file
     Pry.config.history.file = @hist
@@ -13,7 +14,8 @@ describe Pry do
   end
 
   after do
-    File.unlink @hist
+    @file.close
+    File.unlink(@hist)
     Pry.config.history.file = @old_hist
   end
 

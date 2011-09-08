@@ -39,6 +39,16 @@ class Pry
         end
       end
 
+      # Open a temp file and yield it to the block, closing it after
+      # @return [String] The path of the temp file
+      def temp_file
+        file = Tempfile.new(["tmp", ".rb"])
+        yield file
+        file.path
+      ensure
+        file.close
+      end
+
       ########### RBX HELPERS #############
       def is_core_rbx_path?(path)
         rbx? &&
