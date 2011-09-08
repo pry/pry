@@ -17,7 +17,7 @@ class Pry
     end
   }
 
-  # The default prints
+  # The default print
   DEFAULT_PRINT = proc do |output, value|
     stringified = begin
                     value.pretty_inspect
@@ -57,7 +57,7 @@ class Pry
       if nest_level == 0
         "pry(#{Pry.view_clip(target_self)})> "
       else
-        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}> "
+        "pry(#{Pry.view_clip(target_self)}):#{nest_level}> "
       end
     },
 
@@ -65,7 +65,7 @@ class Pry
       if nest_level == 0
         "pry(#{Pry.view_clip(target_self)})* "
       else
-        "pry(#{Pry.view_clip(target_self)}):#{Pry.view_clip(nest_level)}* "
+        "pry(#{Pry.view_clip(target_self)}):#{nest_level}* "
       end
     }
                    ]

@@ -146,8 +146,9 @@ class Pry
           should_reload_at_top_level = opts[:n] ? false : true
 
         elsif opts.t? || args.first.nil?
-          file_name = Tempfile.new(["tmp", ".rb"]).tap(&:close).path
-          File.open(file_name, "w") { |f| f.puts eval_string } if !eval_string.empty?
+          file_name = temp_file do |f|
+            f.puts eval_string  if !eval_string.empty?
+          end
           line = eval_string.lines.count + 1
           should_reload_locally = opts[:n] ? false : true
         else
