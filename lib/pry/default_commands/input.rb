@@ -12,7 +12,7 @@ class Pry
         render_output(false, 1, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
       end
 
-      command(/amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
+      command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
               :interpolate => false, :listing => "amend-line")  do |*args|
         start_line_number, end_line_number, replacement_line = *args
 
@@ -52,7 +52,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
         run "show-input"
       end
 
-      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line.?(-?\d+)?(?:\.\.(-?\d+))?/, "")
+      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "")
 
       command "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
