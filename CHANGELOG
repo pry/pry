@@ -1,4 +1,4 @@
-8/9/2011 version 0.9.4
+8/9/2011 version 0.9.5
 
 MAJOR NEW FEATURES:
 - JRuby support, including show-method/edit-method and editor integration on both 1.8 and 1.9 versions
