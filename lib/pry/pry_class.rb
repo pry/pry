@@ -106,7 +106,7 @@ class Pry
       obj.name.to_s
     elsif TOPLEVEL_BINDING.eval('self') == obj
       # special case for 'main' object :)
-      obj.inspect
+      obj.to_s
     elsif [String, Numeric, Symbol, nil, true, false].any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
     else
