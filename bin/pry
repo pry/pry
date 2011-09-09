@@ -12,7 +12,7 @@ rescue LoadError
   require 'pry'
 end
 
-opts = Slop.parse(:help => true) do
+opts = Slop.parse(:help => true, :multiple_switches => false) do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See: `https://github.com/banister` for more information.
