@@ -203,6 +203,7 @@ class Pry
           opt.on :m, :methods, "Operate on methods."
           opt.on :n, "no-reload", "Do not automatically reload the method's file after editing."
           opt.on "no-jump", "Do not fast forward editor to first line of method."
+          opt.on :p, :patch, "Instead of editing the method's file, try to edit in a tempfile and apply as a monkey patch."
           opt.on :c, :context, "Select object context to run under.", true do |context|
             target = Pry.binding_for(target.eval(context))
           end
@@ -213,20 +214,42 @@ class Pry
 
         next if opts.help?
 
+        if !Pry.config.editor
+          output.puts "Error: No editor set!"
+          output.puts "Ensure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
+          next
+        end
+
         meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+        meth_name, target, type = get_method_attributes(meth_name, target, opts.to_hash(true))
+        meth = get_method_object_from_target(meth_name, target, type)
+
+        if meth.nil?
           output.puts "Invalid method name: #{meth_name}."
           next
         end
 
-        next output.puts "Error: No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice." if !Pry.config.editor
+        if opts.p? || is_a_dynamically_defined_method?(meth)
+          code, _ = code_and_code_type_for(meth)
+
+          lines = code.lines.to_a
+          if lines[0] =~ /^def [^( \n]+/
+            lines[0] = "def #{meth_name}#{$'}"
+          else
+            next output.puts "Error: Pry can only patch methods created with the `def` keyword."
+          end
+
+          temp_file do |f|
+            f.puts lines.join
+            f.flush
+            invoke_editor(f.path, 0)
+            Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+          end
+          next
+        end
 
         if is_a_c_method?(meth)
           output.puts "Error: Can't edit a C method."
-        elsif is_a_dynamically_defined_method?(meth)
-          output.puts "Error: Can't edit an eval method."
-
-          # editor is invoked here
         else
           file, line = path_line_for(meth)
           set_file_and_dir_locals(file)

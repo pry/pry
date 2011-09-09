@@ -178,37 +178,43 @@ class Pry
         [doc, code_type]
       end
 
-      def get_method_object(meth_name, target, options)
+      def get_method_object(meth_name, target=nil, options={})
+        get_method_object_from_target(*get_method_attributes(meth_name, target, options)) rescue nil
+      end
+
+      def get_method_attributes(meth_name, target=nil, options={})
         if meth_name
           if meth_name =~ /(\S+)\#(\S+)\Z/
             context, meth_name = $1, $2
             target = Pry.binding_for(target.eval(context))
-            options["instance-methods"] = true
-            options[:methods] = false
+            type = :instance
           elsif meth_name =~ /(\S+)\.(\S+)\Z/
             context, meth_name = $1, $2
             target = Pry.binding_for(target.eval(context))
-            options["instance-methods"] = false
-            options[:methods] = true
+            type = :singleton
+          elsif options["instance_methods"]
+            type = :instance
+          elsif options[:methods]
+            type = :singleton
+          else
+            type = nil
           end
         else
           meth_name = meth_name_from_binding(target)
+          type = nil
         end
+        [meth_name, target, type]
+      end
 
-        if !meth_name
-          return nil
-        end
-
-        if options["instance-methods"]
+      def get_method_object_from_target(meth_name, target, type=nil)
+        case type
+        when :instance
           target.eval("instance_method(:#{meth_name})") rescue nil
-        elsif options[:methods]
+        when :singleton
           target.eval("method(:#{meth_name})") rescue nil
         else
-          begin
-            target.eval("instance_method(:#{meth_name})")
-          rescue
-            target.eval("method(:#{meth_name})") rescue nil
-          end
+          get_method_object_from_target(meth_name, target, :instance) ||
+            get_method_object_from_target(meth_name, target, :singleton)
         end
       end
 
