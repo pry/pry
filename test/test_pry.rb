@@ -1136,9 +1136,9 @@ describe Pry do
             end
 
             describe "given the 'main' object" do
-              it "returns the #inspect of main (special case)" do
+              it "returns the #to_s of main (special case)" do
                 o = TOPLEVEL_BINDING.eval('self')
-                Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+                Pry.view_clip(o, VC_MAX_LENGTH).should == o.to_s
               end
             end
 
