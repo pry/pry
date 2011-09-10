@@ -9,6 +9,7 @@
 * cat --ex now works on exceptions in REPL-defined code
 * play -m now uses eval_string.replace()
 * play -m --open uses show-input to show play'd code
+* added "unindent" helper to make adding help to commands easier
 
 8/9/2011 version 0.9.5
 
