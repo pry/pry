@@ -51,7 +51,7 @@ class Pry
   end
 
   # Will only show the first line of the backtrace
-  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception|
+  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, _|
     output.puts "#{exception.class}: #{exception.message}"
     output.puts "from #{exception.backtrace.first}"
   end
