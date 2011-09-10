@@ -319,6 +319,16 @@ class Pry
     end
   end
 
+  # Run the specified command.
+  # @param [String] The command (and its params) to execute.
+  # @param [Binding] The binding to use..
+  # @example
+  #   pry_instance.run_command("ls -m")
+  def run_command(val, target = binding_stack.last)
+    process_line(val, "", target)
+    Pry::CommandContext::VOID_VALUE
+  end
+
   # Set the last result of an eval.
   # This method should not need to be invoked directly.
   # @param [Object] result The result.

@@ -187,6 +187,19 @@ describe Pry do
       end
     end
 
+    describe "Pry#run_command" do
+      it 'should run a command in a specified context' do
+        b = Pry.binding_for(7)
+        p = Pry.new(:output => StringIO.new)
+        p.run_command("ls -m", b)
+        p.output.string.should =~ /divmod/
+      end
+
+      it 'should run a command in the context of a session' do
+        mock_pry("@session_ivar = 10", "_pry_.run_command('ls')").should =~ /@session_ivar/
+      end
+    end
+
     describe "repl" do
       describe "basic functionality" do
         it 'should set an ivar on an object and exit the repl' do
