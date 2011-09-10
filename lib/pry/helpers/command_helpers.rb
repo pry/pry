@@ -305,7 +305,11 @@ class Pry
       # returns the file content between the lines and the normalized
       # start and end line numbers.
       def read_between_the_lines(file_name, start_line, end_line)
-        content = File.read(File.expand_path(file_name))
+        if file_name == Pry.eval_path
+          content = Pry.line_buffer.drop(1).join
+        else
+          content = File.read(File.expand_path(file_name))
+        end
         lines_array = content.each_line.to_a
 
         [lines_array[start_line..end_line].join, normalized_line_number(start_line, lines_array.size),
