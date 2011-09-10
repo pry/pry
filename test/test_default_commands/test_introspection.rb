@@ -1,6 +1,164 @@
 require 'helper'
 
 describe "Pry::DefaultCommands::Introspection" do
+
+  describe "edit" do
+    before do
+      @old_editor = Pry.config.editor
+      @file = nil; @line = nil; @contents = nil
+      Pry.config.editor = lambda do |file, line|
+        @file = file; @line = line; @contents = File.read(@file)
+        ":" # The : command does nothing.
+      end
+    end
+    after do
+      Pry.config.editor = @old_editor
+    end
+
+    describe "with FILE" do
+      it "should invoke Pry.config.editor with absolutified filenames" do
+        mock_pry("edit foo.rb")
+        @file.should == File.expand_path("foo.rb")
+        mock_pry("edit /tmp/bar.rb")
+        @file.should == "/tmp/bar.rb"
+      end
+
+      it "should guess the line number from a colon" do
+        mock_pry("edit /tmp/foo.rb:10")
+        @line.should == 10
+      end
+
+      it "should use the line number from -l" do
+        mock_pry("edit -l 10 /tmp/foo.rb")
+        @line.should == 10
+      end
+
+      it "should not delete the file!" do
+        mock_pry("edit Rakefile")
+        File.exist?(@file).should == true
+      end
+
+      describe do
+        before do
+          @rand = rand
+          Pry.config.editor = lambda { |file, line|
+            File.open(file, 'w') { |f| f << "$rand = #{@rand.inspect}" }
+            ":"
+          }
+        end
+
+        it "should reload the file if it is a ruby file" do
+          path = Tempfile.new(["tmp", ".rb"]).path
+
+          mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
+
+          File.unlink(path)
+        end
+
+        it "should not reload the file if it is not a ruby file" do
+          path = Tempfile.new(["tmp", ".py"]).path
+
+          mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
+
+          File.unlink(path)
+        end
+
+        it "should not reload a ruby file if -n is given" do
+          path = Tempfile.new(["tmp", ".rb"]).path
+
+          mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
+
+          File.unlink(path)
+        end
+
+        it "should reload a non-ruby file if -r is given" do
+          path = Tempfile.new(["tmp", ".pryrc"]).path
+
+          mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
+
+          File.unlink(path)
+        end
+      end
+    end
+
+    describe "with --ex" do
+      before do
+        @path = Tempfile.new(["tmp", ".rb"]).path
+        File.open(@path, 'w'){ |f| f << "1\n2\nraise RuntimeError" }
+      end
+      after do
+        File.unlink(@path)
+        File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
+      end
+      it "should open the correct file" do
+        mock_pry("require #{@path.inspect}", "edit --ex")
+
+        @file.should == @path
+        @line.should == 3
+      end
+
+      it "should reload the file" do
+        Pry.config.editor = lambda {|file, line|
+          File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
+          ":"
+        }
+
+        mock_pry("require #{@path.inspect}", "edit --ex", "FOO").should =~ /BAR/
+      end
+
+      it "should not reload the file if -n is passed" do
+        Pry.config.editor = lambda {|file, line|
+          File.open(file, 'w'){|f| f << "FOO2 = 'BAR'" }
+          ":"
+        }
+
+        mock_pry("require #{@path.inspect}", "edit -n --ex", "FOO2").should.not =~ /BAR/
+      end
+    end
+
+    describe "without FILE" do
+      it "should edit the current expression if it's incomplete" do
+        mock_pry("def a", "edit")
+        @contents.should == "def a\n"
+      end
+
+      it "should edit the previous expression if the current is empty" do
+        mock_pry("def a; 2; end", "edit")
+        @contents.should == "def a; 2; end\n"
+      end
+
+      it "should use a blank file if -t is specified" do
+        mock_pry("def a; 5; end", "edit -t")
+        @contents.should == "\n"
+      end
+
+      it "should position the cursor at the end of the expression" do
+        mock_pry("def a; 2;"," end", "edit")
+        @line.should == 2
+      end
+
+      it "should delete the temporary file" do
+        mock_pry("edit")
+        File.exist?(@file).should == false
+      end
+
+      it "should evaluate the expression" do
+        Pry.config.editor = lambda {|file, line|
+          File.open(file, 'w'){|f| f << "'FOO'\n" }
+          ":"
+        }
+        mock_pry("edit").should =~ /FOO/
+      end
+      it "should not evaluate the expression with -n" do
+        Pry.config.editor = lambda {|file, line|
+          File.open(file, 'w'){|f| f << "'FOO'\n" }
+          ":"
+        }
+        mock_pry("edit -n").should.not =~ /FOO/
+      end
+    end
+  end
+
   describe "show-method" do
     it 'should output a method\'s source' do
       str_output = StringIO.new

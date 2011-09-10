@@ -147,6 +147,10 @@ class Pry
         set_file_and_dir_locals(file)
         output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
 
+        unless File.readable?(file)
+          output.puts "Cannot open #{file.inspect} for reading."
+          next
+        end
 
         # This method inspired by http://rubygems.org/gems/ir_b
         File.open(file).each_with_index do |line, index|
