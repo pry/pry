@@ -19,7 +19,6 @@ describe Pry do
 
   if RUBY_VERSION =~ /1.9/
     describe "Exotic object support" do
-
       # regression test for exotic object support
       it "Should not error when return value is a BasicObject instance" do
 
@@ -64,7 +63,7 @@ describe Pry do
         o = Object.new
         pry_tester = Pry.new(:input => StringIO.new(input_string),
                              :output => str_output,
-                             :exception_handler => proc { |_, exception| @excep = exception },
+                             :exception_handler => proc { |_, exception, _pry_| @excep = exception },
                              :print => proc {}
                              ).rep(o)
 
@@ -145,7 +144,6 @@ describe Pry do
         pry_tester.rep(o)
         str_output.string.should == ""
       end
-
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
         o = Object.new

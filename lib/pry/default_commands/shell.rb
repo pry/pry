@@ -74,7 +74,6 @@ class Pry
 
         if opts.ex?
           next output.puts "No Exception or Exception has no associated file." if file_name.nil?
-          next output.puts "Cannot cat exceptions raised in REPL." if Pry.eval_path == file_name
         else
           file_name = args.shift
         end
