@@ -73,6 +73,10 @@ class Pry
       @count
     end
 
+    def empty?
+      size == 0
+    end
+
     def each
       ((@count - size)...@count).each do |n|
         yield @hash[n]
