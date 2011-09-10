@@ -111,14 +111,14 @@ class Pry
       command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
-                      "Edit the method FILE in an editor.\nWhen no file given, opens editor with contents of input buffer and evals after closing." \
+                      "Edit the method FILE in an editor.\nWhen no file given, opens editor with contents of input buffer or previous input and evals after closing." \
                       "\nEnsure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
                       "e.g: edit sample.rb"
 
           opt.on :r, "reload", "Eval file content after editing (evals at top level)"
           opt.on :n, "no-reload", "Do not automatically reload the file after editing (only applies to --ex and -t)."
           opt.on :ex, "Open an editor at the line and file that generated the most recent Exception, reloads file after editing."
-          opt.on :t, "temp", "Open a temporary file in an editor with contents of input buffer and eval it in current context after closing (same as `edit` with no args)"
+          opt.on :t, "temp", "Open a temporary file in an editor with contents of input buffer and eval it in current context after closing (does not default to previous input)"
           opt.on :p, "play", "Use the pry `play` command to eval the file content after editing."
           opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
           opt.on :h, :help, "This message." do
@@ -145,9 +145,13 @@ class Pry
 
           should_reload_at_top_level = opts[:n] ? false : true
 
-        elsif opts.t? || args.first.nil?
+        elsif opts.t? || args.empty?
           file_name = temp_file do |f|
-            f.puts eval_string  if !eval_string.empty?
+            if !eval_string.empty?
+              f.puts eval_string
+            elsif !opts.t? && !_pry_.input_array.empty?
+              f.puts _pry_.input_array[-1]
+            end
           end
           line = eval_string.lines.count + 1
           should_reload_locally = opts[:n] ? false : true
