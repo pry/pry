@@ -110,74 +110,82 @@ class Pry
 
       command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: edit [OPTIONS] [FILE]\n" \
-                      "Edit the method FILE in an editor.\nWhen no file given, opens editor with contents of input buffer or previous input and evals after closing." \
-                      "\nEnsure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
-                      "e.g: edit sample.rb"
+          opt.banner "Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]]\n" \
+                     "Open a text editor. When no FILE is given, edits the pry input buffer.\n" \
+                     "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
+                     "e.g: edit sample.rb"
 
-          opt.on :r, "reload", "Eval file content after editing (evals at top level)"
-          opt.on :n, "no-reload", "Do not automatically reload the file after editing (only applies to --ex and -t)."
-          opt.on :ex, "Open an editor at the line and file that generated the most recent Exception, reloads file after editing."
-          opt.on :t, "temp", "Open a temporary file in an editor with contents of input buffer and eval it in current context after closing (does not default to previous input)"
-          opt.on :p, "play", "Use the pry `play` command to eval the file content after editing."
-          opt.on :l, "line", "Specify line number to jump to in file", true, :as => Integer
+          opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)"
+          opt.on :t, :temp, "Open an empty temporary file"
+          opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
+          opt.on :n, :"no-reload", "Don't automatically reload the edited code"
+          opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
           opt.on :h, :help, "This message." do
             output.puts opt
           end
         end
         next if opts.h?
 
-        should_reload_at_top_level = opts[:r]
-        should_reload_locally      = false
-
-        if opts.ex?
-          next output.puts "No Exception found." if _pry_.last_exception.nil?
-
-          if is_core_rbx_path?(_pry_.last_exception.file)
-            file_name = rbx_convert_path_to_full(_pry_.last_exception.file)
-          else
-            file_name = _pry_.last_exception.file
-          end
-
-          line = _pry_.last_exception.line
-          next output.puts "Exception has no associated file." if file_name.nil?
-          next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-
-          should_reload_at_top_level = opts[:n] ? false : true
-
-        elsif opts.t? || args.empty?
-          file_name = temp_file do |f|
-            if !eval_string.empty?
-              f.puts eval_string
-            elsif !opts.t? && !_pry_.input_array.empty?
-              f.puts _pry_.input_array[-1]
-            end
-          end
-          line = eval_string.lines.count + 1
-          should_reload_locally = opts[:n] ? false : true
-        else
-          # break up into file:line
-          /(:(\d+))?$/ =~ File.expand_path(args.first)
-
-          # $` is pre-match
-          file_name, line = [$`, $2]
-          line = line ? line.to_i : opts[:l].to_i
+        if [opts.ex? || nil, opts.t? || nil, !args.empty? || nil].compact.size > 1
+          next output.puts "Only one of --ex, --temp, and FILE may be specified"
         end
 
-        invoke_editor(file_name, line)
-        set_file_and_dir_locals(file_name)
+        # edit of local code, eval'd within pry.
+        if !opts.ex? && args.empty?
 
-        if opts[:p]
-          silence_warnings do
-            _pry_.input = StringIO.new(File.readlines(file_name).join)
+          content = if !eval_string.empty?
+                      eval_string
+                    elsif !opts.t?
+                      _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } # No present? in 1.8
+                    end || ""
+
+          file_name = temp_file do |f|
+            f.puts(content)
           end
-        elsif should_reload_locally
-          silence_warnings do
-            eval_string.replace(File.read(file_name))
+          line = content.lines.count
+
+          invoke_editor(file_name, line)
+
+          if !opts.n?
+            silence_warnings do
+              eval_string.replace(File.read(file_name))
+            end
           end
-        elsif should_reload_at_top_level
-          silence_warnings do
-            TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+
+          # don't leak temporary files
+          File.unlink(file_name)
+
+        # edit of remote code, eval'd at top-level
+        else
+          if opts.ex?
+            next output.puts "No Exception found." if _pry_.last_exception.nil?
+
+            if is_core_rbx_path?(_pry_.last_exception.file)
+              file_name = rbx_convert_path_to_full(_pry_.last_exception.file)
+            else
+              file_name = _pry_.last_exception.file
+            end
+
+            line = _pry_.last_exception.line
+            next output.puts "Exception has no associated file." if file_name.nil?
+            next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
+
+          else
+            # break up into file:line
+            file_name = File.expand_path(args.first)
+
+            line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+          end
+
+          line = opts[:l].to_i if opts.l?
+
+          invoke_editor(file_name, line)
+          set_file_and_dir_locals(file_name)
+
+          if opts.r? || ((opts.ex? || file_name.end_with?(".rb")) && !opts.n?)
+            silence_warnings do
+              TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+            end
           end
         end
       end
