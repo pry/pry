@@ -254,7 +254,7 @@ class Pry
   # Output the result or pass to an exception handler (if result is an exception).
   def show_result(result)
     if last_result_is_exception?
-      exception_handler.call output, result
+      exception_handler.call output, result, self
     else
       print.call output, result
     end
