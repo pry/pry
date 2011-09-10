@@ -9,9 +9,11 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: show-method [OPTIONS] [METH 1] [METH 2] [METH N]\n" \
-                     "Show the source for method METH. Tries instance methods first and then methods by default.\n" \
-                     "e.g: show-method hello_method"
+          opt.banner unindent <<-USAGE
+            Usage: show-method [OPTIONS] [METH 1] [METH 2] [METH N]
+            Show the source for method METH. Tries instance methods first and then methods by default.
+            e.g: show-method hello_method
+          USAGE
 
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
@@ -65,9 +67,11 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner = "Usage: show-command [OPTIONS] [CMD]\n" \
-                       "Show the source for command CMD.\n" \
-                       "e.g: show-command show-method"
+          opt.banner unindent <<-USAGE
+            Usage: show-command [OPTIONS] [CMD]
+            Show the source for command CMD.
+            e.g: show-command show-method
+          USAGE
 
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
@@ -110,10 +114,12 @@ class Pry
 
       command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]]\n" \
-                     "Open a text editor. When no FILE is given, edits the pry input buffer.\n" \
-                     "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
-                     "e.g: edit sample.rb"
+          opt.banner unindent <<-USAGE
+            Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]]
+            Open a text editor. When no FILE is given, edits the pry input buffer.
+            Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
+            e.g: edit sample.rb
+          USAGE
 
           opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)"
           opt.on :t, :temp, "Open an empty temporary file"
@@ -194,10 +200,12 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: edit-method [OPTIONS] [METH]\n" \
-                      "Edit the method METH in an editor.\n" \
-                      "Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.\n" \
-                      "e.g: edit-method hello_method"
+          opt.banner unindent <<-USAGE
+            Usage: edit-method [OPTIONS] [METH]
+            Edit the method METH in an editor.
+            Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
+            e.g: edit-method hello_method
+          USAGE
 
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."

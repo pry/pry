@@ -17,14 +17,16 @@ class Pry
         start_line_number, end_line_number, replacement_line = *args
 
         opts = Slop.parse!(args.compact) do |opt|
-          opt.banner %{Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
+          opt.banner unindent <<-USAGE
+            Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
 
-Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
-e.g amend-line 1 puts 'hello world! # replace line 1'
-e.g amend-line 1..4 !               # delete lines 1..4
-e.g amend-line 3 >puts 'goodbye'    # insert before line 3
-e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
-}
+            Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
+            e.g amend-line 1 puts 'hello world! # replace line 1'
+            e.g amend-line 1..4 !               # delete lines 1..4
+            e.g amend-line 3 >puts 'goodbye'    # insert before line 3
+            e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
+          USAGE
+
           opt.on :h, :help, "This message." do
             output.puts opt
           end
@@ -56,7 +58,13 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
 
       command "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: play [OPTIONS] [--help]\nDefault action (no options) is to play the provided string variable\ne.g `play _in_[20] --lines 1..3`\ne.g `play -m Pry#repl --lines 1..-1`\ne.g `play -f Rakefile --lines 5`"
+          opt.banner unindent <<-USAGE
+            Usage: play [OPTIONS] [--help]
+            Default action (no options) is to play the provided string variable
+            e.g `play _in_[20] --lines 1..3`
+            e.g `play -m Pry#repl --lines 1..-1`
+            e.g `play -f Rakefile --lines 5`
+          USAGE
 
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true

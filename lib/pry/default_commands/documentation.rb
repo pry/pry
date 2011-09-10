@@ -11,9 +11,11 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner = "Usage: show-doc [OPTIONS] [METH 1] [METH 2] [METH N]\n" \
-                       "Show the comments above method METH. Tries instance methods first and then methods by default.\n" \
-                       "e.g show-doc hello_method"
+          opt.banner unindent <<-USAGE
+            Usage: show-doc [OPTIONS] [METH 1] [METH 2] [METH N]
+            Show the comments above method METH. Tries instance methods first and then methods by default.
+            e.g show-doc hello_method
+          USAGE
 
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
@@ -56,9 +58,11 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: stat [OPTIONS] [METH]\n" \
-                     "Show method information for method METH and set _file_ and _dir_ locals." \
-                     "e.g: stat hello_method"
+          opt.banner unindent <<-USAGE
+            Usage: stat [OPTIONS] [METH]
+            Show method information for method METH and set _file_ and _dir_ locals.
+            e.g: stat hello_method
+          USAGE
 
           opt.on :M, "instance-methods", "Operate on instance methods."
           opt.on :m, :methods, "Operate on methods."
@@ -100,11 +104,13 @@ class Pry
         target = target()
 
         opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: gist-method [OPTIONS] [METH]\n" \
-                     "Gist the method (doc or source) to github.\n" \
-                     "Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.\n" \
-                     "e.g: gist -m my_method\n" \
-                     "e.g: gist -d my_method\n"
+          opt.banner unindent <<-USAGE
+            Usage: gist-method [OPTIONS] [METH]
+            Gist the method (doc or source) to github.
+            Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
+            e.g: gist -m my_method
+            e.g: gist -d my_method
+          USAGE
 
           opt.on :m, :method, "Gist a method's source."
           opt.on :d, :doc, "Gist a method's documentation."
