@@ -1,6 +1,7 @@
 */9/2011 version 0.9.6
 * restored previous behavior of command-line switches (allowing "-rfilename")
 * removed -p option (--play) from edit command
+* `edit` with no arguments now edits the current or most recent expression	
 * added -p option (--patch) to edit-method command, which allows
     monkeypatching methods without touching the original file
 * edit-method can now edit REPL-defined methods
