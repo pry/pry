@@ -1,11 +1,13 @@
 */9/2011 version 0.9.6
 * restored previous behavior of command-line switches (allowing "-rfilename")
 * removed -p option (--play) from edit command
-* `edit` with no arguments now edits the current or most recent expression	
+* `edit` with no arguments now edits the current or most recent expression
 * added -p option (--patch) to edit-method command, which allows
     monkeypatching methods without touching the original file
 * edit-method can now edit REPL-defined methods
 * cat --ex now works on exceptions in REPL-defined code
+* play -m now uses eval_string.replace()
+* play -m --open uses show-input to show play'd code
 
 8/9/2011 version 0.9.5
 
