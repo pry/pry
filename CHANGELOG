@@ -1,3 +1,11 @@
+*/9/2011 version 0.9.6
+* restored previous behavior of command-line switches (allowing "-rfilename")
+* removed -p option (--play) from edit command
+* added -p option (--patch) to edit-method command, which allows
+    monkeypatching methods without touching the original file
+* edit-method can now edit REPL-defined methods
+* cat --ex now works on exceptions in REPL-defined code
+
 8/9/2011 version 0.9.5
 
 MAJOR NEW FEATURES:
