@@ -148,6 +148,14 @@ require "optparse"
 require "slop"
 require "rubygems/dependency_installer"
 
+if RUBY_PLATFORM =~ /jruby/
+  begin
+    require 'ffi'
+  rescue LoadError
+    $stderr.puts "Need to `gem install ffi`"
+  end
+end
+
 if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
   begin
     require 'win32console'
