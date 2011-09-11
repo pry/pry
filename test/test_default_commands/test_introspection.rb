@@ -48,46 +48,52 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should reload the file if it is a ruby file" do
-          path = Tempfile.new(["tmp", ".rb"]).path
+          tf = Tempfile.new(["tmp", ".rb"])
+          path = tf.path
 
           mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
 
-          File.unlink(path)
+          tf.close
         end
 
         it "should not reload the file if it is not a ruby file" do
-          path = Tempfile.new(["tmp", ".py"]).path
+          tf = Tempfile.new(["tmp", ".py"])
+          path = tf.path
 
           mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
 
-          File.unlink(path)
+          tf.close
         end
 
         it "should not reload a ruby file if -n is given" do
-          path = Tempfile.new(["tmp", ".rb"]).path
+          tf = Tempfile.new(["tmp", ".rb"])
+          path = tf.path
 
           mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
 
-          File.unlink(path)
+          tf.close
         end
 
         it "should reload a non-ruby file if -r is given" do
-          path = Tempfile.new(["tmp", ".pryrc"]).path
+          tf = Tempfile.new(["tmp", ".pryrc"])
+          path = tf.path
 
           mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
 
-          File.unlink(path)
+          tf.close
         end
       end
     end
 
     describe "with --ex" do
       before do
-        @path = Tempfile.new(["tmp", ".rb"]).path
-        File.open(@path, 'w'){ |f| f << "1\n2\nraise RuntimeError" }
+        @tf = Tempfile.new(["tmp", ".rb"])
+        @path = @tf.path
+        @tf << "1\n2\nraise RuntimeError"
+        @tf.flush
       end
       after do
-        File.unlink(@path)
+        @tf.close
         File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
       end
       it "should open the correct file" do
@@ -108,11 +114,11 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it "should not reload the file if -n is passed" do
         Pry.config.editor = lambda {|file, line|
-          File.open(file, 'w'){|f| f << "FOO2 = 'BAR'" }
+          File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
           ":"
         }
 
-        mock_pry("require #{@path.inspect}", "edit -n --ex", "FOO2").should.not =~ /BAR/
+        mock_pry("require #{@path.inspect}", "edit -n --ex", "FOO2").should.not =~ /BAZ/
       end
     end
 
@@ -268,6 +274,133 @@ describe "Pry::DefaultCommands::Introspection" do
 
         str_output.string.should =~ /define_method\(:yup\)/
         Object.remove_const :A
+      end
+    end
+  end
+
+  describe "edit-method" do
+    describe "on a method defined in a file" do
+      before do
+        @tempfile = Tempfile.new(['tmp', '*.rb'])
+        @tempfile.puts <<-EOS
+          module A
+            def a
+              :yup
+            end
+          end
+
+          class X
+            include A
+
+            def self.x
+              :double_yup
+            end
+
+            def x
+              :nope
+            end
+          end
+        EOS
+        @tempfile.flush
+        load @tempfile.path
+      end
+
+      after do
+        @tempfile.close
+      end
+
+      describe 'without -p' do
+        before do
+          @old_editor = Pry.config.editor
+          @file, @line, @contents = nil, nil, nil
+          Pry.config.editor = lambda do |file, line|
+            @file = file; @line = line
+            ":" # The : command does nothing.
+          end
+        end
+        after do
+          Pry.config.editor = @old_editor
+        end
+
+        it "should correctly find a class method" do
+          mock_pry("edit-method X.x")
+          @file.should == @tempfile.path
+          @line.should == 10
+        end
+
+        it "should correctly find an instance method" do
+          mock_pry("edit-method X#x")
+          @file.should == @tempfile.path
+          @line.should == 14
+        end
+
+        it "should correctly find a method on an instance" do
+          mock_pry("x = X.new", "edit-method x.x")
+          @file.should == @tempfile.path
+          @line.should == 14
+        end
+
+        it "should correctly find a method from a module" do
+          mock_pry("edit-method X#a")
+          @file.should == @tempfile.path
+          @line.should == 2
+        end
+      end
+
+      describe 'with -p' do
+        $editor_proc = lambda { |lines| lines[1] = ":maybe\n"; lines.join }
+
+        before do
+          @old_editor = Pry.config.editor
+          Pry.config.editor = lambda do |file, line|
+            lines = File.read(file).lines.to_a
+            lines[1] = ":maybe\n"
+            File.open(file, 'w') do |f|
+              f.write(lines.join)
+            end
+            ":"
+          end
+        end
+        after do
+          Pry.config.editor = @old_editor
+        end
+
+        it "should successfully replace a class method" do
+          old_inspect = X.method(:x).inspect
+
+          mock_pry("edit-method -p X.x")
+
+          X.method(:x).inspect.should == old_inspect
+          X.x.should == :maybe
+        end
+
+        it "should successfully replace an instance method" do
+          old_inspect = X.instance_method(:x).inspect
+
+          mock_pry("edit-method -p X#x")
+
+          X.instance_method(:x).inspect.should == old_inspect
+          X.new.x.should == :maybe
+        end
+
+        it "should successfully replace a method on an instance" do
+          instance = X.new
+          old_inspect = instance.method(:x).inspect
+
+          mock_pry("instance = X.new", "edit-method -p instance.x")
+
+          instance.method(:x).inspect.should == old_inspect
+          instance.x.should == :maybe
+        end
+
+        it "should successfully replace a method from a module" do
+          old_inspect = X.instance_method(:a).inspect
+
+          mock_pry("edit-method -p X#a")
+
+          X.instance_method(:a).inspect.should == old_inspect
+          X.new.a.should == :maybe
+        end
       end
     end
   end
