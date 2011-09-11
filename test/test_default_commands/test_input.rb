@@ -186,17 +186,26 @@ describe "Pry::DefaultCommands::Input" do
 
     it 'should play a method with the -m switch (multiple line)' do
       $o = Object.new
-      def $o.test_method
-        1 + 102
-        5 * 6
+      class << $o
+        attr_accessor :var1, :var2
       end
+
+      def $o.test_method
+        @var1 = 20
+        @var2 = 30
+      end
+
+      obj = Object.new
+      b = Pry.binding_for(obj)
 
       redirect_pry_io(InputTester.new('play -m $o.test_method --lines 2..3', "exit-all"), str_output = StringIO.new) do
-        pry
+        b.pry
       end
 
-      str_output.string.should =~ /103\n.*30/
-      $o = nil
+      obj.instance_variable_get(:@var1).should == 20
+      obj.instance_variable_get(:@var2).should == 30
+      str_output.string.should =~ /30/
+      str_output.string.should.not =~ /20/
     end
 
   end
