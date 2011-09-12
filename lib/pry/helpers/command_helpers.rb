@@ -382,6 +382,7 @@ class Pry
         else
           editor_invocation = "#{Pry.config.editor} #{start_line_syntax_for_editor(file, line)}"
         end
+        return nil unless editor_invocation
 
         if jruby?
           begin
