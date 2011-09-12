@@ -396,11 +396,13 @@ class Pry
         end
       end
 
+      # Return the syntax for a given editor for starting the editor
+      # and moving to a particular line within that file
       def start_line_syntax_for_editor(file_name, line_number)
         file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
 
-        # special case 0th line
-        return file_name if line_number <= 0
+        # special case for 1st line
+        return file_name if line_number <= 1
 
         case Pry.config.editor
         when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
