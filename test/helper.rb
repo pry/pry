@@ -3,6 +3,8 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
+puts "Ruby v#{RUBY_VERSION}, Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}"
+
 require 'bacon'
 require 'open4'
 

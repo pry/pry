@@ -1,10 +1,5 @@
 require 'helper'
 
-puts "Ruby Version #{RUBY_VERSION}"
-puts "Testing Pry #{Pry::VERSION}"
-puts "With method_source version #{MethodSource::VERSION}"
-puts "--"
-
 describe Pry do
 
   if RUBY_PLATFORM !~ /mingw/ && RUBY_PLATFORM !~ /mswin/ && RUBY_PLATFORM != 'java'
