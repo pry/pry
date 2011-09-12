@@ -8,7 +8,7 @@ describe "Pry::DefaultCommands::Introspection" do
       @file = nil; @line = nil; @contents = nil
       Pry.config.editor = lambda do |file, line|
         @file = file; @line = line; @contents = File.read(@file)
-        ":" # The : command does nothing.
+        nil
       end
     end
     after do
@@ -43,7 +43,7 @@ describe "Pry::DefaultCommands::Introspection" do
           @rand = rand
           Pry.config.editor = lambda { |file, line|
             File.open(file, 'w') { |f| f << "$rand = #{@rand.inspect}" }
-            ":"
+            nil
           }
         end
 
@@ -106,7 +106,7 @@ describe "Pry::DefaultCommands::Introspection" do
       it "should reload the file" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
-          ":"
+          nil
         }
 
         mock_pry("require #{@path.inspect}", "edit --ex", "FOO").should =~ /BAR/
@@ -115,7 +115,7 @@ describe "Pry::DefaultCommands::Introspection" do
       it "should not reload the file if -n is passed" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
-          ":"
+          nil
         }
 
         mock_pry("require #{@path.inspect}", "edit -n --ex", "FOO2").should.not =~ /BAZ/
@@ -146,14 +146,14 @@ describe "Pry::DefaultCommands::Introspection" do
       it "should evaluate the expression" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "'FOO'\n" }
-          ":"
+          nil
         }
         mock_pry("edit").should =~ /FOO/
       end
       it "should not evaluate the expression with -n" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "'FOO'\n" }
-          ":"
+          nil
         }
         mock_pry("edit -n").should.not =~ /FOO/
       end
@@ -310,7 +310,7 @@ describe "Pry::DefaultCommands::Introspection" do
           @file, @line, @contents = nil, nil, nil
           Pry.config.editor = lambda do |file, line|
             @file = file; @line = line
-            ":" # The : command does nothing.
+            nil
           end
         end
         after do
@@ -351,7 +351,7 @@ describe "Pry::DefaultCommands::Introspection" do
             File.open(file, 'w') do |f|
               f.write(lines.join)
             end
-            ":"
+            nil
           end
         end
         after do
