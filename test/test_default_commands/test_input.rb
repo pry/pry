@@ -184,6 +184,21 @@ describe "Pry::DefaultCommands::Input" do
       $o = nil
     end
 
+    it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
+      $o = Object.new
+      def $o.test_method
+        :test_method_content
+      end
+
+      redirect_pry_io(InputTester.new('def another_test_method', 'play -m $o.test_method --lines 2', 'show-input', 'exit-all'), str_output = StringIO.new) do
+        pry
+      end
+      str_output.string.should =~ /def another_test_method/
+      str_output.string.should =~ /:test_method_content/
+      $o = nil
+    end
+
+
     it 'should play a method with the -m switch (multiple line)' do
       $o = Object.new
       class << $o
