@@ -143,11 +143,6 @@ describe "Pry::DefaultCommands::Introspection" do
         @line.should == 2
       end
 
-      it "should delete the temporary file" do
-        mock_pry("edit")
-        File.exist?(@file).should == false
-      end
-
       it "should evaluate the expression" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "'FOO'\n" }

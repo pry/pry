@@ -145,21 +145,18 @@ class Pry
                       _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } # No present? in 1.8
                     end || ""
 
-          file_name = temp_file do |f|
-            f.puts(content)
-          end
           line = content.lines.count
 
-          invoke_editor(file_name, line)
-
-          if !opts.n?
-            silence_warnings do
-              eval_string.replace(File.read(file_name))
+          temp_file do |f|
+            f.puts(content)
+            f.flush
+            invoke_editor(f.path, line)
+            if !opts.n?
+              silence_warnings do
+                eval_string.replace(File.read(f.path))
+              end
             end
           end
-
-          # don't leak temporary files
-          File.unlink(file_name)
 
         # edit of remote code, eval'd at top-level
         else
