@@ -38,6 +38,7 @@ class Pry
         start_line = 0
         end_line = -1
         file_name = nil
+        bt_index = 0
 
         opts = Slop.parse!(args) do |opt|
           opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
@@ -48,17 +49,19 @@ class Pry
             end_line = line - 1
           end
 
-          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |window_size|
-            window_size ||= 5
+          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_str|
+            window_size = Pry.config.exception_window_size || 5
+            bt_index = bt_index_str.to_i
             ex = _pry_.last_exception
             next if !ex
-            start_line = (ex.line - 1) - window_size
+            ex_file, ex_line = ex.bt_source_location_for(bt_index)
+            start_line = (ex_line - 1) - window_size
             start_line = start_line < 0 ? 0 : start_line
-            end_line = (ex.line - 1) + window_size
-            if is_core_rbx_path?(ex.file)
-              file_name = rbx_convert_path_to_full(ex.file)
+            end_line = (ex_line - 1) + window_size
+            if is_core_rbx_path?(ex_file)
+              file_name = rbx_convert_path_to_full(ex_file)
             else
-              file_name = ex.file
+              file_name = ex_file
             end
           end
 
@@ -92,11 +95,12 @@ class Pry
 
         # add the arrow pointing to line that caused the exception
         if opts.ex?
+          ex_file, ex_line = _pry_.last_exception.bt_source_location_for(bt_index)
           contents = text.with_line_numbers contents, start_line + 1, :bright_red
 
           contents = contents.lines.each_with_index.map do |line, idx|
             l = idx + start_line
-            if l == (_pry_.last_exception.line - 1)
+            if l == (ex_line - 1)
               " =>#{line}"
             else
               "   #{line}"
@@ -105,7 +109,7 @@ class Pry
 
           # header for exceptions
           output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
-          output.puts "#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{_pry_.last_exception.line}\n\n"
+          output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{bt_index} of backtrace.\n\n"
         end
 
         set_file_and_dir_locals(file_name)

@@ -121,7 +121,7 @@ class Pry
             e.g: edit sample.rb
           USAGE
 
-          opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)"
+          opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional => true, :as => Integer
           opt.on :t, :temp, "Open an empty temporary file"
           opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
@@ -162,14 +162,17 @@ class Pry
         else
           if opts.ex?
             next output.puts "No Exception found." if _pry_.last_exception.nil?
+            ex = _pry_.last_exception
+            bt_index = opts[:ex].to_i
 
-            if is_core_rbx_path?(_pry_.last_exception.file)
-              file_name = rbx_convert_path_to_full(_pry_.last_exception.file)
+            ex_file, ex_line = ex.bt_source_location_for(bt_index)
+            if is_core_rbx_path?(ex_file)
+              file_name = rbx_convert_path_to_full(ex_file)
             else
-              file_name = _pry_.last_exception.file
+              file_name = ex_file
             end
 
-            line = _pry_.last_exception.line
+            line = ex_line
             next output.puts "Exception has no associated file." if file_name.nil?
             next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
 

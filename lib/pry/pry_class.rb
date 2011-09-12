@@ -182,6 +182,7 @@ class Pry
     config.prompt = DEFAULT_PROMPT
     config.print = DEFAULT_PRINT
     config.exception_handler = DEFAULT_EXCEPTION_HANDLER
+    config.exception_window_size = 5
     config.hooks = DEFAULT_HOOKS
     config.color = true
     config.pager = true

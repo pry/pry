@@ -347,10 +347,13 @@ class Pry
   def set_last_exception(ex, target)
     class << ex
       attr_accessor :file, :line
+      def bt_source_location_for(index)
+        backtrace[index] =~ /(.*):(\d+)/
+        [$1, $2.to_i]
+      end
     end
 
-    ex.backtrace.first =~ /(.*):(\d+)/
-    ex.file, ex.line = $1, $2.to_i
+    ex.file, ex.line = ex.bt_source_location_for(0)#_btw_index#$1, $2.to_i
 
     @last_result_is_exception = true
     @output_array << ex
