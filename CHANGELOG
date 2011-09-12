@@ -2,6 +2,7 @@
 * restored previous behavior of command-line switches (allowing "-rfilename")
 * removed -p option (--play) from edit command
 * `edit` with no arguments now edits the current or most recent expression
+* `edit` auto-reloads .rb files (need to specify -n to suppress)
 * added -p option (--patch) to edit-method command, which allows
     monkeypatching methods without touching the original file
 * edit-method can now edit REPL-defined methods
