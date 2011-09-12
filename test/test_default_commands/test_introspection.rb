@@ -348,8 +348,6 @@ describe "Pry::DefaultCommands::Introspection" do
       end
 
       describe 'with -p' do
-        $editor_proc = lambda { |lines| lines[1] = ":maybe\n"; lines.join }
-
         before do
           @old_editor = Pry.config.editor
           Pry.config.editor = lambda do |file, line|
@@ -366,39 +364,34 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should successfully replace a class method" do
-          old_inspect = X.method(:x).inspect
-
           mock_pry("edit-method -p X.x")
 
-          X.method(:x).inspect.should == old_inspect
+          class << X
+            X.method(:x).owner.should == self
+          end
+          X.method(:x).receiver.should == X
           X.x.should == :maybe
         end
 
         it "should successfully replace an instance method" do
-          old_inspect = X.instance_method(:x).inspect
-
           mock_pry("edit-method -p X#x")
 
-          X.instance_method(:x).inspect.should == old_inspect
+          X.instance_method(:x).owner.should == X
           X.new.x.should == :maybe
         end
 
         it "should successfully replace a method on an instance" do
-          instance = X.new
-          old_inspect = instance.method(:x).inspect
-
           mock_pry("instance = X.new", "edit-method -p instance.x")
 
-          instance.method(:x).inspect.should == old_inspect
+          instance = X.new
+          instance.method(:x).owner.should == X
           instance.x.should == :maybe
         end
 
         it "should successfully replace a method from a module" do
-          old_inspect = X.instance_method(:a).inspect
-
           mock_pry("edit-method -p X#a")
 
-          X.instance_method(:a).inspect.should == old_inspect
+          X.instance_method(:a).owner.should == A
           X.new.a.should == :maybe
         end
       end
