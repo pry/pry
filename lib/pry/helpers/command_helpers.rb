@@ -423,29 +423,6 @@ class Pry
         end
       end
 
-      def prompt(message, options="Yn")
-        opts      = options.scan(/./)
-        optstring = opts.join("/") # case maintained
-        defaults  = opts.select{|o| o.upcase == o }
-        opts      = opts.map{|o| o.downcase}
-
-        raise "Error: Too many default values for the prompt: #{default.inspect}" if defaults.size > 1
-
-        default = defaults.first
-
-        loop do
-          response = Pry.input.readline("#{message} (#{optstring}) ").downcase
-          case response
-          when *opts
-            return response
-          when ""
-            return default.downcase
-          else
-            output.puts "  |_ Invalid option: #{response.inspect}. Try again."
-          end
-        end
-      end
-
       # Remove any common leading whitespace from every line in `text`.
       #
       # This can be used to make a HEREDOC line up with the left margin, without
