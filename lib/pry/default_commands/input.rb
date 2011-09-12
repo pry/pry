@@ -79,7 +79,7 @@ e.g amend-line puts 'hello again'   # no line number modifies immediately preced
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
-          eval_string.replace((code.each_line.to_a[range]).join)
+          eval_string.replace(Array(code.each_line.to_a[range]).join)
           run "show-input" if opts.o?
         elsif opts.f?
           file_name = File.expand_path(opts[:f])
