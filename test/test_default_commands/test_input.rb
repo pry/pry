@@ -226,17 +226,12 @@ describe "Pry::DefaultCommands::Input" do
   end
 
   describe "hist" do
-    push_first_hist_line = lambda do |hist, line|
-      hist.push line
-    end
-
     before do
       Pry.history.clear
       @hist = Pry.history
     end
 
     it 'should display the correct history' do
-      push_first_hist_line.call(@hist, "'bug in 1.8 means this line is ignored'")
       @hist.push "hello"
       @hist.push "world"
       str_output = StringIO.new
@@ -247,7 +242,6 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should replay history correctly (single item)' do
-      push_first_hist_line.call(@hist, ":hello")
       @hist.push ":blah"
       @hist.push ":bucket"
       @hist.push ":ostrich"
@@ -259,7 +253,6 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should replay a range of history correctly (range of items)' do
-      push_first_hist_line.call(@hist, "'bug in 1.8 means this line is ignored'")
       @hist.push ":hello"
       @hist.push ":carl"
       str_output = StringIO.new
@@ -270,7 +263,6 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should grep for correct lines in history' do
-      push_first_hist_line.call(@hist, "apple")
       @hist.push "abby"
       @hist.push "box"
       @hist.push "button"
@@ -303,7 +295,6 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should return last N lines in history with --tail switch' do
-      push_first_hist_line.call(@hist, "0")
       ("a".."z").each do |v|
         @hist.push v
       end
@@ -320,7 +311,6 @@ describe "Pry::DefaultCommands::Input" do
     # strangeness in this test is due to bug in Readline::HISTORY not
     # always registering first line of input
     it 'should return first N lines in history with --head switch' do
-      push_first_hist_line.call(@hist, "0")
       ("a".."z").each do |v|
         @hist.push v
       end
@@ -337,7 +327,6 @@ describe "Pry::DefaultCommands::Input" do
     # strangeness in this test is due to bug in Readline::HISTORY not
     # always registering first line of input
     it 'should show lines between lines A and B with the --show switch' do
-      push_first_hist_line.call(@hist, "0")
       ("a".."z").each do |v|
         @hist.push v
       end
