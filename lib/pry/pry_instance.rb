@@ -346,14 +346,15 @@ class Pry
   # @param [Binding] target The binding to set `_ex_` on.
   def set_last_exception(ex, target)
     class << ex
-      attr_accessor :file, :line
+      attr_accessor :file, :line, :bt_index
       def bt_source_location_for(index)
         backtrace[index] =~ /(.*):(\d+)/
         [$1, $2.to_i]
       end
     end
 
-    ex.file, ex.line = ex.bt_source_location_for(0)#_btw_index#$1, $2.to_i
+    ex.bt_index = 0
+    ex.file, ex.line = ex.bt_source_location_for(0)
 
     @last_result_is_exception = true
     @output_array << ex

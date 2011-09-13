@@ -49,16 +49,22 @@ class Pry
             end_line = line - 1
           end
 
-          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_str|
+          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_arg|
             window_size = Pry.config.exception_window_size || 5
-            bt_index = bt_index_str.to_i
             ex = _pry_.last_exception
             next if !ex
+            if bt_index_arg
+              bt_index = bt_index_arg
+            else
+              bt_index = ex.bt_index
+            end
+            ex.bt_index = (bt_index + 1) % ex.backtrace.size
+
             ex_file, ex_line = ex.bt_source_location_for(bt_index)
             start_line = (ex_line - 1) - window_size
             start_line = start_line < 0 ? 0 : start_line
             end_line = (ex_line - 1) + window_size
-            if is_core_rbx_path?(ex_file)
+            if ex_file && is_core_rbx_path?(ex_file)
               file_name = rbx_convert_path_to_full(ex_file)
             else
               file_name = ex_file
