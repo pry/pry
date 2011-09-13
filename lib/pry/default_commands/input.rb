@@ -115,86 +115,120 @@ class Pry
         opts = Slop.parse!(args) do |opt|
           opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
 
-          opt.on :g, :grep, 'A pattern to match against the history.', true do |pattern|
-            pattern = Regexp.new arg_string.strip.split(/ /, 2).last.strip
-            history.pop
+          opt.on :n, 'no-numbers', 'Omit line numbers.'
 
-            history.map!.with_index do |element, index|
-              if element =~ pattern
-                "#{text.blue index}: #{element}"
-              end
-            end
+          opt.on :g, :grep, 'A pattern to match against the history.', true
 
-            stagger_output history.compact.join "\n"
-          end
-
-          opt.on :head, 'Display the first N items of history',
+          opt.on :head, 'Display the first N items of history.',
                  :optional => true,
-                 :as       => Integer,
-                 :unless   => :grep do |limit|
+                 :as       => Integer
 
-            limit ||= 10
-            list  = history.first limit
-            lines = text.with_line_numbers list.join("\n"), 0
-            stagger_output lines
-          end
-
-          opt.on :t, :tail, 'Display the last N items of history',
-                     :optional => true,
-                     :as       => Integer,
-                     :unless   => :grep do |limit|
-
-            limit ||= 10
-            offset = history.size - limit
-            offset = offset < 0 ? 0 : offset
-
-            list  = history.last limit
-            lines = text.with_line_numbers list.join("\n"), offset
-            stagger_output lines
-          end
+          opt.on :t, :tail, 'Display the last N items of history.',
+                 :optional => true,
+                 :as       => Integer
 
           opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).',
-                 true,
-                 :as     => Range,
-                 :unless => :grep do |range|
+                 :optional => true,
+                 :as       => Range
 
-            start_line = range.is_a?(Range) ? range.first : range
-            lines = text.with_line_numbers Array(history[range]).join("\n"), start_line
-            stagger_output lines
-          end
+          opt.on :e, :exclude, 'Exclude pry commands from the history.'
 
-          opt.on :e, :exclude, 'Exclude pry commands from the history.', :unless => :grep do
-            history.map!.with_index do |element, index|
-              unless command_processor.valid_command? element
-                "#{text.blue index}: #{element}"
-              end
-            end
-            stagger_output history.compact.join "\n"
-          end
+          opt.on :r, :replay, 'The line (or range of lines) to replay.', true,
+                 :as => Range
 
-          opt.on :r, :replay, 'The line (or range of lines) to replay.',
-                 true,
-                 :as     => Range,
-                 :unless => :grep do |range|
-            actions = Array(history[range]).join("\n") + "\n"
-            _pry_.input = StringIO.new(actions)
-          end
+          opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true,
+                 :as => Range
 
-          opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true, :as => Range
-
-          opt.on :c, :clear, 'Clear the history', :unless => :grep do
-            Pry.history.clear
-            output.puts 'History cleared.'
-          end
+          opt.on :c, :clear, 'Clear the history.', :unless => :grep
 
           opt.on :h, :help, 'Show this message.', :tail => true, :unless => :grep do
             output.puts opt.help
           end
+        end
+        next if opts.help?
 
-          opt.on_empty do
-            lines = text.with_line_numbers history.join("\n"), 0
-            stagger_output lines
+        if opts.grep?
+          pattern = Regexp.new(arg_string.strip.split(/ /, 2).last.strip)
+          history.pop
+
+          history.map!.with_index do |element, index|
+            if element =~ pattern
+              if opts.n?
+                element
+              else
+                "#{text.blue index}: #{element}"
+              end
+            end
           end
+
+          stagger_output history.compact.join "\n"
+          next
+        end
+
+        if opts.head?
+          limit = opts['head'] || 10
+          list  = history.first limit
+          lines = list.join("\n")
+          if opts.n?
+            stagger_output lines
+          else
+            stagger_output text.with_line_numbers(lines, 0)
+          end
+          next
+        end
+
+        if opts.tail?
+          limit = opts['tail'] || 10
+          offset = history.size - limit
+          offset = offset < 0 ? 0 : offset
+
+          list  = history.last limit
+          lines = list.join("\n")
+          if opts.n?
+            stagger_output lines
+          else
+            stagger_output text.with_line_numbers(lines, offset)
+          end
+          next
+        end
+
+        if opts.show?
+          range = opts['show']
+          start_line = range.is_a?(Range) ? range.first : range
+          lines = Array(history[range]).join("\n")
+          if opts.n?
+            stagger_output lines
+          else
+            stagger_output text.with_line_numbers(lines, start_line)
+          end
+          next
+        end
+
+        if opts.exclude?
+          history.map!.with_index do |element, index|
+            unless command_processor.valid_command? element
+              if opts.n?
+                element
+              else
+                "#{text.blue index}: #{element}"
+              end
+            end
+          end
+          stagger_output history.compact.join "\n"
+          next
+        end
+
+        if opts.replay?
+          range = opts['replay']
+          actions = Array(history[range]).join("\n") + "\n"
+          _pry_.input = StringIO.new(actions)
+          next
+        end
+
+        if opts.clear?
+          Pry.history.clear
+          output.puts 'History cleared.'
+          next
         end
 
         # FIXME: hack to save history (this must be refactored)
@@ -223,8 +257,15 @@ class Pry
           end
 
           output.puts "... history saved."
+          next
         end
 
+        lines = history.join("\n")
+        if opts.n?
+          stagger_output lines
+        else
+          stagger_output text.with_line_numbers(lines, 0)
+        end
       end
 
       alias_command "history", "hist", ""
