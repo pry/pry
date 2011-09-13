@@ -27,6 +27,25 @@ class << Pry
   end
 end
 
+class MockPryException
+  attr_accessor :bt_index
+  attr_accessor :backtrace
+
+  def initialize(*backtrace)
+    @backtrace = backtrace
+    @bt_index = 0
+  end
+
+  def message
+    "mock exception"
+  end
+
+  def bt_source_location_for(index)
+    backtrace[index] =~ /(.*):(\d+)/
+    [$1, $2.to_i]
+  end
+end
+
 # are we on Jruby platform?
 def jruby?
   defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
@@ -134,6 +153,17 @@ class Pry
     def self.puts(*) end
     def self.string(*) end
   end
+end
+
+# Open a temp file and yield it to the block, closing it after
+# @return [String] The path of the temp file
+def temp_file
+  file = Tempfile.new("tmp")
+  yield file
+  file.flush
+  file.path
+ensure
+  file.close
 end
 
 
