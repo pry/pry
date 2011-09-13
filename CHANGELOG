@@ -10,6 +10,8 @@
 * play -m now uses eval_string.replace()
 * play -m --open uses show-input to show play'd code
 * added "unindent" helper to make adding help to commands easier
+* local ./.pryrc now loaded after ~/.pryrc if it exists
+* cat --ex N and edit --ex N now can navigate through backtrace, where cat --ex (with no args) moves throuh successive levels of the backtrace automatically with state stored on the exceptino object itself
 
 8/9/2011 version 0.9.5
 
