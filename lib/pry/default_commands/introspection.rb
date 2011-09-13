@@ -166,7 +166,7 @@ class Pry
             bt_index = opts[:ex].to_i
 
             ex_file, ex_line = ex.bt_source_location_for(bt_index)
-            if is_core_rbx_path?(ex_file)
+            if ex_file && is_core_rbx_path?(ex_file)
               file_name = rbx_convert_path_to_full(ex_file)
             else
               file_name = ex_file
