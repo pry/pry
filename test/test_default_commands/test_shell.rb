@@ -3,6 +3,12 @@ require 'helper'
 describe "Pry::DefaultCommands::Shell" do
   describe "cat" do
 
+    describe "on receiving a file that does not exist" do
+      it 'should display an error message' do
+        mock_pry("cat supercalifragilicious66").should =~ /Could not find file/
+      end
+    end
+
     # this doesnt work so well on rbx due to differences in backtrace
     # so we currently skip rbx until we figure out a workaround
     describe "with --ex" do
