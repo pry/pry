@@ -92,8 +92,13 @@ class Pry
           next
         end
 
-        contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
-        contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
+        begin
+          contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
+          contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
+        rescue Errno::ENOENT
+          output.puts "Could not find file: #{file_name}"
+          next
+        end
 
         if opts.l?
           contents = text.with_line_numbers contents, start_line + 1
@@ -115,7 +120,7 @@ class Pry
 
           # header for exceptions
           output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
-          output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{bt_index} of backtrace.\n\n"
+          output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{bt_index} of backtrace (of #{_pry_.last_exception.backtrace.size - 1}).\n\n"
         end
 
         set_file_and_dir_locals(file_name)
