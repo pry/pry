@@ -139,11 +139,13 @@ class Pry
         # edit of local code, eval'd within pry.
         if !opts.ex? && args.empty?
 
-          content = if !eval_string.empty?
+          content = if opts.t?
+                      ""
+                    elsif eval_string.strip != ""
                       eval_string
-                    elsif !opts.t?
-                      _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } # No present? in 1.8
-                    end || ""
+                    else
+                      _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
+                    end
 
           line = content.lines.count
 
