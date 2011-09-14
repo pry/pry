@@ -20,41 +20,53 @@ describe "Pry::DefaultCommands::Shell" do
     describe "with --ex N" do
       it 'should cat first level of backtrace when --ex used with no argument ' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex"), :output => str_output = StringIO.new)
-        file_name = temp_file do |f|
+
+        temp_file do |f|
           f << "bt number 1"
+          f.flush
+          pry_instance.last_exception = MockPryException.new("#{f.path}:1", "x", "x")
+          pry_instance.rep(self)
         end
-        pry_instance.last_exception = MockPryException.new("#{file_name}:1", "x", "x")
-        pry_instance.rep(self)
+
         str_output.string.should =~ /bt number 1/
       end
 
       it 'should cat first level of backtrace when --ex 0 used ' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex 0"), :output => str_output = StringIO.new)
-        file_name = temp_file do |f|
+
+        temp_file do |f|
           f << "bt number 1"
+          f.flush
+          pry_instance.last_exception = MockPryException.new("#{f.path}:1", "x", "x")
+          pry_instance.rep(self)
         end
-        pry_instance.last_exception = MockPryException.new("#{file_name}:1", "x", "x")
-        pry_instance.rep(self)
+
         str_output.string.should =~ /bt number 1/
       end
 
       it 'should cat second level of backtrace when --ex 1 used ' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex 1"), :output => str_output = StringIO.new)
-        file_name = temp_file do |f|
+
+        temp_file do |f|
           f << "bt number 2"
+          f.flush
+          pry_instance.last_exception = MockPryException.new("x", "#{f.path}:1", "x")
+          pry_instance.rep(self)
         end
-        pry_instance.last_exception = MockPryException.new("x", "#{file_name}:1", "x")
-        pry_instance.rep(self)
+
         str_output.string.should =~ /bt number 2/
       end
 
       it 'should cat third level of backtrace when --ex 2 used ' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex 2"), :output => str_output = StringIO.new)
-        file_name = temp_file do |f|
+
+        temp_file do |f|
           f << "bt number 3"
+          f.flush
+          pry_instance.last_exception = MockPryException.new("x", "x", "#{f.path}:1")
+          pry_instance.rep(self)
         end
-        pry_instance.last_exception = MockPryException.new("x", "x", "#{file_name}:1")
-        pry_instance.rep(self)
+
         str_output.string.should =~ /bt number 3/
       end
 
@@ -66,24 +78,28 @@ describe "Pry::DefaultCommands::Shell" do
       end
 
       it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
-        file_names = []
-        file_names << temp_file { |f| f << "bt number 0" }
-        file_names << temp_file { |f| f << "bt number 1" }
-        file_names << temp_file { |f| f << "bt number 2" }
+        temp_files = []
+        3.times do |i|
+          temp_files << Tempfile.new(['tmp', '*.rb'])
+          temp_files.last << "bt number #{i}"
+          temp_files.last.flush
+        end
 
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex\n" * (file_names.size + 1)),
-                               :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex\n" * 4),
+                               :output => (str_output = StringIO.new))
 
-        pry_instance.last_exception = MockPryException.new(*file_names.map { |f| "#{f}:1" })
+        pry_instance.last_exception = MockPryException.new(*temp_files.map { |f| "#{f.path}:1" })
 
-        file_names.each_with_index do |f, idx|
+        3.times do |i|
           pry_instance.rep(self)
-          str_output.string.should =~ /bt number #{idx}/
+          str_output.string.should =~ /bt number #{i}/
         end
 
         str_output.reopen
         pry_instance.rep(self)
         str_output.string.should =~ /bt number 0/
+
+        temp_files.each(&:close)
       end
 
     end
