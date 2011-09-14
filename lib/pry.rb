@@ -29,7 +29,6 @@ class Pry
       # Read the class name off of the singleton class to provide a default inspect.
       klass = (class << value; self; end).ancestors.first
       stringified = "#<#{klass}:0x#{value.__id__.to_s(16)}>"
-      Helpers::BaseHelpers.stagger_output("output error: #{ex.inspect}", output) if ex
     end
 
     Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(stringified)}", output)
