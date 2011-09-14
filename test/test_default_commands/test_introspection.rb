@@ -187,6 +187,11 @@ describe "Pry::DefaultCommands::Introspection" do
         @contents.should == "\n"
       end
 
+      it "should use a blank file if -t is specified even half-way through an expression" do
+        mock_pry("def a;", "edit -t")
+        @contents.should == "\n"
+      end
+
       it "should position the cursor at the end of the expression" do
         mock_pry("def a; 2;"," end", "edit")
         @line.should == 2
