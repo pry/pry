@@ -44,7 +44,6 @@ class Pry
       def temp_file
         file = Tempfile.new(["tmp", ".rb"])
         yield file
-        file.path
       ensure
         file.close
       end
