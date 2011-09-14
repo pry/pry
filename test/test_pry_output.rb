@@ -36,9 +36,5 @@ describe Pry do
     it "should not be phased by un-inspectable things" do
       mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<NastyClass:0x[0-9a-f]+>/
     end
-
-    it "should warn you about un-inspectable things" do
-      mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /output error: #<(NoMethodError|NameError): undefined method `pretty_inspect'/
-    end
   end
 end
