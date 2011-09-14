@@ -263,12 +263,12 @@ class Pry
     # serialize something in the user's program, let's not assume we can serialize
     # the exception either.
     begin
-      output.puts "output error: #{e.inspect}"
+      output.puts "(pry) output error: #{e.inspect}"
     rescue RescuableException => e
       if last_result_is_exception?
-        output.puts "output error: failed to show exception"
+        output.puts "(pry) output error: failed to show exception"
       else
-        output.puts "output error: failed to show result"
+        output.puts "(pry) output error: failed to show result"
       end
     end
   end
