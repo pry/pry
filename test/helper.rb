@@ -160,8 +160,6 @@ end
 def temp_file
   file = Tempfile.new("tmp")
   yield file
-  file.flush
-  file.path
 ensure
   file.close
 end
