@@ -37,6 +37,13 @@ class Pry
     #     :after_session => proc { puts "goodbye" }
     attr_accessor :hooks
 
+    # Get/Set the stack of input objects that a Pry instance switches
+    # to when its current input object encounters EOF.
+    # @return [Array] The array of input objects.
+    # @example
+    #   Pry.config.input_stack = [StringIO.new("puts 'hello world'\nexit")]
+    attr_accessor :input_stack
+
     # Get the array of Procs to be used for the prompts by default by
     # all Pry instances.
     # @return [Array<Proc>] The array of Procs to be used for the

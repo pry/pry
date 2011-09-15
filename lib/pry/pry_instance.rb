@@ -8,6 +8,8 @@ class Pry
   attr_accessor :print
   attr_accessor :exception_handler
   attr_accessor :hooks
+  attr_accessor :input_stack
+
   attr_accessor :custom_completions
 
   attr_accessor :binding_stack
@@ -19,6 +21,7 @@ class Pry
 
   attr_reader :input_array
   attr_reader :output_array
+
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
@@ -45,7 +48,7 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size
+                   :prompt, :memory_size, :input_stack
                  ]
 
     attributes.each do |attribute|
@@ -140,7 +143,7 @@ class Pry
     exec_hook :before_session, output, target, self
     initialize_special_locals(target)
 
-    @input_array << nil # add empty input so inp and out match
+    @input_array << nil # add empty input so _in_ and _out_ match
 
     Pry.active_sessions += 1
     binding_stack.push target
@@ -400,7 +403,7 @@ class Pry
         end
 
       rescue EOFError
-        self.input = Pry.input
+        self.input = input_stack.empty? ? Pry.config.input : input_stack.pop
         ""
       end
     end

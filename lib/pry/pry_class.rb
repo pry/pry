@@ -51,7 +51,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size
+      :hooks, :color, :pager, :editor, :memory_size, :input_stack
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -95,12 +95,11 @@ class Pry
     new(options).repl(target)
   end
 
-  # A version of `Pry.view` that clips the output to `max_length` chars.
+  # An inspector that clips the output to `max_length` chars.
   # In case of > `max_length` chars the `#<Object...> notation is used.
   # @param obj The object to view.
   # @param max_length The maximum number of chars before clipping occurs.
   # @return [String] The string representation of `obj`.
-  #
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
@@ -184,6 +183,7 @@ class Pry
     config.exception_handler = DEFAULT_EXCEPTION_HANDLER
     config.exception_window_size = 5
     config.hooks = DEFAULT_HOOKS
+    config.input_stack = []
     config.color = true
     config.pager = true
     config.editor = default_editor_for_platform
