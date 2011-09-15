@@ -13,6 +13,7 @@
 * local ./.pryrc now loaded after ~/.pryrc if it exists
 * cat --ex N and edit --ex N now can navigate through backtrace, where cat --ex (with no args) moves throuh successive levels of the backtrace automatically with state stored on the exceptino object itself
 * new option Pry.config.exception_window_size determines window size for cat --ex
+* input_stack now implemented - pushing objects onto a pry instance's input_stack causes the instance to read from those objects in turn as it encounters EOF on the previous object. On finishing the input_stack the input object for the pry instance is set back to Pry.config.input, if this fails, pry breaks out of the REPL (throw(:breakout)) with an error message
 
 8/9/2011 version 0.9.5
 

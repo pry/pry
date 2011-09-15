@@ -395,6 +395,7 @@ class Pry
       Pry.history << line.dup if line
       line
     else
+      should_retry = true
       begin
         if input.method(:readline).arity == 1
           input.readline(current_prompt)
@@ -403,8 +404,18 @@ class Pry
         end
 
       rescue EOFError
-        self.input = input_stack.empty? ? Pry.config.input : input_stack.pop
-        ""
+        if input_stack.empty?
+          self.input = Pry.config.input
+          if !should_retry
+            output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
+            throw(:breakout)
+          end
+
+          should_retry = false
+        else
+          self.input = input_stack.pop
+        end
+        retry
       end
     end
   end
