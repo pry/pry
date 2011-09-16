@@ -384,27 +384,11 @@ class Pry
     @last_result_is_exception
   end
 
-  # Returns the next line of input to be used by the pry instance.
-  # This method should not need to be invoked directly.
-  # @param [String] current_prompt The prompt to use for input.
-  # @return [String] The next line of input.
-  def readline(current_prompt="> ")
+  # Manage switching of input objects on encountering EOFErrors
+  def handle_read_errors
     should_retry = true
-
     begin
-
-      if input == Readline
-        line = input.readline(current_prompt, false)
-        Pry.history << line.dup if line
-        line
-      else
-
-        if input.method(:readline).arity == 1
-          input.readline(current_prompt)
-        else
-          input.readline
-        end
-      end
+      yield
     rescue EOFError
       if input_stack.empty?
         self.input = Pry.config.input
@@ -417,6 +401,28 @@ class Pry
         self.input = input_stack.pop
       end
       retry
+    end
+  end
+
+  private :handle_read_errors
+
+  # Returns the next line of input to be used by the pry instance.
+  # This method should not need to be invoked directly.
+  # @param [String] current_prompt The prompt to use for input.
+  # @return [String] The next line of input.
+  def readline(current_prompt="> ")
+    handle_read_errors do
+      if input == Readline
+        line = input.readline(current_prompt, false)
+        Pry.history << line.dup if line
+        line
+      else
+        if input.method(:readline).arity == 1
+          input.readline(current_prompt)
+        else
+          input.readline
+        end
+      end
     end
   end
 
