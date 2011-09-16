@@ -80,10 +80,7 @@ Pry.cli = true
 # create the actual context
 context = Pry.binding_for(eval(opts[:context]))
 
+exec_string = opts[:exec] || ""
 # run code passed with `-e`, if there is any.
-if opts.exec?
-  Pry.new(:input => StringIO.new(opts[:exec]), :print => proc {}).rep(context)
-end
+Pry.start(context, :input => StringIO.new(exec_string + "\n"), :input_stack => [Readline])
 
-# start the session
-context.pry
