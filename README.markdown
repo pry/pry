@@ -1,3 +1,4 @@
+<center>
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_350.png)
 
 (C) John Mair (banisterfiend) 2011
@@ -8,6 +9,7 @@ _Get to the code_
 
 [Skip to the website (recommended)](http://pry.github.com) <br />
 [Skip to the wiki](https://github.com/pry/pry/wiki)
+</center>
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features, some of
