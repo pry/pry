@@ -389,34 +389,34 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
+    should_retry = true
 
-    if input == Readline
-      line = input.readline(current_prompt, false)
-      Pry.history << line.dup if line
-      line
-    else
-      should_retry = true
-      begin
+    begin
+
+      if input == Readline
+        line = input.readline(current_prompt, false)
+        Pry.history << line.dup if line
+        line
+      else
+
         if input.method(:readline).arity == 1
           input.readline(current_prompt)
         else
           input.readline
         end
-
-      rescue EOFError
-        if input_stack.empty?
-          self.input = Pry.config.input
-          if !should_retry
-            output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
-            throw(:breakout)
-          end
-
-          should_retry = false
-        else
-          self.input = input_stack.pop
-        end
-        retry
       end
+    rescue EOFError
+      if input_stack.empty?
+        self.input = Pry.config.input
+        if !should_retry
+          output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
+          throw(:breakout)
+        end
+        should_retry = false
+      else
+        self.input = input_stack.pop
+      end
+      retry
     end
   end
 
