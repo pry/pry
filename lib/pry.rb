@@ -114,7 +114,7 @@ class Pry
                 end,
                ]
 
-  DEFAULT_SYSTEM = proc do |cmd|
+  DEFAULT_SYSTEM = proc do |output, cmd, _|
     if !system(cmd)
       output.puts "Error: there was a problem executing system command: #{cmd}"
     end

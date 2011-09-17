@@ -120,7 +120,8 @@ class Pry
     attr_accessor :control_d_handler
 
     # @return [Proc] The proc that runs system commands
-    #   The proc is passed the command string to eval
+    #   The proc is passed the pry output object, the command string
+    #   to eval, and a reference to the pry instance
     attr_accessor :system
   end
 end

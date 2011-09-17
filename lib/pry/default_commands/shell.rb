@@ -12,7 +12,7 @@ class Pry
             output.puts "No such directory: #{dest}"
           end
         else
-          Pry.config.system.call(cmd)
+          Pry.config.system.call(output, cmd, _pry_)
         end
       end
 
