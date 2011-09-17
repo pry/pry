@@ -151,14 +151,12 @@ class Pry
 
   # Clean-up after the repl session.
   # @param [Binding] target The target binding for the session.
-  # @return [Object] The return value of the repl session (if one exists).
-  def repl_epilogue(target, break_data)
+  def repl_epilogue(target)
     exec_hook :after_session, output, target, self
 
     Pry.active_sessions -= 1
     binding_stack.pop
     Pry.save_history if Pry.config.history.should_save && Pry.active_sessions == 0
-    break_data
   end
 
   # Start a read-eval-print-loop.
@@ -181,8 +179,8 @@ class Pry
       end
     end
 
-    return_value = repl_epilogue(target, break_data)
-    return_value || target_self
+    repl_epilogue(target)
+    break_data || target_self
   end
 
   # Perform a read-eval-print.
