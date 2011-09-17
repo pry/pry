@@ -11,11 +11,8 @@ class Pry
           rescue Errno::ENOENT
             output.puts "No such directory: #{dest}"
           end
-
         else
-          if !system(cmd)
-            output.puts "Error: there was a problem executing system command: #{cmd}"
-          end
+          Pry.config.system.call(cmd)
         end
       end
 

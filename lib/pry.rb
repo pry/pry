@@ -114,6 +114,11 @@ class Pry
                 end,
                ]
 
+  DEFAULT_SYSTEM = proc do |cmd|
+    if !system(cmd)
+      output.puts "Error: there was a problem executing system command: #{cmd}"
+    end
+  end
 
   # As a REPL, we often want to catch any unexpected exceptions that may have
   # been raised; however we don't want to go overboard and prevent the user

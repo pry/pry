@@ -51,7 +51,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :input_stack
+      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :system
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -186,6 +186,7 @@ class Pry
     config.input_stack = []
     config.color = true
     config.pager = true
+    config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
     config.should_load_rc = true
     config.disable_auto_reload = false
