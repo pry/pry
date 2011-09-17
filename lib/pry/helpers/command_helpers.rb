@@ -389,10 +389,13 @@ class Pry
             pid = Spoon.spawnp(*editor_invocation.split)
             Process.waitpid(pid)
           rescue FFI::NotFoundError
-            run ".#{editor_invocation}"
+            system(editor_invocation)
           end
         else
-          run ".#{editor_invocation}"
+          # Note we dont want to use Pry.config.system here as that
+          # may be invoked non-interactively (i.e via Open4), whereas we want to
+          # ensure the editor is always interactive
+          system(editor_invocation)
         end
       end
 

@@ -118,6 +118,10 @@ class Pry
     # @return [Proc] The proc that manages ^D presses in the REPL.
     #   The proc is passed the current eval_string and the current pry instance.
     attr_accessor :control_d_handler
+
+    # @return [Proc] The proc that runs system commands
+    #   The proc is passed the command string to eval
+    attr_accessor :system
   end
 end
 
