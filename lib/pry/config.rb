@@ -29,6 +29,9 @@ class Pry
     #   Pry instances.
     attr_accessor :exception_handler
 
+    # @return [Array] The classes of exception that will not be caught by Pry.
+    attr_accessor :exception_whitelist
+
     # Get/Set the Hash that defines Pry hooks used by default by all Pry
     # instances.
     # @return [Hash] The hooks used by default by all Pry instances.

@@ -182,6 +182,7 @@ class Pry
     config.print = DEFAULT_PRINT
     config.exception_handler = DEFAULT_EXCEPTION_HANDLER
     config.exception_window_size = 5
+    config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
     config.color = true

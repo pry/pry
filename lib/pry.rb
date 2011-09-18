@@ -55,6 +55,9 @@ class Pry
     output.puts "from #{exception.backtrace.first}"
   end
 
+  # Don't catch these exceptions
+  DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException]
+
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, _|
@@ -132,7 +135,7 @@ class Pry
         true
         # Don't catch signals (particularly not SIGTERM) as these are unlikely to be
         # intended for pry itself. We should also make sure that Kernel#exit works.
-      when SystemExit, SignalException
+      when *Pry.config.exception_whitelist
         false
         # All other exceptions will be caught.
       else
