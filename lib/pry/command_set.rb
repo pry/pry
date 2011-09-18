@@ -168,10 +168,10 @@ class Pry
     # @param [String] new_name New name of the command.
     # @param [String] old_name Old name of the command.
     # @param [String, nil] desc New description of the command.
-    def alias_command(new_name, old_name, desc = nil)
+    def alias_command(new_name, old_name, desc="")
       commands[new_name] = commands[old_name].dup
       commands[new_name].name = new_name
-      commands[new_name].description = desc if desc
+      commands[new_name].description = desc
     end
 
     # Runs a command.

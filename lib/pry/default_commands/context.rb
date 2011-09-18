@@ -91,7 +91,7 @@ class Pry
         throw(:breakout, target.eval(arg_string))
       end
 
-      alias_command "!!@", "exit-all", ""
+      alias_command "!!@", "exit-all"
 
       command "exit", "Pop the current binding and return to the one immediately prior. Note this does NOT exit the program. Aliases: quit", :keep_retval => true do
         if _pry_.binding_stack.one?
@@ -111,15 +111,15 @@ class Pry
         end
       end
 
-      alias_command "quit", "exit", ""
+      alias_command "quit", "exit"
 
       command "exit-program", "End the current program. Aliases: quit-program, !!!" do
         Pry.save_history if Pry.config.history.should_save
         Kernel.exit target.eval(arg_string).to_i
       end
 
-      alias_command "quit-program", "exit-program", ""
-      alias_command "!!!", "exit-program", ""
+      alias_command "quit-program", "exit-program"
+      alias_command "!!!", "exit-program"
 
       command "!pry", "Start a Pry session on current self; this even works mid multi-line expression." do
         target.pry

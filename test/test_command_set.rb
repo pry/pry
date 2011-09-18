@@ -99,7 +99,7 @@ describe Pry::CommandSet do
 
     @set.alias_command 'bar', 'foo'
     @set.commands['bar'].name.should == 'bar'
-    @set.commands['bar'].description.should == 'stuff'
+    @set.commands['bar'].description.should == ''
 
     @set.run_command nil, 'bar'
     run.should == true
