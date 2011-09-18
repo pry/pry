@@ -29,7 +29,7 @@ class Pry
         end
       end
 
-      alias_command "file-mode", "shell-mode", ""
+      alias_command "file-mode", "shell-mode"
 
       command "cat", "Show output of file FILE. Type `cat --help` for more information." do |*args|
         start_line = 0

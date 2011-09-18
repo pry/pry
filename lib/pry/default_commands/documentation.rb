@@ -52,7 +52,7 @@ class Pry
         end
       end
 
-      alias_command "?", "show-doc", ""
+      alias_command "?", "show-doc"
 
       command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
         target = target()

@@ -60,8 +60,8 @@ class Pry
         end
       end
 
-      alias_command "show-source", "show-method", ""
-      alias_command "$", "show-method", ""
+      alias_command "show-source", "show-method"
+      alias_command "$", "show-method"
 
       command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
         target = target()

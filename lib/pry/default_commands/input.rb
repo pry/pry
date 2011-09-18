@@ -54,7 +54,7 @@ class Pry
         run "show-input"
       end
 
-      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "")
+      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, /amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/)
 
       command "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do |*args|
         opts = Slop.parse!(args) do |opt|
@@ -270,7 +270,7 @@ class Pry
         end
       end
 
-      alias_command "history", "hist", ""
+      alias_command "history", "hist"
 
       helpers do
         def one_index_number(line_number)
