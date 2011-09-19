@@ -11,6 +11,7 @@ class Pry
 
     attr_accessor :output
     attr_accessor :target
+    attr_accessor :target_self
     attr_accessor :captures
     attr_accessor :eval_string
     attr_accessor :arg_string

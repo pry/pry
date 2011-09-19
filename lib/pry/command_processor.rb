@@ -154,6 +154,7 @@ class Pry
       # set some useful methods to be used by the action blocks
       context.opts        = options
       context.target      = target
+      context.target_self = target.eval('self')
       context.output      = output
       context.captures    = options[:captures]
       context.eval_string = options[:eval_string]
