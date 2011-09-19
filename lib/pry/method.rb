@@ -11,11 +11,12 @@ class Pry
     end
 
     def self.from_str(str, target=TOPLEVEL_BINDING, options={})
-      str = str.to_s
-      if str =~ /(\S+)\#(\S+)\Z/
+      if str.nil?
+        from_binding(target)
+      elsif str.to_s =~ /(\S+)\#(\S+)\Z/
         context, meth_name = $1, $2
         from_module(target.eval(context), meth_name)
-      elsif str =~ /(\S+)\.(\S+)\Z/
+      elsif str.to_s =~ /(\S+)\.(\S+)\Z/
         context, meth_name = $1, $2
         from_obj(target.eval(context), meth_name)
       elsif options[:instance]

@@ -28,32 +28,33 @@ class Pry
             output.puts opt
           end
         end
-
         next if opts.help?
+        opts[:instance] = opts['instance-methods'] if opts.m?
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          meth_name = method_name
-          if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
-            output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
+          if method_name.nil?
+            method = Pry::Method.from_binding(target)
+          elsif (method = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
+            output.puts "Invalid method name: #{method_name}. Type `show-method --help` for help"
             next
           end
+          next if !method.source
+          set_file_and_dir_locals(method.source_file)
 
-          code, code_type = code_and_code_type_for(meth)
-          next if !code
-
-          output.puts make_header(meth, code_type, code)
+          output.puts make_header(method)
           if Pry.color
-            code = CodeRay.scan(code, code_type).term
+            code = CodeRay.scan(method.source, method.source_type).term
+          else
+            code = method.source
           end
 
           start_line = false
-          if opts.l?
-            start_line = meth.source_location ? meth.source_location.last : 1
+          if opts.b?
+            start_line = 1
+          elsif opts.l?
+            start_line = method.source_line || 1
           end
-
-          start_line = opts.b? ? 1 : start_line
-
 
           render_output(opts.flood?, start_line, code)
           code
@@ -89,23 +90,25 @@ class Pry
         end
 
         if find_command(command_name)
-          block = find_command(command_name).block
+          block = Pry::Method.new(find_command(command_name).block)
 
-          code, _ = code_and_code_type_for(block)
-          next if !code
+          next unless block.source
+          set_file_and_dir_locals(block.source_file)
 
-          output.puts make_header(block, :ruby, code)
+          output.puts make_header(block)
 
           if Pry.color
-            code = CodeRay.scan(code, :ruby).term
+            code = CodeRay.scan(block.source, :ruby).term
+          else
+            code = block.source
           end
 
           start_line = false
           if opts.l?
-            start_line = block.source_location ? block.source_location.last : 1
+            start_line = block.source_line || 1
           end
 
-          render_output(opts.flood?, opts.l? ? block.source_location.last : false, code)
+          render_output(opts.flood?, opts.l? ? block.source_line : false, code)
           code
         else
           output.puts "No such command: #{command_name}."
@@ -168,8 +171,8 @@ class Pry
             bt_index = opts[:ex].to_i
 
             ex_file, ex_line = ex.bt_source_location_for(bt_index)
-            if ex_file && is_core_rbx_path?(ex_file)
-              file_name = rbx_convert_path_to_full(ex_file)
+            if ex_file && RbxPath.is_core_path?(ex_file)
+              file_name = RbxPath.convert_path_to_full(ex_file)
             else
               file_name = ex_file
             end
@@ -221,7 +224,6 @@ class Pry
             output.puts opt
           end
         end
-
         next if opts.help?
 
         if !Pry.config.editor
@@ -231,20 +233,18 @@ class Pry
         end
 
         meth_name = args.shift
-        meth_name, target, type = get_method_attributes(meth_name, target, opts.to_hash(true))
-        meth = get_method_object_from_target(meth_name, target, type)
 
-        if meth.nil?
+        if (method = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}."
           next
         end
 
-        if opts.p? || is_a_dynamically_defined_method?(meth)
-          code, _ = code_and_code_type_for(meth)
+        if opts.p? || method.dynamically_defined?
+          lines = method.source.lines.to_a
+          set_file_and_dir_locals(method.source_file)
 
-          lines = code.lines.to_a
           if lines[0] =~ /^def [^( \n]+/
-            lines[0] = "def #{meth_name}#{$'}"
+            lines[0] = "def #{method.name}#{$'}"
           else
             next output.puts "Error: Pry can only patch methods created with the `def` keyword."
           end
@@ -253,15 +253,16 @@ class Pry
             f.puts lines.join
             f.flush
             invoke_editor(f.path, 0)
-            Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+            Pry.new(:input => StringIO.new(File.read(f.path))).rep(method.owner)
           end
           next
         end
 
-        if is_a_c_method?(meth)
+        if method.source_type == :c
           output.puts "Error: Can't edit a C method."
         else
-          file, line = path_line_for(meth)
+          file, line = method.source_file, method.source_line
+
           set_file_and_dir_locals(file)
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
