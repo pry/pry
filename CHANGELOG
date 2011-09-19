@@ -1,4 +1,4 @@
-*/9/2011 version 0.9.6
+19/9/2011 version 0.9.6
 * restored previous behavior of command-line switches (allowing "-rfilename")
 * removed -p option (--play) from edit command
 * `edit` with no arguments now edits the current or most recent expression
@@ -16,6 +16,8 @@
 * input_stack now implemented - pushing objects onto a pry instance's input_stack causes the instance to read from those objects in turn as it encounters EOF on the previous object. On finishing the input_stack the input object for the pry instance is set back to Pry.config.input, if this fails, pry breaks out of the REPL (throw(:breakout)) with an error message
 * Pry.config.system() defines how pry runs system commands
 * now injecting target_self method into command scope
+* play now performs 'show-input' always unless eval_string contains a valid expression (i.e it's about to be eval'd)
+* play and hist --replay now push the current input object onto the input_stack before redirecting input to a StringIO (works much better with pry-remote now)
 
 8/9/2011 version 0.9.5
 
