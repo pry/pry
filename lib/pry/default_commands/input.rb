@@ -88,7 +88,6 @@ class Pry
           range = (0..-2) if opts.o?
 
           eval_string << Array(code.each_line.to_a[range]).join
-          run "show-input" if opts.o?
         elsif opts.f?
           file_name = File.expand_path(opts[:f])
           next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
@@ -96,6 +95,7 @@ class Pry
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
+          _pry_.input_stack << _pry_.input
           _pry_.input = StringIO.new(Array(text_array[range]).join)
         else
           next output.puts "Error: no input to play command" if !args.first
@@ -223,6 +223,7 @@ class Pry
         if opts.replay?
           range = opts['replay']
           actions = Array(history[range]).join("\n") + "\n"
+          _pry_.input_stack << _pry_.input
           _pry_.input = StringIO.new(actions)
           next
         end
