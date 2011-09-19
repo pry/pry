@@ -174,6 +174,7 @@ end
 
 require "pry/version"
 require "pry/rbx_method"
+require "pry/rbx_path"
 require "pry/method"
 require "pry/history_array"
 require "pry/helpers"

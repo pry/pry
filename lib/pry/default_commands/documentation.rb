@@ -32,20 +32,20 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          meth_name = method_name
-          if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
-            output.puts "Invalid method name: #{meth_name}. Type `show-doc --help` for help"
+          if (method = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
+            output.puts "Invalid method name: #{method_name}. Type `show-doc --help` for help"
             next
           end
 
-          doc, code_type = doc_and_code_type_for(meth)
-          next if !doc
+          next unless method.doc
+          set_file_and_dir_locals(method.source_file)
 
-          next output.puts("No documentation found.") if doc.empty?
-          doc = process_comment_markup(doc, code_type)
-          output.puts make_header(meth, code_type, doc)
-          output.puts "#{text.bold("visibility: ")} #{method_visibility(meth).to_s}"
-          output.puts "#{text.bold("signature: ")} #{signature_for(meth)}"
+          next output.puts("No documentation found.") if method.doc.empty?
+
+          doc = process_comment_markup(method.doc, method.source_type)
+          output.puts make_header(method, doc)
+          output.puts "#{text.bold("visibility: ")} #{method.visibility}"
+          output.puts "#{text.bold("signature:  ")} #{method.signature}"
           output.puts
           render_output(opts.flood?, false, doc)
           doc
@@ -77,19 +77,19 @@ class Pry
         next if opts.help?
 
         meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+        if (method = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
           next
         end
 
-        if !is_a_c_method?(meth) && !is_a_dynamically_defined_method?(meth)
-          set_file_and_dir_locals(path_line_for(meth).first)
+        if method.source_type != :c and !method.dynamically_defined?
+          set_file_and_dir_locals(method.source_file)
         end
 
         output.puts "Method Information:"
         output.puts "--"
         output.puts "Name: " + meth_name
-        output.puts "Owner: " + (meth.owner.to_s ? meth.owner.to_s : "Unknown")
+        output.puts "Owner: " + (method.owner ? method.owner.to_s : "Unknown")
         output.puts "Visibility: " + method_visibility(meth).to_s
         output.puts "Type: " + (meth.is_a?(Method) ? "Bound" : "Unbound")
         output.puts "Arity: " + meth.arity.to_s
@@ -125,18 +125,21 @@ class Pry
         # This needs to be extracted into its own method as it's shared
         # by show-method and show-doc and stat commands
         meth_name = args.shift
-        if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
+        if (method = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
           next
         end
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?
-          content, code_type = code_and_code_type_for(meth)
+          content = method.source
+          code_type = method.source_type
         else
-          content, code_type = doc_and_code_type_for(meth)
+          raw_content = method.doc
+          orig_code_type = method.source_type
+
           text.no_color do
-            content = process_comment_markup(content, code_type)
+            content = process_comment_markup(content, orig_code_type)
           end
           code_type = :plain
         end
@@ -146,45 +149,9 @@ class Pry
                           opts.p?)
 
         output.puts "Gist created at #{link}"
+
+        set_file_and_dir_locals(method.source_file)
       end
-
-      helpers do
-
-        # paraphrased from awesome_print gem
-        def signature_for(method)
-          if method.respond_to?(:parameters)
-
-            args = method.parameters.inject([]) do |arr, (type, name)|
-              name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-              arr << case type
-                     when :req        then name.to_s
-                     when :opt, :rest then "*#{name}"
-                     when :block      then "&#{name}"
-                     else '?'
-                     end
-            end
-          else 
-            args = (1..method.arity.abs).map { |i| "arg#{i}" }
-            args[-1] = "*#{args[-1]}" if method.arity < 0
-          end
-
-          "#{method.name}(#{args.join(', ')})"
-        end
-        
-        def method_visibility(meth)
-          if meth.owner.public_instance_methods.include? meth.name
-            :public
-          elsif meth.owner.protected_instance_methods.include? meth.name
-            :protected
-          elsif meth.owner.private_instance_methods.include? meth.name
-            :private
-          else
-            :none
-          end
-        end
-      end
-
     end
-
   end
 end

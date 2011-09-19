@@ -61,8 +61,8 @@ class Pry
             start_line = (ex_line - 1) - window_size
             start_line = start_line < 0 ? 0 : start_line
             end_line = (ex_line - 1) + window_size
-            if ex_file && is_core_rbx_path?(ex_file)
-              file_name = rbx_convert_path_to_full(ex_file)
+            if ex_file && RbxPath.is_core_path?(ex_file)
+              file_name = RbxPath.convert_path_to_full(ex_file)
             else
               file_name = ex_file
             end
