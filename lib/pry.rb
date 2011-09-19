@@ -173,6 +173,8 @@ if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
 end
 
 require "pry/version"
+require "pry/rbx_method"
+require "pry/method"
 require "pry/history_array"
 require "pry/helpers"
 require "pry/history"
