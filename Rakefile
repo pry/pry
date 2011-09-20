@@ -28,6 +28,9 @@ def apply_spec_defaults(s)
   s.add_development_dependency("open4", "~>1.0.1")
 end
 
+desc "Set up and run tests"
+task :default => [:test]
+
 desc "Run tests"
 task :test do
   sh "bacon -Itest -rubygems -a -q"
