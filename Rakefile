@@ -1,5 +1,6 @@
 require 'rake/clean'
-require 'rake/gempackagetask'
+require "rubygems"
+require "rubygems/package_task"
 
 $:.unshift 'lib'
 require 'pry/version'
@@ -52,7 +53,7 @@ namespace :ruby do
     s.platform = Gem::Platform::RUBY
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -72,7 +73,7 @@ namespace :jruby do
     s.platform = "java"
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -87,7 +88,7 @@ end
       s.platform = "i386-#{v}"
     end
 
-    Rake::GemPackageTask.new(spec) do |pkg|
+    Gem::PackageTask.new(spec) do |pkg|
       pkg.need_zip = false
       pkg.need_tar = false
     end
