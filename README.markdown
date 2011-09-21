@@ -1,8 +1,8 @@
+[![Build Status](https://secure.travis-ci.org/pry/pry.png)](http://travis-ci.org/pry/pry)
 <center>
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_350.png)
 
 (C) John Mair (banisterfiend) 2011<br>
-[![Build Status](https://secure.travis-ci.org/pry/pry.png)](http://travis-ci.org/pry/pry)
 
 
 **Please** [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
