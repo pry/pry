@@ -115,13 +115,14 @@ class Pry
       command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
         opts = Slop.parse!(args) do |opt|
           opt.banner unindent <<-USAGE
-            Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]]
+            Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
             Open a text editor. When no FILE is given, edits the pry input buffer.
             Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
             e.g: edit sample.rb
           USAGE
 
           opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional => true, :as => Integer
+          opt.on :i, :in, "Open a temporary file containing the specified line of _in_.", :optional => true, :as => Integer
           opt.on :t, :temp, "Open an empty temporary file"
           opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
@@ -141,6 +142,8 @@ class Pry
 
           content = if opts.t?
                       ""
+                    elsif opts.i?
+                      _pry_.input_array[opts[:i] || -1] || ""
                     elsif eval_string.strip != ""
                       eval_string
                     else
