@@ -7,6 +7,7 @@ describe Pry do
       it 'should emit no warnings' do
         Open4.popen4 'ruby -I lib -rubygems -r"pry" -W -e "exit"' do |pid, stdin, stdout, stderr|
           stderr.read.empty?.should == true
+          puts stderr.read
         end
       end
     end
