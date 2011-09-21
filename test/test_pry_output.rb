@@ -1,3 +1,4 @@
+require 'helper'
 
 describe Pry do
   describe "output failsafe" do
