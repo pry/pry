@@ -27,6 +27,7 @@ def apply_spec_defaults(s)
   s.add_dependency("method_source",">=0.6.5")
   s.add_development_dependency("bacon",">=1.1.0")
   s.add_development_dependency("open4", "~>1.0.1")
+  s.add_development_dependency("rake", "~>0.9")
 end
 
 desc "Set up and run tests"
