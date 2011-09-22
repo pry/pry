@@ -135,11 +135,11 @@ class Pry
           content = method.source
           code_type = method.source_type
         else
-          raw_content = method.doc
-          orig_code_type = method.source_type
+          content = method.doc
+          code_type = method.source_type
 
           text.no_color do
-            content = process_comment_markup(content, orig_code_type)
+            content = process_comment_markup(content, code_type)
           end
           code_type = :plain
         end
