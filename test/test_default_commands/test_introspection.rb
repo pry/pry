@@ -211,6 +211,11 @@ describe "Pry::DefaultCommands::Introspection" do
         }
         mock_pry("edit -n").should.not =~ /FOO/
       end
+
+      it "should edit the nth line of _in_" do
+        mock_pry("10", "11", "edit --in -2")
+        @contents.should == "10\n"
+      end
     end
   end
 

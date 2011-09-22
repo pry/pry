@@ -1,5 +1,6 @@
 require 'rake/clean'
-require 'rake/gempackagetask'
+require "rubygems"
+require "rubygems/package_task"
 
 $:.unshift 'lib'
 require 'pry/version'
@@ -26,7 +27,11 @@ def apply_spec_defaults(s)
   s.add_dependency("method_source",">=0.6.5")
   s.add_development_dependency("bacon",">=1.1.0")
   s.add_development_dependency("open4", "~>1.0.1")
+  s.add_development_dependency("rake", "~>0.9")
 end
+
+desc "Set up and run tests"
+task :default => [:test]
 
 desc "Run tests"
 task :test do
@@ -49,7 +54,7 @@ namespace :ruby do
     s.platform = Gem::Platform::RUBY
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -69,7 +74,7 @@ namespace :jruby do
     s.platform = "java"
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -84,7 +89,7 @@ end
       s.platform = "i386-#{v}"
     end
 
-    Rake::GemPackageTask.new(spec) do |pkg|
+    Gem::PackageTask.new(spec) do |pkg|
       pkg.need_zip = false
       pkg.need_tar = false
     end
