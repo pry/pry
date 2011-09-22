@@ -24,6 +24,7 @@ class << Pry
     Pry.config.plugins.enabled = false
     Pry.config.history.should_load = false
     Pry.config.history.should_save = false
+    Pry.config.hooks = { }
   end
 end
 
