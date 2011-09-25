@@ -136,8 +136,8 @@ class Pry
           i_num = 5
         end
 
-        if (method = Pry::Method.from_binding(target))
-          meth_name = method.name
+        if (meth = Pry::Method.from_binding(target))
+          meth_name = meth.name
         else
           meth_name = "N/A"
         end

@@ -77,17 +77,17 @@ class Pry
 
         if opts.m?
           meth_name = opts[:m]
-          if (method = Pry::Method.from_str(meth_name, target)).nil?
+          if (meth = Pry::Method.from_str(meth_name, target)).nil?
             output.puts "Invalid method name: #{meth_name}."
             next
           end
-          next if !method.source
-          set_file_and_dir_locals(method.source_file)
+          next if !meth.source
+          set_file_and_dir_locals(meth.source_file)
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
 
-          eval_string << Array(method.source.each_line.to_a[range]).join
+          eval_string << Array(meth.source.each_line.to_a[range]).join
         elsif opts.f?
           file_name = File.expand_path(opts[:f])
           next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
