@@ -110,8 +110,8 @@ class Pry
 
     # paraphrased from awesome_print gem
     def signature
-      if @method.respond_to?(:parameters)
-        args = @method.parameters.inject([]) do |arr, (type, name)|
+      if respond_to?(:parameters)
+        args = parameters.inject([]) do |arr, (type, name)|
           name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
           arr << case type
                  when :req        then name.to_s
@@ -148,6 +148,10 @@ class Pry
       klass == Pry::Method or @method.is_a?(klass)
     end
     alias kind_of? is_a?
+
+    def respond_to?(method_name)
+      super or @method.respond_to?(method_name)
+    end
 
     def method_missing(method_name, *args, &block)
       @method.send(method_name, *args, &block)
