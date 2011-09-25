@@ -80,7 +80,7 @@ class Pry
           Name: #{meth.name}
           Owner: #{meth.owner ? meth.owner : "Unknown"}
           Visibility: #{meth.visibility}
-          Type: #{meth.is_a?(Method) ? "Bound" : "Unbound"}
+          Type: #{meth.is_a?(::Method) ? "Bound" : "Unbound"}
           Arity: #{meth.arity}
           Method Signature: #{meth.signature}
           Source Location: #{meth.source_location ? meth.source_location.join(":") : "Not found."}
