@@ -27,6 +27,18 @@ class Pry
         file.close
       end
 
+      def get_method_or_print_error(name, target, opts={}, omit_cmd=false)
+        if (meth = Pry::Method.from_str(name, target, opts))
+          set_file_and_dir_locals(meth.source_file)
+          meth
+        else
+          # FIXME: better/more accurate error handling
+          output.print "Invalid method name: #{name}."
+          output.print " Type `#{command_name} --help` for help." unless omit_cmd
+          output.puts
+        end
+      end
+
       def make_header(meth, content=meth.source)
         code_type = meth.source_type
         num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"

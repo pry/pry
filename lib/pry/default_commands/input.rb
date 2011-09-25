@@ -77,12 +77,8 @@ class Pry
 
         if opts.m?
           meth_name = opts[:m]
-          if (meth = Pry::Method.from_str(meth_name, target)).nil?
-            output.puts "Invalid method name: #{meth_name}."
-            next
-          end
-          next if !meth.source
-          set_file_and_dir_locals(meth.source_file)
+          meth = get_method_or_print_error(meth_name, target, {}, :omit_help)
+          next unless meth and meth.source
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?

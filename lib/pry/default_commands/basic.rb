@@ -28,10 +28,8 @@ class Pry
       end
 
       command "reload-method", "Reload the source file that contains the specified method" do |meth_name|
-        if (meth = Pry::Method.from_str(meth_name, target)).nil?
-          output.puts "Invalid method name: #{meth_name}."
-          next
-        end
+        meth = get_method_or_print_error(meth_name, target, {}, :omit_help)
+        next unless meth
 
         if meth.source_type == :c
           output.puts "Error: Can't reload a C method."
