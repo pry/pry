@@ -3,6 +3,7 @@ require 'helper'
 describe Pry::CommandSet do
   before do
     @set = Pry::CommandSet.new
+    @ctx = Pry::CommandContext.new
   end
 
   it 'should call the block used for the command when it is called' do
@@ -11,7 +12,7 @@ describe Pry::CommandSet do
       run = true
     end
 
-    @set.run_command nil, 'foo'
+    @set.run_command @ctx, 'foo'
     run.should == true
   end
 
@@ -20,21 +21,23 @@ describe Pry::CommandSet do
       args.should == [1, 2, 3]
     end
 
-    @set.run_command nil, 'foo', 1, 2, 3
+    @set.run_command @ctx, 'foo', 1, 2, 3
   end
 
   it 'should use the first argument as self' do
+    ctx = @ctx
+
     @set.command 'foo' do
-      self.should == true
+      self.should == ctx
     end
 
-    @set.run_command true, 'foo'
+    @set.run_command @ctx, 'foo'
   end
 
   it 'should raise an error when calling an undefined command' do
     @set.command('foo') {}
     lambda {
-      @set.run_command nil, 'bar'
+      @set.run_command @ctx, 'bar'
     }.should.raise(Pry::NoCommandError)
   end
 
@@ -43,7 +46,7 @@ describe Pry::CommandSet do
     @set.delete 'foo'
 
     lambda {
-      @set.run_command nil, 'foo'
+      @set.run_command @ctx, 'foo'
     }.should.raise(Pry::NoCommandError)
   end
 
@@ -57,11 +60,11 @@ describe Pry::CommandSet do
 
     @set.import_from(other_set, 'foo')
 
-    @set.run_command nil, 'foo'
+    @set.run_command @ctx, 'foo'
     run.should == true
 
     lambda {
-      @set.run_command nil, 'bar'
+      @set.run_command @ctx, 'bar'
     }.should.raise(Pry::NoCommandError)
   end
 
@@ -75,8 +78,8 @@ describe Pry::CommandSet do
 
     @set.import other_set
 
-    @set.run_command nil, 'foo'
-    @set.run_command nil, 'bar'
+    @set.run_command @ctx, 'foo'
+    @set.run_command @ctx, 'bar'
     run.should == [true, true]
   end
 
@@ -84,7 +87,7 @@ describe Pry::CommandSet do
     run = false
     @set.command('foo') { run = true }
 
-    Pry::CommandSet.new(@set).run_command nil, 'foo'
+    Pry::CommandSet.new(@set).run_command @ctx, 'foo'
     run.should == true
   end
 
@@ -101,7 +104,7 @@ describe Pry::CommandSet do
     @set.commands['bar'].name.should == 'bar'
     @set.commands['bar'].description.should == ''
 
-    @set.run_command nil, 'bar'
+    @set.run_command @ctx, 'bar'
     run.should == true
   end
 
@@ -114,17 +117,17 @@ describe Pry::CommandSet do
 
   it 'should return Pry::CommandContext::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    @set.run_command(nil, 'foo').should == Pry::CommandContext::VOID_VALUE
+    @set.run_command(@ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
     @set.command('foo', '', :keep_retval => true) { 3 }
-    @set.run_command(nil, 'foo').should == 3
+    @set.run_command(@ctx, 'foo').should == 3
   end
 
   it 'should be able to keep return values, even if return value is nil' do
     @set.command('foo', '', :keep_retval => true) { nil }
-    @set.run_command(nil, 'foo').should == nil
+    @set.run_command(@ctx, 'foo').should == nil
   end
 
   it 'should be able to have its own helpers' do
@@ -136,7 +139,7 @@ describe Pry::CommandSet do
       def my_helper; end
     end
 
-    @set.run_command(Pry::CommandContext.new, 'foo')
+    @set.run_command(@ctx, 'foo')
     Pry::CommandContext.new.should.not.respond_to :my_helper
   end
 
@@ -154,7 +157,7 @@ describe Pry::CommandSet do
       def my_other_helper; end
     end
 
-    @set.run_command(Pry::CommandContext.new, 'foo')
+    @set.run_command(@ctx, 'foo')
   end
 
   it 'should import helpers from imported sets' do
@@ -166,7 +169,7 @@ describe Pry::CommandSet do
 
     @set.import imported_set
     @set.command('foo') { should.respond_to :imported_helper_method }
-    @set.run_command(Pry::CommandContext.new, 'foo')
+    @set.run_command(@ctx, 'foo')
   end
 
   it 'should import helpers even if only some commands are imported' do
@@ -180,7 +183,7 @@ describe Pry::CommandSet do
 
     @set.import_from imported_set, 'bar'
     @set.command('foo') { should.respond_to :imported_helper_method }
-    @set.run_command(Pry::CommandContext.new, 'foo')
+    @set.run_command(@ctx, 'foo')
   end
 
   it 'should provide a :listing for a command that defaults to its name' do
@@ -194,12 +197,11 @@ describe Pry::CommandSet do
   end
 
   it "should provide a 'help' command" do
-    context = Pry::CommandContext.new
-    context.command_set = @set
-    context.output = StringIO.new
+    @ctx.command_set = @set
+    @ctx.output = StringIO.new
 
     lambda {
-      @set.run_command(context, 'help')
+      @set.run_command(@ctx, 'help')
     }.should.not.raise
   end
 
@@ -209,13 +211,12 @@ describe Pry::CommandSet do
     @set.command 'moo', "Mooerizes" do; end
     @set.command 'boo', "Booerizes" do; end
 
-    context = Pry::CommandContext.new
-    context.command_set = @set
-    context.output = StringIO.new
+    @ctx.command_set = @set
+    @ctx.output = StringIO.new
 
-    @set.run_command(context, 'help')
+    @set.run_command(@ctx, 'help')
 
-    doc = context.output.string
+    doc = @ctx.output.string
 
     order = [doc.index("boo"),
              doc.index("foo"),
