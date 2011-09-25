@@ -160,9 +160,9 @@ class Pry
     private
       def pry_doc_info
         if Pry.config.has_pry_doc
-          Pry::MethodInfo.info_for(@method) or output.puts "Cannot find C method: #{name}"
+          Pry::MethodInfo.info_for(@method) or puts "Cannot find C method: #{name}."
         else
-          output.puts "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          puts "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
         end
       end
 
