@@ -2,39 +2,42 @@ class Pry
   class Method
     include RbxMethod if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
 
-    def self.from_obj(obj, name)
-      new(obj.method(name)) rescue nil
-    end
-
-    def self.from_module(klass, name)
-      new(klass.instance_method(name)) rescue nil
-    end
-
-    def self.from_str(str, target=TOPLEVEL_BINDING, options={})
-      if str.nil?
-        from_binding(target)
-      elsif str.to_s =~ /(\S+)\#(\S+)\Z/
-        context, meth_name = $1, $2
-        from_module(target.eval(context), meth_name)
-      elsif str.to_s =~ /(\S+)\.(\S+)\Z/
-        context, meth_name = $1, $2
-        from_obj(target.eval(context), meth_name)
-      elsif options[:instance]
-        new(target.eval("instance_method(:#{str})")) rescue nil
-      elsif options[:methods]
-        new(target.eval("method(:#{str})")) rescue nil
-      else
-        from_str(str, target, :instance => true) ||
-          from_str(str, target, :methods => true)
+    class << self
+      def from_str(str, target=TOPLEVEL_BINDING, options={})
+        if str.nil?
+          from_binding(target)
+        elsif str.to_s =~ /(\S+)\#(\S+)\Z/
+          context, meth_name = $1, $2
+          from_module(target.eval(context), meth_name)
+        elsif str.to_s =~ /(\S+)\.(\S+)\Z/
+          context, meth_name = $1, $2
+          from_obj(target.eval(context), meth_name)
+        elsif options[:instance]
+          new(target.eval("instance_method(:#{str})")) rescue nil
+        elsif options[:methods]
+          new(target.eval("method(:#{str})")) rescue nil
+        else
+          from_str(str, target, :instance => true) ||
+            from_str(str, target, :methods => true)
+        end
       end
-    end
 
-    def self.from_binding(b)
-      meth_name = b.eval('__method__')
-      if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
-        nil
-      else
-        new(b.eval("method(:#{meth_name})"))
+      def from_binding(b)
+        meth_name = b.eval('__method__')
+        if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
+          nil
+        else
+          new(b.eval("method(:#{meth_name})"))
+        end
+      end
+
+      def from_module(nodule, name)
+        new(nodule.instance_method(name)) rescue nil
+      end
+      alias from_class from_module
+
+      def from_obj(obj, name)
+        new(obj.method(name)) rescue nil
       end
     end
 
