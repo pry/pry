@@ -28,17 +28,17 @@ class Pry
       end
 
       command "reload-method", "Reload the source file that contains the specified method" do |meth_name|
-        if (method = Pry::Method.from_str(meth_name, target)).nil?
+        if (meth = Pry::Method.from_str(meth_name, target)).nil?
           output.puts "Invalid method name: #{meth_name}."
           next
         end
 
-        if method.source_type == :c
+        if meth.source_type == :c
           output.puts "Error: Can't reload a C method."
-        elsif method.dynamically_defined?
+        elsif meth.dynamically_defined?
           output.puts "Error: Can't reload an eval method."
         else
-          file_name = method.source_file
+          file_name = meth.source_file
           load file_name
           output.puts "Reloaded #{file_name}."
         end

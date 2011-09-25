@@ -32,20 +32,20 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          if (method = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
+          if (meth = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
             output.puts "Invalid method name: #{method_name}. Type `show-doc --help` for help"
             next
           end
 
-          next unless method.doc
-          set_file_and_dir_locals(method.source_file)
+          next unless meth.doc
+          set_file_and_dir_locals(meth.source_file)
 
-          next output.puts("No documentation found.") if method.doc.empty?
+          next output.puts("No documentation found.") if meth.doc.empty?
 
-          doc = process_comment_markup(method.doc, method.source_type)
-          output.puts make_header(method, doc)
-          output.puts "#{text.bold("visibility: ")} #{method.visibility}"
-          output.puts "#{text.bold("signature:  ")} #{method.signature}"
+          doc = process_comment_markup(meth.doc, meth.source_type)
+          output.puts make_header(meth, doc)
+          output.puts "#{text.bold("visibility: ")} #{meth.visibility}"
+          output.puts "#{text.bold("signature:  ")} #{meth.signature}"
           output.puts
           render_output(opts.flood?, false, doc)
           doc
@@ -77,25 +77,26 @@ class Pry
         next if opts.help?
 
         meth_name = args.shift
-        if (method = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
+        if (meth = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
           next
         end
 
-        if method.source_type != :c and !method.dynamically_defined?
-          set_file_and_dir_locals(method.source_file)
+        if meth.source_type != :c and !meth.dynamically_defined?
+          set_file_and_dir_locals(meth.source_file)
         end
 
-        output.puts "Method Information:"
-        output.puts "--"
-        output.puts "Name: " + meth_name
-        output.puts "Owner: " + (method.owner ? method.owner.to_s : "Unknown")
-        output.puts "Visibility: " + method_visibility(meth).to_s
-        output.puts "Type: " + (meth.is_a?(Method) ? "Bound" : "Unbound")
-        output.puts "Arity: " + meth.arity.to_s
-        output.puts "Method Signature: " + signature_for(meth)
-
-        output.puts "Source location: " + (meth.source_location ? meth.source_location.join(":") : "Not found.")
+        output.puts unindent <<-EOS
+          Method Information:
+          --
+          Name: #{meth_name}
+          Owner: #{meth.owner ? meth.owner : "Unknown"}
+          Visibility: #{meth.visibility}
+          Type: #{meth.is_a?(Method) ? "Bound" : "Unbound"}
+          Arity: #{meth.arity}
+          Method Signature: #{meth.signature}
+          Source Location: #{meth.source_location ? meth.source_location.join(":") : "Not found."}
+        EOS
       end
 
       command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
@@ -125,18 +126,18 @@ class Pry
         # This needs to be extracted into its own method as it's shared
         # by show-method and show-doc and stat commands
         meth_name = args.shift
-        if (method = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
+        if (meth = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
           output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
           next
         end
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?
-          content = method.source
-          code_type = method.source_type
+          content = meth.source
+          code_type = meth.source_type
         else
-          content = method.doc
-          code_type = method.source_type
+          content = meth.doc
+          code_type = meth.source_type
 
           text.no_color do
             content = process_comment_markup(content, code_type)
@@ -150,7 +151,7 @@ class Pry
 
         output.puts "Gist created at #{link}"
 
-        set_file_and_dir_locals(method.source_file)
+        set_file_and_dir_locals(meth.source_file)
       end
     end
   end
