@@ -4,12 +4,8 @@ class Pry
     Experimental = Pry::CommandSet.new do
 
       command "reload-method", "Reload the source specifically for a method", :requires_gem => "method_reload" do |meth_name|
-        if (meth = Pry::Method.from_str(meth_name, target)).nil?
-          output.puts "Invalid method name: #{meth_name}."
-          next
-        end
-
-        meth.reload
+        meth = get_method_or_print_error(meth_name, target, {}, :no_cmd)
+        meth.reload if meth
       end
     end
   end

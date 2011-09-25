@@ -32,15 +32,10 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          if (meth = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
-            output.puts "Invalid method name: #{method_name}. Type `show-doc --help` for help"
-            next
-          end
+          meth = get_method_or_print_error(method_name, target, opts.to_hash(true))
+          next unless meth
 
-          next unless meth.doc
-          set_file_and_dir_locals(meth.source_file)
-
-          next output.puts("No documentation found.") if meth.doc.empty?
+          next output.puts("No documentation found.") if meth.doc.nil? || meth.doc.empty?
 
           doc = process_comment_markup(meth.doc, meth.source_type)
           output.puts make_header(meth, doc)
@@ -76,20 +71,13 @@ class Pry
 
         next if opts.help?
 
-        meth_name = args.shift
-        if (meth = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
-          output.puts "Invalid method name: #{meth_name}. Type `stat --help` for help"
-          next
-        end
-
-        if meth.source_type != :c and !meth.dynamically_defined?
-          set_file_and_dir_locals(meth.source_file)
-        end
+        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
+        next unless meth
 
         output.puts unindent <<-EOS
           Method Information:
           --
-          Name: #{meth_name}
+          Name: #{meth.name}
           Owner: #{meth.owner ? meth.owner : "Unknown"}
           Visibility: #{meth.visibility}
           Type: #{meth.is_a?(Method) ? "Bound" : "Unbound"}
@@ -123,13 +111,8 @@ class Pry
 
         next if opts.help?
 
-        # This needs to be extracted into its own method as it's shared
-        # by show-method and show-doc and stat commands
-        meth_name = args.shift
-        if (meth = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
-          output.puts "Invalid method name: #{meth_name}. Type `gist-method --help` for help"
-          next
-        end
+        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
+        next unless meth
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?
@@ -150,8 +133,6 @@ class Pry
                           opts.p?)
 
         output.puts "Gist created at #{link}"
-
-        set_file_and_dir_locals(meth.source_file)
       end
     end
   end

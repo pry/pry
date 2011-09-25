@@ -33,12 +33,8 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          if (meth = Pry::Method.from_str(method_name, target, opts.to_hash(true))).nil?
-            output.puts "Invalid method name: #{method_name}. Type `show-method --help` for help"
-            next
-          end
-          next if !meth.source
-          set_file_and_dir_locals(meth.source_file)
+          meth = get_method_or_print_error(method_name, target, opts.to_hash(true))
+          next unless meth and meth.source
 
           output.puts make_header(meth)
           if Pry.color
@@ -233,16 +229,11 @@ class Pry
           next
         end
 
-        meth_name = args.shift
-
-        if (meth = Pry::Method.from_str(meth_name, target, opts.to_hash(true))).nil?
-          output.puts "Invalid method name: #{meth_name}."
-          next
-        end
+        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
+        next unless meth
 
         if opts.p? || meth.dynamically_defined?
           lines = meth.source.lines.to_a
-          set_file_and_dir_locals(meth.source_file)
 
           if lines[0] =~ /^def [^( \n]+/
             lines[0] = "def #{meth.name}#{$'}"
@@ -263,8 +254,6 @@ class Pry
           output.puts "Error: Can't edit a C method."
         else
           file, line = meth.source_file, meth.source_line
-
-          set_file_and_dir_locals(file)
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
