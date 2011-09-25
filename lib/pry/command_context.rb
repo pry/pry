@@ -9,6 +9,7 @@ class Pry
     # give it a nice inspect
     def VOID_VALUE.inspect() "void" end
 
+    attr_accessor :command_name
     attr_accessor :output
     attr_accessor :target
     attr_accessor :target_self
