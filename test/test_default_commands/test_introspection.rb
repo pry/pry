@@ -211,10 +211,35 @@ describe "Pry::DefaultCommands::Introspection" do
         }
         mock_pry("edit -n").should.not =~ /FOO/
       end
+    end
 
+    describe "with --in" do
       it "should edit the nth line of _in_" do
         mock_pry("10", "11", "edit --in -2")
         @contents.should == "10\n"
+      end
+
+      it "should edit the last line if no argument is given" do
+        mock_pry("10", "11", "edit --in")
+        @contents.should == "11\n"
+      end
+
+      it "should edit a range of lines if a range is given" do
+        mock_pry("10", "11", "edit -i 1,2")
+        @contents.should == "10\n11\n"
+      end
+
+      it "should edit a multi-line expression as it occupies one line of _in_" do
+        mock_pry("class Fixnum", "  def invert; -self; end", "end", "edit -i 1")
+        @contents.should == "class Fixnum\n  def invert; -self; end\nend\n"
+      end
+
+      it "should not work with a filename" do
+        mock_pry("edit ruby.rb -i").should =~ /Only one of --ex, --temp, --in and FILE may be specified/
+      end
+
+      it "should not work with nonsense" do
+        mock_pry("edit --in three").should =~ /Not a valid range: three/
       end
     end
   end
