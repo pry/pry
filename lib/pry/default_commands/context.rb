@@ -37,6 +37,7 @@ class Pry
           rescue RescuableException
             output.puts "Bad object path: #{arg_string}. Failed trying to resolve: #{context}"
             resolve_failure = true
+            break
           end
         end
 
