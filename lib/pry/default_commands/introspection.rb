@@ -122,7 +122,7 @@ class Pry
           USAGE
 
           opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional => true, :as => Integer
-          opt.on :i, :in, "Open a temporary file containing the specified line of _in_.", :optional => true, :as => Integer
+          opt.on :i, :in, "Open a temporary file containing the Nth line of _in_. N may be a range.", :optional => true, :as => Range, :default => -1..-1
           opt.on :t, :temp, "Open an empty temporary file"
           opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
@@ -133,8 +133,8 @@ class Pry
         end
         next if opts.h?
 
-        if [opts.ex? || nil, opts.t? || nil, !args.empty? || nil].compact.size > 1
-          next output.puts "Only one of --ex, --temp, and FILE may be specified"
+        if [opts.ex?, opts.t?, opts.in?, !args.empty?].count(true) > 1
+          next output.puts "Only one of --ex, --temp, --in and FILE may be specified"
         end
 
         # edit of local code, eval'd within pry.
@@ -143,7 +143,14 @@ class Pry
           content = if opts.t?
                       ""
                     elsif opts.i?
-                      _pry_.input_array[opts[:i] || -1] || ""
+                      case opts[:i]
+                      when Range
+                        (_pry_.input_array[opts[:i]] || []).join
+                      when Fixnum
+                        _pry_.input_array[opts[:i]] || ""
+                      else
+                        next output.puts "Not a valid range: #{opts[:i]}"
+                      end
                     elsif eval_string.strip != ""
                       eval_string
                     else
