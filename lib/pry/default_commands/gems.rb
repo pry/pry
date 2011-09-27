@@ -4,6 +4,7 @@ class Pry
     Gems = Pry::CommandSet.new do
 
       command "gem-install", "Install a gem and refresh the gem cache.", :argument_required => true do |gem|
+        require 'gem/dependency_installer' unless defined? Gem::DependencyInstaller
         begin
           destination = File.writable?(Gem.dir) ? Gem.dir : Gem.user_dir
           installer = Gem::DependencyInstaller.new :install_dir => destination
