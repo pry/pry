@@ -1,3 +1,7 @@
+27/9/2011 version 0.9.6.2
+* hotfix release, for coderay bug (downgraded dep to ~> 0.9.8)
+* added cirwin's edit --in
+
 19/9/2011 version 0.9.6
 * restored previous behavior of command-line switches (allowing "-rfilename")
 * removed -p option (--play) from edit command

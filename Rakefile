@@ -21,11 +21,11 @@ def apply_spec_defaults(s)
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
-  s.add_dependency("ruby_parser",">=2.0.5")
-  s.add_dependency("coderay",">=0.9.8")
+  s.add_dependency("ruby_parser","~>2.0.5")
+  s.add_dependency("coderay","~>0.9.8")
   s.add_dependency("slop","~>2.1.0")
-  s.add_dependency("method_source",">=0.6.5")
-  s.add_development_dependency("bacon",">=1.1.0")
+  s.add_dependency("method_source","~>0.6.5")
+  s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency("open4", "~>1.0.1")
   s.add_development_dependency("rake", "~>0.9")
 end
@@ -70,7 +70,7 @@ end
 namespace :jruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
-    s.add_dependency("spoon", ">=0.0.1")
+    s.add_dependency("spoon", "~>0.0.1")
     s.platform = "java"
   end
 
@@ -85,7 +85,7 @@ end
   namespace v do
     spec = Gem::Specification.new do |s|
       apply_spec_defaults(s)
-      s.add_dependency("win32console", ">=1.3.0")
+      s.add_dependency("win32console", "~>1.3.0")
       s.platform = "i386-#{v}"
     end
 
