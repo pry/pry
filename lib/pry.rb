@@ -153,7 +153,6 @@ require "stringio"
 require "coderay"
 require "optparse"
 require "slop"
-require "rubygems/dependency_installer"
 
 if RUBY_PLATFORM =~ /jruby/
   begin
