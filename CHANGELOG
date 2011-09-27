@@ -1,4 +1,4 @@
-27/9/2011 version 0.9.6.1 HOTFIX release
+27/9/2011 version 0.9.6.2 HOTFIX release
 * downgrading to CodeRay 0.9.8 due to problems with 1.0 and rails (autoloading problem) see #280 on pry and #6 on CodeRay
 * also added (as a minor feature) cirwin's implementation of edit --in
 * added early break/exit for objectpath errors (the 'cd 34/@hello/bad_path/23')
