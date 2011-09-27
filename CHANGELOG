@@ -1,3 +1,7 @@
+*/10/2011 version 0.9.7
+* added input_array info to DEFAULT_PROMPT, e.g [1] pry(main)>
+* added --no-history option to pry binary (prevent history being LOADED, history will still be saved)
+
 27/9/2011 version 0.9.6.2 HOTFIX release
 * downgrading to CodeRay 0.9.8 due to problems with 1.0 and rails (autoloading problem) see #280 on pry and #6 on CodeRay
 * also added (as a minor feature) cirwin's implementation of edit --in
