@@ -15,14 +15,19 @@ end
 opts = Slop.parse(:help => true, :multiple_switches => false) do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
-See: `https://github.com/banister` for more information.
+See: `https://github.com/pry` for more information.
+Copyright (c) 2011 John Mair (banisterfiend)
 --
 }
 
   on :e, :exec, "A line of code to execute in context before the session starts", true
 
   on "no-pager", "Disable pager for long output" do
-    Pry.pager = false
+    Pry.config.pager = false
+  end
+
+  on "no-history", "Disable history loading" do
+    Pry.config.history.should_load = false
   end
 
   on "no-color", "Disable syntax highlighting for session" do
@@ -39,7 +44,14 @@ See: `https://github.com/banister` for more information.
     Pry.config.plugins.enabled = false
   end
 
-  on "installed-plugins", "List installed plugins."
+  on "installed-plugins", "List installed plugins." do
+    puts "Installed Plugins:"
+    puts "--"
+    Pry.locate_plugins.each do |plugin|
+      puts "#{plugin.name}".ljust(18) + plugin.spec.summary
+    end
+    exit
+  end
 
   on "simple-prompt", "Enable simple prompt mode" do
     Pry.prompt = Pry::SIMPLE_PROMPT
@@ -63,15 +75,6 @@ See: `https://github.com/banister` for more information.
     true,
     :default => "TOPLEVEL_BINDING"
     )
-end
-
-if opts["installed-plugins"]
-  puts "Installed Plugins:"
-  puts "--"
-  Pry.locate_plugins.each do |plugin|
-    puts "#{plugin.name}".ljust(18) + plugin.spec.summary
-  end
-  exit
 end
 
 # invoked via cli
