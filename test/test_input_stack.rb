@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'helper'
 
 describe "Pry#input_stack" do
@@ -67,4 +68,16 @@ describe "Pry#input_stack" do
     str_output.string.should =~ /Error: Pry ran out of things to read/
   end
 
+  if "".respond_to?(:encoding)
+    it "should pass strings to Pry in the right encoding" do
+      input1 = "'f｡｡'.encoding.name" # utf-8, see coding declaration
+      input2 = input1.encode('Shift_JIS')
+
+      mock_pry(input1, input2).should == %{=> "UTF-8"\n=> "Shift_JIS"\n\n}
+    end
+
+    it "should be able to use unicode regexes on a UTF-8 terminal" do
+      mock_pry('":-Þ" =~ /\p{Upper}/').should == %{=> 2\n\n}
+    end
+  end
 end
