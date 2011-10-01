@@ -33,7 +33,10 @@ class Pry
         end
 
         next if opts.h?
-        next output.puts "No input to amend." if eval_string.empty?
+
+        if eval_string.empty?
+          raise CommandError, "No input to amend."
+        end
 
         replacement_line = "" if !replacement_line
         input_array = eval_string.each_line.to_a
@@ -77,8 +80,8 @@ class Pry
 
         if opts.m?
           meth_name = opts[:m]
-          meth = get_method_or_print_error(meth_name, target, {}, :omit_help)
-          next unless meth and meth.source
+          meth = get_method_or_raise(meth_name, target, {}, :omit_help)
+          next unless meth.source
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
@@ -86,7 +89,11 @@ class Pry
           eval_string << Array(meth.source.each_line.to_a[range]).join
         elsif opts.f?
           file_name = File.expand_path(opts[:f])
-          next output.puts "No such file: #{opts[:f]}" if !File.exists?(file_name)
+
+          if !File.exists?(file_name)
+            raise CommandError, "No such file: #{opts[:f]}"
+          end
+
           text_array = File.readlines(file_name)
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.o?
@@ -94,7 +101,10 @@ class Pry
           _pry_.input_stack << _pry_.input
           _pry_.input = StringIO.new(Array(text_array[range]).join)
         else
-          next output.puts "Error: no input to play command" if !args.first
+          if !args.first
+            raise CommandError, "No input to play command."
+          end
+
           code = target.eval(args.first)
 
           range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
@@ -238,7 +248,11 @@ class Pry
           case opts["save"]
           when Range
             hist_array = Array(history[opts["save"]])
-            next output.puts "Must provide a file name." if !args.first
+
+            if !args.first
+              raise CommandError, "Must provide a file name."
+            end
+
             file_name = File.expand_path(args.first)
           when String
             hist_array = history

@@ -219,6 +219,9 @@ class Pry
 
     result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     result
+  rescue CommandError => e
+    output.puts "Error: #{e.message}"
+    @suppress_output = true
   rescue RescuableException => e
     set_last_exception(e, target)
   ensure

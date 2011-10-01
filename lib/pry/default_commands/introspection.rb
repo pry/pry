@@ -33,8 +33,13 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          meth = get_method_or_print_error(method_name, target, opts.to_hash(true))
-          next unless meth and meth.source
+          begin
+            meth = get_method_or_raise(method_name, target, opts.to_hash(true))
+          rescue CommandError => e
+            puts "\nError: #{e.message}"
+            next
+          end
+          next unless meth.source
 
           output.puts make_header(meth)
           if Pry.color
@@ -79,8 +84,7 @@ class Pry
 
         command_name = args.shift
         if !command_name
-          output.puts "You must provide a command name."
-          next
+          raise CommandError, "You must provide a command name."
         end
 
         if find_command(command_name)
@@ -105,7 +109,7 @@ class Pry
           render_output(opts.flood?, opts.l? ? block.source_line : false, code)
           code
         else
-          output.puts "No such command: #{command_name}."
+          raise CommandError, "No such command: #{command_name}."
         end
       end
 
@@ -131,7 +135,7 @@ class Pry
         next if opts.h?
 
         if [opts.ex? || nil, opts.t? || nil, !args.empty? || nil].compact.size > 1
-          next output.puts "Only one of --ex, --temp, and FILE may be specified"
+          raise CommandError, "Only one of --ex, --temp, and FILE may be specified."
         end
 
         # edit of local code, eval'd within pry.
@@ -163,7 +167,10 @@ class Pry
         # edit of remote code, eval'd at top-level
         else
           if opts.ex?
-            next output.puts "No Exception found." if _pry_.last_exception.nil?
+            if _pry_.last_exception.nil?
+              raise CommandError, "No exception found."
+            end
+
             ex = _pry_.last_exception
             bt_index = opts[:ex].to_i
 
@@ -175,9 +182,14 @@ class Pry
             end
 
             line = ex_line
-            next output.puts "Exception has no associated file." if file_name.nil?
-            next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
 
+            if file_name.nil?
+              raise CommandError, "Exception has no associated file."
+            end
+
+            if Pry.eval_path == file_name
+              raise CommandError, "Cannot edit exceptions raised in REPL."
+            end
           else
             # break up into file:line
             file_name = File.expand_path(args.first)
@@ -224,13 +236,10 @@ class Pry
         next if opts.help?
 
         if !Pry.config.editor
-          output.puts "Error: No editor set!"
-          output.puts "Ensure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
-          next
+          raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
         end
 
-        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
-        next unless meth
+        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
 
         if opts.p? || meth.dynamically_defined?
           lines = meth.source.lines.to_a
@@ -238,7 +247,7 @@ class Pry
           if lines[0] =~ /^def [^( \n]+/
             lines[0] = "def #{meth.name}#{$'}"
           else
-            next output.puts "Error: Pry can only patch methods created with the `def` keyword."
+            raise CommandError, "Pry can only patch methods created with the `def` keyword."
           end
 
           temp_file do |f|
@@ -251,7 +260,7 @@ class Pry
         end
 
         if meth.source_type == :c
-          output.puts "Error: Can't edit a C method."
+          raise CommandError, "Can't edit a C method."
         else
           file, line = meth.source_file, meth.source_line
 

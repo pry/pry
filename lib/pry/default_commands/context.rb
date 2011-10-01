@@ -49,7 +49,7 @@ class Pry
         selection = selection.to_i
 
         if selection < 0 || selection > _pry_.binding_stack.size - 1
-          output.puts "Invalid binding index #{selection} - use `nesting` command to view valid indices."
+          raise CommandError, "Invalid binding index #{selection} - use `nesting` command to view valid indices."
         else
           Pry.start(_pry_.binding_stack[selection])
         end
@@ -143,16 +143,14 @@ class Pry
         end
 
         if file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e"
-          output.puts "Cannot find local context. Did you use `binding.pry` ?"
-          next
+          raise CommandError, "Cannot find local context. Did you use `binding.pry`?"
         end
 
         set_file_and_dir_locals(file)
         output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
 
         unless File.readable?(file)
-          output.puts "Cannot open #{file.inspect} for reading."
-          next
+          raise CommandError, "Cannot open #{file.inspect} for reading."
         end
 
         # This method inspired by http://rubygems.org/gems/ir_b

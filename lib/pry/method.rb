@@ -17,8 +17,9 @@ class Pry
         elsif options[:methods]
           new(target.eval("method(:#{str})")) rescue nil
         else
-          from_str(str, target, :instance => true) ||
-            from_str(str, target, :methods => true)
+          from_str(str, target, :instance => true) or
+            from_str(str, target, :methods => true) or
+            raise CommandError, "Method #{str} could not be found."
         end
       end
 
@@ -73,7 +74,7 @@ class Pry
           strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
         when :ruby
           if pry_method?
-            raise "Error: Can't view doc for a REPL-defined method."
+            raise CommandError, "Can't view doc for a REPL-defined method."
           else
             strip_leading_hash_and_whitespace_from_ruby_comments(@method.comment)
           end
@@ -160,9 +161,9 @@ class Pry
     private
       def pry_doc_info
         if Pry.config.has_pry_doc
-          Pry::MethodInfo.info_for(@method) or puts "Cannot find C method: #{name}."
+          Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot find C method: #{name}."
         else
-          puts "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
         end
       end
 

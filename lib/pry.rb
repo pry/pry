@@ -144,6 +144,10 @@ class Pry
     end
   end
 
+  # CommandErrors are caught by the REPL loop and displayed to the user. They
+  # indicate an exceptional condition that's fatal to the current command.
+  class CommandError < StandardError
+  end
 end
 
 require "method_source"
