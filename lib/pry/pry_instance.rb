@@ -289,6 +289,13 @@ class Pry
       Pry.config.control_d_handler.call(eval_string, self)
       ""
     else
+
+      # Change the eval_string into the input encoding (Issue 284)
+      # TODO: This wouldn't be necessary if the eval_string was constructed from input strings only.
+      if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+        eval_string.force_encoding(val.encoding)
+      end
+
       val
     end
   end
