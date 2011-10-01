@@ -45,11 +45,14 @@ class Pry
         target = target()
 
         OptionParser.new do |opts|
-          opts.banner = %{Usage: ls [OPTIONS] [VAR]\n\
-List information about VAR (the current context by default).
-Shows local and instance variables by default.
---
-}
+          opts.banner = unindent <<-EOS
+            Usage: ls [OPTIONS] [VAR]
+
+            List information about VAR (the current context by default).
+            Shows local and instance variables by default.
+            --
+          EOS
+
           opts.on("-g", "--globals", "Display global variables.") do
             options[:g] = true
           end

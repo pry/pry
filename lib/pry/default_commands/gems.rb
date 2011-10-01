@@ -9,9 +9,9 @@ class Pry
           installer = Gem::DependencyInstaller.new :install_dir => destination
           installer.install gem
         rescue Errno::EACCES
-          output.puts "Insufficient permissions to install `#{text.green gem}`"
+          raise CommandError, "Insufficient permissions to install `#{text.green gem}`."
         rescue Gem::GemNotFoundException
-          output.puts "Gem `#{text.green gem}` not found."
+          raise CommandError, "Gem `#{text.green gem}` not found."
         else
           Gem.refresh
           output.puts "Gem `#{text.green gem}` installed."
@@ -21,7 +21,11 @@ class Pry
       command "gem-cd", "Change working directory to specified gem's directory.", :argument_required => true do |gem|
         specs = Gem::Specification.respond_to?(:each) ? Gem::Specification.find_all_by_name(gem) : Gem.source_index.find_name(gem)
         spec  = specs.sort { |a,b| Gem::Version.new(b.version) <=> Gem::Version.new(a.version) }.first
-        spec ? Dir.chdir(spec.full_gem_path) : output.puts("Gem `#{gem}` not found.")
+        if spec
+          Dir.chdir(spec.full_gem_path)
+        else
+          raise CommandError, "Gem `#{gem}` not found."
+        end
       end
 
       command "gem-list", "List/search installed gems. (Optional parameter: a regexp to limit the search)" do |pattern|

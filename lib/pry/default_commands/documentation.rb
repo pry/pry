@@ -32,8 +32,12 @@ class Pry
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          meth = get_method_or_print_error(method_name, target, opts.to_hash(true))
-          next unless meth
+          begin
+            meth = get_method_or_raise(method_name, target, opts.to_hash(true))
+          rescue CommandError => e
+            puts "\nError: #{e.message}"
+            next
+          end
 
           next output.puts("No documentation found.") if meth.doc.nil? || meth.doc.empty?
 
@@ -71,8 +75,7 @@ class Pry
 
         next if opts.help?
 
-        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
-        next unless meth
+        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
 
         output.puts unindent <<-EOS
           Method Information:
@@ -111,8 +114,7 @@ class Pry
 
         next if opts.help?
 
-        meth = get_method_or_print_error(args.shift, target, opts.to_hash(true))
-        next unless meth
+        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?

@@ -9,7 +9,7 @@ class Pry
           begin
             Dir.chdir File.expand_path(dest)
           rescue Errno::ENOENT
-            output.puts "No such directory: #{dest}"
+            raise CommandError, "No such directory: #{dest}"
           end
         else
           Pry.config.system.call(output, cmd, _pry_)
@@ -79,22 +79,22 @@ class Pry
         next if opts.help?
 
         if opts.ex?
-          next output.puts "No Exception or Exception has no associated file." if file_name.nil?
+          if file_name.nil?
+            raise CommandError, "No Exception or Exception has no associated file."
+          end
         else
           file_name = args.shift
         end
 
         if !file_name
-          output.puts "Must provide a file name."
-          next
+          raise CommandError, "Must provide a file name."
         end
 
         begin
           contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
           contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
         rescue Errno::ENOENT
-          output.puts "Could not find file: #{file_name}"
-          next
+          raise CommandError, "Could not find file: #{file_name}"
         end
 
         if opts.l?

@@ -27,15 +27,15 @@ class Pry
         file.close
       end
 
-      def get_method_or_print_error(name, target, opts={}, omit_cmd=false)
+      def get_method_or_raise(name, target, opts={}, omit_help=false)
         if (meth = Pry::Method.from_str(name, target, opts))
           set_file_and_dir_locals(meth.source_file)
           meth
         else
           # FIXME: better/more accurate error handling
-          output.print "Invalid method name: #{name}."
-          output.print " Type `#{command_name} --help` for help." unless omit_cmd
-          output.puts
+          message = "Invalid method name: #{name}."
+          message << " Type `#{command_name} --help` for help." unless omit_help
+          raise CommandError, message
         end
       end
 
