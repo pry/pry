@@ -28,32 +28,32 @@ class Pry
             output.puts opt
           end
         end
-
         next if opts.help?
+        opts[:instance] = opts['instance-methods'] if opts.m?
 
         args = [nil] if args.empty?
         args.each do |method_name|
-          meth_name = method_name
-          if (meth = get_method_object(meth_name, target, opts.to_hash(true))).nil?
-            output.puts "Invalid method name: #{meth_name}. Type `show-method --help` for help"
+          begin
+            meth = get_method_or_raise(method_name, target, opts.to_hash(true))
+          rescue CommandError => e
+            puts "\nError: #{e.message}"
             next
           end
+          next unless meth.source
 
-          code, code_type = code_and_code_type_for(meth)
-          next if !code
-
-          output.puts make_header(meth, code_type, code)
+          output.puts make_header(meth)
           if Pry.color
-            code = CodeRay.scan(code, code_type).term
+            code = CodeRay.scan(meth.source, meth.source_type).term
+          else
+            code = meth.source
           end
 
           start_line = false
-          if opts.l?
-            start_line = meth.source_location ? meth.source_location.last : 1
+          if opts.b?
+            start_line = 1
+          elsif opts.l?
+            start_line = meth.source_line || 1
           end
-
-          start_line = opts.b? ? 1 : start_line
-
 
           render_output(opts.flood?, start_line, code)
           code
@@ -84,31 +84,32 @@ class Pry
 
         command_name = args.shift
         if !command_name
-          output.puts "You must provide a command name."
-          next
+          raise CommandError, "You must provide a command name."
         end
 
         if find_command(command_name)
-          block = find_command(command_name).block
+          block = Pry::Method.new(find_command(command_name).block)
 
-          code, _ = code_and_code_type_for(block)
-          next if !code
+          next unless block.source
+          set_file_and_dir_locals(block.source_file)
 
-          output.puts make_header(block, :ruby, code)
+          output.puts make_header(block)
 
           if Pry.color
-            code = CodeRay.scan(code, :ruby).term
+            code = CodeRay.scan(block.source, :ruby).term
+          else
+            code = block.source
           end
 
           start_line = false
           if opts.l?
-            start_line = block.source_location ? block.source_location.last : 1
+            start_line = block.source_line || 1
           end
 
-          render_output(opts.flood?, opts.l? ? block.source_location.last : false, code)
+          render_output(opts.flood?, opts.l? ? block.source_line : false, code)
           code
         else
-          output.puts "No such command: #{command_name}."
+          raise CommandError, "No such command: #{command_name}."
         end
       end
 
@@ -134,7 +135,7 @@ class Pry
         next if opts.h?
 
         if [opts.ex?, opts.t?, opts.in?, !args.empty?].count(true) > 1
-          next output.puts "Only one of --ex, --temp, --in and FILE may be specified"
+          raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
         end
 
         # edit of local code, eval'd within pry.
@@ -173,21 +174,29 @@ class Pry
         # edit of remote code, eval'd at top-level
         else
           if opts.ex?
-            next output.puts "No Exception found." if _pry_.last_exception.nil?
+            if _pry_.last_exception.nil?
+              raise CommandError, "No exception found."
+            end
+
             ex = _pry_.last_exception
             bt_index = opts[:ex].to_i
 
             ex_file, ex_line = ex.bt_source_location_for(bt_index)
-            if ex_file && is_core_rbx_path?(ex_file)
-              file_name = rbx_convert_path_to_full(ex_file)
+            if ex_file && RbxPath.is_core_path?(ex_file)
+              file_name = RbxPath.convert_path_to_full(ex_file)
             else
               file_name = ex_file
             end
 
             line = ex_line
-            next output.puts "Exception has no associated file." if file_name.nil?
-            next output.puts "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
 
+            if file_name.nil?
+              raise CommandError, "Exception has no associated file."
+            end
+
+            if Pry.eval_path == file_name
+              raise CommandError, "Cannot edit exceptions raised in REPL."
+            end
           else
             # break up into file:line
             file_name = File.expand_path(args.first)
@@ -231,32 +240,21 @@ class Pry
             output.puts opt
           end
         end
-
         next if opts.help?
 
         if !Pry.config.editor
-          output.puts "Error: No editor set!"
-          output.puts "Ensure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
-          next
+          raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
         end
 
-        meth_name = args.shift
-        meth_name, target, type = get_method_attributes(meth_name, target, opts.to_hash(true))
-        meth = get_method_object_from_target(meth_name, target, type)
+        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
 
-        if meth.nil?
-          output.puts "Invalid method name: #{meth_name}."
-          next
-        end
+        if opts.p? || meth.dynamically_defined?
+          lines = meth.source.lines.to_a
 
-        if opts.p? || is_a_dynamically_defined_method?(meth)
-          code, _ = code_and_code_type_for(meth)
-
-          lines = code.lines.to_a
           if lines[0] =~ /^def [^( \n]+/
-            lines[0] = "def #{meth_name}#{$'}"
+            lines[0] = "def #{meth.name}#{$'}"
           else
-            next output.puts "Error: Pry can only patch methods created with the `def` keyword."
+            raise CommandError, "Pry can only patch methods created with the `def` keyword."
           end
 
           temp_file do |f|
@@ -268,11 +266,10 @@ class Pry
           next
         end
 
-        if is_a_c_method?(meth)
-          output.puts "Error: Can't edit a C method."
+        if meth.source_type == :c
+          raise CommandError, "Can't edit a C method."
         else
-          file, line = path_line_for(meth)
-          set_file_and_dir_locals(file)
+          file, line = meth.source_file, meth.source_line
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
