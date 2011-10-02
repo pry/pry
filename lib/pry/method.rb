@@ -84,6 +84,12 @@ class Pry
       @method = method
     end
 
+    # Get the name of the method as a String, regardless of the underlying Method#name type.
+    # @return [String]
+    def name
+      @method.name.to_s
+    end
+
     # @return [String, nil] The source code of the method, or `nil` if it's unavailable.
     def source
       @source ||= case source_type
