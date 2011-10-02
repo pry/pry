@@ -33,7 +33,7 @@ class Pry
           meth
         else
           # FIXME: better/more accurate error handling
-          message = "Invalid method name: #{name}."
+          message = "The method '#{name}' could not be found."
           message << " Type `#{command_name} --help` for help." unless omit_help
           raise CommandError, message
         end

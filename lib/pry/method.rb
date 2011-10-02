@@ -3,26 +3,39 @@ class Pry
     include RbxMethod if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
 
     class << self
-      def from_str(str, target=TOPLEVEL_BINDING, options={})
-        if str.nil?
+      # @param [String, nil] name The name of the method to retrieve, or `nil` to
+      #   delegate to `from_binding` instead.
+      # @param [Binding] target The context in which to search for the method.
+      # @param [Hash] options
+      # @option options [Boolean] :instance Look for an instance method if `name` doesn't
+      #   contain any context.
+      # @option options [Boolean] :methods Look for a bound/singleton method if `name` doesn't
+      #   contain any context.
+      # @return [Pry::Method, nil]
+      def from_str(name, target=TOPLEVEL_BINDING, options={})
+        if name.nil?
           from_binding(target)
-        elsif str.to_s =~ /(\S+)\#(\S+)\Z/
+        elsif name.to_s =~ /(\S+)\#(\S+)\Z/
           context, meth_name = $1, $2
           from_module(target.eval(context), meth_name)
-        elsif str.to_s =~ /(\S+)\.(\S+)\Z/
+        elsif name.to_s =~ /(\S+)\.(\S+)\Z/
           context, meth_name = $1, $2
           from_obj(target.eval(context), meth_name)
         elsif options[:instance]
-          new(target.eval("instance_method(:#{str})")) rescue nil
+          from_module(target.eval("self"), name)
         elsif options[:methods]
-          new(target.eval("method(:#{str})")) rescue nil
+          from_obj(target.eval("self"), name)
         else
-          from_str(str, target, :instance => true) or
-            from_str(str, target, :methods => true) or
-            raise CommandError, "Method #{str} could not be found."
+          from_str(name, target, :instance => true) or
+            from_str(name, target, :methods => true)
         end
       end
 
+      # Given a `Binding`, try to extract the `::Method` it originated from and
+      # use it to instantiate a `Pry::Method`. Return `nil` if this isn't
+      # possible.
+      # @param [Binding] b
+      # @return [Pry::Method, nil]
       def from_binding(b)
         meth_name = b.eval('__method__')
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
@@ -32,20 +45,35 @@ class Pry
         end
       end
 
-      def from_module(nodule, name)
-        new(nodule.instance_method(name)) rescue nil
+      # Given a `Class` or `Module` and the name of a method, try to
+      # instantiate a `Pry::Method` containing the instance method of
+      # that name. Return `nil` if no such method exists.
+      # @param [Class, Module] klass
+      # @param [String] name
+      # @return [Pry::Method, nil]
+      def from_class(klass, name)
+        new(klass.instance_method(name)) rescue nil
       end
-      alias from_class from_module
+      alias from_module from_class
 
+      # Given an object and the name of a method, try to instantiate
+      # a `Pry::Method` containing the method of that name bound to
+      # that object. Return `nil` if no such method exists.
+      # @param [Object] obj
+      # @param [String] name
+      # @return [Pry::Method, nil]
       def from_obj(obj, name)
         new(obj.method(name)) rescue nil
       end
     end
 
+    # @param [Method, UnboundMethod, Proc] method
     def initialize(method)
       @method = method
     end
 
+    # Return the source code of the method, or `nil` if it's unavailable.
+    # @return [String, nil]
     def source
       @source ||= case source_type
         when :c
@@ -65,6 +93,9 @@ class Pry
         end
     end
 
+    # Return the documentation for the method, of `nil` if it's unavailable.
+    # @return [String, nil]
+    # @raise [CommandError] Raises when the method was defined in the REPL.
     def doc
       @doc ||= case source_type
         when :c
@@ -81,6 +112,10 @@ class Pry
         end
     end
 
+    # Return a `Symbol` representing the "source type" of this method. The
+    # options are `:ruby` for ordinary Ruby methods, `:c` for methods
+    # written in C, or `:rbx` for Rubinius core methods written in Ruby.
+    # @return [Symbol]
     def source_type
       if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
         if core? then :rbx else :ruby end
@@ -89,14 +124,22 @@ class Pry
       end
     end
 
+    # Return the name of the file the method is defined in, or `nil` if
+    # the filename is unavailable.
+    # @return [String, nil]
     def source_file
       source_location.nil? ? nil : source_location.first
     end
 
+    # Return the line of code in `source_file` which begins the definition
+    # of the method, or `nil` if that information is unavailable.
+    # @return [Fixnum, nil]
     def source_line
       source_location.nil? ? nil : source_location.last
     end
 
+    # Return a `Symbol` representing the visibility of the method. The
+    # options are `:public`, `:protected`, or `:private`.
     def visibility
       if owner.public_instance_methods.include?(name)
         :public
@@ -109,7 +152,12 @@ class Pry
       end
     end
 
-    # paraphrased from awesome_print gem
+    # Return a representation of the method's signature, including its
+    # name and parameters. Optional and "rest" parameters are marked with `*`
+    # and block parameters with `&`. If the parameter names are unavailable,
+    # they're given numbered names instead.
+    # Paraphrased from `awesome_print` gem.
+    # @return [String]
     def signature
       if respond_to?(:parameters)
         args = parameters.inject([]) do |arr, (type, name)|
@@ -129,14 +177,17 @@ class Pry
       "#{name}(#{args.join(', ')})"
     end
 
+    # @return [Boolean]
     def dynamically_defined?
       source_file ? !!(source_file =~ /(\(.*\))|<.*>/) : nil
     end
 
+    # @return [Boolean]
     def pry_method?
       source_file == Pry.eval_path
     end
 
+    # @return [Boolean]
     def ==(obj)
       if obj.is_a? Pry::Method
         super
@@ -145,11 +196,15 @@ class Pry
       end
     end
 
+    # @param [Class] klass
+    # @return [Boolean]
     def is_a?(klass)
       klass == Pry::Method or @method.is_a?(klass)
     end
     alias kind_of? is_a?
 
+    # @param [String, Symbol] method_name
+    # @return [Boolean]
     def respond_to?(method_name)
       super or @method.respond_to?(method_name)
     end
@@ -159,6 +214,8 @@ class Pry
     end
 
     private
+      # @return [YARD::CodeObjects::MethodObject]
+      # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
       def pry_doc_info
         if Pry.config.has_pry_doc
           Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot find C method: #{name}."
@@ -167,10 +224,14 @@ class Pry
         end
       end
 
+      # @param [String] code
+      # @return [String]
       def strip_comments_from_c_code(code)
         code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
       end
 
+      # @param [String] comment
+      # @return [String]
       def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
         comment = comment.dup
         comment.gsub!(/\A\#+?$/, '')
@@ -178,6 +239,8 @@ class Pry
         strip_leading_whitespace(comment)
       end
 
+      # @param [String] text
+      # @return [String]
       def strip_leading_whitespace(text)
         Pry::Helpers::CommandHelpers.unindent(text)
       end
