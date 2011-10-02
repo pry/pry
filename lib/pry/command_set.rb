@@ -83,6 +83,9 @@ class Pry
     # @option options [Boolean] :use_prefix Whether the command uses
     #   `Pry.config.command_prefix` prefix (if one is defined). Defaults
     #   to true.
+    # @option options [Boolean] :shellwords Whether the command's arguments
+    #   should be split using Shellwords instead of just split on spaces.
+    #   Defaults to true.
     # @yield The action to perform. The parameters in the block
     #   determines the parameters the command will receive. All
     #   parameters passed into the block will be strings. Successive
@@ -120,6 +123,7 @@ class Pry
         :keep_retval => false,
         :argument_required => false,
         :interpolate => true,
+        :shellwords => true,
         :listing => name,
         :use_prefix => true
       }.merge!(options)

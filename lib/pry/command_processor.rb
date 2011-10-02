@@ -126,7 +126,11 @@ class Pry
       # remove the one leading space if it exists
       arg_string.slice!(0) if arg_string.start_with?(" ")
 
-      args = arg_string ? Shellwords.shellwords(arg_string) : []
+      if arg_string
+        args = command.options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
+      else
+        args = []
+      end
 
       options = {
         :val => val,
