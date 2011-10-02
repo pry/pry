@@ -4,7 +4,9 @@ class Pry
     UserCommandAPI = Pry::CommandSet.new do
 
       command "define-command", "Define a command in the session, use same syntax as `command` method for command API" do |arg|
-        next output.puts("Provide an arg!") if arg.nil?
+        if arg.nil?
+          raise CommandError, "Provide an arg!"
+        end
 
         prime_string = "command #{arg_string}\n"
         command_string = _pry_.r(target, prime_string)
@@ -18,8 +20,13 @@ class Pry
       end
 
       command "reload-command", "Reload a command. reload-command CMD_NAME CMD_SET" do |command_name, set_name|
-        next output.puts "Must provide command name" if command_name.nil?
-        next output.puts "Must provide command set name" if set_name.nil?
+        if command_name.nil?
+          raise CommandError, "Must provide command name"
+        end
+
+        if set_name.nil?
+          raise CommandError, "Must provide command set name"
+        end
 
         cmd = Pry.config.commands.commands[command_name]
         file_name = cmd.block.source_location.first
@@ -33,8 +40,13 @@ class Pry
       end
 
       command "edit-command", "Edit a command. edit-command CMD_NAME CMD_SET" do |command_name, set_name|
-        next output.puts "Must provide command name" if command_name.nil?
-        next output.puts "Must provide a command set name" if set_name.nil?
+        if command_name.nil?
+          raise CommandError, "Must provide command name"
+        end
+
+        if set_name.nil?
+          raise CommandError, "Must provide command set name"
+        end
 
         cmd = Pry.config.commands.commands[command_name]
         file_name = cmd.block.source_location.first

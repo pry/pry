@@ -144,6 +144,10 @@ class Pry
     end
   end
 
+  # CommandErrors are caught by the REPL loop and displayed to the user. They
+  # indicate an exceptional condition that's fatal to the current command.
+  class CommandError < StandardError
+  end
 end
 
 require "method_source"
@@ -172,6 +176,9 @@ if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
 end
 
 require "pry/version"
+require "pry/rbx_method"
+require "pry/rbx_path"
+require "pry/method"
 require "pry/history_array"
 require "pry/helpers"
 require "pry/history"

@@ -11,6 +11,8 @@ class Pry
     class Command < Struct.new(:name, :description, :options, :block)
 
       def call(context, *args)
+        context.command_name = options[:listing]
+
         if stub_block = options[:stub_info]
           context.instance_eval(&stub_block)
         else
