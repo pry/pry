@@ -1,6 +1,11 @@
 require 'helper'
 
 describe Pry::Method do
+  it "should use String names for compatibility" do
+    klass = Class.new { def hello; end }
+    Pry::Method.new(klass.instance_method(:hello)).name.should == "hello"
+  end
+
   describe ".from_str" do
     it 'should look up instance methods if no methods available and no options provided' do
       klass = Class.new { def hello; end }
@@ -59,13 +64,13 @@ describe Pry::Method do
     it 'should look up methods using klass.new.method syntax' do
       klass = Class.new { def hello; :hello; end }
       meth = Pry::Method.from_str("klass.new.hello", Pry.binding_for(binding))
-      meth.name.to_sym.should == :hello
+      meth.name.should == "hello"
     end
 
     it 'should look up instance methods using klass.meth#method syntax' do
       klass = Class.new { def self.meth; Class.new; end }
       meth = Pry::Method.from_str("klass.meth#initialize", Pry.binding_for(binding))
-      meth.name.to_sym.should == :initialize
+      meth.name.should == "initialize"
     end
   end
 end
