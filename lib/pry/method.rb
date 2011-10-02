@@ -74,14 +74,45 @@ class Pry
       def from_obj(obj, name)
         new(obj.method(name)) rescue nil
       end
+
+      # Get all of the instance methods of a `Class` or `Module`
+      # @param [Class,Module] klass
+      # @return [Array[Pry::Method]]
+      def all_from_class(klass)
+        all_from_common(klass, :instance_method)
+      end
+
+      # Get all of the methods on an `Object`
+      # @param [Object] obj
+      # @return [Array[Pry::Method]]
+      def all_from_obj(obj)
+        all_from_common(obj, :method)
+      end
+
+      private
+
+      # See all_from_class and all_from_obj.
+      # If method_type is :instance_method, obj must be a `Class` or a `Module`
+      # If method_type is :method, obj can be any `Object`
+      #
+      # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
+      def all_from_common(obj, method_type)
+        %w(public protected private).map do |visibility|
+          obj.send(:"#{visibility}_#{method_type}s").map do |method_name|
+            new(obj.send(method_type, method_name), :visibility => visibility.to_sym)
+          end
+        end.flatten(1)
+      end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
     #
     # @param [::Method, UnboundMethod, Proc] method
+    # @param [Hash] known_info, can be used to pre-cache expensive to compute stuff.
     # @return [Pry::Method]
-    def initialize(method)
+    def initialize(method, known_info={})
       @method = method
+      @visibility = known_info[:visibility]
     end
 
     # Get the name of the method as a String, regardless of the underlying Method#name type.
@@ -162,15 +193,15 @@ class Pry
     # @return [Symbol] The visibility of the method. May be `:public`,
     #   `:protected`, or `:private`.
     def visibility
-      if owner.public_instance_methods.include?(name)
-        :public
-      elsif owner.protected_instance_methods.include?(name)
-        :protected
-      elsif owner.private_instance_methods.include?(name)
-        :private
-      else
-        :none
-      end
+     @visibility ||= if owner.public_instance_methods.include?(name)
+                       :public
+                     elsif owner.protected_instance_methods.include?(name)
+                       :protected
+                     elsif owner.private_instance_methods.include?(name)
+                       :private
+                     else
+                       :none
+                     end
     end
 
     # @return [String] A representation of the method's signature, including its
