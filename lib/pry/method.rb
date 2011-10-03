@@ -1,6 +1,6 @@
 class Pry
   class Method
-    include RbxMethod if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
+    include RbxMethod if Helpers::BaseHelpers.rbx?
 
     class << self
       # Given a string representing a method name and optionally a binding to
@@ -127,7 +127,7 @@ class Pry
     #   `:ruby` for ordinary Ruby methods, `:c` for methods written in
     #   C, or `:rbx` for Rubinius core methods written in Ruby.
     def source_type
-      if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
+      if Helpers::BaseHelpers.rbx?
         if core? then :rbx else :ruby end
       else
         if source_location.nil? then :c else :ruby end
@@ -137,7 +137,14 @@ class Pry
     # @return [String, nil] The name of the file the method is defined in, or
     #   `nil` if the filename is unavailable.
     def source_file
-      source_location.nil? ? nil : source_location.first
+      if source_location.nil?
+        if !Helpers::BaseHelpers.rbx? and source_type == :c
+          info = pry_doc_info
+          info.file if info
+        end
+      else
+        source_location.first
+      end
     end
 
     # @return [Fixnum, nil] The line of code in `source_file` which begins

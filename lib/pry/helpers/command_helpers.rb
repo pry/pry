@@ -40,13 +40,15 @@ class Pry
       end
 
       def make_header(meth, content=meth.source)
-        code_type = meth.source_type
-        num_lines = "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}"
-        case code_type
-        when :c
-          file = Pry::MethodInfo.info_for(meth).file
-          "\n#{Pry::Helpers::Text.bold('From:')} #{file} in Ruby Core (C Method):\n#{num_lines}\n\n"
+        header = "\n#{Pry::Helpers::Text.bold('From:')} #{meth.source_file} "
+
+        if meth.source_type == :c
+          header << "in Ruby Core (C Method):\n"
+        else
+          header << "@ line #{meth.source_line}:\n"
         end
+
+        header << "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}\n\n"
       end
 
       def file_map
