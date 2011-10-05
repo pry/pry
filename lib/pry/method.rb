@@ -89,6 +89,29 @@ class Pry
         all_from_common(obj, :method)
       end
 
+      # Get every `Class` and `Module`, in order, that will be checked when looking
+      # for an instance method to call on this object.
+      # @param [Object] obj
+      # @return [Array[Class, Module]]
+      def resolution_order(obj)
+        if obj.is_a?(Class)
+          singleton_class_resolution_order(obj) + instance_resolution_order(Class)
+        else
+          klass = singleton_class(obj) rescue obj.class
+          instance_resolution_order(klass)
+        end
+      end
+
+      # Get every `Class` and `Module`, in order, that will be checked when looking
+      # for methods on instances of the given `Class` or `Module`.
+      # This does not treat singleton classes of classes specially.
+      # @param [Class, Module] klass
+      # @return [Array[Class, Module]]
+      def instance_resolution_order(klass)
+        # include klass in case it is a singleton class,
+        ([klass] + klass.ancestors).uniq
+      end
+
       private
 
       # See all_from_class and all_from_obj.
@@ -103,6 +126,20 @@ class Pry
           end
         end.flatten(1)
       end
+
+      # Get the singleton classes of superclasses that could define methods on
+      # the given class object, and any modules they include.
+      # If a module is included at multiple points in the ancestry, only
+      # the lowest copy will be returned.
+      def singleton_class_resolution_order(klass)
+        resolution_order = klass.ancestors.map do |anc|
+          [singleton_class(anc)] + singleton_class(anc).included_modules if anc.is_a?(Class)
+        end.compact.flatten(1)
+
+        resolution_order.reverse.uniq.reverse - Class.included_modules
+      end
+
+      def singleton_class(obj); class << obj; self; end end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.

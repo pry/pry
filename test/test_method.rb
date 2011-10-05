@@ -215,6 +215,72 @@ describe Pry::Method do
         Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner.should == (class << @class; self; end)
       end
     end
+
+    describe 'method resolution order' do
+      module LS
+        class Top; end
+
+        class Next < Top; end
+
+        module M; end
+        module N; include M; end
+        module O; include M; end
+        module P; end
+
+        class Low < Next; include N; include P; end
+        class Lower < Low; extend N; end
+        class Bottom < Lower; extend O; end
+      end
+
+      def singleton_class(obj); class << obj; self; end; end
+
+      it "should look at a class and then its superclass" do
+        Pry::Method.instance_resolution_order(LS::Next).should == [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
+      end
+
+      it "should include the included modules between a class and its superclass" do
+        Pry::Method.instance_resolution_order(LS::Low).should == [LS::Low, LS::P, LS::N, LS::M] + Pry::Method.instance_resolution_order(LS::Next)
+      end
+
+      it "should not include modules extended into the class" do
+        Pry::Method.instance_resolution_order(LS::Bottom).should == [LS::Bottom] + Pry::Method.instance_resolution_order(LS::Lower)
+      end
+
+      it "should include included modules for Modules" do
+        Pry::Method.instance_resolution_order(LS::O).should == [LS::O, LS::M]
+      end
+
+      it "should include the singleton class of objects" do
+        obj = LS::Low.new
+        Pry::Method.resolution_order(obj).should == [singleton_class(obj)] + Pry::Method.instance_resolution_order(LS::Low)
+      end
+
+      it "should not include singleton classes of numbers" do
+        Pry::Method.resolution_order(4).should == Pry::Method.instance_resolution_order(Fixnum)
+      end
+
+      it "should include singleton classes for classes" do
+        Pry::Method.resolution_order(LS::Low).should == [singleton_class(LS::Low)] + Pry::Method.resolution_order(LS::Next)
+      end
+
+      it "should include modules included into singleton classes" do
+        Pry::Method.resolution_order(LS::Lower).should == [singleton_class(LS::Lower), LS::N, LS::M] + Pry::Method.resolution_order(LS::Low)
+      end
+
+      it "should include modules at most once" do
+        Pry::Method.resolution_order(LS::Bottom).count(LS::M).should == 1
+      end
+
+      it "should include modules at the point which they would be reached" do
+        Pry::Method.resolution_order(LS::Bottom).should == [singleton_class(LS::Bottom), LS::O] + (Pry::Method.resolution_order(LS::Lower))
+      end
+
+      it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
+        Pry::Method.resolution_order(LS::Top).should ==
+          [singleton_class(LS::Top), singleton_class(Object), (defined? BasicObject) && singleton_class(BasicObject)].compact +
+          Pry::Method.instance_resolution_order(Class)
+      end
+    end
   end
 end
 
