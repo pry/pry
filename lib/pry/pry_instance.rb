@@ -22,7 +22,6 @@ class Pry
   attr_reader :input_array
   attr_reader :output_array
 
-
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input.
@@ -37,6 +36,7 @@ class Pry
 
     @command_processor = CommandProcessor.new(self)
     @binding_stack     = []
+    @indent            = Pry::Indent.new
   end
 
   # Refresh the Pry instance settings from the Pry class.
@@ -278,7 +278,9 @@ class Pry
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
-  # This method should not need to be invoked directly.
+  # This method should not need to be invoked directly. This method
+  # automatically indents the input value using Pry::Indent.
+  #
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the session.
   # @return [String] The line received.
@@ -286,20 +288,27 @@ class Pry
     current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
     val = readline(current_prompt)
 
-    # exit session if we receive EOF character (^D)
+    # exit session if receive EOF character (^D)
     if !val
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
-      ""
+
+      return ""
     else
 
       # Change the eval_string into the input encoding (Issue 284)
-      # TODO: This wouldn't be necessary if the eval_string was constructed from input strings only.
-      if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+      # TODO: This wouldn't be necessary if the eval_string was constructed from
+      # input strings only.
+      if eval_string.empty? && val.respond_to?(:encoding) \
+      && val.encoding != eval_string.encoding
         eval_string.force_encoding(val.encoding)
       end
 
-      val
+      if Pry.config.indent === true
+        val = @indent.indent(val)
+      end
+
+      return val
     end
   end
 
@@ -419,6 +428,10 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
+    if Pry.config.indent === true
+      current_prompt += @indent.stack[-1] || ''
+    end
+
     handle_read_errors do
       if input == Readline
         line = input.readline(current_prompt, false)

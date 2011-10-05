@@ -20,10 +20,11 @@ class << Pry
 
     Pry.color = false
     Pry.pager = false
-    Pry.config.should_load_rc = false
-    Pry.config.plugins.enabled = false
+    Pry.config.should_load_rc      = false
+    Pry.config.plugins.enabled     = false
     Pry.config.history.should_load = false
     Pry.config.history.should_save = false
+    Pry.config.indent              = false
     Pry.config.hooks = { }
   end
 end
