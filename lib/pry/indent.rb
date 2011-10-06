@@ -92,7 +92,7 @@ class Pry
           line = @stack[-1] + line
         end
 
-        tokens.each_slice(2) do |token, kind|
+        tokens.each do |token, kind|
           next if IgnoreTokens.include?(kind)
 
           if OpenTokensNext.include?(token) and @stack[-1]

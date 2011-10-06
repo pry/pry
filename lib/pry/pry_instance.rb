@@ -288,7 +288,7 @@ class Pry
     current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
     val = readline(current_prompt)
 
-    # exit session if receive EOF character (^D)
+    # exit session if we receive EOF character (^D)
     if !val
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
@@ -299,8 +299,7 @@ class Pry
       # Change the eval_string into the input encoding (Issue 284)
       # TODO: This wouldn't be necessary if the eval_string was constructed from
       # input strings only.
-      if eval_string.empty? && val.respond_to?(:encoding) \
-      && val.encoding != eval_string.encoding
+      if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
         eval_string.force_encoding(val.encoding)
       end
 
