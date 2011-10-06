@@ -126,6 +126,10 @@ class Pry
     #   The proc is passed the pry output object, the command string
     #   to eval, and a reference to the pry instance
     attr_accessor :system
+
+    # @return [TrueClass|FalseClass] Whether or not code should be indented
+    #  using Pry::Indent.
+    attr_accessor :indent
   end
 end
 

@@ -192,6 +192,7 @@ class Pry
     config.should_load_rc = true
     config.disable_auto_reload = false
     config.command_prefix = ""
+    config.indent = true
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
