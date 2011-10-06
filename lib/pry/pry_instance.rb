@@ -303,7 +303,7 @@ class Pry
         eval_string.force_encoding(val.encoding)
       end
 
-      if Pry.config.indent === true
+      if Pry.config.indent
         val = @indent.indent(val)
       end
 
@@ -427,7 +427,7 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
-    if Pry.config.indent === true
+    if Pry.config.indent
       current_prompt += @indent.stack[-1] || ''
     end
 
