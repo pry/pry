@@ -65,6 +65,12 @@ class Pry
     end
 
     ##
+    # The current indentation level (number of spaces deep)
+    def indent_level
+      @stack.last
+    end
+
+    ##
     # Indents a string and returns it. This string can either be a single line
     # or multiple ones.
     #
