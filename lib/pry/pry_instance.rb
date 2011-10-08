@@ -295,6 +295,7 @@ class Pry
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
 
+      @indent.reset if Pry.config.auto_indent
       ""
     else
 
@@ -305,7 +306,7 @@ class Pry
         eval_string.force_encoding(val.encoding)
       end
 
-      if Pry.config.auto_indent
+      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent
         val = @indent.indent(val)
 
         # Refresh the current line. This uses tput and since that doesn't work
