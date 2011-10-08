@@ -24,7 +24,7 @@ class << Pry
     Pry.config.plugins.enabled     = false
     Pry.config.history.should_load = false
     Pry.config.history.should_save = false
-    Pry.config.indent              = false
+    Pry.config.auto_indent         = false
     Pry.config.hooks = { }
   end
 end

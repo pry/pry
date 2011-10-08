@@ -16,7 +16,7 @@ class Pry
     attr_reader :stack
 
     # The amount of spaces to insert for each indent level.
-    Spaces = '  '.freeze
+    Spaces = '  '
 
     # Array containing all the tokens that should increase the indentation
     # level.

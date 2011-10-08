@@ -278,8 +278,9 @@ class Pry
   end
 
   # Read a line of input and check for ^d, also determine prompt to use.
-  # This method should not need to be invoked directly. This method
-  # automatically indents the input value using Pry::Indent.
+  # This method should not need to be invoked directly. This method also
+  # automatically indents the input value using Pry::Indent if auto
+  # indenting is enabled.
   #
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the session.
@@ -293,7 +294,7 @@ class Pry
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
 
-      return ""
+      ""
     else
 
       # Change the eval_string into the input encoding (Issue 284)
@@ -303,11 +304,11 @@ class Pry
         eval_string.force_encoding(val.encoding)
       end
 
-      if Pry.config.indent
+      if Pry.config.auto_indent
         val = @indent.indent(val)
       end
 
-      return val
+      val
     end
   end
 
@@ -427,7 +428,7 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
-    if Pry.config.indent
+    if Pry.config.auto_indent
       current_prompt += @indent.stack[-1] || ''
     end
 

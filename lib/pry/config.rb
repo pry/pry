@@ -127,9 +127,9 @@ class Pry
     #   to eval, and a reference to the pry instance
     attr_accessor :system
 
-    # @return [TrueClass|FalseClass] Whether or not code should be indented
+    # @return [Boolean] Whether or not code should be indented
     #  using Pry::Indent.
-    attr_accessor :indent
+    attr_accessor :auto_indent
   end
 end
 
