@@ -1,4 +1,5 @@
 require "pry/command_processor.rb"
+require "pry/indent"
 
 class Pry
 
