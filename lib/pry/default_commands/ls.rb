@@ -24,8 +24,6 @@ class Pry
           opts.M? ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
         end
 
-        def singleton_class(obj); class << obj; self; end end
-
         def resolution_order(obj, opts)
           opts.M? ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
         end
@@ -38,7 +36,7 @@ class Pry
             (klass.name || "") == "" ? klass.to_s : klass.name
           elsif klass.ancestors.include?(Module)
             begin
-              "#{class_name(ObjectSpace.each_object(klass).detect{ |x| singleton_class(x) == klass })}.self"
+              "#{class_name(ObjectSpace.each_object(klass).detect{ |x| class << x; self; end == klass })}.self"
             rescue # ObjectSpace is not enabled by default in jruby
               klass.to_s.sub(/#<Class:(.*)>/, '\1.self')
             end
@@ -51,11 +49,11 @@ class Pry
         # traversal of the Object's ancestry graph.
         def below_ceiling(obj, opts)
           ceiling = if opts.q?
-                       [opts.M? ? obj.ancestors[1] : obj.class.ancestors[1]] + [Object, Module, Class]
+                       [opts.M? ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
                      elsif opts.v?
                        []
                      else
-                       [Module, Object, Class] #TODO: make configurable
+                       Pry.config.ls.ceiling
                      end
 
           # We always want to show *something*, so if this object is actually a base type,
@@ -69,84 +67,66 @@ class Pry
         def format_methods(methods)
           methods.sort_by(&:name).map do |method|
             if method.name == 'method_missing'
-              text.red('method_missing') # This should stand out!
+              color(:method_missing, 'method_missing')
             elsif method.visibility == :private
-              text.green(method.name) # TODO: make colours configurable
+              color(:private_method, method.name)
             elsif method.visibility == :protected
-              text.yellow(method.name)
+              color(:protected_method, method.name)
             else
-              method.name
+              color(:public_method, method.name)
             end
-          end.join("  ")
+          end
         end
 
-        def output_variables(type, vars)
-          vars = vars.sort_by(&:downcase).join("  ")
-          output_section(type, text.send(ls_color_map[type], vars)) if vars.strip != ""
+        def format_variables(type, vars)
+          vars.sort_by(&:downcase).map{ |var| color(type, var) }
         end
 
         def format_constants(mod, constants)
           constants.sort_by(&:downcase).map do |name|
             if const = (mod.const_get(name) rescue nil)
               if (const < Exception rescue false)
-                text.purple(name)
+                color(:exception_constant, name)
               elsif (Module === mod.const_get(name) rescue false)
-                text.blue(name)
+                color(:class_constant, name)
               else
-                name
+                color(:constant, name)
               end
             end
-          end.compact.join("  ")
+          end
         end
 
-        def format_globals(globals, quiet)
+        def format_globals(globals)
           globals.sort_by(&:downcase).map do |name|
             if PSEUDO_GLOBALS.include?(name)
-              text.cyan(name) unless quiet
+              color(:pseudo_global, name)
             elsif BUILTIN_GLOBALS.include?(name)
-              text.cyan(name) unless quiet
+              color(:builtin_global, name)
             else
-              name
+              color(:global_var, name)
             end
-          end.compact.join("  ")
+          end
         end
 
         def format_locals(locals)
           locals.sort_by(&:downcase).map do |name|
             if _pry_.special_locals.include?(name.to_sym)
-              text.red(name)
+              color(:pry_var, name)
             else
-              name
+              color(:local_var, name)
             end
-          end.join(" ")
+          end
         end
 
         # Add a new section to the output. Outputs nothing if the section would be empty.
         def output_section(heading, body)
-          output.puts "#{text.bold(text.grey(heading))}: #{body}" if body.strip != ""
+          return if body.compact.empty?
+          output.puts "#{text.bold(color(:heading, heading))}: #{body.compact.join(Pry.config.ls.separator)}"
         end
 
-        def ls_color_map
-          {
-            "local variables" => Pry.config.ls.local_var_color,                   #black
-            "pry variables" => Pry.config.pry_var_color,                          #red
-
-            "instance variables" => Pry.config.ls.instance_var_color,             #blue
-            "class variables" => Pry.config.ls.class_var_color,                   #bright_blue
-
-            "global variables" => Pry.config.ls.global_var_color,                 #black
-            "pseudo-global variables" => Pry.config.ls.pseudo_global_var_color,   #cyan
-            "builtin global variables" => Pry.config.ls.builtin_global_var_color, #cyan
-
-            "public methods" => Pry.config.ls.public_color,                       #black
-            "private methods" => Pry.config.ls.private_color,                     #green
-            "protected methods" => Pry.config.ls.protected_color,                 #yellow
-            "method_missing" => Pry.config.ls.method_missing_color,               #red
-
-            "class constants" => Pry.config.ls.constant_color,                    #blue
-            "exception constants" => Pry.config.ls.class_color,                   #magenta
-            "other constants" => Pry.config.ls.exception_color                    #black
-          }
+        # Color output based on config.ls.*_color
+        def color(type, str)
+          text.send(Pry.config.ls.send(:"#{type}_color"), str)
         end
       end
 
@@ -158,34 +138,29 @@ class Pry
 
         opts = Slop.parse!(args, :strict => true) do |opt|
           opt.banner unindent <<-USAGE
-            Usage: ls [-m|-M] [-p] [-q|-v] [-g] [-l] [-c] [-i] [Object]
+            Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
+                   ls [-g] [-l]
 
-            ls shows you which methods, constants and variables are accessible to Pry. By default it shows you
-            the local variables defined in the current shell, and any public methods or instance variables defined
-            on the current object.
+            ls shows you which methods, constants and variables are accessible to Pry. By default it shows you the local variables defined in the current shell, and any public methods or instance variables defined on the current object.
 
-            The -c flag lists constants, either in the top-level if given no argument or in the namespace that you
-            specify. Exceptions are coloured purple, other Classes are blue and anything else is black.
+            The colours used are configurable using Pry.config.ls.*_color, and the separator is Pry.config.ls.separator.
 
-            The -m flag lists methods defined on an object, while the -M flag lists methods defined in a class. In
-            both cases the -p flag shows private methods (in blue) and protected methods (in purple).
-
-            The -v flag can be used to show all methods and constants. By default methods and constants available
-            on all objects are not shown. The -q flag removes more methods, only displaying those
-
+            Pry.config.ls.ceiling is used to hide methods defined higher up in the inheritance chain, this is by default set to [Object, Module, Class] so that methods defined on all Objects are omitted. The -v flag can be used to ignore this setting and show all methods, while the -q can be used to set the ceiling much lower and show only methods defined on the object or its direct class.
           USAGE
 
-          opt.on :m, "methods", "Show public methods defined on the Object"
+          opt.on :m, "methods", "Show public methods defined on the Object (default)"
           opt.on :M, "module", "Show methods defined in a Module or Class"
 
-          opt.on :p, "ppp", "Show public, protected and private methods (by default only public methods are shown)"
-          opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class (See Pry.config.ls_ceiling)"
-          opt.on :v, "verbose", "Show methods on all super-classes (ignores Pry.config.ls_ceiling)"
+          opt.on :p, "ppp", "Show public, protected (in yellow) and private (in green) methods"
+          opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class"
+          opt.on :v, "verbose", "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
 
-          opt.on :g, "globals", "Show globals"
-          opt.on :l, "locals", "Show locals"
-          opt.on :c, "constants", "Show constants"
-          opt.on :i, "ivars", "Show instance and class variables"
+          opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
+          opt.on :l, "locals", "Show locals, including those provided by Pry (in red)"
+
+          opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple)"
+
+          opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
 
           opt.on :h, "help", "Show help"
         end
@@ -205,7 +180,7 @@ class Pry
         raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.c? && !args.empty? && !(Module === obj)
 
         if opts.g?
-          output_section("global variables", format_globals(target.eval("global_variables"), opts.q?))
+          output_section("global variables", format_globals(target.eval("global_variables")))
         end
 
         if show_constants
@@ -226,8 +201,9 @@ class Pry
         end
 
         if show_ivars
-          output_variables("instance variables", obj.__send__(:instance_variables))
-          output_variables("class variables", (Module === obj ? obj : obj.class).__send__(:class_variables))
+          klass = (Module === obj ? obj : obj.class)
+          output_section("instance variables", format_variables(:instance_var, obj.__send__(:instance_variables)))
+          output_section("class variables", format_variables(:class_var, klass.__send__(:class_variables)))
         end
 
         if show_locals

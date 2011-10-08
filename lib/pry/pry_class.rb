@@ -209,16 +209,38 @@ class Pry
 
     config.memory_size = 100
 
-    config.ls ||= OpenStruct.new
-    config.ls.local_var_color = :bright_red
-    config.ls.instance_var_color = :bright_blue
-    config.ls.class_var_color = :blue
-    config.ls.global_var_color = :bright_magenta
-    config.ls.method_color = :green
-    config.ls.instance_method_color = :bright_green
-    config.ls.constant_color = :yellow
+    config.ls ||= OpenStruct.new({
+      :heading_color            => :grey,
 
-    config.ls.separator = "  "
+      :public_method_color      => :black,
+      :private_method_color     => :green,
+      :protected_method_color   => :yellow,
+      :method_missing_color     => :bright_red,
+
+      :local_var_color          => :black,
+      :pry_var_color            => :red,         # e.g. _, _pry_, _file_
+
+      :instance_var_color       => :blue,        # e.g. @foo
+      :class_var_color          => :bright_blue, # e.g. @@foo
+
+      :global_var_color         => :black,       # e.g. $CODERAY_DEBUG, $eventmachine_library
+      :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
+      :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
+
+      :constant_color           => :black,       # e.g. VERSION, ARGF
+      :class_constant_color     => :blue,        # e.g. Object, Kernel
+      :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
+
+      # What should separate items listed by ls? (TODO: we should allow a columnar layout)
+      :separator                => "  ",
+
+      # Any methods defined on these classes, or modules included into these classes, will not
+      # be shown by ls unless the -v flag is used.
+      # A user of Rails may wih to add ActiveRecord::Base to the list.
+      # add the following to your .pryrc:
+      # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
+      :ceiling                  => [Object, Module, Class]
+    })
   end
 
   # Set all the configurable options back to their default values
