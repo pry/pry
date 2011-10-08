@@ -310,7 +310,7 @@ class Pry
 
         # Refresh the current line. This uses tput and since that doesn't work
         # on Windows this process will not be executed on that platform.
-        if !Kernel.const_defined?(:Win32)
+        if !Kernel.const_defined?(:Win32) && input == Readline
           prompt = current_prompt + val
 
           # The whitespace is used to "clear" the current line so existing
