@@ -192,7 +192,7 @@ class Pry
     config.should_load_rc = true
     config.disable_auto_reload = false
     config.command_prefix = ""
-    config.indent = true
+    config.auto_indent = true
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
@@ -209,16 +209,16 @@ class Pry
 
     config.memory_size = 100
 
-    Pry.config.ls ||= OpenStruct.new
-    Pry.config.ls.local_var_color = :bright_red
-    Pry.config.ls.instance_var_color = :bright_blue
-    Pry.config.ls.class_var_color = :blue
-    Pry.config.ls.global_var_color = :bright_magenta
-    Pry.config.ls.method_color = :green
-    Pry.config.ls.instance_method_color = :bright_green
-    Pry.config.ls.constant_color = :yellow
+    config.ls ||= OpenStruct.new
+    config.ls.local_var_color = :bright_red
+    config.ls.instance_var_color = :bright_blue
+    config.ls.class_var_color = :blue
+    config.ls.global_var_color = :bright_magenta
+    config.ls.method_color = :green
+    config.ls.instance_method_color = :bright_green
+    config.ls.constant_color = :yellow
 
-    Pry.config.ls.separator = "  "
+    config.ls.separator = "  "
   end
 
   # Set all the configurable options back to their default values
