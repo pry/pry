@@ -179,8 +179,8 @@ class Pry
         end
 
         if show_ivars
-          output_variables("instance variables", obj.send(:instance_variables))
-          output_variables("class variables", (Module === obj ? obj : obj.class).send(:class_variables))
+          output_variables("instance variables", obj.__send__(:instance_variables))
+          output_variables("class variables", (Module === obj ? obj : obj.class).__send__(:class_variables))
         end
 
         if show_locals

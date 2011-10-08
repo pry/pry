@@ -163,6 +163,11 @@ describe Pry::Method do
         @obj = Class.new{ class << self; def meth; 1; end; end }.new
         Pry::Method.all_from_obj(@obj).map(&:name).should.not.include('meth')
       end
+
+      it "should work in the face of an overridden send" do
+        @obj = Class.new{ def meth; 1; end; def send; raise EOFError; end }.new
+        should_find_method('meth')
+      end
     end
 
     describe 'on classes' do
