@@ -59,6 +59,12 @@ class Pry
     end
 
     ##
+    # Get rid of all indentation
+    def reset
+      @stack.clear
+    end
+
+    ##
     # Indents a string and returns it. This string can either be a single line
     # or multiple ones.
     #
