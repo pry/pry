@@ -4,20 +4,89 @@ class Pry
     Ls = Pry::CommandSet.new do
 
       helpers do
-        def should_trim?(target, options)
-          if target.eval('self').is_a? Module
-            options[:e] || target.eval('self') >= Object
+        # Get all the methods that we'll want to output
+        def all_methods(obj, opts)
+          opts.M? ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
+        end
+
+        def singleton_class(obj); class << obj; self; end end
+
+        def resolution_order(obj, opts)
+          opts.M? ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
+        end
+
+        # Get the name of the klass for pretty display in the title column of ls -m
+        # as there can only ever be one singleton class of a non-class, we just call
+        # that "self".
+        def class_name(klass)
+          if klass == klass.ancestors.first
+            (klass.name || "") == "" ? klass.to_s : klass.name
+          elsif klass.ancestors.include?(Module)
+            begin
+              "#{class_name(ObjectSpace.each_object(klass).detect{ |x| singleton_class(x) == klass })}.self"
+            rescue # ObjectSpace is not enabled by default in jruby
+              klass.to_s.sub(/#<(Module|Class):(.*)>/, '\2.self')
+            end
           else
-            options[:e]
+            "self"
           end
         end
 
-        def trim_methods(target, options, visibility)
-          if should_trim?(target, options)
-            []
-          else
-            Object.send("#{visibility}_instance_methods")
-          end
+        # Get a lambda that can be used with .take_while to prevent over-eager
+        # traversal of the Object's ancestry graph.
+        def below_ceiling(obj, opts)
+          ceiling = if opts.q?
+                       [opts.M? ? obj.ancestors[1] : obj.class.ancestors[1]] + [Object, Module, Class]
+                     elsif opts.v?
+                       []
+                     else
+                       [Module, Object, Class] #TODO: make configurable
+                     end
+
+          # We always want to show *something*, so if this object is actually a base type,
+          # then we'll show the class itself, but none of its ancestors nor modules.
+          ceiling.map!{ |klass| (obj.class == klass || obj == klass) ? klass.ancestors[1] : klass }
+
+          lambda { |klass| !ceiling.include?(klass) }
+        end
+
+        # Format and colourise a list of methods.
+        def format_methods(methods)
+          methods.sort_by(&:name).map do |method|
+            if method.name == 'method_missing'
+              text.red('method_missing') # This should stand out!
+            elsif method.visibility == :private
+              text.blue(method.name) # TODO: make colours configurable
+            elsif method.visibility == :protected
+              text.purple(method.name)
+            else
+              method.name
+            end
+          end.join("  ")
+        end
+
+        def output_variables(type, vars)
+          vars = vars.sort_by(&:downcase).join("  ")
+          output_section(type, text.send(ls_color_map[type], vars)) if vars.strip != ""
+        end
+
+        def format_constants(mod, constants)
+          constants.sort_by(&:downcase).map do |name|
+            if const = (mod.const_get(name) rescue nil)
+              if (const < Exception rescue false)
+                text.purple(name)
+              elsif (Module === mod.const_get(name) rescue false)
+                text.blue(name)
+              else
+                name
+              end
+            end
+          end.compact.join("  ")
+        end
+
+        # Add a new section to the output. Outputs nothing if the section would be empty.
+        def output_section(heading, body)
+          output.puts "#{text.bold(heading)}: #{body}" if body.strip != ""
         end
 
         def ls_color_map
@@ -26,207 +95,98 @@ class Pry
             "instance variables" => Pry.config.ls.instance_var_color,
             "class variables" => Pry.config.ls.class_var_color,
             "global variables" => Pry.config.ls.global_var_color,
-            "just singleton methods" => Pry.config.ls.method_color,
             "public methods" => Pry.config.ls.method_color,
             "private methods" => Pry.config.ls.method_color,
             "protected methods" => Pry.config.ls.method_color,
-            "public instance methods" => Pry.config.ls.instance_method_color,
-            "private instance methods" => Pry.config.ls.instance_method_color,
-            "protected instance methods" => Pry.config.ls.instance_method_color,
             "constants" => Pry.config.ls.constant_color
           }
         end
       end
 
-      command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info." do |*args|
-        options = {}
-        # Set target local to the default -- note that we can set a different target for
-        # ls if we like: e.g ls my_var
-        target = target()
+      command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
+              :shellwords => false, :interpolate => false do |*args|
 
-        OptionParser.new do |opts|
-          opts.banner = unindent <<-EOS
-            Usage: ls [OPTIONS] [VAR]
+        # have we been passed any options about what to show (exclude q and v because they're just tweaks)
+        has_opts = args.first && args.any?{ |arg| arg.start_with?("-") && arg.tr("-qv", "") != "" }
 
-            List information about VAR (the current context by default).
-            Shows local and instance variables by default.
-            --
-          EOS
+        opts = Slop.parse!(args, :strict => true) do |opt|
+          opt.banner unindent <<-USAGE
+            Usage: ls [-m|-M] [-p] [-q|-v] [-g] [-l] [-c] [-i] [Object]
 
-          opts.on("-g", "--globals", "Display global variables.") do
-            options[:g] = true
-          end
+            ls shows you which methods, constants and variables are accessible to Pry. By default it shows you
+            the local variables defined in the current shell, and any public methods or instance variables defined
+            on the current object.
 
-          opts.on("-c", "--constants", "Display constants.") do
-            options[:c] = true
-          end
+            The -c flag lists constants, either in the top-level if given no argument or in the namespace that you
+            specify. Exceptions are coloured purple, other Classes are blue and anything else is black.
 
-          opts.on("-l", "--locals", "Display locals.") do
-            options[:l] = true
-          end
+            The -m flag lists methods defined on an object, while the -M flag lists methods defined in a class. In
+            both cases the -p flag shows private methods (in blue) and protected methods (in purple).
 
-          opts.on("-i", "--ivars", "Display instance variables.") do
-            options[:i] = true
-          end
+            The -v flag can be used to show all methods and constants. By default methods and constants available
+            on all objects are not shown. The -q flag removes more methods, only displaying those
 
-          opts.on("-k", "--class-vars", "Display class variables.") do
-            options[:k] = true
-          end
+          USAGE
 
-          opts.on("-m", "--methods", "Display methods (public methods by default).") do
-            options[:m] = true
-          end
+          opt.on :m, "methods", "Show public methods defined on the Object"
+          opt.on :M, "module", "Show methods defined in a Module or Class"
 
-          opts.on("-M", "--instance-methods", "Display instance methods (only relevant to classes and modules).") do
-            options[:M] = true
-          end
+          opt.on :p, "ppp", "Show public, protected and private methods (by default only public methods are shown)"
+          opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class (See Pry.config.ls_ceiling)"
+          opt.on :v, "verbose", "Show methods on all super-classes (ignores Pry.config.ls_ceiling)"
 
-          opts.on("-P", "--public", "Display public methods (with -m).") do
-            options[:P] = true
-          end
+          opt.on :g, "globals", "Show globals"
+          opt.on :l, "locals", "Show locals"
+          opt.on :c, "constants", "Show constants"
+          opt.on :i, "ivars", "Show instance and class variables"
 
-          opts.on("-r", "--protected", "Display protected methods (with -m).") do
-            options[:r] = true
-          end
-
-          opts.on("-p", "--private", "Display private methods (with -m).") do
-            options[:p] = true
-          end
-
-          opts.on("-j", "--just-singletons", "Display just the singleton methods (with -m).") do
-            options[:j] = true
-          end
-
-          opts.on("-s", "--super", "Include superclass entries excluding Object (relevant to constant and methods options).") do
-            options[:s] = true
-          end
-
-          opts.on("-e", "--everything", "Include superclass entries including Object (must be combined with -s switch).") do
-            options[:e] = true
-          end
-
-          opts.on("-a", "--all", "Display all types of entries.") do
-            options[:a] = true
-          end
-
-          opts.on("-v", "--verbose", "Verbose ouput.") do
-            options[:v] = true
-          end
-
-          opts.on("-f", "--flood", "Do not use a pager to view text longer than one screen.") do
-            options[:f] = true
-          end
-
-          opts.on("--grep REG", "Regular expression to be used.") do |reg|
-            options[:grep] = Regexp.new(reg)
-          end
-
-          opts.on_tail("-h", "--help", "Show this message.") do
-            output.puts opts
-            options[:h] = true
-          end
-        end.order(args) do |new_target|
-          target = Pry.binding_for(target.eval("#{new_target}")) if !options[:h]
+          opt.on :h, "help", "Show help"
         end
 
-        # exit if we've displayed help
-        next if options[:h]
+        next output.puts(opts) if opts.h?
 
-        # default is locals/ivars/class vars.
-        # Only occurs when no options or when only option is verbose
-        options.merge!({
-                         :l => true,
-                         :i => true,
-                         :k => true
-                       }) if options.empty? || (options.size == 1 && options[:v]) || (options.size == 1 && options[:grep])
+        obj = args.empty? ? target_self : target.eval(args.join(" "))
+        show_methods   = opts.m? || opts.M? || opts.p? || !has_opts
+        show_constants = opts.c? || (!has_opts && Module === obj || TOPLEVEL_BINDING.eval('self') == obj)
+        show_ivars     = opts.i? || !has_opts
+        show_locals    = opts.l? || (!has_opts && args.empty?)
 
-        options[:grep] = // if !options[:grep]
+        raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.l? && !args.empty?
+        raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.g? && !args.empty?
+        raise Pry::CommandError, "-q does not make sense with -v" if opts.q? && opts.v?
+        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.M? && !(Module === obj)
+        raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.c? && !args.empty? && !(Module === obj)
 
+        if opts.g?
+          output_variables("global variables", target.eval("global_variables"))
+        end
 
-                              # Display public methods by default if -m or -M switch is used.
-                              options[:P] = true if (options[:m] || options[:M]) && !(options[:p] || options[:r] || options[:j])
+        if show_constants
+          mod = Module === obj ? obj : Object
+          constants = mod.constants
+          constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.v?
+          output_section("Constants", format_constants(mod, constants))
+        end
 
-                              info = {}
-                              target_self = target.eval('self')
+        if show_methods
+          # methods is a hash {Module/Class => [Pry::Methods]}
+          methods = all_methods(obj, opts).select{ |method| opts.p? || method.visibility == :public }.group_by(&:owner)
 
-                              # ensure we have a real boolean and not a `nil` (important when
-                              # interpolating in the string)
-                              options[:s] = !!options[:s]
+          # reverse the resolution order so that the most useful information appears right by the prompt
+          resolution_order(obj, opts).take_while(&below_ceiling(obj, opts)).reverse.each do |klass|
+            output_section "#{class_name(klass)} methods", format_methods(methods[klass] || [])
+          end
+        end
 
-                              # Numbers (e.g 0, 1, 2) are for ordering the hash values in Ruby 1.8
-                              i = -1
+        if show_ivars
+          output_variables("instance variables", obj.send(:instance_variables))
+          output_variables("class variables", (Module === obj ? obj : obj.class).send(:class_variables))
+        end
 
-                              # Start collecting the entries selected by the user
-                              info["local variables"] = [Array(target.eval("local_variables")).sort, i += 1] if options[:l] || options[:a]
-                              info["instance variables"] = [Array(target.eval("instance_variables")).sort, i += 1] if options[:i] || options[:a]
-
-                              info["class variables"] = [if target_self.is_a?(Module)
-                                                           Array(target.eval("class_variables")).sort
-                                                         else
-                                                           Array(target.eval("self.class.class_variables")).sort
-                                                         end, i += 1] if options[:k] || options[:a]
-
-                              info["global variables"] = [Array(target.eval("global_variables")).sort, i += 1] if options[:g] || options[:a]
-
-                              info["public methods"] = [Array(target.eval("public_methods(#{options[:s]})")).uniq.sort - trim_methods(target, options, :public), i += 1] if (options[:m] && options[:P]) || options[:a]
-
-                              info["protected methods"] = [Array(target.eval("protected_methods(#{options[:s]})")).sort - trim_methods(target, options, :protected), i += 1] if (options[:m] && options[:r]) || options[:a]
-
-                              info["private methods"] = [Array(target.eval("private_methods(#{options[:s]})")).sort - trim_methods(target, options, :private), i += 1] if (options[:m] && options[:p]) || options[:a]
-
-                              info["just singleton methods"] = [Array(target.eval("methods(#{options[:s]})")).sort, i += 1] if (options[:m] && options[:j]) && !options[:a]
-
-                              info["public instance methods"] = [Array(target.eval("public_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(target, options, :public), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:P]) || options[:a])
-
-                              info["protected instance methods"] = [Array(target.eval("protected_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(target, options, :protected), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:r]) || options[:a])
-
-                              info["private instance methods"] = [Array(target.eval("private_instance_methods(#{options[:s]})")).uniq.sort - trim_methods(target, options, :private), i += 1] if target_self.is_a?(Module) && ((options[:M] && options[:p]) || options[:a])
-
-                              # dealing with 1.8/1.9 compatibility issues :/
-                              csuper = options[:s]
-                              if Module.method(:constants).arity == 0
-                                csuper = nil
-                              end
-
-                              info["constants"] = [Array(target_self.is_a?(Module) ? target.eval("constants(#{csuper})") :
-                                                         target.eval("self.class.constants(#{csuper})")).uniq.sort, i += 1] if options[:c] || options[:a]
-
-                              text = ""
-
-                              # verbose output?
-                              if options[:v]
-                                # verbose
-
-                                info.sort_by { |k, v| v.last }.each do |k, v|
-              if !v.first.empty?
-                text <<  "#{k}:\n--\n"
-                filtered_list = v.first.grep options[:grep]
-                text << text().send(ls_color_map[k], (filtered_list.join(Pry.config.ls.separator)))
-                text << "\n\n"
-              end
-            end
-
-                                if !options[:f]
-                                  stagger_output(text)
-                                else
-                                  output.puts text
-                                end
-
-                                # plain
-                              else
-                                list = info.sort_by { |k, v| v.last }.map { |k, v| [k, [v.first.grep(options[:grep])], v.last] }
-                                list = list.each { |k, v| text << text().send(ls_color_map[k], v.first.join(Pry.config.ls.separator)); text << Pry.config.ls.separator }
-
-                                if !options[:f]
-                                  stagger_output(text)
-                                else
-                                  output.puts text
-                                end
-                                list
-                              end
-                            end
-
-
+        if show_locals
+          output_variables("local variables", target.eval("local_variables"))
+        end
+      end
     end
   end
 end
