@@ -132,5 +132,16 @@ class Pry
 
       return output.gsub!(/\s+$/, '')
     end
+
+
+    # Fix the indentation for closing tags (notably 'end').
+    # @param [String] full_line The full line of input, including the prompt.
+    def correct_indentation(full_line)
+      # The whitespace is used to "clear" the current line so existing
+      # characters don't show up.
+      spaces = ' ' * full_line.length
+
+      $stdout.write(`tput sc` + `tput cuu1` + full_line + spaces + `tput rc`)
+    end
   end # Indent
 end # Pry
