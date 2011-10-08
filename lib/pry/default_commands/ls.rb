@@ -40,7 +40,7 @@ class Pry
             begin
               "#{class_name(ObjectSpace.each_object(klass).detect{ |x| singleton_class(x) == klass })}.self"
             rescue # ObjectSpace is not enabled by default in jruby
-              klass.to_s.sub(/#<(Module|Class):(.*)>/, '\2.self')
+              klass.to_s.sub(/#<Class:(.*)>/, '\1.self')
             end
           else
             "self"
