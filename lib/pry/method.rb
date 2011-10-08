@@ -121,8 +121,8 @@ class Pry
       # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
       def all_from_common(obj, method_type)
         %w(public protected private).map do |visibility|
-          obj.send(:"#{visibility}_#{method_type}s").map do |method_name|
-            new(obj.send(method_type, method_name), :visibility => visibility.to_sym)
+          obj.__send__(:"#{visibility}_#{method_type}s").map do |method_name|
+            new(obj.__send__(method_type, method_name), :visibility => visibility.to_sym)
           end
         end.flatten(1)
       end
