@@ -287,7 +287,10 @@ class Pry
   # @param [Binding] target The target of the session.
   # @return [String] The line received.
   def retrieve_line(eval_string, target)
+    @indent.reset if eval_string.empty?
+
     current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
+
     val = readline(current_prompt)
 
     # exit session if we receive EOF character (^D)
@@ -436,9 +439,7 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
-    if Pry.config.auto_indent
-      current_prompt += @indent.stack[-1] || ''
-    end
+    current_prompt += @indent.indent_level || '' if Pry.config.auto_indent
 
     handle_read_errors do
       if input == Readline
