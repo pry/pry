@@ -12,21 +12,21 @@ describe Pry::Indent do
     input  = "array = [\n10,\n15\n]"
     output = "array = [\n  10,\n  15\n]"
 
-    @indent.indent(input).should === output
+    @indent.indent(input).should == output
   end
 
   it 'should indent a hash' do
     input  = "hash = {\n:name => 'Ruby'\n}"
     output = "hash = {\n  :name => 'Ruby'\n}"
 
-    @indent.indent(input).should === output
+    @indent.indent(input).should == output
   end
 
   it 'should indent a function' do
     input  = "def\nreturn 10\nend"
     output = "def\n  return 10\nend"
 
-    @indent.indent(input).should === output
+    @indent.indent(input).should == output
   end
 
   it 'should indent a module and class' do
@@ -35,14 +35,39 @@ describe Pry::Indent do
     input_class  = "class Foo\n# Hello world\nend"
     output_class = "class Foo\n  # Hello world\nend"
 
-    @indent.indent(input).should       === output
-    @indent.indent(input_class).should === output_class
+    @indent.indent(input).should       == output
+    @indent.indent(input_class).should == output_class
   end
 
   it 'should indent separate lines' do
-    @indent.indent('def foo').should   === 'def foo'
-    @indent.indent('return 10').should === '  return 10'
-    @indent.indent('end').should       === 'end'
+    @indent.indent('def foo').should   == 'def foo'
+    @indent.indent('return 10').should == '  return 10'
+    @indent.indent('end').should       == 'end'
+  end
+
+  it 'should not indent single line statements' do
+    input = <<TXT.strip
+def hello; end
+puts "Hello"
+TXT
+
+    @indent.indent(input).should == input
+  end
+
+  it 'should handle multiple open and closing tokens on a line' do
+    input = <<TXT.strip
+[10, 15].each do |num|
+puts num
+end
+TXT
+
+    output = <<TXT.strip
+[10, 15].each do |num|
+  puts num
+end
+TXT
+
+    @indent.indent(input).should == output
   end
 
   it 'should properly indent nested code' do
@@ -74,14 +99,14 @@ module A
 end
 TXT
 
-    @indent.indent(input).should === output
+    @indent.indent(input).should == output
   end
 
   it 'should indent statements such as if, else, etc' do
     input = <<TXT.strip
-if a === 10
+if a == 10
 #
-elsif a === 15
+elsif a == 15
 #
 else
 #
@@ -101,9 +126,9 @@ end
 TXT
 
     output = <<TXT.strip
-if a === 10
+if a == 10
   #
-elsif a === 15
+elsif a == 15
   #
 else
   #
@@ -122,6 +147,6 @@ for num in [10, 15, 20] do
 end
 TXT
 
-    @indent.indent(input).should === output
+    @indent.indent(input).should == output
   end
 end

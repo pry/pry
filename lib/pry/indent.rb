@@ -18,19 +18,21 @@ class Pry
     # The amount of spaces to insert for each indent level.
     Spaces = '  '
 
-    # Array containing all the tokens that should increase the indentation
-    # level.
-    OpenTokens = [
-      'def',
-      'class',
-      'module',
-      '[',
-      '{',
-      'do',
-      'if',
-      'while',
-      'for'
-    ]
+    # Hash containing all the tokens that should increase the indentation
+    # level. The keys of this hash are open tokens, the values the matching
+    # tokens that should prevent a line from being indented if they appear on
+    # the same line.
+    OpenTokens = {
+      'def'    => 'end',
+      'class'  => 'end',
+      'module' => 'end',
+      'do'     => 'end',
+      'if'     => 'end',
+      'while'  => 'end',
+      'for'    => 'end',
+      '['      => ']',
+      '{'      => '}',
+    }
 
     # Collection of tokens that decrease the indentation level.
     ClosingTokens = ['end', ']', '}']
@@ -81,7 +83,8 @@ class Pry
     # @return [String] The indented version of +input+.
     #
     def indent(input)
-      output = ''
+      output      = ''
+      open_tokens = OpenTokens.keys
 
       input.lines.each do |line|
         # Remove manually added indentation.
@@ -100,7 +103,11 @@ class Pry
             break
           # Start token found (such as "class"). Update the stack and indent the
           # current line.
-          elsif OpenTokens.include?(token)
+          elsif open_tokens.include?(token)
+            # Skip indentation if there's a matching closing token on the same
+            # line.
+            next if skip_indentation?(tokens, token)
+
             add  = ''
             last = @stack[-1]
 
@@ -133,9 +140,60 @@ class Pry
       return output.gsub!(/\s+$/, '')
     end
 
+    ##
+    # Based on a set of tokens and an open token this method will determine if
+    # a line has to be indented or not. Perhaps not the most efficient way of
+    # doing it so if you feel it can be improved patches are more than welcome
+    # :).
+    #
+    # @author Yorick Peterse
+    # @since  08-10-2011
+    # @param  [Array] tokens A list of tokens to scan.
+    # @param  [String] open_token The token who's closing token may or may not
+    #  be included in the list of tokens.
+    # @return [Boolean]
+    #
+    def skip_indentation?(tokens, open_token)
+      return false if !OpenTokens.key?(open_token)
 
-    # Fix the indentation for closing tags (notably 'end').
+      closing = OpenTokens[open_token]
+      open    = OpenTokens.keys
+      skip    = false
+
+      # If the list of tokens contains a matching closing token the line should
+      # not be indented (and thus we should return true).
+      tokens.each do |token, kind|
+        next if IgnoreTokens.include?(kind)
+
+        # Skip the indentation if we've found a matching closing token.
+        if token == closing
+          skip = true
+        # Sometimes a line contains a matching closing token followed by another
+        # open token. In this case the line *should* be indented. An example of
+        # this is the following:
+        #
+        # [10, 15].each do |num|
+        #   puts num
+        # end
+        #
+        # Here we have an open token (the "[") as well as it's closing token
+        # ("]"). However, there's also a "do" which indicates that the next
+        # line *should* be indented.
+        elsif open.include?(token)
+          skip = false
+        end
+      end
+
+      return skip
+    end
+
+    ##
+    # Fix the indentation for closing tags (notably 'end'). Note that this
+    # method will not work on Win32 based systems (or other systems that don't
+    # have the tput command).
+    #
     # @param [String] full_line The full line of input, including the prompt.
+    #
     def correct_indentation(full_line)
       # The whitespace is used to "clear" the current line so existing
       # characters don't show up.
