@@ -154,8 +154,6 @@ class Pry
     # @return [Boolean]
     #
     def skip_indentation?(tokens, open_token)
-      return false if !OpenTokens.key?(open_token)
-
       closing = OpenTokens[open_token]
       open    = OpenTokens.keys
       skip    = false
