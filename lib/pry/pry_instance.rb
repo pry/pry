@@ -307,6 +307,18 @@ class Pry
 
       if Pry.config.auto_indent
         val = @indent.indent(val)
+
+        # Refresh the current line. This uses tput and since that doesn't work
+        # on Windows this process will not be executed on that platform.
+        if !Kernel.const_defined?(:Win32)
+          prompt = current_prompt + val
+
+          # The whitespace is used to "clear" the current line so existing
+          # characters don't show up.
+          spaces = ' ' * prompt.length
+
+          $stdout.write(`tput sc` + `tput cuu1` + prompt + spaces + `tput rc`)
+        end
       end
 
       val
