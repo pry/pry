@@ -40,7 +40,7 @@ class Pry
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
     # indented incorrectly.
-    IgnoreTokens = [:space, :content, :string, :delimiter]
+    IgnoreTokens = [:space, :content, :string, :delimiter, :method, :ident]
 
     # Collection of tokens that should only increase the indentation level of
     # the next line.
