@@ -86,6 +86,7 @@ class Pry
 
       input.lines.each do |line|
         tokens = CodeRay.scan(line, :ruby)
+        tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens) # Coderay 1.0.0
 
         before, after = indentation_delta(tokens)
 
