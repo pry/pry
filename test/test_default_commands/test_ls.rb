@@ -101,11 +101,6 @@ describe "ls" do
 
   describe "when no arguments given" do
     describe "when at the top-level" do
-      it "should show constants" do
-        mock_pry("ls").should =~ /Pry/
-        mock_pry("ls").should =~ /VERSION/
-      end
-
       # rubinius has a bug that means local_variables of "main" aren't reported inside eval()
       unless defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
         it "should show local variables" do

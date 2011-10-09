@@ -172,7 +172,7 @@ class Pry
         has_opts = (opts.m? || opts.M? || opts.p? || opts.g? || opts.l? || opts.c? || opts.i?)
 
         show_methods   = opts.m? || opts.M? || opts.p? || !has_opts
-        show_constants = opts.c? || (!has_opts && (Module === obj || TOPLEVEL_BINDING.eval('self') == obj))
+        show_constants = opts.c? || (!has_opts && Module === obj)
         show_ivars     = opts.i? || !has_opts
         show_locals    = opts.l? || (!has_opts && args.empty?)
 
