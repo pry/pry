@@ -310,7 +310,10 @@ class Pry
 
       if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && input == Readline
         val = @indent.indent(val)
-        @indent.correct_indentation(current_prompt + val)
+
+        if Pry::Helpers::BaseHelpers.use_ansi_codes?
+          @indent.correct_indentation(current_prompt + val)
+        end
       end
 
       Pry.history << val.dup

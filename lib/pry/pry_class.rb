@@ -185,7 +185,7 @@ class Pry
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
-    config.color = true
+    config.color = Pry::Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
