@@ -34,7 +34,7 @@ class Pry
     # @param [String] line
     # @return [String] The same line that was passed in
     def push(line)
-      unless line.empty? || (@history.last && line.strip == @history.last.strip)
+      unless line.empty? || (@history.last && line == @history.last)
         Readline::HISTORY << line
         @history << line
       end
