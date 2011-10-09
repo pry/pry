@@ -27,6 +27,7 @@ class Pry
       'if'     => 'end',
       'while'  => 'end',
       'for'    => 'end',
+      'case'   => 'end',
       '['      => ']',
       '{'      => '}',
       '('      => ')'
@@ -44,7 +45,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = ['else', 'elsif']
+    MIDWAY_TOKENS = ['when', 'else', 'elsif']
 
     def initialize
       reset

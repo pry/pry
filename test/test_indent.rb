@@ -150,6 +150,40 @@ TXT
     @indent.indent(input).should == output
   end
 
+  it "should ident case statements" do
+    input = <<TXT.strip
+case foo
+when 1
+2
+when 2
+if 3
+4
+end
+when 5
+#
+else
+#
+end
+TXT
+
+ output = <<TXT.strip
+case foo
+when 1
+  2
+when 2
+  if 3
+    4
+  end
+when 5
+  #
+else
+  #
+end
+TXT
+
+    @indent.indent(input).should == output
+  end
+
   it "should indent correctly with nesting" do
     @indent.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
     @indent.reset.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
