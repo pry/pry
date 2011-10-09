@@ -168,7 +168,7 @@ class Pry
     def skip_indentation?(tokens, open_token)
       closing = OpenTokens[open_token]
       open    = OpenTokens.keys
-      skip    = false
+      depth   = 0
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
@@ -177,7 +177,7 @@ class Pry
 
         # Skip the indentation if we've found a matching closing token.
         if token == closing
-          skip = true
+          depth -= 1
         # Sometimes a line contains a matching closing token followed by another
         # open token. In this case the line *should* be indented. An example of
         # this is the following:
@@ -190,11 +190,11 @@ class Pry
         # ("]"). However, there's also a "do" which indicates that the next
         # line *should* be indented.
         elsif open.include?(token)
-          skip = false
+          depth += 1
         end
       end
 
-      return skip
+      return depth <= 0
     end
 
     ##
