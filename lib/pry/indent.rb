@@ -169,10 +169,11 @@ class Pry
       (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
-    # Fix the indentation for closing tags (notably 'end').
+    # Return a string which, when printed, will rewrite the previous line with
+    # the correct indentation. Mostly useful for fixing 'end'.
     #
     # @param [String] full_line The full line of input, including the prompt.
-    #
+    # @return [String]
     def correct_indentation(full_line)
       rws, cols = Readline.get_screen_size
       lines     = full_line.length / cols
@@ -180,7 +181,7 @@ class Pry
       kill_line = "\e[0K"
       move_down = "\e[#{lines}E"
 
-      $stdout.print(move_up, full_line, kill_line, move_down)
+      "#{move_up}#{full_line}#{kill_line}#{move_down}"
     end
   end
 end
