@@ -6,10 +6,7 @@ class Pry
   # containing Ruby code similar as to how IRB does it (but better). The class
   # works by tokenizing a string using CodeRay and then looping over those
   # tokens. Based on the tokens in a line of code that line (or the next one)
-  # will be indented or un-indented by 2 spaces.
-  #
-  # @author Yorick Peterse
-  # @since  04-10-2011
+  # will be indented or un-indented by correctly.
   #
   class Indent
     # Array containing all the indentation levels.
@@ -52,32 +49,22 @@ class Pry
     # the next line.
     OpenTokensNext = ['else', 'elsif']
 
-    ##
-    # Creates a new instance of the class and starts with a fresh stack. The
-    # stack is used to keep track of the indentation level for each line of
-    # code.
-    #
-    # @author Yorick Peterse
-    # @since  05-10-2011
-    #
     def initialize
-      @stack = []
+      reset
     end
 
-    ##
-    # Get rid of all indentation
+    # reset internal state
     def reset
-      @stack.clear
+      @stack = []
       self
     end
 
-    ##
-    # The current indentation level (number of spaces deep)
+    # The current indentation prefix
+    # @return [String]
     def indent_level
       @stack.last || ''
     end
 
-    ##
     # Indents a string and returns it. This string can either be a single line
     # or multiple ones.
     #
@@ -96,8 +83,6 @@ class Pry
     #  #
     #  puts Pry::Indent.new.indent(str)
     #
-    # @author Yorick Peterse
-    # @since  05-10-2011
     # @param  [String] input The input string to indent.
     # @return [String] The indented version of +input+.
     #
@@ -110,7 +95,7 @@ class Pry
 
         tokens = CodeRay.scan(line, :ruby)
 
-        before, after = indentation_delta(tokens, prefix)
+        before, after = indentation_delta(tokens)
 
         prefix.sub!(Spaces * before, '')
         output += prefix + line.strip + "\n"
@@ -122,20 +107,20 @@ class Pry
       return output.gsub(/\s+$/, '')
     end
 
-    ##
-    # Based on a set of tokens and an open token this method will determine if
-    # a line has to be indented or not. Perhaps not the most efficient way of
-    # doing it so if you feel it can be improved patches are more than welcome
-    # :).
+    # Get the change in indentation indicated by the line.
     #
-    # @author Yorick Peterse
-    # @since  08-10-2011
+    # By convention, you remove indent from the line containing end tokens,
+    # but add indent to the line *after* that which contains the start tokens.
+    #
+    # This method returns a pair, where the first number is the number of closings
+    # on this line (i.e. the number of indents to remove before the line) and the
+    # second is the number of openings (i.e. the number of indents to add after
+    # this line)
+    #
     # @param  [Array] tokens A list of tokens to scan.
-    # @param  [String] open_token The token who's closing token may or may not
-    #  be included in the list of tokens.
-    # @return [Boolean]
+    # @return [Array[Integer]]
     #
-    def indentation_delta(tokens, open_token)
+    def indentation_delta(tokens)
       closing = OpenTokens[open_token]
       open    = OpenTokens.keys
 
@@ -187,7 +172,6 @@ class Pry
       (last_token =~ /^[)\]}\/]$/ || EndOfStatementTokens.include?(last_kind))
     end
 
-    ##
     # Fix the indentation for closing tags (notably 'end'). Note that this
     # method will not work on Win32 based systems (or other systems that don't
     # have the tput command).
@@ -201,5 +185,5 @@ class Pry
 
       $stdout.write(`tput sc` + `tput cuu1` + full_line + spaces + `tput rc`)
     end
-  end # Indent
-end # Pry
+  end
+end
