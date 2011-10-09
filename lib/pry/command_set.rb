@@ -256,7 +256,7 @@ class Pry
       end
 
       command "install-command", "Install a disabled command." do |name|
-        require 'gem/dependency_installer' unless defined? Gem::DependencyInstaller
+        require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
         command = find_command(name)
         stub_info = command.options[:stub_info]
 
