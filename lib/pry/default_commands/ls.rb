@@ -53,7 +53,7 @@ class Pry
                      elsif opts.v?
                        []
                      else
-                       Pry.config.ls.ceiling
+                       Pry.config.ls.ceiling.dup
                      end
 
           # We always want to show *something*, so if this object is actually a base type,
