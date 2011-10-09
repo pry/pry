@@ -65,6 +65,10 @@ class Pry
         end
       end
 
+      def use_ansi_codes?
+        ENV['TERM'] != "dumb"
+      end
+
       def colorize_code(code)
         if Pry.color
           CodeRay.scan(code, :ruby).term
