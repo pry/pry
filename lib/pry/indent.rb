@@ -13,13 +13,13 @@ class Pry
     attr_reader :stack
 
     # The amount of spaces to insert for each indent level.
-    Spaces = '  '
+    SPACES = '  '
 
     # Hash containing all the tokens that should increase the indentation
     # level. The keys of this hash are open tokens, the values the matching
     # tokens that should prevent a line from being indented if they appear on
     # the same line.
-    OpenTokens = {
+    OPEN_TOKENS = {
       'def'    => 'end',
       'class'  => 'end',
       'module' => 'end',
@@ -32,22 +32,19 @@ class Pry
       '('      => ')'
     }
 
-    # Collection of tokens that decrease the indentation level.
-    ClosingTokens = ['end', ']', '}']
-
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
     # indented incorrectly.
-    IgnoreTokens = [:space, :content, :string, :delimiter, :method, :ident]
+    IGNORE_TOKENS = [:space, :content, :string, :delimiter, :method, :ident]
 
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
     # not the next line)
-    EndOfStatementTokens = IgnoreTokens + [:regexp, :integer, :float]
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float]
 
     # Collection of tokens that should only increase the indentation level of
     # the next line.
-    OpenTokensNext = ['else', 'elsif']
+    OPEN_TOKENS_NEXT = ['else', 'elsif']
 
     def initialize
       reset
@@ -88,18 +85,17 @@ class Pry
     #
     def indent(input)
       output      = ''
-      open_tokens = OpenTokens.keys
+      open_tokens = OPEN_TOKENS.keys
       prefix = indent_level
 
       input.lines.each do |line|
-
         tokens = CodeRay.scan(line, :ruby)
 
         before, after = indentation_delta(tokens)
 
-        prefix.sub!(Spaces * before, '')
+        before.times{ prefix.sub! SPACES, '' }
         output += prefix + line.strip + "\n"
-        prefix += Spaces * after
+        prefix += SPACES * after
       end
 
       @stack = [prefix]
@@ -121,9 +117,6 @@ class Pry
     # @return [Array[Integer]]
     #
     def indentation_delta(tokens)
-      closing = OpenTokens[open_token]
-      open    = OpenTokens.keys
-
       @useful_stack ||= []
       seen_for = false
       last_token, last_kind = [nil, nil]
@@ -138,16 +131,16 @@ class Pry
         is_singleline_if = (token == "if" || token == "while") && end_of_statement?(last_token, last_kind)
         last_token, last_kind = token, kind unless kind == :space
 
-        next if IgnoreTokens.include?(kind)
+        next if IGNORE_TOKENS.include?(kind)
 
         # handle the optional "do" on for statements.
         seen_for ||= token == "for"
 
-        if OpenTokens.keys.include?(token) && (token != "do" || !seen_for) && !is_singleline_if
+        if OPEN_TOKENS.keys.include?(token) && (token != "do" || !seen_for) && !is_singleline_if
           @useful_stack << token
           depth += 1
           after += 1
-        elsif token == OpenTokens[@useful_stack.last]
+        elsif token == OPEN_TOKENS[@useful_stack.last]
           @useful_stack.pop
           depth -= 1
           if depth < 0
@@ -155,7 +148,7 @@ class Pry
           else
             after -= 1
           end
-        elsif OpenTokensNext.include?(token)
+        elsif OPEN_TOKENS_NEXT.include?(token)
           if depth <= 0
             before += 1
             after += 1
@@ -169,7 +162,7 @@ class Pry
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
-      (last_token =~ /^[)\]}\/]$/ || EndOfStatementTokens.include?(last_kind))
+      (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Fix the indentation for closing tags (notably 'end'). Note that this
