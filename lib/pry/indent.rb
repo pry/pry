@@ -10,7 +10,7 @@ class Pry
   #
   class Indent
     # Array containing all the indentation levels.
-    attr_reader :stack
+    attr_reader :indent_level
 
     # The amount of spaces to insert for each indent level.
     SPACES = '  '
@@ -42,9 +42,9 @@ class Pry
     # not the next line)
     STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float]
 
-    # Collection of tokens that should only increase the indentation level of
-    # the next line.
-    OPEN_TOKENS_NEXT = ['else', 'elsif']
+    # Collection of tokens that should appear dedented even though they
+    # don't affect the surrounding code.
+    MIDWAY_TOKENS = ['else', 'elsif']
 
     def initialize
       reset
@@ -53,13 +53,8 @@ class Pry
     # reset internal state
     def reset
       @stack = []
+      @indent_level = ''
       self
-    end
-
-    # The current indentation prefix
-    # @return [String]
-    def indent_level
-      @stack.last || ''
     end
 
     # Indents a string and returns it. This string can either be a single line
@@ -98,7 +93,7 @@ class Pry
         prefix += SPACES * after
       end
 
-      @stack = [prefix]
+      @indent_level = prefix
 
       return output.gsub(/\s+$/, '')
     end
@@ -117,46 +112,54 @@ class Pry
     # @return [Array[Integer]]
     #
     def indentation_delta(tokens)
-      @useful_stack ||= []
-      seen_for = false
+
+      # We need to keep track of whether we've seen a "for" on this line because
+      # if the line ends with "do" then that "do" should be discounted (i.e. we're
+      # only opening one level not two) To do this robustly we want to keep track
+      # of the indent level at which we saw the for, so we can differentiate
+      # between "for x in [1,2,3] do" and "for x in ([1,2,3].map do" properly
+      seen_for_at = []
+
+      # When deciding whether an "if" token is the start of a multiline statement,
+      # or just the middle of a single-line if statement, we just look at the
+      # preceding token, which is tracked here.
       last_token, last_kind = [nil, nil]
 
-      depth = 0
-      before, after = [0, 0]
+      # delta keeps track of the total difference from the start of each line after
+      # the given token, 0 is just the level at which the current line started for
+      # reference.
+      remove_before, add_after = [0, 0]
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
+        is_singleline_if  = (token == "if" || token == "while") && end_of_statement?(last_token, last_kind)
+        is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
-        is_singleline_if = (token == "if" || token == "while") && end_of_statement?(last_token, last_kind)
         last_token, last_kind = token, kind unless kind == :space
-
         next if IGNORE_TOKENS.include?(kind)
 
-        # handle the optional "do" on for statements.
-        seen_for ||= token == "for"
+        seen_for_at << add_after if token == "for"
 
-        if OPEN_TOKENS.keys.include?(token) && (token != "do" || !seen_for) && !is_singleline_if
-          @useful_stack << token
-          depth += 1
-          after += 1
-        elsif token == OPEN_TOKENS[@useful_stack.last]
-          @useful_stack.pop
-          depth -= 1
-          if depth < 0
-            before += 1
+        if OPEN_TOKENS.keys.include?(token) && !is_optional_do && !is_singleline_if
+          @stack << token
+          add_after += 1
+        elsif token == OPEN_TOKENS[@stack.last]
+          @stack.pop
+          if add_after == 0
+            remove_before += 1
           else
-            after -= 1
+            add_after -= 1
           end
-        elsif OPEN_TOKENS_NEXT.include?(token)
-          if depth <= 0
-            before += 1
-            after += 1
+        elsif MIDWAY_TOKENS.include?(token)
+          if add_after == 0
+            remove_before += 1
+            add_after += 1
           end
         end
       end
 
-      return [before, after]
+      return [remove_before, add_after]
     end
 
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
