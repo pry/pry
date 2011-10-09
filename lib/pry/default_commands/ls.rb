@@ -133,9 +133,6 @@ class Pry
       command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
               :shellwords => false, :interpolate => false do |*args|
 
-        # have we been passed any options about what to show (exclude q and v because they're just tweaks)
-        has_opts = args.first && args.any?{ |arg| arg.start_with?("-") && arg.tr("-qv", "") != "" }
-
         opts = Slop.parse!(args, :strict => true) do |opt|
           opt.banner unindent <<-USAGE
             Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
@@ -162,16 +159,24 @@ class Pry
 
           opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
 
+          opt.on :G, "grep", "Filter output by regular expression", :optional => false
+
           opt.on :h, "help", "Show help"
         end
 
         next output.puts(opts) if opts.h?
 
         obj = args.empty? ? target_self : target.eval(args.join(" "))
+
+        # exclude -q, -v and --grep because they don't specify what the user wants to see.
+        has_opts = (opts.m? || opts.M? || opts.p? || opts.g? || opts.l? || opts.c? || opts.i?)
+
         show_methods   = opts.m? || opts.M? || opts.p? || !has_opts
         show_constants = opts.c? || (!has_opts && (Module === obj || TOPLEVEL_BINDING.eval('self') == obj))
         show_ivars     = opts.i? || !has_opts
         show_locals    = opts.l? || (!has_opts && args.empty?)
+
+        grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
 
         raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.l? && !args.empty?
         raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.g? && !args.empty?
@@ -179,15 +184,16 @@ class Pry
         raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.M? && !(Module === obj)
         raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.c? && !args.empty? && !(Module === obj)
 
+
         if opts.g?
-          output_section("global variables", format_globals(target.eval("global_variables")))
+          output_section("global variables", grep[format_globals(target.eval("global_variables"))])
         end
 
         if show_constants
           mod = Module === obj ? obj : Object
           constants = mod.constants
           constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.v?
-          output_section("constants", format_constants(mod, constants))
+          output_section("constants", grep[format_constants(mod, constants)])
         end
 
         if show_methods
@@ -196,18 +202,19 @@ class Pry
 
           # reverse the resolution order so that the most useful information appears right by the prompt
           resolution_order(obj, opts).take_while(&below_ceiling(obj, opts)).reverse.each do |klass|
-            output_section "#{class_name(klass)} methods", format_methods(methods[klass] || [])
+            methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
+            output_section "#{class_name(klass)} methods", methods_here
           end
         end
 
         if show_ivars
           klass = (Module === obj ? obj : obj.class)
-          output_section("instance variables", format_variables(:instance_var, obj.__send__(:instance_variables)))
-          output_section("class variables", format_variables(:class_var, klass.__send__(:class_variables)))
+          output_section("instance variables", format_variables(:instance_var, grep[obj.__send__(:instance_variables)]))
+          output_section("class variables", format_variables(:class_var, grep[klass.__send__(:class_variables)]))
         end
 
         if show_locals
-          output_section("locals", format_locals(target.eval("local_variables")))
+          output_section("locals", format_locals(grep[target.eval("local_variables")]))
         end
       end
     end

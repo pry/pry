@@ -89,6 +89,16 @@ describe "ls" do
     end
   end
 
+  describe "grep" do
+    it "should reduce the number of outputted things" do
+      mock_pry("ls -c").should =~ /ArgumentError/
+      mock_pry("ls -c --grep Run").should.not =~ /ArgumentError/
+    end
+    it "should still output matching things" do
+      mock_pry("ls -c --grep Run").should =~ /RuntimeError/
+    end
+  end
+
   describe "when no arguments given" do
     describe "when at the top-level" do
       it "should show constants" do
