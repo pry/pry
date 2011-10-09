@@ -149,4 +149,25 @@ TXT
 
     @indent.indent(input).should == output
   end
+
+  it "should indent correctly with nesting" do
+    @indent.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
+    @indent.reset.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
+    @indent.reset.indent("[[{\n[] =>\n[]}]\n]").should == "[[{\n      [] =>\n  []}]\n]"
+  end
+
+  it "should not indent single-line ifs" do
+    @indent.indent("foo if bar\n#").should == "foo if bar\n#"
+    @indent.reset.indent("foo() if bar\n#").should == "foo() if bar\n#"
+    @indent.reset.indent("foo 'hi' if bar\n#").should == "foo 'hi' if bar\n#"
+    @indent.reset.indent("foo 1 while bar\n#").should == "foo 1 while bar\n#"
+  end
+
+  it "should indent cunningly disguised ifs" do
+    @indent.indent("{1 => if bar\n#").should == "{1 => if bar\n    #"
+    @indent.reset.indent("foo(if bar\n#").should == "foo(if bar\n    #"
+    @indent.reset.indent("bar(baz, if bar\n#").should == "bar(baz, if bar\n    #"
+    @indent.reset.indent("[if bar\n#").should == "[if bar\n    #"
+    @indent.reset.indent("true; while bar\n#").should == "true; while bar\n  #"
+  end
 end

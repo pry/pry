@@ -32,6 +32,7 @@ class Pry
       'for'    => 'end',
       '['      => ']',
       '{'      => '}',
+      '('      => ')'
     }
 
     # Collection of tokens that decrease the indentation level.
@@ -41,6 +42,11 @@ class Pry
     # keywords such as "class" inside strings would cause the code to be
     # indented incorrectly.
     IgnoreTokens = [:space, :content, :string, :delimiter, :method, :ident]
+
+    # Tokens that indicate the end of a statement (i.e. that, if they appear
+    # directly before an "if" indicates that that if applies to the same line,
+    # not the next line)
+    EndOfStatementTokens = IgnoreTokens + [:regexp, :integer, :float]
 
     # Collection of tokens that should only increase the indentation level of
     # the next line.
@@ -62,12 +68,13 @@ class Pry
     # Get rid of all indentation
     def reset
       @stack.clear
+      self
     end
 
     ##
     # The current indentation level (number of spaces deep)
     def indent_level
-      @stack.last
+      @stack.last || ''
     end
 
     ##
@@ -97,59 +104,22 @@ class Pry
     def indent(input)
       output      = ''
       open_tokens = OpenTokens.keys
+      prefix = indent_level
 
       input.lines.each do |line|
-        # Remove manually added indentation.
-        line   = line.strip + "\n"
+
         tokens = CodeRay.scan(line, :ruby)
 
-        unless @stack.empty?
-          line = @stack[-1] + line
-        end
+        before, after = indentation_delta(tokens, prefix)
 
-        tokens.each do |token, kind|
-          next if IgnoreTokens.include?(kind)
-
-          if OpenTokensNext.include?(token) and @stack[-1]
-            line.sub!(@stack[-1], '')
-            break
-          # Start token found (such as "class"). Update the stack and indent the
-          # current line.
-          elsif open_tokens.include?(token)
-            # Skip indentation if there's a matching closing token on the same
-            # line.
-            next if skip_indentation?(tokens, token)
-
-            add  = ''
-            last = @stack[-1]
-
-            # Determine the amount of spaces to add to the stack and the line.
-            unless last.nil?
-              add = Spaces + last
-            end
-
-            # Don't forget to update the current line.
-            if @stack.empty?
-              line  = add + line
-              add  += Spaces
-            end
-
-            @stack.push(add)
-            break
-          # Stop token found. Remove the last number of spaces from the stack
-          # and un-indent the current line.
-          elsif ClosingTokens.include?(token)
-            @stack.pop
-
-            line = ( @stack[-1] || '' ) + line.strip + "\n"
-            break
-          end
-        end
-
-        output += line
+        prefix.sub!(Spaces * before, '')
+        output += prefix + line.strip + "\n"
+        prefix += Spaces * after
       end
 
-      return output.gsub!(/\s+$/, '')
+      @stack = [prefix]
+
+      return output.gsub(/\s+$/, '')
     end
 
     ##
@@ -165,36 +135,56 @@ class Pry
     #  be included in the list of tokens.
     # @return [Boolean]
     #
-    def skip_indentation?(tokens, open_token)
+    def indentation_delta(tokens, open_token)
       closing = OpenTokens[open_token]
       open    = OpenTokens.keys
-      depth   = 0
+
+      @useful_stack ||= []
+      seen_for = false
+      last_token, last_kind = [nil, nil]
+
+      depth = 0
+      before, after = [0, 0]
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
+
+        is_singleline_if = (token == "if" || token == "while") && end_of_statement?(last_token, last_kind)
+        last_token, last_kind = token, kind unless kind == :space
+
         next if IgnoreTokens.include?(kind)
 
-        # Skip the indentation if we've found a matching closing token.
-        if token == closing
-          depth -= 1
-        # Sometimes a line contains a matching closing token followed by another
-        # open token. In this case the line *should* be indented. An example of
-        # this is the following:
-        #
-        # [10, 15].each do |num|
-        #   puts num
-        # end
-        #
-        # Here we have an open token (the "[") as well as it's closing token
-        # ("]"). However, there's also a "do" which indicates that the next
-        # line *should* be indented.
-        elsif open.include?(token)
+        # handle the optional "do" on for statements.
+        seen_for ||= token == "for"
+
+        if OpenTokens.keys.include?(token) && (token != "do" || !seen_for) && !is_singleline_if
+          @useful_stack << token
           depth += 1
+          after += 1
+        elsif token == OpenTokens[@useful_stack.last]
+          @useful_stack.pop
+          depth -= 1
+          if depth < 0
+            before += 1
+          else
+            after -= 1
+          end
+        elsif OpenTokensNext.include?(token)
+          if depth <= 0
+            before += 1
+            after += 1
+          end
         end
       end
 
-      return depth <= 0
+      return [before, after]
+    end
+
+    # If the code just before an "if" or "while" token on a line looks like the end of a statement,
+    # then we want to treat that "if" as a singleline, not multiline statement.
+    def end_of_statement?(last_token, last_kind)
+      (last_token =~ /^[)\]}\/]$/ || EndOfStatementTokens.include?(last_kind))
     end
 
     ##
