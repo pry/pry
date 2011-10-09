@@ -169,18 +169,19 @@ class Pry
       (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
-    # Fix the indentation for closing tags (notably 'end'). Note that this
-    # method will not work on Win32 based systems (or other systems that don't
-    # have the tput command).
+    # Fix the indentation for closing tags (notably 'end'). This method currently
+    # does nothing on Windows, since `tput` isn't supported.
     #
     # @param [String] full_line The full line of input, including the prompt.
     #
     def correct_indentation(full_line)
-      # The whitespace is used to "clear" the current line so existing
-      # characters don't show up.
-      spaces = ' ' * full_line.length
+      if !Kernel.const_defined?(:Win32)
+        # The whitespace is used to "clear" the current line so existing
+        # characters don't show up.
+        spaces = ' ' * full_line.length
 
-      $stdout.write(`tput sc` + `tput cuu1` + full_line + spaces + `tput rc`)
+        $stdout.write(`tput sc` + `tput cuu1` + full_line + spaces + `tput rc`)
+      end
     end
   end
 end

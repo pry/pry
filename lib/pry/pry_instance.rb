@@ -301,7 +301,6 @@ class Pry
       @indent.reset if Pry.config.auto_indent
       ""
     else
-
       # Change the eval_string into the input encoding (Issue 284)
       # TODO: This wouldn't be necessary if the eval_string was constructed from
       # input strings only.
@@ -309,16 +308,12 @@ class Pry
         eval_string.force_encoding(val.encoding)
       end
 
-      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent
+      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && input == Readline
         val = @indent.indent(val)
-
-        # Refresh the current line. This uses tput and since that doesn't work
-        # on Windows this process will not be executed on that platform.
-        if !Kernel.const_defined?(:Win32) && input == Readline
-          @indent.correct_indentation(current_prompt + val)
-        end
+        @indent.correct_indentation(current_prompt + val)
       end
 
+      Pry.history << val.dup
       val
     end
   end
@@ -443,9 +438,7 @@ class Pry
 
     handle_read_errors do
       if input == Readline
-        line = input.readline(current_prompt, false)
-        Pry.history << line.dup if line
-        line
+        input.readline(current_prompt, false) # false since we'll add it manually
       else
         if input.method(:readline).arity == 1
           input.readline(current_prompt)
