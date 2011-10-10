@@ -66,7 +66,7 @@ class Pry
       end
 
       def use_ansi_codes?
-        ENV['TERM'] != "dumb"
+        ENV['TERM'] && ENV['TERM'] != "dumb"
       end
 
       def colorize_code(code)
