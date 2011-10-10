@@ -290,8 +290,9 @@ class Pry
     @indent.reset if eval_string.empty?
 
     current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
+    indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
-    val = readline(current_prompt)
+    val = readline(current_prompt + indentation)
 
     # exit session if we receive EOF character (^D)
     if !val
@@ -309,9 +310,10 @@ class Pry
       end
 
       if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && input == Readline
+        orig_val = "#{indentation}#{val}"
         val = @indent.indent(val)
 
-        if output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes?
+        if orig_val != val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes?
           output.print @indent.correct_indentation(current_prompt + val)
         end
       end
@@ -437,8 +439,6 @@ class Pry
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
   def readline(current_prompt="> ")
-    current_prompt += @indent.indent_level || '' if Pry.config.auto_indent
-
     handle_read_errors do
       if input == Readline
         input.readline(current_prompt, false) # false since we'll add it manually
