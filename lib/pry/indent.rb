@@ -25,13 +25,19 @@ class Pry
       'module' => 'end',
       'do'     => 'end',
       'if'     => 'end',
+      'unless' => 'end',
       'while'  => 'end',
+      'until'  => 'end',
       'for'    => 'end',
       'case'   => 'end',
       '['      => ']',
       '{'      => '}',
       '('      => ')'
     }
+
+    # Which tokens can either be open tokens, or appear as modifiers on
+    # a single-line.
+    SINGLELINE_TOKENS = %w(if while until unless)
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
@@ -135,7 +141,7 @@ class Pry
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
-        is_singleline_if  = (token == "if" || token == "while") && end_of_statement?(last_token, last_kind)
+        is_singleline_if  = (SINGLELINE_TOKENS.include?(token)) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
         last_token, last_kind = token, kind unless kind == :space
