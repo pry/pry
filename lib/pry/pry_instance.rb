@@ -314,7 +314,7 @@ class Pry
         val = @indent.indent(val)
 
         if orig_val != val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes?
-          output.print @indent.correct_indentation(current_prompt + val)
+          output.print @indent.correct_indentation(current_prompt + val, orig_val.length - val.length)
         end
       end
 

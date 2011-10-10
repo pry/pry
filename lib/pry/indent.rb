@@ -174,8 +174,10 @@ class Pry
     # the correct indentation. Mostly useful for fixing 'end'.
     #
     # @param [String] full_line The full line of input, including the prompt.
+    # @param [Fixnum] overhang (0) The number of chars to erase afterwards (i.e.,
+    #   the difference in length between the old line and the new one).
     # @return [String]
-    def correct_indentation(full_line)
+    def correct_indentation(full_line, overhang=0)
       if Readline.respond_to?(:get_screen_size)
         _, cols = Readline.get_screen_size
         lines = full_line.length / cols + 1
@@ -186,11 +188,11 @@ class Pry
         lines = 1
       end
 
-      move_up   = "\e[#{lines}F"
-      kill_line = "\e[0K"
-      move_down = "\e[#{lines}E"
+      move_up    = "\e[#{lines}F"
+      whitespace = ' ' * overhang
+      move_down  = "\e[#{lines}E"
 
-      "#{move_up}#{full_line}#{kill_line}#{move_down}"
+      "#{move_up}#{full_line}#{whitespace}#{move_down}"
     end
   end
 end
