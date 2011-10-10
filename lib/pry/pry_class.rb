@@ -2,7 +2,6 @@ require 'ostruct'
 require 'forwardable'
 require 'pry/config'
 
-# @author John Mair (banisterfiend)
 class Pry
 
   # The RC Files to load.
