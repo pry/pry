@@ -50,6 +50,16 @@ class Pry
           Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
         end
 
+        # Returns _text_ in the default foreground colour.
+        # Use this instead of "black" or "white" when you mean absence of colour.
+        #
+        # @param [String, #to_s]
+        # @return [String] _text_
+        def default(text)
+          text.to_s
+        end
+        alias_method :bright_default, :bold
+
         # Executes _block_ with _Pry.color_ set to false.
         #
         # @param [Proc]
