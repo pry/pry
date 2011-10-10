@@ -204,4 +204,12 @@ TXT
     @indent.reset.indent("[if bar\n#").should == "[if bar\n    #"
     @indent.reset.indent("true; while bar\n#").should == "true; while bar\n  #"
   end
+
+  it "should differentiate single/multi-line unless" do
+    @indent.indent("foo unless bar\nunless foo\nbar\nend").should == "foo unless bar\nunless foo\n  bar\nend"
+  end
+
+  it "should not indent single/multi-line until" do
+    @indent.indent("%w{baz} until bar\nuntil foo\nbar\nend").should == "%w{baz} until bar\nuntil foo\n  bar\nend"
+  end
 end
