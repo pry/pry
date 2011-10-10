@@ -87,6 +87,11 @@ describe "ls" do
     it "should show constants defined on ancestors with -v" do
       mock_pry("class TempFoo4; LHGRAB = 1; end; class TempFoo5 < TempFoo4; BARGHL = 1; end", "ls -v TempFoo5").should =~ /LHGRAB/
     end
+
+    it "should not autoload constants!" do
+      autoload :McflurgleTheThird, "/tmp/this-file-d000esnat-exist.rb"
+      lambda{ mock_pry("ls -c") }.should.not.raise
+    end
   end
 
   describe "grep" do

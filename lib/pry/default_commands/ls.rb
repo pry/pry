@@ -84,7 +84,7 @@ class Pry
 
         def format_constants(mod, constants)
           constants.sort_by(&:downcase).map do |name|
-            if const = (mod.const_get(name) rescue nil)
+            if const = (!mod.autoload?(name) && mod.const_get(name) rescue nil)
               if (const < Exception rescue false)
                 color(:exception_constant, name)
               elsif (Module === mod.const_get(name) rescue false)
