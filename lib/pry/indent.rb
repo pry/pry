@@ -176,9 +176,17 @@ class Pry
     # @param [String] full_line The full line of input, including the prompt.
     # @return [String]
     def correct_indentation(full_line)
-      rws, cols = Readline.get_screen_size
-      lines     = full_line.length / cols
-      move_up   = "\e[#{lines+1}F"
+      if Readline.respond_to?(:get_screen_size)
+        _, cols = Readline.get_screen_size
+        lines = full_line.length / cols + 1
+      elsif ENV['COLUMNS'] && ENV['COLUMNS'] != ''
+        cols = ENV['COLUMNS'].to_i
+        lines = full_line.length / cols + 1
+      else
+        lines = 1
+      end
+
+      move_up   = "\e[#{lines}F"
       kill_line = "\e[0K"
       move_down = "\e[#{lines}E"
 
