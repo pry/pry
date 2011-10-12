@@ -533,7 +533,8 @@ class Pry
     #   valid_expression?("class Hello") #=> false
     #   valid_expression?("class Hello; end") #=> true
     def valid_expression?(code)
-      RubyParser.new.parse(code)
+      # NOTE: we're using .dup because RubyParser mutates the input
+      RubyParser.new.parse(code.dup)
       true
     rescue Racc::ParseError, SyntaxError
       false

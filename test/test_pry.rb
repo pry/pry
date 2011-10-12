@@ -207,6 +207,15 @@ describe Pry do
         end
       end
 
+      describe "valid_expression?" do
+        it "should not mutate the input!" do
+          clean = "puts <<-FOO\nhi\nFOO\n"
+          a = clean.dup
+          Pry.new.valid_expression?(a)
+          a.should == clean
+        end
+      end
+
       describe "history arrays" do
         it 'sets _ to the last result' do
           res   = []
