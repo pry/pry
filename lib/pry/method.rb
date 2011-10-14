@@ -265,6 +265,18 @@ class Pry
       "#{name}(#{args.join(', ')})"
     end
 
+    # @return [Pry::Method, nil] The wrapped method that get's called when you
+    #   use "super" in the body of this method.
+    def super(times=1)
+      if respond_to?(:receiver)
+        sup = super_using_ancestors(Pry::Method.resolution_order(receiver), times)
+        sup &&= sup.bind(receiver)
+      else
+        sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
+      end
+      Pry::Method.new(sup) if sup
+    end
+
     # @return [Boolean] Was the method defined outside a source file?
     def dynamically_defined?
       !!(source_file and source_file =~ /(\(.*\))|<.*>/)
@@ -332,6 +344,17 @@ class Pry
       # @return [String]
       def strip_leading_whitespace(text)
         Pry::Helpers::CommandHelpers.unindent(text)
+      end
+
+      # @param [Class,Module] the ancestors to investigate
+      # @return [Method] the unwrapped super-method
+      def super_using_ancestors(ancestors, times=1)
+        next_owner = self.owner
+        times.times do
+          next_owner = ancestors[ancestors.index(next_owner) + 1]
+          return nil unless next_owner
+        end
+        next_owner.instance_method(name) rescue nil
       end
   end
 end
