@@ -20,10 +20,10 @@ class Pry
       def from_str(name, target=TOPLEVEL_BINDING, options={})
         if name.nil?
           from_binding(target)
-        elsif name.to_s =~ /(\S+)\#(\S+)\Z/
+        elsif name.to_s =~ /(.+)\#(\S+)\Z/
           context, meth_name = $1, $2
           from_module(target.eval(context), meth_name)
-        elsif name.to_s =~ /(\S+)\.(\S+)\Z/
+        elsif name.to_s =~ /(.+)\.(\S+)\Z/
           context, meth_name = $1, $2
           from_obj(target.eval(context), meth_name)
         elsif options[:instance]
@@ -74,14 +74,88 @@ class Pry
       def from_obj(obj, name)
         new(obj.method(name)) rescue nil
       end
+
+      # Get all of the instance methods of a `Class` or `Module`
+      # @param [Class,Module] klass
+      # @return [Array[Pry::Method]]
+      def all_from_class(klass)
+        all_from_common(klass, :instance_method)
+      end
+
+      # Get all of the methods on an `Object`
+      # @param [Object] obj
+      # @return [Array[Pry::Method]]
+      def all_from_obj(obj)
+        all_from_common(obj, :method)
+      end
+
+      # Get every `Class` and `Module`, in order, that will be checked when looking
+      # for an instance method to call on this object.
+      # @param [Object] obj
+      # @return [Array[Class, Module]]
+      def resolution_order(obj)
+        if obj.is_a?(Class)
+          singleton_class_resolution_order(obj) + instance_resolution_order(Class)
+        else
+          klass = singleton_class(obj) rescue obj.class
+          instance_resolution_order(klass)
+        end
+      end
+
+      # Get every `Class` and `Module`, in order, that will be checked when looking
+      # for methods on instances of the given `Class` or `Module`.
+      # This does not treat singleton classes of classes specially.
+      # @param [Class, Module] klass
+      # @return [Array[Class, Module]]
+      def instance_resolution_order(klass)
+        # include klass in case it is a singleton class,
+        ([klass] + klass.ancestors).uniq
+      end
+
+      private
+
+      # See all_from_class and all_from_obj.
+      # If method_type is :instance_method, obj must be a `Class` or a `Module`
+      # If method_type is :method, obj can be any `Object`
+      #
+      # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
+      def all_from_common(obj, method_type)
+        %w(public protected private).map do |visibility|
+          obj.__send__(:"#{visibility}_#{method_type}s").map do |method_name|
+            new(obj.__send__(method_type, method_name), :visibility => visibility.to_sym)
+          end
+        end.flatten(1)
+      end
+
+      # Get the singleton classes of superclasses that could define methods on
+      # the given class object, and any modules they include.
+      # If a module is included at multiple points in the ancestry, only
+      # the lowest copy will be returned.
+      def singleton_class_resolution_order(klass)
+        resolution_order = klass.ancestors.map do |anc|
+          [singleton_class(anc)] + singleton_class(anc).included_modules if anc.is_a?(Class)
+        end.compact.flatten(1)
+
+        resolution_order.reverse.uniq.reverse - Class.included_modules
+      end
+
+      def singleton_class(obj); class << obj; self; end end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
     #
     # @param [::Method, UnboundMethod, Proc] method
+    # @param [Hash] known_info, can be used to pre-cache expensive to compute stuff.
     # @return [Pry::Method]
-    def initialize(method)
+    def initialize(method, known_info={})
       @method = method
+      @visibility = known_info[:visibility]
+    end
+
+    # Get the name of the method as a String, regardless of the underlying Method#name type.
+    # @return [String]
+    def name
+      @method.name.to_s
     end
 
     # @return [String, nil] The source code of the method, or `nil` if it's unavailable.
@@ -156,15 +230,15 @@ class Pry
     # @return [Symbol] The visibility of the method. May be `:public`,
     #   `:protected`, or `:private`.
     def visibility
-      if owner.public_instance_methods.include?(name)
-        :public
-      elsif owner.protected_instance_methods.include?(name)
-        :protected
-      elsif owner.private_instance_methods.include?(name)
-        :private
-      else
-        :none
-      end
+     @visibility ||= if owner.public_instance_methods.include?(name)
+                       :public
+                     elsif owner.protected_instance_methods.include?(name)
+                       :protected
+                     elsif owner.private_instance_methods.include?(name)
+                       :private
+                     else
+                       :none
+                     end
     end
 
     # @return [String] A representation of the method's signature, including its
@@ -189,6 +263,18 @@ class Pry
       end
 
       "#{name}(#{args.join(', ')})"
+    end
+
+    # @return [Pry::Method, nil] The wrapped method that get's called when you
+    #   use "super" in the body of this method.
+    def super(times=1)
+      if respond_to?(:receiver)
+        sup = super_using_ancestors(Pry::Method.resolution_order(receiver), times)
+        sup &&= sup.bind(receiver)
+      else
+        sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
+      end
+      Pry::Method.new(sup) if sup
     end
 
     # @return [Boolean] Was the method defined outside a source file?
@@ -258,6 +344,17 @@ class Pry
       # @return [String]
       def strip_leading_whitespace(text)
         Pry::Helpers::CommandHelpers.unindent(text)
+      end
+
+      # @param [Class,Module] the ancestors to investigate
+      # @return [Method] the unwrapped super-method
+      def super_using_ancestors(ancestors, times=1)
+        next_owner = self.owner
+        times.times do
+          next_owner = ancestors[ancestors.index(next_owner) + 1]
+          return nil unless next_owner
+        end
+        next_owner.instance_method(name) rescue nil
       end
   end
 end

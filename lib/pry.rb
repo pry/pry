@@ -1,5 +1,6 @@
 # (C) John Mair (banisterfiend) 2011
 # MIT License
+#
 
 require 'pp'
 require 'pry/helpers/base_helpers'

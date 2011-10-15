@@ -129,13 +129,21 @@ class Pry
   private :initialize_special_locals
 
   def inject_special_locals(target)
-    inject_local("_in_", @input_array, target)
-    inject_local("_out_", @output_array, target)
-    inject_local("_pry_", self, target)
-    inject_local("_ex_", self.last_exception, target)
-    inject_local("_file_", self.last_file, target)
-    inject_local("_dir_", self.last_dir, target)
-    inject_local("_", self.last_result, target)
+    special_locals.each_pair do |name, value|
+      inject_local(name, value, target)
+    end
+  end
+
+  def special_locals
+    {
+      :_in_ => @input_array,
+      :_out_ => @output_array,
+      :_pry_ => self,
+      :_ex_ => last_exception,
+      :_file_ => last_file,
+      :_dir_ => last_dir,
+      :_ => last_result
+    }
   end
 
   # Initialize the repl session.

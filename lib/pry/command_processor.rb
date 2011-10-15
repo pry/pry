@@ -126,7 +126,11 @@ class Pry
       # remove the one leading space if it exists
       arg_string.slice!(0) if arg_string.start_with?(" ")
 
-      args = arg_string ? Shellwords.shellwords(arg_string) : []
+      if arg_string
+        args = command.options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
+      else
+        args = []
+      end
 
       options = {
         :val => val,
@@ -164,7 +168,10 @@ class Pry
 
       context.command_processor = self
 
-      ret = commands.run_command(context, command, *args)
+      ret = nil
+      catch(:command_done) do
+        ret = commands.run_command(context, command, *args)
+      end
 
       options[:val].replace("")
 

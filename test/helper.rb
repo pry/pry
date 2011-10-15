@@ -94,11 +94,14 @@ def redirect_pry_io(new_in, new_out = StringIO.new)
 end
 
 def mock_pry(*args)
+
+  binding = args.first.is_a?(Binding) ? args.shift : binding()
+
   input = InputTester.new(*args)
   output = StringIO.new
 
   redirect_pry_io(input, output) do
-    Pry.start
+    binding.pry
   end
 
   output.string
