@@ -7,7 +7,7 @@ class Pry
         run ".ri", *args
       end
 
-      command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
+      command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
         target = target()
 
         opts = parse_options!(args, :method_object => true) do |opt|
@@ -34,7 +34,7 @@ class Pry
 
       alias_command "?", "show-doc"
 
-      command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
+      command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
         target = target()
 
         opts = parse_options!(args, :method_object => true) do |opt|
@@ -60,7 +60,7 @@ class Pry
         EOS
       end
 
-      command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist" do |*args|
+      command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist", :shellwords => false do |*args|
         require 'gist'
 
         target = target()
