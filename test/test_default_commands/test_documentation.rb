@@ -10,16 +10,6 @@ describe "Pry::DefaultCommands::Documentation" do
 
       str_output.string.should =~ /sample doc/
     end
-    
-    it 'should output multiple methods\' documentation' do
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-doc sample_method another_sample_method", "exit-all"), str_output) do
-        pry
-      end
-
-      str_output.string.should =~ /sample doc/
-      str_output.string.should =~ /another sample doc/
-    end
 
     it 'should output a method\'s documentation if inside method without needing to use method name' do
       $str_output = StringIO.new

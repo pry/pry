@@ -10,45 +10,26 @@ class Pry
       command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?" do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opt|
+        opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
-            Usage: show-doc [OPTIONS] [METH 1] [METH 2] [METH N]
+            Usage: show-doc [OPTIONS] [METH]
             Show the comments above method METH. Tries instance methods first and then methods by default.
             e.g show-doc hello_method
           USAGE
 
-          opt.on :M, "instance-methods", "Operate on instance methods."
-          opt.on :m, :methods, "Operate on methods."
-          opt.on :c, :context, "Select object context to run under.", true do |context|
-            target = Pry.binding_for(target.eval(context))
-          end
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :h, :help, "This message." do
-            output.puts opt
-          end
         end
-
         next if opts.help?
 
-        args = [nil] if args.empty?
-        args.each do |method_name|
-          begin
-            meth = get_method_or_raise(method_name, target, opts.to_hash(true))
-          rescue CommandError => e
-            puts "\nError: #{e.message}"
-            next
-          end
+        meth = opts[:method_object]
+        raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
 
-          next output.puts("No documentation found.") if meth.doc.nil? || meth.doc.empty?
-
-          doc = process_comment_markup(meth.doc, meth.source_type)
-          output.puts make_header(meth, doc)
-          output.puts "#{text.bold("visibility: ")} #{meth.visibility}"
-          output.puts "#{text.bold("signature:  ")} #{meth.signature}"
-          output.puts
-          render_output(opts.flood?, false, doc)
-          doc
-        end
+        doc = process_comment_markup(meth.doc, meth.source_type)
+        output.puts make_header(meth, doc)
+        output.puts "#{text.bold("visibility: ")} #{meth.visibility}"
+        output.puts "#{text.bold("signature:  ")} #{meth.signature}"
+        output.puts
+        render_output(opts.flood?, false, doc)
       end
 
       alias_command "?", "show-doc"
@@ -56,27 +37,16 @@ class Pry
       command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info." do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opt|
+        opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
             e.g: stat hello_method
           USAGE
-
-          opt.on :M, "instance-methods", "Operate on instance methods."
-          opt.on :m, :methods, "Operate on methods."
-          opt.on :c, :context, "Select object context to run under.", true do |context|
-            target = Pry.binding_for(target.eval(context))
-          end
-          opt.on :h, :help, "This message" do
-            output.puts opt
-          end
         end
-
         next if opts.help?
 
-        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
-
+        meth = opts[:method_object]
         output.puts unindent <<-EOS
           Method Information:
           --
@@ -95,7 +65,7 @@ class Pry
 
         target = target()
 
-        opts = Slop.parse!(args) do |opt|
+        opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
             Usage: gist-method [OPTIONS] [METH]
             Gist the method (doc or source) to github.
@@ -104,18 +74,12 @@ class Pry
             e.g: gist -d my_method
           USAGE
 
-          opt.on :m, :method, "Gist a method's source."
           opt.on :d, :doc, "Gist a method's documentation."
           opt.on :p, :private, "Create a private gist (default: true)", :default => true
-          opt.on :h, :help, "This message" do
-            output.puts opt
-          end
         end
-
         next if opts.help?
 
-        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
-
+        meth = opts[:method_object]
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?
           content = meth.source
