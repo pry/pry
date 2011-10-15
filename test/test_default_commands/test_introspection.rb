@@ -254,16 +254,6 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /def sample/
     end
 
-    it 'should output multiple methods\' sources' do
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-method sample_method another_sample_method", "exit-all"), str_output) do
-        pry
-      end
-
-      str_output.string.should =~ /def sample/
-      str_output.string.should =~ /def another_sample/
-    end
-
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
@@ -310,6 +300,20 @@ describe "Pry::DefaultCommands::Introspection" do
 
       $str_output.string.should =~ /\d+: def o.sample/
       $str_output = nil
+    end
+
+    it "should find methods even if there are spaces in the arguments" do
+      o = Object.new
+      def o.foo(*bars);
+        "Mr flibble"
+        self;
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("show-method o.foo('bar', 'baz bam').foo", "exit-all"), str_output) do
+        binding.pry
+      end
+      str_output.string.should =~ /Mr flibble/
     end
 
     # dynamically defined method source retrieval is only supported in

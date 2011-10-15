@@ -2,6 +2,7 @@ class Pry
   module Helpers
 
     module CommandHelpers
+      include OptionsHelpers
 
       module_function
 
@@ -28,15 +29,29 @@ class Pry
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)
-        if (meth = Pry::Method.from_str(name, target, opts))
-          set_file_and_dir_locals(meth.source_file)
-          meth
-        else
-          # FIXME: better/more accurate error handling
-          message = "The method '#{name}' could not be found."
-          message << " Type `#{command_name} --help` for help." unless omit_help
-          raise CommandError, message
+        meth = Pry::Method.from_str(name, target, opts)
+
+        if name && !meth
+          command_error("The method '#{name}' could not be found.", omit_help)
+        elsif !meth
+          command_error("No method name given, and context is not a method.", omit_help)
         end
+
+        (opts[:super] || 0).times do
+          if meth.super
+            meth = meth.super
+          else
+            command_error("The method '#{meth.name}' is not defined in a superclass of '#{class_name(meth.owner)}'.", omit_help)
+          end
+        end
+
+        set_file_and_dir_locals(meth.source_file)
+        meth
+      end
+
+      def command_error(message, omit_help)
+        message += " Type `#{command_name} --help` for help." unless omit_help
+        raise CommandError, message
       end
 
       def make_header(meth, content=meth.source)
