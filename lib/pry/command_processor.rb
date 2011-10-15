@@ -168,7 +168,10 @@ class Pry
 
       context.command_processor = self
 
-      ret = commands.run_command(context, command, *args)
+      ret = nil
+      catch(:command_done) do
+        ret = commands.run_command(context, command, *args)
+      end
 
       options[:val].replace("")
 

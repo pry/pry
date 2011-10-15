@@ -21,6 +21,7 @@ class Pry
           yield opt
           opt.on :h, :help, "This message" do
             output.puts opt
+            throw :command_done
           end
 
         end.tap do |opts|
