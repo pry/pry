@@ -6,58 +6,39 @@ class Pry
     Introspection = Pry::CommandSet.new do
 
       command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
-        target = target()
-
-        opts = Slop.parse!(args) do |opt|
+        opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
-            Usage: show-method [OPTIONS] [METH 1] [METH 2] [METH N]
+            Usage: show-method [OPTIONS] [METH]
             Show the source for method METH. Tries instance methods first and then methods by default.
             e.g: show-method hello_method
           USAGE
 
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
-
-          opt.on :M, "instance-methods", "Operate on instance methods."
-          opt.on :m, :methods, "Operate on methods."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :c, :context, "Select object context to run under.", true do |context|
-            target = Pry.binding_for(target.eval(context))
-          end
-          opt.on :h, :help, "This message." do
-            output.puts opt
-          end
         end
         next if opts.help?
-        opts[:instance] = opts['instance-methods'] if opts.m?
 
-        args = [nil] if args.empty?
-        args.each do |method_name|
-          begin
-            meth = get_method_or_raise(method_name, target, opts.to_hash(true))
-          rescue CommandError => e
-            puts "\nError: #{e.message}"
-            next
-          end
-          next unless meth.source
+        meth = opts[:method_object]
 
-          output.puts make_header(meth)
-          if Pry.color
-            code = CodeRay.scan(meth.source, meth.source_type).term
-          else
-            code = meth.source
-          end
+        raise CommandError, "Could not find method source" unless meth.source
 
-          start_line = false
-          if opts.b?
-            start_line = 1
-          elsif opts.l?
-            start_line = meth.source_line || 1
-          end
+        output.puts make_header(meth)
 
-          render_output(opts.flood?, start_line, code)
-          code
+        if Pry.color
+          code = CodeRay.scan(meth.source, meth.source_type).term
+        else
+          code = meth.source
         end
+
+        start_line = false
+        if opts.b?
+          start_line = 1
+        elsif opts.l?
+          start_line = meth.source_line || 1
+        end
+
+        render_output(opts.flood?, start_line, code)
       end
 
       alias_command "show-source", "show-method"
@@ -220,7 +201,7 @@ class Pry
       command "edit-method", "Edit a method. Type `edit-method --help` for more info." do |*args|
         target = target()
 
-        opts = Slop.parse!(args) do |opt|
+        opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
             Usage: edit-method [OPTIONS] [METH]
             Edit the method METH in an editor.
@@ -228,14 +209,9 @@ class Pry
             e.g: edit-method hello_method
           USAGE
 
-          opt.on :M, "instance-methods", "Operate on instance methods."
-          opt.on :m, :methods, "Operate on methods."
           opt.on :n, "no-reload", "Do not automatically reload the method's file after editing."
           opt.on "no-jump", "Do not fast forward editor to first line of method."
           opt.on :p, :patch, "Instead of editing the method's file, try to edit in a tempfile and apply as a monkey patch."
-          opt.on :c, :context, "Select object context to run under.", true do |context|
-            target = Pry.binding_for(target.eval(context))
-          end
           opt.on :h, :help, "This message." do
             output.puts opt
           end
@@ -246,7 +222,7 @@ class Pry
           raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
         end
 
-        meth = get_method_or_raise(args.shift, target, opts.to_hash(true))
+        meth = opts[:method_object]
 
         if opts.p? || meth.dynamically_defined?
           lines = meth.source.lines.to_a
