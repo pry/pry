@@ -5,7 +5,7 @@ class Pry
 
     Introspection = Pry::CommandSet.new do
 
-      command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source" do |*args|
+      command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source", :shellwords => false do |*args|
         opts = parse_options!(args, :method_object => true) do |opt|
           opt.banner unindent <<-USAGE
             Usage: show-method [OPTIONS] [METH]
@@ -198,7 +198,7 @@ class Pry
         end
       end
 
-      command "edit-method", "Edit a method. Type `edit-method --help` for more info." do |*args|
+      command "edit-method", "Edit a method. Type `edit-method --help` for more info.", :shellwords => false do |*args|
         target = target()
 
         opts = parse_options!(args, :method_object => true) do |opt|

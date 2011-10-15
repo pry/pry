@@ -302,6 +302,20 @@ describe "Pry::DefaultCommands::Introspection" do
       $str_output = nil
     end
 
+    it "should find methods even if there are spaces in the arguments" do
+      o = Object.new
+      def o.foo(*bars);
+        "Mr flibble"
+        self;
+      end
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("show-method o.foo('bar', 'baz bam').foo", "exit-all"), str_output) do
+        binding.pry
+      end
+      str_output.string.should =~ /Mr flibble/
+    end
+
     # dynamically defined method source retrieval is only supported in
     # 1.9 - where Method#source_location is native
     if RUBY_VERSION =~ /1.9/
