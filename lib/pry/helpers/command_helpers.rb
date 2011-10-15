@@ -32,12 +32,16 @@ class Pry
         if (meth = Pry::Method.from_str(name, target, opts))
           set_file_and_dir_locals(meth.source_file)
           meth
+        elsif name
+          command_error("The method '#{name}' could not be found.", omit_help)
         else
-          # FIXME: better/more accurate error handling
-          message = "The method '#{name}' could not be found."
-          message << " Type `#{command_name} --help` for help." unless omit_help
-          raise CommandError, message
+          command_error("No method name given, and context is not a method.", omit_help)
         end
+      end
+
+      def command_error(message, omit_help)
+        message += " Type `#{command_name} --help` for help." unless omit_help
+        raise CommandError, message
       end
 
       def make_header(meth, content=meth.source)
