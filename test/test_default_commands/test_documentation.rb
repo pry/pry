@@ -27,5 +27,28 @@ describe "Pry::DefaultCommands::Documentation" do
       $str_output.string.should =~ /sample comment/
       $str_output = nil
     end
+
+    it "should be able to find super methods" do
+
+      c = Class.new{
+        # classy initialize!
+        def initialize(*args); end
+      }
+
+      d = Class.new(c){
+        # grungy initialize??
+        def initialize(*args, &block); end
+      }
+
+      o = d.new
+
+      # instancey initialize!
+      def o.initialize; end
+
+      mock_pry(binding, "show-doc o.initialize").should =~ /instancey initialize/
+      mock_pry(binding, "show-doc --super o.initialize").should =~ /grungy initialize/
+      mock_pry(binding, "show-doc o.initialize -ss").should =~ /classy initialize/
+      mock_pry(binding, "show-doc --super o.initialize -ss").should == mock_pry("show-doc Object#initialize")
+    end
   end
 end
