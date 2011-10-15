@@ -19,7 +19,6 @@ class Pry
 
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
-        next if opts.help?
 
         meth = opts[:method_object]
         raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
@@ -44,7 +43,6 @@ class Pry
             e.g: stat hello_method
           USAGE
         end
-        next if opts.help?
 
         meth = opts[:method_object]
         output.puts unindent <<-EOS
@@ -77,7 +75,6 @@ class Pry
           opt.on :d, :doc, "Gist a method's documentation."
           opt.on :p, :private, "Create a private gist (default: true)", :default => true
         end
-        next if opts.help?
 
         meth = opts[:method_object]
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }

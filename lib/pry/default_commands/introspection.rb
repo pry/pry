@@ -17,7 +17,6 @@ class Pry
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
-        next if opts.help?
 
         meth = opts[:method_object]
 
@@ -216,7 +215,6 @@ class Pry
             output.puts opt
           end
         end
-        next if opts.help?
 
         if !Pry.config.editor
           raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
