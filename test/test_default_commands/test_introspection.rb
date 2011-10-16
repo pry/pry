@@ -370,6 +370,10 @@ describe "Pry::DefaultCommands::Introspection" do
             def a
               :yup
             end
+
+            def b
+              :kinda
+            end
           end
 
           class X
@@ -382,6 +386,11 @@ describe "Pry::DefaultCommands::Introspection" do
             def x
               :nope
             end
+
+            def b
+              super
+            end
+            alias c b
           end
         EOS
         @tempfile.flush
@@ -408,25 +417,31 @@ describe "Pry::DefaultCommands::Introspection" do
         it "should correctly find a class method" do
           mock_pry("edit-method X.x")
           @file.should == @tempfile.path
-          @line.should == 10
+          @line.should == 14
         end
 
         it "should correctly find an instance method" do
           mock_pry("edit-method X#x")
           @file.should == @tempfile.path
-          @line.should == 14
+          @line.should == 18
         end
 
         it "should correctly find a method on an instance" do
           mock_pry("x = X.new", "edit-method x.x")
           @file.should == @tempfile.path
-          @line.should == 14
+          @line.should == 18
         end
 
         it "should correctly find a method from a module" do
           mock_pry("edit-method X#a")
           @file.should == @tempfile.path
           @line.should == 2
+        end
+
+        it "should correctly find an aliased method" do
+          mock_pry("edit-method X#c")
+          @file.should == @tempfile.path
+          @line.should == 22
         end
       end
 
@@ -476,6 +491,32 @@ describe "Pry::DefaultCommands::Introspection" do
 
           X.instance_method(:a).owner.should == A
           X.new.a.should == :maybe
+        end
+      end
+
+      describe 'on an aliased method' do
+        before do
+          @old_editor = Pry.config.editor
+          Pry.config.editor = lambda do |file, line|
+            lines = File.read(file).lines.to_a
+            lines[1] = '"#{super}aa".to_sym' + "\n"
+            File.open(file, 'w') do |f|
+              f.write(lines.join)
+            end
+            nil
+          end
+        end
+        after do
+          Pry.config.editor = @old_editor
+        end
+
+        it "should change the alias, but not the original, without breaking super" do
+          mock_pry("edit-method -p X#c")
+
+          Pry::Method.from_str("X#c").alias?.should == true
+
+          X.new.b.should == :kinda
+          X.new.c.should == :kindaaa
         end
       end
     end

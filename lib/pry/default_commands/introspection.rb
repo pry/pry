@@ -225,8 +225,9 @@ class Pry
         if opts.p? || meth.dynamically_defined?
           lines = meth.source.lines.to_a
 
-          if lines[0] =~ /^def [^( \n]+/
-            lines[0] = "def #{meth.name}#{$'}"
+          if ((original_name = meth.original_name) &&
+              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\( ]|$)/)
+            lines[0] = "def #{original_name}#{$'}"
           else
             raise CommandError, "Pry can only patch methods created with the `def` keyword."
           end
@@ -235,7 +236,15 @@ class Pry
             f.puts lines.join
             f.flush
             invoke_editor(f.path, 0)
-            Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+
+            if meth.alias?
+              with_method_transaction(original_name, meth.owner) do
+                Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+                Pry.binding_for(meth.owner).eval("alias #{meth.name} #{original_name}")
+              end
+            else
+              Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+            end
           end
           next
         end
@@ -252,6 +261,17 @@ class Pry
         end
       end
 
+      helpers do
+        def with_method_transaction(meth_name, target=TOPLEVEL_BINDING)
+          target = Pry.binding_for(target)
+          temp_name = "__pry_#{meth_name}__"
+
+          target.eval("alias #{temp_name} #{meth_name}")
+          yield
+          target.eval("alias #{meth_name} #{temp_name}")
+          target.eval("undef #{temp_name}")
+        end
+      end
     end
   end
 end

@@ -265,7 +265,7 @@ class Pry
       "#{name}(#{args.join(', ')})"
     end
 
-    # @return [Pry::Method, nil] The wrapped method that get's called when you
+    # @return [Pry::Method, nil] The wrapped method that is called when you
     #   use "super" in the body of this method.
     def super(times=1)
       if respond_to?(:receiver)
@@ -277,6 +277,35 @@ class Pry
       Pry::Method.new(sup) if sup
     end
 
+    # @return [Symbol, nil] The original name the method was defined under,
+    #   before any aliasing, or `nil` if it can't be determined.
+    def original_name
+      return nil if source_type != :ruby
+
+      first_line = source.lines.first
+      return nil if first_line.strip !~ /^def /
+
+      if RUBY_VERSION =~ /^1\.9/ && RUBY_ENGINE == "ruby"
+        require 'ripper'
+
+        tree = Ripper::SexpBuilder.new(first_line + ";end").parse
+        name = tree.flatten(2).each do |lst|
+          break lst[1] if lst[0] == :@ident
+        end
+
+        name.is_a?(String) ? name : nil
+      else
+        require 'ruby_parser'
+
+        tree = RubyParser.new.parse(first_line + ";end")
+        name = tree.each_cons(2) do |a, b|
+          break a if b.is_a?(Array) && b.first == :args
+        end
+
+        name.is_a?(Symbol) ? name.to_s : nil
+      end
+    end
+
     # @return [Boolean] Was the method defined outside a source file?
     def dynamically_defined?
       !!(source_file and source_file =~ /(\(.*\))|<.*>/)
@@ -285,6 +314,11 @@ class Pry
     # @return [Boolean] Was the method defined within the Pry REPL?
     def pry_method?
       source_file == Pry.eval_path
+    end
+
+    # @return [Boolean] Is the method definitely an alias?
+    def alias?
+      name != original_name
     end
 
     # @return [Boolean]
