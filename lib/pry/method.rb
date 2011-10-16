@@ -288,7 +288,10 @@ class Pry
       if RUBY_VERSION =~ /^1\.9/ && RUBY_ENGINE == "ruby"
         require 'ripper'
 
+        # Ripper is ok with an extraneous end, so we don't need to worry about
+        # whether it's a one-liner.
         tree = Ripper::SexpBuilder.new(first_line + ";end").parse
+
         name = tree.flatten(2).each do |lst|
           break lst[1] if lst[0] == :@ident
         end
@@ -297,7 +300,14 @@ class Pry
       else
         require 'ruby_parser'
 
-        tree = RubyParser.new.parse(first_line + ";end")
+        # RubyParser breaks if there's an extra end, so we'll just rescue
+        # and try again.
+        tree = begin
+          RubyParser.new.parse(first_line + ";end")
+        rescue Racc::ParseError
+          RubyParser.new.parse(first_line)
+        end
+
         name = tree.each_cons(2) do |a, b|
           break a if b.is_a?(Array) && b.first == :args
         end

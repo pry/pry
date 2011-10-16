@@ -226,7 +226,7 @@ class Pry
           lines = meth.source.lines.to_a
 
           if ((original_name = meth.original_name) &&
-              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\( ]|$)/)
+              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
             lines[0] = "def #{original_name}#{$'}"
           else
             raise CommandError, "Pry can only patch methods created with the `def` keyword."
