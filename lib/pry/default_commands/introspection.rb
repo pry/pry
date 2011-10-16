@@ -6,7 +6,7 @@ class Pry
     Introspection = Pry::CommandSet.new do
 
       command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source", :shellwords => false do |*args|
-        opts = parse_options!(args, :method_object => true) do |opt|
+        opts, meth = parse_options!(args, :method_object) do |opt|
           opt.banner unindent <<-USAGE
             Usage: show-method [OPTIONS] [METH]
             Show the source for method METH. Tries instance methods first and then methods by default.
@@ -17,8 +17,6 @@ class Pry
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
-
-        meth = opts[:method_object]
 
         raise CommandError, "Could not find method source" unless meth.source
 
@@ -200,7 +198,7 @@ class Pry
       command "edit-method", "Edit a method. Type `edit-method --help` for more info.", :shellwords => false do |*args|
         target = target()
 
-        opts = parse_options!(args, :method_object => true) do |opt|
+        opts, meth = parse_options!(args, :method_object) do |opt|
           opt.banner unindent <<-USAGE
             Usage: edit-method [OPTIONS] [METH]
             Edit the method METH in an editor.
@@ -219,8 +217,6 @@ class Pry
         if !Pry.config.editor
           raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
         end
-
-        meth = opts[:method_object]
 
         if opts.p? || meth.dynamically_defined?
           lines = meth.source.lines.to_a

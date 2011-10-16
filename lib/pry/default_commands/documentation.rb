@@ -8,9 +8,7 @@ class Pry
       end
 
       command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
-        target = target()
-
-        opts = parse_options!(args, :method_object => true) do |opt|
+        opts, meth = parse_options!(args, :method_object) do |opt|
           opt.banner unindent <<-USAGE
             Usage: show-doc [OPTIONS] [METH]
             Show the comments above method METH. Tries instance methods first and then methods by default.
@@ -20,7 +18,6 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        meth = opts[:method_object]
         raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
 
         doc = process_comment_markup(meth.doc, meth.source_type)
@@ -36,7 +33,7 @@ class Pry
       command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
         target = target()
 
-        opts = parse_options!(args, :method_object => true) do |opt|
+        opts, meth = parse_options!(args, :method_object) do |opt|
           opt.banner unindent <<-USAGE
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
@@ -44,7 +41,6 @@ class Pry
           USAGE
         end
 
-        meth = opts[:method_object]
         output.puts unindent <<-EOS
           Method Information:
           --
@@ -63,7 +59,7 @@ class Pry
 
         target = target()
 
-        opts = parse_options!(args, :method_object => true) do |opt|
+        opts, meth = parse_options!(args, :method_object) do |opt|
           opt.banner unindent <<-USAGE
             Usage: gist-method [OPTIONS] [METH]
             Gist the method (doc or source) to github.
@@ -76,7 +72,6 @@ class Pry
           opt.on :p, :private, "Create a private gist (default: true)", :default => true
         end
 
-        meth = opts[:method_object]
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
         if !opts.doc?
           content = meth.source
