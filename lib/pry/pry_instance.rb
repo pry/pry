@@ -326,7 +326,7 @@ class Pry
         end
       end
 
-      Pry.history << val.dup
+      Pry.history << val.dup if input == Readline
       val
     end
   end
