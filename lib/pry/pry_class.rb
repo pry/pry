@@ -209,7 +209,7 @@ class Pry
     config.memory_size = 100
 
     config.ls ||= OpenStruct.new({
-      :heading_color            => :grey,
+      :heading_color            => :default,
 
       :public_method_color      => :default,
       :private_method_color     => :green,
