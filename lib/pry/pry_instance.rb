@@ -149,7 +149,8 @@ class Pry
   # Initialize the repl session.
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
-    exec_hook :before_session, output, target, self
+    hooks.exec_hook :before_session, output, target, self
+#    exec_hook :before_session, output, target, self
     initialize_special_locals(target)
 
     @input_array << nil # add empty input so _in_ and _out_ match
@@ -161,7 +162,7 @@ class Pry
   # Clean-up after the repl session.
   # @param [Binding] target The target binding for the session.
   def repl_epilogue(target)
-    exec_hook :after_session, output, target, self
+    hooks.exec_hook :after_session, output, target, self
 
     Pry.active_sessions -= 1
     binding_stack.pop
@@ -230,11 +231,13 @@ class Pry
     result
   rescue CommandError => e
     output.puts "Error: #{e.message}"
+    result = e.message
     @suppress_output = true
   rescue RescuableException => e
-    set_last_exception(e, target)
+    result = set_last_exception(e, target)
   ensure
     update_input_history(code)
+    hooks.exec_hook :after_eval, result, self
   end
 
   # Perform a read.
@@ -254,6 +257,7 @@ class Pry
     val = ""
     loop do
       val = retrieve_line(eval_string, target)
+      hooks.exec_hook :after_retrieve_line, val, self
       process_line(val, eval_string, target)
 
       break if valid_expression?(eval_string)
@@ -261,6 +265,7 @@ class Pry
 
     @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?
 
+    hooks.exec_hook :after_read, eval_string, self
     eval_string
   end
 
