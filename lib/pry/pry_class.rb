@@ -54,11 +54,10 @@ class Pry
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
-  # Defaults to loading just `~/.pryrc`. This method can also
-  # be used to reload the files if they have changed.
+  # This method can also be used to reload the files if they have changed.
   def self.load_rc
-    RC_FILES.each do |file_name|
-      file_name = File.expand_path(file_name)
+    files = RC_FILES.collect { |file_name| File.expand_path(file_name) }.uniq
+    files.each do |file_name|
       load(file_name) if File.exists?(file_name)
     end
   end
