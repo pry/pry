@@ -290,7 +290,7 @@ describe Pry do
 
         it "should run the rc file only once" do
           Pry.config.should_load_rc = true
-          Pry::RC_FILES << File.expand_path("../testrc", __FILE__)
+          2.times { Pry::RC_FILES << File.expand_path("../testrc", __FILE__) }
 
           Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
