@@ -253,6 +253,26 @@ class Pry
     self.line_buffer = [""]
     self.eval_path = "(pry)"
     self.active_sessions = 0
+
+    fix_coderay_colors
+  end
+
+  # To avoid mass-confusion, we change the default colour of "white" to
+  # "grey" enabling global legibility
+  def self.fix_coderay_colors
+      to_fix = if (CodeRay::Encoders::Terminal::TOKEN_COLORS rescue nil)
+                 # CodeRay 1.0.0
+                 CodeRay::Encoders::Terminal::TOKEN_COLORS
+               else
+                 # CodeRay 0.9
+                 begin
+                   require 'coderay/encoders/term'
+                   CodeRay::Encoders::Term::TOKEN_COLORS
+                 rescue => e
+                 end
+               end
+
+      to_fix[:comment] = "1;30" if to_fix
   end
 
   # Basic initialization.
