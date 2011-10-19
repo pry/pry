@@ -530,6 +530,16 @@ class Pry
       !!Ripper::SexpBuilder.new(code).parse
     end
 
+  elsif RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == 'jruby'
+
+    # JRuby doesn't have Ripper, so use its native parser for 1.9 mode.
+    def valid_expression?(code)
+      JRuby.parse(code)
+      true
+    rescue SyntaxError
+      false
+    end
+
   else
     require 'ruby_parser'
 
