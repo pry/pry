@@ -32,7 +32,11 @@ class Pry
       stringified = "#<#{klass}:0x#{value.__id__.to_s(16)}>"
     end
 
-    Helpers::BaseHelpers.stagger_output("=> #{Helpers::BaseHelpers.colorize_code(stringified)}", output)
+    nonce = rand(0x100000000).to_s(16) # whatever
+
+    colorized = Helpers::BaseHelpers.colorize_code(stringified.gsub(/#</, "%<#{nonce}"))
+
+    Helpers::BaseHelpers.stagger_output("=> #{colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')}", output)
   end
 
   # may be convenient when working with enormous objects and
