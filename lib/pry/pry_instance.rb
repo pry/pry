@@ -228,7 +228,7 @@ class Pry
 
     result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     result
-  rescue CommandError => e
+  rescue CommandError, Slop::InvalidOptionError => e
     output.puts "Error: #{e.message}"
     @suppress_output = true
   rescue RescuableException => e
