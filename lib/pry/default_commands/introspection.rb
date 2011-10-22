@@ -112,7 +112,7 @@ class Pry
         end
         next if opts.h?
 
-        if [opts.ex?, opts.t?, opts.in?, !args.empty?].count(true) > 1
+        if [opts.ex?, opts.t?, opts.i?, !args.empty?].count(true) > 1
           raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
         end
 
