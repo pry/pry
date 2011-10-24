@@ -131,7 +131,7 @@ describe "ls" do
 
     describe "when in an object" do
       it "should show methods" do
-        mock_pry("cd Class.new", "ls").should =~ /allocate/
+        mock_pry("cd Class.new{ def self.fooerise; end; self }", "ls").should =~ /fooerise/
       end
 
       it "should show instance variables" do
