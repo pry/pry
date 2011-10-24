@@ -56,10 +56,6 @@ class Pry
                        Pry.config.ls.ceiling.dup
                      end
 
-          # We always want to show *something*, so if this object is actually a base type,
-          # then we'll show the class itself, but none of its ancestors nor modules.
-          ceiling.map!{ |klass| (obj.class == klass || obj == klass) ? klass.ancestors[1] : klass }
-
           lambda { |klass| !ceiling.include?(klass) }
         end
 
