@@ -37,6 +37,13 @@ task :test do
   sh "bacon -Itest -rubygems -a -q"
 end
 
+desc "profile pry's startup time"
+task :profile do
+  require 'profile'
+  require 'pry'
+  Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
+end
+
 desc "run pry"
 task :pry do
   load 'bin/pry'

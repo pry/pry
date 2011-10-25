@@ -363,7 +363,7 @@ class Pry
       # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
       def pry_doc_info
         if Pry.config.has_pry_doc
-          Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot find C method: #{name}."
+          Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}."
         else
           raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
         end
