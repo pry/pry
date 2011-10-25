@@ -29,10 +29,6 @@ class Pry
           end
         end
 
-        alias_method :grey, :bright_black
-        alias_method :gray, :bright_black
-
-
         # Remove any color codes from _text_.
         #
         # @param  [String, #to_s] text
