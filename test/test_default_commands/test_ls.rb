@@ -73,6 +73,12 @@ describe "ls" do
       mock_pry("ls -pM Class.new{ def goo; end; protected :goo }").should =~ /goo/
       mock_pry("ls -p Class.new{ def goo; end; private :goo }.new").should =~ /goo/
     end
+
+    it "should work for objects with an overridden method method" do
+      require 'net/http'
+      # This doesn't actually touch the network, promise!
+      mock_pry("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest methods/
+    end
   end
 
   describe "constants" do

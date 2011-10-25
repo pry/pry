@@ -94,7 +94,7 @@ class Pry
       # @param [Object] obj
       # @return [Array[Class, Module]]
       def resolution_order(obj)
-        if obj.is_a?(Class)
+        if Class === obj
           singleton_class_resolution_order(obj) + instance_resolution_order(Class)
         else
           klass = singleton_class(obj) rescue obj.class
@@ -121,10 +121,18 @@ class Pry
       # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
       def all_from_common(obj, method_type)
         %w(public protected private).map do |visibility|
-          obj.__send__(:"#{visibility}_#{method_type}s").map do |method_name|
-            new(obj.__send__(method_type, method_name), :visibility => visibility.to_sym)
+          safe_send(obj, :"#{visibility}_#{method_type}s").map do |method_name|
+            new(safe_send(obj, method_type, method_name), :visibility => visibility.to_sym)
           end
         end.flatten(1)
+      end
+
+      # Acts like send but ignores any methods defined below Object or Class in the
+      # inheritance heirarchy.
+      # This is required to introspect methods on objects like Net::HTTP::Get that
+      # have overridden the `method` method.
+      def safe_send(obj, method, *args, &block)
+        (Class === obj ? Class : Object).instance_method(method).bind(obj).call(*args, &block)
       end
 
       # Get the singleton classes of superclasses that could define methods on
