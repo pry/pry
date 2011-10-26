@@ -21,6 +21,9 @@ class Pry
         raise CommandError, "Could not find method source" unless meth.source
 
         output.puts make_header(meth)
+        output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
+        output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
+        output.puts
 
         if Pry.color
           code = CodeRay.scan(meth.source, meth.source_type).term
@@ -72,6 +75,7 @@ class Pry
           set_file_and_dir_locals(block.source_file)
 
           output.puts make_header(block)
+          output.puts
 
           if Pry.color
             code = CodeRay.scan(block.source, :ruby).term

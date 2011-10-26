@@ -1,4 +1,18 @@
-*/10/2011 version 0.9.7
+25/10/2011 version 0.9.7
+
+MAJOR NEW FEATURES:
+- upgraded ls command to have a more intuitive interface
+- added automatic indentation (thanks YorickPeterse!)
+- added Pry::Method wrapper class to encapsulate method-related functionality
+
+complete CHANGELOG:
+* fixed syntax highlighting for object literals
+* fixed ActiveSupport method-naming conflict with "in?"
+* started using JRuby parser for input validation in JRuby (thanks pangloss!)
+* fixed bug where ~/.pryrc could be loaded more than once (thanks kelseyjudson!)
+* added parse_options! helper to pull option parsing out of commands
+* Pry now respects the terminal's input encoding
+* moved some requires out of the startup process for improved speed
 * added input_array info to DEFAULT_PROMPT, e.g [1] pry(main)>
 * added --no-history option to pry binary (prevent history being LOADED, history will still be saved)
 
@@ -81,7 +95,7 @@ complete CHANGELOG:
 * ls separator configurable via, e.g Pry.config.ls.separator = "  "
 * Pry.view_clip() now only calls inspect on a few immediates, otherwise uses the #<> syntax, which has been truncated further to exclude teh mem address, again related to #245
 
-*/7/2011 version 0.9.3
+27/7/2011 version 0.9.3
 * cat --ex (cats 5 lines above and below line in file where exception was raised)
 * edit --ex (edits line in file where exception was raised)
 * edit -t (opens a temporary file and evals it in current context when closed)
