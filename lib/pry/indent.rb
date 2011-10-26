@@ -30,6 +30,7 @@ class Pry
       'until'  => 'end',
       'for'    => 'end',
       'case'   => 'end',
+      'begin'  => 'end',
       '['      => ']',
       '{'      => '}',
       '('      => ')'
@@ -37,7 +38,7 @@ class Pry
 
     # Which tokens can either be open tokens, or appear as modifiers on
     # a single-line.
-    SINGLELINE_TOKENS = %w(if while until unless)
+    SINGLELINE_TOKENS = %w(if while until unless rescue)
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
@@ -51,7 +52,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = ['when', 'else', 'elsif']
+    MIDWAY_TOKENS = %w(when else elsif rescue)
 
     def initialize
       reset

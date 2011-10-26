@@ -212,4 +212,23 @@ TXT
   it "should not indent single/multi-line until" do
     @indent.indent("%w{baz} until bar\nuntil foo\nbar\nend").should == "%w{baz} until bar\nuntil foo\n  bar\nend"
   end
+
+  it "should indent begin rescue end" do
+    input = <<INPUT.strip
+begin
+doo :something => :wrong
+rescue => e
+doit :right
+end
+INPUT
+    output = <<OUTPUT.strip
+begin
+  doo :something => :wrong
+rescue => e
+  doit :right
+end
+OUTPUT
+
+    @indent.indent(input).should == output
+  end
 end
