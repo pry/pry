@@ -8,6 +8,9 @@ MAJOR NEW FEATURES:
 complete CHANGELOG:
 * fixed syntax highlighting for object literals
 * fixed ActiveSupport method-naming conflict with "in?"
+* added --super option to edit-method, show-method, and friends -  making it easier to operate on superclass methods
+* officially added edit --in to open previous expressions in an editor
+* whereami now works for REPL-defined code
 * started using JRuby parser for input validation in JRuby (thanks pangloss!)
 * fixed bug where ~/.pryrc could be loaded more than once (thanks kelseyjudson!)
 * added parse_options! helper to pull option parsing out of commands
