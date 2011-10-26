@@ -242,7 +242,7 @@ class Pry
                        :public
                      elsif owner.protected_instance_methods.any? { |m| m.to_s == name }
                        :protected
-                     elsif owner.private_instance_methods..any? { |m| m.to_s == name }
+                     elsif owner.private_instance_methods.any? { |m| m.to_s == name }
                        :private
                      else
                        :none
