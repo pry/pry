@@ -21,7 +21,7 @@ def apply_spec_defaults(s)
   s.executables = ["pry"]
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
-  s.add_dependency("ruby_parser","~>2.0.5")
+  s.add_dependency("ruby_parser","~>2.3.1")
   s.add_dependency("coderay","~>0.9.8")
   s.add_dependency("slop","~>2.1.0")
   s.add_dependency("method_source","~>0.6.5")
