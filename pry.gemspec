@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "pry"
-  s.version = "0.9.7"
+  s.version = "0.9.7.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Mair (banisterfiend)"]
@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<ruby_parser>, ["~> 2.3.1"])
+      s.add_runtime_dependency(%q<ruby_parser>, [">= 2.3.1"])
       s.add_runtime_dependency(%q<coderay>, ["~> 0.9.8"])
       s.add_runtime_dependency(%q<slop>, ["~> 2.1.0"])
       s.add_runtime_dependency(%q<method_source>, ["~> 0.6.5"])
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<open4>, ["~> 1.0.1"])
       s.add_development_dependency(%q<rake>, ["~> 0.9"])
     else
-      s.add_dependency(%q<ruby_parser>, ["~> 2.3.1"])
+      s.add_dependency(%q<ruby_parser>, [">= 2.3.1"])
       s.add_dependency(%q<coderay>, ["~> 0.9.8"])
       s.add_dependency(%q<slop>, ["~> 2.1.0"])
       s.add_dependency(%q<method_source>, ["~> 0.6.5"])
@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rake>, ["~> 0.9"])
     end
   else
-    s.add_dependency(%q<ruby_parser>, ["~> 2.3.1"])
+    s.add_dependency(%q<ruby_parser>, [">= 2.3.1"])
     s.add_dependency(%q<coderay>, ["~> 0.9.8"])
     s.add_dependency(%q<slop>, ["~> 2.1.0"])
     s.add_dependency(%q<method_source>, ["~> 0.6.5"])
