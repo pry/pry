@@ -215,9 +215,9 @@ class Pry
   def re(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
 
-    if input == Readline
+    if input.respond_to?(:completion_proc=)
       # Readline tab completion
-      Readline.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
+      input.completion_proc = Pry::InputCompleter.build_completion_proc target, instance_eval(&custom_completions)
     end
 
     # It's not actually redundant to inject them continually as we may have
@@ -317,7 +317,7 @@ class Pry
         eval_string.force_encoding(val.encoding)
       end
 
-      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && input == Readline
+      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && !input.is_a?(StringIO)
         orig_val = "#{indentation}#{val}"
         val = @indent.indent(val)
 
@@ -326,7 +326,7 @@ class Pry
         end
       end
 
-      Pry.history << val.dup if input == Readline
+      Pry.history << val.dup unless input.is_a?(StringIO)
       val
     end
   end
