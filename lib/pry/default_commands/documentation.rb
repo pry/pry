@@ -22,8 +22,9 @@ class Pry
 
         doc = process_comment_markup(meth.doc, meth.source_type)
         output.puts make_header(meth, doc)
-        output.puts "#{text.bold("visibility: ")} #{meth.visibility}"
-        output.puts "#{text.bold("signature:  ")} #{meth.signature}"
+        output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
+        output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
+        output.puts "#{text.bold("Signature:")} #{meth.signature}"
         output.puts
         render_output(opts.flood?, false, doc)
       end

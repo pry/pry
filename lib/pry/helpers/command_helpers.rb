@@ -63,7 +63,7 @@ class Pry
           header << "@ line #{meth.source_line}:\n"
         end
 
-        header << "Number of lines: #{Pry::Helpers::Text.bold(content.each_line.count.to_s)}\n\n"
+        header << "#{Pry::Helpers::Text.bold("Number of lines:")} #{content.each_line.count.to_s}\n"
       end
 
       def file_map
