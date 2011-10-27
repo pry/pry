@@ -52,7 +52,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = %w(when else elsif rescue)
+    MIDWAY_TOKENS = %w(when else elsif ensure rescue)
 
     def initialize
       reset
@@ -174,7 +174,7 @@ class Pry
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
-      (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
+      (last_token =~ /^(super|[)\]}\/])$/ || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Return a string which, when printed, will rewrite the previous line with
