@@ -184,8 +184,17 @@ describe Pry do
       it 'should run a command in a specified context' do
         b = Pry.binding_for(7)
         p = Pry.new(:output => StringIO.new)
-        p.run_command("ls -m", b)
+        p.run_command("ls -m", "", b)
         p.output.string.should =~ /divmod/
+      end
+
+      it 'should run a command that modifies the passed in eval_string' do
+        b = Pry.binding_for(7)
+        p = Pry.new(:output => StringIO.new)
+        eval_string = "def hello\npeter pan\n"
+        p.run_command("amend-line !", eval_string, b)
+        eval_string.should =~ /def hello/
+        eval_string.should.not =~ /peter pan/
       end
 
       it 'should run a command in the context of a session' do
