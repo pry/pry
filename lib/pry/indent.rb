@@ -48,7 +48,7 @@ class Pry
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
     # not the next line)
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float]
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
@@ -174,7 +174,7 @@ class Pry
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
-      (last_token =~ /^(super|[)\]}\/])$/ || STATEMENT_END_TOKENS.include?(last_kind))
+      (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Return a string which, when printed, will rewrite the previous line with
