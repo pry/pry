@@ -127,7 +127,8 @@ class Pry
           gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
+          gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+          gsub(/@example\s{1,}(.*)/) { Pry.color ? '@example ' + CodeRay.scan($1, code_type).term : $1 }
       end
 
       def process_yardoc_tag(comment, tag)
@@ -147,9 +148,10 @@ class Pry
 
       def process_yardoc(comment)
         yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
-                     "deprecate", "example"]
+                     "deprecate", "example", "note", "see"]
         (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
-          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }.
+          gsub(/!{/, '{') # Strip !{ no URI escapes
       end
 
       def process_comment_markup(comment, code_type)
