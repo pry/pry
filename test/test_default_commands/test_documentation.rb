@@ -16,7 +16,10 @@ describe "Pry::DefaultCommands::Documentation" do
 
       o = Object.new
 
-      # sample comment
+      # Sample comment
+      # @example !{test: 'value'}
+      # @note Sample note
+      # @see https://github.com/pry/pry
       def o.sample
         redirect_pry_io(InputTester.new("show-doc", "exit-all"), $str_output) do
           binding.pry
@@ -24,7 +27,10 @@ describe "Pry::DefaultCommands::Documentation" do
       end
       o.sample
 
-      $str_output.string.should =~ /sample comment/
+      $str_output.string.should =~ /Sample comment/
+      $str_output.string.should =~ /note Sample note/
+      $str_output.string.should =~ /example {test: 'value'}/
+      $str_output.string.should =~ /see https:\/\/github.com\/pry\/pry/
       $str_output = nil
     end
 
@@ -52,3 +58,4 @@ describe "Pry::DefaultCommands::Documentation" do
     end
   end
 end
+

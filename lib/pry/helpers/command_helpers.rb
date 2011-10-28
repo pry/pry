@@ -122,13 +122,14 @@ class Pry
 
       def process_rdoc(comment, code_type)
         comment = comment.dup
-        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+        comment.gsub(/!{/, '{'). # Haxor out !{ URI escapes for RDOC/Yardoc
+          gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
           gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
           gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
           gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/@example\s{1,}(.*)/) { Pry.color ? '@example ' + CodeRay.scan($1, code_type).term : $1 }
+          gsub(/@(example)\s{1,}(.*)/) { Pry.color ? "\e[33m#{$1}\e[0m " + CodeRay.scan($2, code_type).term : "@#{$1} #{$2}" }
       end
 
       def process_yardoc_tag(comment, tag)
@@ -147,11 +148,9 @@ class Pry
       end
 
       def process_yardoc(comment)
-        yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
-                     "deprecate", "example", "note", "see"]
-        (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
-          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }.
-          gsub(/!{/, '{') # Strip !{ no URI escapes
+        yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer", "deprecate", "note", "see"]
+        (yard_tags).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
+          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
       end
 
       def process_comment_markup(comment, code_type)
