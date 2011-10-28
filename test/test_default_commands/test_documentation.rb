@@ -18,6 +18,7 @@ describe "Pry::DefaultCommands::Documentation" do
 
       # Sample comment
       # @example !{test: 'value'}
+      # @example `{value: 'test'}`
       # @note Sample note
       # @see https://github.com/pry/pry
       def o.sample
@@ -30,6 +31,7 @@ describe "Pry::DefaultCommands::Documentation" do
       $str_output.string.should =~ /Sample comment/
       $str_output.string.should =~ /note Sample note/
       $str_output.string.should =~ /example {test: 'value'}/
+      $str_output.string.should =~ /example {value: 'test'}/
       $str_output.string.should =~ /see https:\/\/github.com\/pry\/pry/
       $str_output = nil
     end
