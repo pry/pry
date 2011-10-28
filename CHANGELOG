@@ -1,3 +1,9 @@
+28/10/2011 version 0.9.7.3 hotfix-hotfix ;)
+* really fixed indentation for 'super if' and friends
+* Fixed indentation for tmux
+* added Pry.config.correct_indent option (to toggle whether indentation
+* corrected optional param behaviour for method signatures: e.g Signature meth(param1=?, param2=?)
+
 27/10/2011 version 0.9.7.2 hotfix
 * fixed indentation for 'super if' and 'ensure', 'next if', etc
 * refactored Pry#run_command so it can accept an eval_string parameter (so amend-line and so on can work with it)
