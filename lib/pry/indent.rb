@@ -195,9 +195,9 @@ class Pry
         lines = 1
       end
 
-      move_up    = "\e[#{lines}F"
+      move_up    = "\e[#{lines}A\e[0G"
       whitespace = ' ' * overhang
-      move_down  = "\e[#{lines}E"
+      move_down  = "\e[#{lines}B\e[0G"
 
       "#{move_up}#{full_line}#{whitespace}#{move_down}"
     end
