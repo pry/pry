@@ -195,9 +195,14 @@ class Pry
         lines = 1
       end
 
-      move_up    = "\e[#{lines}A\e[0G"
+      if defined?(Win32::Console)
+        move_up    = "\e[#{lines}F"
+        move_down  = "\e[#{lines}E"
+      else
+        move_up    = "\e[#{lines}A\e[0G"
+        move_down  = "\e[#{lines}B\e[0G"
+      end
       whitespace = ' ' * overhang
-      move_down  = "\e[#{lines}B\e[0G"
 
       "#{move_up}#{full_line}#{whitespace}#{move_down}"
     end
