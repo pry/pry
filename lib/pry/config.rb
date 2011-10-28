@@ -134,6 +134,10 @@ class Pry
     # @return [Boolean] Whether or not code should be indented
     #  using Pry::Indent.
     attr_accessor :auto_indent
+
+    # @return [Boolean] Whether or not indentation should be corrected
+    #   after hitting enter. This feature is not supported by all terminals.
+    attr_accessor :correct_indent
   end
 end
 
