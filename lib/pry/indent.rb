@@ -48,7 +48,10 @@ class Pry
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
     # not the next line)
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword]
+    #
+    # :reserved and :keywords are the CodeRay 0.9.8 and 1.0.0 respectively
+    # classifications of "super", "next", "return", etc.
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword, :reserved]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
