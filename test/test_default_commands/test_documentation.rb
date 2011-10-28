@@ -19,6 +19,8 @@ describe "Pry::DefaultCommands::Documentation" do
       # Sample comment
       # @example !{test: 'value'}
       # @example `{value: 'test'}`
+      # @example
+      #   {
       # @note Sample note
       # @see https://github.com/pry/pry
       def o.sample
