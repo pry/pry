@@ -66,19 +66,11 @@ class Pry
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, pry|
-                      if nest_level == 0
-                        "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})> "
-                      else
-                        "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)}):#{nest_level}> "
-                      end
+                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
                     },
 
                     proc { |target_self, nest_level, pry|
-                      if nest_level == 0
-                        "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})* "
-                      else
-                        "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)}):#{nest_level}* "
-                      end
+                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
                     }
                    ]
 
