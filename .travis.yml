@@ -6,11 +6,6 @@ rvm:
   - rbx-2.0
   - jruby
 
-notifications:
-  irc: "irc.freenode.org#pry"
-  recipients:
-    - jrmair@gmail.com
-
 branches:
   only:
     - master
