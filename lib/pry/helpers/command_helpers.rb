@@ -122,7 +122,7 @@ class Pry
 
       def process_rdoc(comment, code_type)
         comment = comment.dup
-        comment.gsub(/!{/, '{'). # Fix any (Ya)rdoc URI escapes that are found in the comments.
+        comment.gsub(/!\{/, '{'). # Fix any (Ya)rdoc URI escapes that are found in the comments.
           gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { |code| code.gsub(/`/, '___TICK___')}. # Prevent tick double hightlights.
           gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
           gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
