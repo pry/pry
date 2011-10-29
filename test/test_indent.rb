@@ -195,6 +195,7 @@ TXT
     @indent.reset.indent("foo() if bar\n#").should == "foo() if bar\n#"
     @indent.reset.indent("foo 'hi' if bar\n#").should == "foo 'hi' if bar\n#"
     @indent.reset.indent("foo 1 while bar\n#").should == "foo 1 while bar\n#"
+    @indent.reset.indent("super if true\n#").should == "super if true\n#"
   end
 
   it "should indent cunningly disguised ifs" do

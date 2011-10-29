@@ -48,11 +48,14 @@ class Pry
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
     # not the next line)
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float]
+    #
+    # :reserved and :keywords are the CodeRay 0.9.8 and 1.0.0 respectively
+    # classifications of "super", "next", "return", etc.
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword, :reserved]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = %w(when else elsif rescue)
+    MIDWAY_TOKENS = %w(when else elsif ensure rescue)
 
     def initialize
       reset
@@ -195,9 +198,14 @@ class Pry
         lines = 1
       end
 
-      move_up    = "\e[#{lines}F"
+      if defined?(Win32::Console)
+        move_up    = "\e[#{lines}F"
+        move_down  = "\e[#{lines}E"
+      else
+        move_up    = "\e[#{lines}A\e[0G"
+        move_down  = "\e[#{lines}B\e[0G"
+      end
       whitespace = ' ' * overhang
-      move_down  = "\e[#{lines}E"
 
       "#{move_up}#{full_line}#{whitespace}#{move_down}"
     end

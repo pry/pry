@@ -254,6 +254,8 @@ class Pry
     val = ""
     loop do
       val = retrieve_line(eval_string, target)
+
+      # eval_string may be mutated by this method
       process_line(val, eval_string, target)
 
       break if valid_expression?(eval_string)
@@ -302,12 +304,10 @@ class Pry
 
     val = readline(current_prompt + indentation)
 
-    # exit session if we receive EOF character (^D)
+    # invoke handler if we receive EOF character (^D)
     if !val
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
-
-      @indent.reset if Pry.config.auto_indent
       ""
     else
       # Change the eval_string into the input encoding (Issue 284)
@@ -321,7 +321,7 @@ class Pry
         orig_val = "#{indentation}#{val}"
         val = @indent.indent(val)
 
-        if orig_val != val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes?
+        if orig_val != val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
           output.print @indent.correct_indentation(current_prompt + val, orig_val.length - val.length)
         end
       end
@@ -359,12 +359,14 @@ class Pry
   end
 
   # Run the specified command.
-  # @param [String] The command (and its params) to execute.
-  # @param [Binding] The binding to use..
+  # @param [String] val The command (and its params) to execute.
+  # @param [String] eval_string The current input buffer.
+  # @param [Binding] target The binding to use..
+  # @return [Pry::CommandContext::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
-  def run_command(val, target = binding_stack.last)
-    process_line(val, "", target)
+  def run_command(val, eval_string = "", target = binding_stack.last)
+    process_line(val, eval_string, target)
     Pry::CommandContext::VOID_VALUE
   end
 

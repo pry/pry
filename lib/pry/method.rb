@@ -259,9 +259,10 @@ class Pry
         args = parameters.inject([]) do |arr, (type, name)|
           name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
           arr << case type
-                 when :req        then name.to_s
-                 when :opt, :rest then "*#{name}"
-                 when :block      then "&#{name}"
+                 when :req   then name.to_s
+                 when :opt   then "#{name}=?"
+                 when :rest  then "*#{name}"
+                 when :block then "&#{name}"
                  else '?'
                  end
         end
