@@ -39,14 +39,14 @@ describe "Pry::DefaultCommands::Documentation" do
 
       $str_output.string.should =~ /This is a test comment/
       $str_output.string.should =~ /  This is a test comment/
-      $str_output.string.should =~ /The Test method {'one': 'value'}/
-      $str_output.string.should =~ /{'two': 'value'}/
-      $str_output.string.should =~ /`{'three': 'value'}`/
+      $str_output.string.should =~ /The Test method \{'one': 'value'\}/
+      $str_output.string.should =~ /\{'two': 'value'\}/
+      $str_output.string.should =~ /`\{'three': 'value'\}`/
       $str_output.string.should =~ /note A message/
-      $str_output.string.should =~ /example `{'four': 'value'}`/
-      $str_output.string.should =~ /example {'five': 'value'}/
-      $str_output.string.should =~ /example\n  `{'six': 'value'}`/
-      $str_output.string.should =~ /example\n  {'seven': 'value'}\n  {'eight': 'value'}/
+      $str_output.string.should =~ /example `\{'four': 'value'\}`/
+      $str_output.string.should =~ /example \{'five': 'value'\}/
+      $str_output.string.should =~ /example\n  `\{'six': 'value'\}`/
+      $str_output.string.should =~ /example\n  \{'seven': 'value'\}\n  \{'eight': 'value'\}/
       $str_output.string.should =~ /see https:\/\/github.com\/pry\/pry/
       $str_output = nil
     end
