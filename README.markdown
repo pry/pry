@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/pry/pry.png)](http://travis-ci.org/pry/pry)
+[![Build Status](https://secure.travis-ci.org/envygeeks/pry.png)](http://travis-ci.org/envygeeks/pry)
 <center>
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_350.png)
 
