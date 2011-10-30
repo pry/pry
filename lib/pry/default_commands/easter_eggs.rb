@@ -8,6 +8,16 @@ class Pry
         run "show-input"
       end
 
+      command "get-naked" "" do
+        text = %{
+--
+We dont have to take our clothes off to have a good time.
+We could dance & party all night And drink some cherry wine.
+-- Jermaine Stewart }
+        output.puts text
+        text
+      end
+
       command "east-coker", "" do
         text = %{
 --
