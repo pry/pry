@@ -123,14 +123,28 @@ class Pry
       def process_rdoc(comment, code_type)
         comment = comment.dup
         comment.gsub(/!\{/, "{"). # Fix any (Ya)rdoc URI escapes that are found in the comments.
-          gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { |code| code.gsub(/`/, '___TICK___')}. # Prevent tick double hightlights.
+          gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { |code| code.gsub(/`/, '___TICK___')}.
           gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
-          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
-          gsub(/@example(((\n\s{2,})?[^\n]+)+)/) { |code| code.gsub(/`/, '___TICK___') }. # Prevent tick doube highlights.
-          gsub(/@example(((\n\s{2,})?[^\n]+)+)/) { Pry.color ? "\e[33mexample\e[0m" + CodeRay.scan($1, code_type).term : "example#{$1}" }.
+          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { text.bold($1) }.
+          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { text.bold($1) }.
+          gsub(/@example(((\n\s{2,})?[^\n]+)+)/) { |code|
+            code = code.gsub(/@example/, '')
+            code = code.gsub(/`/, '___TICK___')
+            code = code.split("\n")
+            example_tag = text.yellow('example')
+            if code.length == 1
+              code = example_tag + code.join
+            else
+              description = code.shift
+              code = "\n" + code.join("\n")
+              if Pry.color
+                code = CodeRay.scan(code, code_type).term
+              end
+              code = example_tag + description + code
+            end
+          }.
           gsub(/`([^`]+)`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/___TICK___/, Pry.color ? "\e[33m`\e[0m" : '`')
+          gsub(/___TICK___/, text.yellow('`'))
       end
 
       def process_yardoc_tag(comment, tag)
