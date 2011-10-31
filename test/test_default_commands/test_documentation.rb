@@ -60,7 +60,7 @@ describe "Pry::DefaultCommands::Documentation" do
       $str_output = nil
       test_string[0].should =~ /From: .*test\/test_default_commands\/test_documentation\.rb @ line/
       test_string[1].should =~ /Number of lines/
-      test_string[2].should =~ /Owner: #<Class:#<Object:[^>]+>>/
+      test_string[2].should =~ /Owner: #<Class:\s?#<Object:[^>]+>>/
       test_string[3].should == 'Visibility: public'
       test_string[4].should == 'Signature: sample()'
       test_string[5].should == 'This is a test comment'
@@ -114,7 +114,7 @@ describe "Pry::DefaultCommands::Documentation" do
       $str_output = nil
       test_string[0].should =~ /\e\[1mFrom:\e\[0m .*test\/test_default_commands\/test_documentation.rb @ line/
       test_string[1].should =~ /\e\[1mNumber of lines:\e\[0m/
-      test_string[2].should =~ /\e\[1mOwner:\e\[0m #<Class:#<Object:[^>]+>>/
+      test_string[2].should =~ /\e\[1mOwner:\e\[0m #<Class:\s?#<Object:[^>]+>>/
       test_string[3].should =~ /\e\[1mVisibility:\e\[0m public/
       test_string[4].should =~ /\e\[1mSignature:\e\[0m sample()/
       test_string[5].should == 'This is a test comment'
