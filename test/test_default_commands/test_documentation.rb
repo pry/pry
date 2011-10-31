@@ -58,7 +58,7 @@ describe "Pry::DefaultCommands::Documentation" do
 
       test_string = $str_output.string.split("\n").compact.delete_if { |value| value.empty? }
       $str_output = nil
-      test_string[0].should =~ /From: test\/test_default_commands\/test_documentation\.rb @ line/
+      test_string[0].should =~ /From: .+test\/test_default_commands\/test_documentation\.rb @ line/
       test_string[1].should =~ /Number of lines/
       test_string[2].should =~ /Owner: #<Class:#<Object:[^>]+>>/
       test_string[3].should == 'Visibility: public'
@@ -112,7 +112,7 @@ describe "Pry::DefaultCommands::Documentation" do
       Pry.color = false
       test_string = $str_output.string.split("\n").compact.delete_if { |value| value.empty? }
       $str_output = nil
-      test_string[0].should =~ /\e\[1mFrom:\e\[0m test\/test_default_commands\/test_documentation.rb @ line/
+      test_string[0].should =~ /\e\[1mFrom:\e\[0m .+test\/test_default_commands\/test_documentation.rb @ line/
       test_string[1].should =~ /\e\[1mNumber of lines:\e\[0m/
       test_string[2].should =~ /\e\[1mOwner:\e\[0m #<Class:#<Object:[^>]+>>/
       test_string[3].should =~ /\e\[1mVisibility:\e\[0m public/
