@@ -1,0 +1,2 @@
+TEST_BEFORE_RAISE = 1
+raise "messin with ya"

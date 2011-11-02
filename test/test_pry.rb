@@ -322,6 +322,46 @@ describe Pry do
           Object.const_defined?(:TEST_RC).should == false
           Pry.config.should_load_rc = false
         end
+
+        describe "that raise exceptions" do
+          before do
+            Pry::RC_FILES << File.expand_path("../testrcbad", __FILE__)
+            Pry.config.should_load_rc = true
+
+            putsed = nil
+
+            # YUCK! horrible hack to get round the fact that output is not configured
+            # at the point this message is printed.
+            (class << Pry; self; end).send(:define_method, :puts) { |str|
+              putsed = str
+            }
+
+            @doing_it = lambda{
+              Pry.start(self, :input => StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), :output => Pry::NullOutput)
+              putsed
+            }
+          end
+
+          after do
+            Object.remove_const(:TEST_BEFORE_RAISE)
+            Object.remove_const(:TEST_AFTER_RAISE)
+            (class << Pry; undef_method :puts; end)
+          end
+
+          it "should not raise exceptions" do
+            @doing_it.should.not.raise
+          end
+
+          it "should continue to run pry" do
+            @doing_it[]
+            Object.const_defined?(:TEST_BEFORE_RAISE).should == true
+            Object.const_defined?(:TEST_AFTER_RAISE).should == true
+          end
+
+          it "should output an error" do
+            @doing_it[].should =~ /Error loading #{File.expand_path("../testrcbad", __FILE__)}: messin with ya/
+          end
+        end
       end
 
       describe "nesting" do
