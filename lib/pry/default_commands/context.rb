@@ -34,8 +34,9 @@ class Pry
               stack.push(Pry.binding_for(stack.last.eval(context)))
             end
 
-          rescue RescuableException
+          rescue RescuableException => e
             output.puts "Bad object path: #{arg_string}. Failed trying to resolve: #{context}"
+            output.puts e.inspect
             resolve_failure = true
             break
           end
