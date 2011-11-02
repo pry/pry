@@ -81,6 +81,12 @@ describe "ls" do
     end
   end
 
+  describe "when inside Modules" do
+    it "should still work" do
+      mock_pry("cd Module.new{ def foobie; end }", "ls -M").should =~ /foobie/
+    end
+  end
+
   describe "constants" do
     it "should show constants defined on the current module" do
       mock_pry("class TempFoo1; BARGHL = 1; end", "ls TempFoo1").should =~ /BARGHL/
