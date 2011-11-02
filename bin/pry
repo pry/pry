@@ -90,5 +90,5 @@ else
 end
 
 # Start the session (running any code passed with -e, if there is any)
-Pry.start(context, :input => StringIO.new(exec_string), :input_stack => [Readline])
+Pry.start(context, :input => StringIO.new(exec_string))
 
