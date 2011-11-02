@@ -58,7 +58,11 @@ class Pry
   def self.load_rc
     files = RC_FILES.collect { |file_name| File.expand_path(file_name) }.uniq
     files.each do |file_name|
-      load(file_name) if File.exists?(file_name)
+      begin
+        load(file_name) if File.exists?(file_name)
+      rescue RescuableException => e
+        puts "Error loading #{file_name}: #{e}"
+      end
     end
   end
 
