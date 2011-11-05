@@ -9,8 +9,6 @@ coverage/
 .yardoc/
 /tags
 *.gem
-
-# Not sure if Pry devs use RVM or want the Gemfile.lock in the repo, thus I'm
-# ignoring them for now.
+.rbx/
 .rvmrc
 Gemfile.lock
