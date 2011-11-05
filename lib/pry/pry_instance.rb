@@ -234,9 +234,6 @@ class Pry
 
     result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     result
-  rescue CommandError, Slop::InvalidOptionError => e
-    output.puts "Error: #{e.message}"
-    @suppress_output = true
   rescue RescuableException => e
     set_last_exception(e, target)
   ensure
@@ -259,10 +256,14 @@ class Pry
 
     val = ""
     loop do
-      val = retrieve_line(eval_string, target)
+      begin
+        val = retrieve_line(eval_string, target)
 
-      # eval_string may be mutated by this method
-      process_line(val, eval_string, target)
+        # eval_string may be mutated by this method
+        process_line(val, eval_string, target)
+      rescue CommandError, Slop::InvalidOptionError => e
+        output.puts "Error: #{e.message}"
+      end
 
       break if valid_expression?(eval_string)
     end

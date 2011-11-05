@@ -128,7 +128,7 @@ class Pry
       end
 
       # Acts like send but ignores any methods defined below Object or Class in the
-      # inheritance heirarchy.
+      # inheritance hierarchy.
       # This is required to introspect methods on objects like Net::HTTP::Get that
       # have overridden the `method` method.
       def safe_send(obj, method, *args, &block)
