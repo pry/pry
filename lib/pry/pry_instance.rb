@@ -189,7 +189,7 @@ class Pry
     end
 
     repl_epilogue(target)
-    break_data || target_self
+    break_data || nil
   end
 
   # Perform a read-eval-print.

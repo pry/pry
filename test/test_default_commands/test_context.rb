@@ -2,9 +2,9 @@ require 'helper'
 
 describe "Pry::DefaultCommands::Context" do
   describe "exit-all" do
-    it 'should break out of the repl loop of Pry instance (returning target of session)' do
+    it 'should break out of the repl loop of Pry instance and return nil' do
       redirect_pry_io(InputTester.new("exit-all"), StringIO.new) do
-        Pry.new.repl(0).should == 0
+        Pry.new.repl(0).should == nil
       end
     end
 
@@ -44,7 +44,7 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit' do
-      Pry.start(0, :input => StringIO.new("exit")).should == 0
+      Pry.start(0, :input => StringIO.new("exit")).should == nil
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit, and return user-given value' do
@@ -127,7 +127,7 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with cd ..' do
-      Pry.start(0, :input => StringIO.new("cd ..")).should == 0
+      Pry.start(0, :input => StringIO.new("cd ..")).should == nil
     end
 
     it 'should break out to outer-most session with cd /' do

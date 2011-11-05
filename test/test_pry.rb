@@ -1062,8 +1062,8 @@ describe Pry do
           end
 
           describe "pry return values" do
-            it 'should return the target object' do
-              Pry.start(self, :input => StringIO.new("exit-all"), :output => Pry::NullOutput).should == self
+            it 'should return nil' do
+              Pry.start(self, :input => StringIO.new("exit-all"), :output => Pry::NullOutput).should == nil
             end
 
             it 'should return the parameter given to exit-all' do
