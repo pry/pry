@@ -174,10 +174,10 @@ class Pry
           if info and info.source
             code = strip_comments_from_c_code(info.source)
           end
-        when :rbx
-          strip_leading_whitespace(core_code)
         when :ruby
-          if pry_method?
+          if Helpers::BaseHelpers.rbx? && core?
+            code = core_code
+          elsif pry_method?
             code = Pry.new(:input => StringIO.new(Pry.line_buffer[source_line..-1].join), :prompt => proc {""}, :hooks => {}).r
           else
             code = @method.source
@@ -194,10 +194,10 @@ class Pry
         when :c
           info = pry_doc_info
           info.docstring if info
-        when :rbx
-          strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
         when :ruby
-          if pry_method?
+          if Helpers::BaseHelpers.rbx? && core?
+            strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
+          elsif pry_method?
             raise CommandError, "Can't view doc for a REPL-defined method."
           else
             strip_leading_hash_and_whitespace_from_ruby_comments(@method.comment)
@@ -206,14 +206,9 @@ class Pry
     end
 
     # @return [Symbol] The source type of the method. The options are
-    #   `:ruby` for ordinary Ruby methods, `:c` for methods written in
-    #   C, or `:rbx` for Rubinius core methods written in Ruby.
+    #   `:ruby` for Ruby methods or `:c` for methods written in C.
     def source_type
-      if Helpers::BaseHelpers.rbx?
-        if core? then :rbx else :ruby end
-      else
-        if source_location.nil? then :c else :ruby end
-      end
+      source_location.nil? ? :c : :ruby
     end
 
     # @return [String, nil] The name of the file the method is defined in, or
