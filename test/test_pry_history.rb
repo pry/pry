@@ -5,7 +5,7 @@ describe Pry do
 
   before do
     Pry.history.clear
-    @file = Tempfile.new(["tmp", ".pry_history"])
+    @file = Tempfile.new(["pry", ".pry_history"])
     @hist = @file.path
     File.open(@hist, 'w') {|f| f << "1\n2\n3\n" }
     @old_hist = Pry.config.history.file

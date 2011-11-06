@@ -48,7 +48,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should reload the file if it is a ruby file" do
-          tf = Tempfile.new(["tmp", ".rb"])
+          tf = Tempfile.new(["pry", ".rb"])
           path = tf.path
 
           mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
@@ -57,7 +57,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should not reload the file if it is not a ruby file" do
-          tf = Tempfile.new(["tmp", ".py"])
+          tf = Tempfile.new(["pry", ".py"])
           path = tf.path
 
           mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
@@ -66,7 +66,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should not reload a ruby file if -n is given" do
-          tf = Tempfile.new(["tmp", ".rb"])
+          tf = Tempfile.new(["pry", ".rb"])
           path = tf.path
 
           mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
@@ -75,7 +75,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should reload a non-ruby file if -r is given" do
-          tf = Tempfile.new(["tmp", ".pryrc"])
+          tf = Tempfile.new(["pry", ".pryrc"])
           path = tf.path
 
           mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
@@ -87,7 +87,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
     describe "with --ex" do
       before do
-        @tf = Tempfile.new(["tmp", ".rb"])
+        @tf = Tempfile.new(["pry", ".rb"])
         @path = @tf.path
         @tf << "1\n2\nraise RuntimeError"
         @tf.flush
@@ -364,7 +364,7 @@ describe "Pry::DefaultCommands::Introspection" do
   describe "edit-method" do
     describe "on a method defined in a file" do
       before do
-        @tempfile = Tempfile.new(['tmp', '*.rb'])
+        @tempfile = Tempfile.new(['pry', '*.rb'])
         @tempfile.puts <<-EOS
           module A
             def a
