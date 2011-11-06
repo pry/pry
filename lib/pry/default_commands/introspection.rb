@@ -26,7 +26,10 @@ class Pry
         output.puts
 
         if Pry.color
-          code = CodeRay.scan(meth.source, meth.source_type).term
+          source_type = meth.source_type
+          source_type = :ruby if source_type == :rbx
+
+          code = CodeRay.scan(meth.source, source_type).term
         else
           code = meth.source
         end
