@@ -72,6 +72,8 @@ class Pry
     def size
       @count
     end
+    alias count size
+    alias length size
 
     def empty?
       size == 0

@@ -9,6 +9,41 @@ describe "Pry::DefaultCommands::Shell" do
       end
     end
 
+    describe "with --in" do
+      it 'should display the last few expressions with indices' do
+        output = mock_pry("10", "20", "cat --in")
+        output.should =~ /^1:/
+        output.should =~ /^  10/
+        output.should =~ /^2:/
+        output.should =~ /^  20/
+      end
+    end
+
+    describe "with --in 1" do
+      it 'should display the first expression with no index' do
+        output = mock_pry("10", "20", "cat --in 1")
+        output.should.not =~ /^\d+:/
+        output.should =~ /^10/
+      end
+    end
+
+    describe "with --in -1" do
+      it 'should display the last expression with no index' do
+        output = mock_pry("10", "20", "cat --in -1")
+        output.should.not =~ /^\d+:/
+        output.should =~ /^20/
+      end
+    end
+
+    describe "with --in 1..2" do
+      it 'should display the given range with indices, omitting nils' do
+        output = mock_pry("10", "20", "cat --ex", ":hello", "cat --in 1..4")
+        output.should =~ /^1:/
+        output.should.not =~ /^3:/
+        output.should =~ /^  :hello/
+      end
+    end
+
     # this doesnt work so well on rbx due to differences in backtrace
     # so we currently skip rbx until we figure out a workaround
     describe "with --ex" do
