@@ -86,13 +86,16 @@ class Pry
       end
 
       def syntax_highlight_by_file_type_or_specified(contents, file_name, file_type)
-        _, language_detected = file_map.find do |k, v|
-          Array(k).any? do |matcher|
-            matcher == File.extname(file_name) || matcher == File.basename(file_name)
+        if file_type
+          language_detected = file_type
+        else
+          _, language_detected = file_map.find do |k, v|
+            Array(k).any? do |matcher|
+              matcher == File.extname(file_name) || matcher == File.basename(file_name)
+            end
           end
         end
 
-        language_detected = file_type if file_type
         if Pry.color
           CodeRay.scan(contents, language_detected).term
         else
@@ -247,6 +250,25 @@ class Pry
         text.gsub(/^#{margin}/, '')
       end
 
+      def absolute_index_number(line_number, array_length)
+        if line_number >= 0
+          line_number
+        else
+          [array_length + line_number, 0].max
+        end
+      end
+
+      def absolute_index_range(range_or_number, array_length)
+        case range_or_number
+        when Range
+          a = absolute_index_number(range_or_number.begin, array_length)
+          b = absolute_index_number(range_or_number.end, array_length)
+        else
+          a = b = absolute_index_number(range_or_number, array_length)
+        end
+
+        Range.new(a, b)
+      end
     end
 
   end

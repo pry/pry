@@ -81,6 +81,14 @@ class Pry
             "#{self.send(color, adjusted_index)}: #{line}"
           end.join
         end
+
+        # Returns _text_ indented by _chars_ spaces.
+        #
+        # @param [String] text
+        # @param [Fixnum] chars
+        def indent(text, chars)
+          text.lines.map { |l| "#{' ' * chars}#{l}" }.join
+        end
       end
 
     end

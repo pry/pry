@@ -31,7 +31,7 @@ class Pry
 
       alias_command "file-mode", "shell-mode"
 
-      command "cat", "Show output of file FILE. Type `cat --help` for more information." do |*args|
+      command "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do |*args|
         start_line = 0
         end_line = -1
         file_name = nil
@@ -68,6 +68,8 @@ class Pry
             end
           end
 
+          opt.on :i, :in, "Show entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1
+
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
@@ -86,19 +88,49 @@ class Pry
           file_name = args.shift
         end
 
-        if !file_name
-          raise CommandError, "Must provide a file name."
-        end
+        if opts.in?
+          normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
+          input_items = _pry_.input_array[normalized_range] || []
 
-        begin
-          contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
+          zipped_items = normalized_range.zip(input_items).reject { |_, s| s.nil? || s == "" }
+
+          unless zipped_items.length > 0
+            raise CommandError, "No expressions found."
+          end
+
+          if opts[:i].is_a?(Range)
+            contents = ""
+
+            zipped_items.each do |i, s|
+              contents << "#{text.bold(i.to_s)}:\n"
+
+              code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
+
+              if opts.l?
+                contents << text.indent(text.with_line_numbers(code, 1), 2)
+              else
+                contents << text.indent(code, 2)
+              end
+            end
+          else
+            contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
+          end
+        else
+          unless file_name
+            raise CommandError, "Must provide a file name."
+          end
+
+          begin
+            contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
+          rescue Errno::ENOENT
+            raise CommandError, "Could not find file: #{file_name}"
+          end
+
           contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
-        rescue Errno::ENOENT
-          raise CommandError, "Could not find file: #{file_name}"
-        end
 
-        if opts.l?
-          contents = text.with_line_numbers contents, start_line + 1
+          if opts.l?
+            contents = text.with_line_numbers contents, start_line + 1
+          end
         end
 
         # add the arrow pointing to line that caused the exception
