@@ -121,7 +121,7 @@ describe "Pry::DefaultCommands::Shell" do
       it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
         temp_files = []
         3.times do |i|
-          temp_files << Tempfile.new(['tmp', '*.rb'])
+          temp_files << Tempfile.new(['pry', '*.rb'])
           temp_files.last << "bt number #{i}"
           temp_files.last.flush
         end

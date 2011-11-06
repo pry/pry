@@ -163,7 +163,7 @@ end
 # Open a temp file and yield it to the block, closing it after
 # @return [String] The path of the temp file
 def temp_file
-  file = Tempfile.new("tmp")
+  file = Tempfile.new('pry')
   yield file
 ensure
   file.close
