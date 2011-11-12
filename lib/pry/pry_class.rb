@@ -73,6 +73,21 @@ class Pry
     end
   end
 
+  # Do basic setup for initial session.
+  # Including: loading .pryrc, loading plugins, loading requires, and
+  # loading history.
+  def self.initial_session_setup
+    # note these have to be loaded here rather than in pry_instance as
+    # we only want them loaded once per entire Pry lifetime, not
+    # multiple times per each new session (i.e in debugging)
+    load_rc if Pry.config.should_load_rc
+    load_plugins if Pry.config.plugins.enabled
+    load_requires if Pry.config.should_load_requires
+    load_history if Pry.config.history.should_load
+
+    @initial_session = false
+  end
+
   # Start a Pry REPL.
   # This method also loads the files specified in `Pry::RC_FILES` the
   # first time it is invoked.
@@ -83,17 +98,10 @@ class Pry
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
     if initial_session?
-      # note these have to be loaded here rather than in pry_instance as
-      # we only want them loaded once per entire Pry lifetime, not
-      # multiple times per each new session (i.e in debugging)
-      load_rc if Pry.config.should_load_rc
-      load_plugins if Pry.config.plugins.enabled
-      load_requires if Pry.config.should_load_requires
-      load_history if Pry.config.history.should_load
-
-      @initial_session = false
+      initial_session_setup
     end
 
+    Pry.config.hooks.exec_hook(:when_started, target)
     new(options).repl(target)
   end
 

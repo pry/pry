@@ -33,7 +33,9 @@ class Pry
       end
 
       # Activate the plugin (require the gem - enables/loads the
-      # plugin immediately at point of call, even if plugin is disabled)
+      # plugin immediately at point of call, even if plugin is
+      # disabled)
+      # Does not reload plugin if it's already active.
       def activate!
         begin
           require gem_name if !active?
