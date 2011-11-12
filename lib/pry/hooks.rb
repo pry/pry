@@ -1,8 +1,14 @@
 class Pry
   class Hooks
+    attr_accessor :hooks
+    @@hooks = {}
+
+    def self.hooks
+      @@hooks
+    end
 
     def initialize
-      @hooks = {}
+      @hooks = @@hooks
     end
 
     # Add a new callable to be executed for the `name` hook.
