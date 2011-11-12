@@ -25,7 +25,7 @@ class << Pry
     Pry.config.history.should_load = false
     Pry.config.history.should_save = false
     Pry.config.auto_indent         = false
-    Pry.config.hooks = { }
+    Pry.config.hooks               = Pry::Hooks.new
   end
 end
 

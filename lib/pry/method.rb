@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Pry
   class Method
     include RbxMethod if Helpers::BaseHelpers.rbx?
@@ -178,7 +179,7 @@ class Pry
           if Helpers::BaseHelpers.rbx? && core?
             code = core_code
           elsif pry_method?
-            code = Pry.new(:input => StringIO.new(Pry.line_buffer[source_line..-1].join), :prompt => proc {""}, :hooks => {}).r
+            code = Pry.new(:input => StringIO.new(Pry.line_buffer[source_line..-1].join), :prompt => proc {""}, :hooks => Pry::Hooks.new).r
           else
             code = @method.source
           end
