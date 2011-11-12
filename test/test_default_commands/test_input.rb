@@ -154,7 +154,7 @@ describe "Pry::DefaultCommands::Input" do
       b = binding
       b.eval('x = "\"hello\""')
       redirect_pry_io(InputTester.new("play x", "exit-all"), str_output = StringIO.new) do
-        Pry.start b, :hooks => {}
+        Pry.start b, :hooks => Pry::Hooks.new
       end
       str_output.string.should =~ /hello/
     end
@@ -163,7 +163,7 @@ describe "Pry::DefaultCommands::Input" do
       b = binding
       b.eval('x = "\"hello\"\n\"goodbye\"\n\"love\""')
       redirect_pry_io(InputTester.new("play x --lines 1", "exit-all"), str_output = StringIO.new) do
-        Pry.start b, :hooks => {}
+        Pry.start b, :hooks => Pry::Hooks.new
       end
       str_output.string.should =~ /hello/
       str_output.string.should.not =~ /love/
