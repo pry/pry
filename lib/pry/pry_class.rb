@@ -97,6 +97,7 @@ class Pry
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
+    target = Pry.binding_for(target)
     if initial_session?
       initial_session_setup
     end
