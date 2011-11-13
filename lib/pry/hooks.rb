@@ -27,7 +27,7 @@ class Pry
     # @param [Symbol] name The name of the hook to execute.
     # @param [Array] args The arguments to pass to each callable.
     def exec_hook(name, *args, &block)
-      Array(@hooks[name]).each { |v| v.call(*args, &block) }
+      Array(@hooks[name]).map { |v| v.call(*args, &block) }
     end
 
     # Return the number of callables registered for the `name` hook.
