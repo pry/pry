@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>PRY(1) - A Reference to the PRY repl.</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#Synopsis">Synopsis</a>
+    <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#HOMEPAGE">HOMEPAGE</a>
+    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#FILES">FILES</a>
+    <a href="#EXAMPLES">EXAMPLES</a>
+    <a href="#AUTHORS">AUTHORS</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>PRY(1)</li>
+    <li class='tc'></li>
+    <li class='tr'>PRY(1)</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>PRY</code> - <span class="man-whatis">A Reference to the PRY repl.</span>
+</p>
+
+<h2 id="Synopsis">Synopsis</h2>
+
+<p><code>pry</code> [<code>--version</code>] [<code>--exec</code>] [<code>--no-pager</code>] [<code>--no-history</code>] [<code>--no-color</code>] [<code>-f</code>] [<code>--no-plugins</code>] [<code>--installed-plugins</code>] [<code>--simple-prompt</code>] [<code>--require</code> <em>file</em>] [<code>-I</code>] [<code>--context</code>] [<code>--help</code>]</p>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Pry is a powerful alternative to the standard IRB shell for Ruby. It is written from scratch to provide a number of advanced features.</p>
+
+<h2 id="HOMEPAGE">HOMEPAGE</h2>
+
+<p>http://pry.github.com/</p>
+
+<h2 id="OPTIONS">OPTIONS</h2>
+
+<dl>
+<dt><code>-v --version</code></dt><dd><p>Prints the version of Pry.</p></dd>
+<dt><code>-e --exec</code></dt><dd><p>Executes argument in context before the session starts.</p></dd>
+<dt><code>--no-pager</code></dt><dd><p>Disable pager for long output.</p></dd>
+<dt><code>--no-history</code></dt><dd><p>Disable history loading.</p></dd>
+<dt><code>--no-color</code></dt><dd><p>Disable syntax highlighting for session.</p></dd>
+<dt class="flush"><code>-f</code></dt><dd><p>Prevent loading of ~/.pryrc for session.</p></dd>
+<dt><code>--no-plugins</code></dt><dd><p>Supress loading of plugins.</p></dd>
+<dt><code>--installed-plugins</code></dt><dd><p>List installed plugins.</p></dd>
+<dt><code>--simple-prompt</code></dt><dd><p>Enable simple prompt mode (eg, >>).</p></dd>
+<dt><code>-r --require</code></dt><dd><p>Require a ruby script at startup.</p></dd>
+<dt class="flush"><code>-I</code></dt><dd><p>Add a path to the $LOAD_PATH</p></dd>
+<dt><code>-c --context</code></dt><dd><p>Start the session in the specified context.  Equivalent to <code>context.pry</code> in a session.</p></dd>
+</dl>
+
+
+<h2 id="FILES">FILES</h2>
+
+<p>~/.pryrc Personal pry initialization</p>
+
+<h2 id="EXAMPLES">EXAMPLES</h2>
+
+<h3 id="Basic-Usage">Basic Usage</h3>
+
+<pre><code>$ pry
+[1] pry(main)&gt;4 + 5
+=&gt; 9
+[2] pry(main)&gt; def hello_world
+[2] pry(main)*   puts "Hello, World!"
+[2] pry(main)* end  
+=&gt; nil
+[3] pry(main)&gt; hello_world
+Hello, World!
+=&gt; nil
+</code></pre>
+
+<h3 id="Command-Line-Interaction">Command Line Interaction</h3>
+
+<p>Prefix any command you want your shell to execute with a period and pry will return the results from your shell.</p>
+
+<pre><code>[1] pry(main)&gt; .date
+Fri Nov 11 09:52:07 EST 2011
+</code></pre>
+
+<p>On the command line enter <code>shell-mode</code> to incorporate the current working directory into the Pry prompt.</p>
+
+<pre><code>pry(main)&gt; shell-mode
+pry main:/Users/john/ruby/projects/pry $ .cd ..
+pry main:/Users/john/ruby/projects $ .cd ~
+pry main:/Users/john $ .pwd
+/Users/john
+pry main:/Users/john $ shell-mode
+pry(main)&gt;
+</code></pre>
+
+<h3 id="State-Navigation">State Navigation</h3>
+
+<p>The cd command is used to move into a new object (or scope) inside a Pry session.  When inside the new scope it becomes the self for the session and all commands and methods will operate on this new self.</p>
+
+<pre><code>pry(main)&gt; self
+=&gt; main
+pry(main)&gt; cd Pry
+pry(Pry):1&gt; self
+=&gt; Pry
+pry(Pry):1&gt; cd ..
+pry(main)&gt;
+</code></pre>
+
+<p>The ls command is essentially a unified wrapper to a number of Ruby's introspection mechanisms, including (but not limited to) the following methods: methods, instance_variables, constants, local_variables, instance_methods, class_variables and all the various permutations thereof.</p>
+
+<p>By default typing ls will return a list of just the local and instance variables available in the current context.</p>
+
+<ul>
+<li>The -M option selects public instance methods (if available).</li>
+<li>The -m option selects public methods.</li>
+<li>The -c option selects constants.</li>
+<li>The -i option select just instance variables.</li>
+<li>The -l option selects just local variables.</li>
+<li>The -s option modifies the -c and -m and -M options to go up the superclass chain (excluding Object).</li>
+<li>The --grep REGEX prunes the list to items that match the regex.</li>
+</ul>
+
+
+<h3 id="Source-Browsing">Source Browsing</h3>
+
+<p>Simply typing show-method method_name will pull the source for the method and display it with syntax highlighting. You can also look up the source for multiple methods at the same time, by typing show-method method1 method2. As a convenience, Pry looks up both instance methods and class methods using this syntax, with priority given to instance methods.</p>
+
+<pre><code>pry(Pry):1&gt; show-method rep
+
+From: /Users/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 191:
+Number of lines: 6
+
+def rep(target=TOPLEVEL_BINDING)
+  target = Pry.binding_for(target)
+  result = re(target)
+
+  show_result(result) if should_print?
+end
+</code></pre>
+
+<h2 id="AUTHORS">AUTHORS</h2>
+
+<p>Pry is primarily the work of John Mair (banisterfiend)</p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'></li>
+    <li class='tc'>November 2011</li>
+    <li class='tr'>PRY(1)</li>
+  </ol>
+
+  </div>
+</body>
+</html>
