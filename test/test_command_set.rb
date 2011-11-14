@@ -108,7 +108,7 @@ describe Pry::CommandSet do
     run.should == true
   end
 
-  it 'should be able to change the descritpions of methods' do
+  it 'should be able to change the descriptions of methods' do
     @set.command('foo', 'bar') {}
     @set.desc 'foo', 'baz'
 
@@ -225,5 +225,96 @@ describe Pry::CommandSet do
              doc.index("moo")]
 
     order.should == order.sort
+  end
+
+  describe "command decorators - before_command and after_command" do
+    describe "before_command" do
+      it 'should be called before the original command' do
+        foo = []
+        @set.command('foo') { foo << 1 }
+        @set.before_command('foo') { foo << 2 }
+        @set.run_command(@ctx, 'foo')
+
+        foo.should == [2, 1]
+      end
+
+      it 'should share the context with the original command' do
+        @ctx.target = "test target string"
+        before_val  = nil
+        orig_val    = nil
+        @set.command('foo') { orig_val = target }
+        @set.before_command('foo') { before_val = target }
+        @set.run_command(@ctx, 'foo')
+
+        before_val.should == @ctx.target
+        orig_val.should == @ctx.target
+      end
+
+      it 'should work when applied multiple times' do
+        foo = []
+        @set.command('foo') { foo << 1 }
+        @set.before_command('foo') { foo << 2 }
+        @set.before_command('foo') { foo << 3 }
+        @set.before_command('foo') { foo << 4 }
+        @set.run_command(@ctx, 'foo')
+
+        foo.should == [4, 3, 2, 1]
+      end
+
+    end
+
+    describe "after_command" do
+      it 'should be called after the original command' do
+        foo = []
+        @set.command('foo') { foo << 1 }
+        @set.after_command('foo') { foo << 2 }
+        @set.run_command(@ctx, 'foo')
+
+        foo.should == [1, 2]
+      end
+
+      it 'should share the context with the original command' do
+        @ctx.target = "test target string"
+        after_val  = nil
+        orig_val    = nil
+        @set.command('foo') { orig_val = target }
+        @set.after_command('foo') { after_val = target }
+        @set.run_command(@ctx, 'foo')
+
+        after_val.should == @ctx.target
+        orig_val.should == @ctx.target
+      end
+
+      it 'should determine the return value for the command' do
+        @set.command('foo', 'bar', :keep_retval => true) { 1 }
+        @set.after_command('foo') { 2 }
+        @set.run_command(@ctx, 'foo').should == 2
+      end
+
+      it 'should work when applied multiple times' do
+        foo = []
+        @set.command('foo') { foo << 1 }
+        @set.after_command('foo') { foo << 2 }
+        @set.after_command('foo') { foo << 3 }
+        @set.after_command('foo') { foo << 4 }
+        @set.run_command(@ctx, 'foo')
+
+        foo.should == [1, 2, 3, 4]
+      end
+    end
+
+    describe "before_command and after_command" do
+      it 'should work when combining both before_command and after_command' do
+        foo = []
+        @set.command('foo') { foo << 1 }
+        @set.after_command('foo') { foo << 2 }
+        @set.before_command('foo') { foo << 3 }
+        @set.run_command(@ctx, 'foo')
+
+        foo.should == [3, 1, 2]
+      end
+
+    end
+
   end
 end

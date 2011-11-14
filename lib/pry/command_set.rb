@@ -142,6 +142,43 @@ class Pry
       commands[name] = Command.new(name, description, options, block)
     end
 
+
+    # Execute a block of code before a command is invoked. The block also
+    # gets access to parameters that will be passed to the command and
+    # is evaluated in the same context.
+    # @param [String, Regexp] name The name of the command.
+    # @yield The block to be run before the command.
+    # @example Display parameter before invoking command
+    #   Pry.commands.before_command("whereami") do |n|
+    #     output.puts "parameter passed was #{n}"
+    #   end
+    def before_command(name, &block)
+      prev_block = commands[name].block
+      wrapper_block = proc do |*args|
+        instance_exec(*args, &block)
+        instance_exec(*args, &prev_block)
+      end
+      commands[name].block = wrapper_block
+    end
+
+    # Execute a block of code after a command is invoked. The block also
+    # gets access to parameters that will be passed to the command and
+    # is evaluated in the same context.
+    # @param [String, Regexp] name The name of the command.
+    # @yield The block to be run after the command.
+    # @example Display text 'command complete' after invoking command
+    #   Pry.commands.after_command("whereami") do |n|
+    #     output.puts "command complete!"
+    #   end
+    def after_command(name, &block)
+      prev_block = commands[name].block
+      wrapper_block = proc do |*args|
+        instance_exec(*args, &prev_block)
+        instance_exec(*args, &block)
+      end
+      commands[name].block = wrapper_block
+    end
+
     def each &block
       @commands.each(&block)
     end
