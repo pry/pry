@@ -77,6 +77,9 @@ class Pry
   # Including: loading .pryrc, loading plugins, loading requires, and
   # loading history.
   def self.initial_session_setup
+
+    return if !initial_session?
+
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime, not
     # multiple times per each new session (i.e in debugging)
@@ -98,9 +101,7 @@ class Pry
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
     target = Pry.binding_for(target)
-    if initial_session?
-      initial_session_setup
-    end
+    initial_session_setup
 
     Pry.config.hooks.exec_hook(:when_started, target)
     new(options).repl(target)
