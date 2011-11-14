@@ -1,8 +1,14 @@
 class Pry
   class Hooks
+    attr_accessor :hooks
+    @@hooks = {}
+
+    def self.hooks
+      @@hooks
+    end
 
     def initialize
-      @hooks = {}
+      @hooks = @@hooks
     end
 
     # Add a new callable to be executed for the `name` hook.
@@ -39,8 +45,12 @@ class Pry
 
     # Clear the list of callables for the `name` hook.
     # @param [Symbol] The name of the hook to delete.
+    # @return [Array, NilClass] The hooks that were deleted.
+    # @note Returns deleted hook for easy temp replacement.
     def delete_hook(name)
+      deleted = @hooks.delete(name)
       @hooks[name] = []
+      deleted
     end
 
     # Clear all hooks.
