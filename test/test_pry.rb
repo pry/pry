@@ -1282,8 +1282,8 @@ describe Pry do
           it 'should set the hooks default, and the default should be overridable' do
             Pry.input = InputTester.new("exit-all")
             Pry.hooks = Pry::Hooks.new.
-              add_hook(:before_session) { |out,_,_|  out.puts "HELLO" }.
-              add_hook(:after_session) { |out,_,_| out.puts "BYE" }
+              add_hook(:before_session, :my_name) { |out,_,_|  out.puts "HELLO" }.
+              add_hook(:after_session, :my_name) { |out,_,_| out.puts "BYE" }
 
             str_output = StringIO.new
             Pry.new(:output => str_output).repl
@@ -1295,8 +1295,8 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => Pry::Hooks.new.
-                    add_hook( :before_session) { |out,_,_| out.puts "MORNING" }.
-                    add_hook(:after_session) { |out,_,_| out.puts "EVENING" }
+                    add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }.
+                    add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
                     ).repl
 
             str_output.string.should =~ /MORNING/
@@ -1307,7 +1307,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => Pry::Hooks.new.
-                      add_hook(:before_session) { |out,_,_| out.puts "OPEN" }
+                      add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
                     ).repl
 
             str_output.string.should =~ /OPEN/
@@ -1316,7 +1316,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => Pry::Hooks.new.
-                      add_hook(:after_session) { |out,_,_| out.puts "CLOSE" }
+                      add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
                     ).repl
 
             str_output.string.should =~ /CLOSE/

@@ -50,6 +50,15 @@ describe Pry::CommandSet do
     }.should.raise(Pry::NoCommandError)
   end
 
+  it 'should be able to remove its own commands, by listing name' do
+    @set.command(/^foo1/, 'desc', :listing => 'foo') {}
+    @set.delete 'foo'
+
+    lambda {
+      @set.run_command @ctx, /^foo1/
+    }.should.raise(Pry::NoCommandError)
+  end
+
   it 'should be able to import some commands from other sets' do
     run = false
 
@@ -66,6 +75,19 @@ describe Pry::CommandSet do
     lambda {
       @set.run_command @ctx, 'bar'
     }.should.raise(Pry::NoCommandError)
+  end
+
+  it 'should be able to import some commands from other sets using listing name' do
+    run = false
+
+    other_set = Pry::CommandSet.new do
+      command(/^foo1/, 'desc', :listing => 'foo') { run = true }
+    end
+
+    @set.import_from(other_set, 'foo')
+
+    @set.run_command @ctx, /^foo1/
+    run.should == true
   end
 
   it 'should be able to import a whole set' do
@@ -99,6 +121,18 @@ describe Pry::CommandSet do
   it 'should be able to alias method' do
     run = false
     @set.command('foo', 'stuff') { run = true }
+
+    @set.alias_command 'bar', 'foo'
+    @set.commands['bar'].name.should == 'bar'
+    @set.commands['bar'].description.should == ''
+
+    @set.run_command @ctx, 'bar'
+    run.should == true
+  end
+
+  it "should be able to alias a method by the command's listing name" do
+    run = false
+    @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
     @set.alias_command 'bar', 'foo'
     @set.commands['bar'].name.should == 'bar'
@@ -238,6 +272,15 @@ describe Pry::CommandSet do
         foo.should == [2, 1]
       end
 
+      it 'should be called before the original command, using listing name' do
+        foo = []
+        @set.command(/^foo1/, '', :listing => 'foo') { foo << 1 }
+        @set.before_command('foo') { foo << 2 }
+        @set.run_command(@ctx, /^foo1/)
+
+        foo.should == [2, 1]
+      end
+
       it 'should share the context with the original command' do
         @ctx.target = "test target string"
         before_val  = nil
@@ -269,6 +312,15 @@ describe Pry::CommandSet do
         @set.command('foo') { foo << 1 }
         @set.after_command('foo') { foo << 2 }
         @set.run_command(@ctx, 'foo')
+
+        foo.should == [1, 2]
+      end
+
+      it 'should be called after the original command, using listing name' do
+        foo = []
+        @set.command(/^foo1/, '', :listing => 'foo') { foo << 1 }
+        @set.after_command('foo') { foo << 2 }
+        @set.run_command(@ctx, /^foo1/)
 
         foo.should == [1, 2]
       end

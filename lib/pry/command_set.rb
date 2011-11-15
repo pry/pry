@@ -153,12 +153,14 @@ class Pry
     #     output.puts "parameter passed was #{n}"
     #   end
     def before_command(name, &block)
-      prev_block = commands[name].block
+      cmd = find_command_by_name_or_listing(name)
+      prev_block = cmd.block
+
       wrapper_block = proc do |*args|
         instance_exec(*args, &block)
         instance_exec(*args, &prev_block)
       end
-      commands[name].block = wrapper_block
+      commands[cmd.name].block = wrapper_block
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -171,12 +173,14 @@ class Pry
     #     output.puts "command complete!"
     #   end
     def after_command(name, &block)
-      prev_block = commands[name].block
+      cmd = find_command_by_name_or_listing(name)
+      prev_block = cmd.block
+
       wrapper_block = proc do |*args|
         instance_exec(*args, &prev_block)
         instance_exec(*args, &block)
       end
-      commands[name].block = wrapper_block
+      commands[cmd.name].block = wrapper_block
     end
 
     def each &block
@@ -186,7 +190,10 @@ class Pry
     # Removes some commands from the set
     # @param [Array<String>] names name of the commands to remove
     def delete(*names)
-      names.each { |name| commands.delete name }
+      names.each do |name|
+        cmd = find_command_by_name_or_listing(name)
+        commands.delete cmd.name
+      end
     end
 
     # Imports all the commands from one or more sets.
@@ -204,15 +211,31 @@ class Pry
     # @param [Array<String>] names Commands to import
     def import_from(set, *names)
       helper_module.send :include, set.helper_module
-      names.each { |name| commands[name] = set.commands[name] }
+      names.each do |name|
+        cmd = set.find_command_by_name_or_listing(name)
+        commands[cmd.name] = cmd
+      end
     end
+
+    def find_command_by_name_or_listing(name_or_listing)
+      if commands[name_or_listing]
+        cmd = commands[name_or_listing]
+      else
+        _, cmd = commands.find { |name, command| command.options[:listing] == name_or_listing }
+      end
+
+      raise ArgumentError, "Cannot find a command with name: '#{name_or_listing}'!" if !cmd
+      cmd
+    end
+    protected :find_command_by_name_or_listing
 
     # Aliases a command
     # @param [String] new_name New name of the command.
     # @param [String] old_name Old name of the command.
     # @param [String, nil] desc New description of the command.
     def alias_command(new_name, old_name, desc="")
-      commands[new_name] = commands[old_name].dup
+      orig_command = find_command_by_name_or_listing(old_name)
+      commands[new_name] = orig_command.dup
       commands[new_name].name = new_name
       commands[new_name].description = desc
     end
@@ -238,16 +261,22 @@ class Pry
       end
     end
 
-    # Sets the description for a command (replacing the old
-    # description.)
-    # @param [String] name The command name.
+    # Sets or gets the description for a command (replacing the old
+    # description). Returns current description if no description
+    # parameter provided.
+    # @param [String, Regexp] name The command name.
     # @param [String] description The command description.
-    # @example
+    # @example Setting
     #   MyCommands = Pry::CommandSet.new do
     #     desc "help", "help description"
     #   end
-    def desc(name, description)
-      commands[name].description = description
+    # @example Getting
+    #   Pry.config.commands.desc "amend-line"
+    def desc(name, description=nil)
+      cmd = find_command_by_name_or_listing(name)
+      return cmd.description if !description
+
+      cmd.description = description
     end
 
     # Defines helpers methods for this command sets.
