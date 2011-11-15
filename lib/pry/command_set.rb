@@ -160,7 +160,7 @@ class Pry
         instance_exec(*args, &block)
         instance_exec(*args, &prev_block)
       end
-      commands[cmd.name].block = wrapper_block
+      cmd.block = wrapper_block
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -180,7 +180,7 @@ class Pry
         instance_exec(*args, &prev_block)
         instance_exec(*args, &block)
       end
-      commands[cmd.name].block = wrapper_block
+      cmd.block = wrapper_block
     end
 
     def each &block
