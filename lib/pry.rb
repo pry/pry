@@ -8,7 +8,7 @@ require 'pry/hooks'
 
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
-  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session) do |out, target, _pry_|
+  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
     # ensure we're actually in a method
     file = target.eval('__FILE__')
 
