@@ -142,11 +142,21 @@ describe Pry::CommandSet do
     run.should == true
   end
 
-  it 'should be able to change the descriptions of methods' do
+  it 'should be able to change the descriptions of commands' do
     @set.command('foo', 'bar') {}
     @set.desc 'foo', 'baz'
 
     @set.commands['foo'].description.should == 'baz'
+  end
+
+  it 'should get the descriptions of commands' do
+    @set.command('foo', 'bar') {}
+    @set.desc('foo').should == 'bar'
+  end
+
+  it 'should get the descriptions of commands, by listing' do
+    @set.command(/^foo1/, 'bar', :listing => 'foo') {}
+    @set.desc('foo').should == 'bar'
   end
 
   it 'should return Pry::CommandContext::VOID_VALUE for commands by default' do
