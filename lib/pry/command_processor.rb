@@ -101,6 +101,17 @@ class Pry
       [cmd_data, (Regexp.last_match ? Regexp.last_match.captures : nil), (Regexp.last_match ? Regexp.last_match.end(0) : nil)]
     end
 
+    # Display a warning if a command collides with a local/method in
+    # the current scope.
+    # @param [String] command_name_match The name of the colliding command.
+    # @param [Binding] target The current binding context.
+    def check_for_command_name_collision(command_name_match, target)
+      if collision_type = target.eval("defined?(#{command_name_match})")
+        pry_instance.output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Command name collision with a #{collision_type}: '#{command_name_match}'\n\n"
+      end
+    rescue Pry::RescuableException
+    end
+
     # Process Pry commands. Pry commands are not Ruby methods and are evaluated
     # prior to Ruby expressions.
     # Commands can be modified/configured by the user: see `Pry::Commands`
@@ -122,6 +133,8 @@ class Pry
       return Result.new(false) if !command
 
       arg_string = val[pos..-1]
+
+      check_for_command_name_collision(val[0..pos].rstrip, target) if Pry.config.collision_warning
 
       # remove the one leading space if it exists
       arg_string.slice!(0) if arg_string.start_with?(" ")

@@ -206,6 +206,7 @@ class Pry
     config.command_prefix = ""
     config.auto_indent = true
     config.correct_indent = true
+    config.collision_warning = true
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
