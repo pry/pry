@@ -138,6 +138,10 @@ class Pry
     # @return [Boolean] Whether or not indentation should be corrected
     #   after hitting enter. This feature is not supported by all terminals.
     attr_accessor :correct_indent
+
+    # @return [Boolean] Whether or not a warning will be displayed when
+    #   a command name collides with a method/local in the current context.
+    attr_accessor :collision_warning
   end
 end
 
