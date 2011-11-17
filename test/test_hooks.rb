@@ -41,6 +41,28 @@ describe Pry::Hooks do
     end
   end
 
+  describe "getting a hook" do
+    it 'should return the correct requested hook' do
+      run = false
+      fun = false
+      @hooks.add_hook(:test_hook, :my_name) { run = true }
+      @hooks.add_hook(:test_hook, :my_name2) { fun = true }
+      @hooks.get_hook(:test_hook, :my_name).call
+      run.should == true
+      fun.should == false
+    end
+  end
+
+  describe "clearing all hooks for an event" do
+    it 'should clear all hooks' do
+      @hooks.add_hook(:test_hook, :my_name) { }
+      @hooks.add_hook(:test_hook, :my_name2) { }
+      @hooks.add_hook(:test_hook, :my_name3) { }
+      @hooks.clear(:test_hook)
+      @hooks.hook_count(:test_hook).should == 0
+    end
+  end
+
   describe "deleting a hook" do
     it 'should successfully delete a hook function' do
       @hooks.add_hook(:test_hook, :my_name) {}
@@ -49,9 +71,10 @@ describe Pry::Hooks do
     end
 
     it 'should return the deleted hook function' do
-      @hooks.add_hook(:test_hook, :my_name) {}
-      @hooks.delete_hook(:test_hook, :my_name)
-      @hooks.hook_count(:test_hook).should == 0
+      run = false
+      @hooks.add_hook(:test_hook, :my_name) { run = true }
+      @hooks.delete_hook(:test_hook, :my_name).call
+      run.should == true
     end
   end
 
