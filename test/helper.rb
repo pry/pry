@@ -26,6 +26,7 @@ class << Pry
     Pry.config.history.should_save = false
     Pry.config.auto_indent         = false
     Pry.config.hooks               = Pry::Hooks.new
+    Pry.config.collision_warning   = false
   end
 end
 
