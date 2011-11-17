@@ -8,7 +8,7 @@ class Pry
         run "show-input"
       end
 
-      command "get-naked" "" do
+      command "get-naked", "" do
         text = %{
 --
 We dont have to take our clothes off to have a good time.
