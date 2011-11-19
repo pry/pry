@@ -20,21 +20,26 @@ describe Pry::Hooks do
       @hooks.hook_count(:test_hook).should == 1
     end
 
-    it 'should create a new hook with a callable' do
+    it 'should create a new hook for an event' do
       @hooks.add_hook(:test_hook, :my_name, proc { })
       @hooks.hook_count(:test_hook).should == 1
     end
 
     it 'should use just block if given both block and callable' do
-      @hooks.add_hook(:test_hook, :my_name, proc { }) { }
+      run = false
+      foo = false
+      @hooks.add_hook(:test_hook, :my_name, proc { foo = true }) { run = true }
       @hooks.hook_count(:test_hook).should == 1
+      @hooks.exec_hook(:test_hook)
+      run.should == true
+      foo.should == false
     end
 
     it 'should raise if not given a block or any other object' do
       lambda { @hooks.add_hook(:test_hook, :my_name) }.should.raise ArgumentError
     end
 
-    it 'should create a hook with multiple callables' do
+    it 'should create multiple hooks for an event' do
       @hooks.add_hook(:test_hook, :my_name) {}
       @hooks.add_hook(:test_hook, :my_name2) {}
       @hooks.hook_count(:test_hook).should == 2
@@ -64,13 +69,13 @@ describe Pry::Hooks do
   end
 
   describe "deleting a hook" do
-    it 'should successfully delete a hook function' do
+    it 'should successfully delete a hook' do
       @hooks.add_hook(:test_hook, :my_name) {}
       @hooks.delete_hook(:test_hook, :my_name)
       @hooks.hook_count(:test_hook).should == 0
     end
 
-    it 'should return the deleted hook function' do
+    it 'should return the deleted hook' do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.delete_hook(:test_hook, :my_name).call
@@ -79,20 +84,18 @@ describe Pry::Hooks do
   end
 
   describe "executing a hook" do
-    before do
-      @test_var = nil
-    end
-
     it 'should execute block hook' do
-      @hooks.add_hook(:test_hook, :my_name) { @test_var = true }
+      run = false
+      @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.exec_hook(:test_hook)
-      @test_var.should == true
+      run.should == true
     end
 
     it 'should execute proc hook' do
-      @hooks.add_hook(:test_hook, :my_name, proc { @test_var = true })
+      run = false
+      @hooks.add_hook(:test_hook, :my_name, proc { run = true })
       @hooks.exec_hook(:test_hook)
-      @test_var.should == true
+      run.should == true
     end
 
     it 'should execute a general callable hook' do
@@ -109,7 +112,7 @@ describe Pry::Hooks do
       callable.test_var.should == true
     end
 
-    it 'should execute multiple callables for a hook if more than one is defined' do
+    it 'should execute all hooks for an event if more than one is defined' do
       x = nil
       y = nil
       @hooks.add_hook(:test_hook, :my_name2) { x = true }
