@@ -14,7 +14,7 @@ class Pry
 
     # /unknown/ for rbx
     if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
-      _pry_.process_line("whereami 5", "", target)
+      _pry_.run_command("whereami 5", "", target)
     end
   end
 
