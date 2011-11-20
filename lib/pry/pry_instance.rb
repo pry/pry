@@ -258,10 +258,8 @@ class Pry
     val = ""
     loop do
       begin
-        val = retrieve_line(eval_string, target)
-
-        # eval_string may be mutated by this method
-        process_line(val, eval_string, target)
+        # eval_string will probably be mutated by this method
+        retrieve_line(eval_string, target)
       rescue CommandError, Slop::InvalidOptionError => e
         output.puts "Error: #{e.message}"
       end
@@ -297,10 +295,10 @@ class Pry
     end
   end
 
-  # Read a line of input and check for ^d, also determine prompt to use.
-  # This method should not need to be invoked directly. This method also
-  # automatically indents the input value using Pry::Indent if auto
-  # indenting is enabled.
+  # Read and process a line of input -- check for ^D, determine which prompt to
+  # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
+  # if the line is a command, process it and alter the eval_string accordingly.
+  # This method should not need to be invoked directly.
   #
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the session.
@@ -317,35 +315,41 @@ class Pry
     if !val
       output.puts ""
       Pry.config.control_d_handler.call(eval_string, self)
-      ""
-    else
-      # Change the eval_string into the input encoding (Issue 284)
-      # TODO: This wouldn't be necessary if the eval_string was constructed from
-      # input strings only.
-      if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
-        eval_string.force_encoding(val.encoding)
-      end
-
-      if !@command_processor.valid_command?(val, target) && Pry.config.auto_indent && !input.is_a?(StringIO)
-        orig_val = "#{indentation}#{val}"
-        val = @indent.indent(val)
-
-        if orig_val != val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
-          output.print @indent.correct_indentation(current_prompt + val, orig_val.length - val.length)
-        end
-      end
-
-      Pry.history << val.dup unless input.is_a?(StringIO)
-      val
+      return
     end
+
+    # Change the eval_string into the input encoding (Issue 284)
+    # TODO: This wouldn't be necessary if the eval_string was constructed from
+    # input strings only.
+    if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+      eval_string.force_encoding(val.encoding)
+    end
+
+    if Pry.config.auto_indent && !input.is_a?(StringIO)
+      original_val = "#{indentation}#{val}"
+      indented_val = @indent.indent(val)
+
+      if original_val != indented_val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
+        output.print @indent.correct_indentation(current_prompt + indented_val, original_val.length - indented_val.length)
+      end
+    else
+      indented_val = val
+    end
+
+    if !process_command(val, eval_string, target)
+      eval_string << "#{indented_val.rstrip}\n" unless val.empty?
+    end
+    Pry.history << indented_val unless input.is_a?(StringIO)
   end
 
-  # Process the line received.
+  # If the given line is a valid command, process it in the context of the
+  # current `eval_string` and context.
   # This method should not need to be invoked directly.
   # @param [String] val The line to process.
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the Pry session.
-  def process_line(val, eval_string, target)
+  # @return [Boolean] `true` if `val` is a command, `false` otherwise
+  def process_command(val, eval_string, target)
     result = @command_processor.process_commands(val, eval_string, target)
 
     # set a temporary (just so we can inject the value we want into eval_string)
@@ -354,16 +358,16 @@ class Pry
     # note that `result` wraps the result of command processing; if a
     # command was matched and invoked then `result.command?` returns true,
     # otherwise it returns false.
-    if result.command? && !result.void_command?
-
-      # the command that was invoked was non-void (had a return value) and so we make
-      # the value of the current expression equal to the return value
-      # of the command.
-      eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
+    if result.command?
+      if !result.void_command?
+        # the command that was invoked was non-void (had a return value) and so we make
+        # the value of the current expression equal to the return value
+        # of the command.
+        eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
+      end
+      true
     else
-      # only commands should have an empty `val`
-      # so this ignores their result
-      eval_string << "#{val.rstrip}\n" if !val.empty?
+      false
     end
   end
 
@@ -375,7 +379,7 @@ class Pry
   # @example
   #   pry_instance.run_command("ls -m")
   def run_command(val, eval_string = "", target = binding_stack.last)
-    process_line(val, eval_string, target)
+    @command_processor.process_commands(val, eval_string, target)
     Pry::CommandContext::VOID_VALUE
   end
 
