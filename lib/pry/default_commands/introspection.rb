@@ -269,7 +269,8 @@ class Pry
           target.eval("alias #{temp_name} #{meth_name}")
           yield
           target.eval("alias #{meth_name} #{temp_name}")
-          target.eval("undef #{temp_name}")
+        ensure
+          target.eval("undef #{temp_name}") rescue nil
         end
       end
     end
