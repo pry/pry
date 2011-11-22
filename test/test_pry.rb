@@ -491,7 +491,6 @@ describe Pry do
         end
       end
 
-
       describe "test Pry defaults" do
 
         after do
@@ -1084,23 +1083,29 @@ describe Pry do
           end
 
           describe "prompts" do
+            before do
+              @empty_input_buffer = ""
+              @non_empty_input_buffer = "def hello"
+              @context = Pry.binding_for(0)
+            end
+
             it 'should set the prompt default, and the default should be overridable (single prompt)' do
               new_prompt = proc { "test prompt> " }
               Pry.prompt =  new_prompt
 
               Pry.new.prompt.should == Pry.prompt
-              Pry.new.select_prompt(true, 0).should == "test prompt> "
-              Pry.new.select_prompt(false, 0).should == "test prompt> "
+              Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
+              Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
 
               new_prompt = proc { "A" }
               pry_tester = Pry.new(:prompt => new_prompt)
               pry_tester.prompt.should == new_prompt
-              pry_tester.select_prompt(true, 0).should == "A"
-              pry_tester.select_prompt(false, 0).should == "A"
+              pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
+              pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "A"
 
               Pry.new.prompt.should == Pry.prompt
-              Pry.new.select_prompt(true, 0).should == "test prompt> "
-              Pry.new.select_prompt(false, 0).should == "test prompt> "
+              Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
+              Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
             end
 
             it 'should set the prompt default, and the default should be overridable (multi prompt)' do
@@ -1108,18 +1113,18 @@ describe Pry do
               Pry.prompt =  new_prompt
 
               Pry.new.prompt.should == Pry.prompt
-              Pry.new.select_prompt(true, 0).should == "test prompt> "
-              Pry.new.select_prompt(false, 0).should == "test prompt* "
+              Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
+              Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
 
               new_prompt = [proc { "A" }, proc { "B" }]
               pry_tester = Pry.new(:prompt => new_prompt)
               pry_tester.prompt.should == new_prompt
-              pry_tester.select_prompt(true, 0).should == "A"
-              pry_tester.select_prompt(false, 0).should == "B"
+              pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
+              pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "B"
 
               Pry.new.prompt.should == Pry.prompt
-              Pry.new.select_prompt(true, 0).should == "test prompt> "
-              Pry.new.select_prompt(false, 0).should == "test prompt* "
+              Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
+              Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
             end
 
             describe 'storing and restoring the prompt' do
@@ -1145,11 +1150,11 @@ describe Pry do
               it 'should restore overridden prompts when returning from file-mode' do
                 pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
                 :prompt => [ proc { 'P>' } ] * 2
-                pry.select_prompt(true, 0).should == "P>"
+                pry.select_prompt(@empty_input_buffer, @context).should == "P>"
                 pry.re
-                pry.select_prompt(true, 0).should =~ /\Apry .* \$ \z/
+                pry.select_prompt(@empty_input_buffer, @context).should =~ /\Apry .* \$ \z/
                 pry.re
-                pry.select_prompt(true, 0).should == "P>"
+                pry.select_prompt(@empty_input_buffer, @context).should == "P>"
               end
 
               it '#pop_prompt should return the popped prompt' do
