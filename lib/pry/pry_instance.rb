@@ -106,13 +106,6 @@ class Pry
     @output_array = Pry::HistoryArray.new(size)
   end
 
-  # Execute the hook `hook_name`, if it is defined.
-  # @param [Symbol] hook_name The hook to execute
-  # @param [Array] args The arguments to pass to the hook.
-  def exec_hook(hook_name, *args, &block)
-    hooks[hook_name].call(*args, &block) if hooks[hook_name]
-  end
-
   # Make sure special locals exist at start of session
   def initialize_special_locals(target)
     inject_local("_in_", @input_array, target)
@@ -295,6 +288,11 @@ class Pry
     end
   end
 
+  def should_force_encoding?(eval_string, val)
+    eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+  end
+  private :should_force_encoding?
+
   # Read and process a line of input -- check for ^D, determine which prompt to
   # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
   # if the line is a command, process it and alter the eval_string accordingly.
@@ -321,7 +319,7 @@ class Pry
     # Change the eval_string into the input encoding (Issue 284)
     # TODO: This wouldn't be necessary if the eval_string was constructed from
     # input strings only.
-    if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+    if should_force_encoding?(eval_string, val)
       eval_string.force_encoding(val.encoding)
     end
 
