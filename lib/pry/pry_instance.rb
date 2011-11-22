@@ -304,7 +304,7 @@ class Pry
   def retrieve_line(eval_string, target)
     @indent.reset if eval_string.empty?
 
-    current_prompt = select_prompt(eval_string.empty?, target.eval('self'))
+    current_prompt = select_prompt(eval_string, target)
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
     val = readline(current_prompt + indentation)
@@ -485,14 +485,17 @@ class Pry
 
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
-  # @param [Boolean] first_line Whether this is the first line of input
-  #   (and not multi-line input).
-  # @param [Object] target_self The receiver of the Pry session.
+  # @param [String] eval_string The current input buffer.
+  # @param [Binding] target The target Binding of the Pry session.
   # @return [String] The prompt.
-  def select_prompt(first_line, target_self)
+  def select_prompt(eval_string, target)
+    target_self = target.eval('self')
 
-    if first_line
+    # If input buffer is empty then use normal prompt
+    if eval_string.empty?
       Array(prompt).first.call(target_self, binding_stack.size - 1, self)
+
+    # Otherwise use the wait prompt (indicating multi-line expression)
     else
       Array(prompt).last.call(target_self, binding_stack.size - 1, self)
     end
