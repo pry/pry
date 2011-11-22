@@ -73,6 +73,12 @@ class Pry
     end
   end
 
+  # Trap interrupts on jruby, and make them behave like MRI so we can
+  # catch them.
+  def self.load_traps
+    trap('INT'){ raise Interrupt }
+  end
+
   # Do basic setup for initial session.
   # Including: loading .pryrc, loading plugins, loading requires, and
   # loading history.
@@ -87,6 +93,7 @@ class Pry
     load_plugins if Pry.config.plugins.enabled
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
+    load_traps if Pry.config.should_trap_interrupts
 
     @initial_session = false
   end
@@ -202,6 +209,7 @@ class Pry
     config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
     config.should_load_rc = true
+    config.should_trap_interrupts = defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
     config.disable_auto_reload = false
     config.command_prefix = ""
     config.auto_indent = true

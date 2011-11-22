@@ -98,6 +98,12 @@ class Pry
     # @return [Boolean]
     attr_accessor :disable_auto_reload
 
+    # Determins whether Pry should trap SIGINT and cause it to raise an
+    # Interrupt exception. This is only useful on jruby, MRI does this
+    # for us.
+    # @return [Boolean]
+    attr_accessor :should_trap_interrupts
+
     # Config option for history.
     # sub-options include hist.file, hist.load, and hist.save
     # hist.file is the file to save/load history too, e.g
