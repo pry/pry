@@ -7,12 +7,15 @@ describe Pry::Hooks do
 
   describe "adding a new hook" do
     it 'should not execute hook while adding it' do
-      @hooks.add_hook(:test_hook, :my_name) { @test_var = true }
-      @test_var.should == nil
+      run = false
+      @hooks.add_hook(:test_hook, :my_name) { run = true }
+      run.should == false
     end
 
-    it 'should return a count of 0 for an empty hook' do
-      @hooks.hook_count(:test_hook).should == 0
+    it 'should not allow adding of a hook with a duplicate name' do
+      @hooks.add_hook(:test_hook, :my_name) {}
+
+      lambda { @hooks.add_hook(:test_hook, :my_name) {} }.should.raise ArgumentError
     end
 
     it 'should create a new hook with a block' do
@@ -20,12 +23,12 @@ describe Pry::Hooks do
       @hooks.hook_count(:test_hook).should == 1
     end
 
-    it 'should create a new hook for an event' do
+    it 'should create a new hook with a callable' do
       @hooks.add_hook(:test_hook, :my_name, proc { })
       @hooks.hook_count(:test_hook).should == 1
     end
 
-    it 'should use just block if given both block and callable' do
+    it 'should use block if given both block and callable' do
       run = false
       foo = false
       @hooks.add_hook(:test_hook, :my_name, proc { foo = true }) { run = true }
@@ -44,17 +47,44 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name2) {}
       @hooks.hook_count(:test_hook).should == 2
     end
+
+    it 'should return a count of 0 for an empty hook' do
+      @hooks.hook_count(:test_hook).should == 0
+    end
   end
 
-  describe "getting a hook" do
-    it 'should return the correct requested hook' do
-      run = false
-      fun = false
-      @hooks.add_hook(:test_hook, :my_name) { run = true }
-      @hooks.add_hook(:test_hook, :my_name2) { fun = true }
-      @hooks.get_hook(:test_hook, :my_name).call
-      run.should == true
-      fun.should == false
+  describe "getting hooks" do
+    describe "get_hook" do
+      it 'should return the correct requested hook' do
+        run = false
+        fun = false
+        @hooks.add_hook(:test_hook, :my_name) { run = true }
+        @hooks.add_hook(:test_hook, :my_name2) { fun = true }
+        @hooks.get_hook(:test_hook, :my_name).call
+        run.should == true
+        fun.should == false
+      end
+
+      it 'should return nil if hook does not exist' do
+        @hooks.get_hook(:test_hook, :my_name).should == nil
+      end
+    end
+
+    describe "get_hooks" do
+      it 'should return a hash of hook names/hook functions for an event' do
+        hook1 = proc { 1 }
+        hook2 = proc { 2 }
+        @hooks.add_hook(:test_hook, :my_name1, hook1)
+        @hooks.add_hook(:test_hook, :my_name2, hook2)
+        hash = @hooks.get_hooks(:test_hook)
+        hash.size.should == 2
+        hash[:my_name1].should == hook1
+        hash[:my_name2].should == hook2
+      end
+
+      it 'should return an empty hash if no hooks defined' do
+        @hooks.get_hooks(:test_hook).should == {}
+      end
     end
   end
 
@@ -80,6 +110,10 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.delete_hook(:test_hook, :my_name).call
       run.should == true
+    end
+
+    it 'should return nil if hook does not exist' do
+      @hooks.delete_hook(:test_hook, :my_name).should == nil
     end
   end
 
@@ -115,11 +149,27 @@ describe Pry::Hooks do
     it 'should execute all hooks for an event if more than one is defined' do
       x = nil
       y = nil
+      @hooks.add_hook(:test_hook, :my_name1) { y = true }
       @hooks.add_hook(:test_hook, :my_name2) { x = true }
-      @hooks.add_hook(:test_hook, :my_name) { y = true }
       @hooks.exec_hook(:test_hook)
       x.should == true
       y.should == true
+    end
+
+    it 'should execute hooks in order' do
+      array = []
+      @hooks.add_hook(:test_hook, :my_name1) { array << 1 }
+      @hooks.add_hook(:test_hook, :my_name2) { array << 2 }
+      @hooks.add_hook(:test_hook, :my_name3) { array << 3 }
+      @hooks.exec_hook(:test_hook)
+      array.should == [1, 2, 3]
+    end
+
+    it 'return value of exec_hook should be that of last executed hook' do
+      @hooks.add_hook(:test_hook, :my_name1) { 1 }
+      @hooks.add_hook(:test_hook, :my_name2) { 2 }
+      @hooks.add_hook(:test_hook, :my_name3) { 3 }
+      @hooks.exec_hook(:test_hook).should == 3
     end
   end
 end
