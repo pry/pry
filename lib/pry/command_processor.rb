@@ -106,8 +106,11 @@ class Pry
     # @param [String] command_name_match The name of the colliding command.
     # @param [Binding] target The current binding context.
     def check_for_command_name_collision(command_name_match, target)
-      if collision_type = target.eval("defined?(#{command_name_match})")
-        pry_instance.output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Command name collision with a #{collision_type}: '#{command_name_match}'\n\n"
+      # TODO expand for better stdlib methods
+      unless command_name_match == 'exit'
+        if collision_type = target.eval("defined?(#{command_name_match})")
+          pry_instance.output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Command name collision with a #{collision_type}: '#{command_name_match}'\n\n"
+        end
       end
     rescue Pry::RescuableException
     end
