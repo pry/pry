@@ -242,8 +242,9 @@ class Pry
       commands[new_name].description = desc
     end
 
-    # Rename a command. You must use the actual name of the command,
-    # not the listing name.
+    # Rename a command. Accepts either actual name or listing name for
+    # the `old_name`.
+    # `new_name` must be the actual name of the new command.
     # @param [String, Regexp] new_name The new name for the command.
     # @param [String, Regexp] old_name The command's current name.
     # @param [Hash] options The optional configuration parameters,
@@ -252,18 +253,18 @@ class Pry
     # @example Renaming the `ls` command and changing its description.
     #   Pry.config.commands.rename "dir", "ls", :description => "DOS friendly ls"
     def rename_command(new_name, old_name, options={})
-      raise ArgumentError, "A command called '#{old_name}' was not found!" if !commands[old_name]
-      
+      cmd = find_command_by_name_or_listing(old_name)
+
       options = {
         :listing     => new_name,
-        :description => commands[old_name].description
+        :description => cmd.description
       }.merge!(options)
-      
-      commands[new_name] = commands[old_name]
+
+      commands[new_name] = cmd.dup
       commands[new_name].name = new_name
       commands[new_name].description = options.delete(:description)
       commands[new_name].options.merge!(options)
-      commands.delete(old_name)
+      commands.delete(cmd.name)
     end
 
     # Runs a command.
