@@ -271,6 +271,46 @@ describe Pry::CommandSet do
     order.should == order.sort
   end
 
+  describe "renaming a command" do
+    it 'should be able to rename and run a command' do
+      run = false
+      @set.command('foo') { run = true }
+      @set.rename_command('bar', 'foo')
+      @set.run_command(@ctx, 'bar')
+      run.should == true
+    end
+
+    it 'should not accept listing name when renaming a command' do
+      @set.command('foo', "", :listing => 'love') { }
+      lambda { @set.rename_command('bar', 'love') }.should.raise ArgumentError
+    end
+
+    it 'should be able to rename and run a command' do
+      run = false
+      @set.command('foo') { run = true }
+      @set.rename_command('bar', 'foo')
+      @set.run_command(@ctx, 'bar')
+      run.should == true
+    end
+   
+
+    it 'should make old command name inaccessible' do
+      @set.command('foo') { }
+      @set.rename_command('bar', 'foo')
+      lambda { @set.run_command(@ctx, 'foo') }.should.raise Pry::NoCommandError
+    end
+
+    it 'should be able to pass in options when renaming command' do
+      desc    = "hello"
+      listing = "bing"
+      @set.command('foo') { }
+      @set.rename_command('bar', 'foo', :description => desc, :listing => listing, :keep_retval => true)
+      @set.commands['bar'].description.should           == desc
+      @set.commands['bar'].options[:listing].should     == listing
+      @set.commands['bar'].options[:keep_retval].should == true
+    end
+  end
+
   describe "command decorators - before_command and after_command" do
     describe "before_command" do
       it 'should be called before the original command' do

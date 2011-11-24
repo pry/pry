@@ -142,7 +142,6 @@ class Pry
       commands[name] = Command.new(name, description, options, block)
     end
 
-
     # Execute a block of code before a command is invoked. The block also
     # gets access to parameters that will be passed to the command and
     # is evaluated in the same context.
@@ -217,6 +216,9 @@ class Pry
       end
     end
 
+    # @param [String, Regexp] name_or_listing The name or listing name
+    #   of the command to retrieve.
+    # @return [Command] The command object matched.
     def find_command_by_name_or_listing(name_or_listing)
       if commands[name_or_listing]
         cmd = commands[name_or_listing]
@@ -238,6 +240,30 @@ class Pry
       commands[new_name] = orig_command.dup
       commands[new_name].name = new_name
       commands[new_name].description = desc
+    end
+
+    # Rename a command. You must use the actual name of the command,
+    # not the listing name.
+    # @param [String, Regexp] new_name The new name for the command.
+    # @param [String, Regexp] old_name The command's current name.
+    # @param [Hash] options The optional configuration parameters,
+    #   accepts the same as the `command` method, but also allows the
+    #   command description to be passed this way too.
+    # @example Renaming the `ls` command and changing its description.
+    #   Pry.config.commands.rename "dir", "ls", :description => "DOS friendly ls"
+    def rename_command(new_name, old_name, options={})
+      raise ArgumentError, "A command called '#{old_name}' was not found!" if !commands[old_name]
+      
+      options = {
+        :listing     => new_name,
+        :description => commands[old_name].description
+      }.merge!(options)
+      
+      commands[new_name] = commands[old_name]
+      commands[new_name].name = new_name
+      commands[new_name].description = options.delete(:description)
+      commands[new_name].options.merge!(options)
+      commands.delete(old_name)
     end
 
     # Runs a command.
