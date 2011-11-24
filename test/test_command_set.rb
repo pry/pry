@@ -285,15 +285,6 @@ describe Pry::CommandSet do
       lambda { @set.rename_command('bar', 'love') }.should.raise ArgumentError
     end
 
-    it 'should be able to rename and run a command' do
-      run = false
-      @set.command('foo') { run = true }
-      @set.rename_command('bar', 'foo')
-      @set.run_command(@ctx, 'bar')
-      run.should == true
-    end
-   
-
     it 'should make old command name inaccessible' do
       @set.command('foo') { }
       @set.rename_command('bar', 'foo')
