@@ -280,9 +280,16 @@ describe Pry::CommandSet do
       run.should == true
     end
 
-    it 'should not accept listing name when renaming a command' do
-      @set.command('foo', "", :listing => 'love') { }
-      lambda { @set.rename_command('bar', 'love') }.should.raise ArgumentError
+    it 'should accept listing name when renaming a command' do
+      run = false
+      @set.command('foo', "", :listing => 'love') { run = true }
+      @set.rename_command('bar', 'love')
+      @set.run_command(@ctx, 'bar')
+      run.should == true
+    end
+
+    it 'should raise exception trying to rename non-existent command' do
+      lambda { @set.rename_command('bar', 'foo') }.should.raise ArgumentError
     end
 
     it 'should make old command name inaccessible' do
@@ -290,6 +297,7 @@ describe Pry::CommandSet do
       @set.rename_command('bar', 'foo')
       lambda { @set.run_command(@ctx, 'foo') }.should.raise Pry::NoCommandError
     end
+
 
     it 'should be able to pass in options when renaming command' do
       desc    = "hello"
