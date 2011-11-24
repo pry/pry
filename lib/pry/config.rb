@@ -98,7 +98,7 @@ class Pry
     # @return [Boolean]
     attr_accessor :disable_auto_reload
 
-    # Determins whether Pry should trap SIGINT and cause it to raise an
+    # Determines whether Pry should trap SIGINT and cause it to raise an
     # Interrupt exception. This is only useful on jruby, MRI does this
     # for us.
     # @return [Boolean]
