@@ -88,7 +88,7 @@ class Pry
           file_name = args.shift
         end
 
-        if opts.in?
+        if opts.i?
           normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
           input_items = _pry_.input_array[normalized_range] || []
 
