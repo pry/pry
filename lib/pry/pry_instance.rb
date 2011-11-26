@@ -304,7 +304,8 @@ class Pry
   def retrieve_line(eval_string, target)
     @indent.reset if eval_string.empty?
 
-    reset_char = "\e[0m"
+    # sometimes colors leak, so we defensively reset here
+    reset_char = Pry.color ? "\e[0m" : ""
     current_prompt = select_prompt(eval_string, target)
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
