@@ -32,13 +32,13 @@ class Pry
         end
 
         start_line = false
-        if opts.b?
+        if opts.present?(:'base-one')
           start_line = 1
-        elsif opts.l?
+        elsif opts.present?(:'line-numbers')
           start_line = meth.source_line || 1
         end
 
-        render_output(opts.flood?, start_line, code)
+        render_output(opts.present?(:flood), start_line, code)
       end
 
       alias_command "show-source", "show-method"
@@ -61,7 +61,7 @@ class Pry
           end
         end
 
-        next if opts.help?
+        next if opts.present?(:help)
 
         command_name = args.shift
         if !command_name
@@ -84,11 +84,11 @@ class Pry
           end
 
           start_line = false
-          if opts.l?
+          if opts.present?(:'line-numbers')
             start_line = block.source_line || 1
           end
 
-          render_output(opts.flood?, opts.l? ? block.source_line : false, code)
+          render_output(opts.present?(:flood), opts.present?(:'line-numbers') ? block.source_line : false, code)
           code
         else
           raise CommandError, "No such command: #{command_name}."
@@ -114,18 +114,18 @@ class Pry
             output.puts opt
           end
         end
-        next if opts.h?
+        next if opts.present?(:help)
 
-        if [opts.ex?, opts.t?, opts.i?, !args.empty?].count(true) > 1
+        if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
           raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
         end
 
         # edit of local code, eval'd within pry.
-        if !opts.ex? && args.empty?
+        if !opts.present?(:ex) && args.empty?
 
-          content = if opts.t?
+          content = if opts.present?(:temp)
                       ""
-                    elsif opts.i?
+                    elsif opts.present?(:in)
                       case opts[:i]
                       when Range
                         (_pry_.input_array[opts[:i]] || []).join
@@ -146,7 +146,7 @@ class Pry
             f.puts(content)
             f.flush
             invoke_editor(f.path, line)
-            if !opts.n?
+            if !opts.present?(:'no-reload')
               silence_warnings do
                 eval_string.replace(File.read(f.path))
               end
@@ -155,7 +155,7 @@ class Pry
 
         # edit of remote code, eval'd at top-level
         else
-          if opts.ex?
+          if opts.present?(:ex)
             if _pry_.last_exception.nil?
               raise CommandError, "No exception found."
             end
@@ -186,12 +186,12 @@ class Pry
             line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
           end
 
-          line = opts[:l].to_i if opts.l?
+          line = opts[:l].to_i if opts.present?(:line)
 
           invoke_editor(file_name, line)
           set_file_and_dir_locals(file_name)
 
-          if opts.r? || ((opts.ex? || file_name.end_with?(".rb")) && !opts.n?)
+          if opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload'))
             silence_warnings do
               TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
             end
@@ -222,7 +222,7 @@ class Pry
           raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
         end
 
-        if opts.p? || meth.dynamically_defined?
+        if opts.present?(:patch) || meth.dynamically_defined?
           lines = meth.source.lines.to_a
 
           if ((original_name = meth.original_name) &&
@@ -256,7 +256,7 @@ class Pry
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
-            load file if !opts.n? && !Pry.config.disable_auto_reload
+            load file if !opts.present?(:'no-jump') && !Pry.config.disable_auto_reload
           end
         end
       end

@@ -21,11 +21,11 @@ class Pry
 
         # Get all the methods that we'll want to output
         def all_methods(obj, opts)
-          opts.M? ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
+          opts.present?(:module) ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
         end
 
         def resolution_order(obj, opts)
-          opts.M? ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
+          opts.present?(:module) ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
         end
 
         # Get the name of the klass for pretty display in the title column of ls -m
@@ -48,9 +48,9 @@ class Pry
         # Get a lambda that can be used with .take_while to prevent over-eager
         # traversal of the Object's ancestry graph.
         def below_ceiling(obj, opts)
-          ceiling = if opts.q?
-                       [opts.M? ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
-                     elsif opts.v?
+          ceiling = if opts.present?(:quiet)
+                       [opts.present?(:module) ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
+                     elsif opts.present?(:verbose)
                        []
                      else
                        Pry.config.ls.ceiling.dup
@@ -160,41 +160,43 @@ class Pry
           opt.on :h, "help", "Show help"
         end
 
-        next output.puts(opts) if opts.h?
+        next output.puts(opts) if opts.present?(:help)
 
         obj = args.empty? ? target_self : target.eval(args.join(" "))
 
         # exclude -q, -v and --grep because they don't specify what the user wants to see.
-        has_opts = (opts.m? || opts.M? || opts.p? || opts.g? || opts.l? || opts.c? || opts.i?)
+        has_opts = (opts.present?(:methods) || opts.present?(:module) || opts.present?(:ppp) ||
+                    opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
+                    opts.present?(:ivars))
 
-        show_methods   = opts.m? || opts.M? || opts.p? || !has_opts
-        show_constants = opts.c? || (!has_opts && Module === obj)
-        show_ivars     = opts.i? || !has_opts
-        show_locals    = opts.l? || (!has_opts && args.empty?)
+        show_methods   = opts.present?(:methods) || opts.present?(:module) || opts.present?(:ppp) || !has_opts
+        show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
+        show_ivars     = opts.present?(:ivars) || !has_opts
+        show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
 
         grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
 
-        raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.l? && !args.empty?
-        raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.g? && !args.empty?
-        raise Pry::CommandError, "-q does not make sense with -v" if opts.q? && opts.v?
-        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.M? && !(Module === obj)
-        raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.c? && !args.empty? && !(Module === obj)
+        raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
+        raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
+        raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
+        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:module) && !(Module === obj)
+        raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
 
 
-        if opts.g?
+        if opts.present?(:globals)
           output_section("global variables", grep[format_globals(target.eval("global_variables"))])
         end
 
         if show_constants
           mod = Module === obj ? obj : Object
           constants = mod.constants
-          constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.v?
+          constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
           output_section("constants", grep[format_constants(mod, constants)])
         end
 
         if show_methods
           # methods is a hash {Module/Class => [Pry::Methods]}
-          methods = all_methods(obj, opts).select{ |method| opts.p? || method.visibility == :public }.group_by(&:owner)
+          methods = all_methods(obj, opts).select{ |method| opts.present?(:ppp) || method.visibility == :public }.group_by(&:owner)
 
           # reverse the resolution order so that the most useful information appears right by the prompt
           resolution_order(obj, opts).take_while(&below_ceiling(obj, opts)).reverse.each do |klass|

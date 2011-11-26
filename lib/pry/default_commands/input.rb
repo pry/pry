@@ -32,7 +32,7 @@ class Pry
           end
         end
 
-        next if opts.h?
+        next if opts.present?(:help)
 
         if eval_string.empty?
           raise CommandError, "No input to amend."
@@ -78,16 +78,16 @@ class Pry
           end
         end
 
-        if opts.m?
+        if opts.present?(:method)
           meth_name = opts[:m]
           meth = get_method_or_raise(meth_name, target, {}, :omit_help)
           next unless meth.source
 
-          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.o?
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
 
           eval_string << Array(meth.source.each_line.to_a[range]).join
-        elsif opts.f?
+        elsif opts.present?(:file)
           file_name = File.expand_path(opts[:f])
 
           if !File.exists?(file_name)
@@ -95,8 +95,8 @@ class Pry
           end
 
           text_array = File.readlines(file_name)
-          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.o?
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
 
           _pry_.input_stack << _pry_.input
           _pry_.input = StringIO.new(Array(text_array[range]).join)
@@ -107,8 +107,8 @@ class Pry
 
           code = target.eval(args.first)
 
-          range = opts.l? ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.o?
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
 
           eval_string << Array(code.each_line.to_a[range]).join
         end
@@ -153,15 +153,15 @@ class Pry
             output.puts opt.help
           end
         end
-        next if opts.help?
+        next if opts.present?(:help)
 
-        if opts.grep?
+        if opts.present?(:grep)
           pattern = Regexp.new(arg_string.strip.split(/ /, 2).last.strip)
           history.pop
 
           history.map!.with_index do |element, index|
             if element =~ pattern
-              if opts.n?
+              if opts.present?(:"no-numbers")
                 element
               else
                 "#{text.blue index}: #{element}"
@@ -173,11 +173,11 @@ class Pry
           next
         end
 
-        if opts.head?
+        if opts.present?(:head)
           limit = opts['head'] || 10
           list  = history.first limit
           lines = list.join("\n")
-          if opts.n?
+          if opts.present?(:"no-numbers")
             stagger_output lines
           else
             stagger_output text.with_line_numbers(lines, 0)
@@ -185,14 +185,14 @@ class Pry
           next
         end
 
-        if opts.tail?
+        if opts.present?(:tail)
           limit = opts['tail'] || 10
           offset = history.size - limit
           offset = offset < 0 ? 0 : offset
 
           list  = history.last limit
           lines = list.join("\n")
-          if opts.n?
+          if opts.present?(:'no-numbers')
             stagger_output lines
           else
             stagger_output text.with_line_numbers(lines, offset)
@@ -200,11 +200,11 @@ class Pry
           next
         end
 
-        if opts.show?
+        if opts.present?(:show)
           range = opts['show']
           start_line = range.is_a?(Range) ? range.first : range
           lines = Array(history[range]).join("\n")
-          if opts.n?
+          if opts.present?(:'no-numbers')
             stagger_output lines
           else
             stagger_output text.with_line_numbers(lines, start_line)
@@ -212,10 +212,10 @@ class Pry
           next
         end
 
-        if opts.exclude?
+        if opts.present?(:exclude)
           history.map!.with_index do |element, index|
             unless command_processor.valid_command? element
-              if opts.n?
+              if opts.present?(:'no-numbers')
                 element
               else
                 "#{text.blue index}: #{element}"
@@ -226,7 +226,7 @@ class Pry
           next
         end
 
-        if opts.replay?
+        if opts.present?(:replay)
           range = opts['replay']
           actions = Array(history[range]).join("\n") + "\n"
           _pry_.input_stack << _pry_.input
@@ -234,7 +234,7 @@ class Pry
           next
         end
 
-        if opts.clear?
+        if opts.present?(:clear)
           Pry.history.clear
           output.puts 'History cleared.'
           next
@@ -274,7 +274,7 @@ class Pry
         end
 
         lines = history.join("\n")
-        if opts.n?
+        if opts.present?(:'no-numbers')
           stagger_output lines
         else
           stagger_output text.with_line_numbers(lines, 0)
