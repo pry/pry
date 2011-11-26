@@ -23,7 +23,7 @@ describe Pry do
     ["end"],
     ["puts )("],
     ["1 1"],
-    ["puts", ":"],
+    ["puts :"],
     # in this case the syntax error is "expecting ')'".
     ((defined? RUBY_ENGINE && RUBY_ENGINE == "rbx") ? nil : ["def", "method(1"])
   ].compact.each do |foo|
