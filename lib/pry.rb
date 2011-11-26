@@ -178,6 +178,7 @@ end
 require "pry/version"
 require "pry/rbx_method"
 require "pry/rbx_path"
+require "pry/code"
 require "pry/method"
 require "pry/wrapped_module"
 require "pry/history_array"
