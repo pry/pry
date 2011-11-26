@@ -536,45 +536,45 @@ class Pry
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
-  if RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == "ruby"
-    require 'ripper'
-
-    # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
-    # @param [String] code The code to validate.
-    # @return [Boolean] Whether or not the code is a valid Ruby expression.
-    # @example
-    #   valid_expression?("class Hello") #=> false
-    #   valid_expression?("class Hello; end") #=> true
-    def valid_expression?(code)
-      !!Ripper::SexpBuilder.new(code).parse
+  # Determine if a string of code is a complete Ruby expression.
+  # @param [String] code The code to validate.
+  # @return [Boolean] Whether or not the code is a complete Ruby expression.
+  # @raise [SyntaxError] Any SyntaxError that does not represent incompleteness.
+  # @example
+  #   valid_expression?("class Hello") #=> false
+  #   valid_expression?("class Hello; end") #=> true
+  def valid_expression?(str)
+    if defined?(Rubinius::Melbourne19) && RUBY_VERSION =~ /^1\.9/
+      Rubinius::Melbourne19.parse_string(str, Pry.eval_path)
+    elsif defined?(Rubinius::Melbourne)
+      Rubinius::Melbourne.parse_string(str, Pry.eval_path)
+    else
+      catch(:valid) {
+        eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
+      }
     end
-
-  elsif RUBY_VERSION =~ /1.9/ && RUBY_ENGINE == 'jruby'
-
-    # JRuby doesn't have Ripper, so use its native parser for 1.9 mode.
-    def valid_expression?(code)
-      JRuby.parse(code)
-      true
-    rescue SyntaxError
+    true
+  rescue SyntaxError => e
+    if incomplete_user_input_exception?(e)
       false
+    else
+      raise e
     end
+  end
 
-  else
-    require 'ruby_parser'
-
-    # Determine if a string of code is a valid Ruby expression.
-    # Ruby 1.9 uses Ripper, Ruby 1.8 uses RubyParser.
-    # @param [String] code The code to validate.
-    # @return [Boolean] Whether or not the code is a valid Ruby expression.
-    # @example
-    #   valid_expression?("class Hello") #=> false
-    #   valid_expression?("class Hello; end") #=> true
-    def valid_expression?(code)
-      # NOTE: we're using .dup because RubyParser mutates the input
-      RubyParser.new.parse(code.dup)
+  # Check whether the exception indicates that the user should input more.
+  #
+  # @param [SyntaxError] the exception object that was raised.
+  # @param [Array<String>] The stack frame of the function that executed eval.
+  # @return [Boolean]
+  #
+  def incomplete_user_input_exception?(ex)
+    case ex.message
+    when /unexpected (\$end|end-of-file|END_OF_FILE)/, # mri, jruby, ironruby
+        /unterminated (quoted string|string|regexp) meets end of file/, # "quoted string" is ironruby
+        /missing 'end' for/, /: expecting '[})\]]'$/, /can't find string ".*" anywhere before EOF/, /expecting keyword_end/ # rbx
       true
-    rescue Racc::ParseError, SyntaxError
+    else
       false
     end
   end
