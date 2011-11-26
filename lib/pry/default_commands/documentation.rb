@@ -26,7 +26,7 @@ class Pry
         output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
         output.puts "#{text.bold("Signature:")} #{meth.signature}"
         output.puts
-        render_output(opts.flood?, false, doc)
+        render_output(opts.present?(:flood), false, doc)
       end
 
       alias_command "?", "show-doc"
@@ -74,7 +74,7 @@ class Pry
         end
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
-        if !opts.doc?
+        if !opts.present?(:doc)
           content = meth.source
           code_type = meth.source_type
         else
@@ -89,7 +89,7 @@ class Pry
 
         link = Gist.write([:extension => ".#{type_map[code_type]}",
                            :input => content],
-                          opts.p?)
+                          opts.present?(:private))
 
         output.puts "Gist created at #{link}"
       end

@@ -78,9 +78,9 @@ class Pry
           end
         end
 
-        next if opts.help?
+        next if opts.present?(:help)
 
-        if opts.ex?
+        if opts.present?(:ex)
           if file_name.nil?
             raise CommandError, "No Exception or Exception has no associated file."
           end
@@ -88,7 +88,7 @@ class Pry
           file_name = args.shift
         end
 
-        if opts.i?
+        if opts.present?(:in)
           normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
           input_items = _pry_.input_array[normalized_range] || []
 
@@ -106,7 +106,7 @@ class Pry
 
               code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
 
-              if opts.l?
+              if opts.present?(:'line-numbers')
                 contents << text.indent(text.with_line_numbers(code, 1), 2)
               else
                 contents << text.indent(code, 2)
@@ -128,13 +128,13 @@ class Pry
 
           contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
 
-          if opts.l?
+          if opts.present?(:'line-numbers')
             contents = text.with_line_numbers contents, start_line + 1
           end
         end
 
         # add the arrow pointing to line that caused the exception
-        if opts.ex?
+        if opts.present?(:ex)
           ex_file, ex_line = _pry_.last_exception.bt_source_location_for(bt_index)
           contents = text.with_line_numbers contents, start_line + 1, :bright_red
 
@@ -154,7 +154,7 @@ class Pry
 
         set_file_and_dir_locals(file_name)
 
-        if opts.f?
+        if opts.present?(:flood)
           output.puts contents
         else
           stagger_output(contents)
