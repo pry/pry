@@ -23,6 +23,8 @@ class Pry
   attr_reader :input_array
   attr_reader :output_array
 
+  attr_accessor :backtrace
+
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.
   # @option options [#readline] :input The object to use for input.
