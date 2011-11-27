@@ -379,7 +379,9 @@ class Pry
       def method_name_from_first_line(first_ln)
         return nil if first_ln.strip !~ /^def /
 
-        CodeRay.scan(first_ln, :ruby).each_cons(2) do |t1, t2|
+        tokens = CodeRay.scan(first_ln, :ruby)
+        tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
+        tokens.each_cons(2) do |t1, t2|
           if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
             return t2.first
           end
