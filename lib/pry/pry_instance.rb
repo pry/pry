@@ -334,10 +334,13 @@ class Pry
       indented_val = val
     end
 
-    if !process_command(val, eval_string, target)
-      eval_string << "#{indented_val.rstrip}\n" unless val.empty?
+    begin
+      if !process_command(val, eval_string, target)
+        eval_string << "#{indented_val.rstrip}\n" unless val.empty?
+      end
+    ensure
+      Pry.history << indented_val unless input.is_a?(StringIO)
     end
-    Pry.history << indented_val unless input.is_a?(StringIO)
   end
 
   # If the given line is a valid command, process it in the context of the
