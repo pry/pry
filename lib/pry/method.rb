@@ -282,7 +282,7 @@ class Pry
       Pry::Method.new(sup) if sup
     end
 
-    # @return [Symbol, nil] The original name the method was defined under,
+    # @return [String, nil] The original name the method was defined under,
     #   before any aliasing, or `nil` if it can't be determined.
     def original_name
       return nil if source_type != :ruby
@@ -290,35 +290,9 @@ class Pry
       first_line = source.lines.first
       return nil if first_line.strip !~ /^def /
 
-      if RUBY_VERSION =~ /^1\.9/ && RUBY_ENGINE == "ruby"
-        require 'ripper'
-
-        # Ripper is ok with an extraneous end, so we don't need to worry about
-        # whether it's a one-liner.
-        tree = Ripper::SexpBuilder.new(first_line + ";end").parse
-
-        name = tree.flatten(2).each do |lst|
-          break lst[1] if lst[0] == :@ident
-        end
-
-        name.is_a?(String) ? name : nil
-      else
-        require 'ruby_parser'
-
-        # RubyParser breaks if there's an extra end, so we'll just rescue
-        # and try again.
-        tree = begin
-          RubyParser.new.parse(first_line + ";end")
-        rescue Racc::ParseError
-          RubyParser.new.parse(first_line)
-        end
-
-        name = tree.each_cons(2) do |a, b|
-          break a if b.is_a?(Array) && b.first == :args
-        end
-
-        name.is_a?(Symbol) ? name.to_s : nil
-      end
+      CodeRay.scan(first_line, :ruby).
+        detect { |token| [:method, :ident].include?(token.last) }.
+        first rescue nil
     end
 
     # @return [Boolean] Was the method defined outside a source file?
