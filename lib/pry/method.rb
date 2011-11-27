@@ -286,13 +286,7 @@ class Pry
     #   before any aliasing, or `nil` if it can't be determined.
     def original_name
       return nil if source_type != :ruby
-
-      first_line = source.lines.first
-      return nil if first_line.strip !~ /^def /
-
-      CodeRay.scan(first_line, :ruby).
-        detect { |token| [:method, :ident].include?(token.last) }.
-        first rescue nil
+      method_name_from_first_line(source.lines.first)
     end
 
     # @return [Boolean] Was the method defined outside a source file?
@@ -378,6 +372,20 @@ class Pry
           return nil unless next_owner
         end
         next_owner.instance_method(name) rescue nil
+      end
+
+      # @param [String] first_ln The first line of a method definition.
+      # @return [String, nil]
+      def method_name_from_first_line(first_ln)
+        return nil if first_ln.strip !~ /^def /
+
+        CodeRay.scan(first_ln, :ruby).each_cons(2) do |t1, t2|
+          if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
+            return t2.first
+          end
+        end
+
+        nil
       end
   end
 end

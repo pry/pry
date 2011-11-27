@@ -287,5 +287,15 @@ describe Pry::Method do
       end
     end
   end
+
+  describe 'method_name_from_first_line' do
+    it 'should work in all simple cases' do
+      meth = Pry::Method.new(nil)
+      meth.send(:method_name_from_first_line, "def x").should == "x"
+      meth.send(:method_name_from_first_line, "def self.x").should == "x"
+      meth.send(:method_name_from_first_line, "def ClassName.x").should == "x"
+      meth.send(:method_name_from_first_line, "def obj_name.x").should == "x"
+    end
+  end
 end
 
