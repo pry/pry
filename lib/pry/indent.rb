@@ -43,7 +43,11 @@ class Pry
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
     # indented incorrectly.
-    IGNORE_TOKENS = [:space, :content, :string, :delimiter, :method, :ident]
+    #
+    # :pre_constant and :preserved_constant are the CodeRay 0.9.8 and 1.0.0
+    # classifications of "true", "false", and "nil".
+    IGNORE_TOKENS = [:space, :content, :string, :delimiter, :method, :ident,
+                     :constant, :pre_constant, :predefined_constant]
 
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
