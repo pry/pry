@@ -111,7 +111,9 @@ class Pry
     initial_session_setup
 
     Pry.config.hooks.exec_hook(:when_started, target)
-    new(options).repl(target)
+    pry_instance = new(options)
+    pry_instance.backtrace = caller(1)
+    pry_instance.repl(target)
   end
 
   # An inspector that clips the output to `max_length` chars.
