@@ -304,12 +304,10 @@ class Pry
   def retrieve_line(eval_string, target)
     @indent.reset if eval_string.empty?
 
-    # sometimes colors leak, so we defensively reset here
-    reset_char = Pry.color ? "\e[0m" : ""
     current_prompt = select_prompt(eval_string, target)
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
-    val = readline(reset_char + current_prompt + indentation)
+    val = readline(current_prompt + indentation)
 
     # invoke handler if we receive EOF character (^D)
     if !val
