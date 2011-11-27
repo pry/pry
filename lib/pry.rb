@@ -35,9 +35,11 @@ class Pry
     nonce = rand(0x100000000).to_s(16) # whatever
 
     colorized = Helpers::BaseHelpers.colorize_code(stringified.gsub(/#</, "%<#{nonce}"))
-    reset_char = Pry.color ? "\e[0m" : "" # sometimes colors leak, so we defensively reset here
 
-    Helpers::BaseHelpers.stagger_output("=> #{colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')}#{reset_char}", output)
+    # avoid colour-leak from CodeRay and any of the users' previous output
+    colorized = colorized.sub(/(\n*)$/, "\e[0m\\1") if Pry.color
+
+    Helpers::BaseHelpers.stagger_output("=> #{colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')}", output)
   end
 
   # may be convenient when working with enormous objects and
