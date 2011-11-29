@@ -87,8 +87,7 @@ class Pry
     return if !initial_session?
 
     # note these have to be loaded here rather than in pry_instance as
-    # we only want them loaded once per entire Pry lifetime, not
-    # multiple times per each new session (i.e in debugging)
+    # we only want them loaded once per entire Pry lifetime.
     load_rc if Pry.config.should_load_rc
     load_plugins if Pry.config.plugins.enabled
     load_requires if Pry.config.should_load_requires
@@ -110,10 +109,20 @@ class Pry
     target = Pry.binding_for(target)
     initial_session_setup
 
-    Pry.config.hooks.exec_hook(:when_started, target)
+    # create the Pry instance to manage the session
     pry_instance = new(options)
-    pry_instance.backtrace = caller(1)
-    pry_instance.repl(target)
+
+    # save backtrace
+    pry_instance.backtrace = caller.tap(&:shift)
+
+    # yield the binding_stack to the hook for modification
+    Pry.config.hooks.exec_hook(:when_started, binding_stack = [target], pry_instance)
+
+    head, *tail = binding_stack
+    pry_instance.binding_stack.push(*tail)
+
+    # Enter the matrix
+    pry_instance.repl(head)
   end
 
   # An inspector that clips the output to `max_length` chars.
