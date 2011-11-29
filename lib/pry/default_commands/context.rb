@@ -143,11 +143,7 @@ class Pry
           i_num = 5
         end
 
-        if (meth = Pry::Method.from_binding(target))
-          meth_name = meth.name
-        else
-          meth_name = "N/A"
-        end
+        meth_name = Pry::Method.method_name_from_binding(target) || "N/A"
 
         if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
           raise CommandError, "Cannot find local context. Did you use `binding.pry`?"
