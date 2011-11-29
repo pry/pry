@@ -127,6 +127,11 @@ class Pry
         target.pry
       end
 
+      command "backtrace", "Show the backtrace for the Pry session" do
+        output.puts "\n#{text.bold('Backtrace:')}\n--\n"
+        output.puts _pry_.backtrace
+      end
+
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
         file = target.eval('__FILE__')
         line_num = target.eval('__LINE__')
