@@ -49,7 +49,7 @@ class Pry
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
           nil
         else
-          new(b.eval("method(:#{meth_name})"))
+          new(b.eval("method(#{meth_name.to_s.inspect})"))
         end
       end
 
