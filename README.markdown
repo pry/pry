@@ -10,6 +10,8 @@
 **Sponsors**
 
 [Atomic Object](http://www.atomicobject.com/)
+[Bendyworks](http://bendyworks.com/)
+[Intridea](http://intridea.com/)
 
 **Other Resources**
 
