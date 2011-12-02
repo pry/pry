@@ -7,7 +7,11 @@ class Pry
     def initialize
       @history = []
       @saved_lines = 0
+      restore_default_behavior
+    end
 
+    # Assign the default methods for loading, saving, pushing, and clearing.
+    def restore_default_behavior
       @loader  = method(:read_from_file)
       @saver   = method(:write_to_file)
       @pusher  = method(:push_to_readline)
@@ -24,7 +28,7 @@ class Pry
       @saved_lines = @history.length
     end
 
-    # Writes this session's history using `History.saver`.
+    # Write this session's history using `History.saver`.
     # @return [Integer] The number of lines saved
     def save
       history_to_save = @history[@saved_lines..-1]
@@ -33,7 +37,7 @@ class Pry
       history_to_save.length
     end
 
-    # Adds a line to the input history, ignoring blank and duplicate lines.
+    # Add a line to the input history, ignoring blank and duplicate lines.
     # @param [String] line
     # @return [String] The same line that was passed in
     def push(line)
@@ -45,7 +49,7 @@ class Pry
     end
     alias << push
 
-    # Clears all history. Anything the user entered before this point won't be
+    # Clear all history. Anything the user entered before this point won't be
     # saved, but anything they put in afterwards will still be appended to the
     # history file on exit.
     def clear
@@ -54,7 +58,7 @@ class Pry
       @saved_lines = 0
     end
 
-    # Returns an Array containing all stored history.
+    # Return an Array containing all stored history.
     # @return [Array<String>] An Array containing all lines of history loaded
     #   or entered by the user in the current session.
     def to_a
