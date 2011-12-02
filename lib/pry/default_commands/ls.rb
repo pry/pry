@@ -28,23 +28,6 @@ class Pry
           opts.present?(:module) ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
         end
 
-        # Get the name of the klass for pretty display in the title column of ls -m
-        # as there can only ever be one singleton class of a non-class, we just call
-        # that "self".
-        def class_name(klass)
-          if klass == klass.ancestors.first
-            (klass.name || "") == "" ? klass.to_s : klass.name
-          elsif klass.ancestors.include?(Module)
-            begin
-              "#{class_name(ObjectSpace.each_object(klass).detect{ |x| class << x; self; end == klass })}.self"
-            rescue # ObjectSpace is not enabled by default in jruby
-              klass.to_s.sub(/#<Class:(.*)>/, '\1.self')
-            end
-          else
-            "self"
-          end
-        end
-
         # Get a lambda that can be used with .take_while to prevent over-eager
         # traversal of the Object's ancestry graph.
         def below_ceiling(obj, opts)
@@ -201,7 +184,7 @@ class Pry
           # reverse the resolution order so that the most useful information appears right by the prompt
           resolution_order(obj, opts).take_while(&below_ceiling(obj, opts)).reverse.each do |klass|
             methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
-            output_section "#{class_name(klass)} methods", methods_here
+            output_section "#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here
           end
         end
 

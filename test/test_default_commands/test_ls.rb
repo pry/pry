@@ -1,38 +1,5 @@
 require 'helper'
 describe "ls" do
-  describe "class_name" do
-    extend Pry::DefaultCommands::Ls.helper_module
-    it "should use the name of the class if it exists" do
-      class_name(Object).should == "Object"
-    end
-
-    it "should use the name of the module if it exists" do
-      class_name(Kernel).should == "Kernel"
-    end
-
-    it "should use Foo.self for singleton classes of classes" do
-      class_name(class << Object; self; end).should == "Object.self"
-    end
-
-    it "should use Foo.self for singleton methods of modules" do
-      class_name(class << Kernel; self; end).should == "Kernel.self"
-    end
-
-    it "should default to the .to_s if that's not possible" do
-      cls = Class.new
-      class_name(cls).should == cls.to_s
-    end
-
-    it "should default to .to_s.self" do
-      cls = Class.new
-      class_name(class << cls; self; end).should == "#{cls.to_s}.self"
-    end
-
-    it "should just be self for singleton classes of normal objects" do
-      class_name(class << "hi"; self; end).should == "self"
-    end
-  end
-
   describe "below ceiling" do
     it "should stop before Object by default" do
       mock_pry("cd Class.new{ def goo; end }.new", "ls").should.not =~ /Object/
@@ -77,7 +44,7 @@ describe "ls" do
     it "should work for objects with an overridden method method" do
       require 'net/http'
       # This doesn't actually touch the network, promise!
-      mock_pry("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest methods/
+      mock_pry("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest#methods/
     end
   end
 
