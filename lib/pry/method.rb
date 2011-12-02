@@ -175,6 +175,21 @@ class Pry
       @method.name.to_s
     end
 
+    # Get the owner of the method as a Pry::Module
+    # @return [Pry::Module]
+    def wrapped_owner
+      @wrapped_owner ||= Pry::WrappedModule.new(@method.owner)
+    end
+
+    # Get the name of the method including the class on which it was defined.
+    # @example
+    #   method(:puts).method_name
+    #   => "Kernel.puts"
+    # @return [String]
+    def name_with_owner
+      "#{wrapped_owner.method_prefix}#{name}"
+    end
+
     # @return [String, nil] The source code of the method, or `nil` if it's unavailable.
     def source
       @source ||= case source_type

@@ -135,7 +135,6 @@ class Pry
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
         file = target.eval('__FILE__')
         line_num = target.eval('__LINE__')
-        klass = target.eval('self.class')
 
         if num
           i_num = num.to_i
@@ -143,14 +142,15 @@ class Pry
           i_num = 5
         end
 
-        meth_name = Pry::Method.method_name_from_binding(target) || "N/A"
-
         if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
           raise CommandError, "Cannot find local context. Did you use `binding.pry`?"
         end
 
         set_file_and_dir_locals(file)
-        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num} in #{klass}##{meth_name}:\n\n"
+
+        method = Pry::Method.from_binding(target)
+        method_description = method ? " in #{method.name_with_owner}" : ""
+        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
 
         if file == Pry.eval_path
           f = Pry.line_buffer[1..-1]
