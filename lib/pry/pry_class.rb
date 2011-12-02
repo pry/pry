@@ -148,17 +148,12 @@ class Pry
 
   # Load Readline history if required.
   def self.load_history
-    Pry.history.load(history_file) if File.exists?(history_file)
+    Pry.history.load
   end
 
   # Save new lines of Readline history if required.
   def self.save_history
-    Pry.history.save(history_file)
-  end
-
-  # Get the full path of the history_path for pry.
-  def self.history_file
-    File.expand_path(Pry.config.history.file)
+    Pry.history.save
   end
 
   # @return [Boolean] Whether this is the first time a Pry session has
