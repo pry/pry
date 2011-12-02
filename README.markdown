@@ -9,9 +9,9 @@
 
 **Sponsors**
 
-[Atomic Object](http://www.atomicobject.com/)
-[Bendyworks](http://bendyworks.com/)
-[Intridea](http://intridea.com/)
+[Atomic Object](http://www.atomicobject.com/)<br/>
+[Bendyworks](http://bendyworks.com/)<br/>
+[Intridea](http://intridea.com/)<br/>
 
 **Other Resources**
 
