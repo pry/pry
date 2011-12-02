@@ -309,7 +309,7 @@ class Pry
     current_prompt = select_prompt(eval_string, target)
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
-    val = readline(current_prompt + indentation)
+    val = readline("#{current_prompt}#{indentation}")
 
     # invoke handler if we receive EOF character (^D)
     if !val
