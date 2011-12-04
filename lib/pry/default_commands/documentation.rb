@@ -26,7 +26,12 @@ class Pry
         output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
         output.puts "#{text.bold("Signature:")} #{meth.signature}"
         output.puts
-        render_output(opts.present?(:flood), false, doc)
+
+        if opts.present?(:flood)
+          output.puts doc
+        else
+          stagger_output doc
+        end
       end
 
       alias_command "?", "show-doc"

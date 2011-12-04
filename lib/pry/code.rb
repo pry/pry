@@ -4,10 +4,11 @@ class Pry
       # Instantiate a `Code` object containing code loaded from a file or
       # Pry's line buffer.
       # @param [String] fn The name of a file, or "(pry)".
+      # @param [Symbol] code_type (:ruby) The type of code the file contains.
       # @return [Code]
-      def from_file(fn)
+      def from_file(fn, code_type=:ruby)
         if fn == Pry.eval_path
-          f = Pry.line_buffer[1..-1]
+          f = Pry.line_buffer.drop(1)
         else
           if File.readable?(fn)
             f = File.open(fn, 'r')
@@ -15,9 +16,21 @@ class Pry
             raise CommandError, "Cannot open #{file.inspect} for reading."
           end
         end
-        new(f)
+        new(f, 1, code_type)
       ensure
         f.close if f.respond_to?(:close)
+      end
+
+      # Instantiate a `Code` object containing code extracted from a
+      # `::Method`, `UnboundMethod`, `Proc`, or `Pry::Method` object.
+      # @param [::Method, UnboundMethod, Proc, Pry::Method] meth The method object.
+      # @param [Fixnum, nil] The line number to start on, or nil to use the
+      #   method's original line numbers.
+      # @return [Code]
+      def from_method(meth, start_line=nil)
+        meth = Pry::Method(meth)
+        start_line ||= meth.source_line || 1
+        new(meth.source, start_line, meth.source_type)
       end
     end
 
@@ -46,6 +59,13 @@ class Pry
     def before(line_num, lines=1)
       dup.instance_eval do
         @lines = @lines.select { |l, ln| ln >= line_num - lines && ln < line_num }
+        self
+      end
+    end
+
+    def between(start_line, end_line)
+      dup.instance_eval do
+        @lines = @lines[(start_line + 1)..(end_line + 1)]
         self
       end
     end
