@@ -49,7 +49,11 @@ class Pry
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
           nil
         else
-          new(b.eval("method(#{meth_name.to_s.inspect})"))
+          begin
+            new(b.eval("method(#{meth_name.to_s.inspect})"))
+          rescue NameError, NoMethodError
+            Disowned.new(b.eval('self'), meth_name.to_s)
+          end
         end
       end
 
@@ -178,7 +182,7 @@ class Pry
     # Get the owner of the method as a Pry::Module
     # @return [Pry::Module]
     def wrapped_owner
-      @wrapped_owner ||= Pry::WrappedModule.new(@method.owner)
+      @wrapped_owner ||= Pry::WrappedModule.new(owner)
     end
 
     # Get the name of the method including the class on which it was defined.
@@ -412,5 +416,43 @@ class Pry
 
         nil
       end
+
+    # A Disowned Method is one that's been removed from the class on which it was defined.
+    #
+    # e.g.
+    # class C
+    #   def foo
+    #     C.send(:undefine_method, :foo)
+    #     Pry::Method.from_binding(binding)
+    #   end
+    # end
+    #
+    # In this case we assume that the "owner" is the singleton class of the receiver.
+    #
+    # This occurs mainly in Sinatra applications.
+    class Disowned < Method
+      attr_reader :receiver, :name
+
+      # Create a new Disowned method.
+      #
+      # @param [Object] receiver
+      # @param [String] method_name
+      def initialize(*args)
+        @receiver, @name = *args
+      end
+
+      # Get the hypothesized owner of the method.
+      #
+      # @return [Object]
+      def owner
+        class << receiver; self; end
+      end
+
+      # Raise a more useful error message instead of trying to forward to nil.
+      def method_missing(meth_name, *args, &block)
+        raise "Cannot call '#{meth_name}' on an undef'd method." if method(:name).respond_to?(meth_name)
+        Object.instance_method(:method_missing).bind(self).call(meth_name, *args, &block)
+      end
+    end
   end
 end
