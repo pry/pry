@@ -87,7 +87,7 @@ class Pry
             corrected_index = index + normalized_range.first
             if code && code != ""
               content << code
-              content << "#{comment_expression_result_for_gist(_pry_.output_array[corrected_index].pretty_inspect)}"
+              content << "#{comment_expression_result_for_gist(_pry_.output_array[corrected_index].pretty_inspect)}" if code !~ /;\Z/
             end
           end
         elsif opts.present?(:doc)
