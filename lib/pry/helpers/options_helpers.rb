@@ -39,7 +39,7 @@ class Pry
         @method_target = target
         opt.on :M, "instance-methods", "Operate on instance methods."
         opt.on :m, :methods, "Operate on methods."
-        opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors."
+        opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
         opt.on :c, :context, "Select object context to run under.", true do |context|
           @method_target = Pry.binding_for(target.eval(context))
         end
@@ -48,9 +48,6 @@ class Pry
       # Add the derived :method_object option to a used Slop instance.
       def process_method_object_options(args, opts)
         opts[:instance] = opts['instance-methods'] if opts.present?(:methods)
-        # TODO: de-hack when we upgrade Slop: https://github.com/injekt/slop/pull/30
-        opts.options[:super].force_argument_value opts.options[:super].count if opts.present?(:super)
-
         get_method_or_raise(args.empty? ? nil : args.join(" "), @method_target, opts.to_hash(true))
       end
     end
