@@ -45,7 +45,7 @@ class Pry
       # @return [Pry::Method, nil]
       #
       def from_binding(b)
-        meth_name = method_name_from_binding(b)
+        meth_name = b.eval('__method__')
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
           nil
         else
@@ -115,14 +115,6 @@ class Pry
       def instance_resolution_order(klass)
         # include klass in case it is a singleton class,
         ([klass] + klass.ancestors).uniq
-      end
-
-      # Given a `Binding` extract name of the method it originated from.
-      # Return `nil` if no such method exists.
-      # @param [Binding] b
-      # @return [Symbol, nil]
-      def method_name_from_binding(b)
-        b.eval('__method__')
       end
 
       private
