@@ -31,6 +31,21 @@ describe "Pry::DefaultCommands::Context" do
     end
   end
 
+  describe "whereami" do
+    it 'should work with methods that have been undefined' do
+      class Cor
+        def blimey!
+          Cor.send :undef_method, :blimey!
+          # using [.] so the regex doesn't match itself
+          mock_pry(binding, 'whereami').should =~ /self[.]blimey!/
+        end
+      end
+
+      Cor.new.blimey!
+      Object.remove_const(:Cor)
+    end
+  end
+
   describe "exit" do
     it 'should pop a binding with exit' do
       b = Pry.binding_for(:outer)
