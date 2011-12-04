@@ -113,7 +113,7 @@ class Pry
           eval_string << Array(code.each_line.to_a[range]).join
         end
 
-        run "show-input" if !_pry_.valid_expression?(eval_string)
+        run "show-input" if !_pry_.complete_expression?(eval_string)
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
