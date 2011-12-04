@@ -25,6 +25,10 @@ class Pry
     # @param [Fixnum?] (1) start_line
     # @param [Symbol?] (:ruby) code_type
     def initialize(lines=[], start_line=1, code_type=:ruby)
+      if lines.is_a? String
+        lines = lines.lines
+      end
+
       @lines = lines.each_with_index.map { |l, i| [l.chomp, i + start_line] }
       @code_type = code_type
     end
@@ -62,17 +66,16 @@ class Pry
 
     # @param [Symbol?] color
     # @return [String]
-    def with_line_numbers(color=:blue)
+    def with_line_numbers(y_n=true)
       dup.instance_eval do
-        @with_line_numbers = true
-        @line_number_color = color
+        @with_line_numbers = y_n
         self
       end
     end
 
     def with_marker(line_num=1)
       dup.instance_eval do
-        @with_marker = true
+        @with_marker     = !!line_num
         @marker_line_num = line_num
         self
       end
@@ -94,10 +97,10 @@ class Pry
       end
 
       if @with_line_numbers
-        max_width = @lines.last.last.to_s.length
+        max_width = @lines.last.last.to_s.length if @lines.length > 0
         lines.each do |l|
           padded_line_num = l[1].to_s.rjust(max_width)
-          l[0] = "#{Pry::Helpers::Text.send(@line_number_color, padded_line_num)}: #{l[0]}"
+          l[0] = "#{Pry::Helpers::Text.blue(padded_line_num)}: #{l[0]}"
         end
       end
 
@@ -112,6 +115,10 @@ class Pry
       end
 
       lines.map(&:first).join("\n")
+    end
+
+    def method_missing(name, *args, &blk)
+      to_s.send(name, *args, &blk)
     end
   end
 end

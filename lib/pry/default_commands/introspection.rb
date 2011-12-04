@@ -25,20 +25,20 @@ class Pry
         output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
         output.puts
 
-        if Pry.color
-          code = CodeRay.scan(meth.source, meth.source_type).term
-        else
-          code = meth.source
-        end
-
-        start_line = false
         if opts.present?(:'base-one')
           start_line = 1
-        elsif opts.present?(:'line-numbers')
+        else
           start_line = meth.source_line || 1
         end
 
-        render_output(opts.present?(:flood), start_line, code)
+        code = Code.new(meth.source, start_line, meth.source_type).
+                 with_line_numbers(opts.present?(:b) || opts.present?(:l))
+
+        if opts.present?(:flood)
+          output.puts code
+        else
+          stagger_output code
+        end
       end
 
       alias_command "show-source", "show-method"
