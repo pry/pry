@@ -31,7 +31,7 @@ class Pry
           start_line = meth.source_line || 1
         end
 
-        code = Code.new(meth.source, start_line, meth.source_type).
+        code = Code.from_method(meth, start_line).
                  with_line_numbers(opts.present?(:b) || opts.present?(:l))
 
         if opts.present?(:flood)
@@ -68,8 +68,8 @@ class Pry
           raise CommandError, "You must provide a command name."
         end
 
-        if find_command(command_name)
-          block = Pry::Method.new(find_command(command_name).block)
+        if (cmd = find_command(command_name))
+          block = Pry::Method(cmd.block)
 
           next unless block.source
           set_file_and_dir_locals(block.source_file)
@@ -77,19 +77,13 @@ class Pry
           output.puts make_header(block)
           output.puts
 
-          if Pry.color
-            code = CodeRay.scan(block.source, :ruby).term
+          code = Code.from_method(block).with_line_numbers(opts.present?(:'line-numbers'))
+
+          if opts.present?(:flood)
+            output.puts code
           else
-            code = block.source
+            stagger_output code
           end
-
-          start_line = false
-          if opts.present?(:'line-numbers')
-            start_line = block.source_line || 1
-          end
-
-          render_output(opts.present?(:flood), opts.present?(:'line-numbers') ? block.source_line : false, code)
-          code
         else
           raise CommandError, "No such command: #{command_name}."
         end
