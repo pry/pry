@@ -556,7 +556,9 @@ class Pry
         eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
       }
     end
-    true
+
+    # Assert that a line which ends with a , or a \ is incomplete.
+    str !~ /[,\\]$/
   rescue SyntaxError => e
     if incomplete_user_input_exception?(e)
       false
