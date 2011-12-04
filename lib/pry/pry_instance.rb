@@ -259,7 +259,7 @@ class Pry
         output.puts "Error: #{e.message}"
       end
 
-      break if valid_expression?(eval_string)
+      break if complete_expression?(eval_string)
     end
 
     @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?
@@ -544,9 +544,9 @@ class Pry
   # @return [Boolean] Whether or not the code is a complete Ruby expression.
   # @raise [SyntaxError] Any SyntaxError that does not represent incompleteness.
   # @example
-  #   valid_expression?("class Hello") #=> false
-  #   valid_expression?("class Hello; end") #=> true
-  def valid_expression?(str)
+  #   complete_expression?("class Hello") #=> false
+  #   complete_expression?("class Hello; end") #=> true
+  def complete_expression?(str)
     if defined?(Rubinius::Melbourne19) && RUBY_VERSION =~ /^1\.9/
       Rubinius::Melbourne19.parse_string(str, Pry.eval_path)
     elsif defined?(Rubinius::Melbourne)
