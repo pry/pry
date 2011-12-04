@@ -316,6 +316,29 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /Mr flibble/
     end
 
+    it "should find super methods" do
+      class Foo
+        def foo(*bars)
+          :super_wibble
+        end
+      end
+      o = Foo.new
+      Object.remove_const(:Foo)
+      def o.foo(*bars)
+        :wibble
+      end
+
+      mock_pry(binding, "show-method --super o.foo").should =~ /:super_wibble/
+
+    end
+
+    it "should not raise an exception when a non-extant super method is requested" do
+      o = Object.new
+      def o.foo(*bars); end
+
+      mock_pry(binding, "show-method --super o.foo").should =~ /'self.foo' has no super method/
+    end
+
     # dynamically defined method source retrieval is only supported in
     # 1.9 - where Method#source_location is native
     if RUBY_VERSION =~ /1.9/

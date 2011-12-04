@@ -41,7 +41,7 @@ class Pry
           if meth.super
             meth = meth.super
           else
-            command_error("The method '#{meth.name}' is not defined in a superclass of '#{class_name(meth.owner)}'.", omit_help)
+            command_error("'#{meth.name_with_owner}' has no super method.", omit_help)
           end
         end
 
