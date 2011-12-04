@@ -55,29 +55,43 @@ class Pry
         EOS
       end
 
-      command "gist-method", "Gist a method to github. Type `gist-method --help` for more info.", :requires_gem => "gist", :shellwords => false do |*args|
+      command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do |*args|
         require 'gist'
 
         target = target()
 
-        opts, meth = parse_options!(args, :method_object) do |opt|
+        opts = parse_options!(args) do |opt|
           opt.banner unindent <<-USAGE
-            Usage: gist-method [OPTIONS] [METH]
-            Gist the method (doc or source) to github.
+            Usage: gist [OPTIONS] [METH]
+            Gist method (doc or source) or input expression to github.
             Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
             e.g: gist -m my_method
             e.g: gist -d my_method
+            e.g: gist -i 1..10
           USAGE
 
-          opt.on :d, :doc, "Gist a method's documentation."
-          opt.on :p, :private, "Create a private gist (default: true)", :default => true
+          opt.on :d, :doc, "Gist a method's documentation.", true
+          opt.on :m, :method, "Gist a method's source.", true
+          opt.on :p, :public, "Create a public gist (default: false)", :default => false
+          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1
         end
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
-        if !opts.present?(:doc)
-          content = meth.source
-          code_type = meth.source_type
-        else
+        if opts.present?(:in)
+          code_type = :ruby
+          content = ""
+          normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
+          input_items = _pry_.input_array[normalized_range] || []
+
+          input_items.each_with_index.map do |code, index|
+            corrected_index = index + normalized_range.first
+            if code && code != ""
+              content << code
+              content << "#{comment_expression_result_for_gist(_pry_.output_array[corrected_index].pretty_inspect)}"
+            end
+          end
+        elsif opts.present?(:doc)
+          meth = get_method_or_raise(opts[:d], target, {})
           content = meth.doc
           code_type = meth.source_type
 
@@ -85,14 +99,35 @@ class Pry
             content = process_comment_markup(content, code_type)
           end
           code_type = :plain
+        elsif opts.present?(:method)
+          meth = get_method_or_raise(opts[:m], target, {})
+          content = meth.source
+          code_type = meth.source_type
         end
 
         link = Gist.write([:extension => ".#{type_map[code_type]}",
                            :input => content],
-                          opts.present?(:private))
+                          !opts[:p])
 
         output.puts "Gist created at #{link}"
       end
+
+
+      helpers do
+        def comment_expression_result_for_gist(result)
+          content = ""
+          result.lines.each_with_index do |line, index|
+            if index == 0
+              content << "# => #{line}"
+            else
+              content << "#    #{line}"
+            end
+          end
+          content
+        end
+      end
+
+
     end
   end
 end
