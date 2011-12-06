@@ -127,7 +127,7 @@ class Pry
         target.pry
       end
 
-      command "backtrace", "Show the backtrace for the Pry session" do
+      command "pry-backtrace", "Show the backtrace for the Pry session" do
         output.puts "\n#{text.bold('Backtrace:')}\n--\n"
         output.puts _pry_.backtrace
       end
