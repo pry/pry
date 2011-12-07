@@ -105,11 +105,18 @@ class Pry
           code_type = meth.source_type
         end
 
+        # prevent Gist from exiting the session on error
+        begin
         link = Gist.write([:extension => ".#{type_map[code_type]}",
                            :input => content],
                           !opts[:p])
+        rescue SystemExit
+        end
 
-        output.puts "Gist created at #{link}"
+        if link
+          Gist.copy(link)
+          output.puts "Gist created at #{link} and added to clipboard."
+        end
       end
 
 
