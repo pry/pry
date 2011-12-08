@@ -316,6 +316,36 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /Mr flibble/
     end
 
+    it "should find instance methods with -M" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c","show-method -M moo").should =~ /ve over/
+    end
+
+    it "should not find instance methods with -m" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -m moo").should =~ /could not be found/
+    end
+
+    it "should find normal methods with -m" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -m moo").should =~ /ve over/
+    end
+
+    it "should not find normal methods with -M" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -M moo").should =~ /could not be found/
+    end
+
+    it "should find normal methods with no -M or -m" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
+    end
+
+    it "should find instance methods with no -M or -m" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
+    end
+
     it "should find super methods" do
       class Foo
         def foo(*bars)
