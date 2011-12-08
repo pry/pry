@@ -47,11 +47,14 @@ class Pry
 
       # Add the derived :method_object option to a used Slop instance.
       def process_method_object_options(args, opts)
-        opts[:instance] = opts['instance-methods'] if opts.present?(:methods)
         # TODO: de-hack when we upgrade Slop: https://github.com/injekt/slop/pull/30
         opts.options[:super].force_argument_value opts.options[:super].count if opts.present?(:super)
 
-        get_method_or_raise(args.empty? ? nil : args.join(" "), @method_target, opts.to_hash(true))
+        get_method_or_raise(args.empty? ? nil : args.join(" "), @method_target,
+                            :super => opts[:super],
+                            :instance => opts.present?(:'instance-methods') && !opts.present?(:'methods'),
+                            :methods  => opts.present?(:'methods') && !opts.present?(:'instance-methods')
+                           )
       end
     end
   end
