@@ -13,4 +13,4 @@ rescue LoadError
 end
 
 # Process command line options and run Pry
-Pry::CLI.run
+Pry::CLI.parse_options
