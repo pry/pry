@@ -44,8 +44,9 @@ class Pry
       def activate!
         begin
           require gem_name if !active?
-        rescue LoadError
+        rescue LoadError => e
           $stderr.puts "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
+          $stderr.puts e
         end
         self.active = true
         self.enabled = true
