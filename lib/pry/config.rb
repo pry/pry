@@ -105,13 +105,13 @@ class Pry
     attr_accessor :should_trap_interrupts
 
     # Config option for history.
-    # sub-options include hist.file, hist.load, and hist.save
-    # hist.file is the file to save/load history too, e.g
+    # sub-options include history.file, history.load, and history.save
+    # history.file is the file to save/load history to, e.g
     # Pry.config.history.file = "~/.pry_history".
-    # hist.should_load is a boolean that determines whether history will be
-    # loaded from hist.file at session start.
-    # hist.should_save is a boolean that determines whether history will be
-    # saved to hist.file at session end.
+    # history.should_load is a boolean that determines whether history will be
+    # loaded from history.file at session start.
+    # history.should_save is a boolean that determines whether history will be
+    # saved to history.file at session end.
     # @return [OpenStruct]
     attr_accessor :history
 
@@ -148,6 +148,18 @@ class Pry
     # @return [Boolean] Whether or not a warning will be displayed when
     #   a command name collides with a method/local in the current context.
     attr_accessor :collision_warning
+
+
+    # Config option for gist.
+    # sub-options include `gist.inspecter`,
+    # `gist.inspecter` is a callable that defines how the expression output
+    # will be displayed when using the `gist -i` command.
+    # @example Pretty inspect output
+    #   Pry.config.gist.inspecter = proc { |v| v.pretty_inspect }
+    # @example Regular inspect
+    #   Pry.config.gist.inspecter = proc &:inspect
+    # @return [OpenStruct]
+    attr_accessor :gist
   end
 end
 
