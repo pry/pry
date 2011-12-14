@@ -22,7 +22,7 @@ class Pry
           yield opt
 
           opt.on :h, :help, "This message" do
-            output.puts opt
+            output.puts opt.to_s
             throw :command_done
           end
         end
