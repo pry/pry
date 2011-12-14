@@ -254,6 +254,10 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /def sample/
     end
 
+    it 'should output help' do
+      mock_pry('show-method -h').should =~ /Usage: show-method/
+    end
+
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
