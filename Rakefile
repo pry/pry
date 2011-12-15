@@ -106,6 +106,12 @@ task :gems => [:clean, :rmgems, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby
 desc "remove all platform gems"
 task :rmgems => ['ruby:clobber_package']
 
+desc "reinstall gem"
+task :reinstall => :gems do
+  sh "gem uninstall pry"
+  sh "gem install #{direc}/pkg/pry-#{Pry::VERSION}.gem"
+end
+
 desc "build and push latest gems"
 task :pushgems => :gems do
   chdir("#{File.dirname(__FILE__)}/pkg") do
