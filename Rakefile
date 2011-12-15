@@ -108,7 +108,7 @@ task :rmgems => ['ruby:clobber_package']
 
 desc "reinstall gem"
 task :reinstall => :gems do
-  sh "gem uninstall pry"
+  sh "gem uninstall pry" rescue nil
   sh "gem install #{direc}/pkg/pry-#{Pry::VERSION}.gem"
 end
 
