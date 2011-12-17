@@ -143,7 +143,7 @@ class Pry
           opt.on :h, "help", "Show help"
         end
 
-        next output.puts(opts) if opts.present?(:help)
+        next output.puts(opts.to_s) if opts.present?(:help)
 
         obj = args.empty? ? target_self : target.eval(args.join(" "))
 
