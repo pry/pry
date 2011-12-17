@@ -22,7 +22,13 @@ describe "ls" do
     end
   end
 
-  describe "methods" do 
+  describe "help" do
+    it 'should show help with -h' do
+      mock_pry("ls -h").should =~ /Usage: ls/
+    end
+  end
+
+  describe "methods" do
     it "should show public methods by default" do
       mock_pry("ls Class.new{ def goo; end }.new").should =~ /goo/
     end
