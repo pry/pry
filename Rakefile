@@ -27,29 +27,42 @@ def apply_spec_defaults(s)
   s.add_development_dependency('rake', '~> 0.9')
 end
 
+def check_dependencies
+  require 'bundler'
+
+  ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile", __FILE__)
+  Bundler.definition.missing_specs
+rescue LoadError
+  # if Bundler isn't installed, we'll just assume your setup is ok.
+rescue Bundler::GemNotFound
+  raise RuntimeError, "You're missing one or more required gems. Run `bundle install` first."
+end
+
 desc "Set up and run tests"
 task :default => [:test]
 
 desc "Run tests"
 task :test do
+  check_dependencies unless ENV['SKIP_DEP_CHECK']
   sh "bacon -Itest -rubygems -a -q"
 end
 
-desc "profile pry's startup time"
+desc "Run pry"
+task :pry do
+  check_dependencies unless ENV['SKIP_DEP_CHECK']
+  load 'bin/pry'
+end
+
+desc "Show pry version"
+task :version do
+  puts "Pry version: #{Pry::VERSION}"
+end
+
+desc "Profile pry's startup time"
 task :profile do
   require 'profile'
   require 'pry'
   Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
-end
-
-desc "run pry"
-task :pry do
-  load 'bin/pry'
-end
-
-desc "show pry version"
-task :version do
-  puts "Pry version: #{Pry::VERSION}"
 end
 
 namespace :ruby do
