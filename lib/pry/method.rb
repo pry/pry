@@ -177,6 +177,12 @@ class Pry
       @wrapped_owner ||= Pry::WrappedModule.new(owner)
     end
 
+    # Is the method undefined? (aka `Disowned`)
+    # @return [Boolean] false
+    def undefined?
+      false
+    end
+
     # Get the name of the method including the class on which it was defined.
     # @example
     #   method(:puts).method_name
@@ -431,6 +437,12 @@ class Pry
       # @param [String] method_name
       def initialize(*args)
         @receiver, @name = *args
+      end
+
+      # Is the method undefined? (aka `Disowned`)
+      # @return [Boolean] true
+      def undefined?
+        true
       end
 
       # Get the hypothesized owner of the method.
