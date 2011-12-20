@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = "pry"
-  s.version = "0.9.8.0pre1"
+  s.version = "0.9.8pre2"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Mair (banisterfiend)"]
-  s.date = "2011-12-17"
+  s.date = "2011-12-21"
   s.description = "An IRB alternative and runtime developer console"
   s.email = "jrmair@gmail.com"
   s.executables = ["pry"]
