@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<coderay>, ["~> 0.9"])
+      s.add_runtime_dependency(%q<coderay>, [">= 0.9"])
       s.add_runtime_dependency(%q<slop>, ["< 3", ">= 2.4.1"])
       s.add_runtime_dependency(%q<method_source>, ["~> 0.6"])
       s.add_development_dependency(%q<bacon>, ["~> 1.1"])
