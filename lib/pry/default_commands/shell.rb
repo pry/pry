@@ -74,7 +74,7 @@ class Pry
           opt.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
 

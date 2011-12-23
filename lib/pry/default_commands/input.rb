@@ -28,7 +28,7 @@ class Pry
           USAGE
 
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
 
@@ -74,7 +74,7 @@ class Pry
           opt.on :f, "file", 'The file to replay in context.', true
           opt.on :o, "open", 'When used with the -m switch, it plays the entire method except the last line, leaving the method definition "open". `amend-line` can then be used to modify the method.'
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
 

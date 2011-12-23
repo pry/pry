@@ -57,7 +57,7 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
 
@@ -111,7 +111,7 @@ class Pry
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
           opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
         next if opts.present?(:help)
@@ -214,7 +214,7 @@ class Pry
           opt.on "no-jump", "Do not fast forward editor to first line of method."
           opt.on :p, :patch, "Instead of editing the method's file, try to edit in a tempfile and apply as a monkey patch."
           opt.on :h, :help, "This message." do
-            output.puts opt
+            output.puts opt.help
           end
         end
 
