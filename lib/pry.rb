@@ -13,7 +13,7 @@ class Pry
     file = target.eval('__FILE__')
 
     # /unknown/ for rbx
-    if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
+    if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"  || file == Pry.eval_path
       _pry_.run_command("whereami 5", "", target)
     end
   end
