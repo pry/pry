@@ -157,8 +157,9 @@ require "stringio"
 require "coderay"
 require "optparse"
 require "slop"
+require "rbconfig"
 
-if RUBY_PLATFORM =~ /jruby/
+if defined? JRUBY_VERSION
   begin
     require 'ffi'
   rescue LoadError
@@ -166,7 +167,7 @@ if RUBY_PLATFORM =~ /jruby/
   end
 end
 
-if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
+if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
   begin
     require 'win32console'
   rescue LoadError

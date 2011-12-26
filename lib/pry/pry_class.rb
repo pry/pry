@@ -192,7 +192,7 @@ class Pry
   end
 
   def self.default_editor_for_platform
-    if RUBY_PLATFORM =~ /mswin|mingw/
+    if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
       ENV['VISUAL'] || ENV['EDITOR'] || "notepad"
     else
       if ENV['VISUAL'] and not ENV['VISUAL'].empty?
