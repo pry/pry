@@ -160,6 +160,7 @@ class Pry
       end
 
       def invoke_editor(file, line)
+        return nil unless Pry.config.editor
         if Pry.config.editor.respond_to?(:call)
           editor_invocation = Pry.config.editor.call(file, line)
         else
