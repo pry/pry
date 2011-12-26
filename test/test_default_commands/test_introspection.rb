@@ -93,7 +93,7 @@ describe "Pry::DefaultCommands::Introspection" do
         @tf.flush
       end
       after do
-        @tf.close
+        @tf.close(true)
         File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
       end
       it "should open the correct file" do
@@ -455,7 +455,7 @@ describe "Pry::DefaultCommands::Introspection" do
       end
 
       after do
-        @tempfile.close
+        @tempfile.close(true)
       end
 
       describe 'without -p' do
