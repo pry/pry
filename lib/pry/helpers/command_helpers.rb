@@ -25,7 +25,7 @@ class Pry
         file = Tempfile.new(['pry', '.rb'])
         yield file
       ensure
-        file.close
+        file.close(true)
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)

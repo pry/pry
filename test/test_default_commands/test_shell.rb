@@ -140,7 +140,9 @@ describe "Pry::DefaultCommands::Shell" do
         pry_instance.rep(self)
         str_output.string.should =~ /bt number 0/
 
-        temp_files.each(&:close)
+        temp_files.each do |file|
+          file.close(true)
+        end
       end
 
     end

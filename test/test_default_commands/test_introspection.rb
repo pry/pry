@@ -53,7 +53,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should not reload the file if it is not a ruby file" do
@@ -62,7 +62,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should not reload a ruby file if -n is given" do
@@ -71,7 +71,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should reload a non-ruby file if -r is given" do
@@ -80,7 +80,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
       end
     end

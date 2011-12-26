@@ -167,7 +167,7 @@ def temp_file
   file = Tempfile.new('pry')
   yield file
 ensure
-  file.close
+  file.close(true)
 end
 
 
