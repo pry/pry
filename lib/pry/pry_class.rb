@@ -195,7 +195,24 @@ class Pry
     if RUBY_PLATFORM =~ /mswin|mingw/
       ENV['VISUAL'] || ENV['EDITOR'] || "notepad"
     else
-      ENV['VISUAL'] || ENV['EDITOR'] || "nano"
+      if ENV['VISUAL'] and not ENV['VISUAL'].empty?
+        return ENV['VISUAL']
+      else
+        if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+          return ENV['EDITOR']
+        end
+      end
+
+      case true
+      when system('which editor > /dev/null 2>&1')
+        'editor'
+      when system("which vim > /dev/null 2>&1")
+        'vim'
+      when system("which nano > /dev/null 2>&1")
+        'nano'
+      else
+        nil
+      end
     end
   end
 
