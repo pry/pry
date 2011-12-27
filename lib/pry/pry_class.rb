@@ -192,28 +192,17 @@ class Pry
   end
 
   def self.default_editor_for_platform
-    if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
-      ENV['VISUAL'] || ENV['EDITOR'] || "notepad"
-    else
-      if ENV['VISUAL'] and not ENV['VISUAL'].empty?
-        return ENV['VISUAL']
-      else
-        if ENV['EDITOR'] and not ENV['EDITOR'].empty?
-          return ENV['EDITOR']
-        end
-      end
+    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
+    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
 
+    if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+      'notepad'
+    else
       case true
       when system('which editor > /dev/null 2>&1')
         'editor'
       when system('which nano > /dev/null 2>&1')
         'nano'
-      when system('which vim > /dev/null 2>&1')
-        'vim'
-      when system('which vi > /dev/null 2>&1')
-        'vi'
-      when system('which vim.tiny > /dev/null 2>&1')
-        'vim-tiny'
       else
         nil
       end
