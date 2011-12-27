@@ -49,16 +49,6 @@ class MockPryException
   end
 end
 
-# are we on Jruby platform?
-def jruby?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
-end
-
-# are we on rbx platform?
-def rbx?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
-end
-
 Pry.reset_defaults
 
 # this is to test exception code (cat --ex)
@@ -183,7 +173,7 @@ end
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
-  require 'set_trace' if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/ # gem install 'rbx-tracer'
+  require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?
   set_trace_func proc { |event, file, line, id, binding, classname|
      STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
   }

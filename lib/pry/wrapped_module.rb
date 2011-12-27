@@ -54,7 +54,7 @@ class Pry
     def singleton_instance
       raise ArgumentError, "tried to get instance of non singleton class" unless singleton_class?
 
-      if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+      if Helpers::BaseHelpers.jruby?
         wrapped.to_java.attached
       else
         @singleton_instance ||= ObjectSpace.each_object(wrapped).detect{ |x| (class << x; self; end) == wrapped }
