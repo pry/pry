@@ -198,13 +198,8 @@ class Pry
     if Helpers::BaseHelpers.windows?
       'notepad'
     else
-      case true
-      when system('which editor > /dev/null 2>&1')
-        'editor'
-      when system('which nano > /dev/null 2>&1')
-        'nano'
-      else
-        nil
+      %w(editor nano vi).detect do |editor|
+        system("which #{editor} > /dev/null 2>&1")
       end
     end
   end
