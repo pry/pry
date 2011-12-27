@@ -212,7 +212,7 @@ class Pry
         'vim'
       when system('which vi > /dev/null 2>&1')
         'vi'
-      when system('which vim-tiny > /dev/null 2>&1')
+      when system('which vim.tiny > /dev/null 2>&1')
         'vim-tiny'
       else
         nil
