@@ -98,7 +98,7 @@ describe Pry::Method do
     end
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
-    unless defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
+    unless Pry::Helpers::BaseHelpers.rbx?
       it 'should find the super method correctly' do
         a = Class.new{ def gag; binding; end; def self.line; __LINE__; end }
         b = Class.new(a){ def gag; super; end }
