@@ -91,6 +91,11 @@ class Pry
         27
       end
 
+      # have fun on the Windows platform.
+      def windows?
+        RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+      end
+
       # are we on Jruby platform?
       def jruby?
         defined? JRUBY_VERSION

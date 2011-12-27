@@ -195,7 +195,7 @@ class Pry
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
 
-    if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+    if Helpers::BaseHelpers.windows?
       'notepad'
     else
       case true
