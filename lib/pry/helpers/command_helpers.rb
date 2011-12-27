@@ -160,7 +160,7 @@ class Pry
       end
 
       def invoke_editor(file, line)
-        return nil unless Pry.config.editor
+        raise CommandError, "Please set Pry.config.editor or export $EDITOR" unless Pry.config.editor
         if Pry.config.editor.respond_to?(:call)
           editor_invocation = Pry.config.editor.call(file, line)
         else
@@ -180,7 +180,7 @@ class Pry
           # Note we dont want to use Pry.config.system here as that
           # may be invoked non-interactively (i.e via Open4), whereas we want to
           # ensure the editor is always interactive
-          system(editor_invocation)
+          system(editor_invocation) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
         end
       end
 
