@@ -98,7 +98,7 @@ class Pry
 
       # are we on rbx platform?
       def rbx?
-        if RbConfig['ruby_install_name'] == 'rbx'
+        if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
           return true
         end
 
