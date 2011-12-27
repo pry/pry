@@ -98,16 +98,12 @@ class Pry
 
       # are we on Jruby platform?
       def jruby?
-        defined? JRUBY_VERSION
+        RbConfig::CONFIG['ruby_install_name'] == 'jruby'
       end
 
       # are we on rbx platform?
       def rbx?
-        if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
-          return true
-        end
-
-        nil
+        RbConfig::CONFIG['ruby_install_name'] == 'rbx'
       end
 
       # a simple pager for systems without `less`. A la windows.
