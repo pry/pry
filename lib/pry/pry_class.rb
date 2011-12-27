@@ -215,12 +215,12 @@ class Pry
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
-    config.color = Pry::Helpers::BaseHelpers.use_ansi_codes?
+    config.color = Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
     config.should_load_rc = true
-    config.should_trap_interrupts = defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+    config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
     config.disable_auto_reload = false
     config.command_prefix = ""
     config.auto_indent = true

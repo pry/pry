@@ -16,7 +16,7 @@ describe Pry::InputCompleter do
   end
 
   # another jruby hack :((
-  if !jruby?
+  if !Pry::Helpers::BaseHelpers.jruby?
     it "should not crash if there's a Module that has a symbolic name." do
       completer = Pry::InputCompleter.build_completion_proc(Pry.binding_for(Object.new))
       lambda{ completer.call "a.to_s." }.should.not.raise Exception

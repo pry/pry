@@ -47,7 +47,7 @@ describe "Pry::DefaultCommands::Shell" do
     # this doesnt work so well on rbx due to differences in backtrace
     # so we currently skip rbx until we figure out a workaround
     describe "with --ex" do
-      if !rbx?
+      if !Pry::Helpers::BaseHelpers.rbx?
         it 'cat --ex should correctly display code that generated exception even if raised in repl' do
           mock_pry("this raises error", "cat --ex").should =~ /\d+:(\s*) this raises error/
         end
