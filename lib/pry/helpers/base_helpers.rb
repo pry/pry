@@ -91,14 +91,23 @@ class Pry
         27
       end
 
+      # have fun on the Windows platform.
+      def windows?
+        RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+      end
+
       # are we on Jruby platform?
       def jruby?
-        defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+        defined? JRUBY_VERSION
       end
 
       # are we on rbx platform?
       def rbx?
-       defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
+        if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
+          return true
+        end
+
+        nil
       end
 
       # a simple pager for systems without `less`. A la windows.
