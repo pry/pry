@@ -59,6 +59,7 @@ class Pry
         require 'gist'
 
         target = target()
+        input_ranges = []
 
         opts = parse_options!(args) do |opt|
           opt.banner unindent <<-USAGE
@@ -73,7 +74,9 @@ class Pry
           opt.on :d, :doc, "Gist a method's documentation.", true
           opt.on :m, :method, "Gist a method's source.", true
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1
+          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1 do |range|
+            input_ranges << absolute_index_range(range, _pry_.input_array.length)
+          end
         end
 
         type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
@@ -81,7 +84,7 @@ class Pry
           code_type = :ruby
           content = ""
           normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
-          input_items = _pry_.input_array[normalized_range] || []
+          input_items = input_ranges.map { |v| _pry_.input_array[v] || [] }.flatten
 
           input_items.each_with_index.map do |code, index|
             corrected_index = index + normalized_range.first
@@ -107,9 +110,9 @@ class Pry
 
         # prevent Gist from exiting the session on error
         begin
-        link = Gist.write([:extension => ".#{type_map[code_type]}",
-                           :input => content],
-                          !opts[:p])
+          link = Gist.write([:extension => ".#{type_map[code_type]}",
+                             :input => content],
+                            !opts[:p])
         rescue SystemExit
         end
 
@@ -118,7 +121,6 @@ class Pry
           output.puts "Gist created at #{link} and added to clipboard."
         end
       end
-
 
       helpers do
         def comment_expression_result_for_gist(result)
