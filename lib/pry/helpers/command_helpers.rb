@@ -187,7 +187,7 @@ class Pry
       # Return the syntax for a given editor for starting the editor
       # and moving to a particular line within that file
       def start_line_syntax_for_editor(file_name, line_number)
-        if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+        if Helpers::BaseHelpers.windows?
           file_name = file_name.gsub(/\//, '\\')
         end
 
@@ -204,7 +204,7 @@ class Pry
         when /^jedit/
           "#{file_name} +line:#{line_number}"
         else
-          if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+          if Helpers::BaseHelpers.windows?
             "#{file_name}"
           else
             "+#{line_number} #{file_name}"

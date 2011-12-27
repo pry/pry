@@ -159,7 +159,7 @@ require "optparse"
 require "slop"
 require "rbconfig"
 
-if defined? JRUBY_VERSION
+if Pry::Helpers::BaseHelpers.jruby?
   begin
     require 'ffi'
   rescue LoadError
@@ -167,7 +167,7 @@ if defined? JRUBY_VERSION
   end
 end
 
-if RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+if Pry::Helpers::BaseHelpers.windows?
   begin
     require 'win32console'
   rescue LoadError
