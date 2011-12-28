@@ -283,32 +283,6 @@ class Pry
 
       alias_command "history", "hist"
 
-      helpers do
-        def one_index_number(line_number)
-          if line_number > 0
-            line_number - 1
-          elsif line_number < 0
-            line_number
-          else
-            line_number
-          end
-        end
-
-        def one_index_range(range)
-          Range.new(one_index_number(range.begin), one_index_number(range.end))
-        end
-
-        def one_index_range_or_number(range_or_number)
-          case range_or_number
-          when Range
-            one_index_range(range_or_number)
-          else
-            one_index_number(range_or_number)
-          end
-        end
-
-      end
-
     end
 
   end

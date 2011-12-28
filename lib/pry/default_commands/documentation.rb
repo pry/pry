@@ -73,8 +73,11 @@ class Pry
 
           opt.on :d, :doc, "Gist a method's documentation.", true
           opt.on :m, :method, "Gist a method's source.", true
+          opt.on :f, :file, "Gist a file.", true
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1 do |range|
+          opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
+          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          :as => Range, :default => -5..-1 do |range|
             input_ranges << absolute_index_range(range, _pry_.input_array.length)
           end
         end
@@ -83,15 +86,23 @@ class Pry
         if opts.present?(:in)
           code_type = :ruby
           content = ""
-          normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
-          input_items = input_ranges.map { |v| _pry_.input_array[v] || [] }.flatten
 
-          input_items.each_with_index.map do |code, index|
-            corrected_index = index + normalized_range.first
-            if code && code != ""
-              content << code
-              content << "#{comment_expression_result_for_gist(Pry.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}" if code !~ /;\Z/
+          input_ranges.each do |range|
+            input_expressions = _pry_.input_array[range] || []
+            input_expressions.each_with_index.map do |code, index|
+              corrected_index = index + range.first
+              if code && code != ""
+                content << code
+                content << "#{comment_expression_result_for_gist(Pry.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}" if code !~ /;\Z/
+              end
             end
+          end
+        elsif opts.present?(:file)
+          whole_file = File.read(File.expand_path(opts[:f]))
+          if opts.present?(:lines)
+            content = restrict_to_lines(whole_file, opts[:l])
+          else
+            content = whole_file
           end
         elsif opts.present?(:doc)
           meth = get_method_or_raise(opts[:d], target, {})
@@ -104,13 +115,21 @@ class Pry
           code_type = :plain
         elsif opts.present?(:method)
           meth = get_method_or_raise(opts[:m], target, {})
-          content = meth.source
+          method_source = meth.source
+          if opts.present?(:lines)
+            content = restrict_to_lines(method_source, opts[:l])
+          else
+            content = method_source
+          end
+
           code_type = meth.source_type
         end
 
         # prevent Gist from exiting the session on error
         begin
-          link = Gist.write([:extension => ".#{type_map[code_type]}",
+          extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[code_type]}"
+
+          link = Gist.write([:extension => extname,
                              :input => content],
                             !opts[:p])
         rescue SystemExit
@@ -123,6 +142,15 @@ class Pry
       end
 
       helpers do
+        def restrict_to_lines(content, lines)
+          line_range = one_index_range(lines)
+          content.lines.to_a[line_range].join
+        end
+
+        def gist_file_extension(file_name)
+          file_name.split(".").last
+        end
+
         def comment_expression_result_for_gist(result)
           content = ""
           result.lines.each_with_index do |line, index|
@@ -135,7 +163,6 @@ class Pry
           content
         end
       end
-
 
     end
   end
