@@ -11,12 +11,17 @@ class Pry
     class Command < Struct.new(:name, :description, :options, :block)
 
       def call(context, *args)
-        context.command_name = options[:listing]
 
         if stub_block = options[:stub_info]
           context.instance_eval(&stub_block)
         else
-          ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
+          if block.is_a?(Proc)
+            ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
+          else
+#            binding.pry
+            ret = block.call(*correct_arg_arity(block.method(:call).arity, args))
+          end
+
           if options[:keep_retval]
             ret
           else
@@ -37,7 +42,7 @@ class Pry
           if Pry::Helpers::BaseHelpers.jruby?
             args[0..(arity - 1)]
           else
-            args.values_at 0..(arity - 1)
+            args.values_at *(0..(arity - 1)).to_a
           end
         end
       end
@@ -116,7 +121,7 @@ class Pry
     #   # hello john, nice number: 10
     #   # pry(main)> help number
     #   # number-N regex command
-    def command(name, description="No description.", options={}, &block)
+    def command(name, description="No description.", options={}, cmd_obj=nil, &block)
 
       options = {
         :requires_gem => [],
@@ -139,7 +144,7 @@ class Pry
         end
       end
 
-      commands[name] = Command.new(name, description, options, block)
+      commands[name] = Command.new(name, description, options, (cmd_obj ? cmd_obj : block) )
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -273,12 +278,12 @@ class Pry
     # @param [String] name Name of the command to be run
     # @param [Array<Object>] args Arguments passed to the command
     # @raise [NoCommandError] If the command is not defined in this set
-    def run_command(context, name, *args)
+    def run_command(context, command_name, *args)
+      command = commands[command_name]
       context.extend helper_module
-      command = commands[name]
 
       if command.nil?
-        raise NoCommandError.new(name, self)
+        raise NoCommandError.new(command_name, self)
       end
 
       if command.options[:argument_required] && args.empty?
