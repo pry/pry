@@ -253,6 +253,28 @@ class Pry
         text.gsub(/^#{margin}/, '')
       end
 
+      def one_index_number(line_number)
+        if line_number > 0
+          line_number - 1
+        else
+          line_number
+        end
+      end
+
+      # convert a 1-index range to a 0-indexed one
+      def one_index_range(range)
+        Range.new(one_index_number(range.begin), one_index_number(range.end))
+      end
+
+      def one_index_range_or_number(range_or_number)
+        case range_or_number
+        when Range
+          one_index_range(range_or_number)
+        else
+          one_index_number(range_or_number)
+        end
+      end
+
       def absolute_index_number(line_number, array_length)
         if line_number >= 0
           line_number
