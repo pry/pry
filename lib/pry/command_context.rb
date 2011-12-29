@@ -21,6 +21,10 @@ class Pry
     attr_accessor :command_processor
     attr_accessor :_pry_
 
+    def initialize(&block)
+      instance_exec(&block) if block
+    end
+
     # Run a command from another command.
     # @param [String] command_string The string that invokes the command
     # @param [Array] args Further arguments to pass to the command
