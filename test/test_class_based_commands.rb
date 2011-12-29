@@ -54,7 +54,7 @@ describe "integration tests for class-based commands" do
       Pry.start binding, :commands => @set
     end
 
-    out.string.should !~ /i_enjoyed_the_song_new_flame_by_simply_red_as_a_child_wandering_around_supermarkets/
+    out.string.should.not =~ /i_enjoyed_the_song_new_flame_by_simply_red_as_a_child_wandering_around_supermarkets/
   end
 
 
