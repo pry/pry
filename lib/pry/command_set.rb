@@ -120,7 +120,7 @@ class Pry
     #   # hello john, nice number: 10
     #   # pry(main)> help number
     #   # number-N regex command
-    def command(name, description="No description.", options={}, cmd_obj=nil, &block)
+    def command(name, description="No description.", options={}, &block)
 
       options = {
         :requires_gem => [],
@@ -143,7 +143,7 @@ class Pry
         end
       end
 
-      commands[name] = Command.new(name, description, options, (cmd_obj ? cmd_obj : block) )
+      commands[name] = Command.new(name, description, options, options[:definition] ? options.delete(:definition) : block)
     end
 
     # Execute a block of code before a command is invoked. The block also
