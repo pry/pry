@@ -18,7 +18,6 @@ class Pry
           if block.is_a?(Proc)
             ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
           else
-#            binding.pry
             ret = block.call(*correct_arg_arity(block.method(:call).arity, args))
           end
 
@@ -32,12 +31,12 @@ class Pry
 
       private
       def correct_arg_arity(arity, args)
-        case arity <=> 0
-        when -1
+        case
+        when arity < 0
           args
-        when 0
+        when arity == 0
           []
-        when 1
+        when arity > 0
           # another jruby hack
           if Pry::Helpers::BaseHelpers.jruby?
             args[0..(arity - 1)]
