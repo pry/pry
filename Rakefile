@@ -32,6 +32,8 @@ def check_dependencies
 
   ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile", __FILE__)
   Bundler.definition.missing_specs
+
+  eval('nil', TOPLEVEL_BINDING, '(pry)') # workaround for issue #395
 rescue LoadError
   # if Bundler isn't installed, we'll just assume your setup is ok.
 rescue Bundler::GemNotFound
