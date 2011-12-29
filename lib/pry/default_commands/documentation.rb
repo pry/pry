@@ -57,7 +57,7 @@ class Pry
 
       require 'pry/command_context'
 
-      command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false, :definition => Pry::CommandContext.new { |*args|
+      command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false, :definition => Pry::CommandContext.new do |*args|
 
         def call(*args)
           require 'gist'
@@ -165,7 +165,7 @@ class Pry
           end
           content
         end
-      }
+      end
 
     end
   end
