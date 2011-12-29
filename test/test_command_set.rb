@@ -418,4 +418,130 @@ describe Pry::CommandSet do
     end
 
   end
+
+  describe "class-based commands" do
+    it 'should pass arguments to the command' do
+      c = Class.new(Pry::CommandContext) do
+        def call(*args)
+          args.should == [1, 2, 3]
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command ctx, 'foo', 1, 2, 3
+    end
+
+    it 'should set unprovided arguments to nil' do
+      c = Class.new(Pry::CommandContext) do
+        def call(x, y, z)
+          x.should == 1
+          y.should == nil
+          z.should == nil
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command ctx, 'foo', 1
+    end
+
+    it 'should clip provided arguments to expected number' do
+      c = Class.new(Pry::CommandContext) do
+        def call(x, y, z)
+          x.should == 1
+          y.should == 2
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command ctx, 'foo', 1, 2, 3, 4
+    end
+
+    it 'should return Pry::CommandContext::VOID by default' do
+      c = Class.new(Pry::CommandContext) do
+        def call
+          :i_have_done_thing_i_regret
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command(ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
+    end
+
+    it 'should return specific value when :keep_retval => true' do
+      c = Class.new(Pry::CommandContext) do
+        def call
+          :i_have_a_dog_called_tobina
+        end
+      end
+
+      @set.command 'foo', "desc", :keep_retval => true, :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command(ctx, 'foo').should == :i_have_a_dog_called_tobina
+    end
+
+    it 'should have access to helper methods' do
+      c = Class.new(Pry::CommandContext) do
+        def call
+          im_helping.should == "butterbum"
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      @set.helpers do
+        def im_helping
+          "butterbum"
+        end
+      end
+
+      ctx = @set.commands['foo'].block
+      @set.run_command ctx, 'foo'
+    end
+
+    it 'should persist state' do
+      c = Class.new(Pry::CommandContext) do
+        attr_accessor :state
+        def call
+          @state ||= 0
+          @state += 1
+        end
+      end
+
+      @set.command 'foo', "desc", :definition => c.new
+
+      ctx = @set.commands['foo'].block
+      @set.run_command ctx, 'foo'
+      @set.run_command ctx, 'foo'
+      ctx.state.should == 2
+    end
+
+    describe "before_command" do
+      it 'should be called before the original command' do
+        foo = []
+        c = Class.new(Pry::CommandContext) do
+          define_method(:call) do
+            foo << 1
+          end
+        end
+
+        @set.command 'foo', "desc", :definition => c.new
+
+        ctx = @set.commands['foo'].block
+        @set.before_command('foo') { foo << 2 }
+        @set.run_command(ctx, 'foo')
+
+        foo.should == [2, 1]
+      end
+    end
+
+  end
 end
