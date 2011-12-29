@@ -55,93 +55,96 @@ class Pry
         EOS
       end
 
-      command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do |*args|
-        require 'gist'
+      require 'pry/command_context'
 
-        target = target()
-        input_ranges = []
+      command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false, :definition => Pry::CommandContext.new { |*args|
 
-        opts = parse_options!(args) do |opt|
-          opt.banner unindent <<-USAGE
-            Usage: gist [OPTIONS] [METH]
-            Gist method (doc or source) or input expression to github.
-            Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
-            e.g: gist -m my_method
-            e.g: gist -d my_method
-            e.g: gist -i 1..10
-          USAGE
+        def call(*args)
+          require 'gist'
 
-          opt.on :d, :doc, "Gist a method's documentation.", true
-          opt.on :m, :method, "Gist a method's source.", true
-          opt.on :f, :file, "Gist a file.", true
-          opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
-          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
-          :as => Range, :default => -5..-1 do |range|
-            input_ranges << absolute_index_range(range, _pry_.input_array.length)
-          end
-        end
+          target = target()
+          input_ranges = []
 
-        type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
-        if opts.present?(:in)
-          code_type = :ruby
-          content = ""
+          opts = parse_options!(args) do |opt|
+            opt.banner unindent <<-USAGE
+              Usage: gist [OPTIONS] [METH]
+              Gist method (doc or source) or input expression to github.
+              Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
+              e.g: gist -m my_method
+              e.g: gist -d my_method
+              e.g: gist -i 1..10
+            USAGE
 
-          input_ranges.each do |range|
-            input_expressions = _pry_.input_array[range] || []
-            input_expressions.each_with_index.map do |code, index|
-              corrected_index = index + range.first
-              if code && code != ""
-                content << code
-                content << "#{comment_expression_result_for_gist(Pry.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}" if code !~ /;\Z/
-              end
+            opt.on :d, :doc, "Gist a method's documentation.", true
+            opt.on :m, :method, "Gist a method's source.", true
+            opt.on :f, :file, "Gist a file.", true
+            opt.on :p, :public, "Create a public gist (default: false)", :default => false
+            opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
+            opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
+            :as => Range, :default => -5..-1 do |range|
+              input_ranges << absolute_index_range(range, _pry_.input_array.length)
             end
           end
-        elsif opts.present?(:file)
-          whole_file = File.read(File.expand_path(opts[:f]))
-          if opts.present?(:lines)
-            content = restrict_to_lines(whole_file, opts[:l])
-          else
-            content = whole_file
-          end
-        elsif opts.present?(:doc)
-          meth = get_method_or_raise(opts[:d], target, {})
-          content = meth.doc
-          code_type = meth.source_type
 
-          text.no_color do
-            content = process_comment_markup(content, code_type)
-          end
-          code_type = :plain
-        elsif opts.present?(:method)
-          meth = get_method_or_raise(opts[:m], target, {})
-          method_source = meth.source
-          if opts.present?(:lines)
-            content = restrict_to_lines(method_source, opts[:l])
-          else
-            content = method_source
+          type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
+          if opts.present?(:in)
+            code_type = :ruby
+            content = ""
+
+            input_ranges.each do |range|
+              input_expressions = _pry_.input_array[range] || []
+              input_expressions.each_with_index.map do |code, index|
+                corrected_index = index + range.first
+                if code && code != ""
+                  content << code
+                  content << "#{comment_expression_result_for_gist(Pry.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}" if code !~ /;\Z/
+                end
+              end
+            end
+          elsif opts.present?(:file)
+            whole_file = File.read(File.expand_path(opts[:f]))
+            if opts.present?(:lines)
+              content = restrict_to_lines(whole_file, opts[:l])
+            else
+              content = whole_file
+            end
+          elsif opts.present?(:doc)
+            meth = get_method_or_raise(opts[:d], target, {})
+            content = meth.doc
+            code_type = meth.source_type
+
+            text.no_color do
+              content = process_comment_markup(content, code_type)
+            end
+            code_type = :plain
+          elsif opts.present?(:method)
+            meth = get_method_or_raise(opts[:m], target, {})
+            method_source = meth.source
+            if opts.present?(:lines)
+              content = restrict_to_lines(method_source, opts[:l])
+            else
+              content = method_source
+            end
+
+            code_type = meth.source_type
           end
 
-          code_type = meth.source_type
+          # prevent Gist from exiting the session on error
+          begin
+            extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[code_type]}"
+
+            link = Gist.write([:extension => extname,
+                               :input => content],
+                              !opts[:p])
+          rescue SystemExit
+          end
+
+          if link
+            Gist.copy(link)
+            output.puts "Gist created at #{link} and added to clipboard."
+          end
         end
 
-        # prevent Gist from exiting the session on error
-        begin
-          extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[code_type]}"
-
-          link = Gist.write([:extension => extname,
-                             :input => content],
-                            !opts[:p])
-        rescue SystemExit
-        end
-
-        if link
-          Gist.copy(link)
-          output.puts "Gist created at #{link} and added to clipboard."
-        end
-      end
-
-      helpers do
         def restrict_to_lines(content, lines)
           line_range = one_index_range(lines)
           content.lines.to_a[line_range].join
@@ -162,7 +165,7 @@ class Pry
           end
           content
         end
-      end
+      }
 
     end
   end
