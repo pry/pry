@@ -1,4 +1,3 @@
-
 class Pry
 
   # Manage the processing of command line options
@@ -78,6 +77,11 @@ See: `https://github.com/pry` for more information.
 Copyright (c) 2011 John Mair (banisterfiend)
 --
 }
+
+  on :d, :debug, "Set debugging flags (set $DEBUG to true)" do
+    $DEBUG = true
+  end
+
   on :e, :exec, "A line of code to execute in context before the session starts", true
 
   on "no-pager", "Disable pager for long output" do
