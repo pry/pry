@@ -161,17 +161,19 @@ class Pry
     # Execute a Pry command.
     # This method should not need to be invoked directly.
     # @param [Binding] target The target of the Pry session.
-    # @param [String] command The name of the command to be run.
+    # @param [Pry::CommandSet::Command] command The command object.
     # @param [Hash] options The options to set on the Commands object.
     # @param [Array] args The command arguments.
     # @return [Object] The value returned by the command
     def execute_command(target, command, options, *args)
       ret = nil
 
-      if command.block.is_a?(Proc)
+      if command.callable.is_a?(Proc)
         context = CommandContext.new
       else
-        context = command.block
+
+        # in the case of non-procs the callable *is* the context
+        context = command.callable
       end
 
       # set some useful methods to be used by the action blocks
@@ -187,19 +189,19 @@ class Pry
     end
 
     def setup_context(target, command, context, options)
-        context.opts        = options
-        context.target      = target
-        context.target_self = target.eval('self')
-        context.output      = output
-        context.captures    = options[:captures]
-        context.eval_string = options[:eval_string]
-        context.arg_string  = options[:arg_string]
+      context.opts        = options
+      context.target      = target
+      context.target_self = target.eval('self')
+      context.output      = output
+      context.captures    = options[:captures]
+      context.eval_string = options[:eval_string]
+      context.arg_string  = options[:arg_string]
       context.command_set = commands
       context.command_name = command.options[:listing]
 
-        context._pry_ = @pry_instance
+      context._pry_ = @pry_instance
 
-        context.command_processor = self
+      context.command_processor = self
     end
   end
 end
