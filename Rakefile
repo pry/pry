@@ -67,6 +67,9 @@ task :profile do
   Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
 end
 
+desc "Build the gemspec file"
+task :gemspec => "ruby:gemspec"
+
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
@@ -78,7 +81,6 @@ namespace :ruby do
     pkg.need_tar = false
   end
 
-  desc  "Generate gemspec file"
   task :gemspec do
     File.open("#{spec.name}.gemspec", "w") do |f|
       f << spec.to_ruby
@@ -116,7 +118,7 @@ end
 end
 
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby:gem']
+task :gems => [:clean, :rmgems, :gemspec, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby:gem']
 
 desc "remove all platform gems"
 task :rmgems => ['ruby:clobber_package']
