@@ -69,7 +69,7 @@ class Pry
         end
 
         if find_command(command_name)
-          block = Pry::Method.new(find_command(command_name).block)
+          block = Pry::Method.new(find_command(command_name).callable)
 
           next unless block.source
           set_file_and_dir_locals(block.source_file)

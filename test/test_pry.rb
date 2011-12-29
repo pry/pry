@@ -2,16 +2,6 @@ require 'helper'
 
 describe Pry do
 
-  # if RUBY_PLATFORM !~ /mingw/ && RUBY_PLATFORM !~ /mswin/ && RUBY_PLATFORM != 'java'
-  #   describe 'warning emissions' do
-  #     it 'should emit no warnings' do
-  #       Open4.popen4 'ruby -I lib -rubygems -r"pry" -W -e "exit"' do |pid, stdin, stdout, stderr|
-  #         stderr.read.empty?.should == true
-  #       end
-  #     end
-  #   end
-  # end
-
   if RUBY_VERSION =~ /1.9/
     describe "Exotic object support" do
       # regression test for exotic object support
@@ -792,7 +782,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
             str_output.string.should =~ /nil/
-            str_output.string.should =~ /=>/
+                str_output.string.should =~ /=>/
           end
 
           it 'should define a command that keeps its return value but does not return when value is void' do
@@ -806,7 +796,7 @@ describe Pry do
             str_output.string.empty?.should == true
           end
 
-          it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
+         it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
             klass = Pry::CommandSet.new do
               command "hello", "" do
                 eval_string.replace("6")
@@ -818,45 +808,45 @@ describe Pry do
             end
 
 
-          it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
-            klass = Pry::CommandSet.new do
-              command "hello", "", :keep_retval => true do
+            it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
+              klass = Pry::CommandSet.new do
+                command "hello", "", :keep_retval => true do
                   eval_string.replace("6")
                   7
+                end
               end
-            end
-            str_output = StringIO.new
-            Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
+              str_output = StringIO.new
+              Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
               str_output.string.should =~ /7/
               str_output.string.should.not =~ /6/
             end
 
-          it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
-            klass = Pry::CommandSet.new do
-              command "hello", "", :keep_retval => true do
-                5
+            it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
+              klass = Pry::CommandSet.new do
+                command "hello", "", :keep_retval => true do
+                  5
+                end
               end
-            end
-            str_output = StringIO.new
-            Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
-            str_output.string.should =~ /5/
-          end
-
-
-          it 'should set the commands default, and the default should be overridable' do
-            klass = Pry::CommandSet.new do
-              command "hello" do
-                output.puts "hello world"
-              end
+              str_output = StringIO.new
+              Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => str_output, :commands => klass).rep
+              str_output.string.should =~ /5/
             end
 
-            Pry.commands = klass
 
-            str_output = StringIO.new
-            Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
-            str_output.string.should =~ /hello world/
+            it 'should set the commands default, and the default should be overridable' do
+              klass = Pry::CommandSet.new do
+                command "hello" do
+                  output.puts "hello world"
+                end
+              end
 
-                other_klass = Pry::CommandSet.new do
+              Pry.commands = klass
+
+              str_output = StringIO.new
+              Pry.new(:input => InputTester.new("hello"), :output => str_output).rep
+              str_output.string.should =~ /hello world/
+
+              other_klass = Pry::CommandSet.new do
                 command "goodbye", "" do
                   output.puts "goodbye world"
                 end
@@ -896,7 +886,7 @@ describe Pry do
               klass = Pry::CommandSet.new do
                 alias_command "help2", "help"
               end
-              klass.commands["help2"].block.should == klass.commands["help"].block
+              klass.commands["help2"].callable.should == klass.commands["help"].callable
             end
 
             it 'should change description of a command using desc' do
@@ -1312,7 +1302,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => Pry::Hooks.new.
-                      add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
+                    add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
                     ).repl
 
             str_output.string.should =~ /OPEN/
@@ -1321,7 +1311,7 @@ describe Pry do
             str_output = StringIO.new
             Pry.new(:output => str_output,
                     :hooks => Pry::Hooks.new.
-                      add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
+                    add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
                     ).repl
 
             str_output.string.should =~ /CLOSE/

@@ -376,7 +376,7 @@ describe Pry::CommandSet do
 
       it 'should share the context with the original command' do
         @ctx.target = "test target string"
-        after_val  = nil
+        after_val   = nil
         orig_val    = nil
         @set.command('foo') { orig_val = target }
         @set.after_command('foo') { after_val = target }
@@ -429,7 +429,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command ctx, 'foo', 1, 2, 3
     end
 
@@ -444,7 +444,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command ctx, 'foo', 1
     end
 
@@ -458,7 +458,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command ctx, 'foo', 1, 2, 3, 4
     end
 
@@ -471,7 +471,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command(ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
     end
 
@@ -484,7 +484,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :keep_retval => true, :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command(ctx, 'foo').should == :i_have_a_dog_called_tobina
     end
 
@@ -503,7 +503,7 @@ describe Pry::CommandSet do
         end
       end
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command ctx, 'foo'
     end
 
@@ -518,7 +518,7 @@ describe Pry::CommandSet do
 
       @set.command 'foo', "desc", :definition => c.new
 
-      ctx = @set.commands['foo'].block
+      ctx = @set.commands['foo'].callable
       @set.run_command ctx, 'foo'
       @set.run_command ctx, 'foo'
       ctx.state.should == 2
@@ -535,11 +535,30 @@ describe Pry::CommandSet do
 
         @set.command 'foo', "desc", :definition => c.new
 
-        ctx = @set.commands['foo'].block
+        ctx = @set.commands['foo'].callable
         @set.before_command('foo') { foo << 2 }
         @set.run_command(ctx, 'foo')
 
         foo.should == [2, 1]
+      end
+    end
+
+    describe "after_command" do
+      it 'should be called before the original command' do
+        foo = []
+        c = Class.new(Pry::CommandContext) do
+          define_method(:call) do
+            foo << 1
+          end
+        end
+
+        @set.command 'foo', "desc", :definition => c.new
+
+        ctx = @set.commands['foo'].callable
+        @set.after_command('foo') { foo << 2 }
+        @set.run_command(ctx, 'foo')
+
+        foo.should == [1, 2]
       end
     end
 
