@@ -87,10 +87,11 @@ class Pry
         # @return [String]
         def with_line_numbers(text, offset, color=:blue)
           lines = text.each_line.to_a
+          lead_by = lines.length.to_s.length
           max_width = (offset + lines.count).to_s.length
           lines.each_with_index.map do |line, index|
             adjusted_index = (index + offset).to_s.rjust(max_width)
-            "#{self.send(color, adjusted_index)}: #{line}"
+            "#{self.send(color, "%#{lead_by}d" % adjusted_index)}: #{line}"
           end.join
         end
 
@@ -107,4 +108,3 @@ class Pry
 
   end
 end
-
