@@ -69,16 +69,15 @@ class Pry
                   def call(*args)
                     require 'gist'
 
-                    self.opts = options(args)
-
+                    gather_options(args)
                     process_options
                     perform_gist
                   end
 
-                  def options(args)
+                  def gather_options(args)
                     self.input_ranges = []
 
-                    parse_options!(args) do |opt|
+                    self.opts = parse_options!(args) do |opt|
                       opt.banner unindent <<-USAGE
               Usage: gist [OPTIONS] [METH]
               Gist method (doc or source) or input expression to github.
@@ -97,6 +96,18 @@ class Pry
                       :as => Range, :default => -5..-1 do |range|
                         input_ranges << absolute_index_range(range, _pry_.input_array.length)
                       end
+                    end
+                  end
+
+                  def process_options
+                    if opts.present?(:in)
+                      in_option
+                    elsif opts.present?(:file)
+                      file_option
+                    elsif opts.present?(:doc)
+                      doc_option
+                    elsif opts.present?(:method)
+                      method_option
                     end
                   end
 
@@ -148,18 +159,6 @@ class Pry
                     end
 
                     self.code_type = meth.source_type
-                  end
-
-                  def process_options
-                    if opts.present?(:in)
-                      in_option
-                    elsif opts.present?(:file)
-                      file_option
-                    elsif opts.present?(:doc)
-                      doc_option
-                    elsif opts.present?(:method)
-                      method_option
-                    end
                   end
 
                   def perform_gist
