@@ -61,11 +61,23 @@ class Pry
         # @param [Proc]
         # @return [void]
         def no_color &block
-          boolean = Pry.color
-          Pry.color = false
+          boolean = Pry.config.color
+          Pry.config.color = false
           yield
         ensure
-          Pry.color = boolean
+          Pry.config.color = boolean
+        end
+
+        # Executes _block_ with _Pry.config.pager_ set to false.
+        #
+        # @param [Proc]
+        # @return [void]
+        def no_pager &block
+          boolean = Pry.config.pager
+          Pry.config.pager = false
+          yield
+        ensure
+          Pry.config.pager = boolean
         end
 
         # Returns _text_ in a numbered list, beginning at _offset_.

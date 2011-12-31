@@ -13,7 +13,7 @@ class Pry
     file = target.eval('__FILE__')
 
     # /unknown/ for rbx
-    if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"
+    if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"  || file == Pry.eval_path
       _pry_.run_command("whereami 5", "", target)
     end
   end
@@ -157,8 +157,9 @@ require "stringio"
 require "coderay"
 require "optparse"
 require "slop"
+require "rbconfig"
 
-if RUBY_PLATFORM =~ /jruby/
+if Pry::Helpers::BaseHelpers.jruby?
   begin
     require 'ffi'
   rescue LoadError
@@ -166,7 +167,7 @@ if RUBY_PLATFORM =~ /jruby/
   end
 end
 
-if RUBY_PLATFORM =~ /mswin/ || RUBY_PLATFORM =~ /mingw/
+if Pry::Helpers::BaseHelpers.windows?
   begin
     require 'win32console'
   rescue LoadError
@@ -193,3 +194,4 @@ require "pry/plugins"
 require "pry/core_extensions"
 require "pry/pry_class"
 require "pry/pry_instance"
+require "pry/cli"

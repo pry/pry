@@ -26,7 +26,7 @@ describe Pry do
     ["1 1"],
     ["puts :"],
     # in this case the syntax error is "expecting ')'".
-    ((defined? RUBY_ENGINE && RUBY_ENGINE == "rbx") ? nil : ["def", "method(1"])
+    (Pry::Helpers::BaseHelpers.rbx? ? nil : ["def", "method(1"])
   ].compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       output = StringIO.new

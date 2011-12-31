@@ -20,12 +20,23 @@ class Pry
     def method_prefix
       if singleton_class?
         if Module === singleton_instance
-          "#{singleton_instance.name}."
+          "#{WrappedModule.new(singleton_instance).nonblank_name}."
         else
           "self."
         end
       else
-        "#{name}#"
+        "#{nonblank_name}#"
+      end
+    end
+
+    # The name of the Module if it has one, otherwise #<Class:0xf00>.
+    #
+    # @return [String]
+    def nonblank_name
+      if name.to_s == ""
+        wrapped.inspect
+      else
+        name
       end
     end
 
@@ -43,7 +54,7 @@ class Pry
     def singleton_instance
       raise ArgumentError, "tried to get instance of non singleton class" unless singleton_class?
 
-      if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+      if Helpers::BaseHelpers.jruby?
         wrapped.to_java.attached
       else
         @singleton_instance ||= ObjectSpace.each_object(wrapped).detect{ |x| (class << x; self; end) == wrapped }

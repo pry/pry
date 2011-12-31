@@ -153,7 +153,7 @@ class Pry
         :captures => captures
       }
 
-      ret = execute_command(target, command.name, options, *(captures + args))
+      ret = execute_command(target, command, options, *(captures + args))
 
       Result.new(true, command.options[:keep_retval], ret)
     end
@@ -161,14 +161,34 @@ class Pry
     # Execute a Pry command.
     # This method should not need to be invoked directly.
     # @param [Binding] target The target of the Pry session.
-    # @param [String] command The name of the command to be run.
+    # @param [Pry::CommandSet::Command] command The command object.
     # @param [Hash] options The options to set on the Commands object.
     # @param [Array] args The command arguments.
     # @return [Object] The value returned by the command
     def execute_command(target, command, options, *args)
-      context = CommandContext.new
+      ret = nil
+
+      if command.callable.is_a?(Proc)
+        context = CommandContext.new
+      else
+
+        # in the case of non-procs the callable *is* the context
+        context = command.callable
+      end
 
       # set some useful methods to be used by the action blocks
+      setup_context(target, command, context, options)
+
+      catch(:command_done) do
+        ret = commands.run_command(context, command.name, *args)
+      end
+
+      options[:val].replace("")
+
+      ret
+    end
+
+    def setup_context(target, command, context, options)
       context.opts        = options
       context.target      = target
       context.target_self = target.eval('self')
@@ -177,18 +197,11 @@ class Pry
       context.eval_string = options[:eval_string]
       context.arg_string  = options[:arg_string]
       context.command_set = commands
+      context.command_name = command.options[:listing]
+
       context._pry_ = @pry_instance
 
       context.command_processor = self
-
-      ret = nil
-      catch(:command_done) do
-        ret = commands.run_command(context, command, *args)
-      end
-
-      options[:val].replace("")
-
-      ret
     end
   end
 end

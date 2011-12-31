@@ -61,11 +61,43 @@ class Pry
         if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
           nil
         else
-          begin
-            new(b.eval("method(#{meth_name.to_s.inspect})"))
-          rescue NameError, NoMethodError
-            Disowned.new(b.eval('self'), meth_name.to_s)
+          method = begin
+                     new(b.eval("method(#{meth_name.to_s.inspect})"))
+                   rescue NameError, NoMethodError
+                     Disowned.new(b.eval('self'), meth_name.to_s)
+                   end
+
+          # it's possible in some cases that the method we find by this approach is a sub-method of
+          # the one we're currently in, consider:
+          #
+          # class A; def b; binding.pry; end; end
+          # class B < A; def b; super; end; end
+          #
+          # Given that we can normally find the source_range of methods, and that we know which
+          # __FILE__ and __LINE__ the binding is at, we can hope to disambiguate these cases.
+          #
+          # This obviously won't work if the source is unavaiable for some reason, or if both
+          # methods have the same __FILE__ and __LINE__, or if we're in rbx where b.eval('__LINE__')
+          # is broken.
+          #
+          guess = method
+
+          while guess
+            # needs rescue if this is a Disowned method or a C method or something...
+            # TODO: Fix up the exception handling so we don't need a bare rescue
+            if (guess.source_file && guess.source_range rescue false) &&
+                File.expand_path(guess.source_file) == File.expand_path(b.eval('__FILE__')) &&
+                guess.source_range.include?(b.eval('__LINE__'))
+              return guess
+            else
+              guess = guess.super
+            end
           end
+
+          # Uhoh... none of the methods in the chain had the right __FILE__ and __LINE__
+          # This may be caused by rbx https://github.com/rubinius/rubinius/issues/953,
+          # or other unknown circumstances (TODO: we should warn the user when this happens)
+          method
         end
       end
 
@@ -189,6 +221,12 @@ class Pry
       @wrapped_owner ||= Pry::WrappedModule.new(owner)
     end
 
+    # Is the method undefined? (aka `Disowned`)
+    # @return [Boolean] false
+    def undefined?
+      false
+    end
+
     # Get the name of the method including the class on which it was defined.
     # @example
     #   method(:puts).method_name
@@ -260,6 +298,12 @@ class Pry
     #   the method's definition, or `nil` if that information is unavailable.
     def source_line
       source_location.nil? ? nil : source_location.last
+    end
+
+    # @return [Range, nil] The range of lines in `source_file` which contain
+    #    the method's definition, or `nil` if that information is unavailable.
+    def source_range
+      source_location.nil? ? nil : (source_line)...(source_line + source.lines.count)
     end
 
     # @return [Symbol] The visibility of the method. May be `:public`,
@@ -443,6 +487,12 @@ class Pry
       # @param [String] method_name
       def initialize(*args)
         @receiver, @name = *args
+      end
+
+      # Is the method undefined? (aka `Disowned`)
+      # @return [Boolean] true
+      def undefined?
+        true
       end
 
       # Get the hypothesized owner of the method.

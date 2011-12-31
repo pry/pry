@@ -60,8 +60,32 @@ they are lost for hours.
   text
 end
 
+      command "test-ansi", "" do
+        prev_color = Pry.color
+        Pry.color = true
 
+        picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| text.red(s) }
+           ____      _______________________
+          /    \    |  A         W     G    |
+         / O  O \   |   N    I    O   N !   |
+        |        |  |    S    S    R I   !  |
+         \ \__/ / __|     I         K     ! |
+          \____/   \________________________|
+        EOS
+
+        if defined?(Win32::Console)
+          move_up = proc { |n| "\e[#{n}F" }
+        else
+          move_up = proc { |n| "\e[#{n}A\e[0G" }
+        end
+
+        output.puts "\n" * 6
+        output.puts picture.lines.map(&:chomp).reverse.join(move_up[1])
+        output.puts "\n" * 6
+        output.puts "** ENV['TERM'] is #{ENV['TERM']} **\n\n"
+
+        Pry.color = prev_color
+      end
     end
-
   end
 end

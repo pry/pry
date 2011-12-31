@@ -74,6 +74,56 @@ describe Pry::Method do
     end
   end
 
+  describe '.from_binding' do
+    it 'should be able to pick a method out of a binding' do
+      Pry::Method.from_binding(Class.new{ def self.foo; binding; end }.foo).name.should == "foo"
+    end
+
+    it 'should NOT find a method from the special pry bindings' do
+      Pry::Method.from_binding(5.__binding__).should == nil
+    end
+
+    it 'should NOT find a method from the toplevel binding' do
+      Pry::Method.from_binding(TOPLEVEL_BINDING).should == nil
+    end
+
+    it "should find methods that have been undef'd" do
+      m = Pry::Method.from_binding(Class.new do
+        def self.bar
+          class << self; undef bar; end
+          binding
+        end
+      end.bar)
+      m.name.should == "bar"
+    end
+
+    # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
+    unless Pry::Helpers::BaseHelpers.rbx?
+      it 'should find the super method correctly' do
+        a = Class.new{ def gag; binding; end; def self.line; __LINE__; end }
+        b = Class.new(a){ def gag; super; end }
+
+        g = b.new.gag
+        m = Pry::Method.from_binding(g)
+
+        m.owner.should == a
+        m.source_line.should == a.line
+        m.name.should == "gag"
+      end
+    end
+
+    it 'should find the right method if a super method exists' do
+      a = Class.new{ def gag; binding; end; }
+      b = Class.new(a){ def gag; super; binding; end; def self.line; __LINE__; end }
+
+      m = Pry::Method.from_binding(b.new.gag)
+
+      m.owner.should == b
+      m.source_line.should == b.line
+      m.name.should == "gag"
+    end
+  end
+
   describe 'all_from_class' do
     def should_find_method(name)
       Pry::Method.all_from_class(@class).map(&:name).should.include(name)

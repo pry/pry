@@ -12,7 +12,7 @@ class Pry
         file = Tempfile.new(['pry', '.rb'])
         yield file
       ensure
-        file.close
+        file.close(true)
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)
@@ -147,6 +147,7 @@ class Pry
       end
 
       def invoke_editor(file, line)
+        raise CommandError, "Please set Pry.config.editor or export $EDITOR" unless Pry.config.editor
         if Pry.config.editor.respond_to?(:call)
           editor_invocation = Pry.config.editor.call(file, line)
         else
@@ -166,14 +167,16 @@ class Pry
           # Note we dont want to use Pry.config.system here as that
           # may be invoked non-interactively (i.e via Open4), whereas we want to
           # ensure the editor is always interactive
-          system(editor_invocation)
+          system(editor_invocation) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
         end
       end
 
       # Return the syntax for a given editor for starting the editor
       # and moving to a particular line within that file
       def start_line_syntax_for_editor(file_name, line_number)
-        file_name = file_name.gsub(/\//, '\\') if RUBY_PLATFORM =~ /mswin|mingw/
+        if windows?
+          file_name = file_name.gsub(/\//, '\\')
+        end
 
         # special case for 1st line
         return file_name if line_number <= 1
@@ -188,7 +191,7 @@ class Pry
         when /^jedit/
           "#{file_name} +line:#{line_number}"
         else
-          if RUBY_PLATFORM =~ /mswin|mingw/
+          if windows?
             "#{file_name}"
           else
             "+#{line_number} #{file_name}"
@@ -235,6 +238,28 @@ class Pry
         end
 
         text.gsub(/^#{margin}/, '')
+      end
+
+      def one_index_number(line_number)
+        if line_number > 0
+          line_number - 1
+        else
+          line_number
+        end
+      end
+
+      # convert a 1-index range to a 0-indexed one
+      def one_index_range(range)
+        Range.new(one_index_number(range.begin), one_index_number(range.end))
+      end
+
+      def one_index_range_or_number(range_or_number)
+        case range_or_number
+        when Range
+          one_index_range(range_or_number)
+        else
+          one_index_number(range_or_number)
+        end
       end
 
       def absolute_index_number(line_number, array_length)
