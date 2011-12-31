@@ -70,6 +70,33 @@ class Pry
       end
     end
 
+    class ClassCommand < Command
+      attr_accessor :opts
+      attr_accessor :args
+
+      def call(*args)
+        self.opts = slop
+        self.args = self.opts.parse!(args)
+
+        if opts.present?(:help)
+          output.puts slop.help
+        else
+          run
+        end
+      end
+
+      def options(opt); end
+
+      def slop
+        Slop.new do |opt|
+          options(opt)
+          opt.on(:h, :help, "Show this message.")
+        end
+      end
+
+      def run; raise CommandError, "command '#{name}' not implemented" end
+    end
+
     include Enumerable
     include Pry::Helpers::BaseHelpers
 
@@ -156,6 +183,25 @@ class Pry
 
       if command_dependencies_met? options
         commands[name] = BlockCommand.subclass(name, description, options, &block)
+      else
+        commands[name] = StubCommand.subclass(name, description, options)
+      end
+    end
+
+    def command_class(name, description="No description.", options={}, &block)
+      options = {
+        :requires_gem => [],
+        :keep_retval => false,
+        :argument_required => false,
+        :interpolate => true,
+        :shellwords => true,
+        :listing => name,
+        :use_prefix => true
+      }.merge!(options)
+
+      if command_dependencies_met? options
+        commands[name] = ClassCommand.subclass(name, description, options)
+        commands[name].class_eval(&block)
       else
         commands[name] = StubCommand.subclass(name, description, options)
       end
