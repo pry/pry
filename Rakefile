@@ -29,8 +29,6 @@ end
 
 def check_dependencies
   require 'bundler'
-
-  ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile", __FILE__)
   Bundler.definition.missing_specs
 
   eval('nil', TOPLEVEL_BINDING, '<main>') # workaround for issue #395
