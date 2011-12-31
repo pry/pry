@@ -168,21 +168,18 @@ class Pry
     def execute_command(target, command, options, *args)
       ret = nil
 
-      if command.callable.is_a?(Proc)
-        context = CommandContext.new
-      else
-
-        # in the case of non-procs the callable *is* the context
-        context = command.callable
-      end
-
-      # set some useful methods to be used by the action blocks
+      # allocate, setup and then call initialize so that authors
+      # can do their own setup in initialize.
+      context = command.allocate
       setup_context(target, command, context, options)
+      context.extend commands.helper_module
+      context.send(:initialize)
 
       catch(:command_done) do
-        ret = commands.run_command(context, command.name, *args)
+        ret = context.call(*args)
       end
 
+      # FIXME: wtf?
       options[:val].replace("")
 
       ret
