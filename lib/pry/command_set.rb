@@ -82,29 +82,38 @@ class Pry
     #   # pry(main)> help number
     #   # number-N regex command
     def command(name, description="No description.", options={}, &block)
-      options = {
-        :requires_gem => [],
-        :keep_retval => false,
-        :argument_required => false,
-        :interpolate => true,
-        :shellwords => true,
-        :listing => name,
-        :use_prefix => true
-      }.merge!(options)
+      options = default_options(name).merge!(options)
 
       commands[name] = Pry::BlockCommand.subclass(name, description, options, helper_module, &block)
     end
 
+    # Defines a new Pry command class.
+    #
+    # @param [String, Regexp] name The name of the command. Can be
+    #   Regexp as well as String.
+    # @param [String] description A description of the command.
+    # @param [Hash] options The optional configuration parameters, see {#command}
+    # @param &Block  The class body's definition.
+    #
+    # @example
+    #   Pry::Commands.command_class "echo", "echo's the input", :shellwords => false do
+    #     def options(opt)
+    #       opt.banner "Usage: echo [-u | -d] <string to echo>"
+    #       opt.on :u, :upcase, "ensure the output is all upper-case"
+    #       opt.on :d, :downcase, "ensure the output is all lower-case"
+    #     end
+    #
+    #     def process
+    #       raise Pry::CommandError, "-u and -d makes no sense" if opts.present?(:u) && opts.present?(:d)
+    #       result = args.join(" ")
+    #       result.downcase! if opts.present?(:downcase)
+    #       result.upcase! if opts.present?(:upcase)
+    #       output.puts result
+    #     end
+    #   end
+    #
     def command_class(name, description="No description.", options={}, &block)
-      options = {
-        :requires_gem => [],
-        :keep_retval => false,
-        :argument_required => false,
-        :interpolate => true,
-        :shellwords => true,
-        :listing => name,
-        :use_prefix => true
-      }.merge!(options)
+      options = default_options(name).merge!(options)
 
       commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module)
       commands[name].class_eval(&block)
@@ -264,12 +273,26 @@ class Pry
       commands.keys
     end
 
+    # @nodoc  used for testing
     def run_command(context, name, *args)
       command = commands[name] or raise NoCommandError.new(name, self)
       command.new(context).call_safely(*args)
     end
 
     private
+
+    def default_options(name)
+      {
+        :requires_gem => [],
+        :keep_retval => false,
+        :argument_required => false,
+        :interpolate => true,
+        :shellwords => true,
+        :listing => name,
+        :use_prefix => true
+      }
+    end
+
     def define_default_commands
 
       command "help", "This menu." do |cmd|

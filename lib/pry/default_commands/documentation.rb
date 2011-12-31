@@ -85,7 +85,7 @@ USAGE
           end
         end
 
-        def run
+        def process
           if opts.present?(:in)
             in_option
           elsif opts.present?(:file)
