@@ -62,7 +62,7 @@ class Pry
         attr_accessor :code_type
         attr_accessor :input_ranges
 
-        def initialize
+        def setup
           require 'gist'
         end
 
