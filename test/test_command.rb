@@ -125,6 +125,16 @@ describe "Pry::Command" do
 
       mock_command(cmd, %w(--help)).output.should =~ /Total Perspective Vortex/
     end
+
+    it 'should use the banner provided' do
+      cmd = @set.command_class 'deep-thought', "The second-best computer ever" do
+        banner <<-BANNER
+          Who's merest operational parameters, I am not worthy to compute.
+        BANNER
+      end
+
+      mock_command(cmd, %w(--help)).output.should =~ /Who\'s merest/
+    end
   end
 
 

@@ -115,7 +115,7 @@ class Pry
     def command_class(name, description="No description.", options={}, &block)
       options = default_options(name).merge!(options)
 
-      commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module)
+      commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module, &block)
       commands[name].class_eval(&block)
       commands[name]
     end

@@ -211,6 +211,13 @@ class Pry
   # necessary, you can also override {setup} which will be called before {options}, for example to
   # require any gems your command needs to run, or to set up state.
   class ClassCommand < Command
+    class << self
+      def banner(arg=nil)
+        @banner = arg if arg
+        @banner || description
+      end
+    end
+
     attr_accessor :opts
     attr_accessor :args
 
@@ -242,6 +249,7 @@ class Pry
     # Return an instance of Slop that can parse the options that this command accepts.
     def slop
       Slop.new do |opt|
+        opt.banner(unindent(self.class.banner))
         options(opt)
         opt.on(:h, :help, "Show this message.")
       end
@@ -273,7 +281,6 @@ class Pry
     #    end
     #  end
     def options(opt); end
-
 
     # The actual body of your command should go here.
     #
