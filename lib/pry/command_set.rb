@@ -8,42 +8,6 @@ class Pry
   # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
-    class Command < Struct.new(:name, :description, :options, :callable)
-
-      def call(context, *args)
-
-        if stub_block = options[:stub_info]
-          context.instance_eval(&stub_block)
-        else
-          if callable.is_a?(Proc)
-            ret = context.instance_exec(*correct_arg_arity(callable.arity, args), &callable)
-          else
-
-            # in the case of non-procs the callable *is* the context
-            ret = callable.call(*correct_arg_arity(callable.method(:call).arity, args))
-          end
-
-          if options[:keep_retval]
-            ret
-          else
-            Pry::CommandContext::VOID_VALUE
-          end
-        end
-      end
-
-      private
-      def correct_arg_arity(arity, args)
-        case
-        when arity < 0
-          args
-        when arity == 0
-          []
-        when arity > 0
-          args.values_at *(0..(arity - 1)).to_a
-        end
-      end
-    end
-
     include Enumerable
     include Pry::Helpers::BaseHelpers
 
@@ -118,29 +82,42 @@ class Pry
     #   # pry(main)> help number
     #   # number-N regex command
     def command(name, description="No description.", options={}, &block)
+      options = default_options(name).merge!(options)
 
-      options = {
-        :requires_gem => [],
-        :keep_retval => false,
-        :argument_required => false,
-        :interpolate => true,
-        :shellwords => true,
-        :listing => name,
-        :use_prefix => true
-      }.merge!(options)
+      commands[name] = Pry::BlockCommand.subclass(name, description, options, helper_module, &block)
+    end
 
-      unless command_dependencies_met? options
-        gems_needed = Array(options[:requires_gem])
-        gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
+    # Defines a new Pry command class.
+    #
+    # @param [String, Regexp] name The name of the command. Can be
+    #   Regexp as well as String.
+    # @param [String] description A description of the command.
+    # @param [Hash] options The optional configuration parameters, see {#command}
+    # @param &Block  The class body's definition.
+    #
+    # @example
+    #   Pry::Commands.command_class "echo", "echo's the input", :shellwords => false do
+    #     def options(opt)
+    #       opt.banner "Usage: echo [-u | -d] <string to echo>"
+    #       opt.on :u, :upcase, "ensure the output is all upper-case"
+    #       opt.on :d, :downcase, "ensure the output is all lower-case"
+    #     end
+    #
+    #     def process
+    #       raise Pry::CommandError, "-u and -d makes no sense" if opts.present?(:u) && opts.present?(:d)
+    #       result = args.join(" ")
+    #       result.downcase! if opts.present?(:downcase)
+    #       result.upcase! if opts.present?(:upcase)
+    #       output.puts result
+    #     end
+    #   end
+    #
+    def command_class(name, description="No description.", options={}, &block)
+      options = default_options(name).merge!(options)
 
-        options[:stub_info] = proc do
-          output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
-          output.puts "-"
-          output.puts "Type `install-command #{name}` to install the required gems and activate this command."
-        end
-      end
-
-      commands[name] = Command.new(name, description, options, options[:definition] ? options.delete(:definition) : block)
+      commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module)
+      commands[name].class_eval(&block)
+      commands[name]
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -154,18 +131,7 @@ class Pry
     #   end
     def before_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_callable = cmd.callable
-
-      wrapper_block = proc do |*args|
-        instance_exec(*args, &block)
-
-        if prev_callable.is_a?(Proc)
-          instance_exec(*args, &prev_callable)
-        else
-          prev_callable.call(*args)
-        end
-      end
-      cmd.callable = wrapper_block
+      cmd.hooks[:before].unshift block
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -179,18 +145,7 @@ class Pry
     #   end
     def after_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_callable = cmd.callable
-
-      wrapper_block = proc do |*args|
-        if prev_callable.is_a?(Proc)
-          instance_exec(*args, &prev_callable)
-        else
-          prev_callable.call(*args)
-        end
-
-        instance_exec(*args, &block)
-      end
-      cmd.callable = wrapper_block
+      cmd.hooks[:after] << block
     end
 
     def each &block
@@ -278,29 +233,6 @@ class Pry
       commands.delete(cmd.name)
     end
 
-    # Runs a command.
-    # @param [Object] context Object which will be used as self during the
-    #   command.
-    # @param [String] name Name of the command to be run
-    # @param [Array<Object>] args Arguments passed to the command
-    # @raise [NoCommandError] If the command is not defined in this set
-    def run_command(context, command_name, *args)
-      command = commands[command_name]
-
-
-      context.extend helper_module
-
-      if command.nil?
-        raise NoCommandError.new(command_name, self)
-      end
-
-      if command.options[:argument_required] && args.empty?
-        puts "The command '#{command.name}' requires an argument."
-      else
-        command.call context, *args
-      end
-    end
-
     # Sets or gets the description for a command (replacing the old
     # description). Returns current description if no description
     # parameter provided.
@@ -341,7 +273,26 @@ class Pry
       commands.keys
     end
 
+    # @nodoc  used for testing
+    def run_command(context, name, *args)
+      command = commands[name] or raise NoCommandError.new(name, self)
+      command.new(context).call_safely(*args)
+    end
+
     private
+
+    def default_options(name)
+      {
+        :requires_gem => [],
+        :keep_retval => false,
+        :argument_required => false,
+        :interpolate => true,
+        :shellwords => true,
+        :listing => name,
+        :use_prefix => true
+      }
+    end
+
     def define_default_commands
 
       command "help", "This menu." do |cmd|
@@ -358,7 +309,7 @@ class Pry
           stagger_output(help_text)
         else
           if command = find_command(cmd)
-            output.puts command.description
+            output.puts command.new.help
           else
             output.puts "No info for command: #{cmd}"
           end
@@ -368,10 +319,9 @@ class Pry
       command "install-command", "Install a disabled command." do |name|
         require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
         command = find_command(name)
-        stub_info = command.options[:stub_info]
 
-        if !stub_info
-          output.puts "Not a command stub. Nothing to do."
+        if command_dependencies_met?(command.options)
+          output.puts "Dependencies for #{command.name} are met. Nothing to do."
           next
         end
 
@@ -404,7 +354,6 @@ class Pry
         end
         next if gem_install_failed
 
-        command.options.delete :stub_info
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end
     end

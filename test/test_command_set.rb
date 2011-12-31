@@ -3,7 +3,10 @@ require 'helper'
 describe Pry::CommandSet do
   before do
     @set = Pry::CommandSet.new
-    @ctx = Pry::CommandContext.new
+    @ctx = {
+      :target => binding,
+      :command_set => @set
+    }
   end
 
   it 'should call the block used for the command when it is called' do
@@ -24,11 +27,11 @@ describe Pry::CommandSet do
     @set.run_command @ctx, 'foo', 1, 2, 3
   end
 
-  it 'should use the first argument as self' do
+  it 'should use the first argument as context' do
     ctx = @ctx
 
     @set.command 'foo' do
-      self.should == ctx
+      self.context.should == ctx
     end
 
     @set.run_command @ctx, 'foo'
@@ -159,9 +162,9 @@ describe Pry::CommandSet do
     @set.desc('foo').should == 'bar'
   end
 
-  it 'should return Pry::CommandContext::VOID_VALUE for commands by default' do
+  it 'should return Pry::Command::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    @set.run_command(@ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
+    @set.run_command(@ctx, 'foo').should == Pry::Command::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
@@ -184,7 +187,7 @@ describe Pry::CommandSet do
     end
 
     @set.run_command(@ctx, 'foo')
-    Pry::CommandContext.new.should.not.respond_to :my_helper
+    Pry::Command.subclass('foo', '', {}, Module.new).new({:target => binding}).should.not.respond_to :my_helper
   end
 
   it 'should not recreate a new helper module when helpers is called' do
@@ -241,8 +244,8 @@ describe Pry::CommandSet do
   end
 
   it "should provide a 'help' command" do
-    @ctx.command_set = @set
-    @ctx.output = StringIO.new
+    @ctx[:command_set] = @set
+    @ctx[:output] = StringIO.new
 
     lambda {
       @set.run_command(@ctx, 'help')
@@ -255,12 +258,12 @@ describe Pry::CommandSet do
     @set.command 'moo', "Mooerizes" do; end
     @set.command 'boo', "Booerizes" do; end
 
-    @ctx.command_set = @set
-    @ctx.output = StringIO.new
+    @ctx[:command_set] = @set
+    @ctx[:output] = StringIO.new
 
     @set.run_command(@ctx, 'help')
 
-    doc = @ctx.output.string
+    doc = @ctx[:output].string
 
     order = [doc.index("boo"),
              doc.index("foo"),
@@ -331,15 +334,15 @@ describe Pry::CommandSet do
       end
 
       it 'should share the context with the original command' do
-        @ctx.target = "test target string"
+        @ctx[:target] = "test target string".__binding__
         before_val  = nil
         orig_val    = nil
         @set.command('foo') { orig_val = target }
         @set.before_command('foo') { before_val = target }
         @set.run_command(@ctx, 'foo')
 
-        before_val.should == @ctx.target
-        orig_val.should == @ctx.target
+        before_val.should == @ctx[:target]
+        orig_val.should == @ctx[:target]
       end
 
       it 'should work when applied multiple times' do
@@ -375,15 +378,15 @@ describe Pry::CommandSet do
       end
 
       it 'should share the context with the original command' do
-        @ctx.target = "test target string"
+        @ctx[:target] = "test target string".__binding__
         after_val   = nil
         orig_val    = nil
         @set.command('foo') { orig_val = target }
         @set.after_command('foo') { after_val = target }
         @set.run_command(@ctx, 'foo')
 
-        after_val.should == @ctx.target
-        orig_val.should == @ctx.target
+        after_val.should == @ctx[:target]
+        orig_val.should == @ctx[:target]
       end
 
       it 'should determine the return value for the command' do
@@ -415,151 +418,6 @@ describe Pry::CommandSet do
         foo.should == [3, 1, 2]
       end
 
-    end
-
-  end
-
-  describe "class-based commands" do
-    it 'should pass arguments to the command' do
-      c = Class.new(Pry::CommandContext) do
-        def call(*args)
-          args.should == [1, 2, 3]
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command ctx, 'foo', 1, 2, 3
-    end
-
-    it 'should set unprovided arguments to nil' do
-      c = Class.new(Pry::CommandContext) do
-        def call(x, y, z)
-          x.should == 1
-          y.should == nil
-          z.should == nil
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command ctx, 'foo', 1
-    end
-
-    it 'should clip provided arguments to expected number' do
-      c = Class.new(Pry::CommandContext) do
-        def call(x, y, z)
-          x.should == 1
-          y.should == 2
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command ctx, 'foo', 1, 2, 3, 4
-    end
-
-    it 'should return Pry::CommandContext::VOID by default' do
-      c = Class.new(Pry::CommandContext) do
-        def call
-          :i_have_done_thing_i_regret
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command(ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
-    end
-
-    it 'should return specific value when :keep_retval => true' do
-      c = Class.new(Pry::CommandContext) do
-        def call
-          :i_have_a_dog_called_tobina
-        end
-      end
-
-      @set.command 'foo', "desc", :keep_retval => true, :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command(ctx, 'foo').should == :i_have_a_dog_called_tobina
-    end
-
-    it 'should have access to helper methods' do
-      c = Class.new(Pry::CommandContext) do
-        def call
-          im_helping.should == "butterbum"
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      @set.helpers do
-        def im_helping
-          "butterbum"
-        end
-      end
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command ctx, 'foo'
-    end
-
-    it 'should persist state' do
-      c = Class.new(Pry::CommandContext) do
-        attr_accessor :state
-        def call
-          @state ||= 0
-          @state += 1
-        end
-      end
-
-      @set.command 'foo', "desc", :definition => c.new
-
-      ctx = @set.commands['foo'].callable
-      @set.run_command ctx, 'foo'
-      @set.run_command ctx, 'foo'
-      ctx.state.should == 2
-    end
-
-    describe "before_command" do
-      it 'should be called before the original command' do
-        foo = []
-        c = Class.new(Pry::CommandContext) do
-          define_method(:call) do
-            foo << 1
-          end
-        end
-
-        @set.command 'foo', "desc", :definition => c.new
-
-        ctx = @set.commands['foo'].callable
-        @set.before_command('foo') { foo << 2 }
-        @set.run_command(ctx, 'foo')
-
-        foo.should == [2, 1]
-      end
-    end
-
-    describe "after_command" do
-      it 'should be called before the original command' do
-        foo = []
-        c = Class.new(Pry::CommandContext) do
-          define_method(:call) do
-            foo << 1
-          end
-        end
-
-        @set.command 'foo', "desc", :definition => c.new
-
-        ctx = @set.commands['foo'].callable
-        @set.after_command('foo') { foo << 2 }
-        @set.run_command(ctx, 'foo')
-
-        foo.should == [1, 2]
-      end
     end
 
   end
