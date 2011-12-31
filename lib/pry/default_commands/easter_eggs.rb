@@ -64,13 +64,13 @@ end
         prev_color = Pry.color
         Pry.color = true
 
-        picture = unindent <<-'EOS'.gsub(/[[:alpha:]]/) { |s| text.red(s) }
-           ____      ____________________________
-          /    \    |                            |
-         / O  O \   | ansi appears to be working |
-        |        |  |____________________________|
-         \ \__/ / ____/
-          \____/
+        picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| text.red(s) }
+           ____      _______________________
+          /    \    |  A         W     G    |
+         / O  O \   |   N    I    O   N !   |
+        |        |  |    S    S    R I   !  |
+         \ \__/ / __|     I         K     ! |
+          \____/   \________________________|
         EOS
 
         if defined?(Win32::Console)
