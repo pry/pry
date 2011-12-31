@@ -53,7 +53,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should not reload the file if it is not a ruby file" do
@@ -62,7 +62,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should not reload a ruby file if -n is given" do
@@ -71,7 +71,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
 
         it "should reload a non-ruby file if -r is given" do
@@ -80,7 +80,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
           mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
 
-          tf.close
+          tf.close(true)
         end
       end
     end
@@ -93,7 +93,7 @@ describe "Pry::DefaultCommands::Introspection" do
         @tf.flush
       end
       after do
-        @tf.close
+        @tf.close(true)
         File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
       end
       it "should open the correct file" do
@@ -254,6 +254,10 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /def sample/
     end
 
+    it 'should output help' do
+      mock_pry('show-method -h').should =~ /Usage: show-method/
+    end
+
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
@@ -314,6 +318,36 @@ describe "Pry::DefaultCommands::Introspection" do
         binding.pry
       end
       str_output.string.should =~ /Mr flibble/
+    end
+
+    it "should find instance methods with -M" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c","show-method -M moo").should =~ /ve over/
+    end
+
+    it "should not find instance methods with -m" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -m moo").should =~ /could not be found/
+    end
+
+    it "should find normal methods with -m" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -m moo").should =~ /ve over/
+    end
+
+    it "should not find normal methods with -M" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method -M moo").should =~ /could not be found/
+    end
+
+    it "should find normal methods with no -M or -m" do
+      c = Class.new{ def self.moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
+    end
+
+    it "should find instance methods with no -M or -m" do
+      c = Class.new{ def moo; "ve over!"; end }
+      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
     end
 
     it "should find super methods" do
@@ -421,7 +455,7 @@ describe "Pry::DefaultCommands::Introspection" do
       end
 
       after do
-        @tempfile.close
+        @tempfile.close(true)
       end
 
       describe 'without -p' do

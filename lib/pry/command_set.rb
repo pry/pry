@@ -8,15 +8,21 @@ class Pry
   # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
-    class Command < Struct.new(:name, :description, :options, :block)
+    class Command < Struct.new(:name, :description, :options, :callable)
 
       def call(context, *args)
-        context.command_name = options[:listing]
 
         if stub_block = options[:stub_info]
           context.instance_eval(&stub_block)
         else
-          ret = context.instance_exec(*correct_arg_arity(block.arity, args), &block)
+          if callable.is_a?(Proc)
+            ret = context.instance_exec(*correct_arg_arity(callable.arity, args), &callable)
+          else
+
+            # in the case of non-procs the callable *is* the context
+            ret = callable.call(*correct_arg_arity(callable.method(:call).arity, args))
+          end
+
           if options[:keep_retval]
             ret
           else
@@ -27,18 +33,13 @@ class Pry
 
       private
       def correct_arg_arity(arity, args)
-        case arity <=> 0
-        when -1
+        case
+        when arity < 0
           args
-        when 0
+        when arity == 0
           []
-        when 1
-          # another jruby hack
-          if Pry::Helpers::BaseHelpers.jruby?
-            args[0..(arity - 1)]
-          else
-            args.values_at 0..(arity - 1)
-          end
+        when arity > 0
+          args.values_at *(0..(arity - 1)).to_a
         end
       end
     end
@@ -139,7 +140,7 @@ class Pry
         end
       end
 
-      commands[name] = Command.new(name, description, options, block)
+      commands[name] = Command.new(name, description, options, options[:definition] ? options.delete(:definition) : block)
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -153,13 +154,18 @@ class Pry
     #   end
     def before_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_block = cmd.block
+      prev_callable = cmd.callable
 
       wrapper_block = proc do |*args|
         instance_exec(*args, &block)
-        instance_exec(*args, &prev_block)
+
+        if prev_callable.is_a?(Proc)
+          instance_exec(*args, &prev_callable)
+        else
+          prev_callable.call(*args)
+        end
       end
-      cmd.block = wrapper_block
+      cmd.callable = wrapper_block
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -173,13 +179,18 @@ class Pry
     #   end
     def after_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_block = cmd.block
+      prev_callable = cmd.callable
 
       wrapper_block = proc do |*args|
-        instance_exec(*args, &prev_block)
+        if prev_callable.is_a?(Proc)
+          instance_exec(*args, &prev_callable)
+        else
+          prev_callable.call(*args)
+        end
+
         instance_exec(*args, &block)
       end
-      cmd.block = wrapper_block
+      cmd.callable = wrapper_block
     end
 
     def each &block
@@ -273,12 +284,14 @@ class Pry
     # @param [String] name Name of the command to be run
     # @param [Array<Object>] args Arguments passed to the command
     # @raise [NoCommandError] If the command is not defined in this set
-    def run_command(context, name, *args)
+    def run_command(context, command_name, *args)
+      command = commands[command_name]
+
+
       context.extend helper_module
-      command = commands[name]
 
       if command.nil?
-        raise NoCommandError.new(name, self)
+        raise NoCommandError.new(command_name, self)
       end
 
       if command.options[:argument_required] && args.empty?

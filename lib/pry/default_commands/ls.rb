@@ -21,18 +21,18 @@ class Pry
 
         # Get all the methods that we'll want to output
         def all_methods(obj, opts)
-          opts.present?(:module) ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
+          opts.present?(:'instance-methods') ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
         end
 
         def resolution_order(obj, opts)
-          opts.present?(:module) ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
+          opts.present?(:'instance-methods') ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
         end
 
         # Get a lambda that can be used with .take_while to prevent over-eager
         # traversal of the Object's ancestry graph.
         def below_ceiling(obj, opts)
           ceiling = if opts.present?(:quiet)
-                       [opts.present?(:module) ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
+                       [opts.present?(:'instance-methods') ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
                      elsif opts.present?(:verbose)
                        []
                      else
@@ -125,7 +125,7 @@ class Pry
           USAGE
 
           opt.on :m, "methods", "Show public methods defined on the Object (default)"
-          opt.on :M, "module", "Show methods defined in a Module or Class"
+          opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
 
           opt.on :p, "ppp", "Show public, protected (in yellow) and private (in green) methods"
           opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class"
@@ -143,16 +143,16 @@ class Pry
           opt.on :h, "help", "Show help"
         end
 
-        next output.puts(opts) if opts.present?(:help)
+        next output.puts(opts.to_s) if opts.present?(:help)
 
         obj = args.empty? ? target_self : target.eval(args.join(" "))
 
         # exclude -q, -v and --grep because they don't specify what the user wants to see.
-        has_opts = (opts.present?(:methods) || opts.present?(:module) || opts.present?(:ppp) ||
+        has_opts = (opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) ||
                     opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
                     opts.present?(:ivars))
 
-        show_methods   = opts.present?(:methods) || opts.present?(:module) || opts.present?(:ppp) || !has_opts
+        show_methods   = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
         show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
         show_ivars     = opts.present?(:ivars) || !has_opts
         show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
@@ -162,7 +162,7 @@ class Pry
         raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
         raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
         raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
-        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:module) && !(Module === obj)
+        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
         raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
 
 

@@ -3,7 +3,7 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
-puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}"
+puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"
 
 require 'bacon'
 require 'open4'
@@ -47,16 +47,6 @@ class MockPryException
     backtrace[index] =~ /(.*):(\d+)/
     [$1, $2.to_i]
   end
-end
-
-# are we on Jruby platform?
-def jruby?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
-end
-
-# are we on rbx platform?
-def rbx?
-  defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/
 end
 
 Pry.reset_defaults
@@ -167,7 +157,7 @@ def temp_file
   file = Tempfile.new('pry')
   yield file
 ensure
-  file.close
+  file.close(true)
 end
 
 
@@ -183,7 +173,7 @@ end
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
-  require 'set_trace' if defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /rbx/ # gem install 'rbx-tracer'
+  require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?
   set_trace_func proc { |event, file, line, id, binding, classname|
      STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
   }

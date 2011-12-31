@@ -192,10 +192,15 @@ class Pry
   end
 
   def self.default_editor_for_platform
-    if RUBY_PLATFORM =~ /mswin|mingw/
-      ENV['VISUAL'] || ENV['EDITOR'] || "notepad"
+    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
+    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+
+    if Helpers::BaseHelpers.windows?
+      'notepad'
     else
-      ENV['VISUAL'] || ENV['EDITOR'] || "nano"
+      %w(editor nano vi).detect do |editor|
+        system("which #{editor} > /dev/null 2>&1")
+      end
     end
   end
 
@@ -210,17 +215,20 @@ class Pry
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
-    config.color = Pry::Helpers::BaseHelpers.use_ansi_codes?
+    config.color = Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
     config.should_load_rc = true
-    config.should_trap_interrupts = defined?(RUBY_ENGINE) && RUBY_ENGINE =~ /jruby/
+    config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
     config.disable_auto_reload = false
     config.command_prefix = ""
     config.auto_indent = true
     config.correct_indent = true
     config.collision_warning = false
+
+    config.gist ||= OpenStruct.new
+    config.gist.inspecter = proc &:pretty_inspect
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true

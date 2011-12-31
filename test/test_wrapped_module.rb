@@ -33,6 +33,14 @@ describe Pry::WrappedModule do
     describe "of singleton classes of objects" do
       Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should == "self."
     end
+
+    describe "of anonymous classes should not be empty" do
+      Pry::WrappedModule.new(Class.new).method_prefix.should =~ /#<Class:.*>#/
+    end
+
+    describe "of singleton classes of anonymous classes should not be empty" do
+      Pry::WrappedModule.new(class << Class.new; self; end).method_prefix.should =~ /#<Class:.*>./
+    end
   end
 
   describe ".singleton_class?" do
