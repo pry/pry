@@ -1,3 +1,4 @@
+require 'pry/command_context'
 class Pry
   class NoCommandError < StandardError
     def initialize(name, owner)
@@ -8,27 +9,52 @@ class Pry
   # This class is used to create sets of commands. Commands can be imported from
   # different sets, aliased, removed, etc.
   class CommandSet
-    class Command < Struct.new(:name, :description, :options, :callable)
+    class Command < Pry::CommandContext
 
-      def call(context, *args)
+      class << self
+        attr_accessor :name
+        attr_accessor :description
+        attr_accessor :options
+        attr_accessor :block
+      end
 
-        if stub_block = options[:stub_info]
-          context.instance_eval(&stub_block)
-        else
-          if callable.is_a?(Proc)
-            ret = context.instance_exec(*correct_arg_arity(callable.arity, args), &callable)
-          else
+      %w(name description options block).each do |attribute|
+        define_method(attribute) { self.class.send(attribute) }
+      end
 
-            # in the case of non-procs the callable *is* the context
-            ret = callable.call(*correct_arg_arity(callable.method(:call).arity, args))
-          end
-
-          if options[:keep_retval]
-            ret
-          else
-            Pry::CommandContext::VOID_VALUE
-          end
+      class << self
+        def inspect
+          "#<class(Pry::Command #{name.inspect}>"
         end
+
+        def subclass(name, description, options, &block)
+          klass = Class.new(self)
+          klass.name = name
+          klass.description = description
+          klass.options = options
+          klass.block = block
+          klass
+        end
+      end
+    end
+
+    class StubCommand < Command
+      def call(*args)
+        gems_needed = Array(options[:requires_gem])
+        gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
+        output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+        output.puts "-"
+        output.puts "Type `install-command #{name}` to install the required gems and activate this command."
+      end
+    end
+
+    class BlockCommand < Command
+      def call(*args)
+        if options[:argument_required] && args.empty?
+          raise CommandError, "The command '#{command.name}' requires an argument."
+        end
+
+        instance_exec(*correct_arg_arity(block.arity, args), &block)
       end
 
       private
@@ -118,7 +144,6 @@ class Pry
     #   # pry(main)> help number
     #   # number-N regex command
     def command(name, description="No description.", options={}, &block)
-
       options = {
         :requires_gem => [],
         :keep_retval => false,
@@ -129,18 +154,11 @@ class Pry
         :use_prefix => true
       }.merge!(options)
 
-      unless command_dependencies_met? options
-        gems_needed = Array(options[:requires_gem])
-        gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
-
-        options[:stub_info] = proc do
-          output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
-          output.puts "-"
-          output.puts "Type `install-command #{name}` to install the required gems and activate this command."
-        end
+      if command_dependencies_met? options
+        commands[name] = BlockCommand.subclass(name, description, options, &block)
+      else
+        commands[name] = StubCommand.subclass(name, description, options)
       end
-
-      commands[name] = Command.new(name, description, options, options[:definition] ? options.delete(:definition) : block)
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -276,29 +294,6 @@ class Pry
       commands[new_name].description = options.delete(:description)
       commands[new_name].options.merge!(options)
       commands.delete(cmd.name)
-    end
-
-    # Runs a command.
-    # @param [Object] context Object which will be used as self during the
-    #   command.
-    # @param [String] name Name of the command to be run
-    # @param [Array<Object>] args Arguments passed to the command
-    # @raise [NoCommandError] If the command is not defined in this set
-    def run_command(context, command_name, *args)
-      command = commands[command_name]
-
-
-      context.extend helper_module
-
-      if command.nil?
-        raise NoCommandError.new(command_name, self)
-      end
-
-      if command.options[:argument_required] && args.empty?
-        puts "The command '#{command.name}' requires an argument."
-      else
-        command.call context, *args
-      end
     end
 
     # Sets or gets the description for a command (replacing the old
