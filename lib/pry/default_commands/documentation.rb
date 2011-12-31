@@ -6,6 +6,15 @@ class Pry
       command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
         run ".ri", *args
       end
+        
+      #hardwired example command 
+      require 'kramdown'
+      require_relative '../../terminal.rb'
+
+      command "show-wiki", "Show wiki live help" do |*args|
+        contents = File.open(File.join(File.expand_path("../../../", File.dirname(__FILE__)), "wiki/Customizing-pry.md")).read
+        output.puts Kramdown::Document.new(contents).to_terminal
+      end
 
       command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
         opts, meth = parse_options!(args, :method_object) do |opt|
