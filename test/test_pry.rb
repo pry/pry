@@ -886,7 +886,7 @@ describe Pry do
               klass = Pry::CommandSet.new do
                 alias_command "help2", "help"
               end
-              klass.commands["help2"].callable.should == klass.commands["help"].callable
+              klass.commands["help2"].block.should == klass.commands["help"].block
             end
 
             it 'should change description of a command using desc' do
