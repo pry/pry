@@ -25,6 +25,7 @@ class Pry
     def description; self.class.description; end
     def block; self.class.block; end
     def command_options; self.class.options; end
+    def command_name; command_options[:listing]; end
 
     class << self
       def inspect
@@ -62,10 +63,8 @@ class Pry
 
     # Properties of one execution of a command (passed by the {Pry::CommandProcessor} as a hash of
     # context and expanded in {#initialize}
-    attr_accessor :command_name
     attr_accessor :output
     attr_accessor :target
-    attr_accessor :target_self
     attr_accessor :captures
     attr_accessor :eval_string
     attr_accessor :arg_string
@@ -107,19 +106,20 @@ class Pry
     # Instantiate a command, in preparation for calling it.
     #
     # @param Hash context  The runtime context to use with this command.
-    def initialize(context)
+    def initialize(context={})
       self.context      = context
       self.target       = context[:target]
-      self.target_self  = context[:target].eval('self')
       self.output       = context[:output]
       self.captures     = context[:captures]
       self.eval_string  = context[:eval_string]
       self.arg_string   = context[:arg_string]
       self.command_set  = context[:command_set]
-      self.command_name = self.class.options[:listing]
       self._pry_        = context[:pry_instance]
       self.command_processor = context[:command_processor]
     end
+
+    # The value of {self} inside the {target} binding.
+    def target_self; target.eval('self'); end
 
     # Run the command with the given {args}.
     #
