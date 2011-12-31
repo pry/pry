@@ -3,56 +3,72 @@ class Pry
 
     Documentation = Pry::CommandSet.new do
 
-      command "ri", "View ri documentation. e.g `ri Array#each`" do |*args|
-        run ".ri", *args
+      command_class "ri", "View ri documentation. e.g `ri Array#each`" do
+        banner <<-BANNER
+          Usage: ri [spec]
+          e.g. ri Array#each
+
+          Relies on the ri executable being available. See also: show-doc.
+        BANNER
+
+        def process
+          run ".ri", *args
+        end
       end
 
-      command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
-        opts, meth = parse_options!(args, :method_object) do |opt|
-          opt.banner unindent <<-USAGE
-            Usage: show-doc [OPTIONS] [METH]
-            Show the comments above method METH. Tries instance methods first and then methods by default.
-            e.g show-doc hello_method
-          USAGE
+      command_class "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
+        banner <<-BANNER
+          Usage: show-doc [OPTIONS] [METH]
+          Show the comments above method METH. Tries instance methods first and then methods by default.
+          e.g show-doc hello_method
+        BANNER
 
+        def options(opt)
+          method_options(opt)
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
+        def process
+          meth = method_object
+          raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
 
-        doc = process_comment_markup(meth.doc, meth.source_type)
-        output.puts make_header(meth, doc)
-        output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
-        output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
-        output.puts "#{text.bold("Signature:")} #{meth.signature}"
-        output.puts
-        render_output(opts.present?(:flood), false, doc)
+          doc = process_comment_markup(meth.doc, meth.source_type)
+          output.puts make_header(meth, doc)
+          output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
+          output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
+          output.puts "#{text.bold("Signature:")} #{meth.signature}"
+          output.puts
+          render_output(opts.present?(:flood), false, doc)
+        end
       end
 
       alias_command "?", "show-doc"
 
-      command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
-        target = target()
-
-        opts, meth = parse_options!(args, :method_object) do |opt|
-          opt.banner unindent <<-USAGE
+      command_class "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
+        banner <<-BANNER
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
             e.g: stat hello_method
-          USAGE
+        BANNER
+
+        def options(opt)
+          method_options(opt)
         end
 
-        output.puts unindent <<-EOS
-          Method Information:
-          --
-          Name: #{meth.name}
-          Owner: #{meth.owner ? meth.owner : "Unknown"}
-          Visibility: #{meth.visibility}
-          Type: #{meth.is_a?(::Method) ? "Bound" : "Unbound"}
-          Arity: #{meth.arity}
-          Method Signature: #{meth.signature}
-          Source Location: #{meth.source_location ? meth.source_location.join(":") : "Not found."}
-        EOS
+        def process
+          meth = method_object
+          output.puts unindent <<-EOS
+            Method Information:
+            --
+            Name: #{meth.name}
+            Owner: #{meth.owner ? meth.owner : "Unknown"}
+            Visibility: #{meth.visibility}
+            Type: #{meth.is_a?(::Method) ? "Bound" : "Unbound"}
+            Arity: #{meth.arity}
+            Method Signature: #{meth.signature}
+            Source Location: #{meth.source_location ? meth.source_location.join(":") : "Not found."}
+          EOS
+        end
       end
 
       command_class "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
