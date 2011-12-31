@@ -162,9 +162,9 @@ describe Pry::CommandSet do
     @set.desc('foo').should == 'bar'
   end
 
-  it 'should return Pry::CommandContext::VOID_VALUE for commands by default' do
+  it 'should return Pry::Command::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    @set.run_command(@ctx, 'foo').should == Pry::CommandContext::VOID_VALUE
+    @set.run_command(@ctx, 'foo').should == Pry::Command::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
@@ -187,7 +187,7 @@ describe Pry::CommandSet do
     end
 
     @set.run_command(@ctx, 'foo')
-    Pry::CommandContext.new.should.not.respond_to :my_helper
+    Pry::Command.subclass('foo', '', {}, Module.new).new({:target => binding}).should.not.respond_to :my_helper
   end
 
   it 'should not recreate a new helper module when helpers is called' do

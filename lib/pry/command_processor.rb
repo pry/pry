@@ -22,7 +22,7 @@ class Pry
       # (one that does not return a value)
       # @return [Boolean]
       def void_command?
-        (command? && !keep_retval?) || retval == CommandContext::VOID_VALUE
+        (command? && !keep_retval?) || retval == Command::VOID_VALUE
       end
 
       # Is the return value kept for this command? (i.e :keep_retval => true)
