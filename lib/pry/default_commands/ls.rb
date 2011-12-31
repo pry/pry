@@ -37,7 +37,7 @@ class Pry
           opt.on :h, "help", "Show help"
         end
 
-        def run
+        def process
           obj = args.empty? ? target_self : target.eval(args.join(" "))
 
           # exclude -q, -v and --grep because they don't specify what the user wants to see.
