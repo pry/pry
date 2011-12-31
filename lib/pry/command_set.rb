@@ -18,23 +18,58 @@ class Pry
         attr_accessor :block
       end
 
+      attr_accessor :context
+
       %w(name description options block).each do |attribute|
         define_method(attribute) { self.class.send(attribute) }
       end
 
       class << self
         def inspect
-          "#<class(Pry::Command #{name.inspect}>"
+          "#<class(Pry command #{name.inspect})>"
         end
 
-        def subclass(name, description, options, &block)
+        def subclass(name, description, options, helpers, &block)
           klass = Class.new(self)
+          klass.send(:include, helpers)
           klass.name = name
           klass.description = description
           klass.options = options
           klass.block = block
           klass
         end
+
+        def hooks
+          @hooks ||= {:before => [], :after => []}
+        end
+      end
+
+      def initialize(context)
+        self.context      = context
+        self.target       = context[:target]
+        self.target_self  = context[:target].eval('self')
+        self.output       = context[:output]
+        self.captures     = context[:captures]
+        self.eval_string  = context[:eval_string]
+        self.arg_string   = context[:arg_string]
+        self.command_set  = context[:command_set]
+        self.command_name = self.class.options[:listing]
+        self._pry_        = context[:pry_instance]
+        self.command_processor = context[:command_processor]
+      end
+
+      def call_with_hooks(*args)
+        self.class.hooks[:before].each do |block|
+          instance_exec(*args, &block)
+        end
+
+        ret = call *args
+
+        self.class.hooks[:after].each do |block|
+          ret = instance_exec(*args, &block)
+        end
+
+        self.class.options[:keep_retval] ? ret : CommandContext::VOID_VALUE
       end
     end
 
@@ -49,6 +84,9 @@ class Pry
     end
 
     class BlockCommand < Command
+      # backwards compatibility
+      alias_method :opts, :context
+
       def call(*args)
         if options[:argument_required] && args.empty?
           raise CommandError, "The command '#{command.name}' requires an argument."
@@ -75,6 +113,8 @@ class Pry
       attr_accessor :args
 
       def call(*args)
+        setup
+
         self.opts = slop
         self.args = self.opts.parse!(args)
 
@@ -85,7 +125,9 @@ class Pry
         end
       end
 
+      def setup; end
       def options(opt); end
+      def run; raise CommandError, "command '#{name}' not implemented" end
 
       def slop
         Slop.new do |opt|
@@ -94,7 +136,6 @@ class Pry
         end
       end
 
-      def run; raise CommandError, "command '#{name}' not implemented" end
     end
 
     include Enumerable
@@ -182,9 +223,9 @@ class Pry
       }.merge!(options)
 
       if command_dependencies_met? options
-        commands[name] = BlockCommand.subclass(name, description, options, &block)
+        commands[name] = BlockCommand.subclass(name, description, options, helper_module, &block)
       else
-        commands[name] = StubCommand.subclass(name, description, options)
+        commands[name] = StubCommand.subclass(name, description, options, helper_module)
       end
     end
 
@@ -200,10 +241,10 @@ class Pry
       }.merge!(options)
 
       if command_dependencies_met? options
-        commands[name] = ClassCommand.subclass(name, description, options)
+        commands[name] = ClassCommand.subclass(name, description, options, helper_module)
         commands[name].class_eval(&block)
       else
-        commands[name] = StubCommand.subclass(name, description, options)
+        commands[name] = StubCommand.subclass(name, description, options, helper_module)
       end
     end
 
@@ -218,18 +259,7 @@ class Pry
     #   end
     def before_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_callable = cmd.callable
-
-      wrapper_block = proc do |*args|
-        instance_exec(*args, &block)
-
-        if prev_callable.is_a?(Proc)
-          instance_exec(*args, &prev_callable)
-        else
-          prev_callable.call(*args)
-        end
-      end
-      cmd.callable = wrapper_block
+      cmd.hooks[:before].unshift block
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -243,18 +273,7 @@ class Pry
     #   end
     def after_command(name, &block)
       cmd = find_command_by_name_or_listing(name)
-      prev_callable = cmd.callable
-
-      wrapper_block = proc do |*args|
-        if prev_callable.is_a?(Proc)
-          instance_exec(*args, &prev_callable)
-        else
-          prev_callable.call(*args)
-        end
-
-        instance_exec(*args, &block)
-      end
-      cmd.callable = wrapper_block
+      cmd.hooks[:after] << block
     end
 
     def each &block
@@ -380,6 +399,11 @@ class Pry
     # @return [Array] The list of commands provided by the command set.
     def list_commands
       commands.keys
+    end
+
+    def run_command(context, name, *args)
+      command = commands[name] or raise NoCommandError.new(name, self)
+      command.new(context).call_with_hooks(*args)
     end
 
     private
