@@ -43,7 +43,7 @@ describe Pry do
 
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        input_string = "CommandContext"
+        input_string = "Command"
         str_output = StringIO.new
         o = Object.new
         pry_tester = Pry.new(:input => StringIO.new(input_string),

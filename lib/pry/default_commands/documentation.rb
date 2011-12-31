@@ -55,8 +55,6 @@ class Pry
         EOS
       end
 
-      require 'pry/command_context'
-
       command_class "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
         attr_accessor :content
         attr_accessor :code_type
