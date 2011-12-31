@@ -58,6 +58,18 @@ class Pry
         self.command_processor = context[:command_processor]
       end
 
+      def call_safely(*args)
+        if dependencies_met?
+          call_with_hooks(*args)
+        else
+          gems_needed = Array(command_options[:requires_gem])
+          gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
+          output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+          output.puts "-"
+          output.puts "Type `install-command #{name}` to install the required gems and activate this command."
+        end
+      end
+
       def call_with_hooks(*args)
         self.class.hooks[:before].each do |block|
           instance_exec(*args, &block)
@@ -69,17 +81,13 @@ class Pry
           ret = instance_exec(*args, &block)
         end
 
-        self.class.options[:keep_retval] ? ret : CommandContext::VOID_VALUE
+        command_options[:keep_retval] ? ret : CommandContext::VOID_VALUE
       end
-    end
 
-    class StubCommand < Command
-      def call(*args)
-        gems_needed = Array(options[:requires_gem])
-        gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
-        output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
-        output.puts "-"
-        output.puts "Type `install-command #{name}` to install the required gems and activate this command."
+      def command_options; self.class.options; end
+
+      def dependencies_met?
+        @dependencies_met ||= command_dependencies_met?(command_options)
       end
     end
 
@@ -135,7 +143,6 @@ class Pry
           opt.on(:h, :help, "Show this message.")
         end
       end
-
     end
 
     include Enumerable
@@ -222,11 +229,7 @@ class Pry
         :use_prefix => true
       }.merge!(options)
 
-      if command_dependencies_met? options
-        commands[name] = BlockCommand.subclass(name, description, options, helper_module, &block)
-      else
-        commands[name] = StubCommand.subclass(name, description, options, helper_module)
-      end
+      commands[name] = BlockCommand.subclass(name, description, options, helper_module, &block)
     end
 
     def command_class(name, description="No description.", options={}, &block)
@@ -240,12 +243,9 @@ class Pry
         :use_prefix => true
       }.merge!(options)
 
-      if command_dependencies_met? options
-        commands[name] = ClassCommand.subclass(name, description, options, helper_module)
-        commands[name].class_eval(&block)
-      else
-        commands[name] = StubCommand.subclass(name, description, options, helper_module)
-      end
+      commands[name] = ClassCommand.subclass(name, description, options, helper_module)
+      commands[name].class_eval(&block)
+      commands[name]
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -403,7 +403,7 @@ class Pry
 
     def run_command(context, name, *args)
       command = commands[name] or raise NoCommandError.new(name, self)
-      command.new(context).call_with_hooks(*args)
+      command.new(context).call_safely(*args)
     end
 
     private
@@ -433,10 +433,9 @@ class Pry
       command "install-command", "Install a disabled command." do |name|
         require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
         command = find_command(name)
-        stub_info = command.options[:stub_info]
 
-        if !stub_info
-          output.puts "Not a command stub. Nothing to do."
+        if command_dependencies_met?(command.options)
+          output.puts "Dependencies for #{command.name} are met. Nothing to do."
           next
         end
 
@@ -469,7 +468,6 @@ class Pry
         end
         next if gem_install_failed
 
-        command.options.delete :stub_info
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end
     end

@@ -176,7 +176,7 @@ class Pry
       instance = command.new(context)
 
       catch(:command_done) do
-        ret = instance.call_with_hooks(*args)
+        ret = instance.call_safely(*args)
       end
 
       # FIXME: wtf?
