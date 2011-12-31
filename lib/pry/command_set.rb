@@ -286,7 +286,7 @@ class Pry
           stagger_output(help_text)
         else
           if command = find_command(cmd)
-            output.puts command.description
+            output.puts command.new.help
           else
             output.puts "No info for command: #{cmd}"
           end
