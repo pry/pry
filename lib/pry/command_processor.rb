@@ -22,7 +22,7 @@ class Pry
       # (one that does not return a value)
       # @return [Boolean]
       def void_command?
-        (command? && !keep_retval?) || retval == CommandContext::VOID_VALUE
+        (command? && !keep_retval?) || retval == Command::VOID_VALUE
       end
 
       # Is the return value kept for this command? (i.e :keep_retval => true)
@@ -145,15 +145,20 @@ class Pry
         args = []
       end
 
-      options = {
+      context = {
         :val => val,
         :arg_string => arg_string,
         :eval_string => eval_string,
         :commands => commands.commands,
-        :captures => captures
+        :captures => captures,
+        :pry_instance => @pry_instance,
+        :output => output,
+        :command_processor => self,
+        :command_set => commands,
+        :target => target
       }
 
-      ret = execute_command(target, command, options, *(captures + args))
+      ret = execute_command(command, context, *(captures + args))
 
       Result.new(true, command.options[:keep_retval], ret)
     end
@@ -165,43 +170,19 @@ class Pry
     # @param [Hash] options The options to set on the Commands object.
     # @param [Array] args The command arguments.
     # @return [Object] The value returned by the command
-    def execute_command(target, command, options, *args)
+    def execute_command(command, context, *args)
       ret = nil
 
-      if command.callable.is_a?(Proc)
-        context = CommandContext.new
-      else
-
-        # in the case of non-procs the callable *is* the context
-        context = command.callable
-      end
-
-      # set some useful methods to be used by the action blocks
-      setup_context(target, command, context, options)
+      instance = command.new(context)
 
       catch(:command_done) do
-        ret = commands.run_command(context, command.name, *args)
+        ret = instance.call_safely(*args)
       end
 
-      options[:val].replace("")
+      # FIXME: wtf?
+      context[:val].replace("")
 
       ret
-    end
-
-    def setup_context(target, command, context, options)
-      context.opts        = options
-      context.target      = target
-      context.target_self = target.eval('self')
-      context.output      = output
-      context.captures    = options[:captures]
-      context.eval_string = options[:eval_string]
-      context.arg_string  = options[:arg_string]
-      context.command_set = commands
-      context.command_name = command.options[:listing]
-
-      context._pry_ = @pry_instance
-
-      context.command_processor = self
     end
   end
 end

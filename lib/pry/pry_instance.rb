@@ -378,12 +378,12 @@ class Pry
   # @param [String] val The command (and its params) to execute.
   # @param [String] eval_string The current input buffer.
   # @param [Binding] target The binding to use..
-  # @return [Pry::CommandContext::VOID_VALUE]
+  # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
   def run_command(val, eval_string = "", target = binding_stack.last)
     @command_processor.process_commands(val, eval_string, target)
-    Pry::CommandContext::VOID_VALUE
+    Pry::Command::VOID_VALUE
   end
 
   # Set the last result of an eval.

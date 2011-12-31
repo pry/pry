@@ -7,8 +7,7 @@ describe "Pry::Commands" do
       redirect_pry_io(InputTester.new("help ls", "exit-all"), str_output) do
         pry
       end
-      str_output.string.each_line.count.should == 1
-      str_output.string.should =~ /ls --help/
+      str_output.string.should =~ /Usage: ls/
     end
 
     it 'should display help for a regex command with a "listing"' do
