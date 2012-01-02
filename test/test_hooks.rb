@@ -171,5 +171,15 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name3) { 3 }
       @hooks.exec_hook(:test_hook).should == 3
     end
+
+    it 'should take a hash containing custom options' do
+      number   = 0
+      callable = proc { |options| number = options[:number] }
+
+      @hooks.add_hook(:test_with_options, :test_hook, callable)
+      @hooks.exec_hook(:test_with_options, :number => 10)
+
+      number.should == 10
+    end
   end
 end
