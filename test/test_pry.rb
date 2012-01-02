@@ -1322,4 +1322,12 @@ describe Pry do
         end
       end
     end
+
+    describe 'setting custom options' do
+      it 'should not raise for unrecognized options' do
+        should.not.raise?(NoMethodError) {
+          instance = Pry.new(:custom_option => 'custom value')
+        }
+      end
+    end
   end
