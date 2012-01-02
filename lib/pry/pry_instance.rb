@@ -59,7 +59,7 @@ class Pry
     end
 
     defaults.merge!(options).each do |key, value|
-      send "#{key}=", value
+      send("#{key}=", value) if respond_to?("#{key}=")
     end
 
     true
