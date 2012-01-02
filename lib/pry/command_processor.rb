@@ -158,31 +158,9 @@ class Pry
         :target => target
       }
 
-      ret = execute_command(command, context, *(captures + args))
+      ret = command.new(context).call_safely(*(captures + args))
 
       Result.new(true, command.options[:keep_retval], ret)
-    end
-
-    # Execute a Pry command.
-    # This method should not need to be invoked directly.
-    # @param [Binding] target The target of the Pry session.
-    # @param [Pry::CommandSet::Command] command The command object.
-    # @param [Hash] options The options to set on the Commands object.
-    # @param [Array] args The command arguments.
-    # @return [Object] The value returned by the command
-    def execute_command(command, context, *args)
-      ret = nil
-
-      instance = command.new(context)
-
-      catch(:command_done) do
-        ret = instance.call_safely(*args)
-      end
-
-      # FIXME: wtf?
-      context[:val].replace("")
-
-      ret
     end
   end
 end
