@@ -171,15 +171,21 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name3) { 3 }
       @hooks.exec_hook(:test_hook).should == 3
     end
+  end
 
-    it 'should take a hash containing custom options' do
-      number   = 0
-      callable = proc { |options| number = options[:number] }
+  describe "integration tests" do
+    describe "when_started hook" do
+      it 'should yield options to the hook' do
+        options = nil
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_, opt, _| options = opt }
 
-      @hooks.add_hook(:test_with_options, :test_hook, callable)
-      @hooks.exec_hook(:test_with_options, :number => 10)
+        redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
+          Pry.start binding, :hello => :baby
+        end
+        options[:hello].should == :baby
 
-      number.should == 10
+        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+      end
     end
   end
 end
