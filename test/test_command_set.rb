@@ -482,6 +482,13 @@ describe Pry::CommandSet do
     it 'should be false for commands that can\'' do
       @set.valid_command?('def monkey(ape)').should == false
     end
+
+    it 'should not cause argument interpolation' do
+      cmd = @set.command('hello')
+      lambda {
+        @set.valid_command?('hello #{raise "futz"}')
+      }.should.not.raise
+    end
   end
 
   describe '.process_line' do
