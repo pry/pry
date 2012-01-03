@@ -421,4 +421,128 @@ describe Pry::CommandSet do
     end
 
   end
+
+  describe 'find_command' do
+    it 'should find commands with the right string' do
+      cmd = @set.command('rincewind'){ }
+      @set.find_command('rincewind').should == cmd
+    end
+
+    it 'should not find commands with spaces before' do
+      cmd = @set.command('luggage'){ }
+      @set.find_command(' luggage').should == nil
+    end
+
+    it 'should find commands with arguments after' do
+      cmd = @set.command('vetinari'){ }
+      @set.find_command('vetinari --knock 3').should == cmd
+    end
+
+    it 'should find commands with names containing spaces' do
+      cmd = @set.command('nobby nobbs'){ }
+      @set.find_command('nobby nobbs --steal petty-cash').should == cmd
+    end
+
+    it 'should find command defined by regex' do
+      cmd = @set.command(/(capt|captain) vimes/i){ }
+      @set.find_command('Capt Vimes').should == cmd
+    end
+
+    it 'should find commands defined by regex with arguments' do
+      cmd = @set.command(/(cpl|corporal) Carrot/i){ }
+      @set.find_command('cpl carrot --write-home').should == cmd
+    end
+
+    it 'should not find commands by listing' do
+      cmd = @set.command(/werewol(f|ve)s?/, 'only once a month', :listing => "angua"){ }
+      @set.find_command('angua').should == nil
+    end
+
+    it 'should not find commands without command_prefix' do
+      Pry.config.command_prefix = '%'
+      cmd = @set.command('detritus'){ }
+      @set.find_command('detritus').should == nil
+      Pry.config.command_prefix = ''
+    end
+
+    it "should find commands that don't use the prefix" do
+      Pry.config.command_prefix = '%'
+      cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
+      @set.find_command('colon').should == cmd
+      Pry.config.command_prefix = ''
+    end
+  end
+
+  describe '.valid_command?' do
+    it 'should be true for commands that can be found' do
+      cmd = @set.command('archchancellor')
+      @set.valid_command?('archchancellor of_the?(:University)').should == true
+    end
+
+    it 'should be false for commands that can\'' do
+      @set.valid_command?('def monkey(ape)').should == false
+    end
+  end
+
+  describe '.process_line' do
+
+    it 'should return Result.new(false) if there is no matching command' do
+     result = @set.process_line('1 + 42')
+     result.command?.should == false
+     result.void_command?.should == false
+     result.retval.should == nil
+    end
+
+    it 'should return Result.new(true, VOID) if the command is not keep_retval' do
+      @set.command_class('mrs-cake') do
+        def process; 42; end
+      end
+
+      result = @set.process_line('mrs-cake')
+      result.command?.should == true
+      result.void_command?.should == true
+      result.retval.should == Pry::Command::VOID_VALUE
+    end
+
+    it 'should return Result.new(true, retval) if the command is keep_retval' do
+      @set.command_class('magrat', 'the maiden', :keep_retval => true) do
+        def process; 42; end
+      end
+
+      result = @set.process_line('magrat')
+      result.command?.should == true
+      result.void_command?.should == false
+      result.retval.should == 42
+    end
+
+    it 'should pass through context' do
+      ctx = {
+        :eval_string => "bloomers",
+        :pry_instance => Object.new,
+        :output => StringIO.new,
+        :target => binding
+      }
+      @set.command_class('agnes') do
+        define_method(:process) do
+          eval_string.should == ctx[:eval_string]
+          output.should == ctx[:output]
+          target.should == ctx[:target]
+          _pry_.should == ctx[:pry_instance]
+        end
+      end
+
+      @set.process_line('agnes', ctx)
+    end
+
+    it 'should add command_set to context' do
+      set = @set
+      @set.command_class(/nann+y ogg+/) do
+        define_method(:process) do
+          command_set.should == set
+        end
+      end
+
+      @set.process_line('nannnnnny oggggg')
+    end
+  end
 end

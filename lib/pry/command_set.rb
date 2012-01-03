@@ -273,6 +273,38 @@ class Pry
       commands.keys
     end
 
+    # Find a command that matches the given line
+    #
+    # @param [String]  the line that may be a command invocation
+    # @return [Pry::Command, nil]
+    def find_command(val)
+      commands.values.detect{ |c| c.matches?(val) }
+    end
+
+    # Is the given line a command invocation?
+    #
+    # @param [String]
+    # @return [Boolean]
+    def valid_command?(val)
+      !!find_command(val)
+    end
+
+    # Process the given line to see whether it needs executing as a command.
+    #
+    # @param String  the line to execute
+    # @param Hash  the context to execute the commands with
+    # @return CommandSet::Result
+    #
+    def process_line(val, context={})
+      if command = find_command(val)
+        context = context.merge(:command_set => self)
+        retval = command.new(context).process_line(val)
+        Result.new(true, retval)
+      else
+        Result.new(false)
+      end
+    end
+
     # @nodoc  used for testing
     def run_command(context, name, *args)
       command = commands[name] or raise NoCommandError.new(name, self)
@@ -356,6 +388,29 @@ class Pry
 
         output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
       end
+    end
+  end
+
+  # Wraps the return result of process_commands, indicates if the
+  # result IS a command and what kind of command (e.g void)
+  class Result
+    attr_reader :retval
+
+    def initialize(is_command, retval = nil)
+      @is_command, @retval = is_command, retval
+    end
+
+    # Is the result a command?
+    # @return [Boolean]
+    def command?
+      @is_command
+    end
+
+    # Is the result a command and if it is, is it a void command?
+    # (one that does not return a value)
+    # @return [Boolean]
+    def void_command?
+      retval == Command::VOID_VALUE
     end
   end
 end

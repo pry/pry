@@ -1,4 +1,3 @@
-require "pry/command_processor.rb"
 require "pry/indent"
 
 class Pry
@@ -37,7 +36,6 @@ class Pry
   def initialize(options={})
     refresh(options)
 
-    @command_processor = CommandProcessor.new(self)
     @binding_stack     = []
     @indent            = Pry::Indent.new
   end
@@ -353,7 +351,12 @@ class Pry
   # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command(val, eval_string, target)
-    result = @command_processor.process_commands(val, eval_string, target)
+    result = commands.process_line(val, {
+      :target => target,
+      :output => output,
+      :eval_string => eval_string,
+      :pry_instance => self
+    })
 
     # set a temporary (just so we can inject the value we want into eval_string)
     Thread.current[:__pry_cmd_result__] = result
@@ -382,7 +385,12 @@ class Pry
   # @example
   #   pry_instance.run_command("ls -m")
   def run_command(val, eval_string = "", target = binding_stack.last)
-    @command_processor.process_commands(val, eval_string, target)
+    commands.process_line(val,
+      :eval_string => eval_string,
+      :target => target,
+      :pry_instance => self,
+      :output => output
+    )
     Pry::Command::VOID_VALUE
   end
 

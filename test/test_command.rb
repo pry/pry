@@ -142,12 +142,9 @@ describe "Pry::Command" do
     context = {
       :target => binding,
       :output => StringIO.new,
-      :captures => [],
       :eval_string => "eval-string",
-      :arg_string => "arg-string",
       :command_set => @set,
-      :pry_instance => Object.new,
-      :command_processor => Object.new
+      :pry_instance => Object.new
     }
 
     it 'should capture lots of stuff from the hash passed to new before setup' do
@@ -160,12 +157,9 @@ describe "Pry::Command" do
         end
 
         define_method(:process) do
-          captures.should.equal?(context[:captures])
           eval_string.should == "eval-string"
-          arg_string.should == "arg-string"
           command_set.should == @set
           _pry_.should == context[:pry_instance]
-          command_processor.should == context[:command_processor]
         end
       end
 
@@ -228,6 +222,96 @@ describe "Pry::Command" do
       end
 
       mock_command(cmd, %w(--four 4 four))
+    end
+  end
+
+  describe 'tokenize' do
+    it 'should interpolate string with #{} in them' do
+      cmd = @set.command 'random-dent' do |*args|
+        args.should == ["3", "8"]
+      end
+
+      foo = 5
+
+      cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + foo}'
+    end
+
+    it 'should not fail if interpolation is not needed and target is not set' do
+      cmd = @set.command 'the-book' do |*args|
+        args.should == ['--help']
+      end
+
+      cmd.new.process_line 'the-book --help'
+    end
+
+    it 'should not interpolate commands with :interpolate => false' do
+      cmd = @set.command 'thor', 'norse god', :interpolate => false do |*args|
+        args.should == ['%(#{foo})']
+      end
+
+      cmd.new.process_line 'thor %(#{foo})'
+    end
+
+    it 'should use shell-words to split strings' do
+      cmd = @set.command 'eccentrica' do |*args|
+        args.should == ['gallumbits', 'eroticon', '6']
+      end
+
+      cmd.new.process_line %(eccentrica "gallumbits" 'erot''icon' 6)
+    end
+
+    it 'should split on spaces if shellwords is not used' do
+      cmd = @set.command 'bugblatter-beast', 'would eat its grandmother', :shellwords => false do |*args|
+        args.should == ['"of', 'traal"']
+      end
+
+      cmd.new.process_line %(bugblatter-beast "of traal")
+    end
+
+    it 'should add captures to arguments for regex commands' do
+      cmd = @set.command /perfectly (normal)( beast)?/i do |*args|
+        args.should == ['Normal', ' Beast', '(honest!)']
+      end
+
+      cmd.new.process_line %(Perfectly Normal Beast (honest!))
+    end
+  end
+
+  describe 'process_line' do
+    it 'should check for command name collisions if configured' do
+      old = Pry.config.collision_warning
+      Pry.config.collision_warning = true
+
+      cmd = @set.command 'frankie' do
+
+      end
+
+      frankie = 'boyle'
+      output = StringIO.new
+      cmd.new(:target => binding, :output => output).process_line %(frankie mouse)
+
+      output.string.should =~ /Command name collision/
+
+      Pry.config.collision_warning = old
+    end
+
+    it "should set the commands' arg_string and captures" do
+
+      cmd = @set.command /benj(ie|ei)/ do |*args|
+        self.arg_string.should == "mouse"
+        self.captures.should == ['ie']
+        args.should == ['ie', 'mouse']
+      end
+
+      cmd.new.process_line %(benjie mouse)
+    end
+
+    it "should raise an error if the line doesn't match the command" do
+      cmd = @set.command 'grunthos', 'the flatulent'
+
+      lambda {
+        cmd.new.process_line %(grumpos)
+      }.should.raise(Pry::CommandError)
     end
   end
 end
