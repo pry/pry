@@ -52,16 +52,40 @@ class Pry
         klass
       end
 
+      # Should this command be called for the given line?
+      #
+      # @param String  a line input at the REPL
+      # @return Boolean
+      def matches?(val)
+        command_regex =~ val
+      end
+
       # Store hooks to be run before or after the command body.
       # @see {Pry::CommandSet#before_command}
       # @see {Pry::CommandSet#after_command}
       def hooks
         @hooks ||= {:before => [], :after => []}
       end
+
+      def command_regex
+        prefix = convert_to_regex(Pry.config.command_prefix)
+        prefix = "(?:#{prefix})?" unless options[:use_prefix]
+
+        /^#{prefix}#{convert_to_regex(name)}(?!\S)/
+      end
+
+      def convert_to_regex(obj)
+        case obj
+        when String
+          Regexp.escape(obj)
+        else
+          obj
+        end
+      end
     end
 
 
-    # Properties of one execution of a command (passed by the {Pry::CommandProcessor} as a hash of
+    # Properties of one execution of a command (passed by {Pry#run_command} as a hash of
     # context and expanded in {#initialize}
     attr_accessor :output
     attr_accessor :target
@@ -70,7 +94,6 @@ class Pry
     attr_accessor :arg_string
     attr_accessor :context
     attr_accessor :command_set
-    attr_accessor :command_processor
     attr_accessor :_pry_
 
     # Run a command from another command.
@@ -84,7 +107,7 @@ class Pry
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
       complete_string = "#{command_string} #{args.join(" ")}"
-      command_processor.process_commands(complete_string, eval_string, target)
+      command_set.process_line(complete_string, context)
     end
 
     def commands
@@ -110,16 +133,86 @@ class Pry
       self.context      = context
       self.target       = context[:target]
       self.output       = context[:output]
-      self.captures     = context[:captures]
       self.eval_string  = context[:eval_string]
-      self.arg_string   = context[:arg_string]
       self.command_set  = context[:command_set]
       self._pry_        = context[:pry_instance]
-      self.command_processor = context[:command_processor]
     end
 
     # The value of {self} inside the {target} binding.
     def target_self; target.eval('self'); end
+
+    # Revaluate the string (str) and perform interpolation.
+    # @param [String] str The string to reevaluate with interpolation.
+    #
+    # @return [String] The reevaluated string with interpolations
+    #   applied (if any).
+    def interpolate_string(str)
+      dumped_str = str.dump
+      if dumped_str.gsub!(/\\\#\{/, '#{')
+        target.eval(dumped_str)
+      else
+        str
+      end
+    end
+
+    # Display a warning if a command collides with a local/method in
+    # the current scope.
+    # @param [String] command_name_match The name of the colliding command.
+    # @param [Binding] target The current binding context.
+    def check_for_command_name_collision(command_name_match)
+      if collision_type = target.eval("defined?(#{command_name_match})")
+        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Command name collision with a #{collision_type}: '#{command_name_match}'\n\n"
+      end
+    rescue Pry::RescuableException
+    end
+
+    # Extract necessary information from a line that Command.matches? this command.
+    #
+    # @param String  the line of input
+    # @return [
+    #   String   the command name used, or portion of line that matched the command_regex
+    #   String   a string of all the arguments (i.e. everything but the name)
+    #   Array    the captures caught by the command_regex
+    #   Array    args the arguments got by splitting the arg_string
+    # ]
+    def tokenize(val)
+      val.replace(interpolate_string(val)) if command_options[:interpolate]
+
+      self.class.command_regex =~ val
+
+      # please call Command.matches? before Command#call_safely
+      raise CommandError, "fatal: called a command which didn't match?!" unless Regexp.last_match
+      captures = Regexp.last_match.captures
+      pos = Regexp.last_match.end(0)
+
+      arg_string = val[pos..-1]
+
+      # remove the one leading space if it exists
+      arg_string.slice!(0) if arg_string.start_with?(" ")
+
+      if arg_string
+        args = command_options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
+      else
+        args = []
+      end
+
+      [val[0..pos].rstrip, arg_string, captures, args]
+    end
+
+    # Process a line that Command.matches? this command.
+    #
+    # @param String  the line to process
+    # @return  Object or Command::VOID_VALUE
+    def process_line(line)
+      command_name, arg_string, captures, args = tokenize(line)
+
+      check_for_command_name_collision(command_name) if Pry.config.collision_warning
+
+      self.arg_string = arg_string
+      self.captures = captures
+
+      call_safely(*(captures + args))
+    end
 
     # Run the command with the given {args}.
     #
