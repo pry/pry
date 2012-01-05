@@ -141,8 +141,15 @@ describe "Pry::DefaultCommands::Context" do
       $outer.should == :outer
     end
 
-    it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with cd ..' do
-      Pry.start(0, :input => StringIO.new("cd ..")).should == nil
+    it "should not leave the REPL session when given 'cd ..'" do
+      b = Pry.binding_for(Object.new) 
+      input = InputTester.new "cd ..", "$obj = self", "exit-all" 
+      
+      redirect_pry_io(input, StringIO.new) do
+        b.pry
+      end
+
+      $obj.should == b.eval("self")
     end
 
     it 'should break out to outer-most session with cd /' do
