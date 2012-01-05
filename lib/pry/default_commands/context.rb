@@ -24,10 +24,7 @@ class Pry
             when "."
               next
             when ".."
-              if stack.one?
-                _pry_.binding_stack.clear
-                throw(:breakout)
-              else
+              unless stack.size == 1
                 stack.pop
               end
             else
