@@ -9,7 +9,7 @@ class Pry
       end
 
       command "show-input", "Show the contents of the input buffer for the current multi-line expression." do
-        render_output(false, 1, Pry.color ? CodeRay.scan(eval_string, :ruby).term : eval_string)
+        render_output(false, 1, colorize_code(eval_string))
       end
 
       command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
