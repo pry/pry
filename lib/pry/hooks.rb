@@ -91,9 +91,11 @@ class Pry
 
     # Clear all hooks functions for a given event.
     # @param [String] event_name The name of the event.
-    def clear(event_name)
+    def delete_hooks(event_name)
       @hooks[event_name] = []
     end
+
+    alias_method :clear, :delete_hooks
 
     # @param [Symbol] event_name Name of the event.
     # @param [Symbol] hook_name Name of the hook.
