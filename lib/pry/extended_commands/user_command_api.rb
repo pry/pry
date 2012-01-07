@@ -39,25 +39,75 @@ class Pry
         set_file_and_dir_locals(file_name)
       end
 
-      command "edit-command", "Edit a command. edit-command CMD_NAME CMD_SET" do |command_name, set_name|
-        if command_name.nil?
-          raise CommandError, "Must provide command name"
+      command_class "edit-command", "Edit a Pry command." do
+        banner <<-BANNER
+          Usage: edit-command [options] command
+          Edit a Pry command.
+        BANNER
+
+        def initialize env
+          @pry = env[:pry_instance]
+          @command = nil
+          super(env)
         end
 
-        if set_name.nil?
-          raise CommandError, "Must provide command set name"
+        def options(opt)
+          opt.on :p, :patch, 'Perform a in-memory edit of a command'
         end
 
-        cmd = Pry.config.commands.commands[command_name]
-        file_name = cmd.block.source_location.first
+        def process
+          @command = @pry.commands.find_command(args.first)
 
-        invoke_editor(*cmd.block.source_location)
-        silence_warnings do
-          load file_name
+          if @command.nil?
+            raise Pry::CommandError, 'Command not found.'
+          end
+
+          case
+          when opts.present?(:patch)
+            edit_temporarily
+          else
+            edit_permanently
+          end
         end
-        Pry.config.commands.import target.eval(set_name)
-        _pry_.commands.import target.eval(set_name)
-        set_file_and_dir_locals(file_name)
+
+        def edit_permanently
+          file, lineno = @command.block.source_location
+          invoke_editor(file, lineno)
+
+          command_set = silence_warnings do
+            eval File.read(file), TOPLEVEL_BINDING, file, 1
+          end
+
+          unless command_set.is_a?(Pry::CommandSet)
+            raise Pry::CommandError,
+                  "Expected file '#{file}' to return a CommandSet"
+          end
+
+          @pry.commands.delete(@command.name)
+          @pry.commands.import(command_set)
+          set_file_and_dir_locals(file)
+        end
+
+        def edit_temporarily
+          source_code = @command.block.source
+
+          temp_file :unlink => false do |f|
+            f.write(source_code)
+            f.flush
+
+            invoke_editor(f.path, 1)
+            modified_code = File.read(f.path)
+
+            command_set = CommandSet.new do
+              silence_warnings do
+                eval(modified_code, binding, f.path, 1)
+              end
+            end
+
+            @pry.commands.delete(@command.name)
+            @pry.commands.import(command_set)
+          end
+        end
       end
 
     end
