@@ -48,6 +48,7 @@ class Pry
         def initialize env
           @pry = env[:pry_instance]
           @command = nil
+          super(env)
         end
 
         def options(opt)
