@@ -5,39 +5,43 @@ class Pry
 
     Introspection = Pry::CommandSet.new do
 
-      command "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source", :shellwords => false do |*args|
-        opts, meth = parse_options!(args, :method_object) do |opt|
-          opt.banner unindent <<-USAGE
-            Usage: show-method [OPTIONS] [METH]
-            Show the source for method METH. Tries instance methods first and then methods by default.
-            e.g: show-method hello_method
-          USAGE
+      command_class "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source", :shellwords => false do |*args|
+        banner <<-BANNER
+          Usage: show-method [OPTIONS] [METH]
+          Show the source for method METH. Tries instance methods first and then methods by default.
+          e.g: show-method hello_method
+        BANNER
 
+        def options(opt)
+          method_options(opt)
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        raise CommandError, "Could not find method source" unless meth.source
+        def process
+          meth = method_object
+          raise CommandError, "Could not find method source" unless meth.source
 
-        output.puts make_header(meth)
-        output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
-        output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
-        output.puts
+          output.puts make_header(meth)
+          output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
+          output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
+          output.puts
 
-        if opts.present?(:'base-one')
-          start_line = 1
-        else
-          start_line = meth.source_line || 1
-        end
+          if opts.present?(:'base-one')
+            start_line = 1
+          else
+            start_line = meth.source_line || 1
+          end
 
-        code = Code.from_method(meth, start_line).
-                 with_line_numbers(opts.present?(:b) || opts.present?(:l))
+          code = Code.from_method(meth, start_line).
+                   with_line_numbers(opts.present?(:b) || opts.present?(:l))
 
-        if opts.present?(:flood)
-          output.puts code
-        else
-          stagger_output code
+          if opts.present?(:flood)
+            output.puts code
+          else
+            stagger_output code
+          end
         end
       end
 
@@ -69,7 +73,7 @@ class Pry
         end
 
         if find_command(command_name)
-          block = Pry::Method.new(find_command(command_name).callable)
+          block = Pry::Method.new(find_command(command_name).block)
 
           next unless block.source
           set_file_and_dir_locals(block.source_file)
@@ -193,64 +197,63 @@ class Pry
         end
       end
 
-      command "edit-method", "Edit a method. Type `edit-method --help` for more info.", :shellwords => false do |*args|
-        target = target()
+      command_class "edit-method", "Edit a method. Type `edit-method --help` for more info.", :shellwords => false do |*args|
 
-        opts, meth = parse_options!(args, :method_object) do |opt|
-          opt.banner unindent <<-USAGE
+        def options(opt)
+          opt.banner unindent <<-BANNER
             Usage: edit-method [OPTIONS] [METH]
             Edit the method METH in an editor.
             Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
             e.g: edit-method hello_method
-          USAGE
-
+          BANNER
+          method_options(opt)
           opt.on :n, "no-reload", "Do not automatically reload the method's file after editing."
           opt.on "no-jump", "Do not fast forward editor to first line of method."
           opt.on :p, :patch, "Instead of editing the method's file, try to edit in a tempfile and apply as a monkey patch."
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
-          end
         end
 
-        if !Pry.config.editor
-          raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
-        end
-
-        if opts.present?(:patch) || meth.dynamically_defined?
-          lines = meth.source.lines.to_a
-
-          if ((original_name = meth.original_name) &&
-              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
-            lines[0] = "def #{original_name}#{$'}"
-          else
-            raise CommandError, "Pry can only patch methods created with the `def` keyword."
+        def process
+          meth = method_object
+          if !Pry.config.editor
+            raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
           end
 
-          temp_file do |f|
-            f.puts lines.join
-            f.flush
-            invoke_editor(f.path, 0)
+          if opts.present?(:patch) || meth.dynamically_defined?
+            lines = meth.source.lines.to_a
 
-            if meth.alias?
-              with_method_transaction(original_name, meth.owner) do
-                Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
-                Pry.binding_for(meth.owner).eval("alias #{meth.name} #{original_name}")
-              end
+            if ((original_name = meth.original_name) &&
+                lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
+              lines[0] = "def #{original_name}#{$'}"
             else
-              Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+              raise CommandError, "Pry can only patch methods created with the `def` keyword."
             end
+
+            temp_file do |f|
+              f.puts lines.join
+              f.flush
+              invoke_editor(f.path, 0)
+
+              if meth.alias?
+                with_method_transaction(original_name, meth.owner) do
+                  Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+                  Pry.binding_for(meth.owner).eval("alias #{meth.name} #{original_name}")
+                end
+              else
+                Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
+              end
+            end
+            return
           end
-          next
-        end
 
-        if meth.source_type == :c
-          raise CommandError, "Can't edit a C method."
-        else
-          file, line = meth.source_file, meth.source_line
+          if meth.source_type == :c
+            raise CommandError, "Can't edit a C method."
+          else
+            file, line = meth.source_file, meth.source_line
 
-          invoke_editor(file, opts["no-jump"] ? 0 : line)
-          silence_warnings do
-            load file if !opts.present?(:'no-jump') && !Pry.config.disable_auto_reload
+            invoke_editor(file, opts["no-jump"] ? 0 : line)
+            silence_warnings do
+              load file if !opts.present?(:'no-jump') && !Pry.config.disable_auto_reload
+            end
           end
         end
       end

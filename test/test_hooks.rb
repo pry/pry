@@ -172,4 +172,20 @@ describe Pry::Hooks do
       @hooks.exec_hook(:test_hook).should == 3
     end
   end
+
+  describe "integration tests" do
+    describe "when_started hook" do
+      it 'should yield options to the hook' do
+        options = nil
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_, opt, _| options = opt }
+
+        redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
+          Pry.start binding, :hello => :baby
+        end
+        options[:hello].should == :baby
+
+        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+      end
+    end
+  end
 end

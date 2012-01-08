@@ -3,7 +3,94 @@ class Pry
 
     Ls = Pry::CommandSet.new do
 
-      helpers do
+      command_class "ls","Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
+              :shellwords => false, :interpolate => false do
+
+        def options(opt)
+          opt.banner unindent <<-USAGE
+            Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
+                   ls [-g] [-l]
+
+            ls shows you which methods, constants and variables are accessible to Pry. By default it shows you the local variables defined in the current shell, and any public methods or instance variables defined on the current object.
+
+            The colours used are configurable using Pry.config.ls.*_color, and the separator is Pry.config.ls.separator.
+
+            Pry.config.ls.ceiling is used to hide methods defined higher up in the inheritance chain, this is by default set to [Object, Module, Class] so that methods defined on all Objects are omitted. The -v flag can be used to ignore this setting and show all methods, while the -q can be used to set the ceiling much lower and show only methods defined on the object or its direct class.
+          USAGE
+
+          opt.on :m, "methods", "Show public methods defined on the Object (default)"
+          opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
+
+          opt.on :p, "ppp", "Show public, protected (in yellow) and private (in green) methods"
+          opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class"
+          opt.on :v, "verbose", "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
+
+          opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
+          opt.on :l, "locals", "Show locals, including those provided by Pry (in red)"
+
+          opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple)"
+
+          opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
+
+          opt.on :G, "grep", "Filter output by regular expression", :optional => false
+        end
+
+        def process
+          obj = args.empty? ? target_self : target.eval(args.join(" "))
+
+          # exclude -q, -v and --grep because they don't specify what the user wants to see.
+          has_opts = (opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) ||
+                      opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
+                      opts.present?(:ivars))
+
+          show_methods   = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
+          show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
+          show_ivars     = opts.present?(:ivars) || !has_opts
+          show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
+
+          grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
+
+          raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
+          raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
+          raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
+          raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
+          raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
+
+
+          if opts.present?(:globals)
+            output_section("global variables", grep[format_globals(target.eval("global_variables"))])
+          end
+
+          if show_constants
+            mod = Module === obj ? obj : Object
+            constants = mod.constants
+            constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
+            output_section("constants", grep[format_constants(mod, constants)])
+          end
+
+          if show_methods
+            # methods is a hash {Module/Class => [Pry::Methods]}
+            methods = all_methods(obj).select{ |method| opts.present?(:ppp) || method.visibility == :public }.group_by(&:owner)
+
+            # reverse the resolution order so that the most useful information appears right by the prompt
+            resolution_order(obj).take_while(&below_ceiling(obj)).reverse.each do |klass|
+              methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
+              output_section "#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here
+            end
+          end
+
+          if show_ivars
+            klass = (Module === obj ? obj : obj.class)
+            output_section("instance variables", format_variables(:instance_var, grep[obj.__send__(:instance_variables)]))
+            output_section("class variables", format_variables(:class_var, grep[klass.__send__(:class_variables)]))
+          end
+
+          if show_locals
+            output_section("locals", format_locals(grep[target.eval("local_variables")]))
+          end
+        end
+
+        private
 
         # http://ruby.runpaint.org/globals, and running "puts global_variables.inspect".
         BUILTIN_GLOBALS = %w($" $$ $* $, $-0 $-F $-I $-K $-W $-a $-d $-i $-l $-p $-v $-w $. $/ $\\
@@ -20,17 +107,17 @@ class Pry
                            $LAST_PAREN_MATCH $LAST_READ_LINE $MATCH $POSTMATCH $PREMATCH)
 
         # Get all the methods that we'll want to output
-        def all_methods(obj, opts)
+        def all_methods(obj)
           opts.present?(:'instance-methods') ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
         end
 
-        def resolution_order(obj, opts)
+        def resolution_order(obj)
           opts.present?(:'instance-methods') ? Pry::Method.instance_resolution_order(obj) : Pry::Method.resolution_order(obj)
         end
 
         # Get a lambda that can be used with .take_while to prevent over-eager
         # traversal of the Object's ancestry graph.
-        def below_ceiling(obj, opts)
+        def below_ceiling(obj)
           ceiling = if opts.present?(:quiet)
                        [opts.present?(:'instance-methods') ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
                      elsif opts.present?(:verbose)
@@ -106,96 +193,6 @@ class Pry
         # Color output based on config.ls.*_color
         def color(type, str)
           text.send(Pry.config.ls.send(:"#{type}_color"), str)
-        end
-      end
-
-      command "ls", "Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
-              :shellwords => false, :interpolate => false do |*args|
-
-        opts = Slop.parse!(args, :strict => true) do |opt|
-          opt.banner unindent <<-USAGE
-            Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
-                   ls [-g] [-l]
-
-            ls shows you which methods, constants and variables are accessible to Pry. By default it shows you the local variables defined in the current shell, and any public methods or instance variables defined on the current object.
-
-            The colours used are configurable using Pry.config.ls.*_color, and the separator is Pry.config.ls.separator.
-
-            Pry.config.ls.ceiling is used to hide methods defined higher up in the inheritance chain, this is by default set to [Object, Module, Class] so that methods defined on all Objects are omitted. The -v flag can be used to ignore this setting and show all methods, while the -q can be used to set the ceiling much lower and show only methods defined on the object or its direct class.
-          USAGE
-
-          opt.on :m, "methods", "Show public methods defined on the Object (default)"
-          opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
-
-          opt.on :p, "ppp", "Show public, protected (in yellow) and private (in green) methods"
-          opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class"
-          opt.on :v, "verbose", "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
-
-          opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
-          opt.on :l, "locals", "Show locals, including those provided by Pry (in red)"
-
-          opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple)"
-
-          opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
-
-          opt.on :G, "grep", "Filter output by regular expression", :optional => false
-
-          opt.on :h, "help", "Show help"
-        end
-
-        next output.puts(opts.to_s) if opts.present?(:help)
-
-        obj = args.empty? ? target_self : target.eval(args.join(" "))
-
-        # exclude -q, -v and --grep because they don't specify what the user wants to see.
-        has_opts = (opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) ||
-                    opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
-                    opts.present?(:ivars))
-
-        show_methods   = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
-        show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
-        show_ivars     = opts.present?(:ivars) || !has_opts
-        show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
-
-        grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
-
-        raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
-        raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
-        raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
-        raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
-        raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
-
-
-        if opts.present?(:globals)
-          output_section("global variables", grep[format_globals(target.eval("global_variables"))])
-        end
-
-        if show_constants
-          mod = Module === obj ? obj : Object
-          constants = mod.constants
-          constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
-          output_section("constants", grep[format_constants(mod, constants)])
-        end
-
-        if show_methods
-          # methods is a hash {Module/Class => [Pry::Methods]}
-          methods = all_methods(obj, opts).select{ |method| opts.present?(:ppp) || method.visibility == :public }.group_by(&:owner)
-
-          # reverse the resolution order so that the most useful information appears right by the prompt
-          resolution_order(obj, opts).take_while(&below_ceiling(obj, opts)).reverse.each do |klass|
-            methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
-            output_section "#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here
-          end
-        end
-
-        if show_ivars
-          klass = (Module === obj ? obj : obj.class)
-          output_section("instance variables", format_variables(:instance_var, grep[obj.__send__(:instance_variables)]))
-          output_section("class variables", format_variables(:class_var, grep[klass.__send__(:class_variables)]))
-        end
-
-        if show_locals
-          output_section("locals", format_locals(grep[target.eval("local_variables")]))
         end
       end
     end

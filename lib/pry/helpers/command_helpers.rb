@@ -8,11 +8,11 @@ class Pry
 
       # Open a temp file and yield it to the block, closing it after
       # @return [String] The path of the temp file
-      def temp_file
+      def temp_file opts = { :unlink => true }
         file = Tempfile.new(['pry', '.rb'])
         yield file
       ensure
-        file.close(true)
+        file.close(opts[:unlink])
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)

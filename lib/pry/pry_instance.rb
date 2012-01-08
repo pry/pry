@@ -1,4 +1,3 @@
-require "pry/command_processor.rb"
 require "pry/indent"
 
 class Pry
@@ -37,7 +36,6 @@ class Pry
   def initialize(options={})
     refresh(options)
 
-    @command_processor = CommandProcessor.new(self)
     @binding_stack     = []
     @indent            = Pry::Indent.new
   end
@@ -59,7 +57,7 @@ class Pry
     end
 
     defaults.merge!(options).each do |key, value|
-      send "#{key}=", value
+      send("#{key}=", value) if respond_to?("#{key}=")
     end
 
     true
@@ -353,7 +351,12 @@ class Pry
   # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command(val, eval_string, target)
-    result = @command_processor.process_commands(val, eval_string, target)
+    result = commands.process_line(val, {
+      :target => target,
+      :output => output,
+      :eval_string => eval_string,
+      :pry_instance => self
+    })
 
     # set a temporary (just so we can inject the value we want into eval_string)
     Thread.current[:__pry_cmd_result__] = result
@@ -378,12 +381,17 @@ class Pry
   # @param [String] val The command (and its params) to execute.
   # @param [String] eval_string The current input buffer.
   # @param [Binding] target The binding to use..
-  # @return [Pry::CommandContext::VOID_VALUE]
+  # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
   def run_command(val, eval_string = "", target = binding_stack.last)
-    @command_processor.process_commands(val, eval_string, target)
-    Pry::CommandContext::VOID_VALUE
+    commands.process_line(val,
+      :eval_string => eval_string,
+      :target => target,
+      :pry_instance => self,
+      :output => output
+    )
+    Pry::Command::VOID_VALUE
   end
 
   # Set the last result of an eval.
@@ -558,7 +566,7 @@ class Pry
     end
 
     # Assert that a line which ends with a , or a \ is incomplete.
-    str !~ /[,\\]$/
+    str !~ /[,\\]\z/
   rescue SyntaxError => e
     if incomplete_user_input_exception?(e)
       false
