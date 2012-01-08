@@ -28,67 +28,93 @@ class Pry
           _pry_.instance_eval(&Pry::FILE_COMPLETIONS)
         end
       end
-
       alias_command "file-mode", "shell-mode"
 
-      command "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do |*args|
-        start_line = 0
-        end_line = -1
-        file_name = nil
-        bt_index = 0
+      command_class "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do
+        banner <<-USAGE
+          Usage: cat FILE
+                 cat --ex [STACK_INDEX]
+                 cat --in [INPUT_INDEX_OR_RANGE]
 
-        opts = Slop.parse!(args) do |opt|
-          opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
-            start_line = line - 1
-          end
+          cat is capable of showing part or all of a source file, the context of the
+          last exception, or an expression from Pry's input history.
 
-          opt.on :e, :end, "End line (defaults to end of file). Line -1 is the last line", true, :as => Integer do |line|
-            end_line = line - 1
-          end
+          cat --ex defaults to showing the lines surrounding the location of the last
+          exception. Invoking it more than once travels up the exception's backtrace,
+          and providing a number shows the context of the given index of the backtrace.
+        USAGE
 
-          opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_arg|
-            window_size = Pry.config.exception_window_size || 5
-            ex = _pry_.last_exception
-            next if !ex
-            if bt_index_arg
-              bt_index = bt_index_arg
-            else
-              bt_index = ex.bt_index
-            end
-            ex.bt_index = (bt_index + 1) % ex.backtrace.size
+        def options(opt)
+          opt.on :ex,        "Show the context of the last exception.", :optional => true, :as => Integer
+          opt.on :i, :in,    "Show one or more entries from Pry's expression history.", :optional => true, :as => Range, :default => -5..-1
 
-            ex_file, ex_line = ex.bt_source_location_for(bt_index)
-            start_line = (ex_line - 1) - window_size
-            start_line = start_line < 0 ? 0 : start_line
-            end_line = (ex_line - 1) + window_size
-            if ex_file && RbxPath.is_core_path?(ex_file)
-              file_name = RbxPath.convert_path_to_full(ex_file)
-            else
-              file_name = ex_file
-            end
-          end
+          opt.on :s, :start, "Starting line (defaults to the first line).", :optional => true, :as => Integer
+          opt.on :e, :end,   "Ending line (defaults to the last line).", :optional => true, :as => Integer
+          opt.on :l, :'line-numbers', "Show line numbers."
+          opt.on :t, :type,  "The file type for syntax highlighting (e.g., 'ruby' or 'python').", true, :as => Symbol
 
-          opt.on :i, :in, "Show entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1
-
-          opt.on :l, "line-numbers", "Show line numbers."
-          opt.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
+        end
+
+        def process
+          handler = case
+            when opts.present?(:ex)
+              method :process_ex
+            when opts.present?(:in)
+              method :process_in
+            else
+              method :process_file
+            end
+
+          handler.call do |code|
+            code.code_type = opts[:type] || :ruby
+
+            code.
+              between(opts[:start] || 1, opts[:end] || -1).
+              with_line_numbers(opts.present?(:'line-numbers') || opts.present?(:ex))
           end
         end
 
-        next if opts.present?(:help)
+        def process_ex
+          window_size = Pry.config.exception_window_size || 5
+          ex = _pry_.last_exception
 
-        if opts.present?(:ex)
-          if file_name.nil?
-            raise CommandError, "No Exception or Exception has no associated file."
+          raise CommandError, "No exception found." unless ex
+
+          if opts[:ex].nil?
+            bt_index = ex.bt_index
+            ex.inc_bt_index
+          else
+            bt_index = opts[:ex]
           end
-        else
-          file_name = args.shift
+
+          ex_file, ex_line = ex.bt_source_location_for(bt_index)
+
+          raise CommandError, "The given backtrace level is out of bounds." unless ex_file
+
+          if RbxPath.is_core_path?(ex_file)
+            ex_file = RbxPath.convert_path_to_full(ex_file)
+          end
+
+          start_line = ex_line - window_size
+          start_line = 1 if start_line < 1
+          end_line = ex_line + window_size
+
+          header = unindent <<-HEADER
+            #{text.bold 'Exception:'} #{ex.class}: #{ex.message}
+            --
+            #{text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold("level: #{bt_index}")} of backtrace (of #{ex.backtrace.size - 1}).
+
+          HEADER
+
+          code = yield(Pry::Code.from_file(ex_file).
+                         between(start_line, end_line).
+                         with_marker(ex_line))
+
+          render_output("#{header}#{code}", opts)
         end
 
-        if opts.present?(:in)
+        def process_in
           normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
           input_items = _pry_.input_array[normalized_range] || []
 
@@ -98,66 +124,30 @@ class Pry
             raise CommandError, "No expressions found."
           end
 
-          if opts[:i].is_a?(Range)
+          if zipped_items.length > 1
             contents = ""
-
             zipped_items.each do |i, s|
               contents << "#{text.bold(i.to_s)}:\n"
-
-              code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
-
-              if opts.present?(:'line-numbers')
-                contents << text.indent(text.with_line_numbers(code, 1), 2)
-              else
-                contents << text.indent(code, 2)
-              end
+              contents << yield(Pry::Code(s).with_indentation(2)).to_s
             end
           else
-            contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
+            contents = yield(Pry::Code(zipped_items.first.last))
           end
-        else
+
+          render_output(contents, opts)
+        end
+
+        def process_file
+          file_name = args.shift
+
           unless file_name
-            raise CommandError, "Must provide a file name."
+            raise CommandError, "Must provide a filename, --in, or --ex."
           end
 
-          begin
-            contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
-          rescue Errno::ENOENT
-            raise CommandError, "Could not find file: #{file_name}"
-          end
+          code = yield(Pry::Code.from_file(file_name))
 
-          contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
-
-          if opts.present?(:'line-numbers')
-            contents = text.with_line_numbers contents, start_line + 1
-          end
-        end
-
-        # add the arrow pointing to line that caused the exception
-        if opts.present?(:ex)
-          ex_file, ex_line = _pry_.last_exception.bt_source_location_for(bt_index)
-          contents = text.with_line_numbers contents, start_line + 1, :bright_red
-
-          contents = contents.lines.each_with_index.map do |line, idx|
-            l = idx + start_line
-            if l == (ex_line - 1)
-              " =>#{line}"
-            else
-              "   #{line}"
-            end
-          end.join
-
-          # header for exceptions
-          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
-          output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{bt_index} of backtrace (of #{_pry_.last_exception.backtrace.size - 1}).\n\n"
-        end
-
-        set_file_and_dir_locals(file_name)
-
-        if opts.present?(:flood)
-          output.puts contents
-        else
-          stagger_output(contents)
+          set_file_and_dir_locals(file_name)
+          render_output(code, opts)
         end
       end
     end

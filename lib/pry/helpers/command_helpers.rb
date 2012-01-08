@@ -15,6 +15,14 @@ class Pry
         file.close(opts[:unlink])
       end
 
+      def render_output(str, opts={})
+        if opts[:flood]
+          output.puts str
+        else
+          stagger_output str
+        end
+      end
+
       def get_method_or_raise(name, target, opts={}, omit_help=false)
         meth = Pry::Method.from_str(name, target, opts)
 
