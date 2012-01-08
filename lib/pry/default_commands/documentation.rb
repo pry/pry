@@ -97,18 +97,24 @@ USAGE
           opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
           opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
           :as => Range, :default => -5..-1 do |range|
+            self.input_ranges ||= []
             input_ranges << absolute_index_range(range, _pry_.input_array.length)
           end
         end
 
         def process
+          self.content = ""
+
           if opts.present?(:in)
             in_option
-          elsif opts.present?(:file)
+          end
+          if opts.present?(:file)
             file_option
-          elsif opts.present?(:doc)
+          end
+          if opts.present?(:doc)
             doc_option
-          elsif opts.present?(:method)
+          end
+          if opts.present?(:method)
             method_option
           end
 
@@ -117,7 +123,6 @@ USAGE
 
         def in_option
           self.code_type = :ruby
-          self.content = ""
 
           input_ranges.each do |range|
             input_expressions = _pry_.input_array[range] || []
@@ -136,19 +141,19 @@ USAGE
         def file_option
           whole_file = File.read(File.expand_path(opts[:f]))
           if opts.present?(:lines)
-            self.content = restrict_to_lines(whole_file, opts[:l])
+            self.content << restrict_to_lines(whole_file, opts[:l])
           else
-            self.content = whole_file
+            self.content << whole_file
           end
         end
 
         def doc_option
           meth = get_method_or_raise(opts[:d], target, {})
-          self.content = meth.doc
+          self.content << meth.doc
           self.code_type = meth.source_type
 
           text.no_color do
-            self.content = process_comment_markup(self.content, self.code_type)
+            self.content << process_comment_markup(self.content, self.code_type)
           end
           self.code_type = :plain
         end
@@ -157,9 +162,9 @@ USAGE
           meth = get_method_or_raise(opts[:m], target, {})
           method_source = meth.source
           if opts.present?(:lines)
-            self.content = restrict_to_lines(method_source, opts[:l])
+            self.content << restrict_to_lines(method_source, opts[:l])
           else
-            self.content = method_source
+            self.content << method_source
           end
 
           self.code_type = meth.source_type
