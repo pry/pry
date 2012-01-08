@@ -37,11 +37,7 @@ class Pry
           code = Code.from_method(meth, start_line).
                    with_line_numbers(opts.present?(:b) || opts.present?(:l))
 
-          if opts.present?(:flood)
-            output.puts code
-          else
-            stagger_output code
-          end
+          render_output(code, opts)
         end
       end
 
@@ -83,11 +79,7 @@ class Pry
 
           code = Code.from_method(block).with_line_numbers(opts.present?(:'line-numbers'))
 
-          if opts.present?(:flood)
-            output.puts code
-          else
-            stagger_output code
-          end
+          render_output(code, opts)
         else
           raise CommandError, "No such command: #{command_name}."
         end
