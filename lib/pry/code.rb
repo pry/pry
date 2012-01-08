@@ -83,17 +83,19 @@ class Pry
       select { |l, ln| ln >= line_num - lines && ln < line_num }
     end
 
-    def between(start_line, end_line)
-      return self unless start_line && end_line
+    def between(start_line, end_line=nil)
+      return self unless start_line
 
-      case start_line
-      when Range
-        range = start_line
+      if start_line.is_a? Range
+        end_line   = start_line.last
+        start_line = start_line.first
       else
-        start_line -= 1 unless start_line < 1
-        end_line   -= 1 unless end_line   < 1
-        range = start_line..end_line
+        end_line ||= start_line
       end
+
+      start_line -= 1 unless start_line < 1
+      end_line   -= 1 unless end_line   < 1
+      range = start_line..end_line
 
       dup.instance_eval do
         @lines = @lines[range] || []

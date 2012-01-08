@@ -116,174 +116,106 @@ class Pry
         run "show-input" if !_pry_.complete_expression?(eval_string)
       end
 
-      command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
-        # exclude the current command from history.
-        history = Pry.history.to_a[0..-2]
+      command_class "hist", "Show and replay Readline history. Aliases: history" do
+        banner <<-USAGE
+          Usage: hist
+                 hist --head N
+                 hist --tail N
+                 hist --show START..END
+                 hist --grep PATTERN
+                 hist --clear
+                 hist --replay START..END
+                 hist --save [START..END] FILE
+        USAGE
 
-        opts = Slop.parse!(args) do |opt|
-          opt.banner "Usage: hist [--replay START..END] [--clear] [--grep PATTERN] [--head N] [--tail N] [--help] [--save [START..END] file.txt]\n"
+        def options(opt)
+          opt.on :h, :head, "Display the first N items.", :optional => true, :as => Integer
+          opt.on :t, :tail, "Display the last N items.", :optional => true, :as => Integer
+          opt.on :s, :show, "Show the given range of lines.", :optional => true, :as => Range
+          opt.on :g, :grep, "Show lines matching the given pattern.", true, :as => String
+          opt.on :c, :clear, "Clear the current session's history."
+          opt.on :r, :replay, "Replay a line or range of lines.", true, :as => Range
+          opt.on     :save, "Save history to a file.", true, :as => Range
 
-          opt.on :n, 'no-numbers', 'Omit line numbers.'
-
-          opt.on :g, :grep, 'A pattern to match against the history.', true
-
-          opt.on :head, 'Display the first N items of history.',
-                 :optional => true,
-                 :as       => Integer
-
-          opt.on :t, :tail, 'Display the last N items of history.',
-                 :optional => true,
-                 :as       => Integer
-
-          opt.on :s, :show, 'Show the history corresponding to the history line (or range of lines).',
-                 :optional => true,
-                 :as       => Range
-
-          opt.on :e, :exclude, 'Exclude pry commands from the history.'
-
-          opt.on :r, :replay, 'The line (or range of lines) to replay.', true,
-                 :as => Range
-
-          opt.on "save", "Save history to a file. --save [start..end] output.txt. Pry commands are excluded from saved history.", true,
-                 :as => Range
-
-          opt.on :c, :clear, 'Clear the history.', :unless => :grep
-
-          opt.on :h, :help, 'Show this message.', :tail => true, :unless => :grep do
-            output.puts opt.help
-          end
+          opt.on :e, :'exclude-pry', "Exclude Pry commands from the history."
+          opt.on :n, :'no-numbers', "Omit line numbers."
+          opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
-        next if opts.present?(:help)
 
-        if opts.present?(:grep)
-          pattern = Regexp.new(arg_string.strip.split(/ /, 2).last.strip)
-          history.pop
+        def process
+          @history = Pry::Code(Pry.history.to_a[0..-2])
 
-          history.map!.with_index do |element, index|
-            if element =~ pattern
-              if opts.present?(:"no-numbers")
-                element
-              else
-                "#{text.blue index}: #{element}"
-              end
+          if opts.present?(:e)
+            @history = @history.select do |l, ln|
+              !command_set.valid_command?(l)
             end
           end
 
-          stagger_output history.compact.join "\n"
-          next
-        end
-
-        if opts.present?(:head)
-          limit = opts['head'] || 10
-          list  = history.first limit
-          lines = list.join("\n")
-          if opts.present?(:"no-numbers")
-            stagger_output lines
+          if opts.present?(:save)
+            process_save
+          elsif opts.present?(:clear)
+            process_clear
+          elsif opts.present?(:replay)
+            process_replay
           else
-            stagger_output text.with_line_numbers(lines, 0)
+            process_display
           end
-          next
         end
 
-        if opts.present?(:tail)
-          limit = opts['tail'] || 10
-          offset = history.size - limit
-          offset = offset < 0 ? 0 : offset
-
-          list  = history.last limit
-          lines = list.join("\n")
-          if opts.present?(:'no-numbers')
-            stagger_output lines
-          else
-            stagger_output text.with_line_numbers(lines, offset)
-          end
-          next
-        end
-
-        if opts.present?(:show)
-          range = opts['show']
-          start_line = range.is_a?(Range) ? range.first : range
-          lines = Array(history[range]).join("\n")
-          if opts.present?(:'no-numbers')
-            stagger_output lines
-          else
-            stagger_output text.with_line_numbers(lines, start_line)
-          end
-          next
-        end
-
-        if opts.present?(:exclude)
-          history.map!.with_index do |element, index|
-            unless command_set.valid_command? element
-              if opts.present?(:'no-numbers')
-                element
-              else
-                "#{text.blue index}: #{element}"
-              end
+        def process_display
+          @history = case
+            when opts.present?(:head)
+              @history.between(1, opts[:head] || 10)
+            when opts.present?(:tail)
+              @history.between(-(opts[:tail] || 10), -1)
+            when opts.present?(:show)
+              @history.between(opts[:show])
+            when opts.present?(:grep)
+              @history.grep(Regexp.new(opts[:grep]))
+            else
+              @history
             end
-          end
-          stagger_output history.compact.join "\n"
-          next
+
+          @history = @history.with_line_numbers(!opts.present?(:'no-numbers'))
+
+          render_output(@history, opts)
         end
 
-        if opts.present?(:replay)
-          range = opts['replay']
-          actions = Array(history[range]).join("\n") + "\n"
-          _pry_.input_stack << _pry_.input
-          _pry_.input = StringIO.new(actions)
-          next
-        end
-
-        if opts.present?(:clear)
-          Pry.history.clear
-          output.puts 'History cleared.'
-          next
-        end
-
-        # FIXME: hack to save history (this must be refactored)
-        if opts["save"]
-          file_name = nil
-          hist_array = nil
-
-          case opts["save"]
+        def process_save
+          case opts[:save]
           when Range
-            hist_array = Array(history[opts["save"]])
+            @history = @history.between(opts[:save])
 
-            if !args.first
+            unless args.first
               raise CommandError, "Must provide a file name."
             end
 
             file_name = File.expand_path(args.first)
           when String
-            hist_array = history
-            file_name =  File.expand_path(opts["save"])
+            file_name = File.expand_path(opts[:save])
           end
 
-          output.puts "Saving history in #{file_name} ..."
-          # exclude pry commands
-          hist_array.reject! do |element|
-            command_set.valid_command?(element)
-          end
+          output.puts "Saving history in #{file_name}..."
 
-          File.open(file_name, 'w') do |f|
-            f.write hist_array.join("\n")
-          end
+          File.open(file_name, 'w') { |f| f.write(@history.to_s) }
 
-          output.puts "... history saved."
-          next
+          output.puts "History saved."
         end
 
-        lines = history.join("\n")
-        if opts.present?(:'no-numbers')
-          stagger_output lines
-        else
-          stagger_output text.with_line_numbers(lines, 0)
+        def process_clear
+          Pry.history.clear
+          output.puts "History cleared."
+        end
+
+        def process_replay
+          @history = @history.between(opts[:r])
+          _pry_.input_stack << _pry_.input
+          _pry_.input = StringIO.new(@history.to_s)
         end
       end
 
       alias_command "history", "hist"
 
     end
-
   end
 end
