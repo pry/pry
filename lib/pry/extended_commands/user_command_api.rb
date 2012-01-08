@@ -19,24 +19,29 @@ class Pry
 
       end
 
-      command "reload-command", "Reload a command. reload-command CMD_NAME CMD_SET" do |command_name, set_name|
-        if command_name.nil?
-          raise CommandError, "Must provide command name"
-        end
+      command_class "reload-command", "Reload a Pry command." do
+        banner <<-BANNER
+          Usage: reload-command command
+          Reload a Pry command.
+        BANNER
 
-        if set_name.nil?
-          raise CommandError, "Must provide command set name"
-        end
+        def process
+          command = _pry_.commands.find_command(args.first)
 
-        cmd = Pry.config.commands.commands[command_name]
-        file_name = cmd.block.source_location.first
+          if command.nil?
+            raise Pry::CommandError, 'No command found.'
+          end
 
-        silence_warnings do
-          load file_name
+          source_code = command.block.source
+          file, lineno = command.block.source_location
+
+          set = Pry::CommandSet.new do
+            eval(source_code, binding, file, lineno)
+          end
+
+          _pry_.commands.delete(command.name)
+          _pry_.commands.import(set)
         end
-        Pry.config.commands.import target.eval(set_name)
-        _pry_.commands.import target.eval(set_name)
-        set_file_and_dir_locals(file_name)
       end
 
       command_class "edit-command", "Edit a Pry command." do
