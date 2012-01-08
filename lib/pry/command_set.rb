@@ -97,7 +97,7 @@ class Pry
     # @param &Block  The class body's definition.
     #
     # @example
-    #   Pry::Commands.command_class "echo", "echo's the input", :shellwords => false do
+    #   Pry::Commands.create_command "echo", "echo's the input", :shellwords => false do
     #     def options(opt)
     #       opt.banner "Usage: echo [-u | -d] <string to echo>"
     #       opt.on :u, :upcase, "ensure the output is all upper-case"
@@ -113,14 +113,14 @@ class Pry
     #     end
     #   end
     #
-    def new_command(name, description="No description.", options={}, &block)
+    def create_command(name, description="No description.", options={}, &block)
       options = default_options(name).merge!(options)
 
       commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module, &block)
       commands[name].class_eval(&block)
       commands[name]
     end
-    alias_method :command_class, :new_command
+    alias_method :command_class, :create_command
 
     # Execute a block of code before a command is invoked. The block also
     # gets access to parameters that will be passed to the command and
