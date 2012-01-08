@@ -5,7 +5,7 @@ describe "Pry::DefaultCommands::Shell" do
 
     describe "on receiving a file that does not exist" do
       it 'should display an error message' do
-        mock_pry("cat supercalifragilicious66").should =~ /Could not find file/
+        mock_pry("cat supercalifragilicious66").should =~ /Cannot open/
       end
     end
 
@@ -65,7 +65,7 @@ describe "Pry::DefaultCommands::Shell" do
         temp_file do |f|
           f << "bt number 1"
           f.flush
-          pry_instance.last_exception = MockPryException.new("#{f.path}:1", "x", "x")
+          pry_instance.last_exception = mock_exception("#{f.path}:1", "x", "x")
           pry_instance.rep(self)
         end
 
@@ -78,7 +78,7 @@ describe "Pry::DefaultCommands::Shell" do
         temp_file do |f|
           f << "bt number 1"
           f.flush
-          pry_instance.last_exception = MockPryException.new("#{f.path}:1", "x", "x")
+          pry_instance.last_exception = mock_exception("#{f.path}:1", "x", "x")
           pry_instance.rep(self)
         end
 
@@ -91,31 +91,31 @@ describe "Pry::DefaultCommands::Shell" do
         temp_file do |f|
           f << "bt number 2"
           f.flush
-          pry_instance.last_exception = MockPryException.new("x", "#{f.path}:1", "x")
+          pry_instance.last_exception = mock_exception("x", "#{f.path}:1", "x")
           pry_instance.rep(self)
         end
 
         str_output.string.should =~ /bt number 2/
       end
 
-      it 'should cat third level of backtrace when --ex 2 used ' do
+      it 'should cat third level of backtrace when --ex 2 used' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex 2"), :output => str_output = StringIO.new)
 
         temp_file do |f|
           f << "bt number 3"
           f.flush
-          pry_instance.last_exception = MockPryException.new("x", "x", "#{f.path}:1")
+          pry_instance.last_exception = mock_exception("x", "x", "#{f.path}:1")
           pry_instance.rep(self)
         end
 
         str_output.string.should =~ /bt number 3/
       end
 
-      it 'should show error when backtrace level out of bounds  ' do
+      it 'should show error when backtrace level out of bounds' do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex 3"), :output => str_output = StringIO.new)
-        pry_instance.last_exception = MockPryException.new("x", "x", "x")
+        pry_instance.last_exception = mock_exception("x", "x", "x")
         pry_instance.rep(self)
-        str_output.string.should =~ /No Exception or Exception has no associated file/
+        str_output.string.should =~ /out of bounds/
       end
 
       it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
@@ -129,7 +129,7 @@ describe "Pry::DefaultCommands::Shell" do
         pry_instance = Pry.new(:input => StringIO.new("cat --ex\n" * 4),
                                :output => (str_output = StringIO.new))
 
-        pry_instance.last_exception = MockPryException.new(*temp_files.map { |f| "#{f.path}:1" })
+        pry_instance.last_exception = mock_exception(*temp_files.map { |f| "#{f.path}:1" })
 
         3.times do |i|
           pry_instance.rep(self)

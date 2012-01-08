@@ -1,4 +1,17 @@
 class Pry
+  class << self
+    def Code(obj)
+      case obj
+      when Code
+        obj
+      when ::Method, Pry::Method, UnboundMethod, Proc
+        Code.from_method(obj)
+      else
+        Code.new(obj)
+      end
+    end
+  end
+
   class Code
     class << self
       # Instantiate a `Code` object containing code loaded from a file or
@@ -13,7 +26,7 @@ class Pry
           if File.readable?(fn)
             f = File.open(fn, 'r')
           else
-            raise CommandError, "Cannot open #{file.inspect} for reading."
+            raise CommandError, "Cannot open #{fn.inspect} for reading."
           end
         end
         new(f, 1, code_type)
@@ -33,6 +46,8 @@ class Pry
         new(meth.source, start_line, meth.source_type)
       end
     end
+
+    attr_accessor :code_type
 
     # @param [Array<String>] lines
     # @param [Fixnum?] (1) start_line
@@ -57,6 +72,8 @@ class Pry
     alias << push
 
     def before(line_num, lines=1)
+      return self unless line_num
+
       dup.instance_eval do
         @lines = @lines.select { |l, ln| ln >= line_num - lines && ln < line_num }
         self
@@ -64,13 +81,19 @@ class Pry
     end
 
     def between(start_line, end_line)
+      return self unless start_line && end_line
+      start_line -= 1 unless start_line < 0
+      end_line   -= 1 unless end_line   < 0
+
       dup.instance_eval do
-        @lines = @lines[(start_line + 1)..(end_line + 1)]
+        @lines = @lines[start_line..end_line] || []
         self
       end
     end
 
     def around(line_num, lines=1)
+      return self unless line_num
+
       dup.instance_eval do
         @lines = @lines.select { |l, ln| ln >= line_num - lines && ln <= line_num + lines }
         self
@@ -78,6 +101,8 @@ class Pry
     end
 
     def after(line_num, lines=1)
+      return self unless line_num
+
       dup.instance_eval do
         @lines = @lines.select { |l, ln| ln > line_num && ln <= line_num + lines }
         self
@@ -97,6 +122,14 @@ class Pry
       dup.instance_eval do
         @with_marker     = !!line_num
         @marker_line_num = line_num
+        self
+      end
+    end
+
+    def with_indentation(spaces=0)
+      dup.instance_eval do
+        @with_indentation = !!spaces
+        @indentation_num  = spaces
         self
       end
     end
@@ -134,7 +167,13 @@ class Pry
         end
       end
 
-      lines.map(&:first).join("\n")
+      if @with_indentation
+        lines.each do |l|
+          l[0] = "#{' ' * @indentation_num}#{l[0]}"
+        end
+      end
+
+      lines.map { |l| "#{l.first}\n" }.join
     end
 
     def method_missing(name, *args, &blk)

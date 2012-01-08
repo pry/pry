@@ -15,9 +15,10 @@ class Pry
   attr_accessor :binding_stack
 
   attr_accessor :last_result
-  attr_accessor :last_exception
   attr_accessor :last_file
   attr_accessor :last_dir
+
+  attr_reader :last_exception
 
   attr_reader :input_array
   attr_reader :output_array
@@ -228,7 +229,8 @@ class Pry
     result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
     result
   rescue RescuableException => e
-    result = set_last_exception(e, target)
+    self.last_exception = e
+    e
   ensure
     update_input_history(code)
     hooks.exec_hook :after_eval, result, self
@@ -406,15 +408,17 @@ class Pry
   end
 
   # Set the last exception for a session.
-  # This method should not need to be invoked directly.
-  # @param [Exception] ex The exception.
-  # @param [Binding] target The binding to set `_ex_` on.
-  def set_last_exception(ex, target)
+  # @param [Exception] ex
+  def last_exception=(ex)
     class << ex
       attr_accessor :file, :line, :bt_index
       def bt_source_location_for(index)
         backtrace[index] =~ /(.*):(\d+)/
         [$1, $2.to_i]
+      end
+
+      def inc_bt_index
+        @bt_index = (@bt_index + 1) % backtrace.size
       end
     end
 
@@ -423,8 +427,7 @@ class Pry
 
     @last_result_is_exception = true
     @output_array << ex
-
-    self.last_exception = ex
+    @last_exception = ex
   end
 
   # Update Pry's internal state after evalling code.

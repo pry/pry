@@ -30,23 +30,12 @@ class << Pry
   end
 end
 
-class MockPryException
-  attr_accessor :bt_index
-  attr_accessor :backtrace
-
-  def initialize(*backtrace)
-    @backtrace = backtrace
-    @bt_index = 0
+def mock_exception(*mock_backtrace)
+  e = StandardError.new("mock exception")
+  (class << e; self; end).class_eval do
+    define_method(:backtrace) { mock_backtrace }
   end
-
-  def message
-    "mock exception"
-  end
-
-  def bt_source_location_for(index)
-    backtrace[index] =~ /(.*):(\d+)/
-    [$1, $2.to_i]
-  end
+  e
 end
 
 Pry.reset_defaults
