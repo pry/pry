@@ -214,7 +214,7 @@ class Pry
 
         if opts.present?(:exclude)
           history.map!.with_index do |element, index|
-            unless command_processor.valid_command? element
+            unless command_set.valid_command? element
               if opts.present?(:'no-numbers')
                 element
               else
@@ -262,7 +262,7 @@ class Pry
           output.puts "Saving history in #{file_name} ..."
           # exclude pry commands
           hist_array.reject! do |element|
-            command_processor.valid_command?(element)
+            command_set.valid_command?(element)
           end
 
           File.open(file_name, 'w') do |f|

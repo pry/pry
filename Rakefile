@@ -21,7 +21,7 @@ def apply_spec_defaults(s)
   s.test_files = `git ls-files -- test/*`.split("\n")
   s.add_dependency('coderay', '~> 1.0.5')
   s.add_dependency('slop', ['>= 2.4.1', '< 3'])
-  s.add_dependency('method_source','~> 0.6')
+  s.add_dependency('method_source','~> 0.7')
   s.add_development_dependency('bacon', '~> 1.1')
   s.add_development_dependency('open4', '~> 1.3')
   s.add_development_dependency('rake', '~> 0.9')
@@ -29,8 +29,6 @@ end
 
 def check_dependencies
   require 'bundler'
-
-  ENV["BUNDLE_GEMFILE"] = File.expand_path("../Gemfile", __FILE__)
   Bundler.definition.missing_specs
 
   eval('nil', TOPLEVEL_BINDING, '<main>') # workaround for issue #395

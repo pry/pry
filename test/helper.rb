@@ -98,6 +98,12 @@ def mock_pry(*args)
   output.string
 end
 
+def mock_command(cmd, args=[], opts={})
+  output = StringIO.new
+  ret = cmd.new(opts.merge(:output => output)).call_safely(*args)
+  Struct.new(:output, :return).new(output.string, ret)
+end
+
 def redirect_global_pry_input(new_io)
   old_io = Pry.input
     Pry.input = new_io

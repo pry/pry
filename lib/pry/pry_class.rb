@@ -116,7 +116,12 @@ class Pry
     pry_instance.backtrace = caller.tap(&:shift)
 
     # yield the binding_stack to the hook for modification
-    Pry.config.hooks.exec_hook(:when_started, binding_stack = [target], pry_instance)
+    Pry.config.hooks.exec_hook(
+      :when_started,
+      binding_stack = [target],
+      options,
+      pry_instance
+    )
 
     head, *tail = binding_stack
     pry_instance.binding_stack.push(*tail)

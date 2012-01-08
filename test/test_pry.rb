@@ -43,7 +43,7 @@ describe Pry do
 
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        input_string = "CommandContext"
+        input_string = "Command"
         str_output = StringIO.new
         o = Object.new
         pry_tester = Pry.new(:input => StringIO.new(input_string),
@@ -886,7 +886,7 @@ describe Pry do
               klass = Pry::CommandSet.new do
                 alias_command "help2", "help"
               end
-              klass.commands["help2"].callable.should == klass.commands["help"].callable
+              klass.commands["help2"].block.should == klass.commands["help"].block
             end
 
             it 'should change description of a command using desc' do
@@ -1320,6 +1320,14 @@ describe Pry do
             Pry.color = false
           end
         end
+      end
+    end
+
+    describe 'setting custom options' do
+      it 'should not raise for unrecognized options' do
+        should.not.raise?(NoMethodError) {
+          instance = Pry.new(:custom_option => 'custom value')
+        }
       end
     end
   end
