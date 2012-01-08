@@ -81,11 +81,12 @@ class Pry
     #   # hello john, nice number: 10
     #   # pry(main)> help number
     #   # number-N regex command
-    def command(name, description="No description.", options={}, &block)
+    def block_command(name, description="No description.", options={}, &block)
       options = default_options(name).merge!(options)
 
       commands[name] = Pry::BlockCommand.subclass(name, description, options, helper_module, &block)
     end
+    alias_method :command, :block_command
 
     # Defines a new Pry command class.
     #
@@ -112,13 +113,14 @@ class Pry
     #     end
     #   end
     #
-    def command_class(name, description="No description.", options={}, &block)
+    def new_command(name, description="No description.", options={}, &block)
       options = default_options(name).merge!(options)
 
       commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module, &block)
       commands[name].class_eval(&block)
       commands[name]
     end
+    alias_method :command_class, :new_command
 
     # Execute a block of code before a command is invoked. The block also
     # gets access to parameters that will be passed to the command and

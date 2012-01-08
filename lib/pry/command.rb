@@ -14,11 +14,33 @@ class Pry
     # Properties of the command itself (as passed as arguments to
     # {CommandSet#command} or {CommandSet#command_class}).
     class << self
+      attr_accessor :block
       attr_accessor :name
       attr_accessor :description
-      attr_accessor :options
-      attr_accessor :block
+      attr_accessor :command_options
+
+      # Define or get the command's description
+      def description(arg=nil)
+        @description = arg if arg
+        @description
+      end
+
+      # Define or get the command's options
+      def command_options(arg=nil)
+        @command_options = arg if arg
+        @command_options
+      end
+      # backward compatibility
+      alias_method :options, :command_options
+      alias_method :options=, :command_options=
+
+      # Define or get the command's banner
+      def banner(arg=nil)
+        @banner = arg if arg
+        @banner || description
+      end
     end
+
 
     # Make those properties accessible to instances
     def name; self.class.name; end
@@ -47,7 +69,7 @@ class Pry
         klass.send(:include, helpers)
         klass.name = name
         klass.description = description
-        klass.options = options
+        klass.command_options = options
         klass.block = block
         klass
       end
@@ -276,10 +298,19 @@ class Pry
     # backwards compatibility
     alias_method :opts, :context
 
+    # Call the block that was registered with this command.
+    #
+    # @param *String  the arguments passed
+    # @return Object  the return value of the block
     def call(*args)
       instance_exec(*correct_arg_arity(block.arity, args), &block)
     end
 
+    # Fix the number of arguments we pass to a block to avoid arity warnings.
+    #
+    # @param Number  the arity of the block
+    # @param Array   the arguments to pass
+    # @return Array  a (possibly shorter) array of the arguments to pass
     def correct_arg_arity(arity, args)
       case
       when arity < 0
@@ -304,12 +335,6 @@ class Pry
   # necessary, you can also override {setup} which will be called before {options}, for example to
   # require any gems your command needs to run, or to set up state.
   class ClassCommand < Command
-    class << self
-      def banner(arg=nil)
-        @banner = arg if arg
-        @banner || description
-      end
-    end
 
     attr_accessor :opts
     attr_accessor :args
