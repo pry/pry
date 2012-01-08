@@ -4,7 +4,7 @@ class Pry
       case obj
       when Code
         obj
-      when ::Method, Pry::Method, UnboundMethod, Proc
+      when ::Method, UnboundMethod, Proc, Pry::Method
         Code.from_method(obj)
       else
         Code.new(obj)
@@ -49,7 +49,7 @@ class Pry
 
     attr_accessor :code_type
 
-    # @param [Array<String>] lines
+    # @param [Array<String>, String, IO] lines
     # @param [Fixnum?] (1) start_line
     # @param [Symbol?] (:ruby) code_type
     def initialize(lines=[], start_line=1, code_type=:ruby)
@@ -71,42 +71,49 @@ class Pry
     end
     alias << push
 
-    def before(line_num, lines=1)
-      return self unless line_num
-
+    def select(&blk)
       dup.instance_eval do
-        @lines = @lines.select { |l, ln| ln >= line_num - lines && ln < line_num }
+        @lines = @lines.select(&blk)
         self
       end
     end
 
+    def before(line_num, lines=1)
+      return self unless line_num
+      select { |l, ln| ln >= line_num - lines && ln < line_num }
+    end
+
     def between(start_line, end_line)
       return self unless start_line && end_line
-      start_line -= 1 unless start_line < 0
-      end_line   -= 1 unless end_line   < 0
+
+      case start_line
+      when Range
+        range = start_line
+      else
+        start_line -= 1 unless start_line < 1
+        end_line   -= 1 unless end_line   < 1
+        range = start_line..end_line
+      end
 
       dup.instance_eval do
-        @lines = @lines[start_line..end_line] || []
+        @lines = @lines[range] || []
         self
       end
     end
 
     def around(line_num, lines=1)
       return self unless line_num
-
-      dup.instance_eval do
-        @lines = @lines.select { |l, ln| ln >= line_num - lines && ln <= line_num + lines }
-        self
-      end
+      select { |l, ln| ln >= line_num - lines && ln <= line_num + lines }
     end
 
     def after(line_num, lines=1)
       return self unless line_num
+      select { |l, ln| ln > line_num && ln <= line_num + lines }
+    end
 
-      dup.instance_eval do
-        @lines = @lines.select { |l, ln| ln > line_num && ln <= line_num + lines }
-        self
-      end
+    def grep(pattern)
+      return self unless pattern
+      select { |l, ln| l =~ pattern }
     end
 
     # @param [Symbol?] color
