@@ -39,11 +39,7 @@ class Pry
           output.puts "#{text.bold("Signature:")} #{meth.signature}"
           output.puts
 
-          if opts.present?(:flood)
-            output.puts doc
-          else
-            stagger_output doc
-          end
+          render_output(doc, opts)
         end
       end
 
