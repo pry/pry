@@ -1,5 +1,17 @@
 # -*- coding: utf-8 -*-
 class Pry
+  class << self
+    # If the given object is a `Pry::Method`, return it unaltered. If it's
+    # anything else, return it wrapped in a `Pry::Method` instance.
+    def Method(obj)
+      if obj.is_a? Pry::Method
+        obj
+      else
+        Pry::Method.new(obj)
+      end
+    end
+  end
+
   class Method
     include RbxMethod if Helpers::BaseHelpers.rbx?
 
