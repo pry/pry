@@ -94,7 +94,7 @@ class Pry
         end
 
         def edit_temporarily
-          source_code = Pry::Method(block).source
+          source_code = Pry::Method(@command.block).source
           modified_code = nil
 
           temp_file do |f|
