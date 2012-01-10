@@ -94,24 +94,26 @@ class Pry
         end
 
         def edit_temporarily
-          source_code = @command.block.source
+          source_code = Pry::Method(block).source
+          modified_code = nil
 
-          temp_file :unlink => false do |f|
+          temp_file do |f|
             f.write(source_code)
             f.flush
 
             invoke_editor(f.path, 1)
             modified_code = File.read(f.path)
-
-            command_set = CommandSet.new do
-              silence_warnings do
-                eval(modified_code, binding, f.path, 1)
-              end
-            end
-
-            @pry.commands.delete(@command.name)
-            @pry.commands.import(command_set)
           end
+
+          command_set = CommandSet.new do
+            silence_warnings do
+              pry = Pry.new :input => StringIO.new(modified_code)
+              pry.rep(binding)
+            end
+          end
+
+          @pry.commands.delete(@command.name)
+          @pry.commands.import(command_set)
         end
       end
 
