@@ -5,6 +5,59 @@ class Pry
       @hooks = {}
     end
 
+    # Ensure that duplicates have their @hooks object
+    def initialize_copy(orig)
+      hooks_dup = @hooks.dup
+      @hooks.each do |k, v|
+        hooks_dup[k] = v.dup
+      end
+
+      @hooks = hooks_dup
+    end
+
+    def hooks
+      @hooks
+    end
+    protected :hooks
+
+    # Destructively merge the contents of two `Pry:Hooks` instances.
+    # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
+
+
+
+    # TODO: implement by iterating over parameter and only overwriting
+    # elements in receiver if they exist in parameter, and adding
+    # other paramater elements to the end of the original's array
+    def merge!(other)
+      @hooks.merge!(other.dup.hooks) do |key, v1, v2|
+        merge_arrays(v1, v2)
+      end
+
+      self
+    end
+
+    def merge_arrays(array1, array2)
+      keys = array1.map {|(k,v)| k}
+      hash = {}
+      array1.each{|(k,v)| hash[k]=v}
+      keys.push(*array2.map {|(k,v)| k})
+      array2.each{|(k,v)| hash[k]=v}
+      result = []
+      keys.uniq!
+      keys.each{|k| result.push([k,hash[k]]) }
+      result
+    end
+    private :merge_arrays
+
+    # Return a new `Pry::Hooks` instance containing a merge of the contents of two `Pry:Hooks` instances,
+    # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
+    # @return [Pry::Hooks] The new hash.
+    def merge(other)
+      self.dup.tap do |v|
+        v.merge!(other)
+      end
+    end
+
     # Add a new hook to be executed for the `name` even.
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook.

@@ -14,7 +14,7 @@ class Pry
       # @return [Array] The Procs that process the parsed options.
       attr_accessor :option_processors
 
-      # Add another set of CLI options
+      # Add another set of CLI options (a Slop block)
       def add_options(&block)
         if options
           old_options = options

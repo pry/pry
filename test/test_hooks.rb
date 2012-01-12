@@ -53,6 +53,125 @@ describe Pry::Hooks do
     end
   end
 
+  describe "Pry::Hooks#merge" do
+    describe "merge!" do
+      it 'should merge in the Pry::Hooks' do
+        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+        h2 = Pry::Hooks.new
+
+        h2.merge!(h1)
+        h2.get_hook(:test_hook, :testing).should == h1.get_hook(:test_hook, :testing)
+      end
+
+      it 'should not share merged elements with original' do
+        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+        h2 = Pry::Hooks.new
+
+        h2.merge!(h1)
+        h2.add_hook(:test_hook, :testing2) {}
+        h2.get_hook(:test_hook, :testing2).should.not == h1.get_hook(:test_hook, :testing2)
+      end
+
+      it 'should NOT overwrite hooks belonging to shared event in receiver' do
+        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+        callable = proc {}
+        h2 = Pry::Hooks.new.add_hook(:test_hook, :testing2, callable)
+
+        h2.merge!(h1)
+        h2.get_hook(:test_hook, :testing2).should == callable
+      end
+
+      it 'should overwrite identical hook in receiver' do
+        callable1 = proc { :one }
+        h1 = Pry::Hooks.new.add_hook(:test_hook, :testing, callable1)
+        callable2 = proc { :two }
+        h2 = Pry::Hooks.new.add_hook(:test_hook, :testing, callable2)
+
+        h2.merge!(h1)
+        h2.get_hook(:test_hook, :testing).should == callable1
+        h2.hook_count(:test_hook).should == 1
+      end
+
+      it 'should preserve hook order' do
+        name = ""
+        h1 = Pry::Hooks.new
+        h1.add_hook(:test_hook, :testing3) { name << "h" }
+        h1.add_hook(:test_hook, :testing4) { name << "n" }
+
+        h2 = Pry::Hooks.new
+        h2.add_hook(:test_hook, :testing1) { name << "j" }
+        h2.add_hook(:test_hook, :testing2) { name << "o" }
+
+        h2.merge!(h1)
+        h2.exec_hook(:test_hook)
+
+        name.should == "john"
+      end
+
+      describe "merge" do
+        it 'should return a fresh, independent instance' do
+          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Pry::Hooks.new
+
+          h3 = h2.merge(h1)
+          h3.should.not == h1
+          h3.should.not == h2
+        end
+
+        it 'should contain hooks from original instance' do
+          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
+
+          h3 = h2.merge(h1)
+          h3.get_hook(:test_hook, :testing).should == h1.get_hook(:test_hook, :testing)
+          h3.get_hook(:test_hook2, :testing).should == h2.get_hook(:test_hook2, :testing)
+        end
+
+        it 'should not affect original instances when new hooks are added' do
+          h1 = Pry::Hooks.new.add_hook(:test_hook, :testing) {}
+          h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
+
+          h3 = h2.merge(h1)
+          h3.add_hook(:test_hook3, :testing) {}
+
+          h1.get_hook(:test_hook3, :testing).should == nil
+          h2.get_hook(:test_hook3, :testing).should == nil
+        end
+      end
+
+    end
+  end
+
+  describe "dupping a Pry::Hooks instance" do
+    it 'should share hooks with original' do
+      @hooks.add_hook(:test_hook, :testing) do
+        :none_such
+      end
+
+      hooks_dup = @hooks.dup
+      hooks_dup.get_hook(:test_hook, :testing).should == @hooks.get_hook(:test_hook, :testing)
+    end
+
+     it 'adding a new event to dupped instance should not affect original' do
+      @hooks.add_hook(:test_hook, :testing) { :none_such }
+      hooks_dup = @hooks.dup
+
+      hooks_dup.add_hook(:other_test_hook, :testing) { :okay_man }
+
+      hooks_dup.get_hook(:other_test_hook, :testing).should.not == @hooks.get_hook(:other_test_hook, :testing)
+    end
+
+     it 'adding a new hook to dupped instance should not affect original' do
+      @hooks.add_hook(:test_hook, :testing) { :none_such }
+      hooks_dup = @hooks.dup
+
+      hooks_dup.add_hook(:test_hook, :testing2) { :okay_man }
+
+      hooks_dup.get_hook(:test_hook, :testing2).should.not == @hooks.get_hook(:test_hook, :testing2)
+    end
+
+  end
+
   describe "getting hooks" do
     describe "get_hook" do
       it 'should return the correct requested hook' do
