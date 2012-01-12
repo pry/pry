@@ -111,9 +111,9 @@ class Pry
     inject_local("_in_", @input_array, target)
     inject_local("_out_", @output_array, target)
     inject_local("_pry_", self, target)
-    inject_local("_ex_", nil, target)
-    inject_local("_file_", nil, target)
-    inject_local("_dir_", nil, target)
+    inject_local("_ex_", last_exception, target)
+    inject_local("_file_", last_file, target)
+    inject_local("_dir_", last_dir, target)
 
     # without this line we get 1 test failure, ask Mon_Ouie
     set_last_result(nil, target)
@@ -129,13 +129,13 @@ class Pry
 
   def special_locals
     {
-      :_in_ => @input_array,
-      :_out_ => @output_array,
-      :_pry_ => self,
-      :_ex_ => last_exception,
+      :_in_   => @input_array,
+      :_out_  => @output_array,
+      :_pry_  => self,
+      :_ex_   => last_exception,
       :_file_ => last_file,
-      :_dir_ => last_dir,
-      :_ => last_result
+      :_dir_  => last_dir,
+      :_      => last_result
     }
   end
 
