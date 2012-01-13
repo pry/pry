@@ -257,7 +257,12 @@ class Pry
         output.puts "Error: #{e.message}"
       end
 
-      break if complete_expression?(eval_string)
+      begin
+        break if complete_expression?(eval_string)
+      rescue SyntaxError => e
+        output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
+        eval_string = ""
+      end
     end
 
     @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?

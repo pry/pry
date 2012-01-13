@@ -55,4 +55,9 @@ describe Pry do
     pry = Pry.new
     pry.complete_expression?("puts 1, 2,\n3").should == true
   end
+
+  it "should not clobber _ex_ on a SyntaxError in the repl" do
+
+    mock_pry("raise RuntimeError, 'foo';", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
+  end
 end
