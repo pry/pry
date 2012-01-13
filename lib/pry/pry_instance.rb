@@ -573,8 +573,8 @@ class Pry
       }
     end
 
-    # Assert that a line which ends with a , or a \ is incomplete.
-    str !~ /[,\\]\z/
+    # Assert that a line which ends with a , is incomplete.
+    str !~ /[,]\z/
   rescue SyntaxError => e
     if incomplete_user_input_exception?(e)
       false
