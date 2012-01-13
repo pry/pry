@@ -225,7 +225,9 @@ class Pry
 
     code = r(target)
 
-    result = set_last_result(target.eval(code, Pry.eval_path, Pry.current_line), target)
+    result = target.eval(code, Pry.eval_path, Pry.current_line)
+    set_last_result(result, target, code)
+
     result
   rescue RescuableException => e
     result = set_last_exception(e, target)
@@ -403,11 +405,12 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [Object] result The result.
   # @param [Binding] target The binding to set `_` on.
-  def set_last_result(result, target)
+  # @param [String] code The code that was run.
+  def set_last_result(result, target, code="")
     @last_result_is_exception = false
     @output_array << result
 
-    self.last_result = result
+    self.last_result = result unless code =~ /\A\s*\z/
   end
 
   # Set the last exception for a session.

@@ -254,6 +254,24 @@ describe Pry do
         end
       end
 
+      describe "last_result" do
+        it "should be set to the most recent value" do
+          mock_pry("2", "_ + 82").should =~ /84/
+        end
+
+        it "should be set to the result of a command with :keep_retval" do
+          mock_pry("Pry::Commands.block_command '++', '', {:keep_retval => true} do |a| a.to_i + 1; end", '++ 86', '++ #{_}').should =~ /88/
+        end
+
+        it "should be preserved over an empty line" do
+          mock_pry("2 + 2", " ", "\t",  " ", "_ + 92").should =~ /96/
+        end
+
+        it "should be preserved when evalling a  command without :keep_retval" do
+          mock_pry("2 + 2", "ls -l", "_ + 96").should =~ /100/
+        end
+      end
+
       describe "test loading rc files" do
 
         before do
