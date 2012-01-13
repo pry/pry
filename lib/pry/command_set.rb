@@ -82,6 +82,7 @@ class Pry
     #   # pry(main)> help number
     #   # number-N regex command
     def block_command(name, description="No description.", options={}, &block)
+      description, options = ["No description.", description] if description.is_a?(Hash)
       options = default_options(name).merge!(options)
 
       commands[name] = Pry::BlockCommand.subclass(name, description, options, helper_module, &block)
@@ -114,6 +115,7 @@ class Pry
     #   end
     #
     def create_command(name, description="No description.", options={}, &block)
+      description, options = ["No description.", description] if description.is_a?(Hash)
       options = default_options(name).merge!(options)
 
       commands[name] = Pry::ClassCommand.subclass(name, description, options, helper_module, &block)
@@ -336,7 +338,7 @@ class Pry
 
           help_text << commands.map do |key, command|
             if command.description && !command.description.empty?
-              "#{command.options[:listing]}".ljust(18) + command.description
+              "#{command.options[:listing].to_s.ljust(18)} #{command.description}"
             end
           end.compact.sort.join("\n")
 
