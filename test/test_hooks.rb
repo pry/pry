@@ -306,5 +306,33 @@ describe Pry::Hooks do
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
     end
+
+    describe "after_session hook" do
+      it 'should always run, even if uncaught exception bubbles out of repl' do
+
+        o = OpenStruct.new
+        o.great_escape = Class.new(StandardError)
+
+        Pry.config.exception_whitelist << o.great_escape
+
+        array = [1, 2, 3, 4, 5]
+
+        begin
+          redirect_pry_io(StringIO.new("raise great_escape"), out=StringIO.new) do
+            Pry.start o, :hooks => Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
+          end
+        rescue => ex
+          exception = ex
+        end
+
+        # ensure that an exception really was raised and it broke out
+        # of the repl
+        exception.is_a?(o.great_escape).should == true
+
+        # check that after_session hook ran
+        array.should == nil
+      end
+    end
+
   end
 end

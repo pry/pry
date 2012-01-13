@@ -181,8 +181,9 @@ class Pry
       end
     end
 
-    repl_epilogue(target)
     break_data || nil
+  ensure
+    repl_epilogue(target)
   end
 
   # Perform a read-eval-print.
