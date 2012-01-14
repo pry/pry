@@ -1,3 +1,39 @@
+X/X/2012 version 0.9.8
+
+MAJOR NEW FEATURES
+- upgraded command api, https://github.com/pry/pry/wiki/Custom-commands
+- added a system of hooks for customizing pry behaviour
+- changed syntax checking to use eval() for improved accuracy
+
+
+complete CHANGELOG:
+* CommandError's no longer cause the current input to be disgarded
+* Better syntax highlighting for rbx code code
+* added cat --in to show pry input history
+* prefixed temporary file names with 'pry'
+* added a man page
+* added CommandSet#{before_command,after_command} for enhancing builtin commands
+* added checking for namespace collisions with pry commands, set Pry.config.collision_warning
+* work around namespace collisions by ensuring lines starting with a space are executed as
+* ruby.work around namespace collisions by prensuring lines starting with a space are executed as ruby
+* added handlers for Ctrl+C (SIGINT) on jruby, these are now caught as in other ruby versions
+* removed dependency on ruby_parser
+* prevented colours leaking across the pry prompt
+* fixed edge cases in Pry::Method, for methods with crazy names and methods that have been 'undef'd
+* refactored history handling code for clarity and correctness
+* added Pry::WrappedModule as a counterpart to Pry::Method
+* made a trailing , cause pry to wait for further input
+* removed gist-method command, added gist command
+* added pry-backtrace command to show history of current session
+* fixed whereami within 'super' methods
+* replaced inline version guards by Pry::Helpers::BaseHelpers.{rbx?,jruby?,windows?} etc.
+* removed the CommandProcessor, its functionality is part of the new Command class
+* changed cd .. at the top level so it doesn't quit pry.
+* changed edit-command to no-longer need a command set argument
+* fixed empty lines so that they don't replace _ by nil
+* fixed SyntaxErrors at the REPL level so they don't replace _ex_.
+<TODO: everything that happened after f3262e32700709a6998579a9f71cdc6b8f4a695e>
+
 5/11/2011 version 0.9.7.4 hotfix
 * ls -M now works in modules (bugfix)
 * added exception msg for bad cd object/path
