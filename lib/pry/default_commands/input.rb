@@ -59,8 +59,9 @@ class Pry
 
       alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, "amend-line")
 
-      command "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do |*args|
-        opts = Slop.parse!(args) do |opt|
+      command_class "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do
+
+        def options(opt)
           opt.banner unindent <<-USAGE
             Usage: play [OPTIONS] [--help]
             Default action (no options) is to play the provided string variable
@@ -73,47 +74,47 @@ class Pry
           opt.on :m, :method, 'Play a method.', true
           opt.on :f, "file", 'The file to replay in context.', true
           opt.on :o, "open", 'When used with the -m switch, it plays the entire method except the last line, leaving the method definition "open". `amend-line` can then be used to modify the method.'
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
-          end
         end
 
-        if opts.present?(:method)
-          meth_name = opts[:m]
-          meth = get_method_or_raise(meth_name, target, {}, :omit_help)
-          next unless meth.source
+        def process
 
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
+          if opts.present?(:method)
+            meth_name = opts[:m]
+            meth = get_method_or_raise(meth_name, target, {}, :omit_help)
+            return unless meth.source
 
-          eval_string << Array(meth.source.each_line.to_a[range]).join
-        elsif opts.present?(:file)
-          file_name = File.expand_path(opts[:f])
+            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+            range = (0..-2) if opts.present?(:open)
 
-          if !File.exists?(file_name)
-            raise CommandError, "No such file: #{opts[:f]}"
+            eval_string << Array(meth.source.each_line.to_a[range]).join
+          elsif opts.present?(:file)
+            file_name = File.expand_path(opts[:f])
+
+            if !File.exists?(file_name)
+              raise CommandError, "No such file: #{opts[:f]}"
+            end
+
+            text_array = File.readlines(file_name)
+            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+            range = (0..-2) if opts.present?(:open)
+
+            _pry_.input_stack << _pry_.input
+            _pry_.input = StringIO.new(Array(text_array[range]).join)
+          else
+            if !args.first
+              raise CommandError, "No input to play command."
+            end
+
+            code = target.eval(args.first)
+
+            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+            range = (0..-2) if opts.present?(:open)
+
+            eval_string << Array(code.each_line.to_a[range]).join
           end
 
-          text_array = File.readlines(file_name)
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
-
-          _pry_.input_stack << _pry_.input
-          _pry_.input = StringIO.new(Array(text_array[range]).join)
-        else
-          if !args.first
-            raise CommandError, "No input to play command."
-          end
-
-          code = target.eval(args.first)
-
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
-
-          eval_string << Array(code.each_line.to_a[range]).join
+          run "show-input" if !_pry_.complete_expression?(eval_string)
         end
-
-        run "show-input" if !_pry_.complete_expression?(eval_string)
       end
 
       command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
