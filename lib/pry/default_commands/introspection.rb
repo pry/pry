@@ -99,8 +99,10 @@ class Pry
         end
       end
 
-      command "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do |*args|
-        opts = Slop.parse!(args) do |opt|
+      command_class "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do
+        attr_accessor :content
+
+        def options(opt)
           opt.banner unindent <<-USAGE
             Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
             Open a text editor. When no FILE is given, edits the pry input buffer.
@@ -114,40 +116,45 @@ class Pry
           opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
           opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
+        end
+
+        def process
+          self.content = ""
+
+          if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
+            raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
+          end
+
+          if !opts.present?(:ex) && args.empty?
+            local_edit
+          else
+            remote_edit
           end
         end
-        next if opts.present?(:help)
 
-        if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
-          raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
-        end
+        def local_edit
+          # edit of local code, eval'd within pry.
+          self.content = if opts.present?(:temp)
+            ""
+          elsif opts.present?(:in)
+            case opts[:i]
+            when Range
+              (_pry_.input_array[opts[:i]] || []).join
+            when Fixnum
+              _pry_.input_array[opts[:i]] || ""
+            else
+              return output.puts "Not a valid range: #{opts[:i]}"
+            end
+          elsif eval_string.strip != ""
+            eval_string
+          else
+            _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
+          end
 
-        # edit of local code, eval'd within pry.
-        if !opts.present?(:ex) && args.empty?
-
-          content = if opts.present?(:temp)
-                      ""
-                    elsif opts.present?(:in)
-                      case opts[:i]
-                      when Range
-                        (_pry_.input_array[opts[:i]] || []).join
-                      when Fixnum
-                        _pry_.input_array[opts[:i]] || ""
-                      else
-                        next output.puts "Not a valid range: #{opts[:i]}"
-                      end
-                    elsif eval_string.strip != ""
-                      eval_string
-                    else
-                      _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
-                    end
-
-          line = content.lines.count
+          line = self.content.lines.count
 
           temp_file do |f|
-            f.puts(content)
+            f.puts(self.content)
             f.flush
             invoke_editor(f.path, line)
             if !opts.present?(:'no-reload')
@@ -156,9 +163,10 @@ class Pry
               end
             end
           end
+        end
 
-        # edit of remote code, eval'd at top-level
-        else
+        def remote_edit
+          # edit of remote code, eval'd at top-level
           if opts.present?(:ex)
             if _pry_.last_exception.nil?
               raise CommandError, "No exception found."

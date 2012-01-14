@@ -31,40 +31,46 @@ class Pry
 
       alias_command "file-mode", "shell-mode"
 
-      command "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do |*args|
-        start_line = 0
-        end_line = -1
-        file_name = nil
-        bt_index = 0
+      command_class "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do
+        attr_accessor :start_line
+        attr_accessor :end_line
+        attr_accessor :file_name
+        attr_accessor :bt_index
+        attr_accessor :contents
 
-        opts = Slop.parse!(args) do |opt|
+        def options(opt)
+          self.start_line = 0
+          self.end_line = -1
+          self.file_name = nil
+          self.bt_index = 0
+
           opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
-            start_line = line - 1
+            self.start_line = line - 1
           end
 
           opt.on :e, :end, "End line (defaults to end of file). Line -1 is the last line", true, :as => Integer do |line|
-            end_line = line - 1
+            self.end_line = line - 1
           end
 
           opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_arg|
             window_size = Pry.config.exception_window_size || 5
             ex = _pry_.last_exception
-            next if !ex
+            return if !ex
             if bt_index_arg
-              bt_index = bt_index_arg
+              self.bt_index = bt_index_arg
             else
-              bt_index = ex.bt_index
+              self.bt_index = ex.bt_index
             end
-            ex.bt_index = (bt_index + 1) % ex.backtrace.size
+            ex.bt_index = (self.bt_index + 1) % ex.backtrace.size
 
-            ex_file, ex_line = ex.bt_source_location_for(bt_index)
-            start_line = (ex_line - 1) - window_size
-            start_line = start_line < 0 ? 0 : start_line
-            end_line = (ex_line - 1) + window_size
+            ex_file, ex_line = ex.bt_source_location_for(self.bt_index)
+            self.start_line = (ex_line - 1) - window_size
+            self.start_line = self.start_line < 0 ? 0 : self.start_line
+            self.end_line = (ex_line - 1) + window_size
             if ex_file && RbxPath.is_core_path?(ex_file)
-              file_name = RbxPath.convert_path_to_full(ex_file)
+              self.file_name = RbxPath.convert_path_to_full(ex_file)
             else
-              file_name = ex_file
+              self.file_name = ex_file
             end
           end
 
@@ -73,95 +79,93 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :t, :type, "The specific file type for syntax higlighting (e.g ruby, python)", true, :as => Symbol
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
-          end
         end
 
-        next if opts.present?(:help)
+        def process
+          self.contents = ""
 
-        if opts.present?(:ex)
-          if file_name.nil?
-            raise CommandError, "No Exception or Exception has no associated file."
-          end
-        else
-          file_name = args.shift
-        end
-
-        if opts.present?(:in)
-          normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
-          input_items = _pry_.input_array[normalized_range] || []
-
-          zipped_items = normalized_range.zip(input_items).reject { |_, s| s.nil? || s == "" }
-
-          unless zipped_items.length > 0
-            raise CommandError, "No expressions found."
-          end
-
-          if opts[:i].is_a?(Range)
-            contents = ""
-
-            zipped_items.each do |i, s|
-              contents << "#{text.bold(i.to_s)}:\n"
-
-              code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
-
-              if opts.present?(:'line-numbers')
-                contents << text.indent(text.with_line_numbers(code, 1), 2)
-              else
-                contents << text.indent(code, 2)
-              end
+          if opts.present?(:ex)
+            if self.file_name.nil?
+              raise CommandError, "No Exception or Exception has no associated file."
             end
           else
-            contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
-          end
-        else
-          unless file_name
-            raise CommandError, "Must provide a file name."
+            self.file_name = args.shift
           end
 
-          begin
-            contents, _, _ = read_between_the_lines(file_name, start_line, end_line)
-          rescue Errno::ENOENT
-            raise CommandError, "Could not find file: #{file_name}"
-          end
+          if opts.present?(:in)
+            normalized_range = absolute_index_range(opts[:i], _pry_.input_array.length)
+            input_items = _pry_.input_array[normalized_range] || []
 
-          contents = syntax_highlight_by_file_type_or_specified(contents, file_name, opts[:type])
+            zipped_items = normalized_range.zip(input_items).reject { |_, s| s.nil? || s == "" }
 
-          if opts.present?(:'line-numbers')
-            contents = text.with_line_numbers contents, start_line + 1
-          end
-        end
-
-        # add the arrow pointing to line that caused the exception
-        if opts.present?(:ex)
-          ex_file, ex_line = _pry_.last_exception.bt_source_location_for(bt_index)
-          contents = text.with_line_numbers contents, start_line + 1, :bright_red
-
-          contents = contents.lines.each_with_index.map do |line, idx|
-            l = idx + start_line
-            if l == (ex_line - 1)
-              " =>#{line}"
-            else
-              "   #{line}"
+            unless zipped_items.length > 0
+              raise CommandError, "No expressions found."
             end
-          end.join
 
-          # header for exceptions
-          output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
-          output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{bt_index} of backtrace (of #{_pry_.last_exception.backtrace.size - 1}).\n\n"
-        end
+            if opts[:i].is_a?(Range)
+              self.contents = ""
 
-        set_file_and_dir_locals(file_name)
+              zipped_items.each do |i, s|
+                self.contents << "#{text.bold(i.to_s)}:\n"
 
-        if opts.present?(:flood)
-          output.puts contents
-        else
-          stagger_output(contents)
+                code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
+
+                if opts.present?(:'line-numbers')
+                  self.contents << text.indent(text.with_line_numbers(code, 1), 2)
+                else
+                  self.contents << text.indent(code, 2)
+                end
+              end
+            else
+              self.contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
+            end
+          else
+            unless self.file_name
+              raise CommandError, "Must provide a file name."
+            end
+
+            begin
+              self.contents, _, _ = read_between_the_lines(self.file_name, self.start_line, self.end_line)
+            rescue Errno::ENOENT
+              raise CommandError, "Could not find file: #{self.file_name}"
+            end
+
+            self.contents = syntax_highlight_by_file_type_or_specified(self.contents, self.file_name, opts[:type])
+
+            if opts.present?(:'line-numbers')
+              self.contents = text.with_line_numbers self.contents, self.start_line + 1
+            end
+          end
+
+          # add the arrow pointing to line that caused the exception
+          if opts.present?(:ex)
+            ex_file, ex_line = _pry_.last_exception.bt_source_location_for(self.bt_index)
+            self.contents = text.with_line_numbers self.contents, self.start_line + 1, :bright_red
+
+            self.contents = self.contents.lines.each_with_index.map do |line, idx|
+              l = idx + self.start_line
+              if l == (ex_line - 1)
+                " =>#{line}"
+              else
+                "   #{line}"
+              end
+            end.join
+
+            # header for exceptions
+            output.puts "\n#{Pry::Helpers::Text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception.message}\n--"
+            output.puts "#{Pry::Helpers::Text.bold('From:')} #{ex_file} @ line #{ex_line} @ #{text.bold('level: ')} #{self.bt_index} of backtrace (of #{_pry_.last_exception.backtrace.size - 1}).\n\n"
+          end
+
+          set_file_and_dir_locals(self.file_name)
+
+          if opts.present?(:flood)
+            output.puts self.contents
+          else
+            stagger_output(self.contents)
+          end
         end
       end
-    end
 
+    end
   end
 end
-
