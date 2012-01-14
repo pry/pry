@@ -290,6 +290,21 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name3) { 3 }
       @hooks.exec_hook(:test_hook).should == 3
     end
+
+    it 'should add exceptions to the errors array' do
+      @hooks.add_hook(:test_hook, :foo1) { raise 'one' }
+      @hooks.add_hook(:test_hook, :foo2) { raise 'two' }
+      @hooks.add_hook(:test_hook, :foo3) { raise 'three' }
+      @hooks.exec_hook(:test_hook)
+      @hooks.errors.map(&:message).should == ['one', 'two', 'three']
+    end
+
+    it 'should return the last exception raised as the return value' do
+      @hooks.add_hook(:test_hook, :foo1) { raise 'one' }
+      @hooks.add_hook(:test_hook, :foo2) { raise 'two' }
+      @hooks.add_hook(:test_hook, :foo3) { raise 'three' }
+      @hooks.exec_hook(:test_hook).should == @hooks.errors.last
+    end
   end
 
   describe "integration tests" do
@@ -334,6 +349,27 @@ describe Pry::Hooks do
 
         # cleanup after test
         Pry.config.exception_whitelist = old_ew
+      end
+
+      describe "exceptions" do
+        before do
+          Pry.config.hooks.add_hook(:after_eval, :baddums){ raise "Baddums" }
+          Pry.config.hooks.add_hook(:after_eval, :simbads){ raise "Simbads" }
+        end
+
+        after do
+          Pry.config.hooks.delete_hook(:after_eval, :baddums)
+          Pry.config.hooks.delete_hook(:after_eval, :simbads)
+        end
+        it "should not raise exceptions" do
+          lambda{
+            mock_pry("1", "2", "3")
+          }.should.not.raise
+        end
+
+        it "should print out a notice for each exception raised" do
+          mock_pry("1").should =~ /after_eval hook failed: RuntimeError: Baddums\n.*after_eval hook failed: RuntimeError: Simbads/m
+        end
       end
     end
 
