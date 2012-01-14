@@ -142,7 +142,7 @@ class Pry
   # Initialize the repl session.
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
-    hooks.exec_hook :before_session, output, target, self
+    exec_hook :before_session, output, target, self
     initialize_special_locals(target)
 
     @input_array << nil # add empty input so _in_ and _out_ match
@@ -154,7 +154,7 @@ class Pry
   # Clean-up after the repl session.
   # @param [Binding] target The target binding for the session.
   def repl_epilogue(target)
-    hooks.exec_hook :after_session, output, target, self
+    exec_hook :after_session, output, target, self
 
     Pry.active_sessions -= 1
     binding_stack.pop
@@ -234,7 +234,7 @@ class Pry
     result = set_last_exception(e, target)
   ensure
     update_input_history(code)
-    hooks.exec_hook :after_eval, result, self
+    exec_hook :after_eval, result, self
   end
 
   # Perform a read.
@@ -270,7 +270,7 @@ class Pry
 
     @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?
 
-    hooks.exec_hook :after_read, eval_string, self
+    exec_hook :after_read, eval_string, self
     eval_string
   end
 
@@ -400,6 +400,25 @@ class Pry
       :output => output
     )
     Pry::Command::VOID_VALUE
+  end
+
+  # Execute the specified hook.
+  # @param [Symbol] name The hook name to execute
+  # @param [*Object] args The arguments to pass to the hook
+  # @return [Object, Exception] The return value of the hook or the exception raised
+  #
+  # If executing a hook raises an exception, we log that and then continue sucessfully.
+  # To debug such errors, use the global variable $pry_hook_error, which is set as a
+  # result.
+  def exec_hook(name, *args, &block)
+    e_before = hooks.errors.size
+    hooks.exec_hook(name, *args, &block)
+
+    hooks.errors[e_before..-1].each do |e|
+      output.puts "#{name} hook failed: #{e.class}: #{e.message}"
+      output.puts "#{e.backtrace.first}"
+      output.puts "(see _pry_.hooks.errors to debug)"
+    end
   end
 
   # Set the last result of an eval.

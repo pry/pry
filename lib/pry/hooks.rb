@@ -20,6 +20,10 @@ class Pry
     end
     protected :hooks
 
+    def errors
+      @errors ||= []
+    end
+
     # Destructively merge the contents of two `Pry:Hooks` instances.
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
 
@@ -89,7 +93,14 @@ class Pry
       # silence warnings to get rid of 1.8's "warning: multiple values
       # for a block parameter" warnings
       Pry::Helpers::BaseHelpers.silence_warnings do
-        @hooks[event_name].map { |hook_name, callable| callable.call(*args, &block) }.last
+        @hooks[event_name].map do |hook_name, callable|
+          begin
+            callable.call(*args, &block)
+          rescue RescuableException => e
+            errors << e
+            e
+          end
+        end.last
       end
     end
 
