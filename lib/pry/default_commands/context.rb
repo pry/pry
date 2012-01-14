@@ -6,42 +6,44 @@ class Pry
     Context = Pry::CommandSet.new do
       import Ls
 
-      command "cd", "Move into a new context (use `cd ..` to go back and `cd /` to return to Pry top-level). Complex syntax (e.g cd ../@x/y) also supported."  do |obj|
-        path   = arg_string.split(/\//)
-        stack  = _pry_.binding_stack.dup
+      command_class "cd", "Move into a new context (use `cd ..` to go back and `cd /` to return to Pry top-level). Complex syntax (e.g cd ../@x/y) also supported."  do
+        def process
+          path   = arg_string.split(/\//)
+          stack  = _pry_.binding_stack.dup
 
-        # special case when we only get a single "/", return to root
-        stack  = [stack.first] if path.empty?
+          # special case when we only get a single "/", return to root
+          stack  = [stack.first] if path.empty?
 
-        resolve_failure = false
-        path.each do |context|
-          begin
-            case context.chomp
-            when ""
-              stack = [stack.first]
-            when "::"
-              stack.push(TOPLEVEL_BINDING)
-            when "."
-              next
-            when ".."
-              unless stack.size == 1
-                stack.pop
+          resolve_failure = false
+          path.each do |context|
+            begin
+              case context.chomp
+              when ""
+                stack = [stack.first]
+              when "::"
+                stack.push(TOPLEVEL_BINDING)
+              when "."
+                next
+              when ".."
+                unless stack.size == 1
+                  stack.pop
+                end
+              else
+                stack.push(Pry.binding_for(stack.last.eval(context)))
               end
-            else
-              stack.push(Pry.binding_for(stack.last.eval(context)))
+
+            rescue RescuableException => e
+              output.puts "Bad object path: #{arg_string.chomp}. Failed trying to resolve: #{context}"
+              output.puts e.inspect
+              resolve_failure = true
+              break
             end
-
-          rescue RescuableException => e
-            output.puts "Bad object path: #{arg_string.chomp}. Failed trying to resolve: #{context}"
-            output.puts e.inspect
-            resolve_failure = true
-            break
           end
+
+          return if resolve_failure
+
+          _pry_.binding_stack = stack
         end
-
-        next if resolve_failure
-
-        _pry_.binding_stack = stack
       end
 
       command "switch-to", "Start a new sub-session on a binding in the current stack (numbered by nesting)." do |selection|
@@ -92,20 +94,22 @@ class Pry
 
       alias_command "!!@", "exit-all"
 
-      command "exit", "Pop the current binding and return to the one immediately prior. Note this does NOT exit the program. Aliases: quit", :keep_retval => true do
-        if _pry_.binding_stack.one?
-          # when breaking out of top-level then behave like `exit-all`
-          _pry_.binding_stack.clear
-          throw(:breakout, target.eval(arg_string))
-        else
-          # otherwise just pop a binding
-          popped_object = _pry_.binding_stack.pop.eval('self')
-
-          # return a user-specified value if given
-          if !arg_string.empty?
-            target.eval(arg_string)
+      command_class "exit", "Pop the current binding and return to the one immediately prior. Note this does NOT exit the program. Aliases: quit", :keep_retval => true do
+        def process
+          if _pry_.binding_stack.one?
+            # when breaking out of top-level then behave like `exit-all`
+            _pry_.binding_stack.clear
+            throw(:breakout, target.eval(arg_string))
           else
-            popped_object
+            # otherwise just pop a binding
+            popped_object = _pry_.binding_stack.pop.eval('self')
+
+            # return a user-specified value if given
+            if !arg_string.empty?
+              target.eval(arg_string)
+            else
+              popped_object
+            end
           end
         end
       end
