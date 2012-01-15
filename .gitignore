@@ -12,3 +12,4 @@ coverage/
 .rbx/
 .rvmrc
 Gemfile.lock
+*.swp
