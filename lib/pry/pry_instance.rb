@@ -591,9 +591,11 @@ class Pry
     elsif defined?(Rubinius::Melbourne)
       Rubinius::Melbourne.parse_string(str, Pry.eval_path)
     else
-      catch(:valid) {
-        eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
-      }
+      catch(:valid) do
+        Helpers::BaseHelpers.silence_warnings do
+          eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
+        end
+      end
     end
 
     # Assert that a line which ends with a , is incomplete.
