@@ -263,10 +263,30 @@ class Pry
       lines.map { |l| "#{l.first}\n" }.join
     end
 
+    # Return the number of lines stored.
+    #
+    # @return [Fixnum]
+    def length
+      @lines ? @lines.length : 0
+    end
+
+    # Two `Code` objects are equal if they contain the same lines with the same
+    # numbers.
+    #
+    # @param [Code] other
+    # @return [Boolean]
+    def ==(other)
+      @other_lines = other.instance_variable_get(:@lines)
+      @lines.each_with_index.all? do |(l, ln), i|
+        l == @other_lines[i].first && ln == @other_lines[i].last
+      end
+    end
+
     # Forward any missing methods to the output of `#to_s`.
     def method_missing(name, *args, &blk)
       to_s.send(name, *args, &blk)
     end
+    undef =~
 
     protected
       # An abstraction of the `dup.instance_eval` pattern used throughout this
