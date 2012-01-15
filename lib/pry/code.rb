@@ -210,6 +210,7 @@ class Pry
     # @return [Code]
     def grep(pattern)
       return self unless pattern
+      pattern = Regexp.new(pattern)
 
       select do |l, ln|
         l =~ pattern

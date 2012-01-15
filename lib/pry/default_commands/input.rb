@@ -189,7 +189,7 @@ class Pry
           end
 
           if opts.present?(:grep)
-            @history = @history.grep(Regexp.new(opts[:grep]))
+            @history = @history.grep(opts[:grep])
           end
 
           unless opts.present?(:'no-numbers')
