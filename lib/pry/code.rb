@@ -1,5 +1,10 @@
 class Pry
   class << self
+    # Convert the given object into an instance of `Pry::Code`, if it isn't
+    # already one.
+    #
+    # @param [Code, Method, UnboundMethod, Proc, Pry::Method, String, Array,
+    #   IO] obj
     def Code(obj)
       case obj
       when Code
@@ -12,10 +17,19 @@ class Pry
     end
   end
 
+  # `Pry::Code` is a class that encapsulates lines of source code and their
+  # line numbers and formats them for terminal output. It can read from a file
+  # or method definition or be instantiated with a `String` or an `Array`.
+  #
+  # In general, the formatting methods in `Code` return a new `Code` object
+  # which will format the text as specified when `#to_s` is called. This allows
+  # arbitrary chaining of formatting methods without mutating the original
+  # object.
   class Code
     class << self
       # Instantiate a `Code` object containing code loaded from a file or
       # Pry's line buffer.
+      #
       # @param [String] fn The name of a file, or "(pry)".
       # @param [Symbol] code_type (:ruby) The type of code the file contains.
       # @return [Code]
@@ -36,7 +50,9 @@ class Pry
 
       # Instantiate a `Code` object containing code extracted from a
       # `::Method`, `UnboundMethod`, `Proc`, or `Pry::Method` object.
-      # @param [::Method, UnboundMethod, Proc, Pry::Method] meth The method object.
+      #
+      # @param [::Method, UnboundMethod, Proc, Pry::Method] meth The method
+      #   object.
       # @param [Fixnum, nil] The line number to start on, or nil to use the
       #   method's original line numbers.
       # @return [Code]
@@ -49,6 +65,11 @@ class Pry
 
     attr_accessor :code_type
 
+    # Instantiate a `Code` object containing code from the given `Array`,
+    # `String`, or `IO`. The first line will be line 1 unless specified
+    # otherwise. If you need non-contiguous line numbers, you can create an
+    # empty `Code` object and then use `#push` to insert the lines.
+    #
     # @param [Array<String>, String, IO] lines
     # @param [Fixnum?] (1) start_line
     # @param [Symbol?] (:ruby) code_type
@@ -61,33 +82,42 @@ class Pry
       @code_type = code_type
     end
 
+    # Append the given line. `line_num` is one more than the last existing
+    # line, unless specified otherwise.
+    #
     # @param [String] line
     # @param [Fixnum?] line_num
+    # @return [String] The inserted line.
     def push(line, line_num=nil)
       line_num = @lines.last.last + 1 unless line_num
-
       @lines.push([line, line_num])
-      nil
+      line
     end
     alias << push
 
+    # Filter the lines using the given block.
+    #
+    # @yield [line]
+    # @return [Code]
     def select(&blk)
-      dup.instance_eval do
+      alter do
         @lines = @lines.select(&blk)
-        self
       end
     end
 
-    def before(line_num, lines=1)
-      return self unless line_num
-      select { |l, ln| ln >= line_num - lines && ln < line_num }
-    end
-
+    # Remove all lines that aren't in the given range, expressed either as a
+    # `Range` object or a first and last line number (inclusive).
+    #
+    # @param [Range, Fixnum] start_line
+    # @param [Fixnum?] end_line
+    # @return [Code]
     def between(start_line, end_line=nil)
       return self unless start_line
 
       if start_line.is_a? Range
-        end_line   = start_line.last
+        end_line = start_line.last
+        end_line -= 1 if start_line.exclude_end?
+
         start_line = start_line.first
       else
         end_line ||= start_line
@@ -97,49 +127,94 @@ class Pry
       end_line   -= 1 unless end_line   < 1
       range = start_line..end_line
 
-      dup.instance_eval do
+      alter do
         @lines = @lines[range] || []
-        self
       end
     end
 
+    # Remove all lines except for the `lines` up to and excluding `line_num`.
+    #
+    # @param [Fixnum] line_num
+    # @param [Fixnum] (1) lines
+    # @return [Code]
+    def before(line_num, lines=1)
+      return self unless line_num
+
+      select do |l, ln|
+        ln >= line_num - lines && ln < line_num
+      end
+    end
+
+    # Remove all lines except for the `lines` on either side of and including
+    # `line_num`.
+    #
+    # @param [Fixnum] line_num
+    # @param [Fixnum] (1) lines
+    # @return [Code]
     def around(line_num, lines=1)
       return self unless line_num
-      select { |l, ln| ln >= line_num - lines && ln <= line_num + lines }
+
+      select do |l, ln|
+        ln >= line_num - lines && ln <= line_num + lines
+      end
     end
 
+    # Remove all lines except for the `lines` after and excluding `line_num`.
+    #
+    # @param [Fixnum] line_num
+    # @param [Fixnum] (1) lines
+    # @return [Code]
     def after(line_num, lines=1)
       return self unless line_num
-      select { |l, ln| ln > line_num && ln <= line_num + lines }
+
+      select do |l, ln|
+        ln > line_num && ln <= line_num + lines
+      end
     end
 
+    # Remove all lines that don't match the given `pattern`.
+    #
+    # @param [Regexp] pattern
+    # @return [Code]
     def grep(pattern)
       return self unless pattern
-      select { |l, ln| l =~ pattern }
-    end
 
-    # @param [Symbol?] color
-    # @return [String]
-    def with_line_numbers(y_n=true)
-      dup.instance_eval do
-        @with_line_numbers = y_n
-        self
+      select do |l, ln|
+        l =~ pattern
       end
     end
 
+    # Format output with line numbers next to it, unless `y_n` is falsy.
+    #
+    # @param [Boolean?] (true) y_n
+    # @return [Code]
+    def with_line_numbers(y_n=true)
+      alter do
+        @with_line_numbers = y_n
+      end
+    end
+
+    # Format output with a marker next to the given `line_num`, unless `line_num`
+    # is falsy.
+    #
+    # @param [Fixnum?] (1) line_num
+    # @return [Code]
     def with_marker(line_num=1)
-      dup.instance_eval do
+      alter do
         @with_marker     = !!line_num
         @marker_line_num = line_num
-        self
       end
     end
 
+    # Format output with the specified number of spaces in front of every line,
+    # unless `spaces` is falsy.
+    #
+    # @param [Fixnum?] (0) spaces
+    # @return [Code]
     def with_indentation(spaces=0)
-      dup.instance_eval do
+      alter do
         @with_indentation = !!spaces
         @indentation_num  = spaces
-        self
       end
     end
 
@@ -148,6 +223,9 @@ class Pry
       Object.instance_method(:to_s).bind(self).call
     end
 
+    # Based on the configuration of the object, return a formatted String
+    # representation.
+    #
     # @return [String]
     def to_s
       lines = @lines.map(&:dup)
@@ -185,8 +263,16 @@ class Pry
       lines.map { |l| "#{l.first}\n" }.join
     end
 
+    # Forward any missing methods to the output of `#to_s`.
     def method_missing(name, *args, &blk)
       to_s.send(name, *args, &blk)
     end
+
+    protected
+      # An abstraction of the `dup.instance_eval` pattern used throughout this
+      # class.
+      def alter(&blk)
+        dup.tap { |o| o.instance_eval(&blk) }
+      end
   end
 end
