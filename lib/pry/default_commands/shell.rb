@@ -76,7 +76,7 @@ class Pry
         end
 
         def process_ex
-          window_size = Pry.config.exception_window_size || 5
+          window_size = Pry.config.default_window_size || 5
           ex = _pry_.last_exception
 
           raise CommandError, "No exception found." unless ex
@@ -144,7 +144,14 @@ class Pry
             raise CommandError, "Must provide a filename, --in, or --ex."
           end
 
+          file_name, line_num = file_name.split(':')
+
           code = yield(Pry::Code.from_file(file_name))
+
+          if line_num
+            code = code.around(line_num.to_i,
+                               Pry.config.default_window_size || 7)
+          end
 
           set_file_and_dir_locals(file_name)
           render_output(code, opts)

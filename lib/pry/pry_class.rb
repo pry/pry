@@ -216,8 +216,8 @@ class Pry
     config.prompt = DEFAULT_PROMPT
     config.print = DEFAULT_PRINT
     config.exception_handler = DEFAULT_EXCEPTION_HANDLER
-    config.exception_window_size = 5
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
+    config.default_window_size = 5
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
     config.color = Helpers::BaseHelpers.use_ansi_codes?

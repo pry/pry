@@ -33,8 +33,8 @@ class Pry
     attr_accessor :exception_whitelist
 
     # @return [Fixnum] The number of lines of context to show before and after
-    # the exception when using cat --ex.
-    attr_accessor :exception_window_size
+    #   exceptions, etc.
+    attr_accessor :default_window_size
 
     # Get/Set the Hash that defines Pry hooks used by default by all Pry
     # instances.
