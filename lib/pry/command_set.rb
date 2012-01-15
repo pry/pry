@@ -331,23 +331,36 @@ class Pry
 
     def define_default_commands
 
-      command "help", "This menu." do |cmd|
-        if !cmd
-          output.puts
-          help_text = heading("Command List: ") + "\n"
+      create_command "help" do |cmd|
+        description "Show a list of commands, or help for one command"
 
-          help_text << commands.map do |key, command|
-            if command.description && !command.description.empty?
-              "#{command.options[:listing].to_s.ljust(18)} #{command.description}"
+        banner <<-BANNER
+          Usage: help [ COMMAND ]
+
+          With no arguments, help lists all the available commands in the current
+          command-set along with their description.
+
+          When given a command name as an argument, shows the help for that command.
+        BANNER
+
+        def process
+          if cmd = args.first
+            if command = find_command(cmd)
+              output.puts command.new.help
+            else
+              output.puts "No info for command: #{cmd}"
             end
-          end.compact.sort.join("\n")
-
-          stagger_output(help_text)
-        else
-          if command = find_command(cmd)
-            output.puts command.new.help
           else
-            output.puts "No info for command: #{cmd}"
+            output.puts
+            help_text = heading("Command List: ") + "\n"
+
+            help_text << commands.map do |key, command|
+              if command.description && !command.description.empty?
+                "#{command.options[:listing].to_s.ljust(18)} #{command.description}"
+              end
+            end.compact.sort.join("\n")
+
+            stagger_output(help_text)
           end
         end
       end
