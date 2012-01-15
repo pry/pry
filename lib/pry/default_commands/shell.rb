@@ -30,7 +30,7 @@ class Pry
       end
       alias_command "file-mode", "shell-mode"
 
-      command_class "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do
+      command_class "cat", "Show code from a file, Pry's input buffer, or the last exception." do
         banner <<-USAGE
           Usage: cat FILE
                  cat --ex [STACK_INDEX]
@@ -66,13 +66,14 @@ class Pry
               method :process_file
             end
 
-          handler.call do |code|
+          output = handler.call do |code|
             code.code_type = opts[:type] || :ruby
 
-            code.
-              between(opts[:start] || 1, opts[:end] || -1).
+            code.between(opts[:start] || 1, opts[:end] || -1).
               with_line_numbers(opts.present?(:'line-numbers') || opts.present?(:ex))
           end
+
+          render_output(output, opts)
         end
 
         def process_ex
@@ -111,7 +112,7 @@ class Pry
                          between(start_line, end_line).
                          with_marker(ex_line))
 
-          render_output("#{header}#{code}", opts)
+          "#{header}#{code}"
         end
 
         def process_in
@@ -134,7 +135,7 @@ class Pry
             contents = yield(Pry::Code(zipped_items.first.last))
           end
 
-          render_output(contents, opts)
+          contents
         end
 
         def process_file
@@ -145,6 +146,7 @@ class Pry
           end
 
           file_name, line_num = file_name.split(':')
+          set_file_and_dir_locals(file_name)
 
           code = yield(Pry::Code.from_file(file_name))
 
@@ -153,8 +155,7 @@ class Pry
                                Pry.config.default_window_size || 7)
           end
 
-          set_file_and_dir_locals(file_name)
-          render_output(code, opts)
+          code
         end
       end
     end
