@@ -6,19 +6,6 @@ class Pry
 
       module_function
 
-      # if start_line is not false then add line numbers starting with start_line
-      def render_output(should_flood, start_line, text, color=:blue)
-        if start_line
-          text = Pry::Helpers::Text.with_line_numbers text, start_line, color
-        end
-
-        if should_flood
-          output.puts text
-        else
-          stagger_output(text)
-        end
-      end
-
       # Open a temp file and yield it to the block, closing it after
       # @return [String] The path of the temp file
       def temp_file
@@ -26,6 +13,14 @@ class Pry
         yield file
       ensure
         file.close(true)
+      end
+
+      def render_output(str, opts={})
+        if opts[:flood]
+          output.puts str
+        else
+          stagger_output str
+        end
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)
