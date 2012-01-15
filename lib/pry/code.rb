@@ -270,7 +270,7 @@ class Pry
       end
 
       if @with_line_numbers
-        max_width = @lines.last.last.to_s.length if @lines.length > 0
+        max_width = lines.last.last.to_s.length if lines.length > 0
         lines.each do |l|
           padded_line_num = l[1].to_s.rjust(max_width)
           l[0] = "#{Pry::Helpers::Text.blue(padded_line_num)}: #{l[0]}"

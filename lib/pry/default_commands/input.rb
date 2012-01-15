@@ -164,12 +164,25 @@ class Pry
         end
 
         def process
-          @history = Pry::Code(Pry.history.to_a[0..-2])
+          @history = Pry::Code(Pry.history.to_a)
 
-          if opts.present?(:e)
-            @history = @history.select do |l, ln|
-              !command_set.valid_command?(l)
+          @history = case
+            when opts.present?(:head)
+              @history.between(1, opts[:head] || 10)
+            when opts.present?(:tail)
+              @history.between(-(opts[:tail] || 10), -1)
+            when opts.present?(:show)
+              @history.between(opts[:show])
+            else
+              @history
             end
+
+          if opts.present?(:grep)
+            @history = @history.grep(opts[:grep])
+          end
+
+          if opts.present?(:'exclude-pry')
+            @history = @history.select { |l, ln| !command_set.valid_command?(l) }
           end
 
           if opts.present?(:save)
@@ -184,28 +197,9 @@ class Pry
         end
 
         def process_display
-          if opts.present?(:'exclude-pry')
-            @history = @history.select { |l, ln| !command_set.valid_command?(l) }
-          end
-
-          if opts.present?(:grep)
-            @history = @history.grep(opts[:grep])
-          end
-
           unless opts.present?(:'no-numbers')
             @history = @history.with_line_numbers
           end
-
-          @history = case
-            when opts.present?(:head)
-              @history.between(1, opts[:head] || 10)
-            when opts.present?(:tail)
-              @history.between(-(opts[:tail] || 10), -1)
-            when opts.present?(:show)
-              @history.between(opts[:show])
-            else
-              @history
-            end
 
           render_output(@history, opts)
         end
@@ -244,7 +238,6 @@ class Pry
       end
 
       alias_command "history", "hist"
-
     end
   end
 end
