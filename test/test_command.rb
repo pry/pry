@@ -223,6 +223,16 @@ describe "Pry::Command" do
 
       mock_command(cmd, %w(--four 4 four))
     end
+
+    it 'should allow overriding options after definition' do
+      cmd = @set.command_class /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false do
+
+        command_options :listing => 'number-one'
+      end
+
+      cmd.command_options[:shellwords].should == false
+      cmd.command_options[:listing].should == 'number-one'
+    end
   end
 
   describe 'tokenize' do

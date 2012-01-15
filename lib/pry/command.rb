@@ -27,7 +27,8 @@ class Pry
 
       # Define or get the command's options
       def command_options(arg=nil)
-        @command_options = arg if arg
+        @command_options ||= {}
+        @command_options.merge!(arg) if arg
         @command_options
       end
       # backward compatibility
