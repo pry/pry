@@ -33,17 +33,18 @@ class Pry
       # @param [String] fn The name of a file, or "(pry)".
       # @param [Symbol] code_type (:ruby) The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type=:ruby)
+      def from_file(fn, code_type=nil)
         if fn == Pry.eval_path
           f = Pry.line_buffer.drop(1)
         else
           if File.readable?(fn)
             f = File.open(fn, 'r')
+            code_type = type_from_filename(fn)
           else
             raise CommandError, "Cannot open #{fn.inspect} for reading."
           end
         end
-        new(f, 1, code_type)
+        new(f, 1, code_type || :ruby)
       ensure
         f.close if f.respond_to?(:close)
       end
@@ -61,6 +62,37 @@ class Pry
         start_line ||= meth.source_line || 1
         new(meth.source, start_line, meth.source_type)
       end
+
+      protected
+        # Guess the CodeRay type of a file from its extension, or nil if
+        # unknown.
+        #
+        # @param [String] filename
+        # @return [Symbol, nil]
+        def type_from_filename(filename)
+          map = {
+            %w(.c .h) => :c,
+            %w(.cpp .hpp .cc .h cxx) => :cpp,
+            %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
+            %w(.py) => :python,
+            %w(.diff) => :diff,
+            %w(.css) => :css,
+            %w(.html) => :html,
+            %w(.yaml .yml) => :yaml,
+            %w(.xml) => :xml,
+            %w(.php) => :php,
+            %w(.js) => :javascript,
+            %w(.java) => :java,
+            %w(.rhtml) => :rhtml,
+            %w(.json) => :json
+          }
+
+          _, type = map.find do |k, _|
+            k.any? { |ext| ext == File.extname(filename) }
+          end
+
+          type
+        end
     end
 
     attr_accessor :code_type

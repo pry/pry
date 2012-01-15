@@ -148,11 +148,11 @@ end
 
 # Open a temp file and yield it to the block, closing it after
 # @return [String] The path of the temp file
-def temp_file
-  file = Tempfile.new('pry')
+def temp_file(ext='.rb')
+  file = Tempfile.new(['pry', ext])
   yield file
 ensure
-  file.close(true)
+  file.close(true) if file
 end
 
 
