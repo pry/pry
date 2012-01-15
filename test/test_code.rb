@@ -2,28 +2,28 @@ require 'helper'
 
 describe Pry::Code do
   describe '.from_file' do
-    it 'should read lines from a file on disk' do
+    should 'read lines from a file on disk' do
       Pry::Code.from_file('lib/pry.rb').length.should > 0
     end
 
-    it 'should read lines from Pry\'s line buffer' do
+    should 'read lines from Pry\'s line buffer' do
       mock_pry(':hay_guys')
       Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should == 1
     end
 
-    it 'should default to Ruby' do
+    should 'default to Ruby' do
       temp_file('') do |f|
         Pry::Code.from_file(f.path).code_type.should == :ruby
       end
     end
 
-    it 'should check the extension' do
+    should 'check the extension' do
       temp_file('.c') do |f|
         Pry::Code.from_file(f.path).code_type.should == :c
       end
     end
 
-    it 'should raise an error if the file doesn\'t exist' do
+    should 'raise an error if the file doesn\'t exist' do
       proc do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')
       end.should.raise(Pry::CommandError)
@@ -31,7 +31,7 @@ describe Pry::Code do
   end
 
   describe '.from_method' do
-    it 'should read lines from a method\'s definition' do
+    should 'read lines from a method\'s definition' do
       m = Pry::Method.from_obj(Pry, :load_history)
       Pry::Code.from_method(m).length.should > 0
     end
@@ -48,11 +48,11 @@ describe Pry::Code do
       @array = ['def hay', '  :guys', 'end']
     end
 
-    it 'should break a string into lines' do
+    should 'break a string into lines' do
       Pry::Code.new(@str).length.should == 3
     end
 
-    it 'should accept an array' do
+    should 'accept an array' do
       Pry::Code.new(@array).length.should == 3
     end
 
@@ -74,19 +74,19 @@ describe Pry::Code do
 
     describe 'filters' do
       describe '#between' do
-        it 'should work with an inclusive range' do
+        should 'work with an inclusive range' do
           @code = @code.between(1..3)
           @code.length.should == 3
           @code.should =~ /\Aclass MyProgram/
           @code.should =~ /world!'\Z/
         end
 
-        it 'should default to an inclusive range' do
+        should 'default to an inclusive range' do
           @code = @code.between(3, 5)
           @code.length.should == 3
         end
 
-        it 'should work with an exclusive range' do
+        should 'work with an exclusive range' do
           @code = @code.between(2...4)
           @code.length.should == 2
           @code.should =~ /\A  def self/
@@ -95,14 +95,14 @@ describe Pry::Code do
       end
 
       describe '#before' do
-        it 'should work' do
+        should 'work' do
           @code = @code.before(3, 1)
           @code.should =~ /\A  def self\.main\Z/
         end
       end
 
       describe '#around' do
-        it 'should work' do
+        should 'work' do
           @code = @code.around(3, 1)
           @code.length.should == 3
           @code.should =~ /\A  def self/
@@ -111,14 +111,14 @@ describe Pry::Code do
       end
 
       describe '#after' do
-        it 'should work' do
+        should 'work' do
           @code = @code.after(3, 1)
           @code.should =~ /\A  end\Z/
         end
       end
 
       describe '#grep' do
-        it 'should work' do
+        should 'work' do
           @code = @code.grep(/end/)
           @code.length.should == 2
         end
@@ -127,12 +127,12 @@ describe Pry::Code do
 
     describe 'formatters' do
       describe '#with_line_numbers' do
-        it 'should show line numbers' do
+        should 'show line numbers' do
           @code = @code.with_line_numbers
           @code.should =~ /1:/
         end
 
-        it 'should disable line numbers when falsy' do
+        should 'disable line numbers when falsy' do
           @code = @code.with_line_numbers
           @code = @code.with_line_numbers(false)
           @code.should.not =~ /1:/
@@ -140,12 +140,12 @@ describe Pry::Code do
       end
 
       describe '#with_marker' do
-        it 'should show a marker in the right place' do
+        should 'show a marker in the right place' do
           @code = @code.with_marker(2)
           @code.should =~ /^ =>   def self/
         end
 
-        it 'should disable the marker when falsy' do
+        should 'disable the marker when falsy' do
           @code = @code.with_marker(2)
           @code = @code.with_marker(false)
           @code.should =~ /^  def self/
@@ -153,15 +153,40 @@ describe Pry::Code do
       end
 
       describe '#with_indentation' do
-        it 'should indent the text' do
+        should 'indent the text' do
           @code = @code.with_indentation(2)
           @code.should =~ /^    def self/
         end
 
-        it 'should disable the indentation when falsy' do
+        should 'disable the indentation when falsy' do
           @code = @code.with_indentation(2)
           @code = @code.with_indentation(false)
           @code.should =~ /^  def self/
+        end
+      end
+    end
+
+    describe 'composition' do
+      describe 'grep and with_line_numbers' do
+        should 'work' do
+          @code = @code.grep(/end/).with_line_numbers
+          @code.should =~ /\A4:   end/
+          @code.should =~ /5: end\Z/
+        end
+      end
+
+      describe 'grep and before and with_line_numbers' do
+        should 'work' do
+          @code = @code.grep(/e/).before(5, 5).with_line_numbers
+          @code.should =~ /\A2:   def self.main\n3:/
+          @code.should =~ /4:   end\Z/
+        end
+      end
+
+      describe 'before and after' do
+        should 'work' do
+          @code = @code.before(4, 2).after(2)
+          @code.should == "    puts 'Hello, world!'"
         end
       end
     end

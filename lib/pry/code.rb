@@ -304,14 +304,18 @@ class Pry
     end
 
     # Two `Code` objects are equal if they contain the same lines with the same
-    # numbers.
+    # numbers. Otherwise, call `to_s` and `chomp` and compare as Strings.
     #
-    # @param [Code] other
+    # @param [Code, Object] other
     # @return [Boolean]
     def ==(other)
-      @other_lines = other.instance_variable_get(:@lines)
-      @lines.each_with_index.all? do |(l, ln), i|
-        l == @other_lines[i].first && ln == @other_lines[i].last
+      if other.is_a?(Code)
+        @other_lines = other.instance_variable_get(:@lines)
+        @lines.each_with_index.all? do |(l, ln), i|
+          l == @other_lines[i].first && ln == @other_lines[i].last
+        end
+      else
+        to_s.chomp == other.to_s.chomp
       end
     end
 
