@@ -11,6 +11,18 @@ describe Pry::Code do
       Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should == 1
     end
 
+    it 'should default to Ruby' do
+      temp_file('') do |f|
+        Pry::Code.from_file(f.path).code_type.should == :ruby
+      end
+    end
+
+    it 'should check the extension' do
+      temp_file('.c') do |f|
+        Pry::Code.from_file(f.path).code_type.should == :c
+      end
+    end
+
     it 'should raise an error if the file doesn\'t exist' do
       proc do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')

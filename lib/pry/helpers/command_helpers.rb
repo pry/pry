@@ -8,11 +8,11 @@ class Pry
 
       # Open a temp file and yield it to the block, closing it after
       # @return [String] The path of the temp file
-      def temp_file
-        file = Tempfile.new(['pry', '.rb'])
+      def temp_file(ext='.rb')
+        file = Tempfile.new(['pry', ext])
         yield file
       ensure
-        file.close(true)
+        file.close(true) if file
       end
 
       def render_output(str, opts={})
@@ -59,63 +59,6 @@ class Pry
         end
 
         header << "#{Pry::Helpers::Text.bold("Number of lines:")} #{content.each_line.count.to_s}\n"
-      end
-
-      def file_map
-        {
-          [".c", ".h"] => :c,
-          [".cpp", ".hpp", ".cc", ".h", "cxx"] => :cpp,
-          [".rb", "Rakefile", ".irbrc", ".gemspec", ".pryrc"] => :ruby,
-          ".py" => :python,
-          ".diff" => :diff,
-          ".css" => :css,
-          ".html" => :html,
-          [".yaml", ".yml"] => :yaml,
-          ".xml" => :xml,
-          ".php" => :php,
-          ".js" => :javascript,
-          ".java" => :java,
-          ".rhtml" => :rhtml,
-          ".json" => :json
-        }
-      end
-
-      def syntax_highlight_by_file_type_or_specified(contents, file_name, file_type)
-        if file_type
-          language_detected = file_type
-        else
-          _, language_detected = file_map.find do |k, v|
-            Array(k).any? do |matcher|
-              matcher == File.extname(file_name) || matcher == File.basename(file_name)
-            end
-          end
-        end
-
-        if Pry.color
-          CodeRay.scan(contents, language_detected).term
-        else
-          contents
-        end
-      end
-
-      # convert negative line numbers to positive by wrapping around
-      # last line (as per array indexing with negative numbers)
-      def normalized_line_number(line_number, total_lines)
-        line_number < 0 ? line_number + total_lines : line_number
-      end
-
-      # returns the file content between the lines and the normalized
-      # start and end line numbers.
-      def read_between_the_lines(file_name, start_line, end_line)
-        if file_name == Pry.eval_path
-          content = Pry.line_buffer.drop(1).join
-        else
-          content = File.read(File.expand_path(file_name))
-        end
-        lines_array = content.each_line.to_a
-
-        [lines_array[start_line..end_line].join, normalized_line_number(start_line, lines_array.size),
-         normalized_line_number(end_line, lines_array.size)]
       end
 
       def process_rdoc(comment, code_type)
