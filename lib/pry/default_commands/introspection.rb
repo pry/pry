@@ -41,12 +41,6 @@ class Pry
           output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
           output.puts
 
-          if Pry.color
-            code = CodeRay.scan(meth.source, meth.source_type).term
-          else
-            code = meth.source
-          end
-
           start_line = false
           if opts.present?(:'base-one')
             start_line = 1
@@ -54,7 +48,7 @@ class Pry
             start_line = meth.source_line || 1
           end
 
-          render_output(opts.present?(:flood), start_line, code)
+          render_output(opts.present?(:flood), start_line, colorize_code(meth.source))
         end
       end
 
@@ -94,19 +88,12 @@ class Pry
           output.puts make_header(block)
           output.puts
 
-          if Pry.color
-            code = CodeRay.scan(block.source, :ruby).term
-          else
-            code = block.source
-          end
-
           start_line = false
           if opts.present?(:'line-numbers')
             start_line = block.source_line || 1
           end
 
-          render_output(opts.present?(:flood), opts.present?(:'line-numbers') ? block.source_line : false, code)
-          code
+          render_output(opts.present?(:flood), opts.present?(:'line-numbers') ? block.source_line : false, colorize_code(block.source))
         else
           raise CommandError, "No such command: #{command_name}."
         end
