@@ -138,7 +138,8 @@ class Pry
     end
 
     # Remove all lines that aren't in the given range, expressed either as a
-    # `Range` object or a first and last line number (inclusive).
+    # `Range` object or a first and last line number (inclusive). Negative
+    # indices count from the end of the array of lines.
     #
     # @param [Range, Fixnum] start_line
     # @param [Fixnum?] end_line
@@ -155,12 +156,20 @@ class Pry
         end_line ||= start_line
       end
 
-      start_line -= 1 unless start_line < 1
-      end_line   -= 1 unless end_line   < 1
-      range = start_line..end_line
+      if start_line > 0
+        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
+      else
+        start_idx = start_line
+      end
+
+      if end_line > 0
+        end_idx = (@lines.index { |l| l.last > end_line } || 0) - 1
+      else
+        end_idx = end_line
+      end
 
       alter do
-        @lines = @lines[range] || []
+        @lines = @lines[start_idx..end_idx] || []
       end
     end
 
