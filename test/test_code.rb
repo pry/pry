@@ -92,6 +92,13 @@ describe Pry::Code do
           @code.should =~ /\A  def self/
           @code.should =~ /world!'\Z/
         end
+
+        should 'use real line numbers for positive indices' do
+          @code = @code.after(3, 3)
+          @code = @code.between(4, 4)
+          @code.length.should == 1
+          @code.should =~ /\A  end\Z/
+        end
       end
 
       describe '#before' do
