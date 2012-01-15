@@ -38,7 +38,8 @@ class Pry
           output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
           output.puts "#{text.bold("Signature:")} #{meth.signature}"
           output.puts
-          render_output(opts.present?(:flood), false, doc)
+
+          render_output(doc, opts)
         end
       end
 

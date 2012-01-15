@@ -133,7 +133,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should start editor on first level of backtrace when --ex used with no argument ' do
         pry_instance = Pry.new(:input => StringIO.new("edit -n --ex"), :output => StringIO.new)
-        pry_instance.last_exception = MockPryException.new("a:1", "b:2", "c:3")
+        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
         pry_instance.rep(self)
         @__ex_file__.should == "a"
         @__ex_line__.should == 1
@@ -141,7 +141,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should start editor on first level of backtrace when --ex 0 used ' do
         pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 0"), :output => StringIO.new)
-        pry_instance.last_exception = MockPryException.new("a:1", "b:2", "c:3")
+        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
         pry_instance.rep(self)
         @__ex_file__.should == "a"
         @__ex_line__.should == 1
@@ -149,7 +149,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should start editor on second level of backtrace when --ex 1 used' do
         pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 1"), :output => StringIO.new)
-        pry_instance.last_exception = MockPryException.new("a:1", "b:2", "c:3")
+        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
         pry_instance.rep(self)
         @__ex_file__.should == "b"
         @__ex_line__.should == 2
@@ -157,7 +157,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should start editor on third level of backtrace when --ex 2 used' do
         pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 2"), :output => StringIO.new)
-        pry_instance.last_exception = MockPryException.new("a:1", "b:2", "c:3")
+        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
         pry_instance.rep(self)
         @__ex_file__.should == "c"
         @__ex_line__.should == 3
@@ -165,7 +165,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should display error message when backtrace level is out of bounds (using --ex 4)' do
         pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 4"), :output => str_output = StringIO.new)
-        pry_instance.last_exception = MockPryException.new("a:1", "b:2", "c:3")
+        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
         pry_instance.rep(self)
         str_output.string.should =~ /Exception has no associated file/
       end

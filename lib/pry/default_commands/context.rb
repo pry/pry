@@ -172,12 +172,7 @@ class Pry
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
         file = target.eval('__FILE__')
         line_num = target.eval('__LINE__')
-
-        if num
-          i_num = num.to_i
-        else
-          i_num = 5
-        end
+        i_num = num ? num.to_i : 5
 
         if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
           raise CommandError, "Cannot find local context. Did you use `binding.pry`?"
@@ -189,40 +184,9 @@ class Pry
         method_description = method ? " in #{method.name_with_owner}" : ""
         output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
 
-        if file == Pry.eval_path
-          f = Pry.line_buffer[1..-1]
-        else
-          unless File.readable?(file)
-            raise CommandError, "Cannot open #{file.inspect} for reading."
-          end
-          f = File.open(file)
-        end
-
-        # This method inspired by http://rubygems.org/gems/ir_b
-        begin
-          f.each_with_index do |line, index|
-            line_n = index + 1
-            next unless line_n > (line_num - i_num - 1)
-            break if line_n > (line_num + i_num)
-            if line_n == line_num
-              code =" =>#{line_n.to_s.rjust(3)}: #{line.chomp}"
-              if Pry.color
-                code = CodeRay.scan(code, :ruby).term
-              end
-              output.puts code
-              code
-            else
-              code = "#{line_n.to_s.rjust(6)}: #{line.chomp}"
-              if Pry.color
-                code = CodeRay.scan(code, :ruby).term
-              end
-              output.puts code
-              code
-            end
-          end
-        ensure
-          f.close if f.respond_to?(:close)
-        end
+        code = Pry::Code.from_file(file).around(line_num, i_num)
+        output.puts code.with_line_numbers.with_marker(line_num)
+        output.puts
       end
 
     end

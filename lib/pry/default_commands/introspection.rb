@@ -41,14 +41,16 @@ class Pry
           output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
           output.puts
 
-          start_line = false
           if opts.present?(:'base-one')
             start_line = 1
-          elsif opts.present?(:'line-numbers')
+          else
             start_line = meth.source_line || 1
           end
 
-          render_output(opts.present?(:flood), start_line, colorize_code(meth.source))
+          code = Code.from_method(meth, start_line).
+                   with_line_numbers(opts.present?(:b) || opts.present?(:l))
+
+          render_output(code, opts)
         end
       end
 
@@ -88,12 +90,9 @@ class Pry
           output.puts make_header(block)
           output.puts
 
-          start_line = false
-          if opts.present?(:'line-numbers')
-            start_line = block.source_line || 1
-          end
+          code = Code.from_method(block).with_line_numbers(opts.present?(:'line-numbers'))
 
-          render_output(opts.present?(:flood), opts.present?(:'line-numbers') ? block.source_line : false, colorize_code(block.source))
+          render_output(code, opts)
         else
           raise CommandError, "No such command: #{command_name}."
         end
