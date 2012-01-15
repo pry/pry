@@ -12,6 +12,7 @@ class Pry
         render_output(false, 1, colorize_code(eval_string))
       end
 
+      # TODO: refactor to command_class
       command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
               :interpolate => false, :listing => "amend-line")  do |*args|
         start_line_number, end_line_number, replacement_line = *args
@@ -59,17 +60,24 @@ class Pry
 
       alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, "amend-line")
 
-      command_class "play", "Play back a string variable or a method or a file as input. Type `play --help` for more information." do
+      command_class "play" do
+        description "Play back a string variable or a method or a file as input. Type `play --help` for more information."
+
+        banner <<-BANNER
+          Usage: play [OPTIONS] [--help]
+
+          The play command enables you to replay code from files and methods as
+          if they were entered directly in the Pry REPL. Default action (no
+          options) is to play the provided string variable
+
+          e.g: `play _in_[20] --lines 1..3`
+          e.g: `play -m Pry#repl --lines 1..-1`
+          e.g: `play -f Rakefile --lines 5`
+
+          https://github.com/pry/pry/wiki/User-Input#wiki-Play
+        BANNER
 
         def options(opt)
-          opt.banner unindent <<-USAGE
-            Usage: play [OPTIONS] [--help]
-            Default action (no options) is to play the provided string variable
-            e.g `play _in_[20] --lines 1..3`
-            e.g `play -m Pry#repl --lines 1..-1`
-            e.g `play -f Rakefile --lines 5`
-          USAGE
-
           opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
           opt.on :m, :method, 'Play a method.', true
           opt.on :f, "file", 'The file to replay in context.', true
@@ -77,46 +85,59 @@ class Pry
         end
 
         def process
-
           if opts.present?(:method)
-            meth_name = opts[:m]
-            meth = get_method_or_raise(meth_name, target, {}, :omit_help)
-            return unless meth.source
-
-            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-            range = (0..-2) if opts.present?(:open)
-
-            eval_string << Array(meth.source.each_line.to_a[range]).join
+            process_method
           elsif opts.present?(:file)
-            file_name = File.expand_path(opts[:f])
-
-            if !File.exists?(file_name)
-              raise CommandError, "No such file: #{opts[:f]}"
-            end
-
-            text_array = File.readlines(file_name)
-            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-            range = (0..-2) if opts.present?(:open)
-
-            _pry_.input_stack << _pry_.input
-            _pry_.input = StringIO.new(Array(text_array[range]).join)
+            process_file
           else
-            if !args.first
-              raise CommandError, "No input to play command."
-            end
-
-            code = target.eval(args.first)
-
-            range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-            range = (0..-2) if opts.present?(:open)
-
-            eval_string << Array(code.each_line.to_a[range]).join
+            process_input
           end
 
-          run "show-input" if !_pry_.complete_expression?(eval_string)
+          run "show-input" unless _pry_.complete_expression?(eval_string)
         end
+
+        def process_method
+          meth_name = opts[:m]
+          meth = get_method_or_raise(meth_name, target, {}, :omit_help)
+          return unless meth.source
+
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
+
+          eval_string << Array(meth.source.each_line.to_a[range]).join
+        end
+
+        def process_file
+          file_name = File.expand_path(opts[:f])
+
+          if !File.exists?(file_name)
+            raise CommandError, "No such file: #{opts[:f]}"
+          end
+
+          text_array = File.readlines(file_name)
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
+
+          _pry_.input_stack << _pry_.input
+          _pry_.input = StringIO.new(Array(text_array[range]).join)
+        end
+
+        def process_input
+          if !args.first
+            raise CommandError, "No input to play command."
+          end
+
+          code = target.eval(args.first)
+
+          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
+          range = (0..-2) if opts.present?(:open)
+
+          eval_string << Array(code.each_line.to_a[range]).join
+        end
+
       end
 
+      # TODO: refactor to use command_class
       command "hist", "Show and replay Readline history. Type `hist --help` for more info. Aliases: history" do |*args|
         # exclude the current command from history.
         history = Pry.history.to_a[0..-2]
@@ -285,6 +306,5 @@ class Pry
       alias_command "history", "hist"
 
     end
-
   end
 end
