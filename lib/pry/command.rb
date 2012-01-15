@@ -16,8 +16,8 @@ class Pry
     class << self
       attr_accessor :block
       attr_accessor :name
-      attr_accessor :description
-      attr_accessor :command_options
+      attr_writer :description
+      attr_writer :command_options
 
       # Define or get the command's description
       def description(arg=nil)
@@ -279,7 +279,7 @@ class Pry
         instance_exec(*args, &block)
       end
 
-      ret = call *args
+      ret = call(*args)
 
       self.class.hooks[:after].each do |block|
         ret = instance_exec(*args, &block)
@@ -319,7 +319,7 @@ class Pry
       when arity == 0
         []
       when arity > 0
-        args.values_at *(0..(arity - 1)).to_a
+        args.values_at(*(0..(arity - 1)).to_a)
       end
     end
 

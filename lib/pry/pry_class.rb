@@ -233,7 +233,7 @@ class Pry
     config.collision_warning = false
 
     config.gist ||= OpenStruct.new
-    config.gist.inspecter = proc &:pretty_inspect
+    config.gist.inspecter = proc(&:pretty_inspect)
 
     config.plugins ||= OpenStruct.new
     config.plugins.enabled = true
