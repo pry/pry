@@ -6,7 +6,23 @@ class Pry
     Context = Pry::CommandSet.new do
       import Ls
 
-      command_class "cd", "Move into a new context (use `cd ..` to go back and `cd /` to return to Pry top-level). Complex syntax (e.g cd ../@x/y) also supported."  do
+      command_class "cd" do
+        description "Move into a new context (object or scope). Type `cd --help` for more information."
+
+        banner <<-BANNER
+          Usage: cd [OPTIONS] [--help]
+
+          Move into new context (object or scope). As in unix shells use
+          `cd ..` to go back and `cd /` to return to Pry top-level).
+          Complex syntax (e.g cd ../@x/y) also supported.
+
+          e.g: `cd @x`
+          e.g: `cd ..
+          e.g: `cd /`
+
+          https://github.com/pry/pry/wiki/State-navigation#wiki-Changing_scope
+        BANNER
+
         def process
           path   = arg_string.split(/\//)
           stack  = _pry_.binding_stack.dup
@@ -14,7 +30,6 @@ class Pry
           # special case when we only get a single "/", return to root
           stack  = [stack.first] if path.empty?
 
-          resolve_failure = false
           path.each do |context|
             begin
               case context.chomp
@@ -35,12 +50,9 @@ class Pry
             rescue RescuableException => e
               output.puts "Bad object path: #{arg_string.chomp}. Failed trying to resolve: #{context}"
               output.puts e.inspect
-              resolve_failure = true
-              break
+              return
             end
           end
-
-          return if resolve_failure
 
           _pry_.binding_stack = stack
         end
@@ -94,23 +106,47 @@ class Pry
 
       alias_command "!!@", "exit-all"
 
-      command_class "exit", "Pop the current binding and return to the one immediately prior. Note this does NOT exit the program. Aliases: quit", :keep_retval => true do
+      command_class "exit" do
+        description "Pop the previous binding (does NOT exit program). Type `exit --help` for more information. Aliases: quit"
+
+        banner <<-BANNER
+          Usage:   exit [OPTIONS] [--help]
+          Aliases: quit
+
+          It can be useful to exit a context with a user-provided value. For
+          instance an exit value can be used to determine program flow.
+
+          e.g: `exit "pry this"`
+          e.g: `exit`
+
+          https://github.com/pry/pry/wiki/State-navigation#wiki-Exit_with_value
+        BANNER
+
+        command_options(
+          :keep_retval => true
+        )
+
         def process
           if _pry_.binding_stack.one?
             # when breaking out of top-level then behave like `exit-all`
-            _pry_.binding_stack.clear
-            throw(:breakout, target.eval(arg_string))
+            process_exit_all
           else
-            # otherwise just pop a binding
-            popped_object = _pry_.binding_stack.pop.eval('self')
-
-            # return a user-specified value if given
-            if !arg_string.empty?
-              target.eval(arg_string)
-            else
-              popped_object
-            end
+            # otherwise just pop a binding and return user supplied value
+            process_pop_and_return
           end
+        end
+
+        def process_exit_all
+          _pry_.binding_stack.clear
+          throw(:breakout, target.eval(arg_string))
+        end
+
+        def process_pop_and_return
+          popped_object = _pry_.binding_stack.pop.eval('self')
+
+          # return a user-specified value if given otherwise return the object
+          return target.eval(arg_string) unless arg_string.empty?
+          popped_object
         end
       end
 

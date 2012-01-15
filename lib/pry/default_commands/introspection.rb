@@ -5,12 +5,25 @@ class Pry
 
     Introspection = Pry::CommandSet.new do
 
-      command_class "show-method", "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source", :shellwords => false do |*args|
+      command_class "show-method" do
+        description "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source"
+
         banner <<-BANNER
           Usage: show-method [OPTIONS] [METH]
+          Aliases: $, show-source
+
           Show the source for method METH. Tries instance methods first and then methods by default.
-          e.g: show-method hello_method
+
+          e.g: `show-method hello_method`
+          e.g: `show-method -m hello_method`
+          e.g: `show-method Pry#rep`
+
+          https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
+
+        command_options(
+          :shellwords => false
+        )
 
         def options(opt)
           method_options(opt)
@@ -99,17 +112,23 @@ class Pry
         end
       end
 
-      command_class "edit", "Invoke the default editor on a file. Type `edit --help` for more info" do
-        attr_accessor :content
+      command_class "edit" do
+        description "Invoke the default editor on a file. Type `edit --help` for more info"
+
+        banner <<-BANNER
+          Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
+
+          Open a text editor. When no FILE is given, edits the pry input buffer.
+          Ensure Pry.config.editor is set to your editor of choice.
+
+          e.g: `edit sample.rb`
+          e.g: `edit sample.rb --line 105`
+          e.g: `edit --ex`
+
+          https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
+        BANNER
 
         def options(opt)
-          opt.banner unindent <<-USAGE
-            Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
-            Open a text editor. When no FILE is given, edits the pry input buffer.
-            Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
-            e.g: edit sample.rb
-          USAGE
-
           opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional => true, :as => Integer
           opt.on :i, :in, "Open a temporary file containing the Nth line of _in_. N may be a range.", :optional => true, :as => Range, :default => -1..-1
           opt.on :t, :temp, "Open an empty temporary file"
@@ -119,42 +138,46 @@ class Pry
         end
 
         def process
-          self.content = ""
-
           if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
             raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
           end
 
           if !opts.present?(:ex) && args.empty?
-            local_edit
+            # edit of local code, eval'd within pry.
+            process_local_edit
           else
-            remote_edit
+            # edit of remote code, eval'd at top-level
+            process_remote_edit
           end
         end
 
-        def local_edit
-          # edit of local code, eval'd within pry.
-          self.content = if opts.present?(:temp)
-            ""
-          elsif opts.present?(:in)
-            case opts[:i]
-            when Range
-              (_pry_.input_array[opts[:i]] || []).join
-            when Fixnum
-              _pry_.input_array[opts[:i]] || ""
-            else
-              return output.puts "Not a valid range: #{opts[:i]}"
-            end
-          elsif eval_string.strip != ""
-            eval_string
+        def process_i
+          case opts[:i]
+          when Range
+            (_pry_.input_array[opts[:i]] || []).join
+          when Fixnum
+            _pry_.input_array[opts[:i]] || ""
           else
-            _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
+            return output.puts "Not a valid range: #{opts[:i]}"
+          end
+        end
+
+        def process_local_edit
+          content = case
+            when opts.present?(:temp)
+              ""
+            when opts.present?(:in)
+              process_i
+            when eval_string.strip != ""
+              eval_string
+            else
+              _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
           end
 
-          line = self.content.lines.count
+          line = content.lines.count
 
           temp_file do |f|
-            f.puts(self.content)
+            f.puts(content)
             f.flush
             invoke_editor(f.path, line)
             if !opts.present?(:'no-reload')
@@ -165,8 +188,7 @@ class Pry
           end
         end
 
-        def remote_edit
-          # edit of remote code, eval'd at top-level
+        def process_remote_edit
           if opts.present?(:ex)
             if _pry_.last_exception.nil?
               raise CommandError, "No exception found."
@@ -211,15 +233,27 @@ class Pry
         end
       end
 
-      command_class "edit-method", "Edit a method. Type `edit-method --help` for more info.", :shellwords => false do |*args|
+      command_class "edit-method" do
+        description "Edit a method. Type `edit-method --help` for more info."
+
+        banner <<-BANNER
+          Usage: edit-method [OPTIONS] [METH]
+
+          Edit the method METH in an editor.
+          Ensure Pry.config.editor is set to your editor of choice.
+
+          e.g: `edit-method hello_method`
+          e.g: `edit-method Pry#rep`
+          e.g: `edit-method`
+
+          https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_method
+        BANNER
+
+        command_options(
+          :shellwords => false
+        )
 
         def options(opt)
-          opt.banner unindent <<-BANNER
-            Usage: edit-method [OPTIONS] [METH]
-            Edit the method METH in an editor.
-            Ensure #{text.bold("Pry.config.editor")} is set to your editor of choice.
-            e.g: edit-method hello_method
-          BANNER
           method_options(opt)
           opt.on :n, "no-reload", "Do not automatically reload the method's file after editing."
           opt.on "no-jump", "Do not fast forward editor to first line of method."

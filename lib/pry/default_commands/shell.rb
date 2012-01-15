@@ -31,19 +31,58 @@ class Pry
 
       alias_command "file-mode", "shell-mode"
 
-      command_class "cat", "Show code from a file or Pry's input buffer. Type `cat --help` for more information." do
+      command_class "cat" do
+        description "Show code from a file or Pry's input buffer. Type `cat --help` for more information."
+
+        banner <<-BANNER
+          cat [OPTIONS] [FILE] [--help]
+
+          The standard system cat command is accessible via .cat (note the
+          preceding '.' indicating a shell command) however Pry also features
+          its own cat command invoked simply by cat (no . prefix).
+
+          e.g: `cat pry_instance.rb`
+          e.g: `cat pry_instance.rb -l -s  337`
+          e.g: `cat --ex`
+
+          https://github.com/pry/pry/wiki/Shell-Integration#wiki-Cat
+        BANNER
+
         attr_accessor :start_line
         attr_accessor :end_line
         attr_accessor :file_name
         attr_accessor :bt_index
-        attr_accessor :contents
 
-        def options(opt)
+        def setup
           self.start_line = 0
           self.end_line = -1
           self.file_name = nil
           self.bt_index = 0
+        end
 
+        def options_ex(bt_index_arg)
+          window_size = Pry.config.exception_window_size || 5
+          ex = _pry_.last_exception
+          return unless ex
+          if bt_index_arg
+            self.bt_index = bt_index_arg
+          else
+            self.bt_index = ex.bt_index
+          end
+          ex.bt_index = (self.bt_index + 1) % ex.backtrace.size
+
+          ex_file, ex_line = ex.bt_source_location_for(self.bt_index)
+          self.start_line = (ex_line - 1) - window_size
+          self.start_line = self.start_line < 0 ? 0 : self.start_line
+          self.end_line = (ex_line - 1) + window_size
+          if ex_file && RbxPath.is_core_path?(ex_file)
+            self.file_name = RbxPath.convert_path_to_full(ex_file)
+          else
+            self.file_name = ex_file
+          end
+        end
+
+        def options(opt)
           opt.on :s, :start, "Start line (defaults to start of file)Line 1 is the first line.", true, :as => Integer do |line|
             self.start_line = line - 1
           end
@@ -53,25 +92,7 @@ class Pry
           end
 
           opt.on :ex, "Show a window of N lines either side of the last exception (defaults to 5).", :optional => true, :as => Integer do |bt_index_arg|
-            window_size = Pry.config.exception_window_size || 5
-            ex = _pry_.last_exception
-            return if !ex
-            if bt_index_arg
-              self.bt_index = bt_index_arg
-            else
-              self.bt_index = ex.bt_index
-            end
-            ex.bt_index = (self.bt_index + 1) % ex.backtrace.size
-
-            ex_file, ex_line = ex.bt_source_location_for(self.bt_index)
-            self.start_line = (ex_line - 1) - window_size
-            self.start_line = self.start_line < 0 ? 0 : self.start_line
-            self.end_line = (ex_line - 1) + window_size
-            if ex_file && RbxPath.is_core_path?(ex_file)
-              self.file_name = RbxPath.convert_path_to_full(ex_file)
-            else
-              self.file_name = ex_file
-            end
+            options_ex(bt_index_arg)
           end
 
           opt.on :i, :in, "Show entries from Pry's input expression history. Takes an index or range.", :optional => true, :as => Range, :default => -5..-1
@@ -82,7 +103,7 @@ class Pry
         end
 
         def process
-          self.contents = ""
+          contents = ""
 
           if opts.present?(:ex)
             if self.file_name.nil?
@@ -103,21 +124,21 @@ class Pry
             end
 
             if opts[:i].is_a?(Range)
-              self.contents = ""
+              contents = ""
 
               zipped_items.each do |i, s|
-                self.contents << "#{text.bold(i.to_s)}:\n"
+                contents << "#{text.bold(i.to_s)}:\n"
 
                 code = syntax_highlight_by_file_type_or_specified(s, nil, :ruby)
 
                 if opts.present?(:'line-numbers')
-                  self.contents << text.indent(text.with_line_numbers(code, 1), 2)
+                  contents << text.indent(text.with_line_numbers(code, 1), 2)
                 else
-                  self.contents << text.indent(code, 2)
+                  contents << text.indent(code, 2)
                 end
               end
             else
-              self.contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
+              contents = syntax_highlight_by_file_type_or_specified(zipped_items.first.last, nil, :ruby)
             end
           else
             unless self.file_name
@@ -125,24 +146,24 @@ class Pry
             end
 
             begin
-              self.contents, _, _ = read_between_the_lines(self.file_name, self.start_line, self.end_line)
+              contents, _, _ = read_between_the_lines(self.file_name, self.start_line, self.end_line)
             rescue Errno::ENOENT
               raise CommandError, "Could not find file: #{self.file_name}"
             end
 
-            self.contents = syntax_highlight_by_file_type_or_specified(self.contents, self.file_name, opts[:type])
+            contents = syntax_highlight_by_file_type_or_specified(contents, self.file_name, opts[:type])
 
             if opts.present?(:'line-numbers')
-              self.contents = text.with_line_numbers self.contents, self.start_line + 1
+              contents = text.with_line_numbers contents, self.start_line + 1
             end
           end
 
           # add the arrow pointing to line that caused the exception
           if opts.present?(:ex)
             ex_file, ex_line = _pry_.last_exception.bt_source_location_for(self.bt_index)
-            self.contents = text.with_line_numbers self.contents, self.start_line + 1, :bright_red
+            contents = text.with_line_numbers contents, self.start_line + 1, :bright_red
 
-            self.contents = self.contents.lines.each_with_index.map do |line, idx|
+            contents = contents.lines.each_with_index.map do |line, idx|
               l = idx + self.start_line
               if l == (ex_line - 1)
                 " =>#{line}"
@@ -159,9 +180,9 @@ class Pry
           set_file_and_dir_locals(self.file_name)
 
           if opts.present?(:flood)
-            output.puts self.contents
+            output.puts contents
           else
-            stagger_output(self.contents)
+            stagger_output(contents)
           end
         end
       end
