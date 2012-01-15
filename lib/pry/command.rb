@@ -287,6 +287,22 @@ class Pry
 
       ret
     end
+
+    # Fix the number of arguments we pass to a block to avoid arity warnings.
+    #
+    # @param Number  the arity of the block
+    # @param Array   the arguments to pass
+    # @return Array  a (possibly shorter) array of the arguments to pass
+    def correct_arg_arity(arity, args)
+      case
+      when arity < 0
+        args
+      when arity == 0
+        []
+      when arity > 0
+        args.values_at(*(0..(arity - 1)).to_a)
+      end
+    end
   end
 
   # A super-class for Commands that are created with a single block.
@@ -305,22 +321,6 @@ class Pry
     # @return Object  the return value of the block
     def call(*args)
       instance_exec(*correct_arg_arity(block.arity, args), &block)
-    end
-
-    # Fix the number of arguments we pass to a block to avoid arity warnings.
-    #
-    # @param Number  the arity of the block
-    # @param Array   the arguments to pass
-    # @return Array  a (possibly shorter) array of the arguments to pass
-    def correct_arg_arity(arity, args)
-      case
-      when arity < 0
-        args
-      when arity == 0
-        []
-      when arity > 0
-        args.values_at(*(0..(arity - 1)).to_a)
-      end
     end
 
     def help; description; end
@@ -356,7 +356,7 @@ class Pry
         output.puts slop.help
         void
       else
-        process
+        process(*correct_arg_arity(method(:process).arity, args))
       end
     end
 
