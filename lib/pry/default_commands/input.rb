@@ -184,6 +184,18 @@ class Pry
         end
 
         def process_display
+          if opts.present?(:'exclude-pry')
+            @history = @history.select { |l, ln| !command_set.valid_command?(l) }
+          end
+
+          if opts.present?(:grep)
+            @history = @history.grep(Regexp.new(opts[:grep]))
+          end
+
+          unless opts.present?(:'no-numbers')
+            @history = @history.with_line_numbers
+          end
+
           @history = case
             when opts.present?(:head)
               @history.between(1, opts[:head] || 10)
@@ -191,13 +203,9 @@ class Pry
               @history.between(-(opts[:tail] || 10), -1)
             when opts.present?(:show)
               @history.between(opts[:show])
-            when opts.present?(:grep)
-              @history.grep(Regexp.new(opts[:grep]))
             else
               @history
             end
-
-          @history = @history.with_line_numbers(!opts.present?(:'no-numbers'))
 
           render_output(@history, opts)
         end
