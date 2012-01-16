@@ -118,8 +118,7 @@ class Pry
           range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
           range = (0..-2) if opts.present?(:open)
 
-          _pry_.input_stack << _pry_.input
-          _pry_.input = StringIO.new(Array(text_array[range]).join)
+          eval_string << Array(text_array[range]).join
         end
 
         def process_input
