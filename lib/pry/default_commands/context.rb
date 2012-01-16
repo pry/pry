@@ -123,8 +123,8 @@ class Pry
         BANNER
 
         command_options(
-          :keep_retval => true
-        )
+                        :keep_retval => true
+                        )
 
         def process
           if _pry_.binding_stack.one?
@@ -164,9 +164,19 @@ class Pry
         target.pry
       end
 
-      command "pry-backtrace", "Show the backtrace for the Pry session" do
-        output.puts "\n#{text.bold('Backtrace:')}\n--\n"
-        output.puts _pry_.backtrace
+      command_class "pry-backtrace", "Show the backtrace for the Pry session." do
+        banner <<-BANNER
+          Usage:   pry-backtrace [OPTIONS] [--help]
+
+          Show the backtrace for the Pry session.
+
+          e.g: pry-backtrace
+        BANNER
+
+        def process
+          output.puts "\n#{text.bold('Backtrace:')}\n--\n"
+          stagger_output _pry_.backtrace.join("\n")
+        end
       end
 
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
