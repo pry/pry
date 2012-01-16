@@ -29,7 +29,7 @@ class Pry
         if name && !meth
           command_error("The method '#{name}' could not be found.", omit_help)
         elsif !meth
-          command_error("No method name given, and context is not a method.", omit_help)
+          command_error("No method name given, and context is not a method.", omit_help, NonMethodContextError)
         end
 
         (opts[:super] || 0).times do
@@ -44,9 +44,9 @@ class Pry
         meth
       end
 
-      def command_error(message, omit_help)
+      def command_error(message, omit_help, klass=CommandError)
         message += " Type `#{command_name} --help` for help." unless omit_help
-        raise CommandError, message
+        raise klass, message
       end
 
       def make_header(meth, content=meth.source)

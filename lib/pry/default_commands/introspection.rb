@@ -249,11 +249,22 @@ class Pry
             raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
           end
 
-          @method = method_object rescue nil
+          begin
+            @method = method_object
+          rescue NonMethodContextError => err
+          end
 
           if opts.present?(:patch) || (@method && @method.dynamically_defined?)
+            if err
+              raise err # can't patch a non-method
+            end
+
             process_patch
           else
+            if err && !File.exist?(target.eval('__FILE__'))
+              raise err # can't edit a non-file
+            end
+
             process_file
           end
         end
