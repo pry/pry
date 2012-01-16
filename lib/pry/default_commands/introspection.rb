@@ -235,9 +235,7 @@ class Pry
           https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_method
         BANNER
 
-        command_options(
-          :shellwords => false
-        )
+        command_options :shellwords => false
 
         def options(opt)
           method_options(opt)
@@ -247,62 +245,77 @@ class Pry
         end
 
         def process
-          meth = method_object
           if !Pry.config.editor
             raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
           end
 
-          if opts.present?(:patch) || meth.dynamically_defined?
-            lines = meth.source.lines.to_a
+          @method = method_object rescue nil
 
-            if ((original_name = meth.original_name) &&
-                lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
-              lines[0] = "def #{original_name}#{$'}"
-            else
-              raise CommandError, "Pry can only patch methods created with the `def` keyword."
-            end
-
-            temp_file do |f|
-              f.puts lines.join
-              f.flush
-              invoke_editor(f.path, 0)
-
-              if meth.alias?
-                with_method_transaction(original_name, meth.owner) do
-                  Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
-                  Pry.binding_for(meth.owner).eval("alias #{meth.name} #{original_name}")
-                end
-              else
-                Pry.new(:input => StringIO.new(File.read(f.path))).rep(meth.owner)
-              end
-            end
-            return
-          end
-
-          if meth.source_type == :c
-            raise CommandError, "Can't edit a C method."
+          if opts.present?(:patch) || (@method && @method.dynamically_defined?)
+            process_patch
           else
-            file, line = meth.source_file, meth.source_line
+            process_file
+          end
+        end
 
-            invoke_editor(file, opts["no-jump"] ? 0 : line)
-            silence_warnings do
-              load file if !opts.present?(:'no-jump') && !Pry.config.disable_auto_reload
+        def process_patch
+          lines = @method.source.lines.to_a
+
+          if ((original_name = @method.original_name) &&
+              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
+            lines[0] = "def #{original_name}#{$'}"
+          else
+            raise CommandError, "Pry can only patch methods created with the `def` keyword."
+          end
+
+          temp_file do |f|
+            f.puts lines.join
+            f.flush
+            invoke_editor(f.path, 0)
+
+            if @method.alias?
+              with_method_transaction(original_name, @method.owner) do
+                Pry.new(:input => StringIO.new(File.read(f.path))).rep(@method.owner)
+                Pry.binding_for(@method.owner).eval("alias #{@method.name} #{original_name}")
+              end
+            else
+              Pry.new(:input => StringIO.new(File.read(f.path))).rep(@method.owner)
             end
           end
         end
-      end
 
-      helpers do
-        def with_method_transaction(meth_name, target=TOPLEVEL_BINDING)
-          target = Pry.binding_for(target)
-          temp_name = "__pry_#{meth_name}__"
+        def process_file
+          file, line = extract_file_and_line
 
-          target.eval("alias #{temp_name} #{meth_name}")
-          yield
-          target.eval("alias #{meth_name} #{temp_name}")
-        ensure
-          target.eval("undef #{temp_name}") rescue nil
+          invoke_editor(file, opts["no-jump"] ? 0 : line)
+          silence_warnings do
+            load file unless opts.present?(:'no-jump') || Pry.config.disable_auto_reload
+          end
         end
+
+        protected
+          def extract_file_and_line
+            if @method
+              if @method.source_type == :c
+                raise CommandError, "Can't edit a C method."
+              else
+                [@method.source_file, @method.source_line]
+              end
+            else
+              [target.eval('__FILE__'), target.eval('__LINE__')]
+            end
+          end
+
+          def with_method_transaction(meth_name, target=TOPLEVEL_BINDING)
+            target = Pry.binding_for(target)
+            temp_name = "__pry_#{meth_name}__"
+
+            target.eval("alias #{temp_name} #{meth_name}")
+            yield
+            target.eval("alias #{meth_name} #{temp_name}")
+          ensure
+            target.eval("undef #{temp_name}") rescue nil
+          end
       end
     end
   end
