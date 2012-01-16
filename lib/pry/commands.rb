@@ -7,7 +7,6 @@ require "pry/default_commands/shell"
 require "pry/default_commands/introspection"
 require "pry/default_commands/easter_eggs"
 
-require "pry/extended_commands/user_command_api"
 require "pry/extended_commands/experimental"
 
 class Pry
