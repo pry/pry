@@ -89,10 +89,12 @@ class Pry
   e.g: gist -m my_method
   e.g: gist -d my_method
   e.g: gist -i 1..10
+  e.g: gist -c show-method
 USAGE
 
           opt.on :d, :doc, "Gist a method's documentation.", true
           opt.on :m, :method, "Gist a method's source.", true
+          opt.on :c, :command, "Gist a command's source.", true
           opt.on :f, :file, "Gist a file.", true
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
           opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
@@ -117,6 +119,9 @@ USAGE
           end
           if opts.present?(:method)
             method_option
+          end
+          if opts.present?(:command)
+            command_option
           end
 
           perform_gist
@@ -169,6 +174,19 @@ USAGE
           end
 
           self.code_type = meth.source_type
+        end
+
+        def command_option
+          command = find_command(opts[:c])
+          command_source = command.block.source
+
+          if opts.present?(:lines)
+            self.content << restrict_to_lines(command_source, opts[:l])
+          else
+            self.content << command_source
+          end
+
+          self.code_type = :ruby
         end
 
         def perform_gist
