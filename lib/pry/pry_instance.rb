@@ -415,12 +415,12 @@ class Pry
   # result.
   def exec_hook(name, *args, &block)
     e_before = hooks.errors.size
-    hooks.exec_hook(name, *args, &block)
-
-    hooks.errors[e_before..-1].each do |e|
-      output.puts "#{name} hook failed: #{e.class}: #{e.message}"
-      output.puts "#{e.backtrace.first}"
-      output.puts "(see _pry_.hooks.errors to debug)"
+    hooks.exec_hook(name, *args, &block).tap do
+      hooks.errors[e_before..-1].each do |e|
+        output.puts "#{name} hook failed: #{e.class}: #{e.message}"
+        output.puts "#{e.backtrace.first}"
+        output.puts "(see _pry_.hooks.errors to debug)"
+      end
     end
   end
 
