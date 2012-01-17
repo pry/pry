@@ -47,6 +47,10 @@ class Pry
 
       command "reset", "Reset the REPL to a clean state." do
         output.puts "Pry reset."
+        if system('which reset > /dev/null 2>&1')
+          system('reset')
+        end
+        
         exec "pry"
       end
     end
