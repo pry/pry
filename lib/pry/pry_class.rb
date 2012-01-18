@@ -123,8 +123,12 @@ class Pry
       pry_instance
     )
 
-    head, *tail = binding_stack
-    pry_instance.binding_stack.push(*tail)
+    if pry_instance.binding_stack.empty?
+      head, *tail = binding_stack
+      pry_instance.binding_stack.push(*tail)
+    else
+      head = pry_instance.binding_stack.pop
+    end
 
     # Enter the matrix
     pry_instance.repl(head)
