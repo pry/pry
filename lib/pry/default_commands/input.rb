@@ -163,7 +163,7 @@ class Pry
         end
 
         def process
-          @history = Pry::Code(Pry.history.to_a[0..-2])
+          @history = Pry::Code(Pry.history.to_a)
 
           @history = case
             when opts.present?(:head)

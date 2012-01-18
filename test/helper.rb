@@ -121,15 +121,12 @@ end
 
 class InputTester
   def initialize(*actions)
-    if actions.last.is_a?(Hash) && actions.last.keys == [:history]
-      @hist = actions.pop[:history]
-    end
     @orig_actions = actions.dup
     @actions = actions
   end
 
   def readline(*)
-    @actions.shift.tap{ |line| @hist << line if @hist }
+    @actions.shift
   end
 
   def rewind
