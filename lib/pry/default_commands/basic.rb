@@ -46,6 +46,12 @@ class Pry
       end
 
       command "reset", "Reset the REPL to a clean state." do
+        if !Pry::Helpers::BaseHelpers.windows?
+          if (reset = `which reset`.strip) && !reset.empty?
+            system(reset)
+          end
+        end
+        
         output.puts "Pry reset."
         exec "pry"
       end
