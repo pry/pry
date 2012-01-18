@@ -235,7 +235,7 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "hello"
       @hist.push "world"
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /hello\n.*world/
@@ -246,7 +246,7 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push ":bucket"
       @hist.push ":ostrich"
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --replay -1", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --replay -1", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /ostrich/
@@ -256,7 +256,7 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push ":hello"
       @hist.push ":carl"
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --replay 0..2", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --replay 0..2", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /:hello\n.*:carl/
@@ -274,21 +274,21 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "place holder"
 
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --grep o", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --grep o", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /\d:.*?box\n\d:.*?button\n\d:.*?orange/
 
       # test more than one word in a regex match (def blah)
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --grep def blah", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --grep def blah", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /def blah 1/
 
       # test more than one word with leading white space in a regex match (def boink)
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --grep      def boink", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --grep      def boink", "exit-all"), str_output) do
         pry
       end
       str_output.string.should =~ /def boink 2/
@@ -300,7 +300,7 @@ describe "Pry::DefaultCommands::Input" do
       end
 
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --tail 3", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --tail 3", "exit-all"), str_output) do
         pry
       end
 
@@ -316,7 +316,7 @@ describe "Pry::DefaultCommands::Input" do
       end
 
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --head 4", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --head 4", "exit-all"), str_output) do
         pry
       end
 
@@ -332,7 +332,7 @@ describe "Pry::DefaultCommands::Input" do
       end
 
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --show 1..4", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("hist --show 1..4", "exit-all"), str_output) do
         pry
       end
 
@@ -342,7 +342,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it "should not contain duplicated lines" do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("3", "_ += 1", "_ += 1", "hist", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new("3", "_ += 1", "_ += 1", "hist", "exit-all"), str_output) do
         pry
       end
 
@@ -351,7 +351,7 @@ describe "Pry::DefaultCommands::Input" do
 
     it "should not contain duplicated lines" do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all", :history => @hist), str_output) do
+      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all"), str_output) do
         pry
       end
 
