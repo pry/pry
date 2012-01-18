@@ -320,6 +320,56 @@ describe Pry::Hooks do
 
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
+
+      it 'should allow overriding of target (and binding_stack)' do
+        options = nil
+        o = Object.new
+        class << o; attr_accessor :value; end
+        
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |binding_stack, opt, _pry_| binding_stack.replace [Pry.binding_for(o)] }
+
+        redirect_pry_io(InputTester.new("@value = true","exit-all")) do
+          Pry.start binding, :hello => :baby
+        end
+
+        o.value.should == true
+        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+      end
+
+      it 'should allow overriding of target (and binding_stack) via _pry_.binding_stack' do
+        options = nil
+        o = Object.new
+        class << o; attr_accessor :value; end
+        
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |binding_stack, opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
+
+        redirect_pry_io(InputTester.new("@value = true","exit-all")) do
+          Pry.start binding, :hello => :baby
+        end
+
+        o.value.should == true
+        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+      end
+
+      it 'should give precedence to _pry_.binding_stack over binding_stack' do
+        options = nil
+        o = Object.new
+        class << o; attr_accessor :value; end
+        
+        Pry.config.hooks.add_hook(:when_started, :test_hook) do |binding_stack, opt, _pry_|
+          _pry_.binding_stack = [Pry.binding_for(o)]
+          binding_stack.replace [Pry.binding_for(5)]
+        end
+
+        redirect_pry_io(InputTester.new("@value = true","exit-all")) do
+          Pry.start binding, :hello => :baby
+        end
+
+        o.value.should == true
+        Pry.config.hooks.delete_hook(:when_started, :test_hook)
+      end
+      
+      
     end
 
     describe "after_session hook" do
