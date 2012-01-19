@@ -201,8 +201,10 @@ class Pry
   end
 
   def self.default_editor_for_platform
-    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
-    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+    return ENV['VISUAL'] if ENV['VISUAL'] && !ENV['VISUAL'].empty?
+    return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
+    return ENV['SELECTED_EDITOR'] if ENV['SELECTED_EDITOR'] && !ENV['SELECTED_EDITOR'].empty?
+
 
     if Helpers::BaseHelpers.windows?
       'notepad'
