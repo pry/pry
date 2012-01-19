@@ -116,7 +116,7 @@ end
 end
 
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, :gemspec, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby:gem']
+task :gems => [:clean, :rmgems, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby:gem']
 
 desc "remove all platform gems"
 task :rmgems => ['ruby:clobber_package']
