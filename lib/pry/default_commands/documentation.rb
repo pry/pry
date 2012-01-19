@@ -192,6 +192,10 @@ USAGE
         def perform_gist
           type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
 
+          if self.content =~ /\A\s*\z/
+            raise CommandError, "Found no code to gist."
+          end
+
           # prevent Gist from exiting the session on error
           begin
             extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[self.code_type]}"
