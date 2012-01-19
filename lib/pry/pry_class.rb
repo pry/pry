@@ -205,6 +205,10 @@ class Pry
     return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
     return ENV['SELECTED_EDITOR'] if ENV['SELECTED_EDITOR'] && !ENV['SELECTED_EDITOR'].empty?
 
+    selected_editor = File.expand_path('~/.selected_editor')
+    if File.exist?(selected_editor)
+      return File.foreach(selected_editor).to_a.delete_if { |line| line !~ /\s*SELECTED_EDITOR=.+/ }.first.strip.split('=').last.strip
+    end
 
     if Helpers::BaseHelpers.windows?
       'notepad'
