@@ -451,7 +451,7 @@ describe "commands" do
 
     str_output = StringIO.new
     Pry.new(:input => InputTester.new("help"), :output => str_output, :commands => klass).rep
-    str_output.string.rstrip.should == "help to the music"
+    str_output.string.should == "help to the music\n"
 
 
     Pry.reset_defaults
