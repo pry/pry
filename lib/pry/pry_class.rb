@@ -5,7 +5,7 @@ require 'pry/config'
 class Pry
 
   # The RC Files to load.
-  RC_FILES = ["~/.pryrc", "./.pryrc"]
+  RC_FILES = ['/etc/.pryrc', "~/.pryrc", "./.pryrc"]
 
   # class accessors
   class << self
@@ -201,8 +201,14 @@ class Pry
   end
 
   def self.default_editor_for_platform
-    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
-    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+    return ENV['VISUAL'] if ENV['VISUAL'] && !ENV['VISUAL'].empty?
+    return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
+    return ENV['SELECTED_EDITOR'] if ENV['SELECTED_EDITOR'] && !ENV['SELECTED_EDITOR'].empty?
+
+    selected_editor = File.expand_path('~/.selected_editor')
+    if File.exist?(selected_editor)
+      return File.foreach(selected_editor).to_a.delete_if { |line| line !~ /\s*SELECTED_EDITOR=.+/ }.first.strip.split('=').last.strip
+    end
 
     if Helpers::BaseHelpers.windows?
       'notepad'
