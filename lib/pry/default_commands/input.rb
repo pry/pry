@@ -3,59 +3,58 @@ class Pry
 
     Input = Pry::CommandSet.new do
 
-      command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.", :use_prefix => false do
-        output.puts "Input buffer cleared!"
-        eval_string.replace("")
+      create_command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.", :use_prefix => false do
+        def process
+          output.puts "Input buffer cleared!"
+          eval_string.replace("")
+        end
       end
 
-      command "show-input", "Show the contents of the input buffer for the current multi-line expression." do
-        output.puts Code.new(eval_string).with_line_numbers
+      create_command "show-input", "Show the contents of the input buffer for the current multi-line expression." do
+        def process
+          output.puts Code.new(eval_string).with_line_numbers
+        end
       end
 
-      # TODO: refactor to command_class
-      command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/, "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %",
-              :interpolate => false, :listing => "amend-line")  do |*args|
-        start_line_number, end_line_number, replacement_line = *args
+      create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
+        description "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %"
+        command_options :interpolate => false, :listing => "amend-line"
 
-        opts = Slop.parse!(args.compact) do |opt|
-          opt.banner unindent <<-USAGE
-            Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
+        banner <<-'BANNER'
+          Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
 
-            Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
-            e.g amend-line 1 puts 'hello world! # replace line 1'
-            e.g amend-line 1..4 !               # delete lines 1..4
-            e.g amend-line 3 >puts 'goodbye'    # insert before line 3
-            e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
-          USAGE
+          Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
+          e.g amend-line 1 puts 'hello world! # replace line 1'
+          e.g amend-line 1..4 !               # delete lines 1..4
+          e.g amend-line 3 >puts 'goodbye'    # insert before line 3
+          e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
+        BANNER
 
-          opt.on :h, :help, "This message." do
-            output.puts opt.help
+        def process
+          start_line_number, end_line_number, replacement_line = *args
+
+          if eval_string.empty?
+            raise CommandError, "No input to amend."
           end
+
+          replacement_line = "" if !replacement_line
+          input_array = eval_string.each_line.to_a
+
+          end_line_number = start_line_number.to_i if !end_line_number
+          line_range = start_line_number ? (one_index_number(start_line_number.to_i)..one_index_number(end_line_number.to_i))  : input_array.size - 1
+
+          # delete selected lines if replacement line is '!'
+          if arg_string == "!"
+            input_array.slice!(line_range)
+          elsif arg_string.start_with?(">")
+            insert_slot = Array(line_range).first
+            input_array.insert(insert_slot, arg_string[1..-1] + "\n")
+          else
+            input_array[line_range] = arg_string + "\n"
+          end
+          eval_string.replace input_array.join
+          run "show-input"
         end
-
-        next if opts.present?(:help)
-
-        if eval_string.empty?
-          raise CommandError, "No input to amend."
-        end
-
-        replacement_line = "" if !replacement_line
-        input_array = eval_string.each_line.to_a
-
-        end_line_number = start_line_number.to_i if !end_line_number
-        line_range = start_line_number ? (one_index_number(start_line_number.to_i)..one_index_number(end_line_number.to_i))  : input_array.size - 1
-
-        # delete selected lines if replacement line is '!'
-        if arg_string == "!"
-          input_array.slice!(line_range)
-        elsif arg_string.start_with?(">")
-          insert_slot = Array(line_range).first
-          input_array.insert(insert_slot, arg_string[1..-1] + "\n")
-        else
-          input_array[line_range] = arg_string + "\n"
-        end
-        eval_string.replace input_array.join
-        run "show-input"
       end
 
       alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, "amend-line")
