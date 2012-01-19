@@ -5,7 +5,7 @@ require 'pry/config'
 class Pry
 
   # The RC Files to load.
-  RC_FILES = ["~/.pryrc", "./.pryrc"]
+  RC_FILES = ['/etc/.pryrc', "~/.pryrc", "./.pryrc"]
 
   # class accessors
   class << self
