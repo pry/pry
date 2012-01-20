@@ -6,7 +6,7 @@ class Pry
     Context = Pry::CommandSet.new do
       import Ls
 
-      command_class "cd" do
+      create_command "cd" do
         description "Move into a new context (object or scope). Type `cd --help` for more information."
 
         banner <<-BANNER
@@ -106,7 +106,7 @@ class Pry
 
       alias_command "!!@", "exit-all"
 
-      command_class "exit" do
+      create_command "exit" do
         description "Pop the previous binding (does NOT exit program). Type `exit --help` for more information. Aliases: quit"
 
         banner <<-BANNER
@@ -164,7 +164,7 @@ class Pry
         target.pry
       end
 
-      command_class "pry-backtrace", "Show the backtrace for the Pry session." do
+      create_command "pry-backtrace", "Show the backtrace for the Pry session." do
         banner <<-BANNER
           Usage:   pry-backtrace [OPTIONS] [--help]
 
