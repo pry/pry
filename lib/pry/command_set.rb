@@ -365,45 +365,49 @@ class Pry
         end
       end
 
-      command "install-command", "Install a disabled command." do |name|
-        require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
-        command = find_command(name)
+      create_command "install-command", "Install a disabled command." do |name|
 
-        if command_dependencies_met?(command.options)
-          output.puts "Dependencies for #{command.name} are met. Nothing to do."
-          next
-        end
+        banner <<-BANNER
+          Usage: install-command COMMAND
 
-        output.puts "Attempting to install `#{name}` command..."
-        gems_to_install = Array(command.options[:requires_gem])
+          Installs the gems necessary to run the given COMMAND. You will generally not
+          need to run this unless told to by an error message.
+        BANNER
 
-        gem_install_failed = false
-        gems_to_install.each do |g|
-          next if gem_installed?(g)
-          output.puts "Installing `#{g}` gem..."
+        def process(name)
+          require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
+          command = find_command(name)
 
-          begin
-            Gem::DependencyInstaller.new.install(g)
-          rescue Gem::GemNotFoundException
-            output.puts "Required Gem: `#{g}` not found. Aborting command installation."
-            gem_install_failed = true
-            next
+          if command_dependencies_met?(command.options)
+            output.puts "Dependencies for #{command.name} are met. Nothing to do."
+            return
           end
-        end
-        next if gem_install_failed
 
-        Gem.refresh
-        gems_to_install.each do |g|
-          begin
-            require g
-          rescue LoadError
-            output.puts "Required Gem: `#{g}` installed but not found?!. Aborting command installation."
-            gem_install_failed = true
+          output.puts "Attempting to install `#{name}` command..."
+          gems_to_install = Array(command.options[:requires_gem])
+
+          gems_to_install.each do |g|
+            next if gem_installed?(g)
+            output.puts "Installing `#{g}` gem..."
+
+            begin
+              Gem::DependencyInstaller.new.install(g)
+            rescue Gem::GemNotFoundException
+              raise CommandError, "Required Gem: `#{g}` not found. Aborting command installation."
+            end
           end
-        end
-        next if gem_install_failed
 
-        output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
+          Gem.refresh
+          gems_to_install.each do |g|
+            begin
+              require g
+            rescue LoadError
+              raise CommandError, "Required Gem: `#{g}` installed but not found?!. Aborting command installation."
+            end
+          end
+
+          output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
+        end
       end
     end
   end
