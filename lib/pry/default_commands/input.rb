@@ -148,10 +148,10 @@ class Pry
         USAGE
 
         def options(opt)
-          opt.on :h, :head, "Display the first N items.", :optional => true, :as => Integer
-          opt.on :t, :tail, "Display the last N items.", :optional => true, :as => Integer
+          opt.on :H, :head, "Display the first N items.", :optional => true, :as => Integer
+          opt.on :T, :tail, "Display the last N items.", :optional => true, :as => Integer
           opt.on :s, :show, "Show the given range of lines.", :optional => true, :as => Range
-          opt.on :g, :grep, "Show lines matching the given pattern.", true, :as => String
+          opt.on :G, :grep, "Show lines matching the given pattern.", true, :as => String
           opt.on :c, :clear, "Clear the current session's history."
           opt.on :r, :replay, "Replay a line or range of lines.", true, :as => Range
           opt.on     :save, "Save history to a file.", true, :as => Range
