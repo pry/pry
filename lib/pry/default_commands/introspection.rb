@@ -5,7 +5,7 @@ class Pry
 
     Introspection = Pry::CommandSet.new do
 
-      command_class "show-method" do
+      create_command "show-method" do
         description "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source"
 
         banner <<-BANNER
@@ -98,7 +98,7 @@ class Pry
         end
       end
 
-      command_class "edit" do
+      create_command "edit" do
         description "Invoke the default editor on a file. Type `edit --help` for more info"
 
         banner <<-BANNER
@@ -219,7 +219,7 @@ class Pry
         end
       end
 
-      command_class "edit-method" do
+      create_command "edit-method" do
         description "Edit a method. Type `edit-method --help` for more info."
 
         banner <<-BANNER

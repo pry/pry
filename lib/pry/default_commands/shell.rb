@@ -30,7 +30,7 @@ class Pry
       end
       alias_command "file-mode", "shell-mode"
 
-      command_class "cat", "Show code from a file, Pry's input buffer, or the last exception." do
+      create_command "cat", "Show code from a file, Pry's input buffer, or the last exception." do
         banner <<-USAGE
           Usage: cat FILE
                  cat --ex [STACK_INDEX]

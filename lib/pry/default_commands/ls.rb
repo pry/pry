@@ -3,7 +3,7 @@ class Pry
 
     Ls = Pry::CommandSet.new do
 
-      command_class "ls","Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
+      create_command "ls","Show the list of vars and methods in the current scope. Type `ls --help` for more info.",
               :shellwords => false, :interpolate => false do
 
         def options(opt)
