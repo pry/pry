@@ -113,7 +113,10 @@ class Pry
     pry_instance = new(options)
 
     # save backtrace
-    pry_instance.backtrace = caller.tap(&:shift)
+    pry_instance.backtrace = caller
+
+    # if Pry was started via binding.pry, elide that from the backtrace.
+    pry_instance.backtrace.shift if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
 
     # yield the binding_stack to the hook for modification
     pry_instance.exec_hook(
