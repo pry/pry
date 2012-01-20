@@ -117,17 +117,16 @@ class Pry
 
     # yield the binding_stack to the hook for modification
     pry_instance.exec_hook(
-      :when_started,
-      binding_stack = [target],
-      options,
-      pry_instance
-    )
+                           :when_started,
+                           target,
+                           options,
+                           pry_instance
+                           )
 
-    if pry_instance.binding_stack.empty?
-      head, *tail = binding_stack
-      pry_instance.binding_stack.push(*tail)
-    else
+    if !pry_instance.binding_stack.empty?
       head = pry_instance.binding_stack.pop
+    else
+      head = target
     end
 
     # Enter the matrix
