@@ -9,7 +9,7 @@ describe "Pry::Command" do
   describe 'call_safely' do
 
     it 'should display a message if gems are missing' do
-      cmd = @set.command_class "ford-prefect", "From a planet near Beetlegeuse", :requires_gem => %w(ghijkl) do
+      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", :requires_gem => %w(ghijkl) do
         #
       end
 
@@ -17,7 +17,7 @@ describe "Pry::Command" do
     end
 
     it 'should abort early if arguments are required' do
-      cmd = @set.command_class 'arthur-dent', "Doesn't understand Thursdays", :argument_required => true do
+      cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", :argument_required => true do
         #
       end
 
@@ -27,7 +27,7 @@ describe "Pry::Command" do
     end
 
     it 'should return VOID without keep_retval' do
-      cmd = @set.command_class 'zaphod-beeblebrox', "Likes pan-Galactic Gargle Blasters" do
+      cmd = @set.create_command 'zaphod-beeblebrox', "Likes pan-Galactic Gargle Blasters" do
         def process
           3
         end
@@ -37,7 +37,7 @@ describe "Pry::Command" do
     end
 
     it 'should return the return value with keep_retval' do
-      cmd = @set.command_class 'tricia-mcmillian', "a.k.a Trillian", :keep_retval => true do
+      cmd = @set.create_command 'tricia-mcmillian', "a.k.a Trillian", :keep_retval => true do
         def process
           5
         end
@@ -47,7 +47,7 @@ describe "Pry::Command" do
     end
 
     it 'should call hooks in the right order' do
-      cmd = @set.command_class 'marvin', "Pained by the diodes in his left side" do
+      cmd = @set.create_command 'marvin', "Pained by the diodes in his left side" do
         def process
           output.puts 3 + args[0].to_i
         end
@@ -73,13 +73,13 @@ describe "Pry::Command" do
 
     # TODO: This strikes me as rather silly...
     it 'should return the value from the last hook with keep_retval' do
-      cmd = @set.command_class 'slartibartfast', "Designs Fjords", :keep_retval => true do
+      cmd = @set.create_command 'slartibartfast', "Designs Fjords", :keep_retval => true do
         def process
           22
         end
       end
 
-      @set.after_command 'slartibartfast' do 
+      @set.after_command 'slartibartfast' do
         10
       end
 
@@ -97,7 +97,7 @@ describe "Pry::Command" do
     end
 
     it 'should use slop to generate the help for classy commands' do
-      @set.command_class 'eddie', "The ship-board computer" do
+      @set.create_command 'eddie', "The ship-board computer" do
         def options(opt)
           opt.banner "Over-cheerful, and makes a ticking noise."
         end
@@ -107,7 +107,7 @@ describe "Pry::Command" do
     end
 
     it 'should provide --help for classy commands' do
-      cmd = @set.command_class 'agrajag', "Killed many times by Arthur" do
+      cmd = @set.create_command 'agrajag', "Killed many times by Arthur" do
         def options(opt)
           opt.on :r, :retaliate, "Try to get Arthur back"
         end
@@ -117,7 +117,7 @@ describe "Pry::Command" do
     end
 
     it 'should provide a -h for classy commands' do
-      cmd = @set.command_class 'zarniwoop', "On an intergalactic cruise, in his office." do
+      cmd = @set.create_command 'zarniwoop', "On an intergalactic cruise, in his office." do
         def options(opt)
           opt.on :e, :escape, "Help zaphod escape the Total Perspective Vortex"
         end
@@ -127,7 +127,7 @@ describe "Pry::Command" do
     end
 
     it 'should use the banner provided' do
-      cmd = @set.command_class 'deep-thought', "The second-best computer ever" do
+      cmd = @set.create_command 'deep-thought', "The second-best computer ever" do
         banner <<-BANNER
           Who's merest operational parameters, I am not worthy to compute.
         BANNER
@@ -148,7 +148,7 @@ describe "Pry::Command" do
     }
 
     it 'should capture lots of stuff from the hash passed to new before setup' do
-      cmd = @set.command_class 'fenchurch', "Floats slightly off the ground" do
+      cmd = @set.create_command 'fenchurch', "Floats slightly off the ground" do
         define_method(:setup) do
           self.context.should == context
           target.should == context[:target]
@@ -170,7 +170,7 @@ describe "Pry::Command" do
   describe 'classy api' do
 
     it 'should call setup, then options, then process' do
-      cmd = @set.command_class 'rooster', "Has a tasty towel" do
+      cmd = @set.create_command 'rooster', "Has a tasty towel" do
         def setup
           output.puts "setup"
         end
@@ -188,7 +188,7 @@ describe "Pry::Command" do
     end
 
     it 'should raise a command error if process is not overridden' do
-      cmd = @set.command_class 'jeltz', "Commander of a Vogon constructor fleet" do
+      cmd = @set.create_command 'jeltz', "Commander of a Vogon constructor fleet" do
         def proccces
           #
         end
@@ -200,7 +200,7 @@ describe "Pry::Command" do
     end
 
     it 'should work if neither options, nor setup is overridden' do
-      cmd = @set.command_class 'wowbagger', "Immortal, insulting.", :keep_retval => true do
+      cmd = @set.create_command 'wowbagger', "Immortal, insulting.", :keep_retval => true do
         def process
           5
         end
@@ -210,7 +210,7 @@ describe "Pry::Command" do
     end
 
     it 'should provide opts and args as provided by slop' do
-      cmd = @set.command_class 'lintilla', "One of 800,000,000 clones" do
+      cmd = @set.create_command 'lintilla', "One of 800,000,000 clones" do
          def options(opt)
            opt.on :f, :four, "A numeric four", :as => Integer, :optional => true
          end
@@ -225,7 +225,7 @@ describe "Pry::Command" do
     end
 
     it 'should allow overriding options after definition' do
-      cmd = @set.command_class /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false do
+      cmd = @set.create_command /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false do
 
         command_options :listing => 'number-one'
       end

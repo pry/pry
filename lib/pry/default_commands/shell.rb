@@ -30,7 +30,7 @@ class Pry
       end
       alias_command "file-mode", "shell-mode"
 
-      command_class "save-file", "Export to a file using content from the REPL."  do
+      create_command "save-file", "Export to a file using content from the REPL."  do
         banner <<-USAGE
           Usage: save-file [OPTIONS] [METH]
           Save REPL content to a file.
