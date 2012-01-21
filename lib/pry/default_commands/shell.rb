@@ -31,6 +31,15 @@ class Pry
       alias_command "file-mode", "shell-mode"
 
       command_class "save-file", "Export to a file using content from the REPL."  do
+        banner <<-USAGE
+          Usage: save-file [OPTIONS] [METH]
+          Save REPL content to a file.
+          e.g: save-file -m my_method -m my_method2 ./hello.rb
+          e.g: save-file -i 1..10 ./hello.rb
+          e.g: save-file -c show-method ./my_command.rb
+          e.g: save-file -f sample_file --lines 2..10 ./output_file.rb
+        USAGE
+
         attr_accessor :content
         attr_accessor :file_name
 
@@ -39,15 +48,6 @@ class Pry
         end
 
         def options(opt)
-          opt.banner unindent <<-USAGE
-  Usage: save-file [OPTIONS] [METH]
-  Save REPL content to a file.
-  e.g: save-file -m my_method -m my_method2 ./hello.rb
-  e.g: save-file -i 1..10 ./hello.rb
-  e.g: save-file -c show-method ./my_command.rb
-  e.g: save-file -f sample_file --lines 2..10 ./output_file.rb
-USAGE
-
           opt.on :m, :method, "Save a method's source.", true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source
@@ -59,8 +59,8 @@ USAGE
           opt.on :f, :file, "Save a file.", true do |file|
             self.content << File.read(File.expand_path(file))
           end
-          opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
-          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          opt.on :l, :lines, "Only save a subset of lines.", :optional => true, :as => Range, :default => 1..-1
+          opt.on :i, :in, "Save entries from Pry's input expression history. Takes an index or range.", :optional => true,
           :as => Range, :default => -5..-1 do |range|
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each { |v| self.content << v }
