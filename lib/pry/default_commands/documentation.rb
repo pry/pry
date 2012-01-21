@@ -3,7 +3,7 @@ class Pry
 
     Documentation = Pry::CommandSet.new do
 
-      command_class "ri", "View ri documentation. e.g `ri Array#each`" do
+      create_command "ri", "View ri documentation. e.g `ri Array#each`" do
         banner <<-BANNER
           Usage: ri [spec]
           e.g. ri Array#each
@@ -16,7 +16,7 @@ class Pry
         end
       end
 
-      command_class "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
+      create_command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
           Show the comments above method METH. Tries instance methods first and then methods by default.
@@ -45,7 +45,7 @@ class Pry
 
       alias_command "?", "show-doc"
 
-      command_class "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
+      create_command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
         banner <<-BANNER
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
@@ -72,7 +72,7 @@ class Pry
         end
       end
 
-      command_class "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
+      create_command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
         attr_accessor :content
         attr_accessor :code_type
         attr_accessor :input_ranges
