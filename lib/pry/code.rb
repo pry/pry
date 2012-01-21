@@ -122,7 +122,7 @@ class Pry
     # @return [String] The inserted line.
     def push(line, line_num=nil)
       line_num = @lines.last.last + 1 unless line_num
-      @lines.push([line, line_num])
+      @lines.push([line.chomp, line_num])
       line
     end
     alias << push
@@ -303,6 +303,13 @@ class Pry
       end
 
       lines.map { |l| "#{l.first}\n" }.join
+    end
+
+    # Return an unformatted String of the code.
+    #
+    # @return [String]
+    def raw
+      @lines.map(&:first).join("\n")
     end
 
     # Return the number of lines stored.
