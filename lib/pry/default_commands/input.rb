@@ -231,7 +231,7 @@ class Pry
         def process_replay
           @history = @history.between(opts[:r])
           _pry_.input_stack << _pry_.input
-          _pry_.input = StringIO.new(@history.to_s)
+          _pry_.input = StringIO.new(@history.raw)
         end
       end
 
