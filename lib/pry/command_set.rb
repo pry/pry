@@ -122,7 +122,6 @@ class Pry
       commands[name].class_eval(&block)
       commands[name]
     end
-    alias_method :command_class, :create_command
 
     # Execute a block of code before a command is invoked. The block also
     # gets access to parameters that will be passed to the command and

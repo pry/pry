@@ -501,7 +501,7 @@ describe Pry::CommandSet do
     end
 
     it 'should return Result.new(true, VOID) if the command is not keep_retval' do
-      @set.command_class('mrs-cake') do
+      @set.create_command('mrs-cake') do
         def process; 42; end
       end
 
@@ -512,7 +512,7 @@ describe Pry::CommandSet do
     end
 
     it 'should return Result.new(true, retval) if the command is keep_retval' do
-      @set.command_class('magrat', 'the maiden', :keep_retval => true) do
+      @set.create_command('magrat', 'the maiden', :keep_retval => true) do
         def process; 42; end
       end
 
@@ -529,7 +529,7 @@ describe Pry::CommandSet do
         :output => StringIO.new,
         :target => binding
       }
-      @set.command_class('agnes') do
+      @set.create_command('agnes') do
         define_method(:process) do
           eval_string.should == ctx[:eval_string]
           output.should == ctx[:output]
@@ -543,7 +543,7 @@ describe Pry::CommandSet do
 
     it 'should add command_set to context' do
       set = @set
-      @set.command_class(/nann+y ogg+/) do
+      @set.create_command(/nann+y ogg+/) do
         define_method(:process) do
           command_set.should == set
         end

@@ -1,7 +1,7 @@
 class Pry
 
   # The super-class of all commands, new commands should be created by calling
-  # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#command_class}
+  # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#create_command}
   # which creates a ClassCommand. Please don't use this class directly.
   class Command
 
@@ -12,7 +12,7 @@ class Pry
     def VOID_VALUE.inspect() "void" end
 
     # Properties of the command itself (as passed as arguments to
-    # {CommandSet#command} or {CommandSet#command_class}).
+    # {CommandSet#command} or {CommandSet#create_command}).
     class << self
       attr_accessor :block
       attr_accessor :name
@@ -331,7 +331,7 @@ class Pry
   # This class implements the bare-minimum functionality that a command should have,
   # namely a --help switch, and then delegates actual processing to its subclasses.
   #
-  # Create subclasses using {Pry::CommandSet#command_class}, and override the {options(opt)} method
+  # Create subclasses using {Pry::CommandSet#create_command}, and override the {options(opt)} method
   # to set up an instance of Slop, and the {process} method to actually run the command. If
   # necessary, you can also override {setup} which will be called before {options}, for example to
   # require any gems your command needs to run, or to set up state.
