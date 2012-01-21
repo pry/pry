@@ -59,7 +59,7 @@ class Pry
 
       alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, "amend-line")
 
-      command_class "play" do
+      create_command "play" do
         description "Play back a string variable or a method or a file as input. Type `play --help` for more information."
 
         banner <<-BANNER
@@ -135,7 +135,7 @@ class Pry
 
       end
 
-      command_class "hist", "Show and replay Readline history. Aliases: history" do
+      create_command "hist", "Show and replay Readline history. Aliases: history" do
         banner <<-USAGE
           Usage: hist
                  hist --head N
