@@ -35,7 +35,7 @@ class Pry
           Usage: save-file [OPTIONS] [METH]
           Save REPL content to a file.
           e.g: save-file -m my_method -m my_method2 ./hello.rb
-          e.g: save-file -i 1..10 ./hello.rb
+          e.g: save-file -i 1..10 ./hello.rb --append
           e.g: save-file -c show-method ./my_command.rb
           e.g: save-file -f sample_file --lines 2..10 ./output_file.rb
         USAGE
@@ -54,7 +54,12 @@ class Pry
           end
           opt.on :c, :command, "Save a command's source.", true do |command_name|
             command = find_command(command_name)
-            self.content << command.block.source
+            block = Pry::Method.new(find_command(command_name).block)
+
+            # FIXME: must be a better way than using `no_color`
+            text.no_color do
+              self.content << Code.from_method(block).to_s
+            end
           end
           opt.on :f, :file, "Save a file.", true do |file|
             self.content << File.read(File.expand_path(file))
@@ -65,6 +70,7 @@ class Pry
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each { |v| self.content << v }
           end
+          opt.on :a, :append, "Append to the given file instead of overwriting it."
         end
 
         def process
@@ -82,12 +88,20 @@ class Pry
             raise CommandError, "Found no code to save."
           end
 
-          File.open(file_name, "w") do |f|
+          File.open(file_name, mode) do |f|
             if opts.present?(:lines)
               f.puts restrict_to_lines(content, opts[:l])
             else
               f.puts content
             end
+          end
+        end
+
+        def mode
+          if opts.present?(:append)
+            "a"
+          else
+            "w"
           end
         end
 

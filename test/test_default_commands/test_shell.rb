@@ -1,6 +1,184 @@
 require 'helper'
 
 describe "Pry::DefaultCommands::Shell" do
+  describe "save-file" do
+    before do
+      @tf = Tempfile.new(["pry", ".py"])
+      @path = @tf.path
+    end
+
+    after do
+      @tf.close(true)
+    end
+
+    describe "-f" do
+      it 'should save a file to a file' do
+        f = Tempfile.new(["pry", ".py"])
+        path = f.path
+        f.write ":cute_horse"
+
+        redirect_pry_io(InputTester.new("save-file -f #{path} #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        File.read(@path).should == File.read(path)
+
+        f.close(true)
+      end
+    end
+
+    describe "-i" do
+      it 'should save input expressions to a file (single expression)' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        "save-file -i 1 #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        File.read(@path).should == ":horse_nostrils\n"
+      end
+
+      it 'should save input expressions to a file (range)' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        ":sucking_up_all_the_oxygen",
+                                        "save-file -i 1..2 #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        File.read(@path).should == ":horse_nostrils\n:sucking_up_all_the_oxygen\n"
+      end
+    end
+
+    describe "-m" do
+      before do
+        @o = Object.new
+        def @o.baby
+          :baby
+        end
+        def @o.bang
+          :bang
+        end
+      end
+
+      describe "single method" do
+        it 'should save a method to a file' do
+          redirect_pry_io(InputTester.new("save-file #{@path} -m baby",
+                                          "exit-all")) do
+            Pry.start(@o)
+          end
+          File.read(@path).should == Pry::Method.from_obj(@o, :baby).source
+        end
+
+        it 'should save a method to a file truncated by --lines' do
+          redirect_pry_io(InputTester.new("save-file #{@path} -m baby --lines 2..4",
+                                          "exit-all")) do
+            Pry.start(@o)
+          end
+
+          # must add 1 as first line of method is 1
+          File.read(@path).should == Pry::Method.from_obj(@o, :baby).source.lines.to_a[1..5].join
+        end
+      end
+
+      describe "multiple method" do
+        it 'should save multiple methods to a file' do
+          redirect_pry_io(InputTester.new("save-file #{@path} -m baby -m bang",
+                                          "exit-all")) do
+            Pry.start(@o)
+          end
+          File.read(@path).should == Pry::Method.from_obj(@o, :baby).source +
+            Pry::Method.from_obj(@o, :bang).source
+        end
+
+        it 'should save multiple methods to a file trucated by --lines' do
+          redirect_pry_io(InputTester.new("save-file #{@path} -m baby -m bang --lines 2..-2",
+                                          "exit-all")) do
+            Pry.start(@o)
+          end
+
+          # must add 1 as first line of method is 1
+          File.read(@path).should == (Pry::Method.from_obj(@o, :baby).source +
+            Pry::Method.from_obj(@o, :bang).source).lines.to_a[1..-2].join
+        end
+      end
+
+    end
+
+    describe "overwrite by default (no --append)" do
+      it 'should overwrite specified file with new input' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        "save-file -i 1 #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+
+        redirect_pry_io(InputTester.new(":sucking_up_all_the_oxygen",
+                                        "save-file -i 1 #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+
+        File.read(@path).should == ":sucking_up_all_the_oxygen\n"
+      end
+
+    end
+
+    describe "--append" do
+      it 'should append to end of specified file' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        "save-file -i 1 #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+
+        redirect_pry_io(InputTester.new(":sucking_up_all_the_oxygen",
+                                        "save-file -i 1 #{@path} -a",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+
+        File.read(@path).should == ":horse_nostrils\n:sucking_up_all_the_oxygen\n"
+      end
+    end
+
+    describe "-c" do
+      it 'should save a command to a file' do
+        redirect_pry_io(InputTester.new("save-file #{@path} -c show-method",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        cmd = Pry::Method.new(Pry.commands.find_command("show-method").block)
+        File.read(@path).should == Pry::Code.from_method(cmd).to_s
+      end
+    end
+
+    describe "combined options" do
+      before do
+        @o = Object.new
+        def @o.baby
+          :baby
+        end
+      end
+
+      it 'should save input cache and a method to a file (in that order)' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        "save-file -i 1 -m baby #{@path}",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        File.read(@path).should == ":horse_nostrils\n" + Pry::Method.from_obj(@o, :baby).source
+      end
+
+      it 'should select a portion to save using --lines' do
+        redirect_pry_io(InputTester.new(":horse_nostrils",
+                                        "save-file -i 1 -m baby #{@path} --lines 2..-2",
+                                        "exit-all")) do
+          Pry.start(@o)
+        end
+        File.read(@path).should == (":horse_nostrils\n" + Pry::Method.from_obj(@o, :baby).source).lines.to_a[1..-2].join
+      end
+    end
+  end
+
   describe "cat" do
 
     describe "on receiving a file that does not exist" do
