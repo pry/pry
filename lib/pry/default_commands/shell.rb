@@ -164,6 +164,8 @@ class Pry
             ex_file = RbxPath.convert_path_to_full(ex_file)
           end
 
+          set_file_and_dir_locals(ex_file)
+
           start_line = ex_line - window_size
           start_line = 1 if start_line < 1
           end_line = ex_line + window_size
