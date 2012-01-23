@@ -170,6 +170,45 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.should.not =~ /goodbye/
     end
 
+    it 'should play documentation with the -d switch' do
+      o = Object.new
+
+      # @v = 10
+      # @y = 20
+      def o.test_method
+        :test_method_content
+      end
+
+      redirect_pry_io(InputTester.new('play -d test_method', "exit-all"), str_output = StringIO.new) do
+        o.pry
+      end
+
+      o.instance_variable_get(:@v).should == 10
+      o.instance_variable_get(:@y).should == 20
+    end
+
+    it 'should play documentation with the -d switch (restricted by --lines)' do
+      o = Object.new
+
+      # @x = 0
+      # @v = 10
+      # @y = 20
+      # @z = 30
+      def o.test_method
+        :test_method_content
+      end
+
+      redirect_pry_io(InputTester.new('play -d test_method --lines 2..3', "exit-all"), str_output = StringIO.new) do
+        o.pry
+      end
+
+      o.instance_variable_get(:@x).should == nil
+      o.instance_variable_get(:@z).should == nil
+      o.instance_variable_get(:@v).should == 10
+      o.instance_variable_get(:@y).should == 20
+    end
+
+
     it 'should play a method with the -m switch (a single line)' do
       o = Object.new
       def o.test_method
