@@ -191,6 +191,15 @@ class Pry
         text.gsub(/^#{margin}/, '')
       end
 
+      # Restrict a string to the given range of lines (1-indexed)
+      # @param [String] content The string.
+      # @param [Range, Fixnum] lines The line(s) to restrict it to.
+      # @return [String] The resulting string.
+      def restrict_to_lines(content, lines)
+        line_range = one_index_range_or_number(lines)
+        Array(content.lines.to_a[line_range]).join
+      end
+
       def one_index_number(line_number)
         if line_number > 0
           line_number - 1
