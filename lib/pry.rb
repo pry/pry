@@ -148,6 +148,11 @@ class Pry
   # indicate an exceptional condition that's fatal to the current command.
   class CommandError < StandardError; end
   class NonMethodContextError < CommandError; end
+
+  # This is to keep from breaking under Rails 3.2 for people who are doing that
+  # IRB = Pry thing.
+  module ExtendCommandBundle
+  end
 end
 
 require "method_source"
