@@ -25,6 +25,8 @@ class Pry
 
         def options(opt)
           method_options(opt)
+          opt.on :l, "line-numbers", "Show line numbers."
+          opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
@@ -39,8 +41,22 @@ class Pry
           output.puts "#{text.bold("Signature:")} #{meth.signature}"
           output.puts
 
+          if opts.present?(:b) || opts.present?(:l)
+            doc = Code.new(doc, start_line, :text).
+              with_line_numbers(true)
+          end
+
           render_output(doc, opts)
         end
+
+        def start_line
+          if opts.present?(:'base-one')
+             1
+          else
+            (method_object.source_line - method_object.doc.lines.count) || 1
+          end
+        end
+
       end
 
       alias_command "?", "show-doc"
@@ -81,7 +97,7 @@ class Pry
           e.g: gist -d my_method
           e.g: gist -i 1..10
           e.g: gist -c show-method
-          e.g gist -m hello_world --lines 2..-2
+          e.g: gist -m hello_world --lines 2..-2
         USAGE
 
         attr_accessor :content
@@ -100,7 +116,7 @@ class Pry
             self.code_type = meth.source_type
           end
           opt.on :d, :doc, "Gist a method's documentation.", true do |meth_name|
-            meth = get_method_or_raise(opts[:d], target, {})
+            meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
               self.content << process_comment_markup(meth.doc, self.code_type)
             end
@@ -161,11 +177,6 @@ class Pry
             Gist.copy(link)
             output.puts "Gist created at #{link} and added to clipboard."
           end
-        end
-
-        def restrict_to_lines(content, lines)
-          line_range = one_index_range(lines)
-          content.lines.to_a[line_range].join
         end
 
         def gist_file_extension(file_name)
