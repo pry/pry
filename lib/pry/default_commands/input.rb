@@ -69,70 +69,75 @@ class Pry
           if they were entered directly in the Pry REPL. Default action (no
           options) is to play the provided string variable
 
-          e.g: `play _in_[20] --lines 1..3`
+          e.g: `play -i 20 --lines 1..3`
           e.g: `play -m Pry#repl --lines 1..-1`
           e.g: `play -f Rakefile --lines 5`
 
           https://github.com/pry/pry/wiki/User-Input#wiki-Play
         BANNER
 
+        attr_accessor :content
+
+        def setup
+          self.content   = ""
+        end
+
         def options(opt)
-          opt.on :l, :lines, 'The line (or range of lines) to replay.', true, :as => Range
-          opt.on :m, :method, 'Play a method.', true
-          opt.on :f, "file", 'The file to replay in context.', true
+          opt.on :m, :method, "Play a method's source.", true do |meth_name|
+            meth = get_method_or_raise(meth_name, target, {})
+            self.content << meth.source
+          end
+          opt.on :d, :doc, "Play a method's documentation.", true do |meth_name|
+            meth = get_method_or_raise(meth_name, target, {})
+            text.no_color do
+              self.content << process_comment_markup(meth.doc, :ruby)
+            end
+          end
+          opt.on :c, :command, "Play a command's source.", true do |command_name|
+            command = find_command(command_name)
+            block = Pry::Method.new(find_command(command_name).block)
+            self.content << block.source
+          end
+          opt.on :f, :file, "Play a file.", true do |file|
+            self.content << File.read(File.expand_path(file))
+          end
+          opt.on :l, :lines, "Only play a subset of lines.", :optional => true, :as => Range, :default => 1..-1
+          opt.on :i, :in, "Play entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          :as => Range, :default => -5..-1 do |range|
+            input_expressions = _pry_.input_array[range] || []
+            Array(input_expressions).each { |v| self.content << v }
+          end
           opt.on :o, "open", 'When used with the -m switch, it plays the entire method except the last line, leaving the method definition "open". `amend-line` can then be used to modify the method.'
         end
 
         def process
-          if opts.present?(:method)
-            process_method
-          elsif opts.present?(:file)
-            process_file
-          else
-            process_input
-          end
-
+          perform_play
           run "show-input" unless _pry_.complete_expression?(eval_string)
         end
 
-        def process_method
-          meth_name = opts[:m]
-          meth = get_method_or_raise(meth_name, target, {}, :omit_help)
-          return unless meth.source
-
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
-
-          eval_string << Array(meth.source.each_line.to_a[range]).join
+        def process_non_opt
+          args.each do |arg|
+            begin
+              self.content << target.eval(arg)
+            rescue Pry::RescuableException
+              raise CommandError, "Prblem when evaling #{arg}."
+            end
+          end
         end
 
-        def process_file
-          file_name = File.expand_path(opts[:f])
+        def perform_play
+          process_non_opt
 
-          if !File.exists?(file_name)
-            raise CommandError, "No such file: #{opts[:f]}"
+          if opts.present?(:lines)
+            self.content = restrict_to_lines(self.content, opts[:l])
           end
 
-          text_array = File.readlines(file_name)
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
-
-          eval_string << Array(text_array[range]).join
-        end
-
-        def process_input
-          if !args.first
-            raise CommandError, "No input to play command."
+          if opts.present?(:open)
+            self.content = restrict_to_lines(self.content, 1..-2)
           end
 
-          code = target.eval(args.first)
-
-          range = opts.present?(:lines) ? one_index_range_or_number(opts[:l]) : (0..-1)
-          range = (0..-2) if opts.present?(:open)
-
-          eval_string << Array(code.each_line.to_a[range]).join
+          eval_string << self.content
         end
-
       end
 
       create_command "hist", "Show and replay Readline history. Aliases: history" do
