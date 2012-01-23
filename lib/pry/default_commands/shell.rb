@@ -55,11 +55,7 @@ class Pry
           opt.on :c, :command, "Save a command's source.", true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(find_command(command_name).block)
-
-            # FIXME: must be a better way than using `no_color`
-            text.no_color do
-              self.content << Code.from_method(block).to_s
-            end
+            self.content << block.source
           end
           opt.on :f, :file, "Save a file.", true do |file|
             self.content << File.read(File.expand_path(file))

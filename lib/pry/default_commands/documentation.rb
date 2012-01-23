@@ -73,66 +73,54 @@ class Pry
       end
 
       create_command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
+        banner <<-USAGE
+          Usage: gist [OPTIONS] [METH]
+          Gist method (doc or source) or input expression to github.
+          Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
+          e.g: gist -m my_method
+          e.g: gist -d my_method
+          e.g: gist -i 1..10
+          e.g: gist -c show-method
+          e.g gist -m hello_world --lines 2..-2
+        USAGE
+
         attr_accessor :content
         attr_accessor :code_type
-        attr_accessor :input_ranges
 
         def setup
           require 'gist'
+          self.content   = ""
+          self.code_type = :ruby
         end
 
         def options(opt)
-          opt.banner unindent <<-USAGE
-  Usage: gist [OPTIONS] [METH]
-  Gist method (doc or source) or input expression to github.
-  Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
-  e.g: gist -m my_method
-  e.g: gist -d my_method
-  e.g: gist -i 1..10
-  e.g: gist -c show-method
-USAGE
-
-          opt.on :d, :doc, "Gist a method's documentation.", true
-          opt.on :m, :method, "Gist a method's source.", true
-          opt.on :c, :command, "Gist a command's source.", true
-          opt.on :f, :file, "Gist a file.", true
+          opt.on :m, :method, "Gist a method's source.", true do |meth_name|
+            meth = get_method_or_raise(meth_name, target, {})
+            self.content << meth.source
+            self.code_type = meth.source_type
+          end
+          opt.on :d, :doc, "Gist a method's documentation.", true do |meth_name|
+            meth = get_method_or_raise(opts[:d], target, {})
+            text.no_color do
+              self.content << process_comment_markup(meth.doc, self.code_type)
+            end
+            self.code_type = :plain
+          end
+          opt.on :c, :command, "Gist a command's source.", true do |command_name|
+            command = find_command(command_name)
+            block = Pry::Method.new(find_command(command_name).block)
+            self.content << block.source
+          end
+          opt.on :f, :file, "Gist a file.", true do |file|
+            self.content << File.read(File.expand_path(file))
+          end
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :l, :lines, "Only gist a subset of lines (only works with -m and -f)", :optional => true, :as => Range, :default => 1..-1
+          opt.on :l, :lines, "Only gist a subset of lines.", :optional => true, :as => Range, :default => 1..-1
           opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
           :as => Range, :default => -5..-1 do |range|
-            self.input_ranges ||= []
-            input_ranges << absolute_index_range(range, _pry_.input_array.length)
-          end
-        end
-
-        def process
-          self.content = ""
-
-          if opts.present?(:in)
-            in_option
-          end
-          if opts.present?(:file)
-            file_option
-          end
-          if opts.present?(:doc)
-            doc_option
-          end
-          if opts.present?(:method)
-            method_option
-          end
-          if opts.present?(:command)
-            command_option
-          end
-
-          perform_gist
-        end
-
-        def in_option
-          self.code_type = :ruby
-
-          input_ranges.each do |range|
+            range = convert_to_range(range)
             input_expressions = _pry_.input_array[range] || []
-            input_expressions.each_with_index.map do |code, index|
+            Array(input_expressions).each_with_index do |code, index|
               corrected_index = index + range.first
               if code && code != ""
                 self.content << code
@@ -144,49 +132,8 @@ USAGE
           end
         end
 
-        def file_option
-          whole_file = File.read(File.expand_path(opts[:f]))
-          if opts.present?(:lines)
-            self.content << restrict_to_lines(whole_file, opts[:l])
-          else
-            self.content << whole_file
-          end
-        end
-
-        def doc_option
-          meth = get_method_or_raise(opts[:d], target, {})
-          self.content << meth.doc
-          self.code_type = meth.source_type
-
-          text.no_color do
-            self.content << process_comment_markup(self.content, self.code_type)
-          end
-          self.code_type = :plain
-        end
-
-        def method_option
-          meth = get_method_or_raise(opts[:m], target, {})
-          method_source = meth.source
-          if opts.present?(:lines)
-            self.content << restrict_to_lines(method_source, opts[:l])
-          else
-            self.content << method_source
-          end
-
-          self.code_type = meth.source_type
-        end
-
-        def command_option
-          command = find_command(opts[:c])
-          command_source = command.block.source
-
-          if opts.present?(:lines)
-            self.content << restrict_to_lines(command_source, opts[:l])
-          else
-            self.content << command_source
-          end
-
-          self.code_type = :ruby
+        def process
+          perform_gist
         end
 
         def perform_gist
@@ -199,6 +146,10 @@ USAGE
           # prevent Gist from exiting the session on error
           begin
             extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[self.code_type]}"
+
+            if opts.present?(:lines)
+              self.content = restrict_to_lines(content, opts[:l])
+            end
 
             link = Gist.write([:extension => extname,
                                :input => self.content],
@@ -219,6 +170,14 @@ USAGE
 
         def gist_file_extension(file_name)
           file_name.split(".").last
+        end
+
+        def convert_to_range(n)
+          if !n.is_a?(Range)
+            (n..n)
+          else
+            n
+          end
         end
 
         def comment_expression_result_for_gist(result)
