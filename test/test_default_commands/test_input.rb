@@ -171,58 +171,53 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should play a method with the -m switch (a single line)' do
-      $o = Object.new
-      def $o.test_method
+      o = Object.new
+      def o.test_method
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 2', "exit-all"), str_output = StringIO.new) do
-        pry
+      redirect_pry_io(InputTester.new('play -m test_method --lines 2', "exit-all"), str_output = StringIO.new) do
+        o.pry
       end
 
       str_output.string.should =~ /:test_method_content/
-      $o = nil
     end
 
     it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
-      $o = Object.new
-      def $o.test_method
+      o = Object.new
+      def o.test_method
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('def another_test_method', 'play -m $o.test_method --lines 2', 'show-input', 'exit-all'), str_output = StringIO.new) do
-        pry
+      redirect_pry_io(InputTester.new('def another_test_method', 'play -m test_method --lines 2', 'show-input', 'exit-all'), str_output = StringIO.new) do
+        o.pry
       end
       str_output.string.should =~ /def another_test_method/
       str_output.string.should =~ /:test_method_content/
-      $o = nil
     end
 
 
     it 'should play a method with the -m switch (multiple line)' do
-      $o = Object.new
-      class << $o
-        attr_accessor :var1, :var2
-      end
+      o = Object.new
 
-      def $o.test_method
+      def o.test_method
+        @var0 = 10
         @var1 = 20
         @var2 = 30
+        @var3 = 40
       end
 
-      obj = Object.new
-      b = Pry.binding_for(obj)
-
-      redirect_pry_io(InputTester.new('play -m $o.test_method --lines 2..3', "exit-all"), str_output = StringIO.new) do
-        b.pry
+      redirect_pry_io(InputTester.new('play -m test_method --lines 3..4', "exit-all"), str_output = StringIO.new) do
+        o.pry
       end
 
-      obj.instance_variable_get(:@var1).should == 20
-      obj.instance_variable_get(:@var2).should == 30
+      o.instance_variable_get(:@var0).should == nil
+      o.instance_variable_get(:@var1).should == 20
+      o.instance_variable_get(:@var2).should == 30
+      o.instance_variable_get(:@var3).should == nil
       str_output.string.should =~ /30/
       str_output.string.should.not =~ /20/
     end
-
   end
 
   describe "hist" do
