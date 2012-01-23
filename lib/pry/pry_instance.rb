@@ -7,7 +7,6 @@ class Pry
   attr_accessor :commands
   attr_accessor :print
   attr_accessor :exception_handler
-  attr_accessor :hooks
   attr_accessor :input_stack
 
   attr_accessor :custom_completions
@@ -24,6 +23,21 @@ class Pry
   attr_reader :output_array
 
   attr_accessor :backtrace
+
+  # Special treatment for hooks as we want to alert people of the
+  # changed API
+  attr_reader :hooks
+
+  # FIXME:
+  # This is a hack to alert people of the new API.
+  # @param [Pry::Hooks] v Only accept `Pry::Hooks` now!
+  def hooks=(v)
+    if v.is_a?(Hash)
+      raise ObsoleteError, "Error: Hash is now obsolete! Use a Pry::Hooks object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+    end
+
+    @hooks = v
+  end
 
   # Create a new `Pry` object.
   # @param [Hash] options The optional configuration parameters.

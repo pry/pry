@@ -415,6 +415,52 @@ describe Pry::Hooks do
         end
       end
     end
+  end
 
+  describe "obsolete API" do
+    describe "Pry.config.hooks" do
+      it 'should raise a Pry::ObsoleteError when assigning a hash' do
+        begin
+          Pry.config.hooks = {}
+        rescue => ex
+        end
+
+        ex.is_a?(Pry::ObsoleteError).should == true
+      end
+
+      describe "Pry.config.hooks[]" do
+        it 'should raise a Pry::ObsoleteError when accessing it in a hash style, Pry.config.hooks[]' do
+          begin
+            Pry.config.hooks[:before_session]
+          rescue => ex
+          end
+
+          ex.is_a?(Pry::ObsoleteError).should == true
+        end
+
+        it 'should raise a Pry::ObsoleteError when accessing it in a hash style, Pry.config.hooks[]=' do
+          begin
+            Pry.config.hooks[:before_session]
+          rescue => ex
+          end
+
+          ex.is_a?(Pry::ObsoleteError).should == true
+        end
+
+      end
+
+    end
+
+    describe "Pry.start" do
+      it 'should raise a Pry::ObsoleteError when passing in a :hooks option with a hash' do
+        begin
+          Pry.start binding, :hooks => { :before_session => proc { puts 'yo' } }
+        rescue => ex
+        end
+
+        ex.is_a?(Pry::ObsoleteError).should == true
+      end
+
+    end
   end
 end
