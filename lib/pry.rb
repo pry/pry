@@ -163,7 +163,7 @@ if Pry::Helpers::BaseHelpers.jruby?
   begin
     require 'ffi'
   rescue LoadError
-    $stderr.puts "Need to `gem install ffi`"
+    warn "Need to `gem install ffi`"
   end
 end
 
@@ -171,7 +171,7 @@ if Pry::Helpers::BaseHelpers.windows?
   begin
     require 'win32console'
   rescue LoadError
-    $stderr.puts "Need to `gem install win32console`"
+    warn "Need to `gem install win32console`"
     exit 1
   end
 end

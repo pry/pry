@@ -9,7 +9,7 @@ class Pry
       end
 
       def method_missing(*args)
-        $stderr.puts "Warning: The plugin '#{@name}' was not found! (no gem found)"
+        warn "Warning: The plugin '#{@name}' was not found! (no gem found)"
       end
     end
 
@@ -45,8 +45,8 @@ class Pry
         begin
           require gem_name if !active?
         rescue LoadError => e
-          $stderr.puts "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
-          $stderr.puts e
+          warn "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
+          warn e
         end
         self.active = true
         self.enabled = true

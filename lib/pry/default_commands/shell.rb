@@ -32,7 +32,7 @@ class Pry
 
       create_command "save-file", "Export to a file using content from the REPL."  do
         banner <<-USAGE
-          Usage: save-file [OPTIONS] [METH]
+          Usage: save-file [OPTIONS] [FILE]
           Save REPL content to a file.
           e.g: save-file -m my_method -m my_method2 ./hello.rb
           e.g: save-file -i 1..10 ./hello.rb --append
