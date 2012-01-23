@@ -100,11 +100,6 @@ class Pry
             "w"
           end
         end
-
-        def restrict_to_lines(content, lines)
-          line_range = one_index_range(lines)
-          content.lines.to_a[line_range].join
-        end
       end
 
       create_command "cat", "Show code from a file, Pry's input buffer, or the last exception." do
