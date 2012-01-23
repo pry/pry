@@ -42,7 +42,18 @@ class Pry
     # @example
     #   Pry.hooks :before_session => proc { puts "hello" },
     #     :after_session => proc { puts "goodbye" }
-    attr_accessor :hooks
+    attr_reader :hooks
+
+    # FIXME:
+    # This is a hack to alert people of the new API.
+    # @param [Pry::Hooks] v Only accept `Pry::Hooks` now!
+    def hooks=(v)
+      if v.is_a?(Hash)
+        raise ObsoleteError, "Hash is now obsolete! Use a Pry::Hooks object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      end
+
+      @hooks = v
+    end
 
     # Get/Set the stack of input objects that a Pry instance switches
     # to when its current input object encounters EOF.
