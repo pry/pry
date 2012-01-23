@@ -33,24 +33,29 @@ class Pry
         end
 
         def process
-          meth = method_object
-          raise CommandError, "Could not find method source" unless meth.source
+          raise CommandError, "Could not find method source" unless method_object.source
 
-          output.puts make_header(meth)
-          output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
-          output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
+          output.puts make_header(method_object)
+          output.puts "#{text.bold("Owner:")} #{method_object.owner || "N/A"}"
+          output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"
           output.puts
 
-          if opts.present?(:'base-one')
-            start_line = 1
-          else
-            start_line = meth.source_line || 1
-          end
-
-          code = Code.from_method(meth, start_line).
-                   with_line_numbers(opts.present?(:b) || opts.present?(:l))
+          code = Code.from_method(method_object, start_line).
+                   with_line_numbers(use_line_numbers?)
 
           render_output(code, opts)
+        end
+
+        def use_line_numbers?
+          opts.present?(:b) || opts.present?(:l)
+        end
+
+        def start_line
+          if opts.present?(:'base-one')
+            1
+          else
+            method_object.source_line || 1
+          end
         end
       end
 
