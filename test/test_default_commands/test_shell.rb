@@ -99,6 +99,18 @@ describe "Pry::DefaultCommands::Shell" do
           File.read(@path).should == (Pry::Method.from_obj(@o, :baby).source +
             Pry::Method.from_obj(@o, :bang).source).lines.to_a[1..-2].join
         end
+
+        it 'should save multiple methods to a file trucated by --lines 1 (single parameter, not range)' do
+          redirect_pry_io(InputTester.new("save-file #{@path} -m baby -m bang --lines 1",
+                                          "exit-all")) do
+            Pry.start(@o)
+          end
+
+          # must add 1 as first line of method is 1
+          File.read(@path).should == (Pry::Method.from_obj(@o, :baby).source +
+            Pry::Method.from_obj(@o, :bang).source).lines.to_a[0]
+        end
+
       end
 
     end
