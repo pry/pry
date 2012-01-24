@@ -89,7 +89,7 @@ class Pry
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
     load_rc if Pry.config.should_load_rc
-    load_plugins if Pry.config.plugins.enabled
+    load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
     load_traps if Pry.config.should_trap_interrupts
@@ -241,8 +241,7 @@ class Pry
     config.gist ||= OpenStruct.new
     config.gist.inspecter = proc(&:pretty_inspect)
 
-    config.plugins ||= OpenStruct.new
-    config.plugins.enabled = true
+    config.should_load_plugins = true
 
     config.requires ||= []
     config.should_load_requires = true
