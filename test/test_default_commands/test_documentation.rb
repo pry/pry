@@ -10,6 +10,13 @@ describe "Pry::DefaultCommands::Documentation" do
       str_output.string.should =~ /sample doc/
     end
 
+    it 'should output a method\'s documentation with line numbers' do
+      redirect_pry_io(InputTester.new("show-doc sample_method -l", "exit-all"), str_output=StringIO.new) do
+        pry
+      end
+
+      str_output.string.should =~ /\d: sample doc/
+    end
 
     it 'should output a method\'s documentation with line numbers (base one)' do
       redirect_pry_io(InputTester.new("show-doc sample_method -b", "exit-all"), str_output=StringIO.new) do
@@ -17,14 +24,6 @@ describe "Pry::DefaultCommands::Documentation" do
       end
 
       str_output.string.should =~ /1: sample doc/
-    end
-
-    it 'should output a method\'s documentation with line numbers (base one)' do
-      redirect_pry_io(InputTester.new("show-doc sample_method -l", "exit-all"), str_output=StringIO.new) do
-        pry
-      end
-
-      str_output.string.should =~ /\d: sample doc/
     end
 
     it 'should output a method\'s documentation if inside method without needing to use method name' do

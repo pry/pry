@@ -8,6 +8,11 @@ puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), P
 require 'bacon'
 require 'open4'
 
+
+# turn warnings off (esp for Pry::Hooks which will generate warnings
+# in tests)
+$VERBOSE = nil
+
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
 
