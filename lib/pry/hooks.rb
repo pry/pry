@@ -1,5 +1,30 @@
 class Pry
+
+  # Implements a hooks system for Pry. A hook is a callable that is
+  # associated with an event. A number of events are currently
+  # provided by Pry, these include: `:when_started`, `:before_session`, `:after_session`.
+  # A hook must have a name, and is connected with an event by the
+  # `Pry::Hooks#add_hook` method.
+  # @example Adding a hook for the `:before_session` event.
+  #   Pry.config.hooks.add_hook(:before_session, :say_hi) do
+  #     puts "hello"
+  #   end
   class Hooks
+
+    # Converts a hash to a `Pry::Hooks` instance. All hooks defined
+    # this way are anonymous. This functionality is primarily to
+    # provide backwards-compatibility with the old hash-based hook
+    # system in Pry versions < 0.9.8
+    # @param [Hash] hash The hash to convert to `Pry::Hooks`.
+    # @return [Pry::Hooks] The resulting `Pry::Hooks` instance.
+    def self.from_hash(hash)
+      instance = new
+      hash.each do |k, v|
+        instance.add_hook(k, nil, v)
+      end
+
+      instance
+    end
 
     def initialize
       @hooks = {}
@@ -26,14 +51,18 @@ class Pry
 
     # FIXME:
     # This is a hack to alert people of the new API.
-    def [](*)
-      raise ObsoleteError, "`Pry.hooks[]` is no longer supported. Please use the new Pry::Hooks API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+    def [](event_name)
+      warn "`Pry.hooks[]` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+
+      get_hook(event_name, nil)
     end
 
     # FIXME:
     # This is a hack to alert people of the new API.
-    def []=(*)
-      raise ObsoleteError, "`Pry.hooks[]=` is no longer supported. Please use the new Pry::Hooks API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+    def []=(event_name, callable)
+      warn "`Pry.hooks[]=` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+
+      add_hook(event_name, nil, callable)
     end
 
     # Destructively merge the contents of two `Pry:Hooks` instances.
@@ -85,15 +114,23 @@ class Pry
     def add_hook(event_name, hook_name, callable=nil, &block)
       @hooks[event_name] ||= []
 
-      # do not allow duplicates
-      raise ArgumentError, "Hook with name '#{hook_name}' already defined!" if hook_exists?(event_name, hook_name)
+      # do not allow duplicates, but allow multiple `nil` hooks
+      # (anonymous hooks)
+      if hook_exists?(event_name, hook_name) && !hook_name.nil?
+        raise ArgumentError, "Hook with name '#{hook_name}' already defined!"
+      end
+
+      if !block && !callable
+        raise ArgumentError, "Must provide a block or callable."
+      end
+
+      # ensure we only have one anonymous hook
+      @hooks[event_name].delete_if { |h, k| h.nil? } if hook_name.nil?
 
       if block
         @hooks[event_name] << [hook_name, block]
       elsif callable
         @hooks[event_name] << [hook_name, callable]
-      else
-        raise ArgumentError, "Must provide a block or callable."
       end
 
       self
@@ -193,6 +230,15 @@ class Pry
     end
 
     alias_method :clear, :delete_hooks
+
+    # Remove all events and hooks, clearing out the Pry::Hooks
+    # instance completely.
+    # @example
+    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
+    #   my_hooks.clear_all
+    def clear_all
+      @hooks = {}
+    end
 
     # @param [Symbol] event_name Name of the event.
     # @param [Symbol] hook_name Name of the hook.

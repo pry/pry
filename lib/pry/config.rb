@@ -49,10 +49,11 @@ class Pry
     # @param [Pry::Hooks] v Only accept `Pry::Hooks` now!
     def hooks=(v)
       if v.is_a?(Hash)
-        raise ObsoleteError, "Hash is now obsolete! Use a Pry::Hooks object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+        warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+        @hooks = Pry::Hooks.from_hash(v)
+      else
+        @hooks = v
       end
-
-      @hooks = v
     end
 
     # Get/Set the stack of input objects that a Pry instance switches

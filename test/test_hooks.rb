@@ -152,7 +152,7 @@ describe Pry::Hooks do
       hooks_dup.get_hook(:test_hook, :testing).should == @hooks.get_hook(:test_hook, :testing)
     end
 
-     it 'adding a new event to dupped instance should not affect original' do
+    it 'adding a new event to dupped instance should not affect original' do
       @hooks.add_hook(:test_hook, :testing) { :none_such }
       hooks_dup = @hooks.dup
 
@@ -161,7 +161,7 @@ describe Pry::Hooks do
       hooks_dup.get_hook(:other_test_hook, :testing).should.not == @hooks.get_hook(:other_test_hook, :testing)
     end
 
-     it 'adding a new hook to dupped instance should not affect original' do
+    it 'adding a new hook to dupped instance should not affect original' do
       @hooks.add_hook(:test_hook, :testing) { :none_such }
       hooks_dup = @hooks.dup
 
@@ -417,50 +417,74 @@ describe Pry::Hooks do
     end
   end
 
-  describe "obsolete API" do
-    describe "Pry.config.hooks" do
-      it 'should raise a Pry::ObsoleteError when assigning a hash' do
-        begin
-          Pry.config.hooks = {}
-        rescue => ex
-        end
+  describe "anonymous hooks" do
+    it 'should allow adding of hook without a name' do
+      @hooks.add_hook(:test_hook, nil) {}
+      @hooks.hook_count(:test_hook).should == 1
+    end
 
-        ex.is_a?(Pry::ObsoleteError).should == true
+    it 'should only allow one anonymous hook to exist' do
+      @hooks.add_hook(:test_hook, nil) {  }
+      @hooks.add_hook(:test_hook, nil) {  }
+      @hooks.hook_count(:test_hook).should == 1
+    end
+
+    it 'should execute most recently added anonymous hook' do
+      x = nil
+      y = nil
+      @hooks.add_hook(:test_hook, nil) { y = 1 }
+      @hooks.add_hook(:test_hook, nil) { x = 2 }
+      @hooks.exec_hook(:test_hook)
+      y.should == nil
+      x.should == 2
+    end
+  end
+
+  describe "deprecated hash-based API" do
+    after do
+      Pry.config.hooks.clear_all if Pry.config.hooks
+    end
+
+    describe "Pry.config.hooks" do
+      it 'should allow a hash-assignment' do
+        Pry.config.hooks = { :before_session => proc { :hello } }
+        Pry.config.hooks.get_hook(:before_session, nil).call.should == :hello
       end
 
       describe "Pry.config.hooks[]" do
-        it 'should raise a Pry::ObsoleteError when accessing it in a hash style, Pry.config.hooks[]' do
-          begin
-            Pry.config.hooks[:before_session]
-          rescue => ex
-          end
-
-          ex.is_a?(Pry::ObsoleteError).should == true
+        it 'should return the only anonymous hook' do
+          Pry.config.hooks = { :before_session => proc { :hello } }
+          Pry.config.hooks[:before_session].call.should == :hello
         end
 
-        it 'should raise a Pry::ObsoleteError when accessing it in a hash style, Pry.config.hooks[]=' do
-          begin
-            Pry.config.hooks[:before_session]
-          rescue => ex
-          end
-
-          ex.is_a?(Pry::ObsoleteError).should == true
+        it 'should add an anonymous hook when using Pry.config.hooks[]=' do
+          Pry.config.hooks[:before_session] = proc { :bing }
+          Pry.config.hooks.hook_count(:before_session).should == 1
         end
 
+        it 'should add overwrite previous anonymous hooks with new one when calling Pry.config.hooks[]= multiple times' do
+          x = nil
+          Pry.config.hooks[:before_session] = proc { x = 1 }
+          Pry.config.hooks[:before_session] = proc { x = 2 }
+
+          Pry.config.hooks.exec_hook(:before_session)
+          Pry.config.hooks.hook_count(:before_session).should == 1
+          x.should == 2
+        end
       end
-
     end
 
     describe "Pry.start" do
-      it 'should raise a Pry::ObsoleteError when passing in a :hooks option with a hash' do
-        begin
-          Pry.start binding, :hooks => { :before_session => proc { puts 'yo' } }
-        rescue => ex
+      it 'should accept a hash for :hooks parameter' do
+
+        redirect_pry_io(InputTester.new("exit-all"), out=StringIO.new) do
+          Pry.start binding, :hooks => { :before_session => proc { |output, _, _| output.puts 'hello friend' } }
         end
 
-        ex.is_a?(Pry::ObsoleteError).should == true
+        out.string.should =~ /hello friend/
       end
 
     end
   end
+
 end
