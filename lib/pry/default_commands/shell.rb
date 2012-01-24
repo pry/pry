@@ -220,6 +220,7 @@ class Pry
           end
 
           file_name, line_num = file_name.split(':')
+          file_name = File.expand_path(file_name)
           set_file_and_dir_locals(file_name)
 
           code = yield(Pry::Code.from_file(file_name))
