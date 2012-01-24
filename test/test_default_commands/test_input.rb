@@ -276,24 +276,29 @@ describe "Pry::DefaultCommands::Input" do
     end
 
     it 'should replay history correctly (single item)' do
-      @hist.push ":blah"
-      @hist.push ":bucket"
-      @hist.push ":ostrich"
+      o = Object.new
+      @hist.push "@x = 10"
+      @hist.push "@y = 20"
+      @hist.push "@z = 30"
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("hist --replay -1", "exit-all"), str_output) do
-        pry
+        o.pry
       end
-      str_output.string.should =~ /ostrich/
+      o.instance_variable_get(:@x).should == nil
+      o.instance_variable_get(:@y).should == nil
+      o.instance_variable_get(:@z).should == 30
     end
 
     it 'should replay a range of history correctly (range of items)' do
-      @hist.push ":hello"
-      @hist.push ":carl"
+      o = Object.new
+      @hist.push "@x = 10"
+      @hist.push "@y = 20"
       str_output = StringIO.new
       redirect_pry_io(InputTester.new("hist --replay 0..2", "exit-all"), str_output) do
-        pry
+        o.pry
       end
-      str_output.string.should =~ /:hello\n.*:carl/
+      o.instance_variable_get(:@x).should == 10
+      o.instance_variable_get(:@y).should == 20
     end
 
     it 'should grep for correct lines in history' do
