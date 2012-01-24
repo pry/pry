@@ -236,9 +236,10 @@ class Pry
         def process_replay
           @history = @history.between(opts[:r])
 
-          # not 100% sure why i need the \n here, but i do.
-          eval_string << "#{@history.raw}\n"
-          run "show-input" unless _pry_.complete_expression?(eval_string)
+          _pry_.input_stack.push _pry_.input
+          _pry_.input = StringIO.new(@history.raw)
+          # eval_string << "#{@history.raw}\n"
+          # run "show-input" unless _pry_.complete_expression?(eval_string)
         end
       end
 
