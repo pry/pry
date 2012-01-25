@@ -1,4 +1,4 @@
-X/X/2012 version 0.9.8
+25/1/2012 version 0.9.8
 
 MAJOR NEW FEATURES
 - upgraded command api, https://github.com/pry/pry/wiki/Custom-commands
@@ -6,7 +6,6 @@ MAJOR NEW FEATURES
 - changed syntax checking to use eval() for improved accuracy
 - added save-file command
 - added gist command (removed gist-method, new gist command is more general)
-
 
 complete CHANGELOG:
 * CommandError's no longer cause the current input to be disgarded
@@ -39,7 +38,6 @@ complete CHANGELOG:
 * changed edit-command to no-longer need a command set argument
 * fixed empty lines so that they don't replace _ by nil
 * fixed SyntaxErrors at the REPL level so they don't replace _ex_.
-<TODO: everything that happened after f3262e32700709a6998579a9f71cdc6b8f4a695e>
 
 5/11/2011 version 0.9.7.4 hotfix
 * ls -M now works in modules (bugfix)
