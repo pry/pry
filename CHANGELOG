@@ -4,6 +4,8 @@ MAJOR NEW FEATURES
 - upgraded command api, https://github.com/pry/pry/wiki/Custom-commands
 - added a system of hooks for customizing pry behaviour
 - changed syntax checking to use eval() for improved accuracy
+- added save-file command
+- added gist command (removed gist-method, new gist command is more general)
 
 
 complete CHANGELOG:
@@ -11,7 +13,12 @@ complete CHANGELOG:
 * Better syntax highlighting for rbx code code
 * added cat --in to show pry input history
 * prefixed temporary file names with 'pry'
+* show-doc now supports -l and -b options (line numbers)
+* play now supports -i and -d options
+* moved UserCommandAPI command-set to pry-developer_tools plugin
+* added :when_started event for hooks, called in Pry.start
 * added a man page
+* added rename method to Pry::CommandSet (commands can be renamed)
 * added CommandSet#{before_command,after_command} for enhancing builtin commands
 * added checking for namespace collisions with pry commands, set Pry.config.collision_warning
 * work around namespace collisions by ensuring lines starting with a space are executed as
