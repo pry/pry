@@ -17,13 +17,13 @@ class Pry
       end
 
       create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
-        description "Amend a line of input in multi-line mode. Type `amend-line --help` for more information. Aliases %"
+        description "Amend a line of input in multi-line mode. Type `amend-line --help` for more information."
         command_options :interpolate => false, :listing => "amend-line"
 
         banner <<-'BANNER'
           Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
 
-          Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead. Aliases: %N
+          Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead.
           e.g amend-line 1 puts 'hello world! # replace line 1'
           e.g amend-line 1..4 !               # delete lines 1..4
           e.g amend-line 3 >puts 'goodbye'    # insert before line 3
@@ -56,8 +56,6 @@ class Pry
           run "show-input"
         end
       end
-
-      alias_command(/%.?(-?\d+)?(?:\.\.(-?\d+))?/, "amend-line")
 
       create_command "play" do
         description "Play back a string variable or a method or a file as input. Type `play --help` for more information."
