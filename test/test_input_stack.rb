@@ -77,7 +77,7 @@ describe "Pry#input_stack" do
     end
 
     it "should be able to use unicode regexes on a UTF-8 terminal" do
-      mock_pry('":-Þ" =~ /\p{Upper}/').should == %{=> 2\n\n}
+      mock_pry('":-Þ" =~ /þ/i').should == %{=> 2\n\n}
     end
   end
 end
