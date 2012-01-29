@@ -182,9 +182,13 @@ class Pry
     # the current scope.
     # @param [String] command_name_match The name of the colliding command.
     # @param [Binding] target The current binding context.
-    def check_for_command_name_collision(command_name_match)
-      if collision_type = target.eval("defined?(#{command_name_match})")
-        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Command name collision with a #{collision_type}: '#{command_name_match}'\n\n"
+    def check_for_command_name_collision(command_name_match, arg_string)
+      collision_type = target.eval("defined?(#{command_name_match})")
+      collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
+
+      if collision_type
+        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Calling Pry command '#{command_name_match}'," +
+                                                          "which conflicts with a #{collision_type}.\n\n"
       end
     rescue Pry::RescuableException
     end
@@ -229,7 +233,7 @@ class Pry
     def process_line(line)
       command_name, arg_string, captures, args = tokenize(line)
 
-      check_for_command_name_collision(command_name) if Pry.config.collision_warning
+      check_for_command_name_collision(command_name, arg_string) if Pry.config.collision_warning
 
       self.arg_string = arg_string
       self.captures = captures
