@@ -59,7 +59,7 @@ class Pry
         BANNER
 
         def process(pattern=nil)
-          pattern = Regexp.compile(pattern)
+          pattern = Regexp.compile(pattern || '')
           gems    = if Gem::Specification.respond_to?(:each)
                       Gem::Specification.select{|spec| spec.name =~ pattern }.group_by(&:name)
                     else
