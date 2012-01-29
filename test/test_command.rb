@@ -300,7 +300,23 @@ describe "Pry::Command" do
       output = StringIO.new
       cmd.new(:target => binding, :output => output).process_line %(frankie mouse)
 
-      output.string.should =~ /Command name collision/
+      output.string.should =~ /command .* conflicts/
+
+      Pry.config.collision_warning = old
+    end
+
+    it 'should spot collision warnings on assignment if configured' do
+      old = Pry.config.collision_warning
+      Pry.config.collision_warning = true
+
+      cmd = @set.command 'frankie' do
+
+      end
+
+      output = StringIO.new
+      cmd.new(:target => binding, :output => output).process_line %(frankie = mouse)
+
+      output.string.should =~ /command .* conflicts/
 
       Pry.config.collision_warning = old
     end
