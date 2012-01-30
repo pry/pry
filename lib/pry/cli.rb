@@ -99,7 +99,7 @@ Copyright (c) 2011 John Mair (banisterfiend)
 
   on "no-plugins", "Suppress loading of plugins." do
     # suppress plugins if given --no-plugins optino
-    Pry.config.plugins.enabled = false
+    Pry.config.should_load_plugins = false
   end
 
   on "installed-plugins", "List installed plugins." do
