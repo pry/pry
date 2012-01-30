@@ -1,3 +1,11 @@
+30/1/2012 version 0.9.8.1 bugfix
+* fixed broken --no-plugins option
+* Ensure ARGV is not mutated during option parsing.
+* Use a more rbx-friendly test for unicodeness
+* Use rbx-{18,19}mode as indicated  http://about.travis-ci.org/docs/user/languages/ruby/
+* Don't explode in gem-list [Fixes #453, #454]
+* Check for command-name collision on assignment [Fixes #450]
+
 25/1/2012 version 0.9.8
 
 MAJOR NEW FEATURES
