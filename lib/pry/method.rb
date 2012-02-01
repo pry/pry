@@ -348,11 +348,11 @@ class Pry
     # @return [Pry::Method, nil] The wrapped method that is called when you
     #   use "super" in the body of this method.
     def super(times=1)
-      if respond_to?(:receiver)
+      if UnboundMethod === @method
+        sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
+      else
         sup = super_using_ancestors(Pry::Method.resolution_order(receiver), times)
         sup &&= sup.bind(receiver)
-      else
-        sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
       end
       Pry::Method.new(sup) if sup
     end
