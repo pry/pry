@@ -124,6 +124,60 @@ describe Pry::Method do
     end
   end
 
+  describe 'super' do
+    it 'should be able to find the super method on a bound method' do
+      a = Class.new{ def rar; 4; end }
+      b = Class.new(a){ def rar; super; end }
+
+      obj = b.new
+
+      zuper = Pry::Method(obj.method(:rar)).super
+      zuper.owner.should == a
+      zuper.receiver.should == obj
+    end
+
+    it 'should be able to find the super method of an unbound method' do
+      a = Class.new{ def rar; 4; end }
+      b = Class.new(a){ def rar; super; end }
+
+      zuper = Pry::Method(b.instance_method(:rar)).super
+      zuper.owner.should == a
+    end
+
+    it 'should return nil if no super method exists' do
+      a = Class.new{ def rar; super; end }
+
+      Pry::Method(a.instance_method(:rar)).super.should == nil
+    end
+
+    it 'should be able to find super methods defined on modules' do
+      m = Module.new{ def rar; 4; end }
+      a = Class.new{ def rar; super; end; include m }
+
+      zuper = Pry::Method(a.new.method(:rar)).super
+      zuper.owner.should == m
+    end
+
+    it 'should be able to find super methods defined on super-classes when there are modules in the way' do
+      a = Class.new{ def rar; 4; end }
+      m = Module.new{ def mooo; 4; end }
+      b = Class.new(a){ def rar; super; end; include m }
+
+      zuper = Pry::Method(b.new.method(:rar)).super
+      zuper.owner.should == a
+    end
+
+    it 'should be able to jump up multiple levels of bound method, even through modules' do
+      a = Class.new{ def rar; 4; end }
+      m = Module.new{ def rar; 4; end }
+      b = Class.new(a){ def rar; super; end; include m }
+
+      zuper = Pry::Method(b.new.method(:rar)).super
+      zuper.owner.should == m
+      zuper.super.owner.should == a
+    end
+  end
+
   describe 'all_from_class' do
     def should_find_method(name)
       Pry::Method.all_from_class(@class).map(&:name).should.include(name)

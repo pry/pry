@@ -443,8 +443,11 @@ class Pry
       def super_using_ancestors(ancestors, times=1)
         next_owner = self.owner
         times.times do
-          next_owner = ancestors[ancestors.index(next_owner) + 1]
-          return nil unless next_owner
+          i = ancestors.index(next_owner) + 1
+          while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
+            i += 1
+          end
+          next_owner = ancestors[i] or return nil
         end
         next_owner.instance_method(name) rescue nil
       end
