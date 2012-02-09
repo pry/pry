@@ -1,3 +1,9 @@
+9/2/2012 version 0.9.8.2 bugfix
+* fixed bugs related to --super
+* upgraded slop dependency
+* added edit -c (edit current line)
+* edit now respects Pry.config.disable_autoreload option
+
 30/1/2012 version 0.9.8.1 bugfix
 * fixed broken --no-plugins option
 * Ensure ARGV is not mutated during option parsing.
