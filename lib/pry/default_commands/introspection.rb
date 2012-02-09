@@ -125,6 +125,7 @@ class Pry
           opt.on :t, :temp, "Open an empty temporary file"
           opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
+          opt.on :c, :"current", "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
           opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
         end
 
@@ -133,7 +134,7 @@ class Pry
             raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
           end
 
-          if !opts.present?(:ex) && args.empty?
+          if !opts.present?(:ex) && !opts.present?(:current) && args.empty?
             # edit of local code, eval'd within pry.
             process_local_edit
           else
@@ -171,7 +172,7 @@ class Pry
             f.puts(content)
             f.flush
             invoke_editor(f.path, line)
-            if !opts.present?(:'no-reload')
+            if !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
               silence_warnings do
                 eval_string.replace(File.read(f.path))
               end
@@ -204,11 +205,18 @@ class Pry
             if Pry.eval_path == file_name
               raise CommandError, "Cannot edit exceptions raised in REPL."
             end
+          elsif opts.present?(:current)
+            file_name = target.eval("__FILE__")
+            line = target.eval("__LINE__")
           else
+
             # break up into file:line
             file_name = File.expand_path(args.first)
-
             line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+          end
+
+          if not_a_real_file?(file_name)
+            raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
           end
 
           line = opts[:l].to_i if opts.present?(:line)
@@ -216,7 +224,7 @@ class Pry
           invoke_editor(file_name, line)
           set_file_and_dir_locals(file_name)
 
-          if opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload'))
+          if opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
             silence_warnings do
               TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
             end
@@ -305,7 +313,7 @@ class Pry
 
           invoke_editor(file, opts["no-jump"] ? 0 : line)
           silence_warnings do
-            load file unless opts.present?(:'no-jump') || Pry.config.disable_auto_reload
+            load file unless opts.present?(:'no-reload') || Pry.config.disable_auto_reload
           end
         end
 
