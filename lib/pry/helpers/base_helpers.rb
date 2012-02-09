@@ -27,6 +27,10 @@ class Pry
         Gem::Specification.respond_to?(:find_all_by_name) ? !Gem::Specification.find_all_by_name(gem_name).empty? : Gem.source_index.find_name(gem_name).first
       end
 
+      def not_a_real_file?(file)
+        file =~ /(\(.*\))|<.*>/ || file =~ /__unknown__/ || file == "" || file == "-e"
+      end
+
       def command_dependencies_met?(options)
         return true if !options[:requires_gem]
         Array(options[:requires_gem]).all? do |g|
