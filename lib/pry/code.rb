@@ -173,6 +173,23 @@ class Pry
       end
     end
 
+    # Take `num_lines` from `start_line`, forward or backwards
+    #
+    # @param [Fixnum] start_line
+    # @param [Fixnum] num_lines
+    # @return [Code]
+    def take_lines(start_line, num_lines)
+      if start_line >= 0
+        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
+      else
+        start_idx = @lines.length + start_line
+      end
+
+      alter do
+        @lines = @lines.slice(start_idx, num_lines)
+      end
+    end
+
     # Remove all lines except for the `lines` up to and excluding `line_num`.
     #
     # @param [Fixnum] line_num
