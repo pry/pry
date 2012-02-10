@@ -179,8 +179,7 @@ if Pry::Helpers::BaseHelpers.windows?
   begin
     require 'win32console'
   rescue LoadError
-    warn "Need to `gem install win32console`"
-    exit 1
+    warn "You should: `gem install win32console` for better auto-indent and color support."
   end
 end
 
