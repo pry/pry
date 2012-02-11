@@ -126,15 +126,27 @@ class Pry
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
       # FIXME! Another JRuby hack
-      def stagger_output(text, output=output())
+      def stagger_output(text, out = nil)
+        out || = case
+        when respond_to?(:output)
+          # Mixin.
+          output
+        when Pry.respond_to?(:output)
+          # Parent.
+          Pry.output
+        else
+          # Sys.
+          $stdout
+        end
+          
         if text.lines.count < page_size || !Pry.pager
-          output.puts text
+          out.puts text
           return
         end
 
         # FIXME! Another JRuby hack
         if jruby?
-          simple_pager(text, output)
+          simple_pager(text, out)
         else
           lesspipe { |less| less.puts text }
         end
