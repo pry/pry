@@ -83,6 +83,30 @@ class Pry
         command_regex =~ val
       end
 
+      # How well does this command match the given line?
+      #
+      # Higher scores are better because they imply that this command matches
+      # the line more closely.
+      #
+      # The score is calculated by taking the number of characters at the start
+      # of the string that are used only to identify the command, not as part of
+      # the arguments.
+      #
+      # @example
+      #   /\.(.*)/.match_score(".foo") #=> 1
+      #   /\.*(.*)/.match_score("...foo") #=> 3
+      #   'hi'.match_score("hi there") #=> 2
+      #
+      # @param String  a line input at the REPL
+      # @return Fixnum
+      def match_score(val)
+        if command_regex =~ val
+          Regexp.last_match.size > 1 ? Regexp.last_match.begin(1) : Regexp.last_match.end(0)
+        else
+          -1
+        end
+      end
+
       # Store hooks to be run before or after the command body.
       # @see {Pry::CommandSet#before_command}
       # @see {Pry::CommandSet#after_command}

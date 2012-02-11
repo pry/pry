@@ -471,6 +471,18 @@ describe Pry::CommandSet do
       @set.find_command('colon').should == cmd
       Pry.config.command_prefix = ''
     end
+
+    it "should find the command that has the longest match" do
+      cmd = @set.command(/\.(.*)/){ }
+      cmd2 = @set.command(/\.\|\|(.*)/){ }
+      @set.find_command('.||').should == cmd2
+    end
+
+    it "should find the command that has the longest name" do
+      cmd = @set.command(/\.(.*)/){ }
+      cmd2 = @set.command('.||'){ }
+      @set.find_command('.||').should == cmd2
+    end
   end
 
   describe '.valid_command?' do
