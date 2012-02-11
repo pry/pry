@@ -127,7 +127,7 @@ class Pry
       # simple_pager. Also do not page if Pry.pager is falsey
       # FIXME! Another JRuby hack
       def stagger_output(text, out = nil)
-        out || = case
+        out ||= case
         when respond_to?(:output)
           # Mixin.
           output
