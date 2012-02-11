@@ -281,7 +281,7 @@ class Pry
     # @param [String]  the line that may be a command invocation
     # @return [Pry::Command, nil]
     def find_command(val)
-      commands.values.detect{ |c| c.matches?(val) }
+      commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
     end
 
     # Is the given line a command invocation?
