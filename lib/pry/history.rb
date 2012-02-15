@@ -70,9 +70,11 @@ class Pry
     def read_from_file
       history_file = File.expand_path(Pry.config.history.file)
 
-      if File.exists?(history_file)
-        File.foreach(history_file) { |line| yield(line) }
-      end
+      begin
+        if File.exists?(history_file)
+          File.foreach(history_file) { |line| yield(line) }
+        end
+      rescue; end
     end
 
     # The default saver. Appends the given lines to `Pry.history.config.file`.
@@ -80,8 +82,10 @@ class Pry
     def write_to_file(lines)
       history_file = File.expand_path(Pry.config.history.file)
 
-      File.open(history_file, 'a') do |f|
-        lines.each { |ln| f.puts ln }
+      if File.writable?(history_file)
+        File.open(history_file, 'a') do |f|
+          lines.each { |ln| f.puts ln }
+        end
       end
     end
 
