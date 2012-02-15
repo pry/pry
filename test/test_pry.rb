@@ -296,6 +296,17 @@ describe Pry do
           Object.remove_const(:TEST_RC)
         end
 
+        it "should not load the pryrc if it cannot expand ENV[HOME]" do
+          old_home = ENV['HOME']
+          old_rc = Pry.config.should_load_rc
+          ENV['HOME'] = nil
+          Pry.config.should_load_rc = true
+          lambda { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput) }.should.not.raise
+
+          ENV['HOME'] = old_home
+          Pry.config.should_load_rc = old_rc
+        end
+
         it "should not run the rc file at all if Pry.config.should_load_rc is false" do
           Pry.config.should_load_rc = false
           Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)

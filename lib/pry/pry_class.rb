@@ -249,7 +249,13 @@ class Pry
     config.history ||= OpenStruct.new
     config.history.should_save = true
     config.history.should_load = true
-    config.history.file = File.expand_path("~/.pry_history")
+    config.history.file = File.expand_path("~/.pry_history") rescue nil
+
+    if config.history.file.nil?
+      config.should_load_rc = false
+      config.history.should_save = false
+      config.history.should_load = false
+    end
 
     config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
 
