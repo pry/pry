@@ -350,16 +350,27 @@ class Pry
               output.puts "No info for command: #{cmd}"
             end
           else
-            output.puts
-            help_text = heading("Command List: ") + "\n"
+            grouped = commands.values.group_by(&:group)
 
-            help_text << commands.map do |key, command|
-              if command.description && !command.description.empty?
-                "#{command.options[:listing].to_s.ljust(18)} #{command.description}"
+            help_text = []
+
+            grouped.keys.sort.each do |key|
+
+              commands = grouped[key].select do |command|
+                command.description && !command.description.empty?
+              end.sort_by do |command|
+                command.options[:listing].to_s
               end
-            end.compact.sort.join("\n")
 
-            stagger_output(help_text)
+              unless commands.empty?
+                help_text << "  #{text.bold(key)}"
+                help_text += commands.map do |command|
+                  "#{command.options[:listing].to_s.ljust(18)} #{command.description}"
+                end
+              end
+            end
+
+            stagger_output(help_text.join("\n"))
           end
         end
       end
