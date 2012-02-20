@@ -129,6 +129,25 @@ class Pry
           obj
         end
       end
+
+      # The group in which the command should be displayed in "help" output.
+      # This is usually auto-generated from directory naming, but it can be
+      # manually overridden if necessary.
+      def group(name=nil)
+        @group = name if name
+        @group ||=(
+          case Pry::Method(block).source_file
+          when %r{/pry/.*_commands/(.*).rb}
+            $1.capitalize
+          when %r{/(pry-[^\/]*)/}
+            $1
+          when /pryrc/
+            "~/.pryrc"
+          else
+            "(other)"
+          end
+        )
+      end
     end
 
 
