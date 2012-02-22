@@ -74,7 +74,11 @@ class Pry
         if File.exists?(history_file)
           File.foreach(history_file) { |line| yield(line) }
         end
-      rescue; end
+      rescue => error
+        unless error.message.empty?
+          warn "History file not loaded, recieved an error: #{error.message}"
+        end
+      end
     end
 
     # The default saver. Appends the given lines to `Pry.history.config.file`.
