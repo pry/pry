@@ -76,7 +76,7 @@ class Pry
         end
       rescue => error
         unless error.message.empty?
-          warn "History file not loaded, recieved an error: #{error.message}"
+          warn "History file not loaded, received an error: #{error.message}"
         end
       end
     end
