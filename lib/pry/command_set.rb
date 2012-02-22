@@ -284,6 +284,18 @@ class Pry
       commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
     end
 
+    # Find the command that the user might be trying to refer to.
+    #
+    # @param [String]  the user's search.
+    # @return [Pry::Command, nil]
+    def find_command_for_help(search)
+      find_command(search) || (begin
+        find_command_by_name_or_listing(search)
+      rescue ArgumentError
+        nil
+      end)
+    end
+
     # Is the given line a command invocation?
     #
     # @param [String]
@@ -342,38 +354,74 @@ class Pry
           When given a command name as an argument, shows the help for that command.
         BANNER
 
+        # Get a hash of available commands grouped by the "group" name.
+        def grouped_commands
+          commands.values.group_by(&:group)
+        end
+
         def process
-          if cmd = args.first
-            if command = find_command(cmd)
-              output.puts command.new.help
-            else
-              output.puts "No info for command: #{cmd}"
-            end
+          if args.empty?
+            display_index
           else
-            grouped = commands.values.group_by(&:group)
-
-            help_text = []
-
-            grouped.keys.sort.each do |key|
-
-              commands = grouped[key].select do |command|
-                command.description && !command.description.empty?
-              end.sort_by do |command|
-                command.options[:listing].to_s
-              end
-
-              unless commands.empty?
-                help_text << "\n#{text.bold(key)}"
-                help_text += commands.map do |command|
-                  "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
-                end
-              end
-            end
-
-            stagger_output(help_text.join("\n"))
+            display_topic(args.first)
           end
         end
+
+        # Display the index view, with headings and short descriptions per command.
+        #
+        # @param Hash[String => Array[Commands]]
+        def display_index(groups=grouped_commands)
+          help_text = []
+
+          groups.keys.sort.each do |key|
+
+            commands = groups[key].select do |command|
+              command.description && !command.description.empty?
+            end.sort_by do |command|
+              command.options[:listing].to_s
+            end
+
+            unless commands.empty?
+              help_text << "\n#{text.bold(key)}"
+              help_text += commands.map do |command|
+                "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
+              end
+            end
+          end
+
+          stagger_output(help_text.join("\n"))
+        end
+
+        # Display help for an individual command or group.
+        #
+        # @param String  The string to search for.
+        def display_topic(search)
+          if command = command_set.find_command_for_help(search)
+            stagger_output command.new.help
+          else
+            filtered = grouped_commands.select{ |key, value| normalize(key).start_with?(normalize(search)) }
+
+            if filtered.empty?
+              raise CommandError, "No help found for '#{args.first}'"
+            elsif filtered.size == 1
+              display_index(filtered.first.first => filtered.first.last)
+            else
+              names = filtered.map(&:first)
+              last = names.pop
+              output.puts "Did you mean: #{names.join(", ")} or #{last}?"
+            end
+          end
+        end
+
+        # Clean search terms to make it easier to search group names
+        #
+        # @param String
+        # @return String
+        def normalize(key)
+          key.downcase.gsub(/pry\W+/, '')
+        end
       end
+
 
       create_command "install-command", "Install a disabled command." do |name|
 
