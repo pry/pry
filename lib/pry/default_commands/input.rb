@@ -167,20 +167,22 @@ class Pry
         def process
           @history = Pry::Code(Pry.history.to_a)
 
-          @history = case
-            when opts.present?(:head)
-              @history.between(1, opts[:head] || 10)
-            when opts.present?(:tail)
-              @history.between(-(opts[:tail] || 10), -1)
-            when opts.present?(:show)
-              @history.between(opts[:show])
-            else
-              @history
-            end
+          if opts.present?(:show)
+            @history = @history.between(opts[:show])
+          end
 
           if opts.present?(:grep)
             @history = @history.grep(opts[:grep])
           end
+
+          @history = case
+            when opts.present?(:head)
+              @history.take_lines(1, opts[:head] || 10)
+            when opts.present?(:tail)
+              @history.take_lines(-(opts[:tail] || 10), opts[:tail] || 10)
+            else
+              @history
+            end
 
           if opts.present?(:'exclude-pry')
             @history = @history.select { |l, ln| !command_set.valid_command?(l) }
