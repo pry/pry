@@ -7,7 +7,7 @@ class Pry
       import Ls
 
       create_command "cd" do
-        description "Move into a new context (object or scope). Type `cd --help` for more information."
+        description "Move into a new context (object or scope)."
 
         banner <<-BANNER
           Usage: cd [OPTIONS] [--help]
@@ -107,7 +107,7 @@ class Pry
       alias_command "!!@", "exit-all"
 
       create_command "exit" do
-        description "Pop the previous binding (does NOT exit program). Type `exit --help` for more information. Aliases: quit"
+        description "Pop the previous binding (does NOT exit program). Aliases: quit"
 
         banner <<-BANNER
           Usage:   exit [OPTIONS] [--help]

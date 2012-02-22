@@ -17,7 +17,7 @@ class Pry
       end
 
       create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
-        description "Amend a line of input in multi-line mode. Type `amend-line --help` for more information."
+        description "Amend a line of input in multi-line mode."
         command_options :interpolate => false, :listing => "amend-line"
 
         banner <<-'BANNER'
@@ -58,7 +58,7 @@ class Pry
       end
 
       create_command "play" do
-        description "Play back a string variable or a method or a file as input. Type `play --help` for more information."
+        description "Play back a string variable or a method or a file as input."
 
         banner <<-BANNER
           Usage: play [OPTIONS] [--help]
