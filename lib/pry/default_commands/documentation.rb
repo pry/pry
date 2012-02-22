@@ -16,7 +16,7 @@ class Pry
         end
       end
 
-      create_command "show-doc", "Show the comments above METH. Type `show-doc --help` for more info. Aliases: \?", :shellwords => false do |*args|
+      create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do |*args|
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
           Show the comments above method METH. Tries instance methods first and then methods by default.
@@ -61,7 +61,7 @@ class Pry
 
       alias_command "?", "show-doc"
 
-      create_command "stat", "View method information and set _file_ and _dir_ locals. Type `stat --help` for more info.", :shellwords => false do |*args|
+      create_command "stat", "View method information and set _file_ and _dir_ locals.", :shellwords => false do |*args|
         banner <<-BANNER
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
@@ -88,7 +88,7 @@ class Pry
         end
       end
 
-      create_command "gist", "Gist a method or expression history to github. Type `gist --help` for more info.", :requires_gem => "gist", :shellwords => false do
+      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "gist", :shellwords => false do
         banner <<-USAGE
           Usage: gist [OPTIONS] [METH]
           Gist method (doc or source) or input expression to github.

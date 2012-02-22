@@ -6,7 +6,7 @@ class Pry
     Introspection = Pry::CommandSet.new do
 
       create_command "show-method" do
-        description "Show the source for METH. Type `show-method --help` for more info. Aliases: $, show-source"
+        description "Show the source for METH. Aliases: $, show-source"
 
         banner <<-BANNER
           Usage: show-method [OPTIONS] [METH]
@@ -62,7 +62,7 @@ class Pry
       alias_command "show-source", "show-method"
       alias_command "$", "show-method"
 
-      command "show-command", "Show the source for CMD. Type `show-command --help` for more info." do |*args|
+      command "show-command", "Show the source for CMD." do |*args|
         target = target()
 
         opts = Slop.parse!(args) do |opt|
@@ -104,7 +104,7 @@ class Pry
       end
 
       create_command "edit" do
-        description "Invoke the default editor on a file. Type `edit --help` for more info"
+        description "Invoke the default editor on a file."
 
         banner <<-BANNER
           Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
@@ -233,7 +233,7 @@ class Pry
       end
 
       create_command "edit-method" do
-        description "Edit a method. Type `edit-method --help` for more info."
+        description "Edit the source code for a method."
 
         banner <<-BANNER
           Usage: edit-method [OPTIONS] [METH]
