@@ -139,10 +139,9 @@ class Pry
           case Pry::Method(block).source_file
           when %r{/pry/.*_commands/(.*).rb}
             $1.capitalize.gsub(/_/, " ")
-          when %r{/(pry-[^\/]*)/}
-            $1 =~ /pry-([\w_]+)-([\d\.]+)/
+          when %r{pry-([\w_]+)-([\d\.]+)}
             name, version = $1, $2
-            "Plugin: #{name.capitalize.gsub(/_/, " ")} v#{version}"
+            "Plugin: #{name.to_s.capitalize.gsub(/_/, " ")} v#{version.to_s}"
           when /pryrc/
             "~/.pryrc"
           else
