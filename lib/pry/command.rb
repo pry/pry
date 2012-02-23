@@ -138,7 +138,7 @@ class Pry
         @group ||=(
           case Pry::Method(block).source_file
           when %r{/pry/.*_commands/(.*).rb}
-            $1.capitalize
+            $1.capitalize.gsub(/_/, " ")
           when %r{/(pry-[^\/]*)/}
             $1
           when /pryrc/
@@ -149,7 +149,6 @@ class Pry
         )
       end
     end
-
 
     # Properties of one execution of a command (passed by {Pry#run_command} as a hash of
     # context and expanded in {#initialize}
