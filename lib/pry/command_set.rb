@@ -363,7 +363,7 @@ class Pry
               end
 
               unless commands.empty?
-                help_text << "#{text.bold(key)}"
+                help_text << "\n#{text.bold(key)}"
                 help_text += commands.map do |command|
                   "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
                 end
