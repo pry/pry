@@ -2,7 +2,7 @@ require 'helper'
 
 describe Pry::CommandSet do
   before do
-    @set = Pry::CommandSet.new
+    @set = Pry::CommandSet.new{ import Pry::DefaultCommands::Help }
     @ctx = {
       :target => binding,
       :command_set => @set
@@ -268,7 +268,6 @@ describe Pry::CommandSet do
     order = [doc.index("boo"),
              doc.index("foo"),
              doc.index("goo"),
-             doc.index("help"),
              doc.index("moo")]
 
     order.should == order.sort
