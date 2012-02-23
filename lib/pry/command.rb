@@ -140,7 +140,9 @@ class Pry
           when %r{/pry/.*_commands/(.*).rb}
             $1.capitalize.gsub(/_/, " ")
           when %r{/(pry-[^\/]*)/}
-            $1
+            $1 =~ /pry-([\w_]+)-([\d\.]+)/
+            name, version = $1, $2
+            "Plugin: #{name.capitalize.gsub(/_/, " ")} v#{version}"
           when /pryrc/
             "~/.pryrc"
           else
