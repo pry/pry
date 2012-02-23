@@ -1,4 +1,5 @@
 require "pry/default_commands/basic"
+require "pry/default_commands/help"
 require "pry/default_commands/gems"
 require "pry/default_commands/context"
 require "pry/default_commands/input_and_output"
@@ -14,6 +15,7 @@ class Pry
   # Default commands used by Pry.
   Commands = Pry::CommandSet.new do
     import DefaultCommands::Basic
+    import DefaultCommands::Help
     import DefaultCommands::Gems
     import DefaultCommands::Context
     import DefaultCommands::NavigatingPry

@@ -4,6 +4,7 @@ describe "Pry::Command" do
 
   before do
     @set = Pry::CommandSet.new
+    @set.import Pry::DefaultCommands::Help
   end
 
   describe 'call_safely' do

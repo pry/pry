@@ -287,18 +287,6 @@ describe "commands" do
     str_output.string.should =~ /goodbye world/
   end
 
-  it 'should inherit "help" command from Pry::CommandBase' do
-    klass = Pry::CommandSet.new do
-      command "h", "h command" do
-      end
-    end
-
-    klass.commands.keys.size.should == 3
-    klass.commands.keys.include?("help").should == true
-    klass.commands.keys.include?("install-command").should == true
-    klass.commands.keys.include?("h").should == true
-  end
-
   it 'should inherit commands from Pry::Commands' do
     klass = Pry::CommandSet.new Pry::Commands do
       command "v" do
@@ -313,13 +301,14 @@ describe "commands" do
 
   it 'should alias a command with another command' do
     klass = Pry::CommandSet.new do
+      import Pry::DefaultCommands::Help
       alias_command "help2", "help"
     end
     klass.commands["help2"].block.should == klass.commands["help"].block
   end
 
   it 'should change description of a command using desc' do
-    klass = Pry::CommandSet.new do; end
+    klass = Pry::CommandSet.new do; import Pry::DefaultCommands::Help; end
     orig = klass.commands["help"].description
     klass.instance_eval do
       desc "help", "blah"
