@@ -408,7 +408,18 @@ class Pry
       # we need to define this method so we can pass a block in (not
       # possible with `instance_exec`)
       class << self; self; end.send(:define_method, :dummy, &block)
-      dummy(*correct_arg_arity(block.arity, args), &command_block)
+
+      # Ruby 1.8 returns arity 1 for proc { |&block }, this is a bug
+      # and different to 1.9 behaviour (which returns 0). The
+      # following hack deals with this bug by retrying the method with
+      # no parameters if an ArgumentError is raised.
+      begin
+        dummy(*correct_arg_arity(block.arity, args), &command_block)
+      rescue ArgumentError => ex
+        if ex.message =~ /1 for 0/
+          dummy(&command_block)
+        end
+      end
     end
 
     def help; description; end
