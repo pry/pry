@@ -162,6 +162,13 @@ class Pry
     attr_accessor :command_set
     attr_accessor :_pry_
 
+    # The block we pass *into* a command if it defines `:takes_block => true`
+    # @example
+    #   my-command do
+    #     puts "block content"
+    #   end
+    attr_accessor :command_block
+
     # Run a command from another command.
     # @param [String] command_string The string that invokes the command
     # @param [Array] args Further arguments to pass to the command
@@ -281,8 +288,38 @@ class Pry
       self.arg_string = arg_string
       self.captures = captures
 
+      pass_block(args) if command_options[:takes_block]
+
       call_safely(*(captures + args))
     end
+
+    # Pass a block argument to a command.
+    # @param [Array<String>] args The arguments passed to the command.
+    #   We inspect these for a 'do' or a '{' and if we find it we use it
+    #   to start a block input sequence. Once we have a complete
+    #   block, we save it to an accessor that can be retrieved from the command context.
+    #   Note that if we find the 'do' or '{' we delete this and the
+    #   elements following it from `args`.
+    def pass_block(args)
+      if !(idx = args.find_index { |v| /^do;?$/ =~ v })
+        idx = args.find_index { |v| /^\{;?$/ =~ v }
+      end
+
+      if idx
+        block_init_string = args.slice!(idx..-1).join(" ")
+        prime_string = "proc #{block_init_string}\n"
+
+        if !_pry_.complete_expression?(prime_string)
+          command_string = _pry_.r(target, prime_string)
+        else
+          command_string = prime_string
+        end
+
+        self.command_block = target.eval(command_string)
+      end
+    end
+
+    private :pass_block
 
     # Run the command with the given {args}.
     #
@@ -367,7 +404,11 @@ class Pry
     # @param *String  the arguments passed
     # @return Object  the return value of the block
     def call(*args)
-      instance_exec(*correct_arg_arity(block.arity, args), &block)
+
+      # we need to define this method so we can pass a block in (not
+      # possible with `instance_exec`)
+      class << self; self; end.send(:define_method, :dummy, &block)
+      dummy(*correct_arg_arity(block.arity, args), &command_block)
     end
 
     def help; description; end
@@ -403,7 +444,7 @@ class Pry
         output.puts slop.help
         void
       else
-        process(*correct_arg_arity(method(:process).arity, args))
+        process(*correct_arg_arity(method(:process).arity, args), &command_block)
       end
     end
 
