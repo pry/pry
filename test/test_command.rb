@@ -504,6 +504,17 @@ describe "Pry::Command" do
        end
      end
 
+     describe "closure behaviour" do
+       it 'should close over locals in the definition context' do
+         redirect_pry_io(InputTester.new("var = :hello",
+                                         "walking-spanish { var }",
+                                         "exit-all"), out = StringIO.new) do
+           Pry.start @context, :commands => @set
+         end
+         @context.instance_variable_get(:@x).should == :hello
+       end
+     end
+
      describe "exposing block parameter" do
        describe "block_command" do
          it "should expose block in command_block method" do
