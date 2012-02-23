@@ -252,26 +252,6 @@ describe Pry::CommandSet do
     }.should.not.raise
   end
 
-  it "should sort the output of the 'help' command" do
-    @set.command 'foo', "Fooerizes" do; end
-    @set.command 'goo', "Gooerizes" do; end
-    @set.command 'moo', "Mooerizes" do; end
-    @set.command 'boo', "Booerizes" do; end
-
-    @ctx[:command_set] = @set
-    @ctx[:output] = StringIO.new
-
-    @set.run_command(@ctx, 'help')
-
-    doc = @ctx[:output].string
-
-    order = [doc.index("boo"),
-             doc.index("foo"),
-             doc.index("goo"),
-             doc.index("moo")]
-
-    order.should == order.sort
-  end
 
   describe "renaming a command" do
     it 'should be able to rename and run a command' do
@@ -299,7 +279,6 @@ describe Pry::CommandSet do
       @set.rename_command('bar', 'foo')
       lambda { @set.run_command(@ctx, 'foo') }.should.raise Pry::NoCommandError
     end
-
 
     it 'should be able to pass in options when renaming command' do
       desc    = "hello"
