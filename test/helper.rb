@@ -16,6 +16,14 @@ $VERBOSE = nil
 # Ensure we do not execute any rc files
 Pry::RC_FILES.clear
 
+# inject a variable into a binding
+def inject_var(name, value, b)
+  Thread.current[:__pry_local__] = value
+  b.eval("#{name} = Thread.current[:__pry_local__]")
+ensure
+  Thread.current[:__pry_local__] = nil
+end
+
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
 class << Pry
