@@ -470,6 +470,40 @@ describe "Pry::Command" do
        end
      end
 
+     describe "blocks can take parameters" do
+       describe "{} style blocks" do
+         it 'should accept multiple parameters' do
+           @set.block_command "walking-spanish", "down the hall", :takes_block => true do |&block|
+             inject_var(:@x, block.call(1, 2), target)
+           end
+
+           redirect_pry_io(InputTester.new("walking-spanish { |x, y| [x, y] }",
+                                           "exit-all"), out = StringIO.new) do
+             Pry.start @context, :commands => @set
+           end
+           @context.instance_variable_get(:@x).should == [1, 2]
+         end
+       end
+
+       describe "do/end style blocks" do
+         it 'should accept multiple parameters' do
+           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
+             def process(&block)
+               inject_var(:@x, block.call(1, 2), target)
+             end
+           end
+
+           redirect_pry_io(InputTester.new("walking-spanish do |x, y|",
+                                           "  [x, y]",
+                                           "end",
+                                           "exit-all"), out = StringIO.new) do
+             Pry.start @context, :commands => @set
+           end
+           @context.instance_variable_get(:@x).should == [1, 2]
+         end
+       end
+     end
+
      describe "exposing block parameter" do
        describe "block_command" do
          it "should expose block in command_block method" do

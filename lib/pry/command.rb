@@ -418,6 +418,8 @@ class Pry
       rescue ArgumentError => ex
         if ex.message =~ /1 for 0/
           dummy(&command_block)
+        else
+          raise
         end
       end
     end
