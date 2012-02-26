@@ -162,9 +162,10 @@ class Pry
     attr_accessor :command_set
     attr_accessor :_pry_
 
-    # The block we pass *into* a command if it defines `:takes_block => true`
+    # The block we pass *into* a command so long as `:takes_block` is
+    # not equal to `false`
     # @example
-    #   my-command do
+    #   my-command | do
     #     puts "block content"
     #   end
     attr_accessor :command_block
@@ -267,6 +268,9 @@ class Pry
       # remove the one leading space if it exists
       arg_string.slice!(0) if arg_string.start_with?(" ")
 
+      # process and pass a block if one is found
+      pass_block(arg_string) if command_options[:takes_block]
+
       if arg_string
         args = command_options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
       else
@@ -288,34 +292,34 @@ class Pry
       self.arg_string = arg_string
       self.captures = captures
 
-      pass_block(args) if command_options[:takes_block]
-
       call_safely(*(captures + args))
     end
 
     # Pass a block argument to a command.
-    # @param [Array<String>] args The arguments passed to the command.
-    #   We inspect these for a 'do' or a '{' and if we find it we use it
+    # @param [String] arg_string The arguments (as a string) passed to the command.
+    #   We inspect these for a '| do' or a '| {' and if we find it we use it
     #   to start a block input sequence. Once we have a complete
     #   block, we save it to an accessor that can be retrieved from the command context.
-    #   Note that if we find the 'do' or '{' we delete this and the
-    #   elements following it from `args`.
-    def pass_block(args)
-      if !(idx = args.find_index { |v| /^do;?$/ =~ v })
-        idx = args.find_index { |v| /^\{;?$/ =~ v }
+    #   Note that if we find the '| do' or '| {' we delete this and the
+    #   elements following it from `arg_string`.
+    def pass_block(arg_string)
+      block_index = arg_string.rindex /\| *(?:do|{)/
+
+      return if !block_index
+
+      block_init_string = arg_string.slice!(block_index..-1)[1..-1]
+      prime_string = "proc #{block_init_string}\n"
+
+      if !_pry_.complete_expression?(prime_string)
+        block_string = _pry_.r(target, prime_string)
+      else
+        block_string = prime_string
       end
 
-      if idx
-        block_init_string = args.slice!(idx..-1).join(" ")
-        prime_string = "proc #{block_init_string}\n"
-
-        if !_pry_.complete_expression?(prime_string)
-          command_string = _pry_.r(target, prime_string)
-        else
-          command_string = prime_string
-        end
-
-        self.command_block = target.eval(command_string)
+      begin
+        self.command_block = target.eval(block_string)
+      rescue Pry::RescuableException
+        raise CommandError, "Incomplete block definition."
       end
     end
 
