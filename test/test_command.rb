@@ -345,34 +345,14 @@ describe "Pry::Command" do
    describe "block parameters" do
      before do
        @context = Object.new
-       @set.command "walking-spanish", "down the hall", :takes_block => true do |&block|
+       @set.command "walking-spanish", "down the hall" do |&block|
          inject_var(:@x, block.call, target)
        end
        @set.import Pry::Commands
      end
 
-     describe ":takes_block option" do
-       it 'should accept block when :takes_block => true' do
-         redirect_pry_io(InputTester.new("walking-spanish { :jesus }", "exit-all"), out = StringIO.new) do
-           Pry.start @context, :commands => @set
-         end
-         @context.instance_variable_get(:@x).should == :jesus
-       end
-
-       it 'should NOT accept block when :takes_block => false' do
-         @set.command "walking-spanish", "down the hall", :takes_block => false do |&block|
-           inject_var(:@x, block, target)
-         end
-
-         redirect_pry_io(InputTester.new("walking-spanish { :jesus }", "exit-all"), out = StringIO.new) do
-           Pry.start @context, :commands => @set
-         end
-         @context.instance_variable_get(:@x).should == nil
-       end
-     end
-
      it 'should accept multiline blocks' do
-       redirect_pry_io(InputTester.new("walking-spanish do",
+       redirect_pry_io(InputTester.new("walking-spanish | do",
                                        "  :jesus",
                                        "end",
                                        "exit-all"), out = StringIO.new) do
@@ -383,7 +363,7 @@ describe "Pry::Command" do
 
      describe "single line blocks" do
        it 'should accept blocks with do ; end' do
-         redirect_pry_io(InputTester.new("walking-spanish do ; :jesus; end",
+         redirect_pry_io(InputTester.new("walking-spanish | do ; :jesus; end",
                                          "exit-all"), out = StringIO.new) do
            Pry.start @context, :commands => @set
          end
@@ -391,7 +371,7 @@ describe "Pry::Command" do
        end
 
        it 'should accept blocks with do; end' do
-         redirect_pry_io(InputTester.new("walking-spanish do; :jesus; end",
+         redirect_pry_io(InputTester.new("walking-spanish | do; :jesus; end",
                                          "exit-all"), out = StringIO.new) do
            Pry.start @context, :commands => @set
          end
@@ -399,7 +379,7 @@ describe "Pry::Command" do
        end
 
        it 'should accept blocks with { }' do
-         redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
+         redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
                                          "exit-all"), out = StringIO.new) do
            Pry.start @context, :commands => @set
          end
@@ -409,63 +389,103 @@ describe "Pry::Command" do
      end
 
      describe "block-related content removed from arguments" do
-       describe "block_command" do
-         it "should remove block-related content from arguments" do
-           @set.block_command "walking-spanish", "down the hall", :takes_block => true do |x, y|
+
+       describe "arg_string" do
+         it 'should remove block-related content from arg_string (with one normal arg)' do
+           @set.block_command "walking-spanish", "down the hall" do |x, y|
+             inject_var(:@arg_string, arg_string, target)
              inject_var(:@x, x, target)
-             inject_var(:@y, y, target)
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
-                                           "exit-all"), out = StringIO.new) do
+           redirect_pry_io(InputTester.new("walking-spanish john| { :jesus }",
+                                           "exit-all")) do
              Pry.start @context, :commands => @set
            end
-           @context.instance_variable_get(:@x).should == nil
-           @context.instance_variable_get(:@y).should == nil
+           @context.instance_variable_get(:@arg_string).should == @context.instance_variable_get(:@x)
          end
 
-         it "should NOT remove block-related content from arguments if :takes_block => false" do
-           @set.block_command "walking-spanish", "down the hall", :takes_block => false do |x, y|
-             inject_var(:@x, x, target)
-             inject_var(:@y, y, target)
+         it 'should remove block-related content from arg_string (with no normal args)' do
+           @set.block_command "walking-spanish", "down the hall" do
+             inject_var(:@arg_string, arg_string, target)
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
-                                           "exit-all"), out = StringIO.new) do
+           redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
+                                           "exit-all")) do
              Pry.start @context, :commands => @set
            end
-           @context.instance_variable_get(:@x).should == "{"
-           @context.instance_variable_get(:@y).should == ":jesus"
+           @context.instance_variable_get(:@arg_string).should == ""
+         end
+
+         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
+           block_string = "| { :jesus }"
+           @set.block_command "walking-spanish", "homemade special", :takes_block => false do
+             inject_var(:@arg_string, arg_string, target)
+           end
+           redirect_pry_io(InputTester.new("walking-spanish #{block_string}",
+                                           "exit-all")) do
+             Pry.start @context, :commands => @set
+           end
+           @context.instance_variable_get(:@arg_string).should == block_string
          end
        end
 
-       describe "create_command" do
-         it "should remove block-related content from arguments" do
-           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
-             def process(x, y)
+       describe "args" do
+         describe "block_command" do
+           it "should remove block-related content from arguments" do
+             @set.block_command "walking-spanish", "glass is full of sand" do |x, y|
                inject_var(:@x, x, target)
                inject_var(:@y, y, target)
              end
+             redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
+                                             "exit-all"), out = StringIO.new) do
+               Pry.start @context, :commands => @set
+             end
+             @context.instance_variable_get(:@x).should == nil
+             @context.instance_variable_get(:@y).should == nil
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
-                                           "exit-all"), out = StringIO.new) do
-             Pry.start @context, :commands => @set
+
+           it "should NOT remove block-related content from arguments if :takes_block => false" do
+             @set.block_command "walking-spanish", "litella screeching for a blind pig", :takes_block => false do |x, y|
+               inject_var(:@x, x, target)
+               inject_var(:@y, y, target)
+             end
+             redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
+                                             "exit-all"), out = StringIO.new) do
+               Pry.start @context, :commands => @set
+             end
+             @context.instance_variable_get(:@x).should == "|"
+             @context.instance_variable_get(:@y).should == "{"
            end
-           @context.instance_variable_get(:@x).should == nil
-           @context.instance_variable_get(:@y).should == nil
          end
 
-         it "should NOT remove block-related content from arguments if :takes_block => false" do
-           @set.create_command "walking-spanish", "down the hall", :takes_block => false do
-             def process(x, y)
-               inject_var(:@x, x, target)
-               inject_var(:@y, y, target)
+         describe "create_command" do
+           it "should remove block-related content from arguments" do
+             @set.create_command "walking-spanish", "punk sanders carved one out of wood" do
+               def process(x, y)
+                 inject_var(:@x, x, target)
+                 inject_var(:@y, y, target)
+               end
              end
+             redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
+                                             "exit-all"), out = StringIO.new) do
+               Pry.start @context, :commands => @set
+             end
+             @context.instance_variable_get(:@x).should == nil
+             @context.instance_variable_get(:@y).should == nil
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
-                                           "exit-all"), out = StringIO.new) do
-             Pry.start @context, :commands => @set
+
+           it "should NOT remove block-related content from arguments if :takes_block => false" do
+             @set.create_command "walking-spanish", "down the hall", :takes_block => false do
+               def process(x, y)
+                 inject_var(:@x, x, target)
+                 inject_var(:@y, y, target)
+               end
+             end
+             redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
+                                             "exit-all")) do
+               Pry.start @context, :commands => @set
+             end
+             @context.instance_variable_get(:@x).should == "|"
+             @context.instance_variable_get(:@y).should == "{"
            end
-           @context.instance_variable_get(:@x).should == "{"
-           @context.instance_variable_get(:@y).should == ":jesus"
          end
        end
      end
@@ -473,11 +493,11 @@ describe "Pry::Command" do
      describe "blocks can take parameters" do
        describe "{} style blocks" do
          it 'should accept multiple parameters' do
-           @set.block_command "walking-spanish", "down the hall", :takes_block => true do |&block|
+           @set.block_command "walking-spanish", "down the hall" do |&block|
              inject_var(:@x, block.call(1, 2), target)
            end
 
-           redirect_pry_io(InputTester.new("walking-spanish { |x, y| [x, y] }",
+           redirect_pry_io(InputTester.new("walking-spanish | { |x, y| [x, y] }",
                                            "exit-all"), out = StringIO.new) do
              Pry.start @context, :commands => @set
            end
@@ -487,13 +507,13 @@ describe "Pry::Command" do
 
        describe "do/end style blocks" do
          it 'should accept multiple parameters' do
-           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
+           @set.create_command "walking-spanish", "litella" do
              def process(&block)
                inject_var(:@x, block.call(1, 2), target)
              end
            end
 
-           redirect_pry_io(InputTester.new("walking-spanish do |x, y|",
+           redirect_pry_io(InputTester.new("walking-spanish | do |x, y|",
                                            "  [x, y]",
                                            "end",
                                            "exit-all"), out = StringIO.new) do
@@ -507,7 +527,7 @@ describe "Pry::Command" do
      describe "closure behaviour" do
        it 'should close over locals in the definition context' do
          redirect_pry_io(InputTester.new("var = :hello",
-                                         "walking-spanish { var }",
+                                         "walking-spanish | { var }",
                                          "exit-all"), out = StringIO.new) do
            Pry.start @context, :commands => @set
          end
@@ -518,10 +538,10 @@ describe "Pry::Command" do
      describe "exposing block parameter" do
        describe "block_command" do
          it "should expose block in command_block method" do
-           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
+           @set.block_command "walking-spanish", "glass full of sand" do
              inject_var(:@x, command_block.call, target)
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
+           redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
                                            "exit-all"), out = StringIO.new) do
              Pry.start @context, :commands => @set
            end
@@ -533,12 +553,12 @@ describe "Pry::Command" do
 
        describe "create_command" do
          it "should expose &block in create_command's process method" do
-           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
+           @set.create_command "walking-spanish", "down the hall" do
              def process(&block)
                inject_var(:@x, block.call, target)
              end
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
+           redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
                                            "exit-all"), out = StringIO.new) do
              Pry.start @context, :commands => @set
            end
@@ -546,12 +566,12 @@ describe "Pry::Command" do
          end
 
          it "should expose block in command_block method" do
-           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
+           @set.create_command "walking-spanish", "homemade special" do
              def process
                inject_var(:@x, command_block.call, target)
              end
            end
-           redirect_pry_io(InputTester.new("walking-spanish { :jesus }",
+           redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
                                            "exit-all"), out = StringIO.new) do
              Pry.start @context, :commands => @set
            end
