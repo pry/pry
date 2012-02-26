@@ -424,7 +424,9 @@ class Pry
       end
     end
 
-    def help; description; end
+    def help
+      "#{command_options[:listing].to_s.ljust(18)} #{description}"
+    end
   end
 
   # A super-class ofr Commands with structure.
