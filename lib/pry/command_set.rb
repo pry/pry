@@ -337,7 +337,7 @@ class Pry
         :shellwords => true,
         :listing => name,
         :use_prefix => true,
-        :takes_block => true
+        :takes_block => false
       }
     end
 
