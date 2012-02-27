@@ -4,7 +4,7 @@ class Pry
   module DefaultCommands
 
     InputAndOutput = Pry::CommandSet.new do
-      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :use_prefix => false) do |cmd|
+      command(/\.(.*)/, "All text following a '.' is forwarded to the shell.", :listing => ".<shell command>", :use_prefix => false, :takes_block => true) do |cmd|
         if cmd =~ /^cd\s+(.+)/i
           dest = $1
           begin
@@ -13,7 +13,13 @@ class Pry
             raise CommandError, "No such directory: #{dest}"
           end
         else
-          Pry.config.system.call(output, cmd, _pry_)
+          pass_block(cmd)
+
+          if command_block
+            command_block.call `#{cmd}`
+          else
+            Pry.config.system.call(output, cmd, _pry_)
+          end
         end
       end
 
