@@ -79,6 +79,12 @@ class Pry
     true
   end
 
+  # The currently active `Binding`.
+  # @return [Binding] The currently active `Binding` for the session.
+  def current_context
+    binding_stack.last
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #
