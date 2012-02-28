@@ -320,6 +320,29 @@ describe "Pry::DefaultCommands::Introspection" do
       str_output.string.should =~ /Mr flibble/
     end
 
+    it "should find methods even if the object has an overridden method method" do
+      c = Class.new{
+        def method;
+          98
+        end
+      }
+
+      mock_pry(binding, "show-method c.new.method").should =~ /98/
+    end
+
+    it "should find instance_methods even if the class has an override instance_method method" do
+      c = Class.new{
+        def method;
+          98
+        end
+
+        def self.instance_method; 789; end
+      }
+
+      mock_pry(binding, "show-method c#method").should =~ /98/
+
+    end
+
     it "should find instance methods with -M" do
       c = Class.new{ def moo; "ve over!"; end }
       mock_pry(binding, "cd c","show-method -M moo").should =~ /ve over/

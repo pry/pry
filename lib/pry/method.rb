@@ -109,7 +109,7 @@ class Pry
       # @param [String] name
       # @return [Pry::Method, nil]
       def from_class(klass, name)
-        new(klass.instance_method(name)) rescue nil
+        new(safe_send(klass, :instance_method, name)) rescue nil
       end
       alias from_module from_class
 
@@ -121,7 +121,7 @@ class Pry
       # @param [String] name
       # @return [Pry::Method, nil]
       def from_obj(obj, name)
-        new(obj.method(name)) rescue nil
+        new(safe_send(obj, :method, name)) rescue nil
       end
 
       # Get all of the instance methods of a `Class` or `Module`
