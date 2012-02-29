@@ -66,12 +66,11 @@ class Pry
       end
 
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
-        file = target.eval('__FILE__')
-        line_num = target.eval('__LINE__')
+        file, line_num = file_and_line_from_binding(target)
         i_num = num ? num.to_i : 5
 
         if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
-          raise CommandError, "Cannot find local context. Did you use `binding.pry`?"
+          raise CommandError, "Cannot find local context. Did you use binding.pry?"
         end
 
         set_file_and_dir_locals(file)

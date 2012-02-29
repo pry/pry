@@ -23,6 +23,21 @@ class Pry
         end
       end
 
+      # Return the file and line for a Binding.
+      # @param [Binding] target The binding
+      # @return [Array] The file and line
+      def file_and_line_from_binding(target)
+        file = target.eval('__FILE__')
+        line_num = target.eval('__LINE__')
+        if rbx?
+          if file =~ /__unknown__/
+            file = RbxPath.convert_path_to_full(target.variables.method.file.to_s)
+          end
+        end
+
+        [file, line_num]
+      end
+
       def get_method_or_raise(name, target, opts={}, omit_help=false)
         meth = Pry::Method.from_str(name, target, opts)
 
