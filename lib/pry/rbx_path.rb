@@ -10,6 +10,8 @@ class Pry
         File.join File.dirname(Rubinius::KERNEL_PATH), path
       elsif path.start_with?("lib")
         File.join File.dirname(Rubinius::LIB_PATH), path
+      else
+        path
       end
     end
 
