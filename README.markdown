@@ -32,10 +32,12 @@ these include:
 * Gist integration
 * Navigation around state (`cd`, `ls` and friends)
 * Runtime invocation (use Pry as a developer console or debugger)
-* Exotic object support (BasicObject instances, IClasses, ...)
-* A Powerful and flexible command system
-* Ability to view and replay history
+* Exotic object support (BasicObject ins
+* tances, IClasses, ...)
+* A Powerful and flexible command system* Ability to view and replay history
+
 * Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
+* A wide-range number of [plugins](https://github.com/pry/pry/wiki/Available-plugins) that provide remote sessions, full debugging functionality, and more.
 
 Pry also aims to be more than an IRB replacement; it is an
 attempt to bring REPL driven programming to the Ruby language. It is
@@ -79,7 +81,7 @@ Pry command will show a list of all private instance methods (in
 scope) that begin with 'pa'
 
     pry(YARD::Parser::SourceParser):5> ls -Mp --grep ^pa
-    [:parser_class, :parser_type=, :parser_type_for_filename]
+    YARD::Parser::SourceParser#methods: parse  parser_class  parser_type  parser_type=  parser_type_for_filename
 
 ### Navigating around state
 
@@ -97,7 +99,7 @@ an instance variable inside that class:
     => 20
     pry(main)> cd Hello
     pry(Hello):1> ls -i
-    => [:@x]
+    instance variables: @x
     pry(Hello):1> cd @x
     pry(20:2)> self + 10
     => 30
@@ -121,8 +123,6 @@ We can then jump back to any of the previous nesting levels by using
 the `jump-to` command:
 
     pry("friend":3)> jump-to 1
-    Ending Pry session for "friend"
-    Ending Pry session for 100
     => 100
     pry(Hello):1>
 
@@ -319,7 +319,7 @@ We can also use `ri` in the normal way:
 ### Gist integration
 
 If the `gist` gem is installed then method source or documentation can be gisted to github with the
-`gist` command.  THe `gist` command is capable of gisting [almost any REPL content](https://gist.github.com/cae143e4533416529726), including methods, documentation,
+`gist` command.  The `gist` command is capable of gisting [almost any REPL content](https://gist.github.com/cae143e4533416529726), including methods, documentation,
 input expressions, command source, and so on. In the example below we will gist the C source
 code for the `Symbol#to_proc` method to github:
 
@@ -362,6 +362,8 @@ avaiable.
     pry -r ./config/environment
 
 MyArtChannel has kindly provided a hack to replace the `rails console` command in Rails 3: [https://gist.github.com/941174](https://gist.github.com/941174) This is not recommended for code bases with multiple developers, as they may not all want to use Pry.
+
+Also check out the [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry) for other strategies on integrating Pry with rails, notably the [pry-rails](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry#wiki-pry_rails) plugin.
 
 ### Limitations:
 
