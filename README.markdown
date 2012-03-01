@@ -223,8 +223,8 @@ In the following example we will enter the `Pry` class, list the
 instance methods beginning with 're' and display the source code for the `rep` method:
 
     pry(main)> cd Pry
-    pry(Pry):1> ls -M --grep ^re
-    [:re, :readline, :rep, :repl, :repl_epilogue, :repl_prologue, :retrieve_line]
+    pry(Pry)> ls -M --grep re
+    Pry#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
     pry(Pry):1> show-method rep -l
 
     From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
@@ -319,12 +319,12 @@ We can also use `ri` in the normal way:
 ### Gist integration
 
 If the `gist` gem is installed then method source or documentation can be gisted to github with the
-`gist-method` command. The `gist-method` command accepts the same two
-syntaxes as `show-method`. In the example below we will gist the C source
+`gist` command.  THe `gist` command is capable of gisting [almost any REPL content](https://gist.github.com/cae143e4533416529726), including methods, documentation,
+input expressions, command source, and so on. In the example below we will gist the C source
 code for the `Symbol#to_proc` method to github:
 
-    pry(main)> gist-method Symbol#to_proc
-    https://gist.github.com/5332c38afc46d902ce46
+    pry(main)> gist -m Symbol#to_proc
+    Gist created at https://gist.github.com/5332c38afc46d902ce46 and added to clipboard.
     pry(main)>
 
 You can see the actual gist generated here: [https://gist.github.com/5332c38afc46d902ce46](https://gist.github.com/5332c38afc46d902ce46)
