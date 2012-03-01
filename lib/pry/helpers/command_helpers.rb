@@ -30,9 +30,10 @@ class Pry
         file = target.eval('__FILE__')
         line_num = target.eval('__LINE__')
         if rbx?
-          if file =~ /__unknown__/
-            file = RbxPath.convert_path_to_full(target.variables.method.file.to_s)
+          if !target.instance_variable_defined?(:@__actual_file__)
+            target.instance_variable_set(:@__actual_file__, RbxPath.convert_path_to_full(target.variables.method.file.to_s))
           end
+          file = target.instance_variable_get(:@__actual_file__).to_s
         end
 
         [file, line_num]
