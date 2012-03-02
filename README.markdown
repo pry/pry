@@ -1,4 +1,8 @@
 [![Build Status](https://secure.travis-ci.org/pry/pry.png)](http://travis-ci.org/pry/pry)
+
+**RBX (Rubinius) users**
+Please report bugs that you find because we are working very hard right now to make Pry more RBX friendly and it would be great to hear of your problems with Pry in RBX.  File a ticket if you run into problems with Pry on RBX so we can try to fix it for our next major release.
+
 <center>
 ![Alt text](http://dl.dropbox.com/u/26521875/pry_logo_350.png)
 
