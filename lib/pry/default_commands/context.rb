@@ -1,10 +1,12 @@
 require "pry/default_commands/ls"
+require "pry/default_commands/cd"
 
 class Pry
   module DefaultCommands
 
     Context = Pry::CommandSet.new do
       import Ls
+      import Cd
 
       create_command "pry-backtrace", "Show the backtrace for the Pry session." do
         banner <<-BANNER
