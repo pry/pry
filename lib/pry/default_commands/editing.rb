@@ -1,10 +1,13 @@
 require 'tempfile'
+require 'pry/default_commands/hist'
 
 class Pry
   module DefaultCommands
 
     Editing = Pry::CommandSet.new do
-            create_command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.", :use_prefix => false do
+      import Hist
+
+      create_command "!", "Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.", :use_prefix => false do
         def process
           output.puts "Input buffer cleared!"
           eval_string.replace("")
@@ -377,7 +380,6 @@ class Pry
           eval_string << self.content
         end
       end
-
     end
   end
 end
