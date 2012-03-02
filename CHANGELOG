@@ -1,3 +1,11 @@
+2/3/2012 version 0.9.8.3 minor update
+* various tweaks to improve rbx support
+* commands now support optional block arguments
+* much improved help command
+* updated method_source dependency
+* added wtf command
+* jruby should now work in windows (though without color)
+
 9/2/2012 version 0.9.8.2 bugfix
 * fixed bugs related to --super
 * upgraded slop dependency
