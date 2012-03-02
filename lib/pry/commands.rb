@@ -2,6 +2,7 @@ require "pry/default_commands/basic"
 require "pry/default_commands/help"
 require "pry/default_commands/gems"
 require "pry/default_commands/context"
+require "pry/default_commands/commands"
 require "pry/default_commands/input_and_output"
 require "pry/default_commands/introspection"
 require "pry/default_commands/editing"
@@ -23,5 +24,6 @@ class Pry
     import DefaultCommands::InputAndOutput
     import DefaultCommands::Introspection
     import DefaultCommands::EasterEggs
+    import DefaultCommands::Commands
   end
 end

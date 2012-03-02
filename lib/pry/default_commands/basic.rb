@@ -20,13 +20,6 @@ class Pry
         output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
       end
 
-      command "import-set", "Import a command set" do |command_set_name|
-        raise CommandError, "Provide a command set name" if command_set.nil?
-
-        set = target.eval(arg_string)
-        _pry_.commands.import set
-      end
-
       command "reload-method", "Reload the source file that contains the specified method" do |meth_name|
         meth = get_method_or_raise(meth_name, target, {}, :omit_help)
 
