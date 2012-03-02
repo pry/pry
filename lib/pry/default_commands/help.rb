@@ -2,7 +2,7 @@ class Pry
   module DefaultCommands
     Help = Pry::CommandSet.new do
       create_command "help" do |cmd|
-        description "Show a list of commands, or help for one command"
+        description "Show a list of commands. Type `help <foo>` for information about <foo>."
 
         banner <<-BANNER
           Usage: help [ COMMAND ]
