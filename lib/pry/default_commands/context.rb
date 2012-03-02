@@ -8,6 +8,25 @@ class Pry
       import Ls
       import Cd
 
+      command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
+        file, line_num = file_and_line_from_binding(target)
+        i_num = num ? num.to_i : 5
+
+        if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
+          raise CommandError, "Cannot find local context. Did you use binding.pry?"
+        end
+
+        set_file_and_dir_locals(file)
+
+        method = Pry::Method.from_binding(target)
+        method_description = method ? " in #{method.name_with_owner}" : ""
+        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
+
+        code = Pry::Code.from_file(file).around(line_num, i_num)
+        output.puts code.with_line_numbers.with_marker(line_num)
+        output.puts
+      end
+
       create_command "pry-backtrace", "Show the backtrace for the Pry session." do
         banner <<-BANNER
           Usage:   pry-backtrace [OPTIONS] [--help]
@@ -58,32 +77,14 @@ class Pry
 
         def process
           raise Pry::CommandError, "No most-recent exception" unless _pry_.last_exception
-          output.puts _pry_.last_exception
+
+          output.puts "#{text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception}\n--"
           if opts.verbose?
-            output.puts _pry_.last_exception.backtrace
+            output.puts Code.new(_pry_.last_exception.backtrace, 0, :text).with_line_numbers.to_s
           else
-            output.puts _pry_.last_exception.backtrace.first([captures[0].size, 0.5].max * 10)
+            output.puts Code.new(_pry_.last_exception.backtrace.first([captures[0].size, 0.5].max * 10), 0, :text).with_line_numbers.to_s
           end
         end
-      end
-
-      command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
-        file, line_num = file_and_line_from_binding(target)
-        i_num = num ? num.to_i : 5
-
-        if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
-          raise CommandError, "Cannot find local context. Did you use binding.pry?"
-        end
-
-        set_file_and_dir_locals(file)
-
-        method = Pry::Method.from_binding(target)
-        method_description = method ? " in #{method.name_with_owner}" : ""
-        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
-
-        code = Pry::Code.from_file(file).around(line_num, i_num)
-        output.puts code.with_line_numbers.with_marker(line_num)
-        output.puts
       end
 
     end
