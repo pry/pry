@@ -1,7 +1,6 @@
 class Pry
   module DefaultCommands
-
-    Basic = Pry::CommandSet.new do
+    Misc = Pry::CommandSet.new do
       command "toggle-color", "Toggle syntax highlighting." do
         Pry.color = !Pry.color
         output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"
