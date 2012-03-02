@@ -42,7 +42,7 @@ class Pry
         def display_index(groups)
           help_text = []
 
-          groups.keys.sort.each do |key|
+          groups.keys.sort_by(&method(:group_sort_key)).each do |key|
             commands = groups[key].sort_by{ |command| command.options[:listing].to_s }
 
             unless commands.empty?
@@ -116,6 +116,10 @@ class Pry
         # @return String
         def normalize(key)
           key.downcase.gsub(/pry\W+/, '')
+        end
+
+        def group_sort_key(group_name)
+          [%w(Help Context Editing Introspection Input_and_output Navigating_pry Gems Basic Commands).index(group_name.gsub(' ', '_')) || 99, group_name]
         end
       end
     end
