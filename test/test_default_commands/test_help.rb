@@ -40,17 +40,17 @@ describe "'help' command" do
   end
 
   it "should sort the output of the 'help' command" do
-    @set.command 'foo', "Fooerizes" do; end
-    @set.command 'goo', "Gooerizes" do; end
-    @set.command 'moo', "Mooerizes" do; end
-    @set.command 'boo', "Booerizes" do; end
+    @set.command 'faa', "Fooerizes" do; end
+    @set.command 'gaa', "Gooerizes" do; end
+    @set.command 'maa', "Mooerizes" do; end
+    @set.command 'baa', "Booerizes" do; end
 
     doc = mock_pry('help')
 
-    order = [doc.index("boo"),
-             doc.index("foo"),
-             doc.index("goo"),
-             doc.index("moo")]
+    order = [doc.index("baa"),
+             doc.index("faa"),
+             doc.index("gaa"),
+             doc.index("maa")]
 
     order.should == order.sort
   end
