@@ -178,7 +178,7 @@ class Pry
 
         def format_locals(locals)
           locals.sort_by(&:downcase).map do |name|
-            if _pry_.special_locals.include?(name.to_sym)
+            if _pry_.sticky_locals.include?(name.to_sym)
               color(:pry_var, name)
             else
               color(:local_var, name)

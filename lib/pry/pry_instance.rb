@@ -111,7 +111,7 @@ class Pry
   # @param [Binding] b The binding to set the local on.
   # @return [Object] The value the local was set to.
   def inject_local(name, value, b)
-    Thread.current[:__pry_local__] = value
+    Thread.current[:__pry_local__] = value.is_a?(Proc) ? value.call : value
     b.eval("#{name} = Thread.current[:__pry_local__]")
   ensure
     Thread.current[:__pry_local__] = nil
@@ -128,36 +128,33 @@ class Pry
     @output_array = Pry::HistoryArray.new(size)
   end
 
-  # Make sure special locals exist at start of session
-  def initialize_special_locals(target)
-    inject_local("_in_", @input_array, target)
-    inject_local("_out_", @output_array, target)
-    inject_local("_pry_", self, target)
-    inject_local("_ex_", last_exception, target)
-    inject_local("_file_", last_file, target)
-    inject_local("_dir_", last_dir, target)
-
-    # without this line we get 1 test failure, ask Mon_Ouie
-    set_last_result(nil, target)
-    inject_local("_", nil, target)
-  end
-  private :initialize_special_locals
-
-  def inject_special_locals(target)
-    special_locals.each_pair do |name, value|
+  # Inject all the sticky locals into the `target` binding.
+  # @param [Binding] target
+  def inject_sticky_locals(target)
+    sticky_locals.each_pair do |name, value|
       inject_local(name, value, target)
     end
   end
 
-  def special_locals
-    {
-      :_in_   => @input_array,
-      :_out_  => @output_array,
+  # Add a sticky local to this Pry instance.
+  # A sticky local is a local that persists between all bindings in a session.
+  # @param [Symbol] name The name of the sticky local.
+  # @yield The block that defines the content of the local. The local
+  #   will be refreshed at each tick of the repl loop.
+  def add_sticky_local(name, &block)
+    sticky_locals[name] = block
+  end
+
+  # @return [Hash] The currently defined sticky locals.
+  def sticky_locals
+    @sticky_locals ||= {
+      :_in_   => proc { @input_array },
+      :_out_  => proc { @output_array },
       :_pry_  => self,
-      :_ex_   => last_exception,
-      :_file_ => last_file,
-      :_dir_  => last_dir,
-      :_      => last_result
+      :_ex_   => proc { last_exception },
+      :_file_ => proc { last_file },
+      :_dir_  => proc { last_dir },
+      :_      => proc { last_result }
     }
   end
 
@@ -165,7 +162,8 @@ class Pry
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
     exec_hook :before_session, output, target, self
-    initialize_special_locals(target)
+    set_last_result(nil, target)
+
 
     @input_array << nil # add empty input so _in_ and _out_ match
 
@@ -244,7 +242,7 @@ class Pry
 
     # It's not actually redundant to inject them continually as we may have
     # moved into the scope of a new Binding (e.g the user typed `cd`)
-    inject_special_locals(target)
+    inject_sticky_locals(target)
 
     code = r(target)
 
