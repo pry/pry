@@ -86,7 +86,7 @@ class Pry
 
           output.puts "Saving history in #{file_name}..."
 
-          File.open(file_name, 'w') { |f| f.write(@history.to_s) }
+          File.open(file_name, 'w') { |f| f.write(@history.raw) }
 
           output.puts "History saved."
         end
