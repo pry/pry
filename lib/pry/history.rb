@@ -86,10 +86,13 @@ class Pry
     def write_to_file(lines)
       history_file = File.expand_path(Pry.config.history.file)
 
-      if File.writable?(history_file)
+      begin
         File.open(history_file, 'a') do |f|
           lines.each { |ln| f.puts ln }
         end
+      rescue Errno::EACCES => error
+        # We should probably create an option Pry.show_warnings?!?!?!
+        warn 'Unable to write to your history file, history not saved'
       end
     end
 
