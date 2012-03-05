@@ -68,9 +68,8 @@ class Pry
     private
     # The default loader. Yields lines from `Pry.history.config.file`.
     def read_from_file
-      history_file = File.expand_path(Pry.config.history.file)
-
       begin
+        history_file = File.expand_path(Pry.config.history.file)
         if File.exists?(history_file)
           File.foreach(history_file) { |line| yield(line) }
         end
