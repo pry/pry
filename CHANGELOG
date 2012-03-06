@@ -1,8 +1,13 @@
+6/3/2012 version 0.9.8.4 major bugfix
+* ~/.pry_history wasnt being created (if it did not exist)! FIXED
+* `hist --save` saved colors! FIXED
+* added Pry#add_sticky_local API for adding sticky locals to individual pry instances
+
 2/3/2012 version 0.9.8.3 minor update
 * various tweaks to improve rbx support
 * commands now support optional block arguments
 * much improved help command
-* updated method_source dependency
+* updated method_source dependencya
 * added wtf command
 * jruby should now work in windows (though without color)
 
