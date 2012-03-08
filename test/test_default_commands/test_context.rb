@@ -267,4 +267,53 @@ describe "Pry::DefaultCommands::Context" do
       $obj.should == :mon_ouie
     end
   end
+
+  describe "raise-up" do
+    it "should raise the exception with raise-up" do
+      redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError"),StringIO.new) do
+        lambda { Pry.new.repl(0) }.should.raise NoMethodError
+      end
+    end
+
+    it "should raise an unamed exception with raise-up" do
+      redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'"),StringIO.new) do
+        lambda { Pry.new.repl(0) }.should.raise RuntimeError, "noreally"
+      end
+    end
+
+    it "should eat the exception at the last new pry instance on raise-up" do
+      b = Pry.binding_for(:outer)
+      b.eval("x = :inner")
+
+      redirect_pry_io(InputTester.new("x.pry", "raise NoMethodError",
+        "$inner = self", "raise-up NoMethodError", "$outer = self", "exit-all"),StringIO.new) do
+        b.pry
+      end
+      $inner.should == :inner
+      $outer.should == :outer
+    end
+
+    it "should raise the most recently raised exception" do
+      lambda { mock_pry("raise NameError, 'homographery'","raise-up") }.should.raise NameError, 'homographery'
+    end
+
+    it "should allow you to cd up and (eventually) out" do
+      $deep = $inner = $outer = nil
+      b = Pry.binding_for(:outer)
+      b.eval("x = :inner")
+      redirect_pry_io(InputTester.new("cd x", "raise NoMethodError","$inner = self",
+        "deep = :deep", "cd deep","$deep = self","raise-up NoMethodError", "raise-up", "$outer = self", "raise-up", "exit-all"),StringIO.new) do
+        lambda { b.pry }.should.raise NoMethodError
+      end
+      $deep.should == :deep
+      $inner.should == :inner
+      $outer.should == :outer
+    end
+  end
+
+  describe "raise-up!" do
+    it "should jump immediately out of nested context's" do
+      lambda { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.should.raise RuntimeError, 'fancy that...'
+    end
+  end
 end
