@@ -199,7 +199,7 @@ describe "commands" do
     str_output = StringIO.new
     Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
     (str_output.string =~ /:kept_hello/).should == nil
-      str_output.string !~ /=>/
+str_output.string !~ /=>/
   end
 
   it 'should define a command that keeps its return value even when nil' do
@@ -211,7 +211,7 @@ describe "commands" do
     str_output = StringIO.new
     Pry.new(:input => StringIO.new("hello\n"), :output => str_output, :commands => klass).rep
     str_output.string.should =~ /nil/
-        str_output.string.should =~ /=>/
+  str_output.string.should =~ /=>/
   end
 
   it 'should define a command that keeps its return value but does not return when value is void' do
@@ -317,6 +317,83 @@ describe "commands" do
     klass.commands["help"].description.should == "blah"
   end
 
+
+describe "Pry::Command#run" do
+it 'should allow running of commands with following whitespace' do
+  $_scratch = Object.new
+  o = Object.new
+
+  set = Pry::CommandSet.new do
+    import Pry::Commands
+    command "test-run" do
+      run "cd / "
+    end
+  end
+  redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
+                                  "@nesting1 = _pry_.binding_stack.size",
+                                  "test-run",
+                                     "@obj = self",
+                                  "@nesting2 = _pry_.binding_stack.size",
+                                  "exit-all")) do
+    Pry.start(o, :commands => set)
+  end
+
+  $_scratch.instance_variable_get(:@nesting1).should == 8
+  o.instance_variable_get(:@obj).should == o
+  o.instance_variable_get(:@nesting2).should == 1
+  $_scratch = nil
+end
+
+it 'should allow running of cd command when contained in a single string' do
+  $_scratch = Object.new
+  o = Object.new
+
+  set = Pry::CommandSet.new do
+    import Pry::Commands
+    command "test-run" do
+      run "cd /"
+    end
+  end
+  redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
+                                  "@nesting1 = _pry_.binding_stack.size",
+                                  "test-run",
+                                     "@obj = self",
+                                  "@nesting2 = _pry_.binding_stack.size",
+                                  "exit-all")) do
+    Pry.start(o, :commands => set)
+  end
+
+  $_scratch.instance_variable_get(:@nesting1).should == 8
+  o.instance_variable_get(:@obj).should == o
+  o.instance_variable_get(:@nesting2).should == 1
+  $_scratch = nil
+end
+
+it 'should allow running of cd command when split into array' do
+  $_scratch = Object.new
+  o = Object.new
+
+  set = Pry::CommandSet.new do
+    import Pry::Commands
+    command "test-run" do
+      run "cd", "/"
+    end
+  end
+  redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
+                                  "@nesting1 = _pry_.binding_stack.size",
+                                  "test-run",
+                                     "@obj = self",
+                                  "@nesting2 = _pry_.binding_stack.size",
+                                  "exit-all")) do
+    Pry.start(o, :commands => set)
+  end
+
+  $_scratch.instance_variable_get(:@nesting1).should == 8
+  o.instance_variable_get(:@obj).should == o
+  o.instance_variable_get(:@nesting2).should == 1
+  $_scratch = nil
+end
+
   it 'should run a command from within a command' do
     klass = Pry::CommandSet.new do
       command "v" do
@@ -375,6 +452,8 @@ describe "commands" do
       str_output.string.should =~ /v baby param/
     end
   end
+
+end
 
   it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
     klass = Pry::CommandSet.new do
