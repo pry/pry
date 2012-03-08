@@ -44,6 +44,18 @@ describe "Pry::DefaultCommands::Context" do
       Cor.new.blimey!
       Object.remove_const(:Cor)
     end
+
+    it 'should work in objects with no method methods' do
+      class Cor
+        def blimey!
+          mock_pry(binding, 'whereami').should =~ /Cor[#]blimey!/
+        end
+
+        def method; "moo"; end
+      end
+      Cor.new.blimey!
+      Object.remove_const(:Cor)
+    end
   end
 
   describe "exit" do
