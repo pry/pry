@@ -33,8 +33,7 @@ these include:
 * Gist integration
 * Navigation around state (`cd`, `ls` and friends)
 * Runtime invocation (use Pry as a developer console or debugger)
-* Exotic object support (BasicObject ins
-* tances, IClasses, ...)
+* Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system* Ability to view and replay history
 
 * Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
