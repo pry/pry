@@ -171,6 +171,12 @@ class Pry
     #   Pry.config.gist.inspecter = proc &:inspect
     # @return [OpenStruct]
     attr_accessor :gist
+
+    # @return [Hash] Additional sticky locals (to the standard ones) to use in Pry sessions.
+    # @example Inject `random_number` sticky local into Pry session
+    #   Pry.config.extra_sticky_locals = { :random_number => proc {
+    #   rand(10) } }
+    attr_accessor :extra_sticky_locals
   end
 end
 
