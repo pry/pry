@@ -32,7 +32,87 @@ describe "Sticky locals (_file_ and friends)" do
     Pry.commands.delete "file-and-dir-test"
   end
 
-  describe "User defined sticky locals, Pry#add_sticky_local()" do
+  describe "User defined sticky locals" do
+    describe "setting as Pry.config option" do
+      it 'should define a new sticky local for the session (normal value)' do
+        Pry.config.extra_sticky_locals[:test_local] = :john
+
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value = test_local",
+                                        "exit-all")) do
+          Pry.start(o)
+        end
+
+        o.instance_variable_get(:@value).should == :john
+        Pry.config.extra_sticky_locals = {}
+      end
+
+      it 'should define a new sticky local for the session (proc)' do
+        Pry.config.extra_sticky_locals[:test_local] = proc { :john }
+
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value = test_local",
+                                        "exit-all")) do
+          Pry.start(o)
+        end
+
+        o.instance_variable_get(:@value).should == :john
+        Pry.config.extra_sticky_locals = {}
+      end
+
+    end
+
+    describe "passing in as hash option when creating pry instance" do
+      it 'should define a new sticky local for the session (normal value)' do
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value = test_local",
+                                        "exit-all")) do
+          Pry.start(o, :extra_sticky_locals => { :test_local => :john } )
+        end
+
+        o.instance_variable_get(:@value).should == :john
+      end
+
+      it 'should define multiple sticky locals' do
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value1 = test_local1",
+                                        "@value2 = test_local2",
+                                        "exit-all")) do
+          Pry.start(o, :extra_sticky_locals => { :test_local1 => :john ,
+                      :test_local2 => :carl} )
+        end
+
+        o.instance_variable_get(:@value1).should == :john
+        o.instance_variable_get(:@value2).should == :carl
+      end
+
+
+      it 'should define a new sticky local for the session (as Proc)' do
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value = test_local",
+                                        "exit-all")) do
+          Pry.start(o, :extra_sticky_locals => { :test_local => proc { :john }} )
+        end
+
+        o.instance_variable_get(:@value).should == :john
+      end
+    end
+
+    describe "hash option value should override config value" do
+      it 'should define a new sticky local for the session (normal value)' do
+        Pry.config.extra_sticky_locals[:test_local] = :john
+
+        o = Object.new
+        redirect_pry_io(InputTester.new("@value = test_local",
+                                        "exit-all")) do
+          Pry.start(o, :extra_sticky_locals => { :test_local => :carl })
+        end
+
+        o.instance_variable_get(:@value).should == :carl
+        Pry.config.extra_sticky_locals = {}
+      end
+    end
+
     it 'should create a new sticky local' do
       o = Object.new
       pi = Pry.new

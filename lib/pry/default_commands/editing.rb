@@ -343,7 +343,7 @@ class Pry
             self.content << File.read(File.expand_path(file))
           end
           opt.on :l, :lines, "Only play a subset of lines.", :optional => true, :as => Range, :default => 1..-1
-          opt.on :i, :in, "Play entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          opt.on :i, :in, "Play entries from Pry's input expression history. Takes an index or range. Note this can only replay pure Ruby code, not Pry commands.", :optional => true,
           :as => Range, :default => -5..-1 do |range|
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each { |v| self.content << v }

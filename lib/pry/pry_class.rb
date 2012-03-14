@@ -50,7 +50,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :input_stack
+      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -260,6 +260,8 @@ class Pry
     config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
 
     config.memory_size = 100
+
+    config.extra_sticky_locals = {}
 
     config.ls ||= OpenStruct.new({
       :heading_color            => :default,

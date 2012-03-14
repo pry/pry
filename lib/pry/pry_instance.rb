@@ -24,6 +24,8 @@ class Pry
 
   attr_accessor :backtrace
 
+  attr_accessor :extra_sticky_locals
+
   # Special treatment for hooks as we want to alert people of the
   # changed API
   attr_reader :hooks
@@ -65,7 +67,7 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size, :input_stack
+                   :prompt, :memory_size, :input_stack, :extra_sticky_locals
                  ]
 
     attributes.each do |attribute|
@@ -155,7 +157,7 @@ class Pry
       :_file_ => proc { last_file },
       :_dir_  => proc { last_dir },
       :_      => proc { last_result }
-    }
+    }.merge(extra_sticky_locals)
   end
 
   # Initialize the repl session.
