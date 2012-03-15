@@ -154,7 +154,7 @@ class Pry
         when /^mate/, /^geany/
           "-l #{line_number} #{file_name}"
         when /^subl/
-          "#{ file_name }:#{ line_number }"
+          "-w #{ file_name }:#{ line_number }"
         when /^uedit32/
           "#{file_name}/#{line_number}"
         when /^jedit/
