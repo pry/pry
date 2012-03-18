@@ -347,6 +347,38 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.should =~ /x\n\d+:.*y\n\d+:.*z/
     end
 
+    it 'should apply --tail after --grep' do
+      @hist.push "print 1"
+      @hist.push "print 2"
+      @hist.push "puts  3"
+      @hist.push "print 4"
+      @hist.push "puts  5"
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --tail 2 --grep print", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.each_line.count.should == 2
+      str_output.string.should =~ /\d:.*?print 2\n\d:.*?print 4/
+    end
+
+    it 'should apply --head after --grep' do
+      @hist.push "puts  1"
+      @hist.push "print 2"
+      @hist.push "puts  3"
+      @hist.push "print 4"
+      @hist.push "print 5"
+
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --head 2 --grep print", "exit-all"), str_output) do
+        pry
+      end
+
+      str_output.string.each_line.count.should == 2
+      str_output.string.should =~ /\d:.*?print 2\n\d:.*?print 4/
+    end
+
     # strangeness in this test is due to bug in Readline::HISTORY not
     # always registering first line of input
     it 'should return first N lines in history with --head switch' do
