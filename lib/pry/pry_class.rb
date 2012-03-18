@@ -43,9 +43,6 @@ class Pry
     # @return [Boolean] Whether Pry was activated from the command line.
     attr_accessor :cli
 
-    # @return [Fixnum] The number of active Pry sessions.
-    attr_accessor :active_sessions
-
     # @return [Boolean] Whether Pry sessions are quiet by default.
     attr_accessor :quiet
 
@@ -312,7 +309,6 @@ class Pry
     self.current_line = 1
     self.line_buffer = [""]
     self.eval_path = "(pry)"
-    self.active_sessions = 0
 
     fix_coderay_colors
   end
