@@ -88,8 +88,8 @@ class Pry
       end
 
       # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
-      create_command /raise-up(!?\b.*)/ do
-        description "Raise an exception out of the current pry instance. See `raise-up --help` for detail."
+      create_command /raise-up(!?\b.*)/, :listing => 'raise-up' do
+        description "Raise an exception out of the current pry instance."
         banner <<-BANNER
           Raise up, like exit, allows you to quit pry. Instead of returning a value however, it raises an exception.
           If you don't provide the exception to be raised, it will use the most recent exception (in pry _ex_).
@@ -103,11 +103,11 @@ class Pry
         BANNER
 
         def process
-          # Handle 'raise-up', 'raise-up "foo"', 'raise-up RuntimeError, 'farble' without using RegExps...
+          return stagger_output help if captures[0] =~ /(-h|--help)\b/
+          # Handle 'raise-up', 'raise-up "foo"', 'raise-up RuntimeError, 'farble' in a rubyesque manner
           target.eval("_pry_.raise_up#{captures[0]}")
         end
       end
-
     end
   end
 end
