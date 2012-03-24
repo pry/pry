@@ -530,7 +530,7 @@ class Pry
       puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
       puts "  Pry.config.input = STDIN"
       puts "  Pry.config.output = STDOUT"
-      puts "  binding.pry
+      puts "  binding.pry"
       throw(:breakout)
     end
   end
