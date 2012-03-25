@@ -205,19 +205,21 @@ class Pry
     # @param [String, Regex] name The name of the alias (can be a regex).
     # @param [String] action The action to be performed (typically
     #   another command).
-    # @param [String, nil] desc New description of the command.
     # @param [Hash] options The optional configuration parameters,
     #   accepts the same as the `command` method, but also allows the
-    #   command description to be passed this way too.
+    #   command description to be passed this way too as `:desc`
     # @example Creating an alias for `ls -M`
     #   Pry.config.commands.alias_command "lM", "ls -M"
-    def alias_command(name, action, desc="Alias for `#{action}`", options={})
+    # @example Pass explicit description (overriding default).
+    #   Pry.config.commands.alias_command "lM", "ls -M", :desc => "cutiepie"
+    def alias_command(name, action,  options={})
       options = {
+        :desc => "Alias for `#{action}`",
         :alias => true
       }.merge!(options)
 
       # ensure default description is used if desc is nil
-      desc = "Alias for `#{action}`" if !desc
+      desc = options.delete(:desc).to_s
 
       create_command name, desc, options do
         define_method(:process) do
