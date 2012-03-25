@@ -42,7 +42,6 @@ class Pry
       end
     end
 
-
     # Make those properties accessible to instances
     def name; self.class.name; end
     def description; self.class.description; end
@@ -145,7 +144,11 @@ class Pry
           when /pryrc/
             "~/.pryrc"
           else
-            "(other)"
+            if options[:alias]
+              "Aliases"
+            else
+              "(other)"
+            end
           end
         )
       end
