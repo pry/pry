@@ -1,5 +1,117 @@
 require 'helper'
 describe "commands" do
+
+  describe "alias_command" do
+    it 'should make an aliasd command behave like its original' do
+      set = Pry::CommandSet.new do
+        command "test-command" do
+          output.puts "testing 1, 2, 3"
+        end
+        alias_command "test-alias", "test-command"
+      end
+      redirect_pry_io(InputTester.new("test-alias"), out1 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      redirect_pry_io(InputTester.new("test-command"), out2 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      out1.string.should == out2.string
+    end
+
+    it 'should pass on arguments to original' do
+      set = Pry::CommandSet.new do
+        command "test-command" do |*args|
+          output.puts "testing #{args.join(' ')}"
+        end
+        alias_command "test-alias", "test-command"
+      end
+
+      redirect_pry_io(InputTester.new("test-command hello baby duck"), out1 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      out1.string.should =~ /hello baby duck/
+
+      redirect_pry_io(InputTester.new("test-alias hello baby duck"), out2 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      out2.string.should == out1.string
+    end
+
+    it 'should pass option arguments to original' do
+      set = Pry::CommandSet.new do
+        import Pry::Commands
+        alias_command "test-alias", "ls"
+      end
+
+      obj = Class.new { @x = 10 }
+      redirect_pry_io(InputTester.new("ls -i"), out1 = StringIO.new) do
+        Pry.start obj, :commands => set
+      end
+
+      out1.string.should =~ /@x/
+
+      redirect_pry_io(InputTester.new("test-alias -i"), out2 = StringIO.new) do
+        Pry.start obj, :commands => set
+      end
+
+      out2.string.should == out1.string
+    end
+
+    it 'should pass option arguments to original with additional parameters' do
+      set = Pry::CommandSet.new do
+        import Pry::Commands
+        alias_command "test-alias", "ls -M"
+      end
+
+      obj = Class.new { @x = Class.new { define_method(:plymouth) {} } }
+      redirect_pry_io(InputTester.new("ls -M @x"), out1 = StringIO.new) do
+        Pry.start obj, :commands => set
+      end
+
+      out1.string.should =~ /plymouth/
+
+      redirect_pry_io(InputTester.new("test-alias @x"), out2 = StringIO.new) do
+        Pry.start obj, :commands => set
+      end
+
+      out2.string.should == out1.string
+    end
+
+    it 'should be able to alias a regex command' do
+      set = Pry::CommandSet.new do
+        command /du.k/ do
+          output.puts "ducky"
+        end
+        alias_command "test-alias", "duck"
+      end
+
+      redirect_pry_io(InputTester.new("test-alias"), out1 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      out1.string.should =~ /ducky/
+    end
+
+    it 'should be able to make the alias a regex' do
+      set = Pry::CommandSet.new do
+        command /du.k/ do
+          output.puts "ducky"
+        end
+        alias_command /test-ali.s/, "duck"
+      end
+
+      redirect_pry_io(InputTester.new("test-alias"), out1 = StringIO.new) do
+        Pry.start self, :commands => set
+      end
+
+      out1.string.should =~ /ducky/
+    end
+  end
+
   it 'should interpolate ruby code into commands' do
     klass = Pry::CommandSet.new do
       command "hello", "", :keep_retval => true do |arg|
@@ -297,14 +409,6 @@ str_output.string !~ /=>/
     klass.commands.include?("jump-to").should == true
     klass.commands.include?("cd").should == true
     klass.commands.include?("v").should == true
-  end
-
-  it 'should alias a command with another command' do
-    klass = Pry::CommandSet.new do
-      import Pry::DefaultCommands::Help
-      alias_command "help2", "help"
-    end
-    klass.commands["help2"].block.should == klass.commands["help"].block
   end
 
   it 'should change description of a command using desc' do

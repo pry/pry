@@ -121,28 +121,58 @@ describe Pry::CommandSet do
     @set.commands['foo'].description.should == 'some stuff'
   end
 
-  it 'should be able to alias method' do
-    run = false
-    @set.command('foo', 'stuff') { run = true }
+  describe "aliases" do
+    it 'should be able to alias command' do
+      run = false
+      @set.command('foo', 'stuff') { run = true }
 
-    @set.alias_command 'bar', 'foo'
-    @set.commands['bar'].name.should == 'bar'
-    @set.commands['bar'].description.should == ''
+      @set.alias_command 'bar', 'foo'
+      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].description.should == 'Alias for `foo`'
 
-    @set.run_command @ctx, 'bar'
-    run.should == true
-  end
+      @set.run_command @ctx, 'bar'
+      run.should == true
+    end
 
-  it "should be able to alias a method by the command's listing name" do
-    run = false
-    @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+    it 'should be able to specify alias\'s description when aliasing' do
+      run = false
+      @set.command('foo', 'stuff') { run = true }
 
-    @set.alias_command 'bar', 'foo'
-    @set.commands['bar'].name.should == 'bar'
-    @set.commands['bar'].description.should == ''
+      @set.alias_command 'bar', 'foo', "tobina"
+      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].description.should == "tobina"
 
-    @set.run_command @ctx, 'bar'
-    run.should == true
+      @set.run_command @ctx, 'bar'
+      run.should == true
+    end
+
+    it "should be able to alias a command by its invocation line" do
+      run = false
+      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+
+      @set.alias_command 'bar', 'foo1'
+      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].description.should == 'Alias for `foo1`'
+
+      @set.run_command @ctx, 'bar'
+      run.should == true
+    end
+
+    it "should be able to specify options when creating alias" do
+      run = false
+      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+
+      @set.alias_command /^b.r/, 'foo1', nil, :listing => "bar"
+      @set.commands[/^b.r/].options[:listing].should == "bar"
+    end
+
+    it "should set description to default if description parameter is nil" do
+      run = false
+      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+
+      @set.alias_command "bar", 'foo1', nil
+      @set.commands["bar"].description.should == "Alias for `foo1`"
+    end
   end
 
   it 'should be able to change the descriptions of commands' do

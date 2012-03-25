@@ -200,14 +200,30 @@ class Pry
     protected :find_command_by_name_or_listing
 
     # Aliases a command
-    # @param [String] new_name New name of the command.
-    # @param [String] old_name Old name of the command.
+    # Note that if `desc` parameter is `nil` then the default
+    # description is used.
+    # @param [String, Regex] name The name of the alias (can be a regex).
+    # @param [String] action The action to be performed (typically
+    #   another command).
     # @param [String, nil] desc New description of the command.
-    def alias_command(new_name, old_name, desc="")
-      orig_command = find_command_by_name_or_listing(old_name)
-      commands[new_name] = orig_command.dup
-      commands[new_name].name = new_name
-      commands[new_name].description = desc
+    # @param [Hash] options The optional configuration parameters,
+    #   accepts the same as the `command` method, but also allows the
+    #   command description to be passed this way too.
+    # @example Creating an alias for `ls -M`
+    #   Pry.config.commands.alias_command "lM", "ls -M"
+    def alias_command(name, action, desc="Alias for `#{action}`", options={})
+      options = {
+        :alias => true
+      }.merge!(options)
+
+      # ensure default description is used if desc is nil
+      desc = "Alias for `#{action}`" if !desc
+
+      create_command name, desc, options do
+        define_method(:process) do
+          run action, *args
+        end
+      end
     end
 
     # Rename a command. Accepts either actual name or listing name for
