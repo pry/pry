@@ -215,17 +215,18 @@ class Pry
     def alias_command(name, action,  options={})
       options = {
         :desc => "Alias for `#{action}`",
-        :alias => true
       }.merge!(options)
 
       # ensure default description is used if desc is nil
       desc = options.delete(:desc).to_s
 
-      create_command name, desc, options do
-        define_method(:process) do
-          run action, *args
-        end
+      c = block_command name, desc, options do |*args|
+        run action, *args
       end
+
+      c.group "Aliases"
+
+      c
     end
 
     # Rename a command. Accepts either actual name or listing name for
