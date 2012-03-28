@@ -144,11 +144,7 @@ class Pry
           when /pryrc/
             "~/.pryrc"
           else
-            if options[:alias]
-              "Aliases"
-            else
-              "(other)"
-            end
+            "(other)"
           end
         )
       end
