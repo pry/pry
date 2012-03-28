@@ -151,7 +151,7 @@ class Pry
           lesspipe { |less| less.puts text }
         end
       rescue Errno::ENOENT
-        simple_pager(text, output)
+        simple_pager(text, out)
       rescue Errno::EPIPE
       end
 
