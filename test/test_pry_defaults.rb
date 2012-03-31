@@ -377,4 +377,25 @@ describe "test Pry defaults" do
     Pry.reset_defaults
     Pry.color = false
   end
+
+  describe 'quiet' do
+    it 'should show whereami by default' do
+      output = StringIO.new
+      Pry.start(binding, :input => InputTester.new("1", "exit-all"),
+              :output => output,
+              :hooks => Pry::DEFAULT_HOOKS)
+
+      output.string.should =~ /[w]hereami by default/
+    end
+
+    it 'should hide whereami if quiet is set' do
+      output = StringIO.new
+      Pry.new(:input => InputTester.new("exit-all"),
+              :output => output,
+              :quiet => true,
+              :hooks => Pry::DEFAULT_HOOKS)
+
+      output.string.should == ""
+    end
+  end
 end
