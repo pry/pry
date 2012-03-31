@@ -8,6 +8,8 @@ class Pry
   attr_accessor :print
   attr_accessor :exception_handler
   attr_accessor :input_stack
+  attr_accessor :quiet
+  alias :quiet? :quiet
 
   attr_accessor :custom_completions
 
@@ -50,6 +52,7 @@ class Pry
   # @option options [Hash] :hooks The defined hook Procs
   # @option options [Array<Proc>] :prompt The array of Procs to use for the prompts.
   # @option options [Proc] :print The Proc to use for the 'print'
+  # @option options [Boolean] :quiet If true, omit the whereami banner when starting.
   #   component of the REPL. (see print.rb)
   def initialize(options={})
     refresh(options)
@@ -65,7 +68,7 @@ class Pry
   def refresh(options={})
     defaults   = {}
     attributes = [
-                   :input, :output, :commands, :print,
+                   :input, :output, :commands, :print, :quiet,
                    :exception_handler, :hooks, :custom_completions,
                    :prompt, :memory_size, :input_stack, :extra_sticky_locals
                  ]

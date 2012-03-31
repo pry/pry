@@ -46,6 +46,9 @@ class Pry
     # @return [Fixnum] The number of active Pry sessions.
     attr_accessor :active_sessions
 
+    # @return [Boolean] Whether Pry sessions are quiet by default.
+    attr_accessor :quiet
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
