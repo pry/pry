@@ -202,12 +202,7 @@ class Pry
         def process_patch
           lines = @method.source.lines.to_a
 
-          if ((original_name = @method.original_name) &&
-              lines[0] =~ /^def (?:.*?\.)?#{original_name}(?=[\(\s;]|$)/)
-            lines[0] = "def #{original_name}#{$'}"
-          else
-            raise CommandError, "Pry can only patch methods created with the `def` keyword."
-          end
+          lines[0] = definition_line_for_owner(lines[0])
 
           temp_file do |f|
             f.puts lines.join
@@ -256,6 +251,34 @@ class Pry
             target.eval("alias #{meth_name} #{temp_name}")
           ensure
             target.eval("undef #{temp_name}") rescue nil
+          end
+
+          # The original name of the method, if it's not present raise an error telling
+          # the user why we don't work.
+          #
+          def original_name
+            @method.original_name or raise CommandError, "Pry can only patch methods created with the `def` keyword."
+          end
+
+          # Update the definition line so that it can be eval'd directly on the Method's
+          # owner instead of from the original context.
+          #
+          # In particular this takes `def self.foo` and turns it into `def foo` so that we
+          # don't end up creating the method on the singleton class of the singleton class
+          # by accident.
+          #
+          # This is necessarily done by String manipulation because we can't find out what
+          # syntax is needed for the argument list by ruby-level introspection.
+          #
+          # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
+          # @return String  The new definition line. e.g. def foo(bar, baz=1)
+          #
+          def definition_line_for_owner(line)
+            if line =~ /^def (?:.*?\.)?#{Regexp.escape(original_name)}(?=[\(\s;]|$)/
+              "def #{original_name}#{$'}"
+            else
+              raise CommandError, "Could not find original `def #{original_name}` line to patch."
+            end
           end
       end
 

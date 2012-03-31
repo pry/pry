@@ -471,6 +471,10 @@ describe "Pry::DefaultCommands::Introspection" do
               super
             end
             alias c b
+
+            def y?
+              :because
+            end
           end
         EOS
         @tempfile.flush
@@ -571,6 +575,13 @@ describe "Pry::DefaultCommands::Introspection" do
 
           X.instance_method(:a).owner.should == A
           X.new.a.should == :maybe
+        end
+
+        it "should successfully replace a method with a question mark" do
+          mock_pry("edit-method -p X#y?")
+
+          X.instance_method(:y?).owner.should == X
+          X.new.y?.should == :maybe
         end
       end
 
