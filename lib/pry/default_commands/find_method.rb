@@ -58,18 +58,21 @@ class Pry
             def target_self_eval(pattern, opts)
                 obj = target_self
                 if opts.name?
-                    return (obj.methods.select {|x| x=~pattern}).map {|x| "(#{obj.to_s})##{x}" }
+                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "(#{obj.to_s})##{x.name}"}
                 elsif opts.content?
                     ret = []
-                    obj.methods.select do |x|
-                        meth = Pry::Method.new obj.method(x)
-                        if meth.source =~ pattern
-                            ret << "(#{obj.to_s})##{x}: " + (meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n\t")
+                    Pry::Method.all_from_obj(obj).each do |x|
+                        begin
+                            if x.source =~ pattern
+                                ret << "(#{obj.to_s})##{x.name}:\t" + colorize_code((x.source.split(/\n/).select {|y| y =~ pattern}).join("\n\t"))
+                            end
+                        rescue Exception
+                            next
                         end
                     end
                     return ret
                 else
-                    return (obj.methods.select {|x| x=~pattern}).map {|x| "(#{obj.to_s})##{x}" }
+                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "(#{obj.to_s})##{x.name}"}
                 end  
             end
 
@@ -81,9 +84,11 @@ class Pry
                 (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |meth|
                 begin
                     if meth.source =~ pattern && !meth.alias?
-                        meths << "#{klass}##{meth.name}: " + (meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n\t")
+                        meths << "#{klass}##{meth.name}: " + colorize_code((meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n\t"))
                     end
                 rescue Exception
+                    next
+                rescue Pry::CommandError
                     next
                 end
                 end
