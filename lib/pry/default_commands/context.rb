@@ -22,11 +22,13 @@ class Pry
 
         method = Pry::Method.from_binding(target)
         method_description = method ? " in #{method.name_with_owner}" : ""
-        output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
-
         code = Pry::Code.from_file(file).around(line_num, i_num)
-        output.puts code.with_line_numbers.with_marker(line_num)
-        output.puts
+        
+        if !code.empty?
+          output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
+          output.puts code.with_line_numbers.with_marker(line_num)
+          output.puts
+        end
       end
 
       create_command "pry-backtrace", "Show the backtrace for the Pry session." do
