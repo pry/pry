@@ -25,15 +25,7 @@ class Pry
                         klass = klass.class
                     end
                 else    
-                    to_put = target_self_eval(pattern, opts)
-                    if to_put.flatten == []
-                        puts "\e[31;1mNo Methods Matched\e[0m"
-                    else
-                        puts "\e[1;4mMethods Matched\e[0m"
-                        puts "--"
-                        puts to_put
-                    end
-                    return
+                    klass = eval target_self.pretty_inspect
                 end
                 if opts.name?
                     to_put = name_search(pattern, klass)
@@ -59,16 +51,6 @@ class Pry
                 output.puts item
             end
             
-            def target_self_eval(pattern, opts)
-                obj = eval target_self.pretty_inspect
-                if opts.name?
-                    return name_search(pattern, obj)
-                elsif opts.content?
-                    return content_search(pattern, obj)
-                else
-                    return name_search(pattern, obj)
-                end
-            end
             def content_search(pattern, klass, current=[])
                 return unless(klass.is_a? Module)
                 return if current.include? klass
