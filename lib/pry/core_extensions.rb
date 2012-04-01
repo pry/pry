@@ -1,34 +1,29 @@
 class Object
-  # Start a Pry REPL.
-  # This method differs from `Pry.start` in that it does not
-  # support an options hash. Also, when no parameter is provided, the Pry
-  # session will start on the implied receiver rather than on
-  # top-level (as in the case of `Pry.start`).
-  # It has two forms of invocation. In the first form no parameter
-  # should be provided and it will start a pry session on the
-  # receiver. In the second form it should be invoked without an
-  # explicit receiver and one parameter; this will start a Pry
-  # session on the parameter.
-  # @param [Object, Binding] target The receiver of the Pry session.
-  # @param [Symbol, Symbol] :quiet silences, anything else allows whereami.
-  # @example First form
+  # Start a Pry REPL.  This method only differs from Pry.start in that it
+  # will accept a options hash now without the need for a binding and
+  # will default to the binding `self`.  POSSIBLE DEPRICATION WARNING:
+  # In the future the backwards compatibility with pry(binding) could be
+  # removed so please properly use Object.pry or if you use pry(binding)
+  # switch Pry.start(binding).
+
+  # @param [Binding] the binding or options hash if no binding needed.
+  # @param [Hash] the options hash.
+  # @example First
   #   "dummy".pry
-  # @example Second form
-  #    pry "dummy"
-  # @example Start a Pry session on current self (whatever that is)
-  #   pry
-  # @example Start a Pry session on a binding without whereami
-  #   binding.pry :quiet
+  # @example Second
+  #    binding.pry
+  # @example An example with options
+  #   def my_method
+  #     binding.pry :quiet => true
+  #   end
+  #   my_method()
 
-  def pry(target=self, quiet = nil)
-    if target == :quiet
-      quiet, target = true, self
-    else
-      # Only :quiet makes it quiet, okay....
-      quiet = quiet == :quiet ? true : false
+  def pry(*args)
+    if args.first.is_a?(Hash) || args.length == 0
+      args.unshift(self)
     end
-
-    Pry.start(target, :quiet => quiet)
+    
+    Pry.start(*args)
   end
 
   # Return a binding object for the receiver.
