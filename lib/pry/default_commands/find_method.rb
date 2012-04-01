@@ -60,42 +60,13 @@ class Pry
             end
             
             def target_self_eval(pattern, opts)
-                obj = target_self
+                obj = eval target_self.pretty_inspect
                 if opts.name?
-                    header = "(#{obj.to_s}):  "
-                    ret = []
-                    Pry::Method.all_from_obj(obj).each do |x|
-                        if x.name =~ pattern
-                            add = (' ' * header.length) + x.name
-                            begin
-                                add += "\x1A\x1" if x.alias?
-                            rescue EOFError
-                            end
-                            ret << add
-                        end
-                    end
-                    ret.map! do |x|
-                        str = "  "
-                        str += "\e[33;1m(Alias)\e[0m"
-                        x.sub("\x1A\x1", str)
-                    end
-                    ret.unshift(header + "\n") if ret.size > 0
-                    return ret
+                    return name_search(pattern, obj)
                 elsif opts.content?
-                    ret = []
-                    Pry::Method.all_from_obj(obj).each do |x|
-                        begin
-                            if x.source =~ pattern
-                                header = "(#{obj.to_s})##{x.name}:  "
-                                ret << header + colorize_code((x.source.split(/\n/).select {|y| y =~ pattern}).join("\n   " ))
-                            end
-                        rescue Exception
-                            next
-                        end
-                    end
-                    return ret
+                    return content_search(pattern, obj)
                 else
-                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "#{obj.to_s}##{x.name}"}
+                    return name_search(pattern, obj)
                 end
             end
             def content_search(pattern, klass, current=[])
