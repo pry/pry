@@ -1,5 +1,3 @@
-require "io/console"
-
 class Pry
   module DefaultCommands
     FindMethod = Pry::CommandSet.new do
@@ -51,12 +49,14 @@ class Pry
                 output.puts item
             end
             
-            def content_search(pattern, klass, current=[])
+            def content_search(pattern, klass, current=[], the_methods=[])
                 return unless(klass.is_a? Module)
                 return if current.include? klass
                 current << klass
                 meths = []
                 (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |meth|
+                    next if the_methods.include? meth.name
+                    the_methods << meth.name
                     begin
                         if meth.source =~ pattern && !meth.alias?
                             header = "#{klass}##{meth.name}:  "
@@ -69,19 +69,21 @@ class Pry
                     end
                 end
                 klass.constants.each do |klazz|
-                    meths += ((res = content_search(pattern, klass.const_get(klazz), current)) ? res : [])
+                    meths += ((res = content_search(pattern, klass.const_get(klazz), current, the_methods)) ? res : [])
                 end
                 return meths.uniq.flatten
             end
                     
-            def name_search(regex, klass, current=[])
+            def name_search(regex, klass, current=[], the_methods=[])
                 return unless(klass.is_a? Module)
                 return if current.include? klass
                 current << klass
                 header = "\e[1;34;4m#{klass.name}\e[0;24m:"
                 meths = []
                 (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |x|
-                   if x.name =~ regex
+                    next if the_methods.include? x.name
+                    the_methods << x.name
+                    if x.name =~ regex
                         meths << "   #{x.name}" 
                         begin
                             if x.alias?
@@ -89,8 +91,7 @@ class Pry
                             end
                         rescue Exception
                         end
-                   end
-                    
+                    end
                 end
                 max = meths.map(&:length).max
                 meths.map! do |x|
@@ -102,7 +103,7 @@ class Pry
                     meths.unshift header if meths.size > 0
                     klass.constants.each do |x|
                         begin
-                            meths << ((res = name_search(regex, klass.const_get(x), current)) ? res : [])
+                            meths << ((res = name_search(regex, klass.const_get(x), current, the_methods)) ? res : [])
                         rescue Exception
                             next
                         end
