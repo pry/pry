@@ -18,10 +18,9 @@ class Pry
                 return if args.size < 1
                 pattern = ::Regexp.new args[0]
                 if args[1]
-                    if target.eval(args[1]).is_a?(Module)
-                        klass   = target.eval args[1]
-                    else
-                        klass = target.eval(args[1]).class
+                    klass = target.eval(args[1])
+                    if !klass.is_a?(Module)
+                        klass = klass.class
                     end
                 else    
                     to_put = target_self_eval(pattern, opts)
