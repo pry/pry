@@ -1,8 +1,9 @@
 class Pry
   module DefaultCommands
     Hist = Pry::CommandSet.new do
-
+      
       create_command "hist", "Show and replay Readline history. Aliases: history" do
+
         group "Editing"
         banner <<-USAGE
           Usage: hist
@@ -14,7 +15,6 @@ class Pry
                  hist --replay START..END
                  hist --save [START..END] FILE
         USAGE
-
         def options(opt)
           opt.on :H, :head, "Display the first N items.", :optional => true, :as => Integer
           opt.on :T, :tail, "Display the last N items.", :optional => true, :as => Integer
@@ -27,6 +27,7 @@ class Pry
           opt.on :e, :'exclude-pry', "Exclude Pry commands from the history."
           opt.on :n, :'no-numbers', "Omit line numbers."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :current, "Lines from this session"
         end
 
         def process
@@ -47,6 +48,9 @@ class Pry
               @history.take_lines(-(opts[:tail] || 10), opts[:tail] || 10)
             when opts.present?(:show)
               @history.between(opts[:show])
+            when opts.present?(:current)
+              return unless Pry.history.session_start < Pry.history.to_a.count
+              @history.after(Pry.history.session_start, Pry.history.to_a.count)
             else
               @history
             end
@@ -118,3 +122,6 @@ class Pry
     end
   end
 end
+
+#puts Pry.methods - Module.methods
+#Pry.config.hooks.add_hook(:when_started, :hist_) { Pry::DefaultCommands::Hist.instance_variable_set :@session_start, Pry.history.to_a.size }

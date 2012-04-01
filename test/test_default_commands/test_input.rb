@@ -274,6 +274,25 @@ describe "Pry::DefaultCommands::Input" do
       end
       str_output.string.should =~ /hello\n.*world/
     end
+    
+    it 'should give you the values of the session only when asking for current history' do
+      save = @hist.dup
+      Pry.history.clear
+      @hist.push "foo"
+      @hist.push "bar"
+      @hist.push "hello"
+      @hist.push "world"
+      Pry.history.session_start = 1
+      str_output = StringIO.new
+      redirect_pry_io(InputTester.new("hist --current", "exit-all"), str_output) do
+          pry
+      end
+      str_output.string.split(/\n/).size.should == 3
+      Pry.history.clear
+      @history = Pry.history
+      @history.push "hello"
+      @history.push "world"
+    end
 
     it 'should replay history correctly (single item)' do
       o = Object.new
