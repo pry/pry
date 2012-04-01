@@ -15,9 +15,14 @@ class Pry
     # {CommandSet#command} or {CommandSet#create_command}).
     class << self
       attr_accessor :block
-      attr_accessor :name
       attr_writer :description
       attr_writer :command_options
+      attr_writer :match
+
+      def match(arg=nil)
+        @match = arg if arg
+        @match
+      end
 
       # Define or get the command's description
       def description(arg=nil)
@@ -44,19 +49,23 @@ class Pry
 
     # Make those properties accessible to instances
     def name; self.class.name; end
+    def match; self.class.match; end
     def description; self.class.description; end
     def block; self.class.block; end
     def command_options; self.class.options; end
     def command_name; command_options[:listing]; end
 
     class << self
+      def name
+        super.to_s == "" ? "#<class(Pry::Command #{match.inspect})>" : super
+      end
       def inspect
-        "#<class(Pry::Command #{name.inspect})>"
+        name
       end
 
       # Create a new command with the given properties.
       #
-      # @param String name  the name of the command
+      # @param String/Regex match  the thing that triggers this command
       # @param String description  the description to appear in {help}
       # @param Hash options  behavioural options (@see {Pry::CommandSet#command})
       # @param Module helpers  a module of helper functions to be included.
@@ -64,10 +73,10 @@ class Pry
       #
       # @return Class (a subclass of Pry::Command)
       #
-      def subclass(name, description, options, helpers, &block)
+      def subclass(match, description, options, helpers, &block)
         klass = Class.new(self)
         klass.send(:include, helpers)
-        klass.name = name
+        klass.match = match
         klass.description = description
         klass.command_options = options
         klass.block = block
@@ -117,7 +126,7 @@ class Pry
         prefix = convert_to_regex(Pry.config.command_prefix)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
-        /^#{prefix}#{convert_to_regex(name)}(?!\S)/
+        /^#{prefix}#{convert_to_regex(match)}(?!\S)/
       end
 
       def convert_to_regex(obj)
@@ -232,12 +241,12 @@ class Pry
     # the current scope.
     # @param [String] command_name_match The name of the colliding command.
     # @param [Binding] target The current binding context.
-    def check_for_command_name_collision(command_name_match, arg_string)
-      collision_type = target.eval("defined?(#{command_name_match})")
+    def check_for_command_collision(command_match, arg_string)
+      collision_type = target.eval("defined?(#{command_match})")
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
 
       if collision_type
-        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Calling Pry command '#{command_name_match}'," +
+        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Calling Pry command '#{command_match}'," +
                                                           "which conflicts with a #{collision_type}.\n\n"
       end
     rescue Pry::RescuableException
@@ -247,8 +256,8 @@ class Pry
     #
     # @param String  the line of input
     # @return [
-    #   String   the command name used, or portion of line that matched the command_regex
-    #   String   a string of all the arguments (i.e. everything but the name)
+    #   String   the portion of the line that matched with the Command match
+    #   String   a string of all the arguments (i.e. everything but the match)
     #   Array    the captures caught by the command_regex
     #   Array    args the arguments got by splitting the arg_string
     # ]
@@ -284,9 +293,9 @@ class Pry
     # @param String  the line to process
     # @return  Object or Command::VOID_VALUE
     def process_line(line)
-      command_name, arg_string, captures, args = tokenize(line)
+      command_match, arg_string, captures, args = tokenize(line)
 
-      check_for_command_name_collision(command_name, arg_string) if Pry.config.collision_warning
+      check_for_command_collision(command_match, arg_string) if Pry.config.collision_warning
 
       self.arg_string = arg_string
       self.captures = captures
@@ -334,14 +343,14 @@ class Pry
       unless dependencies_met?
         gems_needed = Array(command_options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
-        output.puts "\nThe command '#{name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+        output.puts "\nThe command '#{command_name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
         output.puts "-"
-        output.puts "Type `install-command #{name}` to install the required gems and activate this command."
+        output.puts "Type `install-command #{command_name}` to install the required gems and activate this command."
         return void
       end
 
       if command_options[:argument_required] && args.empty?
-        raise CommandError, "The command '#{name}' requires an argument."
+        raise CommandError, "The command '#{command_name}' requires an argument."
       end
 
       ret = call_with_hooks(*args)
@@ -506,6 +515,6 @@ class Pry
     #       gist_method
     #     end
     #   end
-    def process; raise CommandError, "command '#{name}' not implemented" end
+    def process; raise CommandError, "command '#{command_name}' not implemented" end
   end
 end

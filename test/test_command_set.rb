@@ -127,7 +127,7 @@ describe Pry::CommandSet do
       @set.command('foo', 'stuff') { run = true }
 
       @set.alias_command 'bar', 'foo'
-      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].match.should == 'bar'
       @set.commands['bar'].description.should == 'Alias for `foo`'
 
       @set.run_command @ctx, 'bar'
@@ -139,7 +139,7 @@ describe Pry::CommandSet do
       @set.command('foo', 'stuff') { run = true }
 
       @set.alias_command 'bar', 'foo', :desc => "tobina"
-      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].match.should == 'bar'
       @set.commands['bar'].description.should == "tobina"
 
       @set.run_command @ctx, 'bar'
@@ -151,7 +151,7 @@ describe Pry::CommandSet do
       @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
       @set.alias_command 'bar', 'foo1'
-      @set.commands['bar'].name.should == 'bar'
+      @set.commands['bar'].match.should == 'bar'
       @set.commands['bar'].description.should == 'Alias for `foo1`'
 
       @set.run_command @ctx, 'bar'
