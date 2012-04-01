@@ -1,7 +1,7 @@
 class Object
   # Start a Pry REPL.  This method only differs from Pry.start in that it
-  # will accept a options hash now without the need for a binding and
-  # will default to the binding `self`.  POSSIBLE DEPRICATION WARNING:
+  # assumes that the target is `self`.  It also accepts and passses the same
+  # exact options hash that Pry.start accepts. POSSIBLE DEPRICATION WARNING:
   # In the future the backwards compatibility with pry(binding) could be
   # removed so please properly use Object.pry or if you use pry(binding)
   # switch Pry.start(binding).
