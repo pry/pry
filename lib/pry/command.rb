@@ -14,7 +14,7 @@ class Pry
     # Properties of the command itself (as passed as arguments to
     # {CommandSet#command} or {CommandSet#create_command}).
     class << self
-      attr_accessor :block
+      attr_writer :block
       attr_writer :description
       attr_writer :command_options
       attr_writer :match
@@ -44,6 +44,10 @@ class Pry
       def banner(arg=nil)
         @banner = arg if arg
         @banner || description
+      end
+
+      def block
+        @block || instance_method(:process) && instance_method(:process)
       end
     end
 

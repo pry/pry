@@ -618,5 +618,9 @@ describe "Pry::Command" do
      it "should allow creating custom sub-classes of Pry::Command" do
        mock_pry("my---test").should =~ /my-testmy-test/
      end
+
+     it "should show the source of the process method" do
+       mock_pry("show-command my-test").should =~ /output.puts command_name/
+     end
    end
  end
