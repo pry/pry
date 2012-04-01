@@ -1,5 +1,6 @@
 require "pry/default_commands/ls"
 require "pry/default_commands/cd"
+require "pry/default_commands/find_method"
 
 class Pry
   module DefaultCommands
@@ -7,6 +8,7 @@ class Pry
     Context = Pry::CommandSet.new do
       import Ls
       import Cd
+      import FindMethod
 
       command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
         file, line_num = file_and_line_from_binding(target)
