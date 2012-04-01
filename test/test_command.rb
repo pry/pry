@@ -594,4 +594,29 @@ describe "Pry::Command" do
        end
      end
    end
+
+   describe "commands made with custom sub-classes" do
+     before do
+
+       class MyTestCommand < Pry::ClassCommand
+         match /my-*test/
+         description "So just how many sound technicians does it take to change a lightbulb? 1? 2? 3? 1-2-3? Testing?"
+         options :shellwords => false, :listing => "my-test"
+
+         def process
+           output.puts command_name * 2
+         end
+       end
+
+       Pry.commands.add_command MyTestCommand
+     end
+
+     after do
+       Pry.commands.delete 'my-test'
+     end
+
+     it "should allow creating custom sub-classes of Pry::Command" do
+       mock_pry("my---test").should =~ /my-testmy-test/
+     end
+   end
  end
