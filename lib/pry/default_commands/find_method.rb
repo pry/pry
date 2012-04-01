@@ -1,3 +1,5 @@
+require "io/console"
+
 class Pry
   module DefaultCommands
     FindMethod = Pry::CommandSet.new do
@@ -58,13 +60,34 @@ class Pry
             def target_self_eval(pattern, opts)
                 obj = target_self
                 if opts.name?
-                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "(#{obj.to_s})##{x.name}"}
+                    #return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "(#{obj.to_s})##{x.name}"}
+                    header = "(#{obj}):  "
+                    ret = [header + "\n"]
+                    Pry::Method.all_from_obj(obj).each do |x|
+                        if x.name =~ pattern
+                            add = (' ' * header.length) + x.name
+                            begin
+                                add += "\x1A\x1" if x.alias?
+                            rescue EOFError
+                            end
+                            #add += "\t\t(Alias)" if x.alias?
+                            ret << add
+                        end
+                    end
+                    max = ret.map(&:length).max
+                    ret.map! do |x|
+                        str = " " * ((max - x.length) + 2)
+                        str += "\e[33;1m(Alias)\e[0m"
+                        x.sub("\x1A\x1", str)
+                    end
+                    return ret
                 elsif opts.content?
                     ret = []
                     Pry::Method.all_from_obj(obj).each do |x|
                         begin
                             if x.source =~ pattern
-                                ret << "(#{obj.to_s})##{x.name}:\t" + colorize_code((x.source.split(/\n/).select {|y| y =~ pattern}).join("\n\t"))
+                                header = "(#{obj.to_s})##{x.name}:  "
+                                ret << header + colorize_code((x.source.split(/\n/).select {|y| y =~ pattern}).join("\n\n#{' ' * header.length}" ))
                             end
                         rescue Exception
                             next
@@ -84,7 +107,8 @@ class Pry
                 (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |meth|
                 begin
                     if meth.source =~ pattern && !meth.alias?
-                        meths << "#{klass}##{meth.name}: " + colorize_code((meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n\t"))
+                        header = "#{klass}##{meth.name}:  "
+                        meths <<  header + colorize_code((meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n#{' ' * header.length}"))
                     end
                 rescue Exception
                     next
@@ -95,19 +119,39 @@ class Pry
                 klass.constants.each do |klazz|
                     meths += ((res = content_search(pattern, klass.const_get(klazz), current)) ? res : [])
                 end
-                return meths.flatten
+                return meths.uniq.flatten
             end
                     
             def name_search(regex, klass, current=[])
                 return unless(klass.is_a? Module)
                 return if current.include? klass
                 current << klass
+                header = "\e[1;34;4m#{klass.name}\e[0;24m" + " \e[1m{\e[0m\n\n"
                 meths = []
-                (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each {|x| meths << "#{klass}##{x.name}" if x.name =~ regex }
-                klass.constants.each do |x|
-                    meths += ((res = name_search(regex, klass.const_get(x), current)) ? res : [])
+                (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |x|
+                   if x.name =~ regex
+                        meths << "#{' ' * (header.length - 25)}#{x.name}" 
+                        #begin
+                        #    meths[-1] += "\x1A" if x.alias?
+                        #rescue Exception
+                        #end
+                   end
+                    
                 end
-                return meths.flatten
+                #max = meths.map(&:length).max
+                #meths.map! do |x|
+                #    x.sub("\x1A", ((' ' * ((max - x.length) + 2)) + "\e[33m(Alias)\e[0m"))
+                #end
+                meths.unshift header
+                meths << "\e[1m}\e[0m\n\n"
+                klass.constants.each do |x|
+                    begin
+                        meths << ((res = name_search(regex, klass.const_get(x), current)) ? res : [])
+                    rescue Exception
+                        next
+                    end
+                end
+                return meths.uniq.flatten
             end 
             
         end
