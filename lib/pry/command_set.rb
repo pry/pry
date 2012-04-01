@@ -152,6 +152,12 @@ class Pry
       @commands.each(&block)
     end
 
+    # Add a given command object to this set.
+    # @param Command the subclass of Pry::Command you wish to add.
+    def add_command(command)
+      commands[command.match] = command
+    end
+
     # Removes some commands from the set
     # @param [Array<String>] searches the matches or listings of the commands to remove
     def delete(*searches)
