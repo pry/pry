@@ -444,8 +444,8 @@ describe Pry do
           str_output.string.should =~ /20/
         end
 
-        it "should error if more than one argument is passed to Object#pry" do
-          lambda { pry(20, :input => Readline) }.should.raise ArgumentError
+        it "should raise if more than two arguments are passed to Object#pry" do
+          lambda { pry(20, :quiet, :input => Readline) }.should.raise ArgumentError
         end
       end
 
