@@ -525,16 +525,20 @@ class Pry
         self.input = input_stack.pop
       end
       retry
-    # We want to catch exceptions that happen in readline and abort completely,
-    # otherwise we'll likely go round and round the repl-loop and fail every time.
     rescue RescuableException => e
-      puts "Error: #{e.message}"
-      puts "FATAL: Pry failed to get user input using `#{input.inspect}`."
-      puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
-      puts "  Pry.config.input = STDIN"
-      puts "  Pry.config.output = STDOUT"
-      puts "  binding.pry"
-      throw(:breakout)
+      # Temp fix, perhaps we should also send a 'raise' like message?
+      if e.is_a?(Interrupt)
+        output.puts "\n"
+        return ''
+      else
+        puts "Error: #{e.message}"
+        puts "FATAL: Pry failed to get user input using `#{input.inspect}`."
+        puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
+        puts "  Pry.config.input = STDIN"
+        puts "  Pry.config.output = STDOUT"
+        puts "  binding.pry"
+        throw(:breakout)
+      end
     end
   end
   private :handle_read_errors
