@@ -10,14 +10,25 @@ class Object
   # explicit receiver and one parameter; this will start a Pry
   # session on the parameter.
   # @param [Object, Binding] target The receiver of the Pry session.
+  # @param [Symbol, Symbol] :quiet silences, anything else allows whereami.
   # @example First form
   #   "dummy".pry
   # @example Second form
   #    pry "dummy"
   # @example Start a Pry session on current self (whatever that is)
   #   pry
-  def pry(target=self)
-    Pry.start(target)
+  # @example Start a Pry session on a binding without whereami
+  #   binding.pry :quiet
+
+  def pry(target=self, quiet = nil)
+    if target == :quiet
+      quiet, target = true, self
+    else
+      # Only :quiet makes it quiet, okay....
+      quiet = quiet == :quiet ? true : false
+    end
+
+    Pry.start(target, :quiet => quiet)
   end
 
   # Return a binding object for the receiver.
