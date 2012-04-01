@@ -275,7 +275,7 @@ describe "Pry::DefaultCommands::Input" do
       str_output.string.should =~ /hello\n.*world/
     end
     
-    it 'should give you the values of the session only when asking for current history' do
+    it 'should give you the values of the session only' do
       save = @hist.dup
       Pry.history.clear
       @hist.push "foo"

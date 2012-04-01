@@ -22,8 +22,8 @@ class Pry
                     if !klass.is_a?(Module)
                         klass = klass.class
                     end
-                else    
-                    klass = eval target_self.pretty_inspect
+                else
+                    klass = (target_self.is_a?(Module)) ? target_self : target_self.class
                 end
                 if opts.name?
                     to_put = name_search(pattern, klass)

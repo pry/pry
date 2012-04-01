@@ -2,7 +2,7 @@ class Pry
   # The History class is responsible for maintaining the user's input history, both
   # internally and within Readline.
   class History
-    attr_accessor :loader, :saver, :pusher, :clearer
+    attr_accessor :loader, :saver, :pusher, :clearer, :session_start
 
     def initialize
       @history = []
@@ -26,6 +26,7 @@ class Pry
         @history << line.chomp
       end
       @saved_lines = @history.length
+      @session_start = @saved_lines
     end
 
     # Write this session's history using `History.saver`.
@@ -56,6 +57,7 @@ class Pry
       @clearer.call
       @history = []
       @saved_lines = 0
+      @session_start = 0
     end
 
     # Return an Array containing all stored history.

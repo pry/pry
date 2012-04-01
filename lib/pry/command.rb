@@ -179,6 +179,7 @@ class Pry
     # @example
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
+        p args
       complete_string = "#{command_string} #{args.join(" ")}".rstrip
       command_set.process_line(complete_string, context)
     end
