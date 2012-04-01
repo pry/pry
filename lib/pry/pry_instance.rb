@@ -347,7 +347,17 @@ class Pry
     current_prompt = select_prompt(eval_string, target)
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
-    val = readline("#{current_prompt}#{indentation}")
+    begin
+      val = readline("#{current_prompt}#{indentation}")
+
+    # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
+    # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
+    # from within Readline.
+    rescue Interrupt => e
+      output.puts ""
+      eval_string.replace("")
+      return
+    end
 
     # invoke handler if we receive EOF character (^D)
     if !val
@@ -525,20 +535,23 @@ class Pry
         self.input = input_stack.pop
       end
       retry
+
+    # Interrupts are handled in r() because they need to tweak eval_string
+    # TODO: Refactor this baby.
+    rescue Interrupt
+      raise
+
+    # If we get a random error when trying to read a line we don't want to automatically
+    # retry, as the user will see a lot of error messages scroll past and be unable to do
+    # anything about it.
     rescue RescuableException => e
-      # Temp fix, perhaps we should also send a 'raise' like message?
-      if e.is_a?(Interrupt)
-        output.puts "\n"
-        return ''
-      else
-        puts "Error: #{e.message}"
-        puts "FATAL: Pry failed to get user input using `#{input.inspect}`."
-        puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
-        puts "  Pry.config.input = STDIN"
-        puts "  Pry.config.output = STDOUT"
-        puts "  binding.pry"
-        throw(:breakout)
-      end
+      puts "Error: #{e.message}"
+      puts "FATAL: Pry failed to get user input using `#{input.inspect}`."
+      puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
+      puts "  Pry.config.input = STDIN"
+      puts "  Pry.config.output = STDOUT"
+      puts "  binding.pry"
+      throw(:breakout)
     end
   end
   private :handle_read_errors
