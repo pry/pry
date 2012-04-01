@@ -34,9 +34,9 @@ class Pry
                 end
                 1
                 if to_put.flatten == []
-                    puts "\e[32;1mNo Methods Matched\e[0m"
+                    puts text.bold("No Methods Matched")
                 else
-                    puts "\e[1mMethods Matched\e[0m"
+                    puts text.bold("Methods Matched")
                     puts "--"
                     puts to_put
                 end
@@ -78,7 +78,7 @@ class Pry
                 return unless(klass.is_a? Module)
                 return if current.include? klass
                 current << klass
-                header = "\e[1;34;4m#{klass.name}\e[0;24m:"
+                header = text.bold("#{klass.name}:")
                 meths = []
                 (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).uniq.each do |x|
                     next if the_methods.include? x.name
@@ -96,7 +96,7 @@ class Pry
                 max = meths.map(&:length).max
                 meths.map! do |x|
                     if x =~ /#{"#A"}/
-                        x = x.sub!("#A|", ((' ' * ((max - x.length) + 3)) + "\e[33m(Alias of ")) + ")\e[0m"
+                        x = x.sub!("#A|", ((' ' * ((max - x.length) + 3)) + text.bold("(Alias of "))) + text.bold(")")
                     end
                     x
                 end
