@@ -18,10 +18,10 @@ class Pry
                 return if args.size < 1
                 pattern = ::Regexp.new args[0]
                 if args[1]
-                    if args[1].is_a?(Module)
-                        klass   = args[1]
+                    if target.eval(args[1]).is_a?(Module)
+                        klass   = target.eval args[1]
                     else
-                        klass = args[1].class
+                        klass = target.eval(args[1]).class
                     end
                 else    
                     to_put = target_self_eval(pattern, opts)
@@ -40,7 +40,7 @@ class Pry
                 else
                     to_put = name_search(pattern, klass)
                 end
-                
+                1
                 if to_put.flatten == []
                     puts "\e[31;1mNo Methods Found\e[0m"
                 else
