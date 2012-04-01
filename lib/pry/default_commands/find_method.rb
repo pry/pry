@@ -27,9 +27,9 @@ class Pry
                 else    
                     to_put = target_self_eval(pattern, opts)
                     if to_put.flatten == []
-                        puts "\e[31;1mNo Methods Found\e[0m"
+                        puts "\e[31;1mNo Methods Matched\e[0m"
                     else
-                        puts "\e[32;1;4mMethods Found\e[0m"
+                        puts "\e[1;4mMethods Matched\e[0m"
                         puts "--"
                         puts to_put
                     end
@@ -44,9 +44,10 @@ class Pry
                 end
                 1
                 if to_put.flatten == []
-                    puts "\e[1mNo Methods Matched\e[0m"
+                    puts "\e[32;1mNo Methods Matched\e[0m"
                 else
-                    puts "\e[1;4;32mMethods Matched\e[0m"
+                    puts "\e[1mMethods Matched\e[0m"
+                    puts "--"
                     puts to_put
                 end
 
@@ -61,7 +62,7 @@ class Pry
             def target_self_eval(pattern, opts)
                 obj = target_self
                 if opts.name?
-                    header = "#{obj.class.to_s}:  "
+                    header = "(#{obj.to_s}):  "
                     ret = []
                     Pry::Method.all_from_obj(obj).each do |x|
                         if x.name =~ pattern
@@ -85,7 +86,7 @@ class Pry
                     Pry::Method.all_from_obj(obj).each do |x|
                         begin
                             if x.source =~ pattern
-                                header = "#{obj.class.to_s}##{x.name}:  "
+                                header = "(#{obj.to_s})##{x.name}:  "
                                 ret << header + colorize_code((x.source.split(/\n/).select {|y| y =~ pattern}).join("\n   " ))
                             end
                         rescue Exception
@@ -94,7 +95,7 @@ class Pry
                     end
                     return ret
                 else
-                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "#{obj.class.to_s}##{x.name}"}
+                    return (Pry::Method.all_from_obj(obj).select {|x| x.name =~ pattern}).map {|x| "#{obj.to_s}##{x.name}"}
                 end
             end
             def content_search(pattern, klass, current=[])
