@@ -187,11 +187,13 @@ class Pry
     # Return a string which, when printed, will rewrite the previous line with
     # the correct indentation. Mostly useful for fixing 'end'.
     #
-    # @param [String] full_line The full line of input, including the prompt.
+    # @param [String] prompt The user's prompt
+    # @param [String] code   The code the user just typed in.
     # @param [Fixnum] overhang (0) The number of chars to erase afterwards (i.e.,
     #   the difference in length between the old line and the new one).
     # @return [String]
-    def correct_indentation(full_line, overhang=0)
+    def correct_indentation(prompt, code, overhang=0)
+      full_line = prompt + code
       if Readline.respond_to?(:get_screen_size)
         _, cols = Readline.get_screen_size
         lines = full_line.length / cols + 1
@@ -211,7 +213,7 @@ class Pry
       end
       whitespace = ' ' * overhang
 
-      "#{move_up}#{CodeRay.scan(full_line, :ruby).term}#{whitespace}#{move_down}"
+      "#{move_up}#{prompt}#{CodeRay.scan(code, :ruby).term}#{whitespace}#{move_down}"
     end
   end
 end
