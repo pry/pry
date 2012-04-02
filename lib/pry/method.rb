@@ -382,7 +382,7 @@ class Pry
     # @return [Boolean]
     def ==(obj)
       if obj.is_a? Pry::Method
-        super
+        obj == @method
       else
         @method == obj
       end
