@@ -211,7 +211,7 @@ class Pry
       end
       whitespace = ' ' * overhang
 
-      "#{move_up}#{full_line}#{whitespace}#{move_down}"
+      "#{move_up}#{CodeRay.scan(full_line, :ruby).term}#{whitespace}#{move_down}"
     end
   end
 end
