@@ -124,4 +124,18 @@ describe "ls" do
       end
     end
   end
+
+  if Pry::Helpers::BaseHelpers.jruby?
+    describe 'on java objects' do
+      it 'should omit java-esque aliases by default' do
+        mock_pry('ls java.lang.Thread.current_thread').should =~ / thread_group /
+        mock_pry('ls java.lang.Thread.current_thread').should.not =~ / getThreadGroup /
+      end
+
+      it 'should include java-esque aliases if requested' do
+        mock_pry('ls java.lang.Thread.current_thread -J').should =~ / thread_group /
+        mock_pry('ls java.lang.Thread.current_thread -J').should =~ / getThreadGroup /
+      end
+    end
+  end
 end
