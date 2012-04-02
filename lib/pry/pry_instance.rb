@@ -377,7 +377,7 @@ class Pry
       original_val = "#{indentation}#{val}"
       indented_val = @indent.indent(val)
 
-      if original_val != indented_val && output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
+      if output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
         output.print @indent.correct_indentation(current_prompt + indented_val, original_val.length - indented_val.length)
         output.flush
       end
