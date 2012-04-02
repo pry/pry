@@ -4,44 +4,82 @@ class Pry
   class Config < OpenStruct
 
     # Get/Set the object to use for input by default by all Pry instances.
+    # Pry.config.input is an option determining the input object - the object from
+    # which Pry retrieves its lines of input. Pry accepts any object that implements the readline method.
+    # This includes IO objects, StringIO, Readline, File and custom objects.
     # @return [#readline] The object to use for input by default by all
     #   Pry instances.
+    # @example
+    #   Pry.config.input = StringIO.new("@x = 10\nexit")
     attr_accessor :input
 
     # Get/Set the object to use for output by default by all Pry instances.
+    # Pry.config.output is an option determining the output object - the object to which
+    # Pry writes its output. Pry accepts any object that implements the puts method. This
+    # includes IO objects, StringIO, File and custom objects.
     # @return [#puts] The object to use for output by default by all
     #   Pry instances.
+    # @example
+    #   Pry.config.output = StringIO.new
     attr_accessor :output
 
     # Get/Set the object to use for commands by default by all Pry instances.
     # @return [Pry::CommandBase] The object to use for commands by default by all
     #   Pry instances.
+    # @example
+    #   Pry.config.commands = Pry::CommandSet.new do
+    #               import_from Pry::Commands, "ls"
+    #
+    #                 command "greet" do |name|
+    #                 output.puts "hello #{name}"
+    #               end
+    #             end
     attr_accessor :commands
 
     # Get/Set the Proc to use for printing by default by all Pry
     # instances.
+    # Two parameters are passed to the print Proc: these are (1) the
+    # output object for the current session and (2) the expression value to print. It is important
+    # that you write to the output object instead of just stdout so that all Pry output can be redirected if necessary.
     # This is the 'print' component of the REPL.
     # @return [Proc] The Proc to use for printing by default by all
     #   Pry instances.
+    # @example
+    #   Pry.config.print = proc { |output, value| output.puts "=> #{value.inspect}" }
     attr_accessor :print
 
+    # Pry.config.exception_handler is an option determining the exception handler object - the
+    # Proc responsible for dealing with exceptions raised by user input to the REPL.
+    # Three parameters are passed to the exception handler Proc: these
+    # are (1) the output object for the current session, (2) the
+    # exception object that was raised inside the Pry session, and (3)
+    # a reference to the associated Pry instance.
     # @return [Proc] The Proc to use for printing exceptions by default by all
     #   Pry instances.
+    # @example
+    #   Pry.config.exception_handler = proc do |output, exception, _|
+    #     output.puts "#{exception.class}: #{exception.message}"
+    #     output.puts "from #{exception.backtrace.first}"
+    #   end
     attr_accessor :exception_handler
 
     # @return [Array] The classes of exception that will not be caught by Pry.
+    # @example
+    #   Pry.config.exception_whitelist = [SystemExit, SignalException]
     attr_accessor :exception_whitelist
 
     # @return [Fixnum] The number of lines of context to show before and after
     #   exceptions, etc.
+    # @example
+    #   Pry.config.default_window_size = 10
     attr_accessor :default_window_size
 
-    # Get/Set the Hash that defines Pry hooks used by default by all Pry
+    # Get/Set the `Pry::Hooks` instance that defines Pry hooks used by default by all Pry
     # instances.
-    # @return [Hash] The hooks used by default by all Pry instances.
+    # @return [Pry::Hooks] The hooks used by default by all Pry instances.
     # @example
-    #   Pry.hooks :before_session => proc { puts "hello" },
-    #     :after_session => proc { puts "goodbye" }
+    #   Pry.config.hooks = Pry::Hooks.new.add_hook(:before_session,
+    #   :default) {  |output, target, _pry_| output.puts "Good morning!" }
     attr_reader :hooks
 
     # FIXME:
@@ -63,10 +101,15 @@ class Pry
     #   Pry.config.input_stack = [StringIO.new("puts 'hello world'\nexit")]
     attr_accessor :input_stack
 
-    # Get the array of Procs to be used for the prompts by default by
+    # Get the array of Procs (or single Proc) to be used for the prompts by default by
     # all Pry instances.
-    # @return [Array<Proc>] The array of Procs to be used for the
+    # Three parameters are passed into the prompt procs, (1) the
+    # object that is the target of the session, (2) the current
+    # nesting level, and (3) a reference to the associated Pry instance. These objects can be used in the prompt, if desired.
+    # @return [Array<Proc>, Proc] The array of Procs to be used for the
     #   prompts by default by all Pry instances.
+    # @example
+    #   Pry.config.prompt = proc { |obj, nest_level, _pry_| "#{obj}:#{nest_level}> " }
     attr_accessor :prompt
 
     # The default editor to use. Defaults to $EDITOR or nano if
