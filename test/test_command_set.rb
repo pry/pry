@@ -80,6 +80,28 @@ describe Pry::CommandSet do
     }.should.raise(Pry::NoCommandError)
   end
 
+  it 'should return command set after import' do
+    run = false
+
+    other_set = Pry::CommandSet.new do
+      command('foo') { run = true }
+      command('bar') {}
+    end
+
+    @set.import(other_set).should == @set
+  end
+
+  it 'should return command set after import_from' do
+    run = false
+
+    other_set = Pry::CommandSet.new do
+      command('foo') { run = true }
+      command('bar') {}
+    end
+
+    @set.import_from(other_set, 'foo').should == @set
+  end
+
   it 'should be able to import some commands from other sets using listing name' do
     run = false
 

@@ -170,22 +170,26 @@ class Pry
     # Imports all the commands from one or more sets.
     # @param [Array<CommandSet>] sets Command sets, all of the commands of which
     #   will be imported.
+    # @return [Pry::CommandSet] Returns the reciever (a command set).
     def import(*sets)
       sets.each do |set|
         commands.merge! set.commands
         helper_module.send :include, set.helper_module
       end
+      self
     end
 
     # Imports some commands from a set
     # @param [CommandSet] set Set to import commands from
     # @param [Array<String>] matches Commands to import
+    # @return [Pry::CommandSet] Returns the reciever (a command set).
     def import_from(set, *matches)
       helper_module.send :include, set.helper_module
       matches.each do |match|
         cmd = set.find_command_by_match_or_listing(match)
         commands[cmd.match] = cmd
       end
+      self
     end
 
     # @param [String, Regexp] match_or_listing The match or listing of a command.
