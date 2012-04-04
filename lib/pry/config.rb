@@ -116,13 +116,17 @@ class Pry
     # for the platform.
     # If `editor` is a String then that string is used as the shell
     # command to invoke the editor. If `editor` is callable (e.g a
-    # Proc) then `file` and `line` are passed in as parameters and the
+    # Proc) then `file`, `line`, and `reloading` are passed in as parameters and the
     # return value of that callable invocation is used as the exact
-    # shell command to invoke the editor.
+    # shell command to invoke the editor. `reloading` indicates whether Pry will be
+    # reloading code after the shell command returns. Any or all of these parameters
+    # can be omitted from the callable's signature.
     # @example String
     #   Pry.config.editor = "emacsclient"
     # @example Callable
     #   Pry.config.editor = proc { |file, line| "emacsclient #{file} +#{line}" }
+    # @example Callable waiting only if reloading
+    #   Pry.config.editor = proc { |file, line, reloading| "subl #{'--wait' if reloading} #{file}:#{line}" }
     # @return [String, #call]
     attr_accessor :editor
 
