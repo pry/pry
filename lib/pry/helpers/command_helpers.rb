@@ -113,10 +113,11 @@ class Pry
         process_yardoc process_rdoc(comment, code_type)
       end
 
-      def invoke_editor(file, line)
+      def invoke_editor(file, line, reloading)
         raise CommandError, "Please set Pry.config.editor or export $VISUAL or $EDITOR" unless Pry.config.editor
         if Pry.config.editor.respond_to?(:call)
-          editor_invocation = Pry.config.editor.call(file, line)
+          args = [file, line, reloading][0...(Pry.config.editor.arity)]
+          editor_invocation = Pry.config.editor.call(*args)
         else
           editor_invocation = "#{Pry.config.editor} #{start_line_syntax_for_editor(file, line)}"
         end
