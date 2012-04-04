@@ -72,17 +72,11 @@ class Pry
 
         def process
           if _pry_.binding_stack.one?
-            # when breaking out of top-level then behave like `exit-all`
-            process_exit_all
+            _pry_.run_command "exit-all #{arg_string}"
           else
             # otherwise just pop a binding and return user supplied value
             process_pop_and_return
           end
-        end
-
-        def process_exit_all
-          _pry_.binding_stack.clear
-          throw(:breakout, target.eval(arg_string))
         end
 
         def process_pop_and_return
@@ -111,4 +105,3 @@ class Pry
     end
   end
 end
-
