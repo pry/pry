@@ -308,6 +308,7 @@ class Pry
     def find_command(val)
       commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
     end
+    alias_method :[], :find_command
 
     # Find the command that the user might be trying to refer to.
     #
