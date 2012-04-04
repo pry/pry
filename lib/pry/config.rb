@@ -112,8 +112,8 @@ class Pry
     #   Pry.config.prompt = proc { |obj, nest_level, _pry_| "#{obj}:#{nest_level}> " }
     attr_accessor :prompt
 
-    # The default editor to use. Defaults to $EDITOR or nano if
-    # $EDITOR is not defined.
+    # The default editor to use. Defaults to $VISUAL, $EDITOR, or a sensible fallback
+    # for the platform.
     # If `editor` is a String then that string is used as the shell
     # command to invoke the editor. If `editor` is callable (e.g a
     # Proc) then `file` and `line` are passed in as parameters and the

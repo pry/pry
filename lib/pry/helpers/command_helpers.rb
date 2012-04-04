@@ -114,7 +114,7 @@ class Pry
       end
 
       def invoke_editor(file, line)
-        raise CommandError, "Please set Pry.config.editor or export $EDITOR" unless Pry.config.editor
+        raise CommandError, "Please set Pry.config.editor or export $VISUAL or $EDITOR" unless Pry.config.editor
         if Pry.config.editor.respond_to?(:call)
           editor_invocation = Pry.config.editor.call(file, line)
         else
