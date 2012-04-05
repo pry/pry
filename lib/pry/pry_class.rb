@@ -351,7 +351,7 @@ class Pry
   # @param [Object] target The object to get a `Binding` object for.
   # @return [Binding] The `Binding` object.
   def self.binding_for(target)
-    if target.is_a?(Binding)
+    if Binding === target
       target
     else
       if TOPLEVEL_BINDING.eval('self') == target
