@@ -30,7 +30,8 @@ class Pry
           opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
           opt.on :l, "locals", "Show locals, including those provided by Pry (in red)"
 
-          opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple)"
+          opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" +
+          " " * 32 +              "Constants that are pending autoload? are also shown (in yellow)."
 
           opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
 
@@ -206,7 +207,7 @@ class Pry
 
         def format_constants(mod, constants)
           constants.sort_by(&:downcase).map do |name|
-            if const = (!mod.autoload?(name) && mod.const_get(name) rescue nil)
+            if const = (!mod.autoload?(name) && (mod.const_get(name) || true) rescue nil)
               if (const < Exception rescue false)
                 color(:exception_constant, name)
               elsif (Module === mod.const_get(name) rescue false)
@@ -214,6 +215,8 @@ class Pry
               else
                 color(:constant, name)
               end
+            else
+              color(:unloaded_constant, name)
             end
           end
         end

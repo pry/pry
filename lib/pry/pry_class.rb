@@ -284,9 +284,10 @@ class Pry
       :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
       :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
 
-      :constant_color           => :default,       # e.g. VERSION, ARGF
+      :constant_color           => :default,     # e.g. VERSION, ARGF
       :class_constant_color     => :blue,        # e.g. Object, Kernel
       :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
+      :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state
 
       # What should separate items listed by ls? (TODO: we should allow a columnar layout)
       :separator                => "  ",
