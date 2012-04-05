@@ -10,24 +10,61 @@ class Pry
       import Cd
       import FindMethod
 
-      command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
-        file, line_num = file_and_line_from_binding(target)
-        i_num = num ? num.to_i : 5
+      create_command "whereami" do
+        description "Show code surrounding the current context."
+        banner <<-BANNER
+          Usage: whereami [OPTIONS]
+        BANNER
 
-        if file != Pry.eval_path && (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
-          raise CommandError, "Cannot find local context. Did you use binding.pry?"
+        def options(opts)
+          opts.on :m, 'Show the source code of the current method in context.'
         end
 
-        set_file_and_dir_locals(file)
+        def process          
+          method = Pry::Method.from_binding(target)
+          
+          if show_method?
+            file   = method.source_file
+            start  = method.source_range.begin
+            finish = method.source_range.end - 1
+            marker = binding.eval("__LINE__")
+          else
+            file   = target.eval("__FILE__")
+            start  = target.eval("__LINE__") 
+            finish = (args.first && args.first.to_i) || 5
+            marker = start
+          end
 
-        method = Pry::Method.from_binding(target)
-        method_description = method ? " in #{method.name_with_owner}" : ""
-        code = Pry::Code.from_file(file).around(line_num, i_num)
-        
-        if !code.empty?
-          output.puts "\n#{text.bold('From:')} #{file} @ line #{line_num}#{method_description}:\n\n"
-          output.puts code.with_line_numbers.with_marker(line_num)
-          output.puts
+          if invalid_file?(file)
+            raise Pry::CommandError, 
+            "Cannot find local context. Did you use binding.pry?"
+          end
+
+          # TODO: refactor.
+          if show_method?
+            code = Pry::Code.from_file(file).between(start, finish)
+          else
+            code = Pry::Code.from_file(file).around(start, finish)
+          end
+
+          desc = (method && method.name_with_owner) || ""
+          
+          if !code.empty?
+            output.puts "\n#{text.bold('From:')} #{file} @ line #{start}#{desc}:\n\n"
+            output.puts code.with_line_numbers.with_marker(marker)
+            output.puts
+          end
+        end
+
+        private 
+
+        def show_method?
+          opts[:m]
+        end
+
+        def invalid_file?(file)
+          file != Pry.eval_path && 
+          (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
         end
       end
 
