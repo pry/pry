@@ -16,17 +16,15 @@ class Pry
           Usage: whereami [OPTIONS]
         BANNER
 
-        def options(opts)
-          opts.on :m, 'Show the source code of the current method in context.'
+        def setup
+          @method = Pry::Method.from_binding(target)
         end
 
-        def process          
-          method = Pry::Method.from_binding(target)
-          
+        def process
           if show_method?
-            file   = method.source_file
-            start  = method.source_range.begin
-            finish = method.source_range.end - 1
+            file   = @method.source_file
+            start  = @method.source_range.begin
+            finish = @method.source_range.end - 1
             marker = binding.eval("__LINE__")
           else
             file   = target.eval("__FILE__")
@@ -47,7 +45,7 @@ class Pry
             code = Pry::Code.from_file(file).around(start, finish)
           end
 
-          desc = (method && method.name_with_owner) || ""
+          desc = (@method && @method.name_with_owner) || ""
           
           if !code.empty?
             output.puts "\n#{text.bold('From:')} #{file} @ line #{start}#{desc}:\n\n"
@@ -59,7 +57,7 @@ class Pry
         private 
 
         def show_method?
-          opts[:m]
+          @method && !@method.instance_of?(Pry::Method::Disowned)
         end
 
         def invalid_file?(file)
