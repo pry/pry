@@ -119,7 +119,7 @@ class Pry
           args = [file, line, reloading][0...(Pry.config.editor.arity)]
           editor_invocation = Pry.config.editor.call(*args)
         else
-          editor_invocation = "#{Pry.config.editor} #{start_line_syntax_for_editor(file, line)}"
+          editor_invocation = "#{Pry.config.editor} #{blocking_flag_for_editor(reloading)} #{start_line_syntax_for_editor(file, line)}"
         end
         return nil unless editor_invocation
 
@@ -139,6 +139,22 @@ class Pry
         end
       end
 
+      # Some editors that run outside the terminal allow you to control whether or
+      # not to block the process from which they were launched (in this case, Pry).
+      # For those editors, return the flag that produces the desired behavior.
+      def blocking_flag_for_editor(block)
+        case Pry.config.editor
+        when /^emacsclient/
+          '--no-wait' unless block
+        when /^[gm]vim/
+          '--nofork' if block
+        when /^jedit/
+          '-wait' if block
+        when /^mate/, /^subl/
+          '-w' if block
+        end
+      end
+
       # Return the syntax for a given editor for starting the editor
       # and moving to a particular line within that file
       def start_line_syntax_for_editor(file_name, line_number)
@@ -155,7 +171,7 @@ class Pry
         when /^mate/, /^geany/
           "-l #{line_number} #{file_name}"
         when /^subl/
-          "-w #{ file_name }:#{ line_number }"
+          "#{file_name}:#{line_number}"
         when /^uedit32/
           "#{file_name}/#{line_number}"
         when /^jedit/
