@@ -77,18 +77,19 @@ class Pry
         end
       end
 
-      create_command "show-method" do
-        description "Show the source for METH. Aliases: $, show-source"
+      create_command "show-source" do
+        description "Show the source for METH or CLASS. Aliases: $, show-method"
 
         banner <<-BANNER
-          Usage: show-method [OPTIONS] [METH]
+          Usage: show-method [OPTIONS] [METH|CLASS]
           Aliases: $, show-source
 
-          Show the source for method METH. Tries instance methods first and then methods by default.
+          Show the source for method METH or CLASS. Tries instance methods first and then methods by default.
 
-          e.g: `show-method hello_method`
-          e.g: `show-method -m hello_method`
-          e.g: `show-method Pry#rep`
+          e.g: `show-source hello_method`
+          e.g: `show-source -m hello_method`
+          e.g: `show-source Pry#rep`
+          e.g: `show-source Pry`
 
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
@@ -104,7 +105,31 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        def process
+        def module?(name)
+          begin
+            kind = target.eval("defined?(#{name})")
+          rescue Pry::RescuableException
+          end
+          !!(kind == "constant" && target.eval(name).is_a?(Module))
+        end
+
+        def method?
+          !!method_object
+        rescue CommandError
+          false
+        end
+
+        def process(name)
+          if module?(name)
+            code = process_module(name)
+          else method?
+            code = process_method
+          end
+
+          render_output(code, opts)
+        end
+
+        def process_method
           raise CommandError, "Could not find method source" unless method_object.source
 
           output.puts make_header(method_object)
@@ -112,10 +137,33 @@ class Pry
           output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"
           output.puts
 
-          code = Code.from_method(method_object, start_line).
+          Code.from_method(method_object, start_line).
                    with_line_numbers(use_line_numbers?)
+        end
 
-          render_output(code, opts)
+        def find_method_source_location(klass)
+          ims = Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)
+
+          ims.each do |m|
+            break m.source_location if m.source_location
+          end
+        end
+
+        def process_module(name)
+          klass = target.eval(name)
+
+          mod_type_string = klass.class.to_s.downcase
+
+          file, line = find_method_source_location(klass)
+
+          raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
+          immediate_class_name = name.split(/::/).last
+          class_regex = /#{mod_type_string}\s*(\w*)(::)?#{immediate_class_name}/
+          all_lines = File.readlines(file)
+          search_lines = all_lines[0..(line - 2)]
+          idx = search_lines.rindex { |v| class_regex =~ v }
+          code = Pry.new(:input => StringIO.new(all_lines[idx..-1].join), :prompt => proc {""}, :hooks => Pry::Hooks.new).r
+          Code.new(code).to_s
         end
 
         def use_line_numbers?
@@ -131,8 +179,8 @@ class Pry
         end
       end
 
-      alias_command "show-source", "show-method"
-      alias_command "$", "show-method"
+      alias_command "show-method", "show-source"
+      alias_command "$", "show-source"
 
       command "show-command", "Show the source for CMD." do |*args|
         target = target()
