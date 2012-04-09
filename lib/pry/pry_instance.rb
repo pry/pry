@@ -675,7 +675,7 @@ class Pry
     case ex.message
     when /unexpected (\$end|end-of-file|END_OF_FILE)/, # mri, jruby, ironruby
         /unterminated (quoted string|string|regexp) meets end of file/, # "quoted string" is ironruby
-        /missing 'end' for/, /: expecting '[})\]]'$/, /can't find string ".*" anywhere before EOF/, /expecting keyword_end/ # rbx
+        /missing 'end' for/, /: expecting '[})\]]'$/, /can't find string ".*" anywhere before EOF/, /: expecting keyword_end/ # rbx
       true
     else
       false
