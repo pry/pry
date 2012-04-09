@@ -88,8 +88,9 @@ class Pry
           temp_file do |f|
             f.puts(content)
             f.flush
-            invoke_editor(f.path, line)
-            if !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
+            reload = !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
+            invoke_editor(f.path, line, reload)
+            if reload
               silence_warnings do
                 eval_string.replace(File.read(f.path))
               end
@@ -138,10 +139,11 @@ class Pry
 
           line = opts[:l].to_i if opts.present?(:line)
 
-          invoke_editor(file_name, line)
+          reload = opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
+          invoke_editor(file_name, line, reload)
           set_file_and_dir_locals(file_name)
 
-          if opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
+          if reload
             silence_warnings do
               TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
             end
@@ -207,7 +209,7 @@ class Pry
           temp_file do |f|
             f.puts lines.join
             f.flush
-            invoke_editor(f.path, 0)
+            invoke_editor(f.path, 0, true)
 
             if @method.alias?
               with_method_transaction(original_name, @method.owner) do
@@ -223,9 +225,10 @@ class Pry
         def process_file
           file, line = extract_file_and_line
 
-          invoke_editor(file, opts["no-jump"] ? 0 : line)
+          reload = !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
+          invoke_editor(file, opts["no-jump"] ? 0 : line, reload)
           silence_warnings do
-            load file unless opts.present?(:'no-reload') || Pry.config.disable_auto_reload
+            load file if reload
           end
         end
 
