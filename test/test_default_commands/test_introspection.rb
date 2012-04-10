@@ -83,6 +83,23 @@ describe "Pry::DefaultCommands::Introspection" do
           tf.close(true)
         end
       end
+
+      describe do
+        before do
+          @reloading = nil
+          Pry.config.editor = lambda do |file, line, reloading|
+            @file = file; @line = line; @reloading = reloading
+            nil
+          end
+        end
+
+        it "should pass the editor a reloading arg" do
+          mock_pry("edit foo.rb")
+          @reloading.should == true
+          mock_pry("edit -n foo.rb")
+          @reloading.should == false
+        end
+      end
     end
 
     describe "with --ex" do
@@ -610,6 +627,28 @@ describe "Pry::DefaultCommands::Introspection" do
           X.new.c.should == :kindaaa
         end
       end
+
+      describe 'with three-arg editor' do
+        before do
+          @old_editor = Pry.config.editor
+          @file, @line, @reloading = nil, nil, nil
+          Pry.config.editor = lambda do |file, line, reloading|
+            @file = file; @line = line; @reloading = reloading
+            nil
+          end
+        end
+        after do
+          Pry.config.editor = @old_editor
+        end
+
+        it "should pass the editor a reloading arg" do
+          mock_pry('edit-method X.x')
+          @reloading.should == true
+          mock_pry('edit-method -n X.x')
+          @reloading.should == false
+        end
+      end
+
     end
   end
 
