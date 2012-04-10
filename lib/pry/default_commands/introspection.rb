@@ -49,33 +49,39 @@ class Pry
           render_output(doc, opts)
         end
 
+        def extract_doc_from(file_name, line)
+          if file_name == Pry.eval_path
+            lines = Pry.line_buffer.drop(1)
+          else
+            lines = File.readlines(file_name)
+          end
+
+          buffer = ""
+          lines[0..(line - 2)].each do |line|
+            # Add any line that is a valid ruby comment,
+            # but clear as soon as we hit a non comment line.
+            if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+              buffer << line.lstrip
+            else
+              buffer.replace("")
+            end
+          end
+
+          buffer
+        end
+
         def process_module(name)
           klass = target.eval(name)
           file_name, line = Pry::Code.module_source_location(klass)
 
           if file_name.nil?
-            if from_yard = YARD::Registry.at(name)
+            if Pry.has_pry_doc && from_yard = YARD::Registry.at(name)
               buffer = from_yard.docstring
             else
               raise CommandError, "Can't find module's source location"
             end
           else
-            if file_name == Pry.eval_path
-              lines = Pry.line_buffer.drop(1)
-            else
-              lines = File.readlines(file_name)
-            end
-
-            buffer = ""
-            lines[0..(line - 2)].each do |line|
-              # Add any line that is a valid ruby comment,
-              # but clear as soon as we hit a non comment line.
-              if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-                buffer << line.lstrip
-              else
-                buffer.replace("")
-              end
-            end
+            buffer = extract_doc_from(file_name, line)
           end
 
           # blank line, cos it looks nicer
