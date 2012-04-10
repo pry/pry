@@ -3,9 +3,28 @@ require 'tempfile'
 class Pry
   module DefaultCommands
 
+    # For show-doc and show-source
+    module ModuleIntrospectionHelpers
+      def module?(name)
+        begin
+          kind = target.eval("defined?(#{name})")
+        rescue Pry::RescuableException
+        end
+        !!(kind == "constant" && target.eval(name).is_a?(Module))
+      end
+
+      def method?
+        !!method_object
+      rescue CommandError
+        false
+      end
+    end
+
     Introspection = Pry::CommandSet.new do
 
-      create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do |*args|
+      create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do
+        include ModuleIntrospectionHelpers
+
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
           Show the comments above method METH. Tries instance methods first and then methods by default.
@@ -19,7 +38,60 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        def process
+        def process(name)
+
+          if module?(name)
+            doc = process_module(name)
+          else method?
+            doc = process_method
+          end
+
+          render_output(doc, opts)
+        end
+
+        def process_module(name)
+          klass = target.eval(name)
+          file_name, line = Pry::Code.module_source_location(klass)
+
+          if file_name.nil?
+            if from_yard = YARD::Registry.at(name)
+              buffer = from_yard.docstring
+            else
+              raise CommandError, "Can't find module's source location"
+            end
+          else
+            if file_name == Pry.eval_path
+              lines = Pry.line_buffer.drop(1)
+            else
+              lines = File.readlines(file_name)
+            end
+
+            buffer = ""
+            lines[0..(line - 2)].each do |line|
+              # Add any line that is a valid ruby comment,
+              # but clear as soon as we hit a non comment line.
+              if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+                buffer << line.lstrip
+              else
+                buffer.replace("")
+              end
+            end
+          end
+
+          # blank line, cos it looks nicer
+          output.puts
+
+          doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(buffer), :ruby)
+          if opts.present?(:b) || opts.present?(:l)
+            start_line = file_name.nil? ? 1 : line - doc.lines.count
+            doc = Code.new(doc, start_line, :text).
+              with_line_numbers(true)
+          end
+
+          doc
+        end
+
+        def process_method
           meth = method_object
           raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
 
@@ -35,7 +107,15 @@ class Pry
               with_line_numbers(true)
           end
 
-          render_output(doc, opts)
+          doc
+        end
+
+        # FIXME: stolen from Pry::Method
+        def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
+          comment = comment.dup
+          comment.gsub!(/\A\#+?$/, '')
+          comment.gsub!(/^\s*#/, '')
+          Pry::Helpers::CommandHelpers.unindent(comment)
         end
 
         def start_line
@@ -50,7 +130,7 @@ class Pry
 
       alias_command "?", "show-doc"
 
-      create_command "stat", "View method information and set _file_ and _dir_ locals.", :shellwords => false do |*args|
+      create_command "stat", "View method information and set _file_ and _dir_ locals.", :shellwords => false do
         banner <<-BANNER
             Usage: stat [OPTIONS] [METH]
             Show method information for method METH and set _file_ and _dir_ locals.
@@ -78,6 +158,8 @@ class Pry
       end
 
       create_command "show-source" do
+        include ModuleIntrospectionHelpers
+
         description "Show the source for METH or CLASS. Aliases: $, show-method"
 
         banner <<-BANNER
@@ -105,20 +187,6 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end
 
-        def module?(name)
-          begin
-            kind = target.eval("defined?(#{name})")
-          rescue Pry::RescuableException
-          end
-          !!(kind == "constant" && target.eval(name).is_a?(Module))
-        end
-
-        def method?
-          !!method_object
-        rescue CommandError
-          false
-        end
-
         def process(name)
           if module?(name)
             code = process_module(name)
@@ -141,29 +209,9 @@ class Pry
                    with_line_numbers(use_line_numbers?)
         end
 
-        def find_method_source_location(klass)
-          ims = Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)
-
-          ims.each do |m|
-            break m.source_location if m.source_location
-          end
-        end
-
         def process_module(name)
           klass = target.eval(name)
-
-          mod_type_string = klass.class.to_s.downcase
-
-          file, line = find_method_source_location(klass)
-
-          raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
-          immediate_class_name = name.split(/::/).last
-          class_regex = /#{mod_type_string}\s*(\w*)(::)?#{immediate_class_name}/
-          all_lines = File.readlines(file)
-          search_lines = all_lines[0..(line - 2)]
-          idx = search_lines.rindex { |v| class_regex =~ v }
-          code = Pry.new(:input => StringIO.new(all_lines[idx..-1].join), :prompt => proc {""}, :hooks => Pry::Hooks.new).r
-          Code.new(code).to_s
+          Code.from_module(klass).with_line_numbers(use_line_numbers?)
         end
 
         def use_line_numbers?
