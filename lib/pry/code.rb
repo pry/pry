@@ -128,6 +128,64 @@ class Pry
         new(meth.source, start_line, meth.source_type)
       end
 
+      # FIXME: shares too much code with `from_module`
+      #
+      # Retrieve the source location of a module. Return value is in same
+      # format as Method#source_location. If the source location
+      # cannot be found this method returns `nil`.
+      #
+      # @param [Module] mod The module (or class).
+      # @return [Array<String, Fixnum>] The source location of the
+      #   module (or class).
+      def module_source_location(mod)
+        mod_type_string = mod.class.to_s.downcase
+        file, line = find_module_method_source_location(mod)
+
+        raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
+        class_regex = /#{mod_type_string}\s*(\w*)(::)?#{mod.name.split(/::/).last}/
+
+        if file == Pry.eval_path
+          all_lines = Pry.line_buffer.drop(1)
+        else
+          all_lines = File.readlines(file)
+        end
+
+        search_lines = all_lines[0..(line - 2)]
+        idx = search_lines.rindex { |v| class_regex =~ v }
+
+       [file,  idx + 1]
+      rescue Pry::RescuableException
+        nil
+      end
+
+      # FIXME: shares too much code with `module_source_location`
+      #
+      # Attempt to extract the source code for module (or class) `mod`.
+      #
+      # @param [Module, Class] mod The module (or class) of interest.
+      # @return [Code]
+      def from_module(mod)
+        mod_type_string = mod.class.to_s.downcase
+        file, line = find_module_method_source_location(mod)
+
+        raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
+        class_regex = /#{mod_type_string}\s*(\w*)(::)?#{mod.name.split(/::/).last}/
+
+        if file == Pry.eval_path
+          all_lines = Pry.line_buffer.drop(1)
+        else
+          all_lines = File.readlines(file)
+        end
+
+        search_lines = all_lines[0..(line - 2)]
+        idx = search_lines.rindex { |v| class_regex =~ v }
+
+        mod_code = retrieve_complete_expression_from(all_lines[idx..-1])
+        new(mod_code, idx + 1, :ruby)
+      rescue Pry::RescuableException
+        raise CommandError, "Could not locate source for #{mod}!"
+      end
+
       protected
         # Guess the CodeRay type of a file from its extension, or nil if
         # unknown.
@@ -158,6 +216,15 @@ class Pry
 
           type
         end
+
+        def find_module_method_source_location(klass)
+          ims = Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)
+
+          ims.each do |m|
+            break m.source_location if m.source_location
+          end
+        end
+
     end
 
     attr_accessor :code_type
