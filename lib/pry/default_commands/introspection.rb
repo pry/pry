@@ -75,7 +75,7 @@ class Pry
           file_name, line = Pry::Code.module_source_location(klass)
 
           if file_name.nil?
-            if Pry.has_pry_doc && from_yard = YARD::Registry.at(name)
+            if Pry.config.has_pry_doc && from_yard = YARD::Registry.at(name)
               buffer = from_yard.docstring
             else
               raise CommandError, "Can't find module's source location"
