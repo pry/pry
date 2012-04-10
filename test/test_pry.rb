@@ -188,7 +188,7 @@ describe Pry do
         it "should not mutate the input!" do
           clean = "puts <<-FOO\nhi\nFOO\n"
           a = clean.dup
-          Pry.new.complete_expression?(a)
+          Pry::Code.complete_expression?(a)
           a.should == clean
         end
       end

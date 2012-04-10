@@ -293,7 +293,7 @@ class Pry
       end
 
       begin
-        break if complete_expression?(eval_string)
+        break if Pry::Code.complete_expression?(eval_string)
       rescue SyntaxError => e
         output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
         eval_string = ""
@@ -633,53 +633,6 @@ class Pry
   #    pry.pop_prompt # => prompt1
   def pop_prompt
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
-  end
-
-  # Determine if a string of code is a complete Ruby expression.
-  # @param [String] code The code to validate.
-  # @return [Boolean] Whether or not the code is a complete Ruby expression.
-  # @raise [SyntaxError] Any SyntaxError that does not represent incompleteness.
-  # @example
-  #   complete_expression?("class Hello") #=> false
-  #   complete_expression?("class Hello; end") #=> true
-  def complete_expression?(str)
-    if defined?(Rubinius::Melbourne19) && RUBY_VERSION =~ /^1\.9/
-      Rubinius::Melbourne19.parse_string(str, Pry.eval_path)
-    elsif defined?(Rubinius::Melbourne)
-      Rubinius::Melbourne.parse_string(str, Pry.eval_path)
-    else
-      catch(:valid) do
-        Helpers::BaseHelpers.silence_warnings do
-          eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
-        end
-      end
-    end
-
-    # Assert that a line which ends with a , is incomplete.
-    str !~ /[,]\z/
-  rescue SyntaxError => e
-    if incomplete_user_input_exception?(e)
-      false
-    else
-      raise e
-    end
-  end
-
-  # Check whether the exception indicates that the user should input more.
-  #
-  # @param [SyntaxError] the exception object that was raised.
-  # @param [Array<String>] The stack frame of the function that executed eval.
-  # @return [Boolean]
-  #
-  def incomplete_user_input_exception?(ex)
-    case ex.message
-    when /unexpected (\$end|end-of-file|END_OF_FILE)/, # mri, jruby, ironruby
-        /unterminated (quoted string|string|regexp) meets end of file/, # "quoted string" is ironruby
-        /missing 'end' for/, /: expecting '[})\]]'$/, /can't find string ".*" anywhere before EOF/, /: expecting keyword_end/ # rbx
-      true
-    else
-      false
-    end
   end
 
   # Raise an exception out of Pry.
