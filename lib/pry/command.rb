@@ -322,7 +322,7 @@ class Pry
       block_init_string = arg_string.slice!(block_index..-1)[1..-1]
       prime_string = "proc #{block_init_string}\n"
 
-      if !_pry_.complete_expression?(prime_string)
+      if !Pry::Code.complete_expression?(prime_string)
         block_string = _pry_.r(target, prime_string)
       else
         block_string = prime_string

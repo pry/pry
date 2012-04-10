@@ -379,7 +379,7 @@ class Pry
 
         def process
           perform_play
-          run "show-input" unless _pry_.complete_expression?(eval_string)
+          run "show-input" unless Pry::Code.complete_expression?(eval_string)
         end
 
         def process_non_opt
