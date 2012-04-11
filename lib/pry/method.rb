@@ -126,16 +126,18 @@ class Pry
 
       # Get all of the instance methods of a `Class` or `Module`
       # @param [Class,Module] klass
+      # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
-      def all_from_class(klass)
-        all_from_common(klass, :instance_method)
+      def all_from_class(klass, include_super=true)
+        all_from_common(klass, :instance_method, include_super)
       end
 
       # Get all of the methods on an `Object`
       # @param [Object] obj
+      # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
-      def all_from_obj(obj)
-        all_from_common(obj, :method)
+      def all_from_obj(obj, include_super=true)
+        all_from_common(obj, :method, include_super)
       end
 
       # Get every `Class` and `Module`, in order, that will be checked when looking
@@ -168,9 +170,9 @@ class Pry
       # If method_type is :method, obj can be any `Object`
       #
       # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
-      def all_from_common(obj, method_type)
+      def all_from_common(obj, method_type, include_super=true)
         %w(public protected private).map do |visibility|
-          safe_send(obj, :"#{visibility}_#{method_type}s").map do |method_name|
+          safe_send(obj, :"#{visibility}_#{method_type}s", include_super).map do |method_name|
             new(safe_send(obj, method_type, method_name), :visibility => visibility.to_sym)
           end
         end.flatten(1)
