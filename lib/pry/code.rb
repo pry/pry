@@ -165,11 +165,9 @@ class Pry
       # @param [Module, Class] mod The module (or class) of interest.
       # @return [Code]
       def from_module(mod)
-        mod_type_string = mod.class.to_s.downcase
-        file, line = find_module_method_source_location(mod)
+        file, line = module_source_location(mod)
 
-        raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
-        class_regex = /#{mod_type_string}\s*(\w*)(::)?#{mod.name.split(/::/).last}/
+        raise CommandError, "Could not locate source for #{mod}!" if file.nil?
 
         if file == Pry.eval_path
           all_lines = Pry.line_buffer.drop(1)
@@ -177,13 +175,8 @@ class Pry
           all_lines = File.readlines(file)
         end
 
-        search_lines = all_lines[0..(line - 2)]
-        idx = search_lines.rindex { |v| class_regex =~ v }
-
-        mod_code = retrieve_complete_expression_from(all_lines[idx..-1])
-        new(mod_code, idx + 1, :ruby)
-      rescue Pry::RescuableException
-        raise CommandError, "Could not locate source for #{mod}!"
+        mod_code = retrieve_complete_expression_from(all_lines[(line - 1)..-1])
+        new(mod_code, line, :ruby)
       end
 
       protected
@@ -218,11 +211,17 @@ class Pry
         end
 
         def find_module_method_source_location(klass)
-          ims = Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)
+          ims = Pry::Method.all_from_class(klass, false) + Pry::Method.all_from_obj(klass, false)
 
-          ims.each do |m|
-            break m.source_location if m.source_location
+          file, line = ims.each do |m|
+            break m.source_location if m.source_location && !m.alias?
           end
+
+          if file && RbxPath.is_core_path?(file)
+            file = RbxPath.convert_path_to_full(file)
+          end
+
+          [file, line]
         end
 
     end
