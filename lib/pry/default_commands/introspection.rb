@@ -84,17 +84,21 @@ class Pry
             buffer = extract_doc_from(file_name, line)
           end
 
-          # blank line, cos it looks nicer
-          output.puts
+          if buffer.empty?
+            output.puts "No documentation found."
+            doc = ""
+          else
+            set_file_and_dir_locals(file_name)
+            output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
 
-          doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(buffer), :ruby)
-          if opts.present?(:b) || opts.present?(:l)
-            start_line = file_name.nil? ? 1 : line - doc.lines.count
-            doc = Code.new(doc, start_line, :text).
-              with_line_numbers(true)
+            doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(buffer), :ruby)
+            if opts.present?(:b) || opts.present?(:l)
+              start_line = file_name.nil? ? 1 : line - doc.lines.count
+              doc = Code.new(doc, start_line, :text).
+                with_line_numbers(true)
+            end
           end
-
-          doc
+            doc
         end
 
         def process_method
@@ -131,7 +135,6 @@ class Pry
             (method_object.source_line - method_object.doc.lines.count) || 1
           end
         end
-
       end
 
       alias_command "?", "show-doc"
@@ -217,6 +220,9 @@ class Pry
 
         def process_module(name)
           klass = target.eval(name)
+          file_name, line = Code.module_source_location(klass)
+          set_file_and_dir_locals(file_name)
+          output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
           Code.from_module(klass).with_line_numbers(use_line_numbers?)
         end
 
