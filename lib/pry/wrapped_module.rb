@@ -1,3 +1,5 @@
+require 'pry/helpers/documentation_helpers'
+
 class Pry
   class << self
     # If the given object is a `Pry::WrappedModule`, return it unaltered. If it's
@@ -12,6 +14,7 @@ class Pry
   end
 
   class WrappedModule
+    include Helpers::DocumentationHelpers
 
     attr_reader :wrapped
     private :wrapped
@@ -24,6 +27,8 @@ class Pry
       @wrapped = mod
       @host_file_lines = nil
       @source = nil
+      @source_location = nil
+      @doc = nil
     end
 
     # The prefix that would appear before methods defined on this class.
@@ -84,16 +89,35 @@ class Pry
       super || wrapped.send(method_name, *args, &block)
     end
 
+    def doc
+      return @doc if @doc
+
+      file_name, line = source_location
+
+      if file_name.nil?
+        if defined?(YARD) && from_yard = YARD::Registry.at(name)
+          @doc = from_yard.docstring
+        else
+          raise CommandError, "Can't find module's source location"
+        end
+      else
+        @doc = extract_doc
+      end
+
+      raise CommandError, "Can't find docs for module: #{name}." if !@doc
+
+      @doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(@doc), :ruby)
+    end
+
     # Retrieve the source for the module.
     def source
-      if @source
-        @source
-      else
-        file, line = source_location
-        raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
+      return @source if @source
 
-        @source = strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(@host_file_lines[(line - 1)..-1]))
-      end
+      file, line = source_location
+      raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
+
+      @source = strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(@host_file_lines[(line - 1)..-1]))
+
     end
 
     # Retrieve the source location of a module. Return value is in same
@@ -104,6 +128,8 @@ class Pry
     # @return [Array<String, Fixnum>] The source location of the
     #   module (or class).
     def source_location
+      return @source_location if @source_location
+
       mod_type_string = wrapped.class.to_s.downcase
       file, line = find_module_method_source_location
 
@@ -120,12 +146,29 @@ class Pry
       search_lines = @host_file_lines[0..(line - 2)]
       idx = search_lines.rindex { |v| class_regex =~ v }
 
-      [file,  idx + 1]
+      @source_location = [file,  idx + 1]
     rescue Pry::RescuableException
       nil
     end
 
     private
+
+    def extract_doc
+      file_name, line = source_location
+
+      buffer = ""
+      @host_file_lines[0..(line - 2)].each do |line|
+        # Add any line that is a valid ruby comment,
+        # but clear as soon as we hit a non comment line.
+        if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+          buffer << line.lstrip
+        else
+          buffer.replace("")
+        end
+      end
+
+      buffer
+    end
 
     def find_module_method_source_location
       ims = Pry::Method.all_from_class(wrapped, false) + Pry::Method.all_from_obj(wrapped, false)
@@ -141,8 +184,19 @@ class Pry
       [file, line]
     end
 
+    # FIXME: both methods below copied from Pry::Method
     def strip_leading_whitespace(text)
       Pry::Helpers::CommandHelpers.unindent(text)
     end
+
+    # @param [String] comment
+    # @return [String]
+    def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
+      comment = comment.dup
+      comment.gsub!(/\A\#+?$/, '')
+      comment.gsub!(/^\s*#/, '')
+      strip_leading_whitespace(comment)
+    end
+
   end
 end

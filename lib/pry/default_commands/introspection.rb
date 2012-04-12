@@ -24,6 +24,7 @@ class Pry
 
       create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do
         include ModuleIntrospectionHelpers
+        include Helpers::DocumentationHelpers
 
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
@@ -49,56 +50,26 @@ class Pry
           render_output(doc, opts)
         end
 
-        def extract_doc_from(file_name, line)
-          if file_name == Pry.eval_path
-            lines = Pry.line_buffer.drop(1)
-          else
-            lines = File.readlines(file_name)
-          end
-
-          buffer = ""
-          lines[0..(line - 2)].each do |line|
-            # Add any line that is a valid ruby comment,
-            # but clear as soon as we hit a non comment line.
-            if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-              buffer << line.lstrip
-            else
-              buffer.replace("")
-            end
-          end
-
-          buffer
-        end
-
         def process_module(name)
           klass = target.eval(name)
-          file_name, line = Pry::Code.module_source_location(klass)
 
-          if file_name.nil?
-            if Pry.config.has_pry_doc && from_yard = YARD::Registry.at(name)
-              buffer = from_yard.docstring
-            else
-              raise CommandError, "Can't find module's source location"
-            end
-          else
-            buffer = extract_doc_from(file_name, line)
-          end
+          mod = Pry::WrappedModule(klass)
+          file_name, line = mod.source_location
+          doc = mod.doc
 
-          if buffer.empty?
+          if doc.empty?
             output.puts "No documentation found."
-            doc = ""
           else
             set_file_and_dir_locals(file_name)
             output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
 
-            doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(buffer), :ruby)
             if opts.present?(:b) || opts.present?(:l)
               start_line = file_name.nil? ? 1 : line - doc.lines.count
               doc = Code.new(doc, start_line, :text).
                 with_line_numbers(true)
             end
           end
-            doc
+          doc
         end
 
         def process_method
