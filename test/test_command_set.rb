@@ -156,6 +156,19 @@ describe Pry::CommandSet do
       run.should == true
     end
 
+    it 'should inherit options from original command' do
+      run = false
+      @set.command('foo', 'stuff', :shellwords => true, :interpolate => false) { run = true }
+
+      @set.alias_command 'bar', 'foo'
+      @set.commands['bar'].options[:shellwords].should == @set.commands['foo'].options[:shellwords]
+      @set.commands['bar'].options[:interpolate].should == @set.commands['foo'].options[:interpolate]
+
+      # however some options should not be inherited
+      @set.commands['bar'].options[:listing].should.not ==  @set.commands['foo'].options[:listing]
+      @set.commands['bar'].options[:listing].should == "bar"
+    end
+
     it 'should be able to specify alias\'s description when aliasing' do
       run = false
       @set.command('foo', 'stuff') { run = true }

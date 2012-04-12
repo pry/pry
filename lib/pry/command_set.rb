@@ -221,9 +221,12 @@ class Pry
     # @example Pass explicit description (overriding default).
     #   Pry.config.commands.alias_command "lM", "ls -M", :desc => "cutiepie"
     def alias_command(match, action,  options={})
-      options = {
-        :desc => "Alias for `#{action}`",
-      }.merge!(options)
+      original_options = find_command(action).options.dup
+
+      options = original_options.merge!({
+                                          :desc => "Alias for `#{action}`",
+                                          :listing => match
+                                        }).merge!(options)
 
       # ensure default description is used if desc is nil
       desc = options.delete(:desc).to_s

@@ -239,8 +239,8 @@ class Pry
         end
       end
 
-      alias_command "show-method", "show-source", :shellwords => false
-      alias_command "$", "show-source", :shellwords => false
+      alias_command "show-method", "show-source"
+      alias_command "$", "show-source"
 
       command "show-command", "Show the source for CMD." do |*args|
         target = target()
