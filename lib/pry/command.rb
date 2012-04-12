@@ -127,7 +127,8 @@ class Pry
       end
 
       def command_regex
-        prefix = convert_to_regex(Pry.config.command_prefix)
+        pr = defined?(Pry.config.command_prefix) ? Pry.config.command_prefix : ""
+        prefix = convert_to_regex(pr)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
         /^#{prefix}#{convert_to_regex(match)}(?!\S)/
