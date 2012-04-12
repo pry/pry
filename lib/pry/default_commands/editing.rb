@@ -327,6 +327,8 @@ class Pry
       end
 
       create_command "play" do
+        include Helpers::DocumentationHelpers
+
         description "Play back a string variable or a method or a file as input."
 
         banner <<-BANNER

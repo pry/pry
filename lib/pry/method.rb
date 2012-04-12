@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+require 'pry/helpers/documentation_helpers'
+
 class Pry
   class << self
     # If the given object is a `Pry::Method`, return it unaltered. If it's
@@ -14,6 +16,7 @@ class Pry
 
   class Method
     include RbxMethod if Helpers::BaseHelpers.rbx?
+    include Helpers::DocumentationHelpers
 
     class << self
       # Given a string representing a method name and optionally a binding to
@@ -417,27 +420,6 @@ class Pry
         else
           raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
         end
-      end
-
-      # @param [String] code
-      # @return [String]
-      def strip_comments_from_c_code(code)
-        code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
-      end
-
-      # @param [String] comment
-      # @return [String]
-      def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
-        comment = comment.dup
-        comment.gsub!(/\A\#+?$/, '')
-        comment.gsub!(/^\s*#/, '')
-        strip_leading_whitespace(comment)
-      end
-
-      # @param [String] text
-      # @return [String]
-      def strip_leading_whitespace(text)
-        Pry::Helpers::CommandHelpers.unindent(text)
       end
 
       # @param [Class,Module] the ancestors to investigate
