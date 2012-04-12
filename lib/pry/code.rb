@@ -128,55 +128,15 @@ class Pry
         new(meth.source, start_line, meth.source_type)
       end
 
-      # FIXME: shares too much code with `from_module`
-      #
-      # Retrieve the source location of a module. Return value is in same
-      # format as Method#source_location. If the source location
-      # cannot be found this method returns `nil`.
-      #
-      # @param [Module] mod The module (or class).
-      # @return [Array<String, Fixnum>] The source location of the
-      #   module (or class).
-      def module_source_location(mod)
-        mod_type_string = mod.class.to_s.downcase
-        file, line = find_module_method_source_location(mod)
-
-        raise Pry::CommandError, "Can't find #{mod_type_string} code" if !file.is_a?(String)
-        class_regex = /#{mod_type_string}\s*(\w*)(::)?#{mod.name.split(/::/).last}/
-
-        if file == Pry.eval_path
-          all_lines = Pry.line_buffer.drop(1)
-        else
-          all_lines = File.readlines(file)
-        end
-
-        search_lines = all_lines[0..(line - 2)]
-        idx = search_lines.rindex { |v| class_regex =~ v }
-
-       [file,  idx + 1]
-      rescue Pry::RescuableException
-        nil
-      end
-
-      # FIXME: shares too much code with `module_source_location`
-      #
       # Attempt to extract the source code for module (or class) `mod`.
       #
       # @param [Module, Class] mod The module (or class) of interest.
       # @return [Code]
-      def from_module(mod)
-        file, line = module_source_location(mod)
+      def from_module(mod, start_line=nil)
+        mod = Pry::WrappedModule(mod)
 
-        raise CommandError, "Could not locate source for #{mod}!" if file.nil?
-
-        if file == Pry.eval_path
-          all_lines = Pry.line_buffer.drop(1)
-        else
-          all_lines = File.readlines(file)
-        end
-
-        mod_code = retrieve_complete_expression_from(all_lines[(line - 1)..-1])
-        new(mod_code, line, :ruby)
+        _, start_line = mod.source_location || 1
+        new(mod.source, start_line, :ruby)
       end
 
       protected
@@ -209,21 +169,6 @@ class Pry
 
           type
         end
-
-        def find_module_method_source_location(klass)
-          ims = Pry::Method.all_from_class(klass, false) + Pry::Method.all_from_obj(klass, false)
-
-          file, line = ims.each do |m|
-            break m.source_location if m.source_location && !m.alias?
-          end
-
-          if file && RbxPath.is_core_path?(file)
-            file = RbxPath.convert_path_to_full(file)
-          end
-
-          [file, line]
-        end
-
     end
 
     attr_accessor :code_type
