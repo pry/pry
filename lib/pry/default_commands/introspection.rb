@@ -220,10 +220,12 @@ class Pry
 
         def process_module(name)
           klass = target.eval(name)
-          file_name, line = Code.module_source_location(klass)
+
+          mod = Pry::WrappedModule(klass)
+          file_name, line = mod.source_location
           set_file_and_dir_locals(file_name)
           output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
-          Code.from_module(klass).with_line_numbers(use_line_numbers?)
+          Code.from_module(mod).with_line_numbers(use_line_numbers?)
         end
 
         def use_line_numbers?
