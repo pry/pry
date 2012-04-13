@@ -1,6 +1,14 @@
 require 'coderay'
 
 class Pry
+  begin
+    require 'io/console'
+  rescue LoadError
+    IO_CONSOLE_AVAILABLE = false
+  else
+    IO_CONSOLE_AVAILABLE = true
+  end
+
   ##
   # Pry::Indent is a class that can be used to indent a number of lines
   # containing Ruby code similar as to how IRB does it (but better). The class
@@ -194,7 +202,10 @@ class Pry
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
       full_line = prompt + code
-      if Readline.respond_to?(:get_screen_size)
+      if IO_CONSOLE_AVAILABLE && $stdout.tty?
+        _, cols = $stdout.winsize
+        lines = full_line.length / cols + 1
+      elsif Readline.respond_to?(:get_screen_size)
         _, cols = Readline.get_screen_size
         lines = full_line.length / cols + 1
       elsif ENV['COLUMNS'] && ENV['COLUMNS'] != ''
