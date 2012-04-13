@@ -18,6 +18,17 @@ class Pry
       rescue CommandError
         false
       end
+
+      def process(name)
+        if module?(name)
+          code_or_doc = process_module(name)
+        else method?
+          code_or_doc = process_method
+        end
+
+        render_output(code_or_doc, opts)
+      end
+
     end
 
     Introspection = Pry::CommandSet.new do
@@ -37,17 +48,6 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-        end
-
-        def process(name)
-
-          if module?(name)
-            doc = process_module(name)
-          else method?
-            doc = process_method
-          end
-
-          render_output(doc, opts)
         end
 
         def process_module(name)
@@ -89,14 +89,6 @@ class Pry
           end
 
           doc
-        end
-
-        # FIXME: stolen from Pry::Method
-        def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
-          comment = comment.dup
-          comment.gsub!(/\A\#+?$/, '')
-          comment.gsub!(/^\s*#/, '')
-          Pry::Helpers::CommandHelpers.unindent(comment)
         end
 
         def start_line
@@ -165,16 +157,6 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-        end
-
-        def process(name)
-          if module?(name)
-            code = process_module(name)
-          else method?
-            code = process_method
-          end
-
-          render_output(code, opts)
         end
 
         def process_method
