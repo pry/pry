@@ -110,6 +110,14 @@ class Pry
         RbConfig::CONFIG['ruby_install_name'] == 'rbx'
       end
 
+      def mri_18?
+        RUBY_VERSION =~ /1.8/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
+      end
+
+      def mri_19?
+        RUBY_VERSION =~ /1.9/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
+      end
+
       # a simple pager for systems without `less`. A la windows.
       def simple_pager(text, output=output())
         text_array = text.lines.to_a
@@ -138,7 +146,7 @@ class Pry
           # Sys.
           $stdout
         end
-          
+
         if text.lines.count < page_size || !Pry.pager
           out.puts text
           return

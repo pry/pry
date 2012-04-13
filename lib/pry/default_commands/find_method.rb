@@ -3,9 +3,18 @@ class Pry
     FindMethod = Pry::CommandSet.new do
 
       create_command "find-method" do
+        extend Helpers::BaseHelpers
+
         group "Context"
 
+        options :requires_gem => "ruby18_source_location" if mri_18?
+
         description "Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]"
+
+
+        def setup
+          require 'ruby18_source_location' if mri_18?
+        end
 
         def options(opti)
           opti.on :n, :name, "Search for a method by name"
@@ -36,7 +45,7 @@ class Pry
           else
             puts text.bold("Methods Matched")
             puts "--"
-            puts to_put
+            stagger_output to_put.join("\n")
           end
 
         end
@@ -67,7 +76,11 @@ class Pry
             end
           end
           klass.constants.each do |klazz|
-            meths += ((res = content_search(pattern, klass.const_get(klazz), current, the_methods)) ? res : [])
+            begin
+              meths += ((res = content_search(pattern, klass.const_get(klazz), current, the_methods)) ? res : [])
+            rescue Pry::RescuableException
+              next
+            end
           end
           return meths.uniq.flatten
         end
