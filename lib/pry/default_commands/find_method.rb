@@ -69,7 +69,7 @@ class Pry
                 header = "#{klass}##{meth.name}:  "
                 meths <<  header + colorize_code((meth.source.split(/\n/).select {|x| x =~ pattern }).join("\n#{' ' * header.length}"))
               end
-            rescue Exception
+            rescue Pry::RescuableException
               next
             rescue Pry::CommandError
               next
@@ -100,7 +100,7 @@ class Pry
                 if x.alias?
                   meths[-1] += "#A|#{x.original_name}" if x.original_name
                 end
-              rescue Exception
+              rescue Pry::RescuableException
               end
             end
           end
@@ -115,7 +115,7 @@ class Pry
           klass.constants.each do |x|
             begin
               meths << ((res = name_search(regex, klass.const_get(x), current, the_methods)) ? res : [])
-            rescue Exception
+            rescue Pry::RescuableException
               next
             end
           end
