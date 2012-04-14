@@ -188,6 +188,7 @@ class Pry
       def safe_send(obj, method, *args, &block)
         (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
       end
+      public :safe_send
 
       # Get the singleton classes of superclasses that could define methods on
       # the given class object, and any modules they include.

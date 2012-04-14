@@ -58,6 +58,10 @@ describe "ls" do
     it "should still work" do
       mock_pry("cd Module.new{ def foobie; end }", "ls -M").should =~ /foobie/
     end
+
+    it "should work for ivars" do
+      mock_pry("module StigmaT1sm; def foobie; @@gharble = 456; end; end", "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie", "cd StigmaT1sm", "ls -i").should =~ /@@gharble/
+    end
   end
 
   describe "constants" do
