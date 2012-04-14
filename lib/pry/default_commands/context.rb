@@ -25,7 +25,7 @@ class Pry
             file   = @method.source_file
             start  = @method.source_range.begin
             finish = @method.source_range.end - 1
-            marker = binding.eval("__LINE__")
+            marker = target.eval("__LINE__")
           else
             file   = target.eval("__FILE__")
             start  = target.eval("__LINE__") 
@@ -46,7 +46,7 @@ class Pry
           end
 
           desc = (@method && @method.name_with_owner) || ""
-          
+
           if !code.empty?
             output.puts "\n#{text.bold('From:')} #{file} @ line #{start}#{desc}:\n\n"
             output.puts code.with_line_numbers.with_marker(marker)
