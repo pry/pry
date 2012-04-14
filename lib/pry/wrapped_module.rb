@@ -86,7 +86,7 @@ class Pry
     end
 
     def respond_to?(method_name)
-      super || wrapped.send(method_name, *args, &block)
+      super || wrapped.respond_to?(method_name)
     end
 
     def doc
