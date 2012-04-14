@@ -1,6 +1,10 @@
 class Pry
   module DefaultCommands
     Misc = Pry::CommandSet.new do
+      command "nyan-cat", "Bored?", :requires_gem => ["nyancat"] do
+        _pry_.run_command ".nyancat"
+      end
+
       command "toggle-color", "Toggle syntax highlighting." do
         Pry.color = !Pry.color
         output.puts "Syntax highlighting #{Pry.color ? "on" : "off"}"
