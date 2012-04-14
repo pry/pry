@@ -87,8 +87,10 @@ class Pry
 
           if show_ivars
             klass = (Module === obj ? obj : obj.class)
-            output_section("instance variables", format_variables(:instance_var, grep[Object.instance_method(:instance_variables).bind(obj).call]))
-            output_section("class variables", format_variables(:class_var, grep[Class.instance_method(:class_variables).bind(klass).call]))
+            ivars = Pry::Method.safe_send(obj, :instance_variables)
+            kvars = Pry::Method.safe_send(klass, :class_variables)
+            output_section("instance variables", format_variables(:instance_var, ivars))
+            output_section("class variables", format_variables(:class_var, kvars))
           end
 
           if show_locals
