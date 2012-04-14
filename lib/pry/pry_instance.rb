@@ -546,7 +546,7 @@ class Pry
     # anything about it.
     rescue RescuableException => e
       puts "Error: #{e.message}"
-      puts "FATAL: Pry failed to get user input using `#{input.inspect}`."
+      puts "FATAL: Pry failed to get user input using `#{input}`."
       puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
       puts "  Pry.config.input = STDIN"
       puts "  Pry.config.output = STDOUT"
