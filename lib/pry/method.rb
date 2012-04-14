@@ -317,7 +317,7 @@ class Pry
     # @return [Range, nil] The range of lines in `source_file` which contain
     #    the method's definition, or `nil` if that information is unavailable.
     def source_range
-      source_location.nil? ? nil : (source_line)...(source_line + source.lines.count)
+      source_location.nil? ? nil : (source_line)..(source_line + source.lines.count - 1)
     end
 
     # @return [Symbol] The visibility of the method. May be `:public`,
