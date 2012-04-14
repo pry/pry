@@ -240,17 +240,6 @@ class Pry
   def re(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
 
-    compl = Pry::InputCompleter.build_completion_proc(target,
-                                                      instance_eval(&custom_completions))
-
-    if defined? Coolline and input.is_a? Coolline
-      input.completion_proc = proc do |cool|
-        compl.call cool.completed_word
-      end
-    elsif input.respond_to? :completion_proc=
-      input.completion_proc = compl
-    end
-
     # It's not actually redundant to inject them continually as we may have
     # moved into the scope of a new Binding (e.g the user typed `cd`)
     inject_sticky_locals(target)
@@ -345,10 +334,14 @@ class Pry
     @indent.reset if eval_string.empty?
 
     current_prompt = select_prompt(eval_string, target)
+    completion_proc = Pry::InputCompleter.build_completion_proc(target,
+                                                        instance_eval(&custom_completions))
+
+
     indentation = Pry.config.auto_indent ? @indent.indent_level : ''
 
     begin
-      val = readline("#{current_prompt}#{indentation}")
+      val = readline("#{current_prompt}#{indentation}", completion_proc)
 
     # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
     # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
@@ -560,8 +553,17 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [String] current_prompt The prompt to use for input.
   # @return [String] The next line of input.
-  def readline(current_prompt="> ")
+  def readline(current_prompt="> ", completion_proc=nil)
     handle_read_errors do
+
+      if defined? Coolline and input.is_a? Coolline
+        input.completion_proc = proc do |cool|
+          completion_proc.call cool.completed_word
+        end
+      elsif input.respond_to? :completion_proc=
+        input.completion_proc = completion_proc
+      end
+
       if input == Readline
         input.readline(current_prompt, false) # false since we'll add it manually
       elsif defined? Coolline and input.is_a? Coolline
