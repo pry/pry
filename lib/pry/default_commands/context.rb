@@ -24,7 +24,7 @@ class Pry
           if show_method?
             file   = @method.source_file
             start  = @method.source_range.begin
-            finish = @method.source_range.end - 1
+            finish = @method.source_range.end
             marker = target.eval("__LINE__")
           else
             file   = target.eval("__FILE__")
