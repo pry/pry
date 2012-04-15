@@ -19,6 +19,18 @@ class Pry
     attr_reader :wrapped
     private :wrapped
 
+    # Convert a string to a module.
+    #
+    # @param [String] mod_name
+    # @return [Module, nil] The module or `nil` (if conversion failed).
+    # @example
+    #   Pry::WrappedModule.from_str("Pry::Code")
+    def self.from_str(mod_name)
+      Pry::WrappedModule.new(eval(mod_name))
+    rescue RescuableException
+      nil
+    end
+
     # Create a new WrappedModule
     # @raise ArgumentError, if the argument is not a Module
     # @param [Module]
