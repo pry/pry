@@ -288,7 +288,7 @@ class Pry
     end
 
     def source_location
-      if Helpers::BaseHelpers.rbx?
+      if @method.source_location && Helpers::BaseHelpers.rbx?
         file, line = @method.source_location
         [RbxPath.convert_path_to_full(file), line]
       else
