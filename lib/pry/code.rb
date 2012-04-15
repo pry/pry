@@ -82,7 +82,7 @@ class Pry
       # @return [String, nil] The first complete expression, or `nil` if
       #   none found.
       def retrieve_complete_expression_from(str_or_lines)
-        lines = str_or_lines.is_a?(Array) ? str_or_lines : str.each_line.to_a
+        lines = str_or_lines.is_a?(Array) ? str_or_lines : str_or_lines.each_line.to_a
 
         code = ""
         lines.each do |v|
