@@ -101,17 +101,20 @@ class Pry
       super || wrapped.respond_to?(method_name)
     end
 
+    def yard_docs?
+      !!(defined?(YARD) && YARD::Registry.at(name))
+    end
+
     def doc
       return @doc if @doc
 
       file_name, line = source_location
 
-      if file_name.nil?
-        if defined?(YARD) && from_yard = YARD::Registry.at(name)
-          @doc = from_yard.docstring
-        else
-          raise CommandError, "Can't find module's source location"
-        end
+      if yard_docs?
+        from_yard = YARD::Registry.at(name)
+        @doc = from_yard.docstring
+      elsif source_location.nil?
+        raise CommandError, "Can't find module's source location"
       else
         @doc = extract_doc
       end
@@ -130,6 +133,19 @@ class Pry
 
       @source = strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(@host_file_lines[(line - 1)..-1]))
 
+    end
+
+    def source_file
+      if yard_docs?
+        from_yard = YARD::Registry.at(name)
+        from_yard.file
+      else
+        Array(source_location).first
+      end
+    end
+
+    def source_line
+      source_location.nil? ? nil : source_location.last
     end
 
     # Retrieve the source location of a module. Return value is in same
