@@ -54,17 +54,29 @@ class Pry
           klass = target.eval(name)
 
           mod = Pry::WrappedModule(klass)
-          file_name, line = mod.source_location
+
+          # source_file reveals the underlying .c file in case of core
+          # classes on MRI.
+          # This is different to source_location, which
+          # will return nil.
+          if mod.yard_docs?
+            file_name, line = mod.source_file, nil
+          else
+            file_name, line = mod.source_location
+          end
+
           doc = mod.doc
 
           if doc.empty?
             output.puts "No documentation found."
           else
-            set_file_and_dir_locals(file_name)
+
+            # source_location is nil in case of core classes on MRI
+            set_file_and_dir_locals(file_name) if !mod.yard_docs?
             output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
 
             if opts.present?(:b) || opts.present?(:l)
-              start_line = file_name.nil? ? 1 : line - doc.lines.count
+              start_line = mod.source_location.nil? ? 1 : line - doc.lines.count
               doc = Code.new(doc, start_line, :text).
                 with_line_numbers(true)
             end
