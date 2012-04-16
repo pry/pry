@@ -254,7 +254,7 @@ class Pry
           if Helpers::BaseHelpers.rbx? && !pry_method?
              code = core_code
           elsif pry_method?
-            code = Pry.new(:input => StringIO.new(Pry.line_buffer[source_line..-1].join), :prompt => proc {""}, :hooks => Pry::Hooks.new).r
+            code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
           else
             code = @method.source
           end
