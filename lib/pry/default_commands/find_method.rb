@@ -11,6 +11,16 @@ class Pry
 
         description "Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]"
 
+        banner <<-BANNER
+          Usage: find-method  [-n | -c] METHOD [NAMESPACE]
+
+          Recursively search for a method within a Class/Module or the current namespace.
+          Use the `-n` switch (the default) to search for methods whose name matches the given regex.
+          Use the `-c` switch to search for methods that contain the given code.
+
+          e.g find re Pry                # find all methods whose name match /re/. Matches Pry#repl, etc.
+          e.g find -c 'output.puts' Pry  # find all methods that contain the code: output.puts
+        BANNER
 
         def setup
           require 'ruby18_source_location' if mri_18?

@@ -199,19 +199,18 @@ class Pry
 
       return nil if !file.is_a?(String)
 
-      class_regex = /#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/
+      class_regex1 = /#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/
+      class_regex2 = /(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/
 
       host_file_lines = lines_for_file(file)
 
       search_lines = host_file_lines[0..(line - 2)]
-      idx = search_lines.rindex { |v| class_regex =~ v }
+      idx = search_lines.rindex { |v| class_regex1 =~ v  || class_regex2 =~ v }
 
       source_location = [file,  idx + 1]
     rescue Pry::RescuableException
       nil
     end
-
-    #private
 
     def extract_doc
       extract_doc_for_candidate(0)
@@ -275,19 +274,19 @@ class Pry
         sort_by { |k, v| -v.size }
     end
 
-    def top_method_candidates
-      @top_method_candidtates ||= all_source_locations_by_popularity.map do |group|
+    def method_candidates
+      @method_candidtates ||= all_source_locations_by_popularity.map do |group|
         sorted_by_lowest_line_number = group.last.sort_by(&:source_line)
         best_candidate_for_group = sorted_by_lowest_line_number.first
       end
     end
 
     def number_of_candidates
-      top_method_candidates.count
+      method_candidates.count
     end
 
     def method_source_location_for_candidate(idx)
-      file, line = top_method_candidates[idx].source_location
+      file, line = method_candidates[idx].source_location
 
       if file && RbxPath.is_core_path?(file)
         file = RbxPath.convert_path_to_full(file)

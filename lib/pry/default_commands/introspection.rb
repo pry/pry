@@ -50,8 +50,12 @@ class Pry
 
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
+          Aliases: ?
+
           Show the comments above method METH. Tries instance methods first and then methods by default.
-          e.g show-doc hello_method
+          e.g show-doc hello_method    # docs for hello_method
+          e.g show-doc Pry             # docs for Pry class
+          e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
         BANNER
 
         def options(opt)
@@ -59,14 +63,14 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :v, :verbose, "Show docs for all candidates (modules only)"
+          opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module (modules only)"
         end
 
         def process_module(name)
           mod = Pry::WrappedModule.from_str(name)
 
-          if opts.present?(:verbose)
-            verbose_module(mod)
+          if opts.present?(:all)
+            all_modules(mod)
           else
             normal_module(mod)
           end
@@ -97,7 +101,7 @@ class Pry
           end
         end
 
-        def verbose_module(mod)
+        def all_modules(mod)
           doc = ""
           doc << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
@@ -190,8 +194,9 @@ class Pry
 
           e.g: `show-source hello_method`
           e.g: `show-source -m hello_method`
-          e.g: `show-source Pry#rep`
-          e.g: `show-source Pry`
+          e.g: `show-source Pry#rep`         # source for Pry#rep method
+          e.g: `show-source Pry`             # source for Pry class
+          e.g: `show-source Pry -a`          # source for all Pry class definitions (all monkey patches)
 
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
@@ -205,7 +210,7 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :v, :verbose, "Show source for all candidates (modules only)"
+          opt.on :a, :all, "Show source for all definitions and monkeypatches of the module (modules only)"
         end
 
         def process_method
@@ -224,12 +229,11 @@ class Pry
         def process_module(name)
           mod = Pry::WrappedModule.from_str(name)
 
-          if opts.present?(:verbose)
-            verbose_module(mod)
+          if opts.present?(:all)
+            all_modules(mod)
           else
             normal_module(mod)
           end
-
         end
 
         def normal_module(mod)
@@ -240,12 +244,12 @@ class Pry
           code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?)
         end
 
-        def verbose_module(mod)
+        def all_modules(mod)
           code = ""
           code << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
             begin
-              code << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ #{mod.source_line_for_candidate(v)}:\n\n"
+              code << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ line #{mod.source_line_for_candidate(v)}:\n\n"
               code << Code.new(mod.source_for_candidate(v), module_start_line(mod, v)).with_line_numbers(use_line_numbers?).to_s
             rescue Pry::RescuableException
               next
