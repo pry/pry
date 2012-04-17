@@ -105,6 +105,11 @@ class Pry
       !!(defined?(YARD) && YARD::Registry.at(name))
     end
 
+    def process_doc(doc)
+      process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc),
+                             :ruby)
+    end
+
     def doc
       return @doc if @doc
 
@@ -116,23 +121,31 @@ class Pry
       elsif source_location.nil?
         raise CommandError, "Can't find module's source location"
       else
-        @doc = extract_doc
+        @doc = extract_doc_for_candidate(0)
       end
 
       raise CommandError, "Can't find docs for module: #{name}." if !@doc
 
-      @doc = process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(@doc), :ruby)
+      @doc = process_doc(@doc)
+    end
+
+    def doc_for_candidate(idx)
+      doc = extract_doc_for_candidate(idx)
+      raise CommandError, "Can't find docs for module: #{name}." if !doc
+
+      process_doc(doc)
     end
 
     # Retrieve the source for the module.
     def source
-      return @source if @source
+      @source ||= source_for_candidate(0)
+    end
 
-      file, line = source_location
+    def source_for_candidate(idx)
+      file, line = module_source_location_for_candidate(idx)
       raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
 
-      @source = strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(@host_file_lines[(line - 1)..-1]))
-
+      strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(lines_for_file(file)[(line - 1)..-1]))
     end
 
     def source_file
@@ -140,12 +153,20 @@ class Pry
         from_yard = YARD::Registry.at(name)
         from_yard.file
       else
-        Array(source_location).first
+        source_file_for_candidate(0)
       end
     end
 
     def source_line
-      source_location.nil? ? nil : source_location.last
+      source_line_for_candidate(0)
+    end
+
+    def source_file_for_candidate(idx)
+      Array(module_source_location_for_candidate(idx)).first
+    end
+
+    def source_line_for_candidate(idx)
+      Array(module_source_location_for_candidate(idx)).last
     end
 
     # Retrieve the source location of a module. Return value is in same
@@ -156,36 +177,51 @@ class Pry
     # @return [Array<String, Fixnum>] The source location of the
     #   module (or class).
     def source_location
-      return @source_location if @source_location
+      @source_location ||= module_source_location_for_candidate(0)
+    rescue Pry::RescuableException
+      nil
+    end
 
+    # memoized lines for file
+    def lines_for_file(file)
+      @lines_for_file ||= {}
+
+      if file == Pry.eval_path
+       @lines_for_file[file] ||= Pry.line_buffer.drop(1)
+      else
+       @lines_for_file[file] ||= File.readlines(file)
+      end
+    end
+
+    def module_source_location_for_candidate(idx)
       mod_type_string = wrapped.class.to_s.downcase
-      file, line = find_module_method_source_location
+      file, line = method_source_location_for_candidate(idx)
 
       return nil if !file.is_a?(String)
 
       class_regex = /#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/
 
-      if file == Pry.eval_path
-        @host_file_lines ||= Pry.line_buffer.drop(1)
-      else
-        @host_file_lines ||= File.readlines(file)
-      end
+      host_file_lines = lines_for_file(file)
 
-      search_lines = @host_file_lines[0..(line - 2)]
+      search_lines = host_file_lines[0..(line - 2)]
       idx = search_lines.rindex { |v| class_regex =~ v }
 
-      @source_location = [file,  idx + 1]
+      source_location = [file,  idx + 1]
     rescue Pry::RescuableException
       nil
     end
 
-    private
+    #private
 
     def extract_doc
-      file_name, line = source_location
+      extract_doc_for_candidate(0)
+    end
+
+    def extract_doc_for_candidate(idx)
+      file_name, line = module_source_location_for_candidate(idx)
 
       buffer = ""
-      @host_file_lines[0..(line - 2)].each do |line|
+      lines_for_file(source_file_for_candidate(idx))[0..(line - 2)].each do |line|
         # Add any line that is a valid ruby comment,
         # but clear as soon as we hit a non comment line.
         if (line =~ /^\s*#/) || (line =~ /^\s*$/)
@@ -198,32 +234,66 @@ class Pry
       buffer
     end
 
-    def find_module_method_source_location
-      ims = Pry::Method.all_from_class(wrapped, false) + Pry::Method.all_from_obj(wrapped, false)
+    # FIXME: this method is also found in Pry::Method
+    def safe_send(obj, method, *args, &block)
+      (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
+    end
 
-      file, line = ims.each do |m|
-        break m.source_location if m.source_location && !m.alias?
+    # FIXME: a variant of this method is also found in Pry::Method
+    def all_from_common(mod, method_type)
+      %w(public protected private).map do |visibility|
+        safe_send(mod, :"#{visibility}_#{method_type}s", false).select do |method_name|
+          if method_type == :method
+            safe_send(mod, method_type, method_name).owner == class << mod; self; end
+          else
+            safe_send(mod, method_type, method_name).owner == mod
+          end
+        end.map do |method_name|
+          Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
+        end
+      end.flatten
+    end
+
+    def all_methods_for(mod)
+      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
+    end
+
+    def all_source_locations_by_popularity
+      return @all_source_locations_by_popularity if @all_source_locations_by_popularity
+
+      ims = all_methods_for(wrapped)
+
+      ims.reject! do |v|
+        begin
+          v.alias? || v.source_location.nil?
+        rescue Pry::RescuableException
+          true
+        end
       end
+
+      @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
+        sort_by { |k, v| -v.size }
+    end
+
+    def top_method_candidates
+      @top_method_candidtates ||= all_source_locations_by_popularity.map do |group|
+        sorted_by_lowest_line_number = group.last.sort_by(&:source_line)
+        best_candidate_for_group = sorted_by_lowest_line_number.first
+      end
+    end
+
+    def number_of_candidates
+      top_method_candidates.count
+    end
+
+    def method_source_location_for_candidate(idx)
+      file, line = top_method_candidates[idx].source_location
 
       if file && RbxPath.is_core_path?(file)
         file = RbxPath.convert_path_to_full(file)
       end
 
       [file, line]
-    end
-
-    # FIXME: both methods below copied from Pry::Method
-    def strip_leading_whitespace(text)
-      Pry::Helpers::CommandHelpers.unindent(text)
-    end
-
-    # @param [String] comment
-    # @return [String]
-    def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
-      comment = comment.dup
-      comment.gsub!(/\A\#+?$/, '')
-      comment.gsub!(/^\s*#/, '')
-      strip_leading_whitespace(comment)
     end
 
   end

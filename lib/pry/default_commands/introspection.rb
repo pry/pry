@@ -29,6 +29,13 @@ class Pry
         render_output(code_or_doc, opts)
       end
 
+      def module_start_line(mod, candidate=0)
+        if opts.present?(:'base-one')
+          1
+        else
+          mod.source_line_for_candidate(candidate)
+        end
+      end
     end
 
     Introspection = Pry::CommandSet.new do
@@ -48,13 +55,20 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :v, :verbose, "Show docs for all candidates (modules only)"
         end
 
         def process_module(name)
-          klass = target.eval(name)
+          mod = Pry::WrappedModule.from_str(name)
 
-          mod = Pry::WrappedModule(klass)
+          if opts.present?(:verbose)
+            verbose_module(mod)
+          else
+            normal_module(mod)
+          end
+        end
 
+        def normal_module(mod)
           # source_file reveals the underlying .c file in case of core
           # classes on MRI.
           # This is different to source_location, which
@@ -65,20 +79,34 @@ class Pry
             file_name, line = mod.source_location
           end
 
-          doc = mod.doc
-
-          if doc.empty?
+          if mod.doc.empty?
             output.puts "No documentation found."
+            ""
           else
-
-            # source_location is nil in case of core classes on MRI
             set_file_and_dir_locals(file_name) if !mod.yard_docs?
-            output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
+            doc = ""
+            doc << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n"
+            doc << mod.doc
 
             if opts.present?(:b) || opts.present?(:l)
               start_line = mod.source_location.nil? ? 1 : line - doc.lines.count
               doc = Code.new(doc, start_line, :text).
-                with_line_numbers(true)
+                with_line_numbers(true).to_s
+            end
+            doc
+          end
+        end
+
+        def verbose_module(mod)
+          doc = ""
+          doc << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+          mod.number_of_candidates.times do |v|
+            begin
+              doc << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ #{mod.source_line_for_candidate(v)}:\n\n"
+              dc = mod.doc_for_candidate(v)
+              doc << (dc.empty? ? "No documentation found.\n" : dc)
+            rescue Pry::RescuableException
+              next
             end
           end
           doc
@@ -169,28 +197,53 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
+          opt.on :v, :verbose, "Show source for all candidates (modules only)"
         end
 
         def process_method
           raise CommandError, "Could not find method source" unless method_object.source
 
-          output.puts make_header(method_object)
-          output.puts "#{text.bold("Owner:")} #{method_object.owner || "N/A"}"
-          output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"
-          output.puts
+          code = ""
+          code << make_header(method_object)
+          code << "#{text.bold("Owner:")} #{method_object.owner || "N/A"}\n"
+          code << "#{text.bold("Visibility:")} #{method_object.visibility}\n"
+          code << "\n"
 
-          Code.from_method(method_object, start_line).
-                   with_line_numbers(use_line_numbers?)
+          code << Code.from_method(method_object, start_line).
+                   with_line_numbers(use_line_numbers?).to_s
         end
 
         def process_module(name)
-          klass = target.eval(name)
+          mod = Pry::WrappedModule.from_str(name)
 
-          mod = Pry::WrappedModule(klass)
+          if opts.present?(:verbose)
+            verbose_module(mod)
+          else
+            normal_module(mod)
+          end
+
+        end
+
+        def normal_module(mod)
           file_name, line = mod.source_location
           set_file_and_dir_locals(file_name)
-          output.puts "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
-          Code.from_module(mod).with_line_numbers(use_line_numbers?)
+          code = ""
+          code << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
+          code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?)
+        end
+
+        def verbose_module(mod)
+          code = ""
+          code << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+          mod.number_of_candidates.times do |v|
+            begin
+              code << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ #{mod.source_line_for_candidate(v)}:\n\n"
+              code << Code.new(mod.source_for_candidate(v), module_start_line(mod, v)).with_line_numbers(use_line_numbers?).to_s
+            rescue Pry::RescuableException
+              next
+            end
+          end
+          code
         end
 
         def use_line_numbers?
