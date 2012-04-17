@@ -62,6 +62,10 @@ describe "ls" do
     it "should work for ivars" do
       mock_pry("module StigmaT1sm; def foobie; @@gharble = 456; end; end", "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie", "cd StigmaT1sm", "ls -i").should =~ /@@gharble/
     end
+
+    it "should include instance methods by default" do
+      mock_pry("ls Module.new{ def shinanagarns; 4; end }").should =~ /shinanagarns/
+    end
   end
 
   describe "constants" do
