@@ -14,6 +14,8 @@ class Pry
     end
   end
 
+  # This class wraps the normal `Method` and `UnboundMethod` classes
+  # to provide extra functionality useful to Pry.
   class Method
     include RbxMethod if Helpers::BaseHelpers.rbx?
     include Helpers::DocumentationHelpers
@@ -274,7 +276,9 @@ class Pry
            if Helpers::BaseHelpers.rbx? && !pry_method?
              strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
           elsif pry_method?
-            raise CommandError, "Can't view doc for a REPL-defined method."
+           # raise CommandError, "Can't view doc for a REPL-defined
+     # method."
+             strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
           else
             strip_leading_hash_and_whitespace_from_ruby_comments(@method.comment)
           end
@@ -430,6 +434,24 @@ class Pry
         else
           raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
         end
+      end
+
+      # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
+      def doc_for_pry_method
+        _, line = source_location
+
+        buffer = ""
+        Pry.line_buffer[0..(line - 1)].each do |line|
+          # Add any line that is a valid ruby comment,
+          # but clear as soon as we hit a non comment line.
+          if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+            buffer << line.lstrip
+          else
+            buffer.replace("")
+          end
+        end
+
+        buffer
       end
 
       # @param [Class,Module] the ancestors to investigate
