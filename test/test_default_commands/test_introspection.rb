@@ -261,10 +261,10 @@ describe "Pry::DefaultCommands::Introspection" do
     end
   end
 
-  describe "show-method" do
+  describe "show-source" do
     it 'should output a method\'s source' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-method sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source sample_method", "exit-all"), str_output) do
         pry
       end
 
@@ -272,12 +272,12 @@ describe "Pry::DefaultCommands::Introspection" do
     end
 
     it 'should output help' do
-      mock_pry('show-method -h').should =~ /Usage: show-method/
+      mock_pry('show-source -h').should =~ /Usage: show-source/
     end
 
     it 'should output a method\'s source with line numbers' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-method -l sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source -l sample_method", "exit-all"), str_output) do
         pry
       end
 
@@ -286,7 +286,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
     it 'should output a method\'s source with line numbers starting at 1' do
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-method -b sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source -b sample_method", "exit-all"), str_output) do
         pry
       end
 
@@ -298,7 +298,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       o = Object.new
       def o.sample
-        redirect_pry_io(InputTester.new("show-method", "exit-all"), $str_output) do
+        redirect_pry_io(InputTester.new("show-source", "exit-all"), $str_output) do
           binding.pry
         end
       end
@@ -313,7 +313,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       o = Object.new
       def o.sample
-        redirect_pry_io(InputTester.new("show-method -l", "exit-all"), $str_output) do
+        redirect_pry_io(InputTester.new("show-source -l", "exit-all"), $str_output) do
           binding.pry
         end
       end
@@ -331,7 +331,7 @@ describe "Pry::DefaultCommands::Introspection" do
       end
 
       str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-method o.foo('bar', 'baz bam').foo", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source o.foo('bar', 'baz bam').foo", "exit-all"), str_output) do
         binding.pry
       end
       str_output.string.should =~ /Mr flibble/
@@ -344,7 +344,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
       }
 
-      mock_pry(binding, "show-method c.new.method").should =~ /98/
+      mock_pry(binding, "show-source c.new.method").should =~ /98/
     end
 
     it "should find instance_methods even if the class has an override instance_method method" do
@@ -356,38 +356,38 @@ describe "Pry::DefaultCommands::Introspection" do
         def self.instance_method; 789; end
       }
 
-      mock_pry(binding, "show-method c#method").should =~ /98/
+      mock_pry(binding, "show-source c#method").should =~ /98/
 
     end
 
     it "should find instance methods with -M" do
       c = Class.new{ def moo; "ve over!"; end }
-      mock_pry(binding, "cd c","show-method -M moo").should =~ /ve over/
+      mock_pry(binding, "cd c","show-source -M moo").should =~ /ve over/
     end
 
     it "should not find instance methods with -m" do
       c = Class.new{ def moo; "ve over!"; end }
-      mock_pry(binding, "cd c", "show-method -m moo").should =~ /could not be found/
+      mock_pry(binding, "cd c", "show-source -m moo").should =~ /could not be found/
     end
 
     it "should find normal methods with -m" do
       c = Class.new{ def self.moo; "ve over!"; end }
-      mock_pry(binding, "cd c", "show-method -m moo").should =~ /ve over/
+      mock_pry(binding, "cd c", "show-source -m moo").should =~ /ve over/
     end
 
     it "should not find normal methods with -M" do
       c = Class.new{ def self.moo; "ve over!"; end }
-      mock_pry(binding, "cd c", "show-method -M moo").should =~ /could not be found/
+      mock_pry(binding, "cd c", "show-source -M moo").should =~ /could not be found/
     end
 
     it "should find normal methods with no -M or -m" do
       c = Class.new{ def self.moo; "ve over!"; end }
-      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
+      mock_pry(binding, "cd c", "show-source moo").should =~ /ve over/
     end
 
     it "should find instance methods with no -M or -m" do
       c = Class.new{ def moo; "ve over!"; end }
-      mock_pry(binding, "cd c", "show-method moo").should =~ /ve over/
+      mock_pry(binding, "cd c", "show-source moo").should =~ /ve over/
     end
 
     it "should find super methods" do
@@ -402,7 +402,7 @@ describe "Pry::DefaultCommands::Introspection" do
         :wibble
       end
 
-      mock_pry(binding, "show-method --super o.foo").should =~ /:super_wibble/
+      mock_pry(binding, "show-source --super o.foo").should =~ /:super_wibble/
 
     end
 
@@ -410,7 +410,7 @@ describe "Pry::DefaultCommands::Introspection" do
       o = Object.new
       def o.foo(*bars); end
 
-      mock_pry(binding, "show-method --super o.foo").should =~ /'self.foo' has no super method/
+      mock_pry(binding, "show-source --super o.foo").should =~ /'self.foo' has no super method/
     end
 
     # dynamically defined method source retrieval is only supported in
@@ -418,7 +418,7 @@ describe "Pry::DefaultCommands::Introspection" do
     if RUBY_VERSION =~ /1.9/
       it 'should output a method\'s source for a method defined inside pry' do
         str_output = StringIO.new
-        redirect_pry_io(InputTester.new("def dyna_method", ":testing", "end", "show-method dyna_method"), str_output) do
+        redirect_pry_io(InputTester.new("def dyna_method", ":testing", "end", "show-source dyna_method"), str_output) do
           TOPLEVEL_BINDING.pry
         end
 
@@ -428,7 +428,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should output a method\'s source for a method defined inside pry, even if exceptions raised before hand' do
         str_output = StringIO.new
-        redirect_pry_io(InputTester.new("bad code", "123", "bad code 2", "1 + 2", "def dyna_method", ":testing", "end", "show-method dyna_method"), str_output) do
+        redirect_pry_io(InputTester.new("bad code", "123", "bad code 2", "1 + 2", "def dyna_method", ":testing", "end", "show-source dyna_method"), str_output) do
           TOPLEVEL_BINDING.pry
         end
 
@@ -438,7 +438,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should output an instance method\'s source for a method defined inside pry' do
         str_output = StringIO.new
-        redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-method A#yo"), str_output) do
+        redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-source A#yo"), str_output) do
           TOPLEVEL_BINDING.pry
         end
 
@@ -448,7 +448,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       it 'should output an instance method\'s source for a method defined inside pry using define_method' do
         str_output = StringIO.new
-        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-method A#yup"), str_output) do
+        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-source A#yup"), str_output) do
           TOPLEVEL_BINDING.pry
         end
 
