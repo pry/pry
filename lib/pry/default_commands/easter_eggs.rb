@@ -3,6 +3,10 @@ class Pry
 
     EasterEggs = Pry::CommandSet.new do
 
+      command "nyan-cat", "", :requires_gem => ["nyancat"] do
+        run ".nyancat"
+      end
+
       command(/!s\/(.*?)\/(.*?)/, "") do |source, dest|
         eval_string.gsub!(/#{source}/) { dest }
         run "show-input"
