@@ -50,6 +50,7 @@ class Pry
                       opts.present?(:ivars))
 
           show_methods   = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
+          show_self_methods = (!has_opts && Module === obj)
           show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
           show_ivars     = opts.present?(:ivars) || !has_opts
           show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
@@ -76,12 +77,20 @@ class Pry
 
           if show_methods
             # methods is a hash {Module/Class => [Pry::Methods]}
-            methods = all_methods(obj).select{ |method| opts.present?(:ppp) || method.visibility == :public }.group_by(&:owner)
+            methods = all_methods(obj).group_by(&:owner)
 
             # reverse the resolution order so that the most useful information appears right by the prompt
             resolution_order(obj).take_while(&below_ceiling(obj)).reverse.each do |klass|
               methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
               output_section "#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here
+            end
+          end
+
+          if show_self_methods
+            methods = all_methods(obj, true).select{ |m| m.owner == obj && m.name =~ grep_regex }
+            if methods.first
+              methods_here = format_methods(methods.select{ |m| m.name =~ grep_regex })
+              output_section "#{Pry::WrappedModule.new(methods.first.owner).method_prefix}methods", methods_here
             end
           end
 
@@ -115,13 +124,18 @@ class Pry
                            $LAST_PAREN_MATCH $LAST_READ_LINE $MATCH $POSTMATCH $PREMATCH)
 
         # Get all the methods that we'll want to output
-        def all_methods(obj)
-          methods = opts.present?(:'instance-methods') ? Pry::Method.all_from_class(obj) : Pry::Method.all_from_obj(obj)
+        def all_methods(obj, instance_methods=false)
+          methods = if instance_methods || opts.present?(:'instance-methods')
+                      Pry::Method.all_from_class(obj)
+                    else
+                      Pry::Method.all_from_obj(obj)
+                    end
+
           if jruby? && !opts.present?(:J)
-            trim_jruby_aliases(methods)
-          else
-            methods
+            methods = trim_jruby_aliases(methods)
           end
+
+          methods.select{ |method| opts.present?(:ppp) || method.visibility == :public }
         end
 
         # JRuby creates lots of aliases for methods imported from java in an attempt to
