@@ -88,10 +88,7 @@ class Pry
 
           if show_self_methods
             methods = all_methods(obj, true).select{ |m| m.owner == obj && m.name =~ grep_regex }
-            if methods.first
-              methods_here = format_methods(methods.select{ |m| m.name =~ grep_regex })
-              output_section "#{Pry::WrappedModule.new(methods.first.owner).method_prefix}methods", methods_here
-            end
+            output_section "#{Pry::WrappedModule.new(obj).method_prefix}methods", format_methods(methods)
           end
 
           if show_ivars
