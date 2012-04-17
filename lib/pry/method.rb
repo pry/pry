@@ -245,21 +245,21 @@ class Pry
     # @return [String, nil] The source code of the method, or `nil` if it's unavailable.
     def source
       @source ||= case source_type
-        when :c
-          info = pry_doc_info
-          if info and info.source
-            code = strip_comments_from_c_code(info.source)
-          end
-        when :ruby
-          if Helpers::BaseHelpers.rbx? && !pry_method?
-             code = core_code
-          elsif pry_method?
-            code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
-          else
-            code = @method.source
-          end
-          strip_leading_whitespace(code)
-        end
+                  when :c
+                    info = pry_doc_info
+                    if info and info.source
+                      code = strip_comments_from_c_code(info.source)
+                    end
+                  when :ruby
+                    if Helpers::BaseHelpers.rbx? && !pry_method?
+                      code = core_code
+                    elsif pry_method?
+                      code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
+                    else
+                      code = @method.source
+                    end
+                    strip_leading_whitespace(code)
+                  end
     end
 
     # @return [String, nil] The documentation for the method, or `nil` if it's

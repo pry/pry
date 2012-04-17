@@ -136,7 +136,7 @@ class Pry
       def from_module(mod, start_line=nil)
         mod = Pry::WrappedModule(mod)
 
-        _, start_line = mod.source_location || 1
+        start_line ||= mod.source_line || 1
         new(mod.source, start_line, :ruby)
       end
 
