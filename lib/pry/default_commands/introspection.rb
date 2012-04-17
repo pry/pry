@@ -36,6 +36,10 @@ class Pry
           mod.source_line_for_candidate(candidate)
         end
       end
+
+      def use_line_numbers?
+        opts.present?(:b) || opts.present?(:l)
+      end
     end
 
     Introspection = Pry::CommandSet.new do
@@ -70,8 +74,7 @@ class Pry
 
         def normal_module(mod)
           # source_file reveals the underlying .c file in case of core
-          # classes on MRI.
-          # This is different to source_location, which
+          # classes on MRI. This is different to source_location, which
           # will return nil.
           if mod.yard_docs?
             file_name, line = mod.source_file, nil
@@ -85,15 +88,12 @@ class Pry
           else
             set_file_and_dir_locals(file_name) if !mod.yard_docs?
             doc = ""
-            doc << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n"
             doc << mod.doc
 
-            if opts.present?(:b) || opts.present?(:l)
-              start_line = mod.source_location.nil? ? 1 : line - doc.lines.count
-              doc = Code.new(doc, start_line, :text).
-                with_line_numbers(true).to_s
-            end
-            doc
+            doc = Code.new(doc, module_start_line(mod), :text).
+              with_line_numbers(use_line_numbers?).to_s
+
+            doc.insert(0, "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n")
           end
         end
 
@@ -123,12 +123,20 @@ class Pry
           output.puts "#{text.bold("Signature:")} #{meth.signature}"
           output.puts
 
-          if opts.present?(:b) || opts.present?(:l)
+          if use_line_numbers?
             doc = Code.new(doc, start_line, :text).
               with_line_numbers(true)
           end
 
           doc
+        end
+
+        def module_start_line(mod, candidate=0)
+          if opts.present?(:'base-one')
+            1
+          else
+            mod.source_line_for_candidate(candidate) - mod.doc_for_candidate(candidate).lines.count
+          end
         end
 
         def start_line
