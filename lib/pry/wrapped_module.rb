@@ -25,8 +25,8 @@ class Pry
     # @return [Module, nil] The module or `nil` (if conversion failed).
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
-    def self.from_str(mod_name)
-      Pry::WrappedModule.new(eval(mod_name))
+    def self.from_str(mod_name, binding=TOPLEVEL_BINDING)
+      Pry::WrappedModule.new(binding.eval(mod_name))
     rescue RescuableException
       nil
     end
