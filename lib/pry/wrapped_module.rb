@@ -26,7 +26,12 @@ class Pry
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
     def self.from_str(mod_name, binding=TOPLEVEL_BINDING)
-      Pry::WrappedModule.new(binding.eval(mod_name))
+      mod = binding.eval(mod_name)
+      if mod.is_a?(Module)
+        Pry::WrappedModule.new(mod)
+      else
+        nil
+      end
     rescue RescuableException
       nil
     end

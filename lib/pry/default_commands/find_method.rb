@@ -18,8 +18,8 @@ class Pry
           Use the `-n` switch (the default) to search for methods whose name matches the given regex.
           Use the `-c` switch to search for methods that contain the given code.
 
-          e.g find re Pry                # find all methods whose name match /re/. Matches Pry#repl, etc.
-          e.g find -c 'output.puts' Pry  # find all methods that contain the code: output.puts
+          e.g find re Pry                # find all methods whose name match /re/ inside the Pry namespace. Matches Pry#repl, etc.
+          e.g find -c 'output.puts' Pry  # find all methods that contain the code: output.puts inside the Pry namepsace.
         BANNER
 
         def setup
