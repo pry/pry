@@ -40,9 +40,9 @@ class Pry
                     end
 
           if matches.empty?
-            puts text.bold("No Methods Matched")
+            output.puts text.bold("No Methods Matched")
           else
-            print_matches(matches)
+            print_matches(matches, pattern)
           end
 
         end
@@ -52,7 +52,7 @@ class Pry
         # pretty-print a list of matching methods.
         #
         # @param Array[Method]
-        def print_matches(matches)
+        def print_matches(matches, pattern)
           grouped = matches.group_by(&:owner)
           order = grouped.keys.sort_by{ |x| x.name || x.to_s }
 
@@ -71,10 +71,6 @@ class Pry
               output.puts header + extra
             end
           end
-        end
-
-        def puts(item)
-          output.puts item
         end
 
         # Run the given block against every constant in the provided namespace.
