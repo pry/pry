@@ -67,7 +67,7 @@ class Pry
         end
 
         def process_module(name)
-          mod = Pry::WrappedModule.from_str(name)
+          mod = Pry::WrappedModule.from_str(name, target)
 
           if opts.present?(:all)
             all_modules(mod)
@@ -187,8 +187,8 @@ class Pry
         description "Show the source for METH or CLASS. Aliases: $, show-method"
 
         banner <<-BANNER
-          Usage: show-method [OPTIONS] [METH|CLASS]
-          Aliases: $, show-source
+          Usage: show-source [OPTIONS] [METH|CLASS]
+          Aliases: $, show-method
 
           Show the source for method METH or CLASS. Tries instance methods first and then methods by default.
 
@@ -227,7 +227,7 @@ class Pry
         end
 
         def process_module(name)
-          mod = Pry::WrappedModule.from_str(name)
+          mod = Pry::WrappedModule.from_str(name, target)
 
           if opts.present?(:all)
             all_modules(mod)
