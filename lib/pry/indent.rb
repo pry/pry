@@ -17,6 +17,8 @@ class Pry
   # will be indented or un-indented by correctly.
   #
   class Indent
+    include Helpers::BaseHelpers
+
     # String containing the spaces to be inserted before the next line.
     attr_reader :indent_level
 
@@ -224,7 +226,7 @@ class Pry
       end
       whitespace = ' ' * overhang
 
-      "#{move_up}#{prompt}#{CodeRay.scan(code, :ruby).term}#{whitespace}#{move_down}"
+      "#{move_up}#{prompt}#{colorize_code(code)}#{whitespace}#{move_down}"
     end
   end
 end
