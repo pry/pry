@@ -68,7 +68,7 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module (modules only)"
+          opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module/class"
         end
 
         def process_module
@@ -221,7 +221,7 @@ class Pry
           opt.on :l, "line-numbers", "Show line numbers."
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-          opt.on :a, :all, "Show source for all definitions and monkeypatches of the module (modules only)"
+          opt.on :a, :all, "Show source for all definitions and monkeypatches of the module/class"
         end
 
         def process_method
