@@ -36,7 +36,10 @@ ensure
   end
 end
 
-# **DO NOT CHANGE THIS COMMENT, IT IS USED IN TESTS**
+def mri18_and_no_real_source_location?
+  Pry::Helpers::BaseHelpers.mri_18? && !(Method.instance_method(:source_location).owner == Method)
+end
+
 # used by test_show_source.rb and test_documentation.rb
 class TestClassForShowSource
   def alpha
