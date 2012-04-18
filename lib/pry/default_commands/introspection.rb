@@ -5,12 +5,10 @@ class Pry
 
     # For show-doc and show-source
     module ModuleIntrospectionHelpers
+      attr_accessor :module_object
+
       def module?(name)
-        begin
-          kind = target.eval("defined?(#{name})")
-        rescue Pry::RescuableException
-        end
-        !!(kind == "constant" && target.eval(name).is_a?(Module))
+        self.module_object = Pry::WrappedModule.from_str(name, target)
       end
 
       def method?
@@ -21,7 +19,7 @@ class Pry
 
       def process(name)
         if module?(name)
-          code_or_doc = process_module(name)
+          code_or_doc = process_module
         else method?
           code_or_doc = process_method
         end
@@ -66,17 +64,17 @@ class Pry
           opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module (modules only)"
         end
 
-        def process_module(name)
-          mod = Pry::WrappedModule.from_str(name, target)
-
+        def process_module
           if opts.present?(:all)
-            all_modules(mod)
+            all_modules
           else
-            normal_module(mod)
+            normal_module
           end
         end
 
-        def normal_module(mod)
+        def normal_module
+          mod = module_object
+
           # source_file reveals the underlying .c file in case of core
           # classes on MRI. This is different to source_location, which
           # will return nil.
@@ -101,7 +99,9 @@ class Pry
           end
         end
 
-        def all_modules(mod)
+        def all_modules
+          mod = module_object
+
           doc = ""
           doc << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
@@ -226,17 +226,17 @@ class Pry
                    with_line_numbers(use_line_numbers?).to_s
         end
 
-        def process_module(name)
-          mod = Pry::WrappedModule.from_str(name, target)
-
+        def process_module
           if opts.present?(:all)
-            all_modules(mod)
+            all_modules
           else
-            normal_module(mod)
+            normal_module
           end
         end
 
-        def normal_module(mod)
+        def normal_module
+          mod = module_object
+
           file_name, line = mod.source_location
           set_file_and_dir_locals(file_name)
           code = ""
@@ -244,7 +244,9 @@ class Pry
           code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?)
         end
 
-        def all_modules(mod)
+        def all_modules
+          mod = module_object
+
           code = ""
           code << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|

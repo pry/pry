@@ -22,13 +22,17 @@ class Pry
     # Convert a string to a module.
     #
     # @param [String] mod_name
+    # @param [Binding] target The binding where the lookup takes place.
     # @return [Module, nil] The module or `nil` (if conversion failed).
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
-    def self.from_str(mod_name, binding=TOPLEVEL_BINDING)
-      mod = binding.eval(mod_name)
-      if mod.is_a?(Module)
-        Pry::WrappedModule.new(mod)
+    def self.from_str(mod_name, target=TOPLEVEL_BINDING)
+      kind = target.eval("defined?(#{mod_name})")
+
+      # if we dont limit it to constants then from_str could end up
+      # executing methods which is not good, i.e `show-source pry`
+      if (kind == "constant" && target.eval(mod_name).is_a?(Module))
+        Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
       end
