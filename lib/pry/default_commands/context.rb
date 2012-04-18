@@ -28,13 +28,13 @@ class Pry
             marker = target.eval("__LINE__")
           else
             file   = target.eval("__FILE__")
-            start  = target.eval("__LINE__") 
+            start  = target.eval("__LINE__")
             finish = (args.first && args.first.to_i) || 5
             marker = start
           end
 
           if invalid_file?(file)
-            raise Pry::CommandError, 
+            raise Pry::CommandError,
             "Cannot find local context. Did you use binding.pry?"
           end
 
@@ -48,20 +48,20 @@ class Pry
           desc = (@method && @method.name_with_owner) || ""
 
           if !code.empty?
-            output.puts "\n#{text.bold('From:')} #{file} @ line #{start}#{desc}:\n\n"
+            output.puts "\n#{text.bold('From:')} #{file} @ line #{start} #{desc}:\n\n"
             output.puts code.with_line_numbers.with_marker(marker)
             output.puts
           end
         end
 
-        private 
+        private
 
         def show_method?
-          @method && !@method.instance_of?(Pry::Method::Disowned) && @method.source_range.count < 20
+          args.empty? && @method && !@method.instance_of?(Pry::Method::Disowned) && @method.source_range.count < 20
         end
 
         def invalid_file?(file)
-          file != Pry.eval_path && 
+          file != Pry.eval_path &&
           (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
         end
       end
