@@ -24,6 +24,25 @@ ensure
   Thread.current[:__pry_local__] = nil
 end
 
+def constant_scope(*names)
+  names.each do |name|
+    Object.remove_const name if Object.const_defined?(name)
+  end
+
+  yield
+ensure
+  names.each do |name|
+    Object.remove_const name if Object.const_defined?(name)
+  end
+end
+
+# **DO NOT CHANGE THIS COMMENT, IT IS USED IN TESTS**
+# used by test_show_source.rb and test_documentation.rb
+class TestClassForShowSource
+  def alpha
+  end
+end
+
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
 class << Pry
