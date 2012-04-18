@@ -45,6 +45,7 @@ class Pry
       create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do
         include ModuleIntrospectionHelpers
         include Helpers::DocumentationHelpers
+        extend Helpers::BaseHelpers
 
         banner <<-BANNER
           Usage: show-doc [OPTIONS] [METH]
@@ -55,6 +56,12 @@ class Pry
           e.g show-doc Pry             # docs for Pry class
           e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
         BANNER
+
+        options :requires_gem => "ruby18_source_location" if mri_18?
+
+        def setup
+          require 'ruby18_source_location' if mri_18?
+        end
 
         def options(opt)
           method_options(opt)
@@ -129,7 +136,7 @@ class Pry
 
           if use_line_numbers?
             doc = Code.new(doc, start_line, :text).
-              with_line_numbers(true)
+              with_line_numbers(true).to_s
           end
 
           doc
@@ -183,6 +190,7 @@ class Pry
 
       create_command "show-source" do
         include ModuleIntrospectionHelpers
+        extend Helpers::BaseHelpers
 
         description "Show the source for METH or CLASS. Aliases: $, show-method"
 
@@ -201,9 +209,12 @@ class Pry
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
 
-        command_options(
-          :shellwords => false
-        )
+        options :shellwords => false
+        options :requires_gem => "ruby18_source_location" if mri_18?
+
+        def setup
+          require 'ruby18_source_location' if mri_18?
+        end
 
         def options(opt)
           method_options(opt)
@@ -241,7 +252,7 @@ class Pry
           set_file_and_dir_locals(file_name)
           code = ""
           code << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
-          code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?)
+          code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?).to_s
         end
 
         def all_modules
@@ -309,7 +320,7 @@ class Pry
           output.puts make_header(block)
           output.puts
 
-          code = Code.from_method(block).with_line_numbers(opts.present?(:'line-numbers'))
+          code = Code.from_method(block).with_line_numbers(opts.present?(:'line-numbers')).to_s
 
           render_output(code, opts)
         else
