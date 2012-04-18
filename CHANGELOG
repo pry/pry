@@ -8,6 +8,7 @@ MAJOR NEW FEATURES
 * pry-coolline now works properly with Pry (https://github.com/pry/pry-coolline)
 * alias_command method now much more powerful, e.g: alias_command "lM", "ls -M"
 * `whereami` is now more intelligent, automatically showing entire sourcecode of current method if current context is a method (thanks robgleeson).
+* new `raise-up` command. Allows you to raise an exception that will bubble out of pry (ending the session) and escape into enclosing program.
 
 remaining items:
 * fixed windows crashing bug when paging
