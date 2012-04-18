@@ -1,3 +1,29 @@
+18/4/2012 version 0.9.9
+
+MAJOR NEW FEATURES
+* lines of input are syntax highlighted upon 'enter' keypress
+* show-source command can now show class/module sourcecode (use -a to see all monkeypatches). Hard dependency on ruby18_source_location gem in MRI 1.8
+* show-doc command can show class/module docs (use -a to see docs for all monkeypatches) Hard dependency on ruby18_source_location gem in MRI 1.8.
+* new `find-method` command, performs a recursive search in a namespace for the existence of methods. Can find methods whose names match a regex or methods which contain provided CODE! This command is like a ruby-aware 'grep', very cool (thanks swarley)
+* pry-coolline now works properly with Pry (https://github.com/pry/pry-coolline)
+* alias_command method now much more powerful, e.g: alias_command "lM", "ls -M"
+* `whereami` is now more intelligent, automatically showing entire sourcecode of current method if current context is a method (thanks robgleeson).
+
+remaining items:
+* fixed windows crashing bug when paging
+* lines ending with \ are incomplete (kudos to fowl)
+* `edit-method -n` no longer blocks (thanks misfo)s
+* show instance methods of modules by default in ls
+* docs for REPL defined methods can now be displayed using show-doc
+* autoload ruby18_source_location on mri18, when available (https://github.com/conradirwin/ruby18_source_location)
+* tab completion should work on first line now (historic bug fixed)
+* :quiet => true option added to `Pry.start`, turns off whereami
+* another easter egg added
+* show unloaded constants in yellow for ls
+* improved documentation for Pry.config options
+* improved auto indentation
+* JRuby: heuristics used to clean up 'ls' output (less internal methods polluting output)
+
 6/3/2012 version 0.9.8.4 major bugfix
 * ~/.pry_history wasnt being created (if it did not exist)! FIXED
 * `hist --save` saved colors! FIXED
