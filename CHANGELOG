@@ -1,3 +1,6 @@
+18/4/2012 version 0.9.9.2 minor bugfix
+* make correct_indentation's auto-colorization respect Pry.color
+
 18/4/2012 version 0.9.9.1 very minor release
 * cleared up confusion in show-source/show-doc docs that -a switch applies to classes
 as well as modules
