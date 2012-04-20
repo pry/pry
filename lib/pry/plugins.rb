@@ -48,6 +48,10 @@ class Pry
           warn "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
           warn e
         end
+
+        # Create the configuration object for the plugin.
+        Pry.config.send("#{gem_name.gsub('-', '_')}=", OpenStruct.new)
+
         self.active = true
         self.enabled = true
       end
