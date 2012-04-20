@@ -146,7 +146,11 @@ class Pry
           if opts.present?(:'base-one')
             1
           else
-            mod.source_line_for_candidate(candidate) - mod.doc_for_candidate(candidate).lines.count
+            if mod.source_line_for_candidate(candidate)
+              mod.source_line_for_candidate(candidate) - mod.doc_for_candidate(candidate).lines.count
+            else
+              1
+            end
           end
         end
 
