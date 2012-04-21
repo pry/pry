@@ -254,25 +254,29 @@ class Pry
 
           file_name, line = mod.source_location
           set_file_and_dir_locals(file_name)
-          code = ""
-          code << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n\n"
-          code << Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?).to_s
+          code = Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?).to_s
+          result = ""
+          result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
+          result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
+          result << code
         end
 
         def all_modules
           mod = module_object
 
-          code = ""
-          code << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+          result = ""
+          result << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
             begin
-              code << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ line #{mod.source_line_for_candidate(v)}:\n\n"
-              code << Code.new(mod.source_for_candidate(v), module_start_line(mod, v)).with_line_numbers(use_line_numbers?).to_s
+              code = Code.new(mod.source_for_candidate(v), module_start_line(mod, v)).with_line_numbers(use_line_numbers?).to_s
+              result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ line #{mod.source_line_for_candidate(v)}:\n"
+              result << "Number of lines: #{code.lines.count}\n\n"
+              result << code
             rescue Pry::RescuableException
               next
             end
           end
-          code
+          result
         end
 
         def use_line_numbers?
