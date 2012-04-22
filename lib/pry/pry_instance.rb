@@ -338,7 +338,7 @@ class Pry
                                                         instance_eval(&custom_completions))
 
 
-    indentation = Pry.config.auto_indent ? @indent.indent_level : ''
+    indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
     begin
       val = readline("#{current_prompt}#{indentation}", completion_proc)

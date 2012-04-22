@@ -234,4 +234,44 @@ OUTPUT
 
     @indent.indent(input).should == output
   end
+
+  it "should not indent inside strings" do
+    @indent.indent(%(def a\n"foo\nbar"\n  end)).should == %(def a\n  "foo\nbar"\nend)
+    @indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end)).should == %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
+  end
+
+  it "should not indent inside HEREDOCs" do
+    @indent.indent(%(def a\nputs <<FOO\n bar\nFOO\nbaz\nend)).should == %(def a\n  puts <<FOO\n bar\nFOO\n  baz\nend)
+    @indent.indent(%(def a\nputs <<-'^^'\n bar\n\t^^\nbaz\nend)).should == %(def a\n  puts <<-'^^'\n bar\n\t^^\n  baz\nend)
+  end
+
+  it "should not indent nested HEREDOCs" do
+    input = <<INPUT.strip
+def a
+puts <<FOO, <<-BAR, "baz", <<-':p'
+foo
+FOO
+bar
+BAR
+tongue
+:p
+puts :p
+end
+INPUT
+
+    output = <<OUTPUT.strip
+def a
+  puts <<FOO, <<-BAR, "baz", <<-':p'
+foo
+FOO
+bar
+BAR
+tongue
+:p
+  puts :p
+end
+OUTPUT
+
+    @indent.indent(input).should == output
+  end
 end
