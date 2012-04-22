@@ -56,7 +56,7 @@ class Pry
     #
     # :pre_constant and :preserved_constant are the CodeRay 0.9.8 and 1.0.0
     # classifications of "true", "false", and "nil".
-    IGNORE_TOKENS = [:space, :content, :string, :delimiter, :method, :ident,
+    IGNORE_TOKENS = [:space, :content, :string, :method, :ident,
                      :constant, :pre_constant, :predefined_constant]
 
     # Tokens that indicate the end of a statement (i.e. that, if they appear
@@ -65,7 +65,8 @@ class Pry
     #
     # :reserved and :keywords are the CodeRay 0.9.8 and 1.0.0 respectively
     # classifications of "super", "next", "return", etc.
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword, :reserved]
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword,
+                                            :delimiter, :reserved]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
@@ -79,6 +80,9 @@ class Pry
     def reset
       @stack = []
       @indent_level = ''
+      @heredoc_queue = []
+      @close_heredocs = {}
+      @string_start = nil
       self
     end
 
@@ -109,19 +113,42 @@ class Pry
       prefix = indent_level
 
       input.lines.each do |line|
-        tokens = CodeRay.scan(line, :ruby)
-        tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens) # Coderay 1.0.0
+
+        if in_string?
+          tokens = tokenize("#{open_delimiters_line}\n#{line}")
+          tokens = tokens.drop_while{ |token, type| !(String === token && token.include?("\n")) }
+          previously_in_string = true
+        else
+          tokens = tokenize(line)
+          previously_in_string = false
+        end
 
         before, after = indentation_delta(tokens)
 
         before.times{ prefix.sub! SPACES, '' }
-        output += prefix + line.strip + "\n"
-        prefix += SPACES * after
+        new_prefix = prefix + SPACES * after
+
+        line = prefix + line.lstrip unless previously_in_string
+        line = line.rstrip + "\n"   unless in_string?
+
+        output += line
+
+        prefix = new_prefix
       end
 
       @indent_level = prefix
 
       return output.gsub(/\s+$/, '')
+    end
+
+    # Get the indentation for the start of the next line.
+    #
+    # This is what's used between the prompt and the cursor in pry.
+    #
+    # @return String  The correct number of spaces
+    #
+    def current_prefix
+      in_string? ? '' : indent_level
     end
 
     # Get the change in indentation indicated by the line.
@@ -167,7 +194,9 @@ class Pry
 
         seen_for_at << add_after if token == "for"
 
-        if OPEN_TOKENS.keys.include?(token) && !is_optional_do && !is_singleline_if
+        if kind == :delimiter
+          track_delimiter(token)
+        elsif OPEN_TOKENS.keys.include?(token) && !is_optional_do && !is_singleline_if
           @stack << token
           add_after += 1
         elsif token == OPEN_TOKENS[@stack.last]
@@ -192,6 +221,65 @@ class Pry
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
       (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
+    end
+
+    # Are we currently in the middle of a string literal.
+    #
+    # This is used to determine whether to re-indent a given line, we mustn't re-indent
+    # within string literals because to do so would actually change the value of the
+    # String!
+    #
+    # @return Boolean
+    def in_string?
+      !open_delimiters.empty?
+    end
+
+    # Given a string of Ruby code, use CodeRay to export the tokens.
+    #
+    # @param String  The Ruby to lex.
+    # @return [Array]  An Array of pairs of [token_value, token_type]
+    def tokenize(string)
+      tokens = CodeRay.scan(string, :ruby)
+      tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens) # Coderay 1.0.0
+      tokens
+    end
+
+    # Update the internal state about what kind of strings are open.
+    #
+    # Most of the complication here comes from the fact that HEREDOCs can be nested. For
+    # normal strings (which can't be nested) we assume that CodeRay correctly pairs
+    # open-and-close delimiters so we don't bother checking what they are.
+    #
+    # @param String  The token (of type :delimiter)
+    def track_delimiter(token)
+      case token
+      when /^<<-(["'`]?)(.*)\\1/
+        @heredoc_queue << token
+        @close_heredocs[token] = /^\s*$2/
+      when @close_heredocs[@heredoc_queue.first]
+        @heredoc_queue.shift
+      else
+        if @string_start
+          @string_start = nil
+        else
+          @string_start = token
+        end
+      end
+    end
+
+    # All the open delimiters, in the order that they first appeared.
+    #
+    # @return [String]
+    def open_delimiters
+      @heredoc_queue + [@string_start].compact
+    end
+
+    # Return a string which restores the CodeRay string status to the correct value by
+    # opening HEREDOCs and strings.
+    #
+    # @return String
+    def open_delimiters_line
+      "puts #{open_delimiters.join(", ")}"
     end
 
     # Return a string which, when printed, will rewrite the previous line with
