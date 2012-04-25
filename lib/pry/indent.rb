@@ -1,12 +1,10 @@
 require 'coderay'
 
 class Pry
+  # Load io-console if possible, so that we can use $stdout.winsize.
   begin
     require 'io/console'
   rescue LoadError
-    IO_CONSOLE_AVAILABLE = false
-  else
-    IO_CONSOLE_AVAILABLE = true
   end
 
   ##
@@ -292,18 +290,17 @@ class Pry
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
       full_line = prompt + code
-      if IO_CONSOLE_AVAILABLE && $stdout.tty?
+      whitespace = ' ' * overhang
+
+      if $stdout.tty? && $stdout.respond_to?(:winsize)
         _, cols = $stdout.winsize
-        lines = full_line.length / cols + 1
       elsif Readline.respond_to?(:get_screen_size)
         _, cols = Readline.get_screen_size
-        lines = full_line.length / cols + 1
       elsif ENV['COLUMNS'] && ENV['COLUMNS'] != ''
         cols = ENV['COLUMNS'].to_i
-        lines = full_line.length / cols + 1
-      else
-        lines = 1
       end
+
+      lines = cols ? (full_line.length / cols + 1) : 1
 
       if defined?(Win32::Console)
         move_up   = "\e[#{lines}F"
@@ -312,7 +309,6 @@ class Pry
         move_up   = "\e[#{lines}A\e[0G"
         move_down = "\e[#{lines}B\e[0G"
       end
-      whitespace = ' ' * overhang
 
       "#{move_up}#{prompt}#{colorize_code(code)}#{whitespace}#{move_down}"
     end
