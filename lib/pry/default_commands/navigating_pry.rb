@@ -41,11 +41,14 @@ class Pry
       end
 
       command "exit-all", "End the current Pry session (popping all bindings) and returning to caller. Accepts optional return value. Aliases: !!@" do
+        # calculate user-given value
+        exit_value = target.eval(arg_string)
+
         # clear the binding stack
         _pry_.binding_stack.clear
 
         # break out of the repl loop
-        throw(:breakout, target.eval(arg_string))
+        throw(:breakout, exit_value)
       end
 
       alias_command "!!@", "exit-all"
