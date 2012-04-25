@@ -239,7 +239,7 @@ class Pry
     def tokenize(string)
       tokens = CodeRay.scan(string, :ruby)
       tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens) # Coderay 1.0.0
-      tokens
+      tokens.to_a
     end
 
     # Update the internal state about what kind of strings are open.
