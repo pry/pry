@@ -1,6 +1,7 @@
 26/4/2012 version 0.9.9.4 major bugfix
 * fixed `NoMethodError: undefined method `winsize' for #<IO:<STDOUT>>`, bug #549
 * fixes for jruby
+* breakage on `exit` syntax error, fixes, #550
 * heredoc content no longer auto-indented
 
 19/4/2012 version 0.9.9.3 major doc bugfix
