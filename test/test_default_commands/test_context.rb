@@ -77,6 +77,12 @@ describe "Pry::DefaultCommands::Context" do
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit, and return user-given value' do
       Pry.start(0, :input => StringIO.new("exit :john")).should == :john
     end
+
+    it 'should break out the repl loop of Pry instance even after an exception in user-given value' do
+      redirect_pry_io(InputTester.new("exit = 42", "exit"), StringIO.new) do
+        ins = Pry.new.tap { |v| v.repl(0).should == nil }
+      end
+    end
   end
 
   describe "jump-to" do
