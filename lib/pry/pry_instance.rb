@@ -333,19 +333,25 @@ class Pry
   def retrieve_line(eval_string, target)
     @indent.reset if eval_string.empty?
 
-    current_prompt = select_prompt(eval_string, target)
-    completion_proc = Pry::InputCompleter.build_completion_proc(target,
-                                                        instance_eval(&custom_completions))
+    # If necessary, make sure the prompt starts in the first column (issue #551)
+    if Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
+      column_reset = "\e[0G"
+    end
 
+    current_prompt = select_prompt(eval_string, target)
 
     indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
-    begin
-      val = readline("#{current_prompt}#{indentation}", completion_proc)
+    completion_proc = Pry::InputCompleter.build_completion_proc(
+      target, instance_eval(&custom_completions))
 
-    # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
-    # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
-    # from within Readline.
+    begin
+      full_prompt = "#{column_reset}#{current_prompt}#{indentation}"
+      val = readline(full_prompt, completion_proc)
+
+    # Handle <Ctrl-C> like Bash: empty the current input buffer but do not
+    # quit.  This is only for Ruby 1.9; other versions of Ruby do not let you
+    # send Interrupt from within Readline.
     rescue Interrupt => e
       output.puts ""
       eval_string.replace("")
