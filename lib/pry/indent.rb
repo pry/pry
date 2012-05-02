@@ -292,14 +292,7 @@ class Pry
       full_line = prompt + code
       whitespace = ' ' * overhang
 
-      if $stdout.tty? && $stdout.respond_to?(:winsize)
-        _, cols = $stdout.winsize
-      elsif Readline.respond_to?(:get_screen_size)
-        _, cols = Readline.get_screen_size
-      elsif ENV['COLUMNS'] && ENV['COLUMNS'] != ''
-        cols = ENV['COLUMNS'].to_i
-      end
-
+      _, cols = screen_size
       lines = cols && cols != 0 ? (full_line.length / cols + 1) : 1
 
       if defined?(Win32::Console)
@@ -311,6 +304,25 @@ class Pry
       end
 
       "#{move_up}#{prompt}#{colorize_code(code)}#{whitespace}#{move_down}"
+    end
+
+    # Return a pair of [rows, columns] which gives the size of the window.
+    #
+    # If the window size cannot be determined, return nil.
+    def screen_size
+      [
+         # io/console adds a winsize method to IO streams.
+         $stdout.tty? && $stdout.respond_to?(:winsize) && $stdout.winsize,
+
+         # Some readlines also provides get_screen_size.
+         Readline.respond_to?(:get_screen_size) && Readline.get_screen_size,
+
+         # Otherwise try to use the environment (this may be out of date due
+         # to window resizing, but it better than nothing).
+         [ENV["ROWS"], ENV["COLUMNS"]]
+      ].detect do |(rows, cols)|
+        cols.to_i > 0
+      end
     end
   end
 end
