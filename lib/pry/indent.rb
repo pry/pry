@@ -300,7 +300,7 @@ class Pry
         cols = ENV['COLUMNS'].to_i
       end
 
-      lines = cols ? (full_line.length / cols + 1) : 1
+      lines = cols && cols != 0 ? (full_line.length / cols + 1) : 1
 
       if defined?(Win32::Console)
         move_up   = "\e[#{lines}F"
