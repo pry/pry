@@ -11,7 +11,7 @@ class Pry
           gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/`(?:\s*\n)?(.*?)\s*`/) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }
+          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{Pry.color ? CodeRay.scan($1, code_type).term : $1}`" }
       end
 
       def process_yardoc_tag(comment, tag)

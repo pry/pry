@@ -65,6 +65,68 @@ if !mri18_and_no_real_source_location?
       end
     end
 
+    describe "rdoc highlighting" do
+      it "should syntax highlight code in rdoc" do
+        c = Class.new{
+          # This can initialize your class:
+          #
+          #   a = c.new :foo
+          #
+          # @param foo
+          def initialize(foo); end
+        }
+
+        begin
+          mock_pry(binding, "show-doc c#initialize").should =~ /c.new :foo/
+          Pry.config.color = true
+          # I don't want the test to rely on which colour codes are there, just to
+          # assert that "something" is being colourized.
+          mock_pry(binding, "show-doc c#initialize").should.not =~ /c.new :foo/
+        ensure
+          Pry.config.color = false
+        end
+      end
+
+      it "should syntax highlight `code` in rdoc" do
+        c = Class.new{
+          # After initializing your class with `c.new(:foo)`, go have fun!
+          #
+          # @param foo
+          def initialize(foo); end
+        }
+
+        begin
+          mock_pry(binding, "show-doc c#initialize").should =~ /c.new\(:foo\)/
+          Pry.config.color = true
+          # I don't want the test to rely on which colour codes are there, just to
+          # assert that "something" is being colourized.
+          mock_pry(binding, "show-doc c#initialize").should.not =~ /c.new\(:foo\)/
+        ensure
+          Pry.config.color = false
+        end
+
+      end
+
+      it "should not syntax highlight `` inside code" do
+        c = Class.new{
+          # Convert aligned output (from many shell commands) into nested arrays:
+          #
+          #   a = decolumnize `ls -l $HOME`
+          #
+          # @param output
+          def decolumnize(output); end
+        }
+
+        begin
+          Pry.config.color = true
+          mock_pry(binding, "show-doc c#decolumnize").should =~ /ls -l \$HOME/
+          mock_pry(binding, "show-doc c#decolumnize").should.not =~ /`ls -l \$HOME`/
+        ensure
+          Pry.config.color = false
+        end
+      end
+    end
+
     describe "on modules" do
       before do
         # god this is boring1
