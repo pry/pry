@@ -338,13 +338,13 @@ describe "Pry::DefaultCommands::Context" do
   describe "skip" do
     it 'should skip next session' do
       $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("$skipped = false", "skip"), StringIO.new) do
         Pry.start(0)
       end
       $skipped.should == false
 
       $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("$skipped = false", "skip"), StringIO.new) do
         Pry.start(0)
       end
       $skipped.should == true
@@ -358,7 +358,7 @@ describe "Pry::DefaultCommands::Context" do
 
     it 'should skip next sessions' do
       $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip 2", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("$skipped = false", "skip 2"), StringIO.new) do
         Pry.start(0)
       end
       $skipped.should == false
@@ -374,6 +374,14 @@ describe "Pry::DefaultCommands::Context" do
         Pry.start(0)
       end
       $skipped.should == true
+    end
+
+    it 'should break out of the repl loop of Pry instance' do
+     $break = true
+      redirect_pry_io(InputTester.new("skip", "$break = false"), StringIO.new) do
+        Pry.start(0)
+      end
+      $break.should == true
     end
   end
 end

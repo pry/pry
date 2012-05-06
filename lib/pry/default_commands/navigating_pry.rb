@@ -105,11 +105,12 @@ class Pry
         target.pry
       end
 
-      command "skip", "Skip the next pry Session(s) and ends the current one." do |amount|
+      command 'skip', 'Skip the next pry Session(s) and ends the current one.' do |amount|
         amount = amount.nil? ? 1 : amount.to_i
 
         if amount >= 1
           (1..amount).each { |number| _pry_.skip_stack.push number }
+          _pry_.run_command('exit-all')
         else
           output.puts "Invalid skip amount. Must be higher than 0. Got #{amount}."
         end
