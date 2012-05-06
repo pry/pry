@@ -160,9 +160,9 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should not leave the REPL session when given 'cd ..'" do
-      b = Pry.binding_for(Object.new) 
-      input = InputTester.new "cd ..", "$obj = self", "exit-all" 
-      
+      b = Pry.binding_for(Object.new)
+      input = InputTester.new "cd ..", "$obj = self", "exit-all"
+
       redirect_pry_io(input, StringIO.new) do
         b.pry
       end
@@ -337,50 +337,28 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "skip" do
     it 'should skip next session' do
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip"), StringIO.new) do
-        Pry.start(0)
-      end
-      $skipped.should == false
+      mock_pry('$skipped = true', 'skip')
 
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip"), StringIO.new) do
-        Pry.start(0)
-      end
+      mock_pry('$skipped = false', 'skip')
       $skipped.should == true
 
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
-        Pry.start(0)
-      end
+      mock_pry('$skipped = false', 'exit-all')
       $skipped.should == false
     end
 
     it 'should skip next sessions' do
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "skip 2"), StringIO.new) do
-        Pry.start(0)
-      end
-      $skipped.should == false
+      mock_pry('$skipped = true', 'skip 2')
 
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
-        Pry.start(0)
-      end
+      mock_pry('$skipped = false', 'exit-all')
       $skipped.should == true
 
-      $skipped = true
-      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
-        Pry.start(0)
-      end
+      mock_pry('$skipped = false', 'exit-all')
       $skipped.should == true
     end
 
     it 'should break out of the repl loop of Pry instance' do
-     $break = true
-      redirect_pry_io(InputTester.new("skip", "$break = false"), StringIO.new) do
-        Pry.start(0)
-      end
+      $break = true
+      mock_pry('skip', '$break = false')
       $break.should == true
     end
   end
