@@ -334,4 +334,46 @@ describe "Pry::DefaultCommands::Context" do
       lambda { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.should.raise RuntimeError, 'fancy that...'
     end
   end
+
+  describe "skip" do
+    it 'should skip next session' do
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "skip", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == false
+
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "skip", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == true
+
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == false
+    end
+
+    it 'should skip next sessions' do
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "skip 2", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == false
+
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == true
+
+      $skipped = true
+      redirect_pry_io(InputTester.new("$skipped = false", "exit-all"), StringIO.new) do
+        Pry.start(0)
+      end
+      $skipped.should == true
+    end
+  end
 end
