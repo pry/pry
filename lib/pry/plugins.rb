@@ -42,12 +42,16 @@ class Pry
       # disabled)
       # Does not reload plugin if it's already active.
       def activate!
+        # Create the configuration object for the plugin.
+        Pry.config.send("#{gem_name.gsub('-', '_')}=", OpenStruct.new)
+
         begin
           require gem_name if !active?
         rescue LoadError => e
           warn "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
           warn e
         end
+
         self.active = true
         self.enabled = true
       end
