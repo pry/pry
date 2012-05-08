@@ -37,7 +37,7 @@ describe "test Pry defaults" do
       end.new
 
       Pry.start(self, :input => arity_one_input, :output => Pry::NullOutput)
-      arity_one_input.prompt.should.include? Pry.prompt.call
+      arity_one_input.prompt.should == Pry.prompt.call
     end
 
     it 'should not pass in the prompt if the arity is 0' do
