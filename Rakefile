@@ -12,8 +12,8 @@ def apply_spec_defaults(s)
   s.summary = "An IRB alternative and runtime developer console"
   s.version = Pry::VERSION
   s.date = Time.now.strftime '%Y-%m-%d'
-  s.author = "John Mair (banisterfiend)"
-  s.email = 'jrmair@gmail.com'
+  s.authors = ["John Mair (banisterfiend)", "Conrad Irwin"]
+  s.email = ['jrmair@gmail.com', 'conrad.irwin@gmail.com']
   s.description = s.summary
   s.homepage = 'http://pry.github.com'
   s.executables = ['pry']
