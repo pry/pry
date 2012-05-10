@@ -293,7 +293,9 @@ class Pry
       whitespace = ' ' * overhang
 
       _, cols = screen_size
-      lines = cols && cols != 0 ? (full_line.length / cols + 1) : 1
+
+      cols = cols.to_i
+      lines = cols != 0 ? (full_line.length / cols + 1) : 1
 
       if defined?(Win32::Console)
         move_up   = "\e[#{lines}F"

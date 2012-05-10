@@ -1,3 +1,7 @@
+09/05/2012 version 0.9.9.6 fixes #558
+* #558 has been a thorn in our side for long enough, hopefully this properly fixes it
+(though im not to confident :P)
+
 09/05/2012 version 0.9.9.5 minor bugfix
 * fixed ZeroDivisionError in correct_indentation, bug #558
 * fix double highlighting in rdoc, bug #562
