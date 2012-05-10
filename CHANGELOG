@@ -1,3 +1,8 @@
+09/05/2012 version 0.9.9.5 minor bugfix
+* fixed ZeroDivisionError in correct_indentation, bug #558
+* fix double highlighting in rdoc, bug #562
+* autocreate configuration for plugins, bug #548
+
 26/4/2012 version 0.9.9.4 major bugfix
 * fixed `NoMethodError: undefined method `winsize' for #<IO:<STDOUT>>`, bug #549
 * fixes for jruby
