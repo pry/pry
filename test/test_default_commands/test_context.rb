@@ -56,6 +56,20 @@ describe "Pry::DefaultCommands::Context" do
       Cor.new.blimey!
       Object.remove_const(:Cor)
     end
+
+    it 'should properly set _file_, _line_ and _dir_' do
+      class Cor
+        def blimey!
+          mock_pry(binding, 'whereami', '_file_') \
+            .should =~ /#{File.expand_path(__FILE__)}/
+
+          mock_pry(binding, 'whereami', '_line_').should =~ /#{__LINE__}/
+        end
+      end
+
+      Cor.new.blimey!
+      Object.remove_const(:Cor)
+    end
   end
 
   describe "exit" do
@@ -160,9 +174,9 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should not leave the REPL session when given 'cd ..'" do
-      b = Pry.binding_for(Object.new) 
-      input = InputTester.new "cd ..", "$obj = self", "exit-all" 
-      
+      b = Pry.binding_for(Object.new)
+      input = InputTester.new "cd ..", "$obj = self", "exit-all"
+
       redirect_pry_io(input, StringIO.new) do
         b.pry
       end

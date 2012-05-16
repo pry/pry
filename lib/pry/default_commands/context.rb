@@ -48,6 +48,9 @@ class Pry
           desc = (@method && @method.name_with_owner) || ""
 
           if !code.empty?
+            set_file_and_dir_locals(file)
+            _pry_.inject_local('_line_', start, target)
+
             output.puts "\n#{text.bold('From:')} #{file} @ line #{start} #{desc}:\n\n"
             output.puts code.with_line_numbers.with_marker(marker)
             output.puts
