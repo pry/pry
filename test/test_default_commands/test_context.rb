@@ -62,8 +62,6 @@ describe "Pry::DefaultCommands::Context" do
         def blimey!
           mock_pry(binding, 'whereami', '_file_') \
             .should =~ /#{File.expand_path(__FILE__)}/
-
-          mock_pry(binding, 'whereami', '_line_').should =~ /#{__LINE__}/
         end
       end
 
