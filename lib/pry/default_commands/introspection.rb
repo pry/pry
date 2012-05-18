@@ -345,8 +345,41 @@ class Pry
         BANNER
 
         def process
-          run ".ri", *args
+          # Lazily load RI
+          require 'rdoc/ri/driver'
+
+          unless defined? RDoc::RI::PryDriver
+
+            # Subclass RI so that it formats its output nicely, and uses `lesspipe`.
+            subclass = Class.new(RDoc::RI::Driver) # the hard way.
+
+            subclass.class_eval do
+              def page
+                lesspipe {|less| yield less}
+              end
+
+              def formatter(io)
+                if @formatter_klass then
+                  @formatter_klass.new
+                else
+                  RDoc::Markup::ToAnsi.new
+                end
+              end
+            end
+
+            Object.const_set "RDoc::RI::PryDriver", subclass # hook it up!
+          end
+
+          # Spin-up an RI insance.
+          ri = RDoc::RI::PryDriver.new :use_stdout => true, :interactive => false
+
+          begin
+            ri.display_names names  # Get the documentation (finally!)
+          rescue RDoc::RI::Driver::NotFoundError => e
+            output.puts "error: '#{e.name}' not found"
+          end
         end
+
       end
 
     end
