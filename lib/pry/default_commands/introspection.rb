@@ -341,10 +341,10 @@ class Pry
           Usage: ri [spec]
           e.g. ri Array#each
 
-          Relies on the ri executable being available. See also: show-doc.
+          Relies on the rdoc gem being installed. See also: show-doc.
         BANNER
 
-        def process
+        def process(spec)
           # Lazily load RI
           require 'rdoc/ri/driver'
 
@@ -355,7 +355,7 @@ class Pry
 
             subclass.class_eval do
               def page
-                lesspipe {|less| yield less}
+                Pry::Helpers::BaseHelpers.lesspipe {|less| yield less}
               end
 
               def formatter(io)
@@ -367,14 +367,14 @@ class Pry
               end
             end
 
-            Object.const_set "RDoc::RI::PryDriver", subclass # hook it up!
+            RDoc::RI.const_set :PryDriver, subclass   # hook it up!
           end
 
           # Spin-up an RI insance.
           ri = RDoc::RI::PryDriver.new :use_stdout => true, :interactive => false
 
           begin
-            ri.display_names names  # Get the documentation (finally!)
+            ri.display_names [spec]  # Get the documentation (finally!)
           rescue RDoc::RI::Driver::NotFoundError => e
             output.puts "error: '#{e.name}' not found"
           end
