@@ -90,9 +90,7 @@ class Pry
         # @yieldparam klazz  Each class/module in the namespace.
         #
         def recurse_namespace(klass, done={}, &block)
-          if done[klass] || !(Module === klass)
-            return
-          end
+          return if !(Module === klass) || done[klass]
 
           done[klass] = true
 
