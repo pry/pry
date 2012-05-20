@@ -89,6 +89,7 @@ class Pry
             f.puts(content)
             f.flush
             reload = !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
+            f.close(false)
             invoke_editor(f.path, line, reload)
             if reload
               silence_warnings do
@@ -209,6 +210,7 @@ class Pry
           temp_file do |f|
             f.puts lines.join
             f.flush
+            f.close(false)
             invoke_editor(f.path, 0, true)
 
             if @method.alias?
