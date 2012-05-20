@@ -35,7 +35,15 @@ unless Pry::Helpers::BaseHelpers.mri_18?
         mock_pry("find-method timothy MyKlass").should.not =~ /MyKlass.*?goodbye/m
       end
     end
-    
+
+    it "should work with badly behaved constants" do
+      MyKlass::X = Object.new
+      def (MyKlass::X).hash
+        raise "mooo"
+      end
+
+      mock_pry("find-method -c timothy MyKlass").should =~ /MyKlass.*?hello/m
+    end
   end
 
   Object.remove_const(:MyKlass)
