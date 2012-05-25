@@ -155,7 +155,7 @@ class Pry
       # we can just use the program's name and ignore any absolute paths.
       #
       def editor_name
-        Pry.config.editor.split("/").last.split(" ").first
+        Pry.config.editor.split(%r{[\\/]}).last.split(" ").first
       end
 
       # Remove any common leading whitespace from every line in `text`.
