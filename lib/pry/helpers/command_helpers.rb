@@ -107,7 +107,7 @@ class Pry
       # not to block the process from which they were launched (in this case, Pry).
       # For those editors, return the flag that produces the desired behavior.
       def blocking_flag_for_editor(block)
-        case Pry.config.editor
+        case Pry.config.editor.split("/").last
         when /^emacsclient/
           '--no-wait' unless block
         when /^[gm]vim/
