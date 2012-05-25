@@ -37,7 +37,10 @@ class Pry
       end
       alias_command "file-mode", "shell-mode"
 
-      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "gist", :shellwords => false do
+      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "gist" do
+
+        include Pry::Helpers::DocumentationHelpers
+
         banner <<-USAGE
           Usage: gist [OPTIONS] [METH]
           Gist method (doc or source) or input expression to github.
@@ -48,6 +51,8 @@ class Pry
           e.g: gist -c show-method
           e.g: gist -m hello_world --lines 2..-2
         USAGE
+
+        command_options :shellwords => false
 
         attr_accessor :content
         attr_accessor :code_type
@@ -61,24 +66,47 @@ class Pry
         def options(opt)
           opt.on :m, :method, "Gist a method's source.", true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
-            self.content << meth.source
+            self.content << meth.source << "\n"
             self.code_type = meth.source_type
           end
           opt.on :d, :doc, "Gist a method's documentation.", true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
-              self.content << process_comment_markup(meth.doc, self.code_type)
+              self.content << process_comment_markup(meth.doc, self.code_type) << "\n"
             end
             self.code_type = :plain
           end
           opt.on :c, :command, "Gist a command's source.", true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(find_command(command_name).block)
-            self.content << block.source
+            self.content << block.source << "\n"
           end
+          opt.on :k, :class, "Gist a class's source.", true do |class_name|
+            mod = Pry::WrappedModule.from_str(class_name, target)
+            self.content << mod.source << "\n"
+          end
+          opt.on :hist, "Gist a range of Readline history lines.",  :optional => true, :as => Range, :default => -20..-1 do |range|
+            h = Pry.history.to_a
+            self.content << h[one_index_range(convert_to_range(range))].join("\n") << "\n"
+          end
+
           opt.on :f, :file, "Gist a file.", true do |file|
-            self.content << File.read(File.expand_path(file))
+            self.content << File.read(File.expand_path(file)) << "\n"
           end
+          opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional => true,
+          :as => Range, :default => -5..-1 do |range|
+            range = convert_to_range(range)
+
+            output_results = []
+            range.each do |v|
+              self.content << Pry.config.gist.inspecter.call(_pry_.output_array[v])
+            end
+
+            self.content << "\n"
+          end
+          # opt.on :s, :string, "Gist a string", true  do |string|
+          #   self.content << string << "\n"
+          # end
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
           opt.on :l, :lines, "Only gist a subset of lines.", :optional => true, :as => Range, :default => 1..-1
           opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
@@ -170,10 +198,22 @@ class Pry
           self.content = ""
         end
 
+        def convert_to_range(n)
+          if !n.is_a?(Range)
+            (n..n)
+          else
+            n
+          end
+        end
+
         def options(opt)
           opt.on :m, :method, "Save a method's source.", true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source
+          end
+          opt.on :k, :class, "Save a class's source.", true do |class_name|
+            mod = Pry::WrappedModule.from_str(class_name, target)
+            self.content << mod.source
           end
           opt.on :c, :command, "Save a command's source.", true do |command_name|
             command = find_command(command_name)
@@ -184,6 +224,17 @@ class Pry
             self.content << File.read(File.expand_path(file))
           end
           opt.on :l, :lines, "Only save a subset of lines.", :optional => true, :as => Range, :default => 1..-1
+          opt.on :o, :out, "Save entries from Pry's output result history. Takes an index or range.", :optional => true,
+          :as => Range, :default => -5..-1 do |range|
+            range = convert_to_range(range)
+
+            output_results = []
+            range.each do |v|
+              self.content << Pry.config.gist.inspecter.call(_pry_.output_array[v])
+            end
+
+            self.content << "\n"
+          end
           opt.on :i, :in, "Save entries from Pry's input expression history. Takes an index or range.", :optional => true,
           :as => Range, :default => -5..-1 do |range|
             input_expressions = _pry_.input_array[range] || []
