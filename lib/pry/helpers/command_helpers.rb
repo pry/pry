@@ -107,7 +107,7 @@ class Pry
       # not to block the process from which they were launched (in this case, Pry).
       # For those editors, return the flag that produces the desired behavior.
       def blocking_flag_for_editor(block)
-        case Pry.config.editor.split("/").last
+        case editor_name
         when /^emacsclient/
           '--no-wait' unless block
         when /^[gm]vim/
@@ -129,7 +129,7 @@ class Pry
         # special case for 1st line
         return file_name if line_number <= 1
 
-        case Pry.config.editor
+        case editor_name
         when /^[gm]?vi/, /^emacs/, /^nano/, /^pico/, /^gedit/, /^kate/
           "+#{line_number} #{file_name}"
         when /^mate/, /^geany/
@@ -147,6 +147,15 @@ class Pry
             "+#{line_number} #{file_name}"
           end
         end
+      end
+
+      # Get the name of the binary that Pry.config.editor points to.
+      #
+      # This is useful for deciding which flags we pass to the editor as
+      # we can just use the program's name and ignore any absolute paths.
+      #
+      def editor_name
+        Pry.config.editor.split("/").last.split(" ").first
       end
 
       # Remove any common leading whitespace from every line in `text`.
