@@ -64,36 +64,36 @@ class Pry
         end
 
         def options(opt)
-          opt.on :m, :method, "Gist a method's source.", true do |meth_name|
+          opt.on :m, :method, "Gist a method's source.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source << "\n"
             self.code_type = meth.source_type
           end
-          opt.on :d, :doc, "Gist a method's documentation.", true do |meth_name|
+          opt.on :d, :doc, "Gist a method's documentation.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
               self.content << process_comment_markup(meth.doc, self.code_type) << "\n"
             end
             self.code_type = :plain
           end
-          opt.on :c, :command, "Gist a command's source.", true do |command_name|
+          opt.on :c, :command, "Gist a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source << "\n"
           end
-          opt.on :k, :class, "Gist a class's source.", true do |class_name|
+          opt.on :k, :class, "Gist a class's source.", :argument => true do |class_name|
             mod = Pry::WrappedModule.from_str(class_name, target)
             self.content << mod.source << "\n"
           end
-          opt.on :hist, "Gist a range of Readline history lines.",  :optional => true, :as => Range, :default => -20..-1 do |range|
+          opt.on :hist, "Gist a range of Readline history lines.",  :optional_argument => true, :as => Range, :default => -20..-1 do |range|
             h = Pry.history.to_a
             self.content << h[one_index_range(convert_to_range(range))].join("\n") << "\n"
           end
 
-          opt.on :f, :file, "Gist a file.", true do |file|
+          opt.on :f, :file, "Gist a file.", :argument => true do |file|
             self.content << File.read(File.expand_path(file)) << "\n"
           end
-          opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional => true,
+          opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
 
@@ -103,12 +103,12 @@ class Pry
 
             self.content << "\n"
           end
-          # opt.on :s, :string, "Gist a string", true  do |string|
+          # opt.on :s, :string, "Gist a string", :argument => true  do |string|
           #   self.content << string << "\n"
           # end
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :l, :lines, "Only gist a subset of lines.", :optional => true, :as => Range, :default => 1..-1
-          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          opt.on :l, :lines, "Only gist a subset of lines.", :optional_argument => true, :as => Range, :default => 1..-1
+          opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
             input_expressions = _pry_.input_array[range] || []
@@ -206,24 +206,24 @@ class Pry
         end
 
         def options(opt)
-          opt.on :m, :method, "Save a method's source.", true do |meth_name|
+          opt.on :m, :method, "Save a method's source.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source
           end
-          opt.on :k, :class, "Save a class's source.", true do |class_name|
+          opt.on :k, :class, "Save a class's source.", :argument => true do |class_name|
             mod = Pry::WrappedModule.from_str(class_name, target)
             self.content << mod.source
           end
-          opt.on :c, :command, "Save a command's source.", true do |command_name|
+          opt.on :c, :command, "Save a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source
           end
-          opt.on :f, :file, "Save a file.", true do |file|
+          opt.on :f, :file, "Save a file.", :argument => true do |file|
             self.content << File.read(File.expand_path(file))
           end
-          opt.on :l, :lines, "Only save a subset of lines.", :optional => true, :as => Range, :default => 1..-1
-          opt.on :o, :out, "Save entries from Pry's output result history. Takes an index or range.", :optional => true,
+          opt.on :l, :lines, "Only save a subset of lines.", :optional_argument => true, :as => Range, :default => 1..-1
+          opt.on :o, :out, "Save entries from Pry's output result history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
 
@@ -233,7 +233,7 @@ class Pry
 
             self.content << "\n"
           end
-          opt.on :i, :in, "Save entries from Pry's input expression history. Takes an index or range.", :optional => true,
+          opt.on :i, :in, "Save entries from Pry's input expression history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each { |v| self.content << v }
@@ -289,13 +289,13 @@ class Pry
         USAGE
 
         def options(opt)
-          opt.on :ex,        "Show the context of the last exception.", :optional => true, :as => Integer
-          opt.on :i, :in,    "Show one or more entries from Pry's expression history.", :optional => true, :as => Range, :default => -5..-1
+          opt.on :ex,        "Show the context of the last exception.", :optional_argument => true, :as => Integer
+          opt.on :i, :in,    "Show one or more entries from Pry's expression history.", :optional_argument => true, :as => Range, :default => -5..-1
 
-          opt.on :s, :start, "Starting line (defaults to the first line).", :optional => true, :as => Integer
-          opt.on :e, :end,   "Ending line (defaults to the last line).", :optional => true, :as => Integer
+          opt.on :s, :start, "Starting line (defaults to the first line).", :optional_argument => true, :as => Integer
+          opt.on :e, :end,   "Ending line (defaults to the last line).", :optional_argument => true, :as => Integer
           opt.on :l, :'line-numbers', "Show line numbers."
-          opt.on :t, :type,  "The file type for syntax highlighting (e.g., 'ruby' or 'python').", true, :as => Symbol
+          opt.on :t, :type,  "The file type for syntax highlighting (e.g., 'ruby' or 'python').", :argument => true, :as => Symbol
 
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
         end

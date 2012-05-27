@@ -9,7 +9,7 @@ class Pry
         opt.on :M, "instance-methods", "Operate on instance methods."
         opt.on :m, :methods, "Operate on methods."
         opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
-        opt.on :c, :context, "Select object context to run under.", true do |context|
+        opt.on :c, :context, "Select object context to run under.", :argument => true do |context|
           @method_target = Pry.binding_for(target.eval(context))
         end
       end
