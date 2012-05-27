@@ -37,10 +37,10 @@ class Pry
         BANNER
 
         def options(opt)
-          opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional => true, :as => Integer
-          opt.on :i, :in, "Open a temporary file containing the Nth line of _in_. N may be a range.", :optional => true, :as => Range, :default => -1..-1
+          opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional_argument => true, :as => Integer
+          opt.on :i, :in, "Open a temporary file containing the Nth line of _in_. N may be a range.", :optional_argument => true, :as => Range, :default => -1..-1
           opt.on :t, :temp, "Open an empty temporary file"
-          opt.on :l, :line, "Jump to this line in the opened file", true, :as => Integer
+          opt.on :l, :line, "Jump to this line in the opened file", :argument => true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
           opt.on :c, :"current", "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
           opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
@@ -289,7 +289,7 @@ class Pry
 
       create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
         description "Amend a line of input in multi-line mode."
-        command_options :interpolate => false, :listing => "amend-line"
+        command_options :interpolate => false, :listing => "-line"
 
         banner <<-'BANNER'
           Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
@@ -354,26 +354,26 @@ class Pry
         end
 
         def options(opt)
-          opt.on :m, :method, "Play a method's source.", true do |meth_name|
+          opt.on :m, :method, "Play a method's source.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source
           end
-          opt.on :d, :doc, "Play a method's documentation.", true do |meth_name|
+          opt.on :d, :doc, "Play a method's documentation.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
               self.content << process_comment_markup(meth.doc, :ruby)
             end
           end
-          opt.on :c, :command, "Play a command's source.", true do |command_name|
+          opt.on :c, :command, "Play a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source
           end
-          opt.on :f, :file, "Play a file.", true do |file|
+          opt.on :f, :file, "Play a file.", :argument => true do |file|
             self.content << File.read(File.expand_path(file))
           end
-          opt.on :l, :lines, "Only play a subset of lines.", :optional => true, :as => Range, :default => 1..-1
-          opt.on :i, :in, "Play entries from Pry's input expression history. Takes an index or range. Note this can only replay pure Ruby code, not Pry commands.", :optional => true,
+          opt.on :l, :lines, "Only play a subset of lines.", :optional_argument => true, :as => Range, :default => 1..-1
+          opt.on :i, :in, "Play entries from Pry's input expression history. Takes an index or range. Note this can only replay pure Ruby code, not Pry commands.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each { |v| self.content << v }

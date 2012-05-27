@@ -213,7 +213,7 @@ describe "Pry::Command" do
     it 'should provide opts and args as provided by slop' do
       cmd = @set.create_command 'lintilla', "One of 800,000,000 clones" do
          def options(opt)
-           opt.on :f, :four, "A numeric four", :as => Integer, :optional => true
+           opt.on :f, :four, "A numeric four", :as => Integer, :optional_argument => true
          end
 
          def process

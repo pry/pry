@@ -35,7 +35,7 @@ class Pry
 
           opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
 
-          opt.on :G, "grep", "Filter output by regular expression", :optional => false
+          opt.on :G, "grep", "Filter output by regular expression", :argument => true
           if jruby?
             opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)"
           end
