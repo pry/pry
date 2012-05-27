@@ -172,7 +172,6 @@ require "readline"
 require "stringio"
 require "coderay"
 require "optparse"
-require "slop"
 require "rbconfig"
 
 if Pry::Helpers::BaseHelpers.jruby?
@@ -191,6 +190,7 @@ if Pry::Helpers::BaseHelpers.windows?
   end
 end
 
+require "pry/slop"
 require "pry/version"
 require "pry/rbx_method"
 require "pry/rbx_path"
