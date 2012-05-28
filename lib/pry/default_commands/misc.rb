@@ -33,11 +33,6 @@ class Pry
           output.puts "Reloaded #{file_name}."
         end
       end
-
-      command "req", "Require file(s) and expand their paths." do |*args|
-        args.each { |file_name| load File.expand_path(file_name) }
-      end
-
     end
   end
 end
