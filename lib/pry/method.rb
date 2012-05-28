@@ -273,12 +273,10 @@ class Pry
           info = pry_doc_info
           info.docstring if info
         when :ruby
-           if Helpers::BaseHelpers.rbx? && !pry_method?
-             strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
+          if Helpers::BaseHelpers.rbx? && !pry_method?
+            strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
           elsif pry_method?
-           # raise CommandError, "Can't view doc for a REPL-defined
-     # method."
-             strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
+            strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
           else
             strip_leading_hash_and_whitespace_from_ruby_comments(@method.comment)
           end
@@ -438,10 +436,10 @@ class Pry
 
       # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
       def doc_for_pry_method
-        _, line = source_location
+        _, line_num = source_location
 
         buffer = ""
-        Pry.line_buffer[0..(line - 1)].each do |line|
+        Pry.line_buffer[0..(line_num - 1)].each do |line|
           # Add any line that is a valid ruby comment,
           # but clear as soon as we hit a non comment line.
           if (line =~ /^\s*#/) || (line =~ /^\s*$/)

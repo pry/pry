@@ -324,7 +324,7 @@ class Pry
                  begin
                    require 'coderay/encoders/term'
                    CodeRay::Encoders::Term::TOKEN_COLORS
-                 rescue => e
+                 rescue
                  end
                end
 

@@ -89,7 +89,7 @@ class Pry
         File.open(history_file, 'a') do |f|
           lines.each { |ln| f.puts ln }
         end
-      rescue Errno::EACCES => error
+      rescue Errno::EACCES
         # We should probably create an option Pry.show_warnings?!?!?!
         warn 'Unable to write to your history file, history not saved'
       end

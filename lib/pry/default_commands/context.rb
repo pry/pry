@@ -93,7 +93,7 @@ class Pry
         exec "pry"
       end
 
-      create_command /wtf([?!]*)/, "Show the backtrace of the most recent exception" do
+      create_command(/wtf([?!]*)/, "Show the backtrace of the most recent exception") do
         options :listing => 'wtf?'
 
         banner <<-BANNER
@@ -129,7 +129,7 @@ class Pry
       end
 
       # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
-      create_command /raise-up(!?\b.*)/, :listing => 'raise-up' do
+      create_command(/raise-up(!?\b.*)/, :listing => 'raise-up') do
         description "Raise an exception out of the current pry instance."
         banner <<-BANNER
           Raise up, like exit, allows you to quit pry. Instead of returning a value however, it raises an exception.

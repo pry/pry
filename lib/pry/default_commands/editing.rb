@@ -366,7 +366,7 @@ class Pry
           end
           opt.on :c, :command, "Play a command's source.", true do |command_name|
             command = find_command(command_name)
-            block = Pry::Method.new(find_command(command_name).block)
+            block = Pry::Method.new(command.block)
             self.content << block.source
           end
           opt.on :f, :file, "Play a file.", true do |file|

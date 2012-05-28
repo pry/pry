@@ -122,8 +122,6 @@ class Pry
     def doc
       return @doc if @doc
 
-      file_name, line = source_location
-
       if yard_docs?
         from_yard = YARD::Registry.at(name)
         @doc = from_yard.docstring
@@ -216,7 +214,7 @@ class Pry
       search_lines = host_file_lines[0..(line - 2)]
       idx = search_lines.rindex { |v| class_regex1 =~ v  || class_regex2 =~ v }
 
-      source_location = [file,  idx + 1]
+      [file,  idx + 1]
     rescue Pry::RescuableException
       nil
     end
@@ -226,10 +224,10 @@ class Pry
     end
 
     def extract_doc_for_candidate(idx)
-      file_name, line = module_source_location_for_candidate(idx)
+      _, line_num = module_source_location_for_candidate(idx)
 
       buffer = ""
-      lines_for_file(source_file_for_candidate(idx))[0..(line - 2)].each do |line|
+      lines_for_file(source_file_for_candidate(idx))[0..(line_num - 2)].each do |line|
         # Add any line that is a valid ruby comment,
         # but clear as soon as we hit a non comment line.
         if (line =~ /^\s*#/) || (line =~ /^\s*$/)
@@ -284,9 +282,8 @@ class Pry
     end
 
     def method_candidates
-      @method_candidtates ||= all_source_locations_by_popularity.map do |group|
-        sorted_by_lowest_line_number = group.last.sort_by(&:source_line)
-        best_candidate_for_group = sorted_by_lowest_line_number.first
+      @method_candidates ||= all_source_locations_by_popularity.map do |group|
+        group.last.sort_by(&:source_line).first # best candidate for group
       end
     end
 
