@@ -106,8 +106,7 @@ class Pry
     # @return [String] The indented version of +input+.
     #
     def indent(input)
-      output      = ''
-      open_tokens = OPEN_TOKENS.keys
+      output = ''
       prefix = indent_level
 
       input.lines.each do |line|
@@ -320,9 +319,9 @@ class Pry
          Readline.respond_to?(:get_screen_size) && Readline.get_screen_size,
 
          # Otherwise try to use the environment (this may be out of date due
-         # to window resizing, but it better than nothing).
+         # to window resizing, but it's better than nothing).
          [ENV["ROWS"], ENV["COLUMNS"]]
-      ].detect do |(rows, cols)|
+      ].detect do |(_, cols)|
         cols.to_i > 0
       end
     end

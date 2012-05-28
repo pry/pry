@@ -78,7 +78,7 @@ class Pry
           end
           opt.on :c, :command, "Gist a command's source.", true do |command_name|
             command = find_command(command_name)
-            block = Pry::Method.new(find_command(command_name).block)
+            block = Pry::Method.new(command.block)
             self.content << block.source << "\n"
           end
           opt.on :k, :class, "Gist a class's source.", true do |class_name|
@@ -97,7 +97,6 @@ class Pry
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
 
-            output_results = []
             range.each do |v|
               self.content << Pry.config.gist.inspecter.call(_pry_.output_array[v])
             end
@@ -217,7 +216,7 @@ class Pry
           end
           opt.on :c, :command, "Save a command's source.", true do |command_name|
             command = find_command(command_name)
-            block = Pry::Method.new(find_command(command_name).block)
+            block = Pry::Method.new(command.block)
             self.content << block.source
           end
           opt.on :f, :file, "Save a file.", true do |file|
@@ -228,7 +227,6 @@ class Pry
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
 
-            output_results = []
             range.each do |v|
               self.content << Pry.config.gist.inspecter.call(_pry_.output_array[v])
             end

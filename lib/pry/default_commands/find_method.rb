@@ -100,7 +100,7 @@ class Pry
             next if klass.autoload?(name)
             begin
               const = klass.const_get(name)
-            rescue RescuableException => e
+            rescue RescuableException
               # constant loading is an inexact science at the best of times,
               # this often happens when a constant was .autoload? but someone
               # tried to load it. It's now not .autoload? but will still raise
@@ -158,7 +158,7 @@ class Pry
           search_all_methods(namespace) do |meth|
             begin
               meth.source =~ regex
-            rescue RescuableException => e
+            rescue RescuableException
               false
             end
           end

@@ -152,7 +152,7 @@ class Pry
           case Pry::Method(block).source_file
           when %r{/pry/.*_commands/(.*).rb}
             $1.capitalize.gsub(/_/, " ")
-          when %r{(pry-[\w_]+)-([\d\.]+)}
+          when %r{(pry-[\w]+)-([\d\.]+)}
             name, version = $1, $2
             "#{name.to_s} (v#{version.to_s})"
           when /pryrc/
@@ -316,7 +316,7 @@ class Pry
     #   Note that if we find the '| do' or '| {' we delete this and the
     #   elements following it from `arg_string`.
     def pass_block(arg_string)
-      block_index = arg_string.rindex /\| *(?:do|\{)/
+      block_index = arg_string.rindex(/\| *(?:do|\{)/)
 
       return if !block_index
 

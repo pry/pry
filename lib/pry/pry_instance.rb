@@ -194,7 +194,6 @@ class Pry
   #   Pry.new.repl(Object.new)
   def repl(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
-    target_self = target.eval('self')
 
     repl_prologue(target)
 
@@ -270,7 +269,6 @@ class Pry
     target = Pry.binding_for(target)
     @suppress_output = false
 
-    val = ""
     loop do
       begin
         # eval_string will probably be mutated by this method
@@ -344,7 +342,7 @@ class Pry
     # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
     # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
     # from within Readline.
-    rescue Interrupt => e
+    rescue Interrupt
       output.puts ""
       eval_string.replace("")
       return
