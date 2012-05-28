@@ -154,8 +154,13 @@ class Pry
       # This is useful for deciding which flags we pass to the editor as
       # we can just use the program's name and ignore any absolute paths.
       #
+      # @example
+      #   Pry.config.editor="/home/conrad/bin/textmate -w"
+      #   editor_name
+      #   # => textmate
+      #
       def editor_name
-        Pry.config.editor.split(%r{[\\/]}).last.split(" ").first
+        File.basename(Pry.config.editor).split(" ").first
       end
 
       # Remove any common leading whitespace from every line in `text`.
