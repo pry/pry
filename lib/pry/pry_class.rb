@@ -134,10 +134,8 @@ class Pry
 
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
-    if defined?(Win32::Console)
-      puts "\e[0F"
-    else
-      puts "\e[0A\e[0G"
+    if Pry.config.auto_indent
+      puts if defined?(Win32::Console) ? "\e[0F" : "\e[0A\e[0G"
     end
 
     # Enter the matrix
