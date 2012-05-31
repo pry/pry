@@ -78,7 +78,7 @@ See: `https://github.com/pry` for more information.
 Copyright (c) 2011 John Mair (banisterfiend)
 --
 }
-  on :e, :exec, "A line of code to execute in context before the session starts", true
+  on :e, :exec, "A line of code to execute in context before the session starts", :argument => true
 
   on "no-pager", "Disable pager for long output" do
     Pry.config.pager = false
@@ -115,11 +115,11 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.config.prompt = Pry::SIMPLE_PROMPT
   end
 
-  on :r, :require, "`require` a Ruby script at startup", true do |file|
+  on :r, :require, "`require` a Ruby script at startup", :argument => true do |file|
     Pry.config.requires << file
   end
 
-  on :I, "Add a path to the $LOAD_PATH", true do |path|
+  on :I, "Add a path to the $LOAD_PATH", :argument => true do |path|
     $LOAD_PATH << path
   end
 
@@ -130,7 +130,7 @@ Copyright (c) 2011 John Mair (banisterfiend)
 
   on(:c, :context,
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
-     true,
+     :argument => true,
      :default => "TOPLEVEL_BINDING"
      )
 end.process_options do |opts|
