@@ -42,7 +42,7 @@ class Pry
 
     Introspection = Pry::CommandSet.new do
 
-      create_command "show-doc", "Show the comments above METH. Aliases: \?", :shellwords => false do
+      create_command "show-doc", "Show the documentation for a method or class. Aliases: \?", :shellwords => false do
         include ModuleIntrospectionHelpers
         include Helpers::DocumentationHelpers
         extend Helpers::BaseHelpers
@@ -51,7 +51,7 @@ class Pry
           Usage: show-doc [OPTIONS] [METH]
           Aliases: ?
 
-          Show the comments above method METH. Tries instance methods first and then methods by default.
+          Show the documentation for a method or class. Tries instance methods first and then methods by default.
           e.g show-doc hello_method    # docs for hello_method
           e.g show-doc Pry             # docs for Pry class
           e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
@@ -196,13 +196,13 @@ class Pry
         include ModuleIntrospectionHelpers
         extend Helpers::BaseHelpers
 
-        description "Show the source for METH or CLASS. Aliases: $, show-method"
+        description "Show the source for a method or class. Aliases: $, show-method"
 
         banner <<-BANNER
           Usage: show-source [OPTIONS] [METH|CLASS]
           Aliases: $, show-method
 
-          Show the source for method METH or CLASS. Tries instance methods first and then methods by default.
+          Show the source for a method or class. Tries instance methods first and then methods by default.
 
           e.g: `show-source hello_method`
           e.g: `show-source -m hello_method`
