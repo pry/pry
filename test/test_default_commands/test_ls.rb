@@ -30,21 +30,21 @@ describe "ls" do
 
   describe "methods" do
     it "should show public methods by default" do
-      mock_pry("ls Class.new{ def goo; end }.new").should =~ /goo/
+      mock_pry("ls Class.new{ def goo; end }.new").should =~ /methods: goo/
     end
 
     it "should not show protected/private by default" do
-      mock_pry("ls -M Class.new{ def goo; end; private :goo }").should.not =~ /goo/
-      mock_pry("ls Class.new{ def goo; end; protected :goo }.new").should.not =~ /goo/
+      mock_pry("ls -M Class.new{ def goo; end; private :goo }").should.not =~ /methods: goo/
+      mock_pry("ls Class.new{ def goo; end; protected :goo }.new").should.not =~ /methods: goo/
     end
 
     it "should show public methods with -p" do
-      mock_pry("ls -p Class.new{ def goo; end }.new").should =~ /goo/
+      mock_pry("ls -p Class.new{ def goo; end }.new").should =~ /methods: goo/
     end
 
     it "should show protected/private methods with -p" do
-      mock_pry("ls -pM Class.new{ def goo; end; protected :goo }").should =~ /goo/
-      mock_pry("ls -p Class.new{ def goo; end; private :goo }.new").should =~ /goo/
+      mock_pry("ls -pM Class.new{ def goo; end; protected :goo }").should =~ /methods: goo/
+      mock_pry("ls -p Class.new{ def goo; end; private :goo }.new").should =~ /methods: goo/
     end
 
     it "should work for objects with an overridden method method" do
