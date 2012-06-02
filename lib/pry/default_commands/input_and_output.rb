@@ -45,11 +45,13 @@ class Pry
           Usage: gist [OPTIONS] [METH]
           Gist method (doc or source) or input expression to github.
           Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
-          e.g: gist -m my_method
-          e.g: gist -d my_method
-          e.g: gist -i 1..10
-          e.g: gist -c show-method
-          e.g: gist -m hello_world --lines 2..-2
+          e.g: gist -m my_method       # gist the method my_method
+          e.g: gist -d my_method       # gist the documentation for my_method
+          e.g: gist -i 1..10           # gist the input expressions from 1 to 10
+          e.g: gist -k show-method     # gist the command show-method
+          e.g: gist -c Pry             # gist the Pry class
+          e.g: gist -m hello_world --lines 2..-2    # gist from lines 2 to the second-last of the hello_world method
+          e.g: gist -m my_method --clip             # Copy my_method source to clipboard, do not gist it.
         USAGE
 
         command_options :shellwords => false
@@ -76,14 +78,23 @@ class Pry
             end
             self.code_type = :plain
           end
-          opt.on :c, :command, "Gist a command's source.", :argument => true do |command_name|
+          opt.on :k, :command, "Gist a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source << "\n"
           end
-          opt.on :k, :class, "Gist a class's source.", :argument => true do |class_name|
+          opt.on :c, :class, "Gist a class or module's source.", :argument => true do |class_name|
             mod = Pry::WrappedModule.from_str(class_name, target)
             self.content << mod.source << "\n"
+          end
+          opt.on :var, "Gist a variable's content.", :argument => true do |variable_name|
+            begin
+              obj = target.eval(variable_name)
+            rescue Pry::RescuableException
+              raise CommandError, "Gist failed: Invalid variable name: #{variable_name}"
+            end
+
+            self.content << Pry.config.gist.inspecter.call(obj) << "\n"
           end
           opt.on :hist, "Gist a range of Readline history lines.",  :optional_argument => true, :as => Range, :default => -20..-1 do |range|
             h = Pry.history.to_a
@@ -103,11 +114,9 @@ class Pry
 
             self.content << "\n"
           end
-          # opt.on :s, :string, "Gist a string", :argument => true  do |string|
-          #   self.content << string << "\n"
-          # end
+          opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it.", :default => false
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
-          opt.on :l, :lines, "Only gist a subset of lines.", :optional_argument => true, :as => Range, :default => 1..-1
+          opt.on :l, :lines, "Only gist a subset of lines from the gistable content.", :optional_argument => true, :as => Range, :default => 1..-1
           opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -5..-1 do |range|
             range = convert_to_range(range)
@@ -125,15 +134,25 @@ class Pry
         end
 
         def process
-          perform_gist
+          if self.content =~ /\A\s*\z/
+            raise CommandError, "Found no code to gist."
+          end
+
+          if opts.present?(:clip)
+            perform_clipboard
+          else
+            perform_gist
+          end
+        end
+
+        # copy content to clipboard instead (only used with --clip flag)
+        def perform_clipboard
+          Gist.copy(self.content)
+          output.puts "Copied content to clipboard!"
         end
 
         def perform_gist
           type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
-
-          if self.content =~ /\A\s*\z/
-            raise CommandError, "Found no code to gist."
-          end
 
           # prevent Gist from exiting the session on error
           begin
@@ -180,13 +199,15 @@ class Pry
         end
       end
 
+      alias_command "clipit", "gist --clip"
+
       create_command "save-file", "Export to a file using content from the REPL."  do
         banner <<-USAGE
           Usage: save-file [OPTIONS] [FILE]
           Save REPL content to a file.
           e.g: save-file -m my_method -m my_method2 ./hello.rb
           e.g: save-file -i 1..10 ./hello.rb --append
-          e.g: save-file -c show-method ./my_command.rb
+          e.g: save-file -k show-method ./my_command.rb
           e.g: save-file -f sample_file --lines 2..10 ./output_file.rb
         USAGE
 
@@ -210,11 +231,11 @@ class Pry
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source
           end
-          opt.on :k, :class, "Save a class's source.", :argument => true do |class_name|
+          opt.on :c, :class, "Save a class's source.", :argument => true do |class_name|
             mod = Pry::WrappedModule.from_str(class_name, target)
             self.content << mod.source
           end
-          opt.on :c, :command, "Save a command's source.", :argument => true do |command_name|
+          opt.on :k, :command, "Save a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source
