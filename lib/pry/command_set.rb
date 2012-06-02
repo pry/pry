@@ -208,8 +208,6 @@ class Pry
     protected :find_command_by_match_or_listing
 
     # Aliases a command
-    # Note that if `desc` parameter is `nil` then the default
-    # description is used.
     # @param [String, Regex] match The match of the alias (can be a regex).
     # @param [String] action The action to be performed (typically
     #   another command).
