@@ -154,7 +154,7 @@ describe "Pry::DefaultCommands::Shell" do
 
     describe "-c" do
       it 'should save a command to a file' do
-        redirect_pry_io(InputTester.new("save-file #{@path} -c show-method",
+        redirect_pry_io(InputTester.new("save-file #{@path} -k show-method",
                                         "exit-all")) do
           Pry.start(@o)
         end
