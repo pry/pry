@@ -254,14 +254,17 @@ class Pry
                     end
                   when :ruby
                     if Helpers::BaseHelpers.rbx? && !pry_method?
-                      code = core_code rescue nil
+                      code = core_code
                     elsif pry_method?
                       code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
                     else
-                      code = @method.source rescue nil
+                      code = @method.source
                     end
-                    strip_leading_whitespace(code) if code
+                    strip_leading_whitespace(code)
                   end
+    rescue MethodSource::SourceNotFoundError => e
+      warn "Warning: #{e.message}"
+      nil
     end
 
     # @return [String, nil] The documentation for the method, or `nil` if it's
