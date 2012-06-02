@@ -254,13 +254,13 @@ class Pry
                     end
                   when :ruby
                     if Helpers::BaseHelpers.rbx? && !pry_method?
-                      code = core_code
+                      code = core_code rescue nil
                     elsif pry_method?
                       code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
                     else
-                      code = @method.source
+                      code = @method.source rescue nil
                     end
-                    strip_leading_whitespace(code)
+                    strip_leading_whitespace(code) if code
                   end
     end
 
