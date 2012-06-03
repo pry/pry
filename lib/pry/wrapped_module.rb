@@ -152,7 +152,7 @@ class Pry
       file, line = module_source_location_for_candidate(idx)
       raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
 
-      strip_leading_whitespace(Pry::Code.retrieve_complete_expression_from(lines_for_file(file)[(line - 1)..-1]))
+      strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
     end
 
     def source_file
@@ -216,8 +216,6 @@ class Pry
       idx = search_lines.rindex { |v| class_regexes.any? { |r| r =~ v } }
 
       [file,  idx + 1]
-    rescue Pry::RescuableException
-      nil
     end
 
     def extract_doc
@@ -225,20 +223,9 @@ class Pry
     end
 
     def extract_doc_for_candidate(idx)
-      _, line_num = module_source_location_for_candidate(idx)
+      file, line_num = module_source_location_for_candidate(idx)
 
-      buffer = ""
-      lines_for_file(source_file_for_candidate(idx))[0..(line_num - 2)].each do |line|
-        # Add any line that is a valid ruby comment,
-        # but clear as soon as we hit a non comment line.
-        if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-          buffer << line.lstrip
-        else
-          buffer.replace("")
-        end
-      end
-
-      buffer
+      Pry::Code.from_file(file).comment_describing(line_num)
     end
 
     # FIXME: this method is also found in Pry::Method

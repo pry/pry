@@ -253,12 +253,16 @@ class Pry
                       code = strip_comments_from_c_code(info.source)
                     end
                   when :ruby
-                    if Helpers::BaseHelpers.rbx? && !pry_method?
-                      code = core_code
-                    elsif pry_method?
-                      code = Pry::Code.retrieve_complete_expression_from(Pry.line_buffer[source_line..-1])
-                    else
-                      code = @method.source
+                    # clone of MethodSource.source_helper that knows to use our
+                    # hacked version of source_location for rbx core methods, and
+                    # our input buffer for methods defined in (pry)
+                    file, line = *source_location
+                    raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!" unless file
+
+                    begin
+                      code = Pry::Code.from_file(file).expression_at(line)
+                    rescue SyntaxError => e
+                      raise MethodSource::SourceNotFoundError.new(e.message)
                     end
                     strip_leading_whitespace(code)
                   end

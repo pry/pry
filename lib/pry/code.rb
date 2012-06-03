@@ -27,71 +27,7 @@ class Pry
   # object.
   class Code
     class << self
-
-      # Determine if a string of code is a complete Ruby expression.
-      # @param [String] code The code to validate.
-      # @return [Boolean] Whether or not the code is a complete Ruby expression.
-      # @raise [SyntaxError] Any SyntaxError that does not represent incompleteness.
-      # @example
-      #   complete_expression?("class Hello") #=> false
-      #   complete_expression?("class Hello; end") #=> true
-      def complete_expression?(str)
-        if defined?(Rubinius::Melbourne19) && RUBY_VERSION =~ /^1\.9/
-          Rubinius::Melbourne19.parse_string(str, Pry.eval_path)
-        elsif defined?(Rubinius::Melbourne)
-          Rubinius::Melbourne.parse_string(str, Pry.eval_path)
-        else
-          catch(:valid) do
-            Helpers::BaseHelpers.silence_warnings do
-              eval("BEGIN{throw :valid}\n#{str}", binding, Pry.eval_path)
-            end
-          end
-        end
-
-        # Assert that a line which ends with a , or \ is incomplete.
-        str !~ /[,\\]\s*\z/
-      rescue SyntaxError => e
-        if incomplete_user_input_exception?(e)
-          false
-        else
-          raise e
-        end
-      end
-
-      # Check whether the exception indicates that the user should input more.
-      #
-      # @param [SyntaxError] the exception object that was raised.
-      # @param [Array<String>] The stack frame of the function that executed eval.
-      # @return [Boolean]
-      #
-      def incomplete_user_input_exception?(ex)
-        case ex.message
-        when /unexpected (\$end|end-of-file|END_OF_FILE)/, # mri, jruby, ironruby
-          /unterminated (quoted string|string|regexp) meets end of file/, # "quoted string" is ironruby
-          /missing 'end' for/, /: expecting '[})\]]'$/, /can't find string ".*" anywhere before EOF/, /: expecting keyword_end/, /expecting kWHEN/ # rbx
-          true
-        else
-          false
-        end
-      end
-      private :incomplete_user_input_exception?
-
-      # Retrieve the first complete expression from the passed string.
-      #
-      # @param [String, Array<String>] str The string (or array of lines) to extract the complete
-      #   expression from.
-      # @return [String, nil] The first complete expression, or `nil` if
-      #   none found.
-      def retrieve_complete_expression_from(str_or_lines)
-        lines = str_or_lines.is_a?(Array) ? str_or_lines : str_or_lines.each_line.to_a
-
-        code = ""
-        lines.each do |v|
-          code << v
-          return code if complete_expression?(code)
-        end
-        nil
-      end
+      include MethodSource::CodeHelpers
 
       # Instantiate a `Code` object containing code loaded from a file or
       # Pry's line buffer.
@@ -396,6 +332,22 @@ class Pry
       end
 
       lines.map { |l| "#{l.first}\n" }.join
+    end
+
+    # Get the comment that describes the expression on the given line number.
+    #
+    # @param [Fixnum]  line_number (1-based)
+    # @return [String]  the code.
+    def comment_describing(line_number)
+      self.class.comment_describing(raw, line_number)
+    end
+
+    # Get the multiline expression that starts on the given line number.
+    #
+    # @param [Fixnum]  line_number (1-based)
+    # @return [String]  the code.
+    def expression_at(line_number)
+      self.class.expression_at(raw, line_number)
     end
 
     # Return an unformatted String of the code.

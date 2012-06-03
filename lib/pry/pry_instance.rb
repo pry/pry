@@ -273,7 +273,7 @@ class Pry
       begin
         # eval_string will probably be mutated by this method
         retrieve_line(eval_string, target)
-      rescue CommandError, Slop::InvalidOptionError => e
+      rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
         output.puts "Error: #{e.message}"
       end
 
