@@ -46,6 +46,17 @@ class TestClassForShowSource
   end
 end
 
+class TestClassForShowSourceClassEval
+  def alpha
+  end
+end
+
+class TestClassForShowSourceInstanceEval
+  def alpha
+  end
+end
+
+
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
 class << Pry
