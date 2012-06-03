@@ -289,6 +289,9 @@ if !mri18_and_no_real_source_location?
         end
       end
 
+      # note that pry assumes a class is only monkey-patched at most
+      # ONCE per file, so will not find multiple monkeypatches in the
+      # SAME file.
       describe "show-source -a" do
         it 'should show the source for all monkeypatches defined in different files' do
           class TestClassForShowSource
@@ -299,6 +302,26 @@ if !mri18_and_no_real_source_location?
           result = mock_pry("show-source TestClassForShowSource -a")
           result.should =~ /def alpha/
           result.should =~ /def beta/
+        end
+
+        it 'should show the source for a class_eval-based monkeypatch' do
+          TestClassForShowSourceClassEval.class_eval do
+            def class_eval_method
+            end
+          end
+
+          result = mock_pry("show-source TestClassForShowSourceClassEval -a")
+          result.should =~ /def class_eval_method/
+        end
+
+        it 'should show the source for an instance_eval-based monkeypatch' do
+          TestClassForShowSourceInstanceEval.instance_eval do
+            def instance_eval_method
+            end
+          end
+
+          result = mock_pry("show-source TestClassForShowSourceInstanceEval -a")
+          result.should =~ /def instance_eval_method/
         end
       end
     end

@@ -206,13 +206,14 @@ class Pry
 
       return nil if !file.is_a?(String)
 
-      class_regex1 = /#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/
-      class_regex2 = /(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/
+      class_regexes = [/#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/,
+                       /(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
+                       /(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
 
       host_file_lines = lines_for_file(file)
 
       search_lines = host_file_lines[0..(line - 2)]
-      idx = search_lines.rindex { |v| class_regex1 =~ v  || class_regex2 =~ v }
+      idx = search_lines.rindex { |v| class_regexes.any? { |r| r =~ v } }
 
       [file,  idx + 1]
     rescue Pry::RescuableException
