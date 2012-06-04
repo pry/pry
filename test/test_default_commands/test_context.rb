@@ -68,6 +68,52 @@ describe "Pry::DefaultCommands::Context" do
       Cor.new.blimey!
       Object.remove_const(:Cor)
     end
+
+    it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
+      class Cor
+        def blimey!
+          eval <<-END, binding, "test/test_default_commands/example.erb", 1
+            mock_pry(binding, 'whereami')
+          END
+        end
+      end
+
+      Cor.instance_method(:blimey!).source.should =~ /mock_pry/
+
+      Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+      Object.remove_const(:Cor)
+    end
+
+    it 'should show description and correct code when @method.source_location would raise an error' do
+      class Cor
+        eval <<-END, binding, "test/test_default_commands/example.erb", 1
+          def blimey!
+            mock_pry(binding, 'whereami')
+          end
+        END
+      end
+
+      lambda{
+        Cor.instance_method(:blimey!).source
+      }.should.raise(MethodSource::SourceNotFoundError)
+
+      Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+      Object.remove_const(:Cor)
+
+    end
+
+    it 'should display a description and and error if reading the file goes wrong' do
+      class Cor
+        def blimey!
+          eval <<-END, binding, "not.found.file.erb", 7
+            mock_pry(binding, 'whereami')
+          END
+        end
+      end
+
+      Cor.new.blimey!.should =~ /From: not.found.file.erb @ line 7 Cor#blimey!:\n\nError: Cannot open "not.found.file.erb" for reading./m
+      Object.remove_const(:Cor)
+    end
   end
 
   describe "exit" do
