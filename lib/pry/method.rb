@@ -268,6 +268,14 @@ class Pry
                   end
     end
 
+    # Can we get the source code for this method?
+    # @return [Boolean]
+    def source?
+      !!source
+    rescue MethodSource::SourceNotFoundError
+      false
+    end
+
     # @return [String, nil] The documentation for the method, or `nil` if it's
     #   unavailable.
     # @raise [CommandError] Raises when the method was defined in the REPL.
@@ -514,6 +522,12 @@ class Pry
       # @return [Boolean] true
       def undefined?
         true
+      end
+
+      # Can we get the source for this method?
+      # @return [Boolean] false
+      def source?
+        false
       end
 
       # Get the hypothesized owner of the method.

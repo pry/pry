@@ -18,48 +18,37 @@ class Pry
 
         def setup
           @method = Pry::Method.from_binding(target)
+          @file = target.eval('__FILE__')
+          @line = target.eval('__LINE__')
+        end
+
+        def code
+          if show_method?
+            Pry::Code.from_method(@method)
+          else
+            Pry::Code.from_file(@file).around(@line, 5)
+          end
+        end
+
+        def location
+          "#{@file} @ line #{show_method? ? @method.source_line : @line} #{@method && @method.name_with_owner}"
         end
 
         def process
-          if show_method?
-            file   = @method.source_file
-            start  = @method.source_range.begin
-            finish = @method.source_range.end
-            marker = target.eval("__LINE__")
-          else
-            file   = target.eval("__FILE__")
-            start  = target.eval("__LINE__")
-            finish = (args.first && args.first.to_i) || 5
-            marker = start
-          end
+          set_file_and_dir_locals(@file)
 
-          if invalid_file?(file)
-            raise Pry::CommandError,
-            "Cannot find local context. Did you use binding.pry?"
-          end
-
-          # TODO: refactor.
-          if show_method?
-            code = Pry::Code.from_file(file).between(start, finish)
-          else
-            code = Pry::Code.from_file(file).around(start, finish)
-          end
-
-          desc = (@method && @method.name_with_owner) || ""
-
-          if !code.empty?
-            set_file_and_dir_locals(file)
-
-            output.puts "\n#{text.bold('From:')} #{file} @ line #{start} #{desc}:\n\n"
-            output.puts code.with_line_numbers.with_marker(marker)
-            output.puts
-          end
+          output.puts "\n#{text.bold('From:')} #{location}:\n\n"
+          output.puts code.with_line_numbers.with_marker(@line)
+          output.puts
         end
 
         private
 
         def show_method?
-          args.empty? && @method && !@method.instance_of?(Pry::Method::Disowned) && @method.source_range.count < 20
+          args.empty? && @method && @method.source? && @method.source_range.count < 20 &&
+          # These checks are needed in case of an eval with a binding and file/line
+          # numbers set to outside the function. As in rails' use of ERB.
+          @method.source_file == @file && @method.source_range.include?(@line)
         end
 
         def invalid_file?(file)
