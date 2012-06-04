@@ -266,6 +266,9 @@ class Pry
                     end
                     strip_leading_whitespace(code)
                   end
+    rescue MethodSource::SourceNotFoundError => e
+      warn "Warning: #{e.message}"
+      nil
     end
 
     # @return [String, nil] The documentation for the method, or `nil` if it's

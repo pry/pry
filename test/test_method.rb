@@ -401,5 +401,18 @@ describe Pry::Method do
       meth.send(:method_name_from_first_line, "def obj_name.x").should == "x"
     end
   end
+
+  describe 'source' do
+    it "should return nil if method source cannot be found" do
+      klass = Class.new { def hello; end }
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
+      meth.instance_variable_get(:@method).instance_eval do
+        def source_location
+          ["(eval)", 1]
+        end
+      end
+      meth.source.should == nil
+    end
+  end
 end
 

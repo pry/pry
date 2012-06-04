@@ -59,7 +59,10 @@ class Pry
         private
 
         def show_method?
-          args.empty? && @method && !@method.instance_of?(Pry::Method::Disowned) && @method.source_range.count < 20
+          args.empty? && @method \
+                      && !@method.instance_of?(Pry::Method::Disowned) \
+                      && @method.source \
+                      && @method.source_range.count < 20
         end
 
         def invalid_file?(file)
