@@ -27,20 +27,58 @@ class Object
   end
 
   # Return a binding object for the receiver.
+  #
+  # We need to care about at least three things when creating a binding:
+  #
+  # 1. What's 'self'? (hopefully the object you called .pry on)
+  # 2. What locals are available? (hopefully none!)
+  # 3. Where do methods get defined when you use 'def'?
+  #
+  # Setting the "default definee" correctly is why this code is so complicated,
+  # for a detailed explanation of that concept, see http://yugui.jp/articles/846
+  #
+  # @return Binding
   def __binding__
+    # When you're cd'd into a class, methods you define should be added to that
+    # class. It's just like `class Foo; binding.pry; end`
     if is_a?(Module)
       return class_eval "binding"
     end
 
-    unless respond_to?(binding_impl = :__binding_impl__)
+    unless respond_to?(:__binding_impl__)
       binding_impl_method = <<-METHOD
-        def #{binding_impl}
+        # Get a binding with 'self' set to self, and no locals.
+        #
+        # The default definee is determined by the context in which the
+        # definition is eval'd.
+        #
+        # Please don't call this method directly, see {__binding__}.
+        #
+        # @return Binding
+        def __binding_impl__
           binding
         end
       METHOD
 
+      # When you're in an object that supports defining methods on its
+      # singleton class (i.e. a normal object), then we want to define methods
+      # on the singleton class itself. This works in the same way as if you'd
+      # done: `self.instance_eval{ binding.pry }`
+      #
+      # The easiest way to check whether this approach will work is to try and
+      # define a method on the singleton_class. (just checking for the presence
+      # of the singleton class gives false positives for `true` and `false`).
+      # __binding_impl__ is just the closest method we have to hand, and using
+      # it has the nice property that we can memoize this check.
+      #
       begin
         instance_eval binding_impl_method
+
+      # If we can't define methods on the Object's singleton_class (either
+      # because it hasn't got one, e.g. Fixnum, Symbol, or its not a proper
+      # singleton class, e.g. TrueClass, FalseClass). Then we fall back to
+      # setting the default definee to be the Object's class. That seems nicer
+      # than having a REPL in which you can't define methods.
       rescue TypeError
         self.class.class_eval binding_impl_method
       end
