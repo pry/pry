@@ -79,10 +79,6 @@ describe Pry::Method do
       Pry::Method.from_binding(Class.new{ def self.foo; binding; end }.foo).name.should == "foo"
     end
 
-    it 'should NOT find a method from the special pry bindings' do
-      Pry::Method.from_binding(5.__binding__).should == nil
-    end
-
     it 'should NOT find a method from the toplevel binding' do
       Pry::Method.from_binding(TOPLEVEL_BINDING).should == nil
     end

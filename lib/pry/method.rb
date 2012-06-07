@@ -63,7 +63,7 @@ class Pry
       #
       def from_binding(b)
         meth_name = b.eval('__method__')
-        if [:__script__, nil, :__binding__, :__binding_impl__].include?(meth_name)
+        if [:__script__, nil].include?(meth_name)
           nil
         else
           method = begin
