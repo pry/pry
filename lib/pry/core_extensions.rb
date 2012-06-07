@@ -22,7 +22,7 @@ class Object
     if args.first.is_a?(Hash) || args.length == 0
       args.unshift(self)
     end
-    
+
     Pry.start(*args)
   end
 
@@ -32,19 +32,17 @@ class Object
       return class_eval "binding"
     end
 
-    unless respond_to? :__binding_impl__
+    unless respond_to?(binding_impl = :__binding_impl__)
+      binding_impl_method = <<-METHOD
+        def #{binding_impl}
+          binding
+        end
+      METHOD
+
       begin
-        instance_eval %{
-          def __binding_impl__
-            binding
-          end
-        }
+        instance_eval binding_impl_method
       rescue TypeError
-        self.class.class_eval %{
-          def __binding_impl__
-            binding
-          end
-        }
+        self.class.class_eval binding_impl_method
       end
     end
 
