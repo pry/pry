@@ -28,20 +28,27 @@ class Object
 
   # Return a binding object for the receiver.
   #
-  # We need to care about at least three things when creating a binding:
+  # The `self` of the binding is set to the current object, and it contains no
+  # local variables.
   #
-  # 1. What's 'self'? (hopefully the object you called .pry on)
-  # 2. What locals are available? (hopefully none!)
-  # 3. Where do methods get defined when you use 'def'?
+  # The default definee (http://yugui.jp/articles/846) is set such that:
   #
-  # Setting the "default definee" correctly is why this code is so complicated,
-  # for a detailed explanation of that concept, see http://yugui.jp/articles/846
+  # * If `self` is a class or module, then new methods created in the binding
+  #   will be defined in that class or module (as in `class Foo; end`).
+  # * If `self` is a normal object, then new methods created in the binding will
+  #   be defined on its singleton class (as in `class << self; end`).
+  # * If `self` doesn't have a  real singleton class (i.e. it is a Fixnum, Float,
+  #   Symbol, nil, true, or false), then new methods will be created on the
+  #   object's class (as in `self.class.class_eval{ }`)
   #
-  # @return Binding
+  # Newly created constants, including classes and modules, will also be added
+  # to the default definee.
+  #
+  # @return [Binding]
   def __binding__
-    # When you're cd'd into a class, methods you define should be added to that
-    # class. It's just like `class Foo; binding.pry; end`
+    # When you're cd'd into a class, methods you define should be added to it.
     if is_a?(Module)
+      # class_eval sets both self and the default definee to this class.
       return class_eval "binding"
     end
 
@@ -54,32 +61,26 @@ class Object
         #
         # Please don't call this method directly, see {__binding__}.
         #
-        # @return Binding
+        # @return [Binding]
         def __binding_impl__
           binding
         end
       METHOD
 
-      # When you're in an object that supports defining methods on its
-      # singleton class (i.e. a normal object), then we want to define methods
-      # on the singleton class itself. This works in the same way as if you'd
-      # done: `self.instance_eval{ binding.pry }`
-      #
-      # The easiest way to check whether this approach will work is to try and
-      # define a method on the singleton_class. (just checking for the presence
-      # of the singleton class gives false positives for `true` and `false`).
+      # The easiest way to check whether an object has a working singleton class
+      # is to try and define a method on it. (just checking for the presence of
+      # the singleton class gives false positives for `true` and `false`).
       # __binding_impl__ is just the closest method we have to hand, and using
       # it has the nice property that we can memoize this check.
-      #
       begin
+        # instance_eval sets the default definee to the object's singleton class
         instance_eval binding_impl_method
 
-      # If we can't define methods on the Object's singleton_class (either
-      # because it hasn't got one, e.g. Fixnum, Symbol, or its not a proper
-      # singleton class, e.g. TrueClass, FalseClass). Then we fall back to
-      # setting the default definee to be the Object's class. That seems nicer
-      # than having a REPL in which you can't define methods.
+      # If we can't define methods on the Object's singleton_class. Then we fall
+      # back to setting the default definee to be the Object's class. That seems
+      # nicer than having a REPL in which you can't define methods.
       rescue TypeError
+        # class_eval sets the default definee to self.class
         self.class.class_eval binding_impl_method
       end
     end
