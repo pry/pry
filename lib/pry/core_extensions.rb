@@ -1,29 +1,28 @@
 class Object
-  # Start a Pry REPL.  This method only differs from Pry.start in that it
-  # assumes that the target is `self`.  It also accepts and passses the same
-  # exact options hash that Pry.start accepts. POSSIBLE DEPRICATION WARNING:
-  # In the future the backwards compatibility with pry(binding) could be
-  # removed so please properly use Object.pry or if you use pry(binding)
-  # switch Pry.start(binding).
-
-  # @param [Binding] the binding or options hash if no binding needed.
-  # @param [Hash] the options hash.
-  # @example First
-  #   "dummy".pry
-  # @example Second
+  # Start a Pry REPL on self.
+  #
+  # If `self` is a Binding then that will be used to evaluate expressions;
+  # otherwise a new binding will be created.
+  #
+  # @param [Object] object  the object or binding to pry
+  #                         (__deprecated__, use `object.pry`)
+  # @param [Hash] hash  the options hash
+  # @example With a binding
   #    binding.pry
-  # @example An example with options
+  # @example On any object
+  #   "dummy".pry
+  # @example With options
   #   def my_method
   #     binding.pry :quiet => true
   #   end
   #   my_method()
-
-  def pry(*args)
-    if args.first.is_a?(Hash) || args.length == 0
-      args.unshift(self)
+  # @see Pry.start
+  def pry(object=nil, hash={})
+    if object.nil? || Hash === object
+      Pry.start(self, object || {})
+    else
+      Pry.start(object, hash)
     end
-
-    Pry.start(*args)
   end
 
   # Return a binding object for the receiver.
