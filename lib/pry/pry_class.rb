@@ -50,7 +50,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
+      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals, :skip_stack
   end
 
   # Load the rc files given in the `Pry::RC_FILES` array.
@@ -106,6 +106,7 @@ class Pry
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=TOPLEVEL_BINDING, options={})
+    return if skip?
     target = Pry.binding_for(target)
     initial_session_setup
 
@@ -226,6 +227,7 @@ class Pry
     config.default_window_size = 5
     config.hooks = DEFAULT_HOOKS
     config.input_stack = []
+    config.skip_stack = []
     config.color = Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM
@@ -356,6 +358,11 @@ class Pry
         target.__binding__
       end
     end
+  end
+
+  # @return [Boolean] Whether the next Pry session should be skipped.
+  def self.skip?
+    !skip_stack.pop.nil?
   end
 end
 

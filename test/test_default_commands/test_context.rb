@@ -392,4 +392,32 @@ describe "Pry::DefaultCommands::Context" do
       lambda { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.should.raise RuntimeError, 'fancy that...'
     end
   end
+
+  describe "skip" do
+    it 'should skip next session' do
+      mock_pry('$skipped = true', 'skip')
+
+      mock_pry('$skipped = false', 'skip')
+      $skipped.should == true
+
+      mock_pry('$skipped = false', 'exit-all')
+      $skipped.should == false
+    end
+
+    it 'should skip next sessions' do
+      mock_pry('$skipped = true', 'skip 2')
+
+      mock_pry('$skipped = false', 'exit-all')
+      $skipped.should == true
+
+      mock_pry('$skipped = false', 'exit-all')
+      $skipped.should == true
+    end
+
+    it 'should break out of the repl loop of Pry instance' do
+      $break = true
+      mock_pry('skip', '$break = false')
+      $break.should == true
+    end
+  end
 end

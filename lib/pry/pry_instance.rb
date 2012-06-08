@@ -8,6 +8,7 @@ class Pry
   attr_accessor :print
   attr_accessor :exception_handler
   attr_accessor :input_stack
+  attr_accessor :skip_stack
   attr_accessor :quiet
   alias :quiet? :quiet
 
@@ -70,7 +71,8 @@ class Pry
     attributes = [
                    :input, :output, :commands, :print, :quiet,
                    :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size, :input_stack, :extra_sticky_locals
+                   :prompt, :memory_size, :input_stack, :skip_stack,
+                   :extra_sticky_locals
                  ]
 
     attributes.each do |attribute|
