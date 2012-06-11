@@ -1,7 +1,6 @@
 require 'helper'
 
 describe "Pry::DefaultCommands::Introspection" do
-
   describe "edit" do
     before do
       @old_editor = Pry.config.editor
@@ -11,6 +10,7 @@ describe "Pry::DefaultCommands::Introspection" do
         nil
       end
     end
+
     after do
       Pry.config.editor = @old_editor
     end
@@ -458,6 +458,10 @@ describe "Pry::DefaultCommands::Introspection" do
   # show-command only works in implementations that support Proc#source_location
   if Proc.method_defined?(:source_location)
     describe "show-command" do
+      before do
+        @str_output = StringIO.new
+      end
+
       it 'should show source for an ordinary command' do
         set = Pry::CommandSet.new do
           import_from Pry::Commands, "show-command"
@@ -465,11 +469,12 @@ describe "Pry::DefaultCommands::Introspection" do
             :body_of_foo
           end
         end
-        str_output = StringIO.new
-        redirect_pry_io(InputTester.new("show-command foo"), str_output) do
+
+        redirect_pry_io(InputTester.new("show-command foo"), @str_output) do
           Pry.new(:commands => set).rep
         end
-        str_output.string.should =~ /:body_of_foo/
+
+        @str_output.string.should =~ /:body_of_foo/
       end
 
       it 'should show source for a command with spaces in its name' do
@@ -479,11 +484,12 @@ describe "Pry::DefaultCommands::Introspection" do
             :body_of_foo_bar
           end
         end
-        str_output = StringIO.new
-        redirect_pry_io(InputTester.new("show-command \"foo bar\""), str_output) do
+
+        redirect_pry_io(InputTester.new("show-command \"foo bar\""), @str_output) do
           Pry.new(:commands => set).rep
         end
-        str_output.string.should =~ /:body_of_foo_bar/
+
+        @str_output.string.should =~ /:body_of_foo_bar/
       end
 
       it 'should show source for a command by listing name' do
@@ -493,14 +499,13 @@ describe "Pry::DefaultCommands::Introspection" do
             :body_of_foo_regex
           end
         end
-        str_output = StringIO.new
-        redirect_pry_io(InputTester.new("show-command bar"), str_output) do
+
+        redirect_pry_io(InputTester.new("show-command bar"), @str_output) do
           Pry.new(:commands => set).rep
         end
-        str_output.string.should =~ /:body_of_foo_regex/
+
+        @str_output.string.should =~ /:body_of_foo_regex/
       end
     end
   end
-
-
 end

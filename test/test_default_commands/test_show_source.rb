@@ -2,13 +2,16 @@ require 'helper'
 
 if !mri18_and_no_real_source_location?
   describe "show-source" do
+    before do
+      @str_output = StringIO.new
+    end
+
     it 'should output a method\'s source' do
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-source sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source sample_method", "exit-all"), @str_output) do
         pry
       end
 
-      str_output.string.should =~ /def sample/
+      @str_output.string.should =~ /def sample/
     end
 
     it 'should output help' do
@@ -16,21 +19,19 @@ if !mri18_and_no_real_source_location?
     end
 
     it 'should output a method\'s source with line numbers' do
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-source -l sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source -l sample_method", "exit-all"), @str_output) do
         pry
       end
 
-      str_output.string.should =~ /\d+: def sample/
+      @str_output.string.should =~ /\d+: def sample/
     end
 
     it 'should output a method\'s source with line numbers starting at 1' do
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-source -b sample_method", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source -b sample_method", "exit-all"), @str_output) do
         pry
       end
 
-      str_output.string.should =~ /1: def sample/
+      @str_output.string.should =~ /1: def sample/
     end
 
     it 'should output a method\'s source if inside method without needing to use method name' do
@@ -70,11 +71,11 @@ if !mri18_and_no_real_source_location?
         self;
       end
 
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("show-source o.foo('bar', 'baz bam').foo", "exit-all"), str_output) do
+      redirect_pry_io(InputTester.new("show-source o.foo('bar', 'baz bam').foo", "exit-all"), @str_output) do
         binding.pry
       end
-      str_output.string.should =~ /Mr flibble/
+
+      @str_output.string.should =~ /Mr flibble/
     end
 
     it "should find methods even if the object has an overridden method method" do
@@ -155,44 +156,40 @@ if !mri18_and_no_real_source_location?
     # 1.9 - where Method#source_location is native
     if RUBY_VERSION =~ /1.9/
       it 'should output a method\'s source for a method defined inside pry' do
-        str_output = StringIO.new
-        redirect_pry_io(InputTester.new("def dyna_method", ":testing", "end", "show-source dyna_method"), str_output) do
+        redirect_pry_io(InputTester.new("def dyna_method", ":testing", "end", "show-source dyna_method"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
-        str_output.string.should =~ /def dyna_method/
+        @str_output.string.should =~ /def dyna_method/
         Object.remove_method :dyna_method
       end
 
       it 'should output a method\'s source for a method defined inside pry, even if exceptions raised before hand' do
-        str_output = StringIO.new
-        redirect_pry_io(InputTester.new("bad code", "123", "bad code 2", "1 + 2", "def dyna_method", ":testing", "end", "show-source dyna_method"), str_output) do
+        redirect_pry_io(InputTester.new("bad code", "123", "bad code 2", "1 + 2", "def dyna_method", ":testing", "end", "show-source dyna_method"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
-        str_output.string.should =~ /def dyna_method/
+        @str_output.string.should =~ /def dyna_method/
         Object.remove_method :dyna_method
       end
 
       it 'should output an instance method\'s source for a method defined inside pry' do
-        str_output = StringIO.new
         Object.remove_const :A if defined?(A)
-        redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-source A#yo"), str_output) do
+        redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-source A#yo"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
-        str_output.string.should =~ /def yo/
+        @str_output.string.should =~ /def yo/
         Object.remove_const :A
       end
 
       it 'should output an instance method\'s source for a method defined inside pry using define_method' do
-        str_output = StringIO.new
         Object.remove_const :A if defined?(A)
-        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-source A#yup"), str_output) do
+        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-source A#yup"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
-        str_output.string.should =~ /define_method\(:yup\)/
+        @str_output.string.should =~ /define_method\(:yup\)/
         Object.remove_const :A
       end
     end

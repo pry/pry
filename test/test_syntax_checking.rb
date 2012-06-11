@@ -1,5 +1,9 @@
 require 'helper'
+
 describe Pry do
+  before do
+    @str_output = StringIO.new
+  end
 
   [
     ["p = '", "'"],
@@ -11,12 +15,11 @@ describe Pry do
     ["pouts(<<HI, 'foo", "bar", "HI", "baz')"],
   ].each do |foo|
     it "should not raise an error on broken lines: #{foo.join("\\n")}" do
-      output = StringIO.new
-      redirect_pry_io(InputTester.new(*foo), output) do
+      redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end
 
-      output.string.should.not =~ /SyntaxError/
+      @str_output.string.should.not =~ /SyntaxError/
     end
   end
 
@@ -30,25 +33,24 @@ describe Pry do
     ["o = Object.new.tap{ def o.render;","'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
   ]).compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
-      output = StringIO.new
-      redirect_pry_io(InputTester.new(*foo), output) do
+      redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end
-      output.string.should =~ /SyntaxError/
+
+      @str_output.string.should =~ /SyntaxError/
     end
   end
 
   it "should not intefere with syntax errors explicitly raised" do
-    output = StringIO.new
-    redirect_pry_io(InputTester.new(%q{raise SyntaxError, "unexpected $end"}), output) do
+    redirect_pry_io(InputTester.new(%q{raise SyntaxError, "unexpected $end"}), @str_output) do
       Pry.start
     end
-    output.string.should =~ /SyntaxError/
+
+    @str_output.string.should =~ /SyntaxError/
   end
 
   it "should allow trailing , to continue the line" do
     pry = Pry.new
-
     Pry::Code.complete_expression?("puts 1, 2,").should == false
   end
 
@@ -58,7 +60,6 @@ describe Pry do
   end
 
   it "should not clobber _ex_ on a SyntaxError in the repl" do
-
     mock_pry("raise RuntimeError, 'foo';", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
   end
 end

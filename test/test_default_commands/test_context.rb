@@ -3,27 +3,27 @@ require 'helper'
 describe "Pry::DefaultCommands::Context" do
   describe "exit-all" do
     it 'should break out of the repl loop of Pry instance and return nil' do
-      redirect_pry_io(InputTester.new("exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("exit-all")) do
         Pry.new.repl(0).should == nil
       end
     end
 
     it 'should break out of the repl loop of Pry instance wth a user specified value' do
-      redirect_pry_io(InputTester.new("exit-all 'message'"), StringIO.new) do
+      redirect_pry_io(InputTester.new("exit-all 'message'")) do
         Pry.new.repl(0).should == 'message'
       end
     end
 
     it 'should break of the repl loop even if multiple bindings still on stack' do
       ins = nil
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all 'message'"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all 'message'")) do
         ins = Pry.new.tap { |v| v.repl(0).should == 'message' }
       end
     end
 
     it 'binding_stack should be empty after breaking out of the repl loop' do
       ins = nil
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all")) do
         ins = Pry.new.tap { |v| v.repl(0) }
       end
 
@@ -121,7 +121,7 @@ describe "Pry::DefaultCommands::Context" do
       b = Pry.binding_for(:outer)
       b.eval("x = :inner")
 
-      redirect_pry_io(InputTester.new("cd x", "$inner = self;", "exit", "$outer = self", "exit-all"), StringIO.new) do
+      redirect_pry_io(InputTester.new("cd x", "$inner = self;", "exit", "$outer = self", "exit-all")) do
         b.pry
       end
       $inner.should == :inner
@@ -137,16 +137,19 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should break out the repl loop of Pry instance even after an exception in user-given value' do
-      redirect_pry_io(InputTester.new("exit = 42", "exit"), StringIO.new) do
+      redirect_pry_io(InputTester.new("exit = 42", "exit")) do
         ins = Pry.new.tap { |v| v.repl(0).should == nil }
       end
     end
   end
 
   describe "jump-to" do
+    before do
+      @str_output = StringIO.new
+    end
+
     it 'should jump to the proper binding index in the stack' do
-      outp = StringIO.new
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", "$blah = self", "exit-all"), outp) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", "$blah = self", "exit-all")) do
         Pry.start(0)
       end
 
@@ -154,33 +157,31 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should print error when trying to jump to a non-existent binding index' do
-      outp = StringIO.new
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 100", "exit-all"), outp) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 100", "exit-all"), @str_output) do
         Pry.start(0)
       end
 
-      outp.string.should =~ /Invalid nest level/
+      @str_output.string.should =~ /Invalid nest level/
     end
 
     it 'should print error when trying to jump to the same binding index' do
-      outp = StringIO.new
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 2", "exit-all"), outp) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 2", "exit-all"), @str_output) do
         Pry.new.repl(0)
       end
 
-      outp.string.should =~ /Already/
+      @str_output.string.should =~ /Already/
     end
   end
 
   describe "exit-program" do
     it 'should raise SystemExit' do
-      redirect_pry_io(InputTester.new("exit-program"), StringIO.new) do
+      redirect_pry_io(InputTester.new("exit-program")) do
         lambda { Pry.new.repl(0).should == 0 }.should.raise SystemExit
       end
     end
 
     it 'should exit the program with the provided value' do
-      redirect_pry_io(InputTester.new("exit-program 66"), StringIO.new) do
+      redirect_pry_io(InputTester.new("exit-program 66")) do
         begin
           Pry.new.repl(0)
         rescue SystemExit => e
@@ -192,13 +193,13 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "raise-up" do
     it "should raise the exception with raise-up" do
-      redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError"),StringIO.new) do
+      redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError")) do
         lambda { Pry.new.repl(0) }.should.raise NoMethodError
       end
     end
 
     it "should raise an unamed exception with raise-up" do
-      redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'"),StringIO.new) do
+      redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
         lambda { Pry.new.repl(0) }.should.raise RuntimeError, "noreally"
       end
     end
@@ -208,7 +209,7 @@ describe "Pry::DefaultCommands::Context" do
       b.eval("x = :inner")
 
       redirect_pry_io(InputTester.new("x.pry", "raise NoMethodError",
-        "$inner = self", "raise-up NoMethodError", "$outer = self", "exit-all"),StringIO.new) do
+        "$inner = self", "raise-up NoMethodError", "$outer = self", "exit-all")) do
         b.pry
       end
       $inner.should == :inner
@@ -224,7 +225,7 @@ describe "Pry::DefaultCommands::Context" do
       b = Pry.binding_for(:outer)
       b.eval("x = :inner")
       redirect_pry_io(InputTester.new("cd x", "raise NoMethodError","$inner = self",
-        "deep = :deep", "cd deep","$deep = self","raise-up NoMethodError", "raise-up", "$outer = self", "raise-up", "exit-all"),StringIO.new) do
+        "deep = :deep", "cd deep","$deep = self","raise-up NoMethodError", "raise-up", "$outer = self", "raise-up", "exit-all")) do
         lambda { b.pry }.should.raise NoMethodError
       end
       $deep.should == :deep
