@@ -20,7 +20,7 @@ unless Pry::Helpers::BaseHelpers.mri_18?
       it "should find a method by regex" do
         mock_pry("find-method hell MyKlass").should =~ /MyKlass.*?hello/m
       end
-      
+
       it "should NOT match a method that does not match the regex" do
         mock_pry("find-method hell MyKlass").should.not =~ /MyKlass.*?goodbye/m
       end

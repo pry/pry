@@ -3,28 +3,32 @@ require 'helper'
 if !mri18_and_no_real_source_location?
   describe "Pry::DefaultCommands::Documentation" do
     describe "show-doc" do
+      before do
+        @str_output = StringIO.new
+      end
+
       it 'should output a method\'s documentation' do
-        redirect_pry_io(InputTester.new("show-doc sample_method", "exit-all"), str_output=StringIO.new) do
+        redirect_pry_io(InputTester.new("show-doc sample_method", "exit-all"), @str_output) do
           pry
         end
 
-        str_output.string.should =~ /sample doc/
+        @str_output.string.should =~ /sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers' do
-        redirect_pry_io(InputTester.new("show-doc sample_method -l", "exit-all"), str_output=StringIO.new) do
+        redirect_pry_io(InputTester.new("show-doc sample_method -l", "exit-all"), @str_output) do
           pry
         end
 
-        str_output.string.should =~ /\d: sample doc/
+        @str_output.string.should =~ /\d: sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers (base one)' do
-        redirect_pry_io(InputTester.new("show-doc sample_method -b", "exit-all"), str_output=StringIO.new) do
+        redirect_pry_io(InputTester.new("show-doc sample_method -b", "exit-all"), @str_output) do
           pry
         end
 
-        str_output.string.should =~ /1: sample doc/
+        @str_output.string.should =~ /1: sample doc/
       end
 
       it 'should output a method\'s documentation if inside method without needing to use method name' do
@@ -206,11 +210,11 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          redirect_pry_io(InputTester.new("show-doc BetaClass", "exit-all"), out=StringIO.new) do
+          redirect_pry_io(InputTester.new("show-doc BetaClass", "exit-all"), outp=StringIO.new) do
             AlphaClass.pry
           end
 
-          out.string.should =~ /nested beta/
+          outp.string.should =~ /nested beta/
         end
       end
 

@@ -1,4 +1,5 @@
 require 'helper'
+
 describe "ls" do
   describe "below ceiling" do
     it "should stop before Object by default" do
@@ -92,6 +93,7 @@ describe "ls" do
       mock_pry("ls -c").should =~ /ArgumentError/
       mock_pry("ls -c --grep Run").should.not =~ /ArgumentError/
     end
+
     it "should still output matching things" do
       mock_pry("ls -c --grep Run").should =~ /RuntimeError/
     end

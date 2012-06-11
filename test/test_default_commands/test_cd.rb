@@ -9,7 +9,7 @@ describe 'Pry::DefaultCommands::Cd' do
     b = Pry.binding_for(Object.new)
     b.eval("x = :mon_ouie")
 
-    redirect_pry_io(InputTester.new("cd x", "$obj = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd x", "$obj = self", "exit-all")) do
       b.pry
     end
 
@@ -20,7 +20,7 @@ describe 'Pry::DefaultCommands::Cd' do
     b = Pry.binding_for(:outer)
     b.eval("x = :inner")
 
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd ..", "$outer = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd ..", "$outer = self", "exit-all")) do
       b.pry
     end
     $inner.should == :inner
@@ -31,7 +31,7 @@ describe 'Pry::DefaultCommands::Cd' do
     b = Pry.binding_for(Object.new)
     input = InputTester.new "cd ..", "$obj = self", "exit-all"
 
-    redirect_pry_io(input, StringIO.new) do
+    redirect_pry_io(input) do
       b.pry
     end
 
@@ -42,7 +42,7 @@ describe 'Pry::DefaultCommands::Cd' do
     b = Pry.binding_for(:outer)
     b.eval("x = :inner")
 
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd /", "$outer = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd /", "$outer = self", "exit-all")) do
       b.pry
     end
     $inner.should == :inner
@@ -54,7 +54,7 @@ describe 'Pry::DefaultCommands::Cd' do
     b = Pry.binding_for(:outer)
     b.eval("x = :inner")
 
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd", "$outer = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd", "$outer = self", "exit-all")) do
       b.pry
     end
     $inner.should == :inner
@@ -66,7 +66,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj = Object.new
     $obj.instance_variable_set(:@x, 66)
 
-    redirect_pry_io(InputTester.new("cd $obj/@x", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj/@x", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 3
@@ -78,7 +78,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj = Object.new
     $obj.instance_variable_set(:@x, 66)
 
-    redirect_pry_io(InputTester.new("cd $obj/@x/", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj/@x/", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 3
@@ -90,7 +90,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj = Object.new
     $obj.instance_variable_set(:@x, 66)
 
-    redirect_pry_io(InputTester.new("cd $obj", "local = :local", "cd @x", "cd ../local", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj", "local = :local", "cd @x", "cd ../local", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 3
@@ -102,7 +102,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj = Object.new
     $obj.instance_variable_set(:@x, 66)
 
-    redirect_pry_io(InputTester.new("cd $obj/@x/..", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj/@x/..", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 2
@@ -114,7 +114,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj.instance_variable_set(:@x, 66)
     $obj.instance_variable_set(:@y, 79)
 
-    redirect_pry_io(InputTester.new("cd $obj/@x/../@y", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj/@x/../@y", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 3
@@ -127,7 +127,7 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj.instance_variable_set(:@x, 66)
     TOPLEVEL_BINDING.eval('@z = 20')
 
-    redirect_pry_io(InputTester.new("cd $obj/@x/", "cd /@z", "$result = _pry_.binding_stack.dup", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd $obj/@x/", "cd /@z", "$result = _pry_.binding_stack.dup", "exit-all")) do
       Pry.start
     end
     $result.size.should == 2
@@ -135,7 +135,7 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should start a session on TOPLEVEL_BINDING with cd ::' do
-    redirect_pry_io(InputTester.new("cd ::", "$obj = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd ::", "$obj = self", "exit-all")) do
       5.pry
     end
     $obj.should == TOPLEVEL_BINDING.eval('self')
@@ -147,7 +147,7 @@ describe 'Pry::DefaultCommands::Cd' do
       :mon_ouie
     end
 
-    redirect_pry_io(InputTester.new("cd hello 1, 2, 3", "$obj = self", "exit-all"), StringIO.new) do
+    redirect_pry_io(InputTester.new("cd hello 1, 2, 3", "$obj = self", "exit-all")) do
       o.pry
     end
     $obj.should == :mon_ouie
