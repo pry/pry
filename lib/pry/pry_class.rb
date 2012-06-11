@@ -135,6 +135,12 @@ class Pry
       head = target
     end
 
+    # Clear the line before starting Pry. This fixes the issue discussed here:
+    # https://github.com/pry/pry/issues/566
+    if Pry.config.auto_indent
+      puts if defined?(Win32::Console) ? "\e[0F" : "\e[0A\e[0G"
+    end
+
     # Enter the matrix
     pry_instance.repl(head)
   end
