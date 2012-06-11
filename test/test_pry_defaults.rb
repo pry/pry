@@ -1,4 +1,5 @@
 require 'helper'
+version = 1
 describe "test Pry defaults" do
 
   after do
@@ -396,6 +397,30 @@ describe "test Pry defaults" do
               :hooks => Pry::DEFAULT_HOOKS)
 
       output.string.should == ""
+    end
+  end
+
+  describe 'toplevel_binding' do
+    it 'should be devoid of local variables' do
+      mock_pry(Pry.toplevel_binding, "ls -l").should.not =~ /version/
+
+      # https://github.com/rubinius/rubinius/issues/357
+      unless Pry::Helpers::BaseHelpers.rbx?
+        mock_pry(TOPLEVEL_BINDING, "ls -l").should =~ /version/
+      end
+    end
+
+    it 'should have self the same as TOPLEVEL_BINDING' do
+      mock_pry(Pry.toplevel_binding, "self.equal? TOPLEVEL_BINDING.eval('self')").should =~ /=> true/
+    end
+
+    # https://github.com/rubinius/rubinius/issues/1779
+    unless Pry::Helpers::BaseHelpers.rbx?
+      it 'should define private methods on Object' do
+        mock_pry(TOPLEVEL_BINDING, "def gooey_fooey; end")
+        method(:gooey_fooey).owner.should == Object
+        Pry::Method(method(:gooey_fooey)).visibility.should == :private
+      end
     end
   end
 end
