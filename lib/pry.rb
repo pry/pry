@@ -13,10 +13,7 @@ class Pry
     # ensure we're actually in a method
     file = target.eval('__FILE__')
 
-    # /unknown/ for rbx
-    if file !~ /(\(.*\))|<.*>/ && file !~ /__unknown__/ && file != "" && file != "-e"  || file == Pry.eval_path
-      _pry_.run_command("whereami", "", target)
-    end
+    _pry_.run_command("whereami --quiet", "", target)
   end
 
   # The default print

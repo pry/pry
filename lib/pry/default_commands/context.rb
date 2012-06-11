@@ -22,12 +22,16 @@ class Pry
           @line = target.eval('__LINE__')
         end
 
+        def options(opt)
+          opt.on :q, :quiet, "Don't display anything in case of an error"
+        end
+
         def code
-          if show_method?
-            Pry::Code.from_method(@method)
-          else
-            Pry::Code.from_file(@file).around(@line, 5)
-          end
+          @code ||= if show_method?
+                      Pry::Code.from_method(@method)
+                    else
+                      Pry::Code.from_file(@file).around(@line, 5)
+                    end
         end
 
         def location
@@ -35,6 +39,13 @@ class Pry
         end
 
         def process
+          if opts.quiet? && (internal_binding? || !code?)
+            return
+          elsif internal_binding?
+            output.puts "Could not find local context, did you use `binding.pry`?"
+            return
+          end
+
           set_file_and_dir_locals(@file)
 
           output.puts "\n#{text.bold('From:')} #{location}:\n\n"
@@ -44,6 +55,10 @@ class Pry
 
         private
 
+        def internal_binding?
+          @method && ['__binding__', '__binding_impl__'].include?(@method.name)
+        end
+
         def show_method?
           args.empty? && @method && @method.source? && @method.source_range.count < 20 &&
           # These checks are needed in case of an eval with a binding and file/line
@@ -51,9 +66,10 @@ class Pry
           @method.source_file == @file && @method.source_range.include?(@line)
         end
 
-        def invalid_file?(file)
-          file != Pry.eval_path &&
-          (file =~ /(\(.*\))|<.*>/ || file == "" || file == "-e")
+        def code?
+          !!code
+        rescue MethodSource::SourceNotFoundError
+          false
         end
       end
 
