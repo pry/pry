@@ -1,6 +1,9 @@
 require 'helper'
 
 describe Pry do
+  before do
+    @str_output = StringIO.new
+  end
 
   if RUBY_VERSION =~ /1.9/
     describe "Exotic object support" do
@@ -44,10 +47,9 @@ describe Pry do
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
         input_string = "Command"
-        str_output = StringIO.new
         o = Object.new
         pry_tester = Pry.new(:input => StringIO.new(input_string),
-                             :output => str_output,
+                             :output => @str_output,
                              :exception_handler => proc { |_, exception, _pry_| @excep = exception },
                              :print => proc {}
                              ).rep(o)
@@ -77,31 +79,28 @@ describe Pry do
       end
 
       it 'should display error and throw(:breakout) if Pry instance runs out of input' do
-        str_output = StringIO.new
         catch(:breakout) do
-          redirect_pry_io(StringIO.new(":nothing\n"), str_output) do
+          redirect_pry_io(StringIO.new(":nothing\n"), @str_output) do
             Pry.new.repl
           end
         end
-        str_output.string.should =~ /Error: Pry ran out of things to read/
+        @str_output.string.should =~ /Error: Pry ran out of things to read/
       end
 
       it 'should make self evaluate to the receiver of the rep session' do
         o = :john
-        str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("self"), :output => str_output)
+        pry_tester = Pry.new(:input => InputTester.new("self"), :output => @str_output)
         pry_tester.rep(o)
-        str_output.string.should =~ /:john/
+        @str_output.string.should =~ /:john/
       end
 
       it 'should work with multi-line input' do
         o = Object.new
-        str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => str_output)
+        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => @str_output)
         pry_tester.rep(o)
-        str_output.string.should =~ /5/
+        @str_output.string.should =~ /5/
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
@@ -112,38 +111,34 @@ describe Pry do
 
       it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
         o = Object.new
-        str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("Exception.new;"), :output => str_output)
+        pry_tester = Pry.new(:input => InputTester.new("Exception.new;"), :output => @str_output)
         pry_tester.rep(o)
-        str_output.string.should == ""
+        @str_output.string.should == ""
       end
 
       it 'should suppress output if input ends in a ";" (single line)' do
         o = Object.new
-        str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("x = 5;"), :output => str_output)
+        pry_tester = Pry.new(:input => InputTester.new("x = 5;"), :output => @str_output)
         pry_tester.rep(o)
-        str_output.string.should == ""
+        @str_output.string.should == ""
       end
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
         o = Object.new
-        str_output = StringIO.new
 
-        pry_tester = Pry.new(:input => InputTester.new("def self.blah", ":test", "end;"), :output => str_output)
+        pry_tester = Pry.new(:input => InputTester.new("def self.blah", ":test", "end;"), :output => @str_output)
         pry_tester.rep(o)
-        str_output.string.should == ""
+        @str_output.string.should == ""
       end
 
       it 'should be able to evaluate exceptions normally' do
         o = Exception.new
-        str_output = StringIO.new
 
         was_called = false
         pry_tester = Pry.new(:input => InputTester.new("self"),
-                             :output => str_output,
+                             :output => @str_output,
                              :exception_handler => proc { was_called = true })
 
         pry_tester.rep(o)
@@ -152,11 +147,10 @@ describe Pry do
 
       it 'should notice when exceptions are raised' do
         o = Exception.new
-        str_output = StringIO.new
 
         was_called = false
         pry_tester = Pry.new(:input => InputTester.new("raise self"),
-                             :output => str_output,
+                             :output => @str_output,
                              :exception_handler => proc { was_called = true })
 
         pry_tester.rep(o)
@@ -370,13 +364,12 @@ describe Pry do
         it 'should nest properly' do
           Pry.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all")
 
-          str_output = StringIO.new
-          Pry.output = str_output
+          Pry.output = @str_output
 
           o = Object.new
 
           pry_tester = o.pry
-          str_output.string.should =~ /nest:3/
+          @str_output.string.should =~ /nest:3/
         end
       end
 

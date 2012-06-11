@@ -192,6 +192,9 @@ describe "Pry::DefaultCommands::Shell" do
   end
 
   describe "cat" do
+    before do
+      @str_output = StringIO.new
+    end
 
     describe "on receiving a file that does not exist" do
       it 'should display an error message' do
@@ -250,7 +253,7 @@ describe "Pry::DefaultCommands::Shell" do
 
     describe "with --ex N" do
       it 'should cat first level of backtrace when --ex used with no argument ' do
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex"), :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex"), :output => @str_output)
 
         temp_file do |f|
           f << "bt number 1"
@@ -259,11 +262,11 @@ describe "Pry::DefaultCommands::Shell" do
           pry_instance.rep(self)
         end
 
-        str_output.string.should =~ /bt number 1/
+        @str_output.string.should =~ /bt number 1/
       end
 
       it 'should cat first level of backtrace when --ex 0 used ' do
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex 0"), :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex 0"), :output => @str_output)
 
         temp_file do |f|
           f << "bt number 1"
@@ -272,11 +275,11 @@ describe "Pry::DefaultCommands::Shell" do
           pry_instance.rep(self)
         end
 
-        str_output.string.should =~ /bt number 1/
+        @str_output.string.should =~ /bt number 1/
       end
 
       it 'should cat second level of backtrace when --ex 1 used ' do
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex 1"), :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex 1"), :output => @str_output)
 
         temp_file do |f|
           f << "bt number 2"
@@ -285,11 +288,11 @@ describe "Pry::DefaultCommands::Shell" do
           pry_instance.rep(self)
         end
 
-        str_output.string.should =~ /bt number 2/
+        @str_output.string.should =~ /bt number 2/
       end
 
       it 'should cat third level of backtrace when --ex 2 used' do
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex 2"), :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex 2"), :output => @str_output)
 
         temp_file do |f|
           f << "bt number 3"
@@ -298,14 +301,14 @@ describe "Pry::DefaultCommands::Shell" do
           pry_instance.rep(self)
         end
 
-        str_output.string.should =~ /bt number 3/
+        @str_output.string.should =~ /bt number 3/
       end
 
       it 'should show error when backtrace level out of bounds' do
-        pry_instance = Pry.new(:input => StringIO.new("cat --ex 3"), :output => str_output = StringIO.new)
+        pry_instance = Pry.new(:input => StringIO.new("cat --ex 3"), :output => @str_output)
         pry_instance.last_exception = mock_exception("x", "x", "x")
         pry_instance.rep(self)
-        str_output.string.should =~ /out of bounds/
+        @str_output.string.should =~ /out of bounds/
       end
 
       it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
@@ -317,18 +320,18 @@ describe "Pry::DefaultCommands::Shell" do
         end
 
         pry_instance = Pry.new(:input => StringIO.new("cat --ex\n" * 4),
-                               :output => (str_output = StringIO.new))
+                               :output => @str_output)
 
         pry_instance.last_exception = mock_exception(*temp_files.map { |f| "#{f.path}:1" })
 
         3.times do |i|
           pry_instance.rep(self)
-          str_output.string.should =~ /bt number #{i}/
+          @str_output.string.should =~ /bt number #{i}/
         end
 
-        str_output.reopen
+        @str_output.reopen
         pry_instance.rep(self)
-        str_output.string.should =~ /bt number 0/
+        @str_output.string.should =~ /bt number 0/
 
         temp_files.each do |file|
           file.close(true)
