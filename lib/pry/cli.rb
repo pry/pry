@@ -131,7 +131,7 @@ Copyright (c) 2011 John Mair (banisterfiend)
   on(:c, :context,
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
      :argument => true,
-     :default => "TOPLEVEL_BINDING"
+     :default => "Pry.toplevel_binding"
      )
 end.process_options do |opts|
   # invoked via cli

@@ -46,6 +46,9 @@ class Pry
     # @return [Boolean] Whether Pry sessions are quiet by default.
     attr_accessor :quiet
 
+    # @return [Binding] A top level binding with no local variables
+    attr_accessor :toplevel_binding
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -105,7 +108,7 @@ class Pry
   # @option options (see Pry#initialize)
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
-  def self.start(target=TOPLEVEL_BINDING, options={})
+  def self.start(target=toplevel_binding, options={})
     target = Pry.binding_for(target)
     initial_session_setup
 
@@ -358,5 +361,15 @@ class Pry
     end
   end
 end
+
+# Grab a copy of the TOPLEVEL_BINDING without any local variables.
+# This binding has a default definee of Object, and new methods are
+# private (just as in TOPLEVEL_BINDING).
+def self.__binding_impl__
+  binding
+end
+Pry.toplevel_binding = __binding_impl__
+Pry.toplevel_binding.eval("private")
+class << self; undef __binding_impl__; end
 
 Pry.init
