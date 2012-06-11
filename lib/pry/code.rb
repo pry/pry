@@ -43,7 +43,7 @@ class Pry
             f = File.open(fn, 'r')
             code_type = type_from_filename(fn)
           else
-            raise CommandError, "Cannot open #{fn.inspect} for reading."
+            raise MethodSource::SourceNotFoundError, "Cannot open #{fn.inspect} for reading."
           end
         end
         new(f, 1, code_type || :ruby)

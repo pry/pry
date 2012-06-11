@@ -26,7 +26,7 @@ describe Pry::Code do
     should 'raise an error if the file doesn\'t exist' do
       proc do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')
-      end.should.raise(Pry::CommandError)
+      end.should.raise(MethodSource::SourceNotFoundError)
     end
   end
 
