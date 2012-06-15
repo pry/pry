@@ -28,6 +28,9 @@ class Pry
 
   attr_accessor :extra_sticky_locals
 
+  # This is exposed via Pry::Command#state.
+  attr_reader :command_state
+
   # Special treatment for hooks as we want to alert people of the
   # changed API
   attr_reader :hooks
@@ -59,6 +62,7 @@ class Pry
 
     @binding_stack     = []
     @indent            = Pry::Indent.new
+    @command_state     = {}
   end
 
   # Refresh the Pry instance settings from the Pry class.

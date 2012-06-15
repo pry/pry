@@ -623,4 +623,74 @@ describe "Pry::Command" do
        mock_pry("show-command my-test").should =~ /output.puts command_name/
      end
    end
+
+   describe "commands can save state" do
+     before do
+       @set = Pry::CommandSet.new do
+         create_command "litella", "desc" do
+           def process
+             state.my_state ||= 0
+             state.my_state += 1
+           end
+         end
+
+         create_command "sanders", "desc" do
+           def process
+             state.my_state = "wood"
+           end
+         end
+
+         create_command /[Hh]ello-world/, "desc" do
+           def process
+             state.my_state ||= 0
+             state.my_state += 2
+           end
+         end
+
+       end.import Pry::Commands
+     end
+
+     it 'should save state for the command on the Pry#command_state hash' do
+       instance = nil
+       redirect_pry_io(InputTester.new("litella",
+                                       "exit-all")) do
+         instance = Pry.new(:commands => @set)
+         instance.repl
+       end
+
+       instance.command_state["litella"].my_state.should == 1
+     end
+
+     it 'should ensure state is maintained between multiple invocations of command' do
+       instance = nil
+       redirect_pry_io(InputTester.new("litella", "litella",
+                                       "exit-all")) do
+         instance = Pry.new(:commands => @set)
+         instance.repl
+       end
+
+       instance.command_state["litella"].my_state.should == 2
+     end
+
+     it 'should ensure state with same name stored stored seperately for each command' do
+       instance = nil
+       redirect_pry_io(InputTester.new("litella", "sanders", "exit-all")) do
+         instance = Pry.new(:commands => @set)
+         instance.repl
+       end
+
+       instance.command_state["litella"].my_state.should == 1
+       instance.command_state["sanders"].my_state.should =="wood"
+     end
+
+     it 'should ensure state can is properly saved for regex commands' do
+       instance = nil
+       redirect_pry_io(InputTester.new("hello-world", "Hello-world", "exit-all")) do
+         instance = Pry.new(:commands => @set)
+         instance.repl
+       end
+
+       instance.command_state[/[Hh]ello-world/].my_state.should == 4
+     end
+   end
  end
