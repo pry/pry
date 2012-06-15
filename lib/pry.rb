@@ -110,8 +110,9 @@ class Pry
       _pry_.binding_stack.clear
       throw(:breakout)
     else
-      # otherwise just pops a binding
-      _pry_.binding_stack.pop
+      # otherwise just pops a binding and stores it as old binding
+      _pry_.command_state["cd"].old_binding = _pry_.binding_stack.pop
+      _pry_.command_state["cd"].append = true
     end
   end
 
