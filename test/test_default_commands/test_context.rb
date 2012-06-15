@@ -114,6 +114,32 @@ describe "Pry::DefaultCommands::Context" do
       Cor.new.blimey!.should =~ /From: not.found.file.erb @ line 7 Cor#blimey!:\n\nError: Cannot open "not.found.file.erb" for reading./m
       Object.remove_const(:Cor)
     end
+
+    it 'should show code window (not just method source) if parameter passed to whereami' do
+      class Cor
+        def blimey!
+          mock_pry(binding, 'whereami 3').should =~ /class Cor/
+        end
+      end
+      Cor.new.blimey!
+      Object.remove_const(:Cor)
+    end
+
+    it 'should use Pry.config.default_window_size for window size when outside a method context' do
+      old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
+      :litella
+      :pig
+      out = mock_pry(binding, 'whereami')
+      :punk
+      :sanders
+
+      out.should.not =~ /:litella/
+      out.should =~ /:pig/
+      out.should =~ /:punk/
+      out.should.not =~ /:sanders/
+
+      Pry.config.default_window_size = old_size
+    end
   end
 
   describe "exit" do
