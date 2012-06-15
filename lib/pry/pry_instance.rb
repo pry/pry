@@ -60,9 +60,9 @@ class Pry
   def initialize(options={})
     refresh(options)
 
-    @binding_stack     = []
-    @indent            = Pry::Indent.new
-    @command_state     = {}
+    @binding_stack = []
+    @indent        = Pry::Indent.new
+    @command_state = {}
   end
 
   # Refresh the Pry instance settings from the Pry class.
