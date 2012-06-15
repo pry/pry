@@ -672,7 +672,7 @@ describe "Pry::Command" do
        instance.command_state["litella"].my_state.should == 2
      end
 
-     it 'should ensure state with same name stored stored seperately for each command' do
+     it 'should ensure state with same name stored seperately for each command' do
        instance = nil
        redirect_pry_io(InputTester.new("litella", "sanders", "exit-all")) do
          instance = Pry.new(:commands => @set)
@@ -683,7 +683,7 @@ describe "Pry::Command" do
        instance.command_state["sanders"].my_state.should =="wood"
      end
 
-     it 'should ensure state can is properly saved for regex commands' do
+     it 'should ensure state is properly saved for regex commands' do
        instance = nil
        redirect_pry_io(InputTester.new("hello-world", "Hello-world", "exit-all")) do
          instance = Pry.new(:commands => @set)

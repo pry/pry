@@ -30,7 +30,7 @@ class Pry
           @code ||= if show_method?
                       Pry::Code.from_method(@method)
                     else
-                      Pry::Code.from_file(@file).around(@line, 5)
+                      Pry::Code.from_file(@file).around(@line, window_size)
                     end
         end
 
@@ -42,7 +42,7 @@ class Pry
           if opts.quiet? && (internal_binding? || !code?)
             return
           elsif internal_binding?
-            output.puts "Could not find local context, did you use `binding.pry`?"
+            output.puts "Could not find local context, did you use \`binding.pry\`?"
             return
           end
 
@@ -70,6 +70,14 @@ class Pry
           !!code
         rescue MethodSource::SourceNotFoundError
           false
+        end
+
+        def window_size
+          if args.empty?
+            Pry.config.default_window_size
+          else
+            args.first.to_i
+          end
         end
       end
 
