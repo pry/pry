@@ -106,7 +106,7 @@ class Pry
       # clear input buffer
       eval_string.replace("")
     elsif _pry_.binding_stack.one?
-      # ^D at top-level breaks out of loop
+      # ^D at top-level breaks out of a REPL loop
       _pry_.binding_stack.clear
       throw(:breakout)
     else
