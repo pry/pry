@@ -105,7 +105,7 @@ class Pry
             self.content << File.read(File.expand_path(file)) << "\n"
           end
           opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional_argument => true,
-          :as => Range, :default => -5..-1 do |range|
+          :as => Range, :default => -1 do |range|
             range = convert_to_range(range)
 
             range.each do |v|
@@ -118,7 +118,7 @@ class Pry
           opt.on :p, :public, "Create a public gist (default: false)", :default => false
           opt.on :l, :lines, "Only gist a subset of lines from the gistable content.", :optional_argument => true, :as => Range, :default => 1..-1
           opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional_argument => true,
-          :as => Range, :default => -5..-1 do |range|
+          :as => Range, :default => -1 do |range|
             range = convert_to_range(range)
             input_expressions = _pry_.input_array[range] || []
             Array(input_expressions).each_with_index do |code, index|
