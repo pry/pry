@@ -348,7 +348,7 @@ class Pry
     # from within Readline.
     rescue Interrupt
       output.puts ""
-      eval_string.replace("")
+      eval_string.clear
       return
     end
 
