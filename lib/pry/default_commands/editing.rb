@@ -289,7 +289,7 @@ class Pry
 
       create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
         description "Amend a line of input in multi-line mode."
-        command_options :interpolate => false, :listing => "-line"
+        command_options :interpolate => false, :listing => "amend-line"
 
         banner <<-'BANNER'
           Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
