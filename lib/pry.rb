@@ -104,7 +104,7 @@ class Pry
   DEFAULT_CONTROL_D_HANDLER = proc do |eval_string, _pry_|
     if !eval_string.empty?
       # clear input buffer
-      eval_string.clear
+      eval_string.replace("")
     elsif _pry_.binding_stack.one?
       # ^D at top-level breaks out of loop
       _pry_.binding_stack.clear
