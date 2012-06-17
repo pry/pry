@@ -62,7 +62,7 @@ class Pry
     files = RC_FILES.collect { |file_name| File.expand_path(file_name) }.uniq
     files.each do |file_name|
       begin
-        load(file_name) if File.exists?(file_name)
+        toplevel_binding.eval(File.read(file_name)) if File.exists?(file_name)
       rescue RescuableException => e
         puts "Error loading #{file_name}: #{e}"
       end
@@ -143,6 +143,21 @@ class Pry
 
     # Enter the matrix
     pry_instance.repl(head)
+  end
+
+  # @return [Array<String>] return rc files with expanded path.
+  def self.rc_files
+    RC_FILES.collect do |file_name|
+      full_name = File.expand_path(file_name)
+      File.expand_path(file_name) if File.exists?(full_name)
+    end.uniq.compact
+  end
+
+  # Execute the file through the REPL loop, non-interactively.
+  # @param [String] file_name File name to load through the REPL.
+  def self.load_file_through_repl(file_name)
+    require "pry/repl_file_loader"
+    REPLFileLoader.new(file_name).load
   end
 
   # An inspector that clips the output to `max_length` chars.

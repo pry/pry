@@ -14,6 +14,10 @@ class Pry
       # @return [Array] The Procs that process the parsed options.
       attr_accessor :option_processors
 
+      # @return [Array<String>] The input array of strings to process
+      #   as CLI options.
+      attr_accessor :input_args
+
       # Add another set of CLI options (a Slop block)
       def add_options(&block)
         if options
@@ -54,6 +58,8 @@ class Pry
 
       def parse_options(args=ARGV.dup)
         raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options." if !options
+
+        self.input_args = args
 
         opts = Slop.parse(args, :help => true, :multiple_switches => false, &options)
         option_processors.each { |processor| processor.call(opts) } if option_processors # option processors are optional
@@ -134,13 +140,18 @@ Copyright (c) 2011 John Mair (banisterfiend)
      :default => "Pry.toplevel_binding"
      )
 end.process_options do |opts|
+
   # invoked via cli
   Pry.cli = true
 
   # create the actual context
   context = Pry.binding_for(eval(opts[:context]))
 
-  if opts[:exec]
+  if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
+    full_name = File.expand_path(Pry::CLI.input_args.first)
+    Pry.load_file_through_repl(full_name)
+    exit
+  elsif opts[:exec]
     exec_string = opts[:exec] + "\n"
   else
     exec_string = ""
