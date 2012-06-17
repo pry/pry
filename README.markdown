@@ -21,8 +21,8 @@
 </center>
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
-written from scratch to provide a number of advanced features, some of
-these include:
+written from scratch to provide a number of advanced features,
+including:
 
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing
