@@ -517,6 +517,7 @@ class Pry
     begin
       yield
     rescue EOFError
+      old_input = self.input
       if input_stack.empty?
         self.input = Pry.config.input
         if !should_retry
@@ -527,6 +528,8 @@ class Pry
       else
         self.input = input_stack.pop
       end
+
+      exec_hook :input_object_changed, old_input, self.input, self
       retry
 
     # Interrupts are handled in r() because they need to tweak eval_string
