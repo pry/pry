@@ -180,7 +180,15 @@ class Pry
           select_message(receiver, message, candidates)
 
         else
-          candidates = eval("methods | private_methods | local_variables | self.class.constants", bind).collect{|m| m.to_s}
+          candidates = eval(
+            "methods | private_methods | local_variables | " \
+              "self.class.constants | instance_variables",
+            bind
+          ).collect{|m| m.to_s}
+
+          if eval("respond_to?(:class_variables)", bind)
+            candidates += eval("class_variables", bind).collect { |m| m.to_s }
+          end
 
           (candidates|ReservedWords|commands).grep(/^#{Regexp.quote(input)}/)
         end
