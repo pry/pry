@@ -74,8 +74,9 @@ class Pry
         when /^(:[^:.]*)$/
           # Symbol
           if Symbol.respond_to?(:all_symbols)
-            sym = $1
+            sym        = Regexp.quote($1)
             candidates = Symbol.all_symbols.collect{|s| ":" + s.id2name}
+
             candidates.grep(/^#{sym}/)
           else
             []
