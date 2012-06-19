@@ -1,7 +1,26 @@
 require "pry/indent"
 
-# Pry is a powerful alternative to the standard IRB shell for Ruby.
-# It features syntax highlighting, a flexible plugin architecture, runtime invocation and source and documentation browsing.
+##
+# Pry is a powerful alternative to the standard IRB shell for Ruby. It
+# features syntax highlighting, a flexible plugin architecture, runtime
+# invocation and source and documentation browsing.
+#
+# Pry can be started similar to other command line utilities by simply running
+# the following command:
+#
+#     pry
+#
+# Once inside Pry you can invoke the help message:
+#
+#     help
+#
+# This will show a list of available commands and their usage. For more
+# information about Pry you can refer to the following resources:
+#
+# * http://pry.github.com/
+# * https://github.com/pry/pry
+# * the IRC channel, which is #pry on the Freenode network
+#
 class Pry
 
   attr_accessor :input
