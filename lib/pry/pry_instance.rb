@@ -1,5 +1,7 @@
 require "pry/indent"
 
+# Pry is a powerful alternative to the standard IRB shell for Ruby.
+# It features syntax highlighting, a flexible plugin architecture, runtime invocation and source and documentation browsing.
 class Pry
 
   attr_accessor :input
