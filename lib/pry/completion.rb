@@ -163,7 +163,12 @@ class Pry
               end
               next if name != "IRB::Context" and
               /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-              candidates.concat m.instance_methods(false).collect{|x| x.to_s}
+
+              # jruby doesn't always provide #instance_methods() on each
+              # object.
+              if m.respond_to?(:instance_methods)
+                candidates.concat m.instance_methods(false).collect{|x| x.to_s}
+              end
             }
             candidates.sort!
             candidates.uniq!
