@@ -22,5 +22,12 @@ describe Pry::InputCompleter do
       lambda{ completer.call "a.to_s." }.should.not.raise Exception
     end
   end
+
+  it 'should take parenthesis and other characters into account for symbols' do
+    b         = Pry.binding_for(Object.new)
+    completer = Pry::InputCompleter.build_completion_proc(b)
+
+    lambda { completer.call(":class)") }.should.not.raise(RegexpError)
+  end
 end
 
