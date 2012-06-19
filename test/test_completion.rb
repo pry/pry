@@ -22,5 +22,34 @@ describe Pry::InputCompleter do
       lambda{ completer.call "a.to_s." }.should.not.raise Exception
     end
   end
+
+  it 'should complete instance variables' do
+    object = Object.new
+
+    object.instance_variable_set(:'@name', 'Pry')
+    object.class.send(:class_variable_set, :'@@number', 10)
+
+    object.instance_variables.map { |v| v.to_sym } \
+      .include?(:'@name').should == true
+
+    object.class.class_variables.map { |v| v.to_sym } \
+      .include?(:'@@number').should == true
+
+    completer = Pry::InputCompleter.build_completion_proc(
+      Pry.binding_for(object)
+    )
+
+    # Complete instance variables.
+    completer.call('@na').include?('@name').should                 == true
+    completer.call('@name.down').include?('@name.downcase').should == true
+
+    # Complete class variables.
+    completer = Pry::InputCompleter.build_completion_proc(
+      Pry.binding_for(object.class)
+    )
+
+    completer.call('@@nu').include?('@@number').should              == true
+    completer.call('@@number.cl').include?('@@number.class').should == true
+  end
 end
 
