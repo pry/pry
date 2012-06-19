@@ -27,10 +27,13 @@ describe Pry::InputCompleter do
     object = Object.new
 
     object.instance_variable_set(:'@name', 'Pry')
-    object.class.class_variable_set(:'@@number', 10)
+    object.class.send(:class_variable_set, :'@@number', 10)
 
-    object.instance_variables.include?(:'@name').should       == true
-    object.class.class_variables.include?(:'@@number').should == true
+    object.instance_variables.map { |v| v.to_sym } \
+      .include?(:'@name').should == true
+
+    object.class.class_variables.map { |v| v.to_sym } \
+      .include?(:'@@number').should == true
 
     completer = Pry::InputCompleter.build_completion_proc(
       Pry.binding_for(object)
