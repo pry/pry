@@ -45,6 +45,12 @@ class Pry
       proc do |input|
         bind = target
 
+        # Escape the user input before regexing it. This prevents Pry from
+        # throwing an error when trying to complete input such as ":class)".
+        # Because this would be converted to a Regexp instance (and since it
+        # wasn't properly closed) this would trigger a RegexpError.
+        input = Regexp.escape(input)
+
         case input
         when /^(\/[^\/]*\/)\.([^.]*)$/
           # Regexp
