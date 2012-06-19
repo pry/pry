@@ -145,14 +145,6 @@ class Pry
     pry_instance.repl(head)
   end
 
-  # @return [Array<String>] return rc files with expanded path.
-  def self.rc_files
-    RC_FILES.collect do |file_name|
-      full_name = File.expand_path(file_name)
-      File.expand_path(file_name) if File.exists?(full_name)
-    end.uniq.compact
-  end
-
   # Execute the file through the REPL loop, non-interactively.
   # @param [String] file_name File name to load through the REPL.
   def self.load_file_through_repl(file_name)
