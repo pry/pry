@@ -61,7 +61,7 @@ class Pry
 
         self.input_args = args
 
-        opts = Slop.parse(args, :help => true, :multiple_switches => false, &options)
+        opts = Slop.parse!(args, :help => true, :multiple_switches => false, &options)
         option_processors.each { |processor| processor.call(opts) } if option_processors # option processors are optional
 
         self
