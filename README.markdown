@@ -391,7 +391,7 @@ between commands and running commands in background
 
 ### Contact
 
-Problems or questions contact me at [github](http://github.com/banister)
+Problems or questions? file an issue at [github](https://github.com/pry/pry/issues)
 
 ### Contributors
 
