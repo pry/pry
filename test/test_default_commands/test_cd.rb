@@ -5,6 +5,10 @@ describe 'Pry::DefaultCommands::Cd' do
     $obj = nil
   end
 
+  after do
+    Pad.clear
+  end
+
   describe 'state' do
     it 'should not to be set up in fresh instance' do
       instance = nil
@@ -89,6 +93,30 @@ describe 'Pry::DefaultCommands::Cd' do
       end
     end
 
+    describe "when using complex cd syntax" do
+      it 'should toggle with a complex path (simple case)' do
+        o = Object.new
+        redirect_pry_io(InputTester.new("cd 1/2/3", "Pad.first = _pry_.binding_stack.dup",
+                                        "cd -", "Pad.second = _pry_.binding_stack.dup","exit-all")) do
+          Pry.start(o)
+        end
+
+        Pad.first.map { |v| v.eval('self') }.should == [o, 1, 2, 3]
+        Pad.second.map { |v| v.eval('self') }.should == [o]
+      end
+
+      it 'should toggle with a complex path (more complex case)' do
+        o = Object.new
+        redirect_pry_io(InputTester.new("cd 1/2/3", "cd ../4", "Pad.first = _pry_.binding_stack.dup",
+                                        "cd -", "Pad.second = _pry_.binding_stack.dup","exit-all")) do
+          Pry.start(o)
+        end
+
+        Pad.first.map { |v| v.eval('self') }.should == [o, 1, 2, 4]
+        Pad.second.map { |v| v.eval('self') }.should == [o, 1, 2, 3]
+      end
+    end
+
     describe 'series of cd calls' do
       it 'should keep correct old binding' do
         instance = nil
@@ -133,6 +161,7 @@ describe 'Pry::DefaultCommands::Cd' do
         instance.command_state["cd"].old_binding.eval("self").should == 42
         instance.command_state["cd"].append.should == true
       end
+
     end
 
     describe 'when using cd ..' do

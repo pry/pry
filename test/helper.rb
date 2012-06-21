@@ -8,6 +8,12 @@ puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), P
 require 'bacon'
 require 'open4'
 
+# a global space for storing temporary state during tests
+ScratchPad = OpenStruct.new
+Pad = ScratchPad
+def ScratchPad.clear
+  @table = {}
+end
 
 # turn warnings off (esp for Pry::Hooks which will generate warnings
 # in tests)
@@ -55,7 +61,6 @@ class TestClassForShowSourceInstanceEval
   def alpha
   end
 end
-
 
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
