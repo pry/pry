@@ -141,6 +141,8 @@ Copyright (c) 2011 John Mair (banisterfiend)
      )
 end.process_options do |opts|
 
+  exit if opts.help?
+
   # invoked via cli
   Pry.cli = true
 
