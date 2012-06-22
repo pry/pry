@@ -1,4 +1,4 @@
-require 'pry/helpers/documentation_helpers'
+require 'pry/module_candidate'
 
 class Pry
   class << self
@@ -14,8 +14,6 @@ class Pry
   end
 
   class WrappedModule
-    include Helpers::DocumentationHelpers
-
     attr_reader :wrapped
     private :wrapped
 
@@ -46,6 +44,7 @@ class Pry
     def initialize(mod)
       raise ArgumentError, "Tried to initialize a WrappedModule with a non-module #{mod.inspect}" unless ::Module === mod
       @wrapped = mod
+      @memoized_candidates = []
       @host_file_lines = nil
       @source = nil
       @source_location = nil
@@ -110,72 +109,6 @@ class Pry
       super || wrapped.respond_to?(method_name)
     end
 
-    def yard_docs?
-      !!(defined?(YARD) && YARD::Registry.at(name))
-    end
-
-    def process_doc(doc)
-      process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc),
-                             :ruby)
-    end
-
-    def doc
-      return @doc if @doc
-
-      if yard_docs?
-        from_yard = YARD::Registry.at(name)
-        @doc = from_yard.docstring
-      elsif source_location.nil?
-        raise CommandError, "Can't find module's source location"
-      else
-        @doc = extract_doc_for_candidate(0)
-      end
-
-      raise CommandError, "Can't find docs for module: #{name}." if !@doc
-
-      @doc = process_doc(@doc)
-    end
-
-    def doc_for_candidate(idx)
-      doc = extract_doc_for_candidate(idx)
-      raise CommandError, "Can't find docs for module: #{name}." if !doc
-
-      process_doc(doc)
-    end
-
-    # Retrieve the source for the module.
-    def source
-      @source ||= source_for_candidate(0)
-    end
-
-    def source_for_candidate(idx)
-      file, line = module_source_location_for_candidate(idx)
-      raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
-
-      strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
-    end
-
-    def source_file
-      if yard_docs?
-        from_yard = YARD::Registry.at(name)
-        from_yard.file
-      else
-        source_file_for_candidate(0)
-      end
-    end
-
-    def source_line
-      source_line_for_candidate(0)
-    end
-
-    def source_file_for_candidate(idx)
-      Array(module_source_location_for_candidate(idx)).first
-    end
-
-    def source_line_for_candidate(idx)
-      Array(module_source_location_for_candidate(idx)).last
-    end
-
     # Retrieve the source location of a module. Return value is in same
     # format as Method#source_location. If the source location
     # cannot be found this method returns `nil`.
@@ -184,74 +117,104 @@ class Pry
     # @return [Array<String, Fixnum>] The source location of the
     #   module (or class).
     def source_location
-      @source_location ||= module_source_location_for_candidate(0)
-    rescue Pry::RescuableException
-      nil
+      @source_location ||= primary_candidate.source_location
     end
 
-    # memoized lines for file
-    def lines_for_file(file)
-      @lines_for_file ||= {}
+    # @return [String, nil] The associated file for the module (i.e
+    #   the primary candidate: highest ranked monkeypatch).
+    def file
+      Array(source_location).first
+    end
 
-      if file == Pry.eval_path
-       @lines_for_file[file] ||= Pry.line_buffer.drop(1)
-      else
-       @lines_for_file[file] ||= File.readlines(file)
+    # @return [Fixnum, nil] The associated line for the module (i.e
+    #   the primary candidate: highest ranked monkeypatch).
+    def line
+      Array(source_location).last
+    end
+
+    # Returns documentation for the module, with preference given to yard docs if
+    # available. This documentation is for the primary candidate, if
+    # you would like documentation for other candidates use
+    # `WrappedModule#candidate` to select the candidate you're
+    # interested in.
+    # @raise [Pry::CommandError] If documentation cannot be found.
+    # @return [String] The documentation for the module.
+    def doc
+      @doc ||= primary_candidate.doc
+    end
+
+    # Returns the source for the module.
+    # This source is for the primary candidate, if
+    # you would like source for other candidates use
+    # `WrappedModule#candidate` to select the candidate you're
+    # interested in.
+    # @raise [Pry::CommandError] If source cannot be found.
+    # @return [String] The source for the module.
+    def source
+      @source ||= primary_candidate.source
+    end
+
+    # @return [String] Return the associated file for the
+    #   module from YARD, if one exists.
+    def yard_file
+      YARD::Registry.at(name).file if yard_docs?
+    end
+
+    # @return [Fixnum] Return the associated line for the
+    #   module from YARD, if one exists.
+    def yard_line
+      YARD::Registry.at(name).line if yard_docs?
+    end
+
+    # Return a candidate for this module of specified rank. A `rank`
+    # of 0 is equivalent to the 'primary candidate', which is the
+    # module definition with the highest number of methods. A `rank`
+    # of 1 is the module definition with the second highest number of
+    # methods, and so on. Module candidates are necessary as modules
+    # can be reopened multiple times and in multiple places in Ruby,
+    # the candidate API gives you access to the module definition
+    # representing each of those reopenings.
+    # @raise [Pry::CommandError] If the `rank` is out of range. That
+    # is greater than `number_of_candidates - 1`.
+    # @param [Fixnum] rank
+    # @return [Pry::WrappedModule::Candidate]
+    def candidate(rank)
+      @memoized_candidates[rank] ||= Candidate.new(self, rank)
+    end
+
+
+    # @return [Fixnum] The number of candidate definitions for the
+    #   current module.
+    def number_of_candidates
+      method_candidates.count
+    end
+
+    # @return [Boolean] Whether YARD docs are available for this module.
+    def yard_docs?
+      !!(defined?(YARD) && YARD::Registry.at(name))
+    end
+
+    private
+
+    # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
+    #   that is the 'monkey patch' of this module with the highest
+    #   number of methods. It is considered the 'canonical' definition
+    #   for the module.
+    def primary_candidate
+      @primary_candidate ||= candidate(0)
+    end
+
+    # @return [Array<Pry::Method>] The array of `Pry::Method` objects,
+    #   there is one  associated with each candidate. Each one is the 'base
+    #   method' for a candidate and it serves as the start point for
+    #   the search in  uncovering the module definition.
+    def method_candidates
+      @method_candidates ||= all_source_locations_by_popularity.map do |group|
+        group.last.sort_by(&:source_line).first # best candidate for group
       end
     end
 
-    def module_source_location_for_candidate(idx)
-      mod_type_string = wrapped.class.to_s.downcase
-      file, line = method_source_location_for_candidate(idx)
-
-      return nil if !file.is_a?(String)
-
-      class_regexes = [/#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/,
-                       /(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-                       /(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
-
-      host_file_lines = lines_for_file(file)
-
-      search_lines = host_file_lines[0..(line - 2)]
-      idx = search_lines.rindex { |v| class_regexes.any? { |r| r =~ v } }
-
-      [file,  idx + 1]
-    end
-
-    def extract_doc
-      extract_doc_for_candidate(0)
-    end
-
-    def extract_doc_for_candidate(idx)
-      file, line_num = module_source_location_for_candidate(idx)
-
-      Pry::Code.from_file(file).comment_describing(line_num)
-    end
-
-    # FIXME: this method is also found in Pry::Method
-    def safe_send(obj, method, *args, &block)
-      (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
-    end
-
-    # FIXME: a variant of this method is also found in Pry::Method
-    def all_from_common(mod, method_type)
-      %w(public protected private).map do |visibility|
-        safe_send(mod, :"#{visibility}_#{method_type}s", false).select do |method_name|
-          if method_type == :method
-            safe_send(mod, method_type, method_name).owner == class << mod; self; end
-          else
-            safe_send(mod, method_type, method_name).owner == mod
-          end
-        end.map do |method_name|
-          Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
-        end
-      end.flatten
-    end
-
-    def all_methods_for(mod)
-      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
-    end
-
+    # A helper method.
     def all_source_locations_by_popularity
       return @all_source_locations_by_popularity if @all_source_locations_by_popularity
 
@@ -269,25 +232,41 @@ class Pry
         sort_by { |k, v| -v.size }
     end
 
-    def method_candidates
-      @method_candidates ||= all_source_locations_by_popularity.map do |group|
-        group.last.sort_by(&:source_line).first # best candidate for group
+    # Return all methods (instance methods and class methods) for a
+    # given module.
+    def all_methods_for(mod)
+      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
+    end
+
+    # FIXME: a variant of this method is also found in Pry::Method
+    def all_from_common(mod, method_type)
+      %w(public protected private).map do |visibility|
+        safe_send(mod, :"#{visibility}_#{method_type}s", false).select do |method_name|
+          if method_type == :method
+            safe_send(mod, method_type, method_name).owner == class << mod; self; end
+          else
+            safe_send(mod, method_type, method_name).owner == mod
+          end
+        end.map do |method_name|
+          Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
+        end
+      end.flatten
+    end
+
+    # memoized lines for file
+    def lines_for_file(file)
+      @lines_for_file ||= {}
+
+      if file == Pry.eval_path
+        @lines_for_file[file] ||= Pry.line_buffer.drop(1)
+      else
+        @lines_for_file[file] ||= File.readlines(file)
       end
     end
 
-    def number_of_candidates
-      method_candidates.count
+    # FIXME: this method is also found in Pry::Method
+    def safe_send(obj, method, *args, &block)
+        (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
     end
-
-    def method_source_location_for_candidate(idx)
-      file, line = method_candidates[idx].source_location
-
-      if file && RbxPath.is_core_path?(file)
-        file = RbxPath.convert_path_to_full(file)
-      end
-
-      [file, line]
-    end
-
   end
 end

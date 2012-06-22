@@ -69,10 +69,11 @@ class Pry
       #
       # @param [Module, Class] mod The module (or class) of interest.
       # @return [Code]
-      def from_module(mod, start_line=nil)
-        mod = Pry::WrappedModule(mod)
-        start_line ||= mod.source_line || 1
-        new(mod.source, start_line, :ruby)
+      def from_module(mod, start_line=nil, candidate_rank=0)
+        candidate = Pry::WrappedModule(mod).candidate(candidate_rank)
+
+        start_line ||= candidate.line
+        new(candidate.source, start_line, :ruby)
       end
 
       protected

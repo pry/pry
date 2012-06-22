@@ -27,11 +27,11 @@ class Pry
         render_output(code_or_doc, opts)
       end
 
-      def module_start_line(mod, candidate=0)
+      def module_start_line(mod, candidate_rank=0)
         if opts.present?(:'base-one')
           1
         else
-          mod.source_line_for_candidate(candidate)
+          mod.candidate(candidate_rank).line
         end
       end
 
@@ -86,24 +86,19 @@ class Pry
           # classes on MRI. This is different to source_location, which
           # will return nil.
           if mod.yard_docs?
-            file_name, line = mod.source_file, nil
+            file_name, line = mod.yard_file, mod.yard_line
           else
             file_name, line = mod.source_location
           end
 
-          if mod.doc.empty?
-            output.puts "No documentation found."
-            ""
-          else
-            set_file_and_dir_locals(file_name) if !mod.yard_docs?
-            doc = ""
-            doc << mod.doc
+          set_file_and_dir_locals(file_name) if !mod.yard_docs?
+          doc = ""
+          doc << mod.doc
 
-            doc = Code.new(doc, module_start_line(mod), :text).
-              with_line_numbers(use_line_numbers?).to_s
+          doc = Code.new(doc, module_start_line(mod), :text).
+            with_line_numbers(use_line_numbers?).to_s
 
-            doc.insert(0, "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n")
-          end
+          doc.insert(0, "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n")
         end
 
         def all_modules
@@ -112,11 +107,12 @@ class Pry
           doc = ""
           doc << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
+            candidate = mod.candidate(v)
             begin
-              doc << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ #{mod.source_line_for_candidate(v)}:\n\n"
-              dc = mod.doc_for_candidate(v)
-              doc << (dc.empty? ? "No documentation found.\n" : dc)
-            rescue Pry::RescuableException
+              doc << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.file} @ #{candidate.line}:\n\n"
+              doc << candidate.doc(false)
+            rescue Pry::RescuableException => ex
+              doc << "No documentation found.\n"
               next
             end
           end
@@ -146,8 +142,8 @@ class Pry
           if opts.present?(:'base-one')
             1
           else
-            if mod.source_line_for_candidate(candidate)
-              mod.source_line_for_candidate(candidate) - mod.doc_for_candidate(candidate).lines.count
+            if mod.candidate(candidate).line
+              mod.candidate(candidate).line - mod.candidate(candidate).doc.lines.count
             else
               1
             end
@@ -254,7 +250,8 @@ class Pry
 
           file_name, line = mod.source_location
           set_file_and_dir_locals(file_name)
-          code = Code.from_module(mod, module_start_line(mod)).with_line_numbers(use_line_numbers?).to_s
+          code = Code.from_module(mod, module_start_line(mod)).
+            with_line_numbers(use_line_numbers?).to_s
           result = ""
           result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
           result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
@@ -267,12 +264,15 @@ class Pry
           result = ""
           result << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
           mod.number_of_candidates.times do |v|
+            candidate = mod.candidate(v)
             begin
-              code = Code.new(mod.source_for_candidate(v), module_start_line(mod, v)).with_line_numbers(use_line_numbers?).to_s
-              result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{mod.source_file_for_candidate(v)} @ line #{mod.source_line_for_candidate(v)}:\n"
+              result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.file} @ line #{candidate.line}:\n"
+              code = Code.from_module(mod, module_start_line(mod, v), v).
+                with_line_numbers(use_line_numbers?).to_s
               result << "Number of lines: #{code.lines.count}\n\n"
               result << code
             rescue Pry::RescuableException
+              result << "\nNo code found.\n"
               next
             end
           end
