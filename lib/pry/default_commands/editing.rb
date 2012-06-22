@@ -38,7 +38,7 @@ class Pry
 
         def options(opt)
           opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional_argument => true, :as => Integer
-          opt.on :i, :in, "Open a temporary file containing the Nth line of _in_. N may be a range.", :optional_argument => true, :as => Range, :default => -1..-1
+          opt.on :i, :in, "Open a temporary file containing the Nth input expression. N may be a range.", :optional_argument => true, :as => Range, :default => -1..-1
           opt.on :t, :temp, "Open an empty temporary file"
           opt.on :l, :line, "Jump to this line in the opened file", :argument => true, :as => Integer
           opt.on :n, :"no-reload", "Don't automatically reload the edited code"
