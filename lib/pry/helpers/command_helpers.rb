@@ -69,7 +69,7 @@ class Pry
         header = "\n#{Pry::Helpers::Text.bold('From:')} #{meth.source_file} "
 
         if meth.source_type == :c
-          header << "in Ruby Core (C Method):\n"
+          header << "(C Method):\n"
         else
           header << "@ line #{meth.source_line}:\n"
         end
