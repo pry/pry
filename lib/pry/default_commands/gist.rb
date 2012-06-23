@@ -22,12 +22,12 @@ class Pry
         command_options :shellwords => false
 
         attr_accessor :content
-        attr_accessor :code_type
+        attr_accessor :filename
 
         def setup
           require 'jist'
           self.content   = ""
-          self.code_type = :ruby
+          self.filename  = "a.rb"
         end
 
         def options(opt)
@@ -35,23 +35,25 @@ class Pry
           opt.on :m, :method, "Gist a method's source.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source << "\n"
-            self.code_type = meth.source_type
+            self.filename = meth.source_file
           end
           opt.on :d, :doc, "Gist a method's documentation.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
               self.content << process_comment_markup(meth.doc, self.code_type) << "\n"
             end
-            self.code_type = :plain
+            self.filename = meth.source_file + ".doc"
           end
           opt.on :k, :command, "Gist a command's source.", :argument => true do |command_name|
             command = find_command(command_name)
             block = Pry::Method.new(command.block)
             self.content << block.source << "\n"
+            self.filename = block.source_file
           end
           opt.on :c, :class, "Gist a class or module's source.", :argument => true do |class_name|
             mod = Pry::WrappedModule.from_str(class_name, target)
             self.content << mod.source << "\n"
+            self.filename = mod.source_file
           end
           opt.on :var, "Gist a variable's content.", :argument => true do |variable_name|
             begin
@@ -69,6 +71,7 @@ class Pry
 
           opt.on :f, :file, "Gist a file.", :argument => true do |file|
             self.content << File.read(File.expand_path(file)) << "\n"
+            self.filename = file
           end
           opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional_argument => true,
           :as => Range, :default => -1 do |range|
@@ -120,25 +123,17 @@ class Pry
         end
 
         def perform_gist
-          type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
-
-          extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[self.code_type]}"
-
           if opts.present?(:lines)
             self.content = restrict_to_lines(content, opts[:l])
           end
 
-          response = Jist.gist(self.content, :filename => extname,
-                                         :public => !!opts[:p])
+          response = Jist.gist(content, :filename => File.basename(filename),
+                                        :public => !!opts[:p])
 
           if response
             copy(response['html_url'])
             output.puts "Gist created at #{response['html_url']} and added to clipboard."
           end
-        end
-
-        def gist_file_extension(file_name)
-          file_name.split(".").last
         end
 
         def convert_to_range(n)
