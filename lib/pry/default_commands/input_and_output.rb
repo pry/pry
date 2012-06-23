@@ -418,6 +418,7 @@ class Pry
 
           code = yield(Pry::Code.from_file(file_name))
 
+          code.code_type = detect_code_type_from_file(file_name)
           if line_num
             code = code.around(line_num.to_i,
                                Pry.config.default_window_size || 7)
@@ -425,8 +426,33 @@ class Pry
 
           code
         end
-      end
 
+        def detect_code_type_from_file(file_name)
+          name, ext = File.basename(file_name).split('.', 2)
+
+          if ext
+            case ext
+            when "py"
+               :python
+            when "rb", "gemspec", "rakefile", "ru"
+               :ruby
+            when "js"
+              return :javascript
+            when "yml"
+               :yaml
+            else
+               ext.to_sym
+            end
+          else
+            case name
+            when "Rakefile", "Gemfile"
+              :ruby
+            else
+              :plain
+            end
+          end
+        end
+      end
     end
   end
 end
