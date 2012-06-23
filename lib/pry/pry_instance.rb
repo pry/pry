@@ -49,6 +49,8 @@ class Pry
 
   attr_accessor :extra_sticky_locals
 
+  attr_accessor :suppress_output
+
   # This is exposed via Pry::Command#state.
   attr_reader :command_state
 
@@ -267,6 +269,8 @@ class Pry
     inject_sticky_locals(target)
 
     code = r(target)
+
+    exec_hook :before_eval, code, self
 
     result = target.eval(code, Pry.eval_path, Pry.current_line)
     set_last_result(result, target, code)
