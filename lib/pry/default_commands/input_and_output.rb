@@ -37,7 +37,7 @@ class Pry
       end
       alias_command "file-mode", "shell-mode"
 
-      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "gist" do
+      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "jist" do
 
         include Pry::Helpers::DocumentationHelpers
 
@@ -60,7 +60,7 @@ class Pry
         attr_accessor :code_type
 
         def setup
-          require 'gist'
+          require 'jist'
           self.content   = ""
           self.code_type = :ruby
         end
@@ -147,30 +147,25 @@ class Pry
 
         # copy content to clipboard instead (only used with --clip flag)
         def perform_clipboard
-          Gist.copy(self.content)
+          copy(self.content)
           output.puts "Copied content to clipboard!"
         end
 
         def perform_gist
           type_map = { :ruby => "rb", :c => "c", :plain => "plain" }
 
-          # prevent Gist from exiting the session on error
-          begin
-            extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[self.code_type]}"
+          extname = opts.present?(:file) ? ".#{gist_file_extension(opts[:f])}" : ".#{type_map[self.code_type]}"
 
-            if opts.present?(:lines)
-              self.content = restrict_to_lines(content, opts[:l])
-            end
-
-            link = Gist.write([:extension => extname,
-                               :input => self.content],
-                              !opts[:p])
-          rescue SystemExit
+          if opts.present?(:lines)
+            self.content = restrict_to_lines(content, opts[:l])
           end
 
-          if link
-            Gist.copy(link)
-            output.puts "Gist created at #{link} and added to clipboard."
+          response = Jist.gist(self.content, :filename => extname,
+                                         :public => !!opts[:p])
+
+          if response
+            copy(response['html_url'])
+            output.puts "Gist created at #{response['html_url']} and added to clipboard."
           end
         end
 
@@ -195,6 +190,29 @@ class Pry
               content << "#    #{line}"
             end
           end
+          content
+        end
+
+        # Copy a string to the clipboard.
+        #
+        # @param [String] content
+        #
+        # @copyright Copyright (c) 2008 Chris Wanstrath (MIT)
+        # @see https://github.com/defunkt/gist/blob/master/lib/gist.rb#L178
+        def copy(content)
+          cmd = case true
+          when system("type pbcopy > /dev/null 2>&1")
+            :pbcopy
+          when system("type xclip > /dev/null 2>&1")
+            :xclip
+          when system("type putclip > /dev/null 2>&1")
+            :putclip
+          end
+
+          if cmd
+            IO.popen(cmd.to_s, 'r+') { |clip| clip.print content }
+          end
+
           content
         end
       end
