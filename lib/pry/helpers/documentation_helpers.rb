@@ -31,7 +31,7 @@ class Pry
 
       def process_yardoc(comment)
         yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
-                     "deprecate", "example"]
+                     "deprecate", "example", "raise"]
         (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
           gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
       end
