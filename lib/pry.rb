@@ -188,11 +188,14 @@ if Pry::Helpers::BaseHelpers.jruby?
   end
 end
 
-if Pry::Helpers::BaseHelpers.windows?
+if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
   begin
     require 'win32console'
+  # The mswin and mingw versions of pry require win32console, so this should
+  # only fail on jruby (where win32console doesn't work).
+  # Instead we'll recommend ansicon, which does.
   rescue LoadError
-    warn "You should: `gem install win32console` for better auto-indent and color support."
+    warn "For a better pry experience, please use ansicon: http://adoxa.3eeweb.com/ansicon/"
   end
 end
 

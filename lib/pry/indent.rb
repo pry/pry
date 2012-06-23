@@ -296,7 +296,7 @@ class Pry
       cols = cols.to_i
       lines = cols != 0 ? (full_line.length / cols + 1) : 1
 
-      if defined?(Win32::Console)
+      if Pry::Helpers::BaseHelpers.windows_ansi?
         move_up   = "\e[#{lines}F"
         move_down = "\e[#{lines}E"
       else
@@ -320,7 +320,12 @@ class Pry
 
          # Otherwise try to use the environment (this may be out of date due
          # to window resizing, but it's better than nothing).
-         [ENV["ROWS"], ENV["COLUMNS"]]
+         [ENV["ROWS"], ENV["COLUMNS"],
+
+         # If the user is running within ansicon, then use the screen size
+         # that it reports (same caveats apply as with ROWS and COLUMNS)
+         ENV['ANSICON'] =~ /\((.*)x(.*)\)/ && [$2, $1]
+        ]
       ].detect do |(_, cols)|
         cols.to_i > 0
       end

@@ -70,7 +70,7 @@ class Pry
       end
 
       def use_ansi_codes?
-        defined?(Win32::Console) || ENV['TERM'] && ENV['TERM'] != "dumb"
+         windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
 
       def colorize_code(code)
@@ -98,6 +98,11 @@ class Pry
       # have fun on the Windows platform.
       def windows?
         RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+      end
+
+      # are we able to use ansi on windows?
+      def windows_ansi?
+        defined?(Win32::Console) || ENV['ANSICON']
       end
 
       # are we on Jruby platform?

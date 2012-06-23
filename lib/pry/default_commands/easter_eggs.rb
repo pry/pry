@@ -77,7 +77,7 @@ end
           \____/   \________________________|
         EOS
 
-        if defined?(Win32::Console)
+        if windows_ansi?
           move_up = proc { |n| "\e[#{n}F" }
         else
           move_up = proc { |n| "\e[#{n}A\e[0G" }
