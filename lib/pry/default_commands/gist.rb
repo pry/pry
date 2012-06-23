@@ -1,13 +1,15 @@
 class Pry
   module DefaultCommands
     Gist = Pry::CommandSet.new do
-      create_command "gist", "Gist a method or expression history to github.", :requires_gem => "jist" do
+      create_command "gist", "Gist a method or expression history to GitHub.", :requires_gem => "jist" do
         include Pry::Helpers::DocumentationHelpers
 
         banner <<-USAGE
           Usage: gist [OPTIONS] [METH]
-          Gist method (doc or source) or input expression to github.
-          Ensure the `gist` gem is properly working before use. http://github.com/defunkt/gist for instructions.
+          Gist method (doc or source) or input expression to GitHub.
+
+          If you'd like to permanently associate your gists with your GitHub account run `gist --login`.
+
           e.g: gist -m my_method       # gist the method my_method
           e.g: gist -d my_method       # gist the documentation for my_method
           e.g: gist -i 1..10           # gist the input expressions from 1 to 10
@@ -29,6 +31,7 @@ class Pry
         end
 
         def options(opt)
+          opt.on :login, "Authenticate the jist gem with GitHub"
           opt.on :m, :method, "Gist a method's source.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             self.content << meth.source << "\n"
@@ -97,6 +100,8 @@ class Pry
         end
 
         def process
+          return Jist.login! if opts.present?(:login)
+
           if self.content =~ /\A\s*\z/
             raise CommandError, "Found no code to gist."
           end
