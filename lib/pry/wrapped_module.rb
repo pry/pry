@@ -175,7 +175,7 @@ class Pry
     # the candidate API gives you access to the module definition
     # representing each of those reopenings.
     # @raise [Pry::CommandError] If the `rank` is out of range. That
-    # is greater than `number_of_candidates - 1`.
+    #   is greater than `number_of_candidates - 1`.
     # @param [Fixnum] rank
     # @return [Pry::WrappedModule::Candidate]
     def candidate(rank)

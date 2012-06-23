@@ -6,8 +6,7 @@ class Pry
 
     # This class represents a single candidate for a module/class definition.
     # It provides access to the source, documentation, line and file
-    # for a monkeypatch (reopening) of a class/module. All candidates
-    # are
+    # for a monkeypatch (reopening) of a class/module.
     class Candidate
       include Pry::Helpers::DocumentationHelpers
       extend Forwardable
@@ -25,6 +24,7 @@ class Pry
       def_delegators :@wrapper, *to_delegate
       private *to_delegate
 
+      # @raise [Pry::CommandError] If `rank` is out of bounds.
       # @param [Pry::WrappedModule] wrapper The associated
       #   `Pry::WrappedModule` instance that owns the candidates.
       # @param [Fixnum] rank The rank of the candidate to
@@ -35,7 +35,9 @@ class Pry
       def initialize(wrapper, rank)
         @wrapper = wrapper
 
-        if rank > (number_of_candidates - 1)
+        if number_of_candidates <= 0
+          raise CommandError, "Cannot find a definition for #{name} module!"
+        elsif rank > (number_of_candidates - 1)
           raise CommandError, "No such module candidate. Allowed candidates range is from 0 to #{number_of_candidates - 1}"
         end
 
