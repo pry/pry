@@ -138,7 +138,7 @@ class Pry
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
     if Pry.config.auto_indent
-      Kernel.print defined?(Win32::Console) ? "\e[0F" : "\e[0G"
+      Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
     end
 
     # Enter the matrix
@@ -250,7 +250,7 @@ class Pry
     config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
     config.disable_auto_reload = false
     config.command_prefix = ""
-    config.auto_indent = true
+    config.auto_indent = Helpers::BaseHelpers.use_ansi_codes?
     config.correct_indent = true
     config.collision_warning = false
 
