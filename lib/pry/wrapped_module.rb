@@ -114,10 +114,12 @@ class Pry
     # cannot be found this method returns `nil`.
     #
     # @param [Module] mod The module (or class).
-    # @return [Array<String, Fixnum>] The source location of the
-    #   module (or class).
+    # @return [Array<String, Fixnum>, nil] The source location of the
+    #   module (or class), or `nil` if no source location found.
     def source_location
       @source_location ||= primary_candidate.source_location
+    rescue Pry::RescuableException
+      nil
     end
 
     # @return [String, nil] The associated file for the module (i.e
