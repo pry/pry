@@ -2,10 +2,6 @@ require 'helper'
 
 describe 'Pry::DefaultCommands::Cd' do
   after do
-    $obj = nil
-  end
-
-  after do
     Pad.clear
   end
 
