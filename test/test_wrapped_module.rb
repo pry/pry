@@ -23,12 +23,19 @@ describe Pry::WrappedModule do
           def test6
           end
         end
+
+        class ForeverAlone
+        end
       end
     end
 
     describe "number_of_candidates" do
       it 'should return the correct number of candidates' do
         Pry::WrappedModule(Host::CandidateTest).number_of_candidates.should == 3
+      end
+
+      it 'should return 0 candidates for a class with no methods and no other definitions' do
+        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should == 0
       end
     end
 
@@ -47,6 +54,17 @@ describe Pry::WrappedModule do
 
       it 'should raise when trying to access non-existent candidate' do
         lambda { Pry::WrappedModule(Host::CandidateTest).candidate(3) }.should.raise Pry::CommandError
+      end
+    end
+
+    describe "source_location" do
+      it 'should return primary candidates source_location by default' do
+        wm = Pry::WrappedModule(Host::CandidateTest)
+        wm.source_location.should == wm.candidate(0).source_location
+      end
+
+      it 'should return nil if no source_location can be found' do
+        Pry::WrappedModule(Host::ForeverAlone).source_location.should == nil
       end
     end
 
