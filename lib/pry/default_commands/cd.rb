@@ -36,6 +36,10 @@ class Pry
           if path.empty?
             set_old_binding(stack.last, true) if old_binding
             stack = [stack.first]
+          else
+            # Prevent setting old_binding to itself when there is no more
+            # elements in stack.
+            set_old_binding(stack.last, false) unless stack.size == 1
           end
 
           path.each do |context|
@@ -45,13 +49,17 @@ class Pry
                 set_old_binding(stack.last, true)
                 stack = [stack.first]
               when "::"
-                set_old_binding(stack.last, false)
                 stack.push(TOPLEVEL_BINDING)
               when "."
                 next
               when ".."
                 unless stack.size == 1
-                  set_old_binding(stack.pop, true)
+                  if path.first == ".."
+                    set_old_binding(stack.pop, true)
+                  else
+                    set_old_binding(stack.last, false) unless path.length > 1
+                    stack.pop
+                  end
                 end
               when "-"
                 if state.old_binding
@@ -92,7 +100,15 @@ class Pry
             stack.push(old_binding)
             old_binding = stack[-2]
           else
-            old_binding = stack.pop
+            stack.pop.tap do |ob|
+              if stack.size > 1
+                # Keep hurtling stuff out until we reach previous old binding
+                # or the last element in the stack (just to ensure that we are
+                # not in the endless loop).
+                stack.pop until stack.last == old_binding || stack.size == 1
+              end
+              old_binding = ob
+            end
           end
           append = !append
 

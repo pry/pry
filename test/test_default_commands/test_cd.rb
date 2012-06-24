@@ -109,7 +109,7 @@ describe 'Pry::DefaultCommands::Cd' do
         end
 
         Pad.first.map { |v| v.eval('self') }.should == [o, 1, 2, 4]
-        Pad.second.map { |v| v.eval('self') }.should == [o, 1, 2, 3]
+        Pad.second.map { |v| v.eval('self') }.should == [o, 1, 2, 4, 3]
       end
     end
 
@@ -182,8 +182,8 @@ describe 'Pry::DefaultCommands::Cd' do
           instance.repl
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == 66
-        instance.command_state["cd"].append.should == true
+        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
+        instance.command_state["cd"].append.should == false
       end
 
       it 'should toggle with a single `cd -` call' do
@@ -202,7 +202,7 @@ describe 'Pry::DefaultCommands::Cd' do
         end
 
         instance.command_state["cd"].old_binding.eval("self").should == 79
-        instance.command_state["cd"].append.should == false
+        instance.command_state["cd"].append.should == true
       end
 
       it 'should toggle with multiple `cd -` calls' do
@@ -220,8 +220,8 @@ describe 'Pry::DefaultCommands::Cd' do
           instance.repl
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == 66
-        instance.command_state["cd"].append.should == true
+        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
+        instance.command_state["cd"].append.should == false
       end
     end
 
@@ -338,22 +338,20 @@ describe 'Pry::DefaultCommands::Cd' do
     end
 
     it 'should not toggle when there is no old binding' do
-      instance = nil
-      redirect_pry_io(InputTester.new("cd -", "exit-all")) do
-        instance = Pry.new
-        instance.repl
+      o = Object.new
+      redirect_pry_io(InputTester.new("cd -", "Pad.cs = _pry_.command_state['cd']", "exit-all")) do
+        Pry.start(o)
       end
 
-      instance.command_state["cd"].old_binding.should == nil
-      instance.command_state["cd"].append.should == nil
+      Pad.cs.old_binding.should == nil
+      Pad.cs.append.should == nil
 
-      redirect_pry_io(InputTester.new("cd -", "cd -", "exit-all")) do
-        instance = Pry.new
-        instance.repl
+      redirect_pry_io(InputTester.new("cd -", "cd -", "Pad.cs = _pry_.command_state['cd']", "exit-all")) do
+        Pry.start(o)
       end
 
-      instance.command_state["cd"].old_binding.should == nil
-      instance.command_state["cd"].append.should == nil
+      Pad.cs.old_binding.should == nil
+      Pad.cs.append.should == nil
     end
   end
 
