@@ -103,8 +103,16 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.config.should_load_rc = false
   end
 
+  on :s, "select-plugin", "Only load specified plugin (and no others).", :argument => true do |plugin_name|
+    Pry.config.should_load_plugins = false
+    Pry.plugins[plugin_name].activate!
+  end
+
+  on :d, "disable-plugin", "Disable a specific plugin.", :argument => true do |plugin_name|
+    Pry.plugins[plugin_name].disable!
+  end
+
   on "no-plugins", "Suppress loading of plugins." do
-    # suppress plugins if given --no-plugins optino
     Pry.config.should_load_plugins = false
   end
 
