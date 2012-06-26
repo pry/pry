@@ -55,10 +55,7 @@ class Pry
               when "-"
                 unless old_stack.empty?
                   # Interchange current stack and old stack with each other.
-                  stack.slice!(0..-1).tap do |ostack|
-                    stack = old_stack
-                    state.old_stack = ostack
-                  end
+                  stack, state.old_stack = state.old_stack, stack
                 end
               else
                 state.old_stack = stack.dup if i == 0
