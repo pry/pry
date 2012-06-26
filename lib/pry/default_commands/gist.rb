@@ -181,6 +181,7 @@ class Pry
       end
 
       alias_command "clipit", "gist --clip"
+      alias_command "jist", "gist"
     end
   end
 end
