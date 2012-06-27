@@ -103,16 +103,17 @@ class Pry
   # 3) In a nested session  - behave like `cd ..`       (pop a binding)
   DEFAULT_CONTROL_D_HANDLER = proc do |eval_string, _pry_|
     if !eval_string.empty?
-      # clear input buffer
+      # Clear input buffer.
       eval_string.replace("")
     elsif _pry_.binding_stack.one?
-      # ^D at top-level breaks out of a REPL loop
+      # ^D at top-level breaks out of a REPL loop.
       _pry_.binding_stack.clear
       throw(:breakout)
     else
-      # otherwise just pops a binding and stores it as old binding
-      _pry_.command_state["cd"].old_binding = _pry_.binding_stack.pop
-      _pry_.command_state["cd"].append = true
+      # Otherwise, saves current binding stack as old stack and pops last
+      # binding out of binding stack (the old stack still has that binding).
+      _pry_.command_state["cd"].old_stack = _pry_.binding_stack.dup
+      _pry_.binding_stack.pop
     end
   end
 
