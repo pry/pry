@@ -210,7 +210,7 @@ class Pry
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
     #
     # @param [::Method, UnboundMethod, Proc] method
-    # @param [Hash] known_info, can be used to pre-cache expensive to compute stuff.
+    # @param [Hash] known_info Can be used to pre-cache expensive to compute stuff.
     # @return [Pry::Method]
     def initialize(method, known_info={})
       @method = method
@@ -464,8 +464,8 @@ class Pry
         buffer
       end
 
-      # @param [Class,Module] the ancestors to investigate
-      # @return [Method] the unwrapped super-method
+      # @param [Class, Module] ancestors The ancestors to investigate
+      # @return [Method] The unwrapped super-method
       def super_using_ancestors(ancestors, times=1)
         next_owner = self.owner
         times.times do
@@ -514,8 +514,8 @@ class Pry
       #
       # @param [Object] receiver
       # @param [String] method_name
-      def initialize(*args)
-        @receiver, @name = *args
+      def initialize(receiver, method_name)
+        @receiver, @name = receiver, method_name
       end
 
       # Is the method undefined? (aka `Disowned`)

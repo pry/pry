@@ -92,7 +92,7 @@ class Pry
     # @param [String, Regexp] match The start of invocations of this command.
     # @param [String] description A description of the command.
     # @param [Hash] options The optional configuration parameters, see {#command}
-    # @param &Block  The class body's definition.
+    # @yield The class body's definition.
     #
     # @example
     #   Pry::Commands.create_command "echo", "echo's the input", :shellwords => false do
@@ -153,7 +153,7 @@ class Pry
     end
 
     # Add a given command object to this set.
-    # @param Command the subclass of Pry::Command you wish to add.
+    # @param [Command] command The subclass of Pry::Command you wish to add.
     def add_command(command)
       commands[command.match] = command
     end
@@ -240,7 +240,7 @@ class Pry
 
     # Rename a command. Accepts either match or listing for the search.
     #
-    # @param [String, Regexp] new_name The new match for the command.
+    # @param [String, Regexp] new_match The new match for the command.
     # @param [String, Regexp] search The command's current match or listing.
     # @param [Hash] options The optional configuration parameters,
     #   accepts the same as the `command` method, but also allows the
@@ -265,8 +265,8 @@ class Pry
     # Sets or gets the description for a command (replacing the old
     # description). Returns current description if no description
     # parameter provided.
-    # @param [String, Regexp] match The command match.
-    # @param [String] description The command description.
+    # @param [String, Regexp] search The command match.
+    # @param [String?] description (nil) The command description.
     # @example Setting
     #   MyCommands = Pry::CommandSet.new do
     #     desc "help", "help description"
@@ -303,8 +303,7 @@ class Pry
     end
 
     # Find a command that matches the given line
-    #
-    # @param [String]  the line that may be a command invocation
+    # @param [String] val The line that might be a command invocation
     # @return [Pry::Command, nil]
     def find_command(val)
       commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
@@ -312,9 +311,8 @@ class Pry
     alias_method :[], :find_command
 
     # Find the command that the user might be trying to refer to.
-    #
-    # @param [String]  the user's search.
-    # @return [Pry::Command, nil]
+    # @param [String] search The user's search.
+    # @return [Pry::Command?]
     def find_command_for_help(search)
       find_command(search) || (begin
         find_command_by_match_or_listing(search)
@@ -324,19 +322,16 @@ class Pry
     end
 
     # Is the given line a command invocation?
-    #
-    # @param [String]
+    # @param [String] val
     # @return [Boolean]
     def valid_command?(val)
       !!find_command(val)
     end
 
     # Process the given line to see whether it needs executing as a command.
-    #
-    # @param String  the line to execute
-    # @param Hash  the context to execute the commands with
-    # @return CommandSet::Result
-    #
+    # @param [String] val The line to execute
+    # @param [Hash] context The context to execute the commands with
+    # @return [CommandSet::Result]
     def process_line(val, context={})
       if command = find_command(val)
         context = context.merge(:command_set => self)
@@ -347,7 +342,7 @@ class Pry
       end
     end
 
-    # @nodoc  used for testing
+    # @private (used for testing)
     def run_command(context, match, *args)
       command = commands[match] or raise NoCommandError.new(match, self)
       command.new(context).call_safely(*args)

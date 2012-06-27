@@ -175,10 +175,7 @@ class Pry
       #       "Ut enim ad minim veniam."
       #   USAGE
       #
-      # @param  [String] The text from which to remove indentation
-      # @return [String], The text with indentation stripped.
-      #
-      # @copyright Heavily based on textwrap.dedent from Python, which is:
+      # Heavily based on textwrap.dedent from Python, which is:
       #   Copyright (C) 1999-2001 Gregory P. Ward.
       #   Copyright (C) 2002, 2003 Python Software Foundation.
       #   Written by Greg Ward <gward@python.net>
@@ -186,6 +183,8 @@ class Pry
       #   Licensed under <http://docs.python.org/license.html>
       #   From <http://hg.python.org/cpython/file/6b9f0a6efaeb/Lib/textwrap.py>
       #
+      # @param [String] text The text from which to remove indentation
+      # @return [String] The text with indentation stripped.
       def unindent(text)
         # Empty blank lines
         text = text.sub(/^[ \t]+$/, '')

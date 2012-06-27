@@ -191,7 +191,7 @@ class Pry
 
   # Run a Pry command from outside a session. The commands available are
   # those referenced by `Pry.commands` (the default command set).
-  # @param [String] arg_string The Pry command (including arguments,
+  # @param [String] command_string The Pry command (including arguments,
   #   if any).
   # @param [Hash] options Optional named parameters.
   # @return [Object] The return value of the Pry command.

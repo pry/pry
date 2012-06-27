@@ -46,19 +46,18 @@ class Pry
           Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
         end
 
-        # Returns _text_ in the default foreground colour.
+        # Returns `text` in the default foreground colour.
         # Use this instead of "black" or "white" when you mean absence of colour.
         #
-        # @param [String, #to_s]
-        # @return [String] _text_
+        # @param [String, #to_s] text
+        # @return [String]
         def default(text)
           text.to_s
         end
         alias_method :bright_default, :bold
 
-        # Executes _block_ with _Pry.color_ set to false.
-        #
-        # @param [Proc]
+        # Executes the block with `Pry.color` set to false.
+        # @yield
         # @return [void]
         def no_color &block
           boolean = Pry.config.color
@@ -68,9 +67,8 @@ class Pry
           Pry.config.color = boolean
         end
 
-        # Executes _block_ with _Pry.config.pager_ set to false.
-        #
-        # @param [Proc]
+        # Executes the block with `Pry.config.pager` set to false.
+        # @yield
         # @return [void]
         def no_pager &block
           boolean = Pry.config.pager
