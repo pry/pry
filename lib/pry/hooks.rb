@@ -173,7 +173,7 @@ class Pry
 
     # Return a specific hook for a given event.
     # @param [Symbol] event_name The name of the event.
-    # @param [Symbol[ hook_name The name of the hook
+    # @param [Symbol] hook_name The name of the hook
     # @return [#call] The requested hook.
     # @example
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }

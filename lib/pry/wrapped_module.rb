@@ -38,9 +38,8 @@ class Pry
       nil
     end
 
-    # Create a new WrappedModule
-    # @raise ArgumentError, if the argument is not a Module
-    # @param [Module]
+    # @raise [ArgumentError] if the argument is not a `Module`
+    # @param [Module] mod
     def initialize(mod)
       raise ArgumentError, "Tried to initialize a WrappedModule with a non-module #{mod.inspect}" unless ::Module === mod
       @wrapped = mod

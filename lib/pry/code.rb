@@ -33,9 +33,9 @@ class Pry
       # Pry's line buffer.
       #
       # @param [String] fn The name of a file, or "(pry)".
-      # @param [Symbol] code_type (:ruby) The type of code the file contains.
+      # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type=nil)
+      def from_file(fn, code_type = nil)
         if fn == Pry.eval_path
           f = Pry.line_buffer.drop(1)
         else
@@ -56,8 +56,8 @@ class Pry
       #
       # @param [::Method, UnboundMethod, Proc, Pry::Method] meth The method
       #   object.
-      # @param [Fixnum, nil] The line number to start on, or nil to use the
-      #   method's original line numbers.
+      # @param [Fixnum, nil] start_line The line number to start on, or nil to
+      #   use the method's original line numbers.
       # @return [Code]
       def from_method(meth, start_line=nil)
         meth = Pry::Method(meth)
@@ -112,6 +112,7 @@ class Pry
         end
     end
 
+    # @return [Symbol] The type of code stored in this wrapper.
     attr_accessor :code_type
 
     # Instantiate a `Code` object containing code from the given `Array`,
@@ -120,8 +121,8 @@ class Pry
     # empty `Code` object and then use `#push` to insert the lines.
     #
     # @param [Array<String>, String, IO] lines
-    # @param [Fixnum?] (1) start_line
-    # @param [Symbol?] (:ruby) code_type
+    # @param [Fixnum?] start_line
+    # @param [Symbol?] code_type
     def initialize(lines=[], start_line=1, code_type=:ruby)
       if lines.is_a? String
         lines = lines.lines
@@ -210,7 +211,7 @@ class Pry
     # Remove all lines except for the `lines` up to and excluding `line_num`.
     #
     # @param [Fixnum] line_num
-    # @param [Fixnum] (1) lines
+    # @param [Fixnum] lines
     # @return [Code]
     def before(line_num, lines=1)
       return self unless line_num
@@ -224,7 +225,7 @@ class Pry
     # `line_num`.
     #
     # @param [Fixnum] line_num
-    # @param [Fixnum] (1) lines
+    # @param [Fixnum] lines
     # @return [Code]
     def around(line_num, lines=1)
       return self unless line_num
@@ -237,7 +238,7 @@ class Pry
     # Remove all lines except for the `lines` after and excluding `line_num`.
     #
     # @param [Fixnum] line_num
-    # @param [Fixnum] (1) lines
+    # @param [Fixnum] lines
     # @return [Code]
     def after(line_num, lines=1)
       return self unless line_num
@@ -262,7 +263,7 @@ class Pry
 
     # Format output with line numbers next to it, unless `y_n` is falsy.
     #
-    # @param [Boolean?] (true) y_n
+    # @param [Boolean?] y_n
     # @return [Code]
     def with_line_numbers(y_n=true)
       alter do
@@ -273,7 +274,7 @@ class Pry
     # Format output with a marker next to the given `line_num`, unless `line_num`
     # is falsy.
     #
-    # @param [Fixnum?] (1) line_num
+    # @param [Fixnum?] line_num
     # @return [Code]
     def with_marker(line_num=1)
       alter do
@@ -285,7 +286,7 @@ class Pry
     # Format output with the specified number of spaces in front of every line,
     # unless `spaces` is falsy.
     #
-    # @param [Fixnum?] (0) spaces
+    # @param [Fixnum?] spaces
     # @return [Code]
     def with_indentation(spaces=0)
       alter do

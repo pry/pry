@@ -68,15 +68,12 @@ class Pry
       end
 
       # Create a new command with the given properties.
-      #
-      # @param String/Regex match  the thing that triggers this command
-      # @param String description  the description to appear in {help}
-      # @param Hash options  behavioural options (@see {Pry::CommandSet#command})
-      # @param Module helpers  a module of helper functions to be included.
-      # @param Proc &block  (optional, a block, used for BlockCommands)
-      #
-      # @return Class (a subclass of Pry::Command)
-      #
+      # @param [String, Regex] match The thing that triggers this command
+      # @param [String] description The description to appear in `help`
+      # @param [Hash] options Behavioral options (see {Pry::CommandSet#command})
+      # @param [Module] helpers A module of helper functions to be included.
+      # @yield optional, used for BlockCommands
+      # @return [Class] (a subclass of {Pry::Command})
       def subclass(match, description, options, helpers, &block)
         klass = Class.new(self)
         klass.send(:include, helpers)
@@ -88,9 +85,8 @@ class Pry
       end
 
       # Should this command be called for the given line?
-      #
-      # @param String  a line input at the REPL
-      # @return Boolean
+      # @param [String] val A line input at the REPL
+      # @return [Boolean]
       def matches?(val)
         command_regex =~ val
       end
@@ -109,8 +105,8 @@ class Pry
       #   /\.*(.*)/.match_score("...foo") #=> 3
       #   'hi'.match_score("hi there") #=> 2
       #
-      # @param String  a line input at the REPL
-      # @return Fixnum
+      # @param [String] val A line input at the REPL
+      # @return [Fixnum]
       def match_score(val)
         if command_regex =~ val
           Regexp.last_match.size > 1 ? Regexp.last_match.begin(1) : Regexp.last_match.end(0)
@@ -165,7 +161,7 @@ class Pry
     end
 
     # Properties of one execution of a command (passed by {Pry#run_command} as a hash of
-    # context and expanded in {#initialize}
+    # context and expanded in `#initialize`
     attr_accessor :output
     attr_accessor :target
     attr_accessor :captures
@@ -214,8 +210,7 @@ class Pry
 
 
     # Instantiate a command, in preparation for calling it.
-    #
-    # @param Hash context  The runtime context to use with this command.
+    # @param [Hash] context The runtime context to use with this command.
     def initialize(context={})
       self.context      = context
       self.target       = context[:target]
@@ -255,8 +250,6 @@ class Pry
 
     # Display a warning if a command collides with a local/method in
     # the current scope.
-    # @param [String] command_name_match The name of the colliding command.
-    # @param [Binding] target The current binding context.
     def check_for_command_collision(command_match, arg_string)
       collision_type = target.eval("defined?(#{command_match})")
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
@@ -268,15 +261,20 @@ class Pry
     rescue Pry::RescuableException
     end
 
-    # Extract necessary information from a line that Command.matches? this command.
+    # Extract necessary information from a line that Command.matches? this
+    # command.
     #
-    # @param String  the line of input
-    # @return [
-    #   String   the portion of the line that matched with the Command match
-    #   String   a string of all the arguments (i.e. everything but the match)
-    #   Array    the captures caught by the command_regex
-    #   Array    args the arguments got by splitting the arg_string
-    # ]
+    # Returns an array of four elements:
+    #
+    # ```
+    #  [String] the portion of the line that matched with the Command match
+    #  [String] a string of all the arguments (i.e. everything but the match)
+    #  [Array]  the captures caught by the command_regex
+    #  [Array]  the arguments obtained by splitting the arg_string
+    # ```
+    #
+    # @param [String] val The line of input
+    # @return [Array]
     def tokenize(val)
       val.replace(interpolate_string(val)) if command_options[:interpolate]
 
@@ -305,9 +303,8 @@ class Pry
     end
 
     # Process a line that Command.matches? this command.
-    #
-    # @param String  the line to process
-    # @return  Object or Command::VOID_VALUE
+    # @param [String] line The line to process
+    # @return [Object, Command::VOID_VALUE]
     def process_line(line)
       command_match, arg_string, captures, args = tokenize(line)
 
@@ -349,12 +346,14 @@ class Pry
 
     private :pass_block
 
-    # Run the command with the given {args}.
+    # Run the command with the given `args`.
     #
-    # This is a public wrapper around {#call} which ensures all preconditions are met.
+    # This is a public wrapper around `#call` which ensures all preconditions
+    # are met.
     #
-    # @param *[String]  the arguments to pass to this command.
-    # @return Object  the return value of the {#call} method, or Command::VOID_VALUE
+    # @param [Array<String>] args The arguments to pass to this command.
+    # @return [Object] The return value of the `#call` method, or
+    #   {Command::VOID_VALUE}.
     def call_safely(*args)
       unless dependencies_met?
         gems_needed = Array(command_options[:requires_gem])
@@ -382,10 +381,9 @@ class Pry
 
     private
 
-    # Run the {#call} method and all the registered hooks.
-    #
-    # @param *String  the arguments to #{call}
-    # @return Object  the return value from #{call}
+    # Run the `#call` method and all the registered hooks.
+    # @param [Array<String>] args The arguments to `#call`
+    # @return [Object] The return value from `#call`
     def call_with_hooks(*args)
       self.class.hooks[:before].each do |block|
         instance_exec(*args, &block)
@@ -401,10 +399,9 @@ class Pry
     end
 
     # Fix the number of arguments we pass to a block to avoid arity warnings.
-    #
-    # @param Number  the arity of the block
-    # @param Array   the arguments to pass
-    # @return Array  a (possibly shorter) array of the arguments to pass
+    # @param [Fixnum] arity The arity of the block
+    # @param [Array] args The arguments to pass
+    # @return [Array] A (possibly shorter) array of the arguments to pass
     def correct_arg_arity(arity, args)
       case
       when arity < 0
@@ -428,9 +425,8 @@ class Pry
     alias_method :opts, :context
 
     # Call the block that was registered with this command.
-    #
-    # @param *String  the arguments passed
-    # @return Object  the return value of the block
+    # @param [Array<String>] args The arguments passed
+    # @return [Object] The return value of the block
     def call(*args)
       instance_exec(*correct_arg_arity(block.arity, args), &block)
     end
@@ -442,24 +438,26 @@ class Pry
 
   # A super-class ofr Commands with structure.
   #
-  # This class implements the bare-minimum functionality that a command should have,
-  # namely a --help switch, and then delegates actual processing to its subclasses.
+  # This class implements the bare-minimum functionality that a command should
+  # have, namely a --help switch, and then delegates actual processing to its
+  # subclasses.
   #
-  # Create subclasses using {Pry::CommandSet#create_command}, and override the {options(opt)} method
-  # to set up an instance of Slop, and the {process} method to actually run the command. If
-  # necessary, you can also override {setup} which will be called before {options}, for example to
-  # require any gems your command needs to run, or to set up state.
+  # Create subclasses using {Pry::CommandSet#create_command}, and override the
+  # `options(opt)` method to set up an instance of Slop, and the `process`
+  # method to actually run the command. If necessary, you can also override
+  # `setup` which will be called before `options`, for example to require any
+  # gems your command needs to run, or to set up state.
   class ClassCommand < Command
 
     attr_accessor :opts
     attr_accessor :args
 
-    # Set up {opts} and {args}, and then call {process}
+    # Set up `opts` and `args`, and then call `process`.
     #
     # This function will display help if necessary.
     #
-    # @param *String  the arguments passed
-    # @return Object  the return value of {process} or VOID_VALUE
+    # @param [Array<String>] args The arguments passed
+    # @return [Object] The return value of `process` or VOID_VALUE
     def call(*args)
       setup
 
@@ -488,7 +486,7 @@ class Pry
       end
     end
 
-    # A function called just before {options(opt)} as part of {call}.
+    # A function called just before `options(opt)` as part of `call`.
     #
     # This function can be used to set up any context your command needs to run, for example
     # requiring gems, or setting default values for options.
@@ -504,7 +502,7 @@ class Pry
     #
     # NOTE: please don't do anything side-effecty in the main part of this method,
     # as it may be called by Pry at any time for introspection reasons. If you need
-    # to set up default values, use {setup} instead.
+    # to set up default values, use `setup` instead.
     #
     # @example
     #  def options(opt)
@@ -517,11 +515,12 @@ class Pry
 
     # The actual body of your command should go here.
     #
-    # The {opts} mehod can be called to get the options that Slop has passed,
-    # and {args} gives the remaining, unparsed arguments.
+    # The `opts` mehod can be called to get the options that Slop has passed,
+    # and `args` gives the remaining, unparsed arguments.
     #
-    # The return value of this method is discarded unless the command was created
-    # with :keep_retval => true, in which case it is returned to the repl.
+    # The return value of this method is discarded unless the command was
+    # created with `:keep_retval => true`, in which case it is returned to the
+    # repl.
     #
     # @example
     #   def process
