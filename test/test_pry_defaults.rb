@@ -356,11 +356,6 @@ describe "test Pry defaults" do
   describe 'toplevel_binding' do
     it 'should be devoid of local variables' do
       mock_pry(Pry.toplevel_binding, "ls -l").should.not =~ /version/
-
-      # https://github.com/rubinius/rubinius/issues/357
-      unless Pry::Helpers::BaseHelpers.rbx? || Pry::Helpers::BaseHelpers.jruby?
-        mock_pry(TOPLEVEL_BINDING, "ls -l").should =~ /version/
-      end
     end
 
     it 'should have self the same as TOPLEVEL_BINDING' do
