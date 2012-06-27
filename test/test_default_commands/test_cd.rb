@@ -1,272 +1,156 @@
 require 'helper'
 
 describe 'Pry::DefaultCommands::Cd' do
+  before do
+    @o = Object.new
+
+    @os1 = "Pad.os1 = _pry_.command_state['cd'].old_stack.dup"
+    @os2 = "Pad.os2 = _pry_.command_state['cd'].old_stack.dup"
+
+    @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
+    @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
+    @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
+  end
+
   after do
-    $obj = nil
+    Pad.clear
   end
 
   describe 'state' do
     it 'should not to be set up in fresh instance' do
-      instance = nil
-      redirect_pry_io(InputTester.new("cd", "exit-all")) do
-        instance = Pry.new
-        instance.repl
+      redirect_pry_io(InputTester.new(@os1, "exit-all")) do
+        Pry.start(@o)
       end
 
-      instance.command_state["cd"].old_binding.should == nil
-      instance.command_state["cd"].append.should == nil
+      Pad.os1.should == nil
     end
   end
 
-  describe 'old binding toggling with `cd -`' do
+  describe 'old stack toggling with `cd -`' do
+    describe 'in fresh pry instance' do
+      it 'should not toggle when there is no old stack' do
+        redirect_pry_io(InputTester.new("cd -", @bs1, "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
+        end
+
+        Pad.bs1.map { |v| v.eval("self") }.should == [@o]
+        Pad.bs2.map { |v| v.eval("self") }.should == [@o]
+      end
+    end
+
     describe 'when an error was raised' do
       it 'should ensure cd @ raises SyntaxError' do
         mock_pry("cd @").should =~ /SyntaxError/
       end
 
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd @", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should not toggle and should keep correct old stack' do
+        redirect_pry_io(InputTester.new("cd @", @os1, "cd -", @os2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.should == nil
-        instance.command_state["cd"].append.should == nil
+        Pad.os1.should == []
+        Pad.os2.should == []
+      end
 
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd @", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should not toggle and should keep correct current binding stack' do
+        redirect_pry_io(InputTester.new("cd @", @bs1, "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == false
-
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd @", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :mon_dogg
-        instance.command_state["cd"].append.should == true
+        Pad.bs1.map { |v| v.eval("self") }.should == [@o]
+        Pad.bs2.map { |v| v.eval("self") }.should == [@o]
       end
     end
 
     describe 'when using simple cd syntax' do
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should toggle' do
+        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", @bs1,
+                                        "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == false
+        Pad.bs1.map { |v| v.eval("self") }.should == [@o]
+        Pad.bs2.map { |v| v.eval("self") }.should == [@o, :mon_dogg]
+      end
+    end
+
+    describe "when using complex cd syntax" do
+      it 'should toggle with a complex path (simple case)' do
+        redirect_pry_io(InputTester.new("cd 1/2/3", "cd -", @bs1,
+                                        "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
+        end
+
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, 1, 2, 3]
       end
 
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should toggle with a complex path (more complex case)' do
+        redirect_pry_io(InputTester.new("cd 1/2/3", "cd ../4", "cd -",
+                                        @bs1, "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == :mon_dogg
-        instance.command_state["cd"].append.should == true
-      end
-
-      it 'should toggle with multple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == false
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o, 1, 2, 3]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, 1, 2, 4]
       end
     end
 
     describe 'series of cd calls' do
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd 42", "cd :john_dogg", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == 42
-        instance.command_state["cd"].append.should == false
-      end
-
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd 42", "cd :john_dogg", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == true
-      end
-
-      it 'should toggle with multple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd 42", "cd :john_dogg", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == 42
-        instance.command_state["cd"].append.should == false
-      end
-
       it 'should toggle with fuzzy `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", "cd 42", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", "cd 42", "cd -",
+                                        @bs1, "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == 42
-        instance.command_state["cd"].append.should == true
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, 42]
       end
     end
 
     describe 'when using cd ..' do
-      before do
-        $obj = Object.new
-        $obj.instance_variable_set(:@x, 66)
-        $obj.instance_variable_set(:@y, 79)
+      it 'should toggle with a simple path' do
+        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", @bs1,
+                                        "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
+        end
+
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, :john_dogg]
       end
 
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should toggle with a complex path' do
+        redirect_pry_io(InputTester.new("cd 1/2/3/../4", "cd -", @bs1,
+                                        "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == true
-
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd $obj/@x/../@y", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == 66
-        instance.command_state["cd"].append.should == true
-      end
-
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == false
-
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd $obj/@x/../@y", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == 79
-        instance.command_state["cd"].append.should == false
-      end
-
-      it 'should toggle with multiple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == true
-
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd $obj/@x/../@y", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == 66
-        instance.command_state["cd"].append.should == true
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, 1, 2, 4]
       end
     end
 
     describe 'when using cd ::' do
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ::", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should toggle' do
+        redirect_pry_io(InputTester.new("cd ::", "cd -", @bs1,
+                                        "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == false
-      end
-
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ::", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == true
-      end
-
-      it 'should toggle with multiple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ::", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == false
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, TOPLEVEL_BINDING.eval("self")]
       end
     end
 
     describe 'when using cd /' do
-      it 'should keep correct old binding' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd /", "exit-all")) do
-          instance = Pry.new
-          instance.repl
+      it 'should toggle' do
+        redirect_pry_io(InputTester.new("cd /", "cd -", @bs1, "cd :john_dogg",
+                                        "cd /", "cd -", @bs2, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == true
-      end
-
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd /", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == TOPLEVEL_BINDING.eval("self")
-        instance.command_state["cd"].append.should == false
-      end
-
-      it 'should toggle with multiple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd /", "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :john_dogg
-        instance.command_state["cd"].append.should == true
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, :john_dogg]
       end
     end
 
@@ -276,59 +160,16 @@ describe 'Pry::DefaultCommands::Cd' do
       end
 
       it 'should keep correct old binding' do
-        instance = nil
         redirect_pry_io(InputTester.new("cd :john_dogg", "cd :mon_dogg",
-                                        "cd :kyr_dogg", @control_d, "exit-all")) do
-          instance = Pry.new
-          instance.repl
+                                        "cd :kyr_dogg", @control_d, @bs1, "cd -",
+                                        @bs2, "cd -", @bs3, "exit-all")) do
+          Pry.start(@o)
         end
 
-        instance.command_state["cd"].old_binding.eval("self").should == :kyr_dogg
-        instance.command_state["cd"].append.should == true
+        Pad.bs1.map { |v| v.eval('self') }.should == [@o, :john_dogg, :mon_dogg]
+        Pad.bs2.map { |v| v.eval('self') }.should == [@o, :john_dogg, :mon_dogg, :kyr_dogg]
+        Pad.bs3.map { |v| v.eval('self') }.should == [@o, :john_dogg, :mon_dogg]
       end
-
-      it 'should toggle with a single `cd -` call' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd :mon_dogg",
-                                        "cd :kyr_dogg", @control_d, "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :mon_dogg
-        instance.command_state["cd"].append.should == false
-      end
-
-      it 'should toggle with multiple `cd -` calls' do
-        instance = nil
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd :mon_dogg",
-                                        "cd :kyr_dogg", @control_d, "cd -", "cd -", "exit-all")) do
-          instance = Pry.new
-          instance.repl
-        end
-
-        instance.command_state["cd"].old_binding.eval("self").should == :kyr_dogg
-        instance.command_state["cd"].append.should == true
-      end
-    end
-
-    it 'should not toggle when there is no old binding' do
-      instance = nil
-      redirect_pry_io(InputTester.new("cd -", "exit-all")) do
-        instance = Pry.new
-        instance.repl
-      end
-
-      instance.command_state["cd"].old_binding.should == nil
-      instance.command_state["cd"].append.should == nil
-
-      redirect_pry_io(InputTester.new("cd -", "cd -", "exit-all")) do
-        instance = Pry.new
-        instance.repl
-      end
-
-      instance.command_state["cd"].old_binding.should == nil
-      instance.command_state["cd"].append.should == nil
     end
   end
 
