@@ -9,9 +9,8 @@ require 'bacon'
 require 'open4'
 
 # A global space for storing temporary state during tests.
-ScratchPad = OpenStruct.new
-Pad = ScratchPad
-def ScratchPad.clear
+Pad = OpenStruct.new
+def Pad.clear
   @table = {}
 end
 
