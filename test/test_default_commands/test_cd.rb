@@ -2,14 +2,22 @@ require 'helper'
 
 describe 'Pry::DefaultCommands::Cd' do
   before do
-    @o = Object.new
+    @o, @obj = Object.new, Object.new
+    @obj.instance_variable_set(:@x, 66)
+    @obj.instance_variable_set(:@y, 79)
+    @o.instance_variable_set(:@obj, @obj)
 
+    # Shortcuts. They save a lot of typing.
     @os1 = "Pad.os1 = _pry_.command_state['cd'].old_stack.dup"
     @os2 = "Pad.os2 = _pry_.command_state['cd'].old_stack.dup"
 
     @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
     @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
     @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
+
+    @self  = "Pad.self = self"
+    @inner = "Pad.inner = self"
+    @outer = "Pad.outer = self"
   end
 
   after do
@@ -174,151 +182,119 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd into simple input' do
-    b = Pry.binding_for(Object.new)
-    b.eval("x = :mon_ouie")
-
-    redirect_pry_io(InputTester.new("cd x", "$obj = self", "exit-all")) do
-      b.pry
+    redirect_pry_io(InputTester.new("cd :mon_ouie", @inner, "exit-all")) do
+      Pry.start(@o)
     end
 
-    $obj.should == :mon_ouie
+    Pad.inner.should == :mon_ouie
   end
 
   it 'should break out of session with cd ..' do
-    b = Pry.binding_for(:outer)
-    b.eval("x = :inner")
-
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd ..", "$outer = self", "exit-all")) do
-      b.pry
+    redirect_pry_io(InputTester.new("cd :inner", @inner, "cd ..", @outer, "exit-all")) do
+      Pry.start(:outer)
     end
-    $inner.should == :inner
-    $outer.should == :outer
+
+    Pad.inner.should == :inner
+    Pad.outer.should == :outer
   end
 
   it "should not leave the REPL session when given 'cd ..'" do
-    b = Pry.binding_for(Object.new)
-    input = InputTester.new "cd ..", "$obj = self", "exit-all"
-
-    redirect_pry_io(input) do
-      b.pry
+    redirect_pry_io(InputTester.new("cd ..", @self, "exit-all")) do
+      Pry.start(@o)
     end
 
-    $obj.should == b.eval("self")
+    Pad.self.should == @o
   end
 
   it 'should break out to outer-most session with cd /' do
-    b = Pry.binding_for(:outer)
-    b.eval("x = :inner")
-
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd /", "$outer = self", "exit-all")) do
-      b.pry
+    redirect_pry_io(InputTester.new("cd :inner", @inner, "cd 5", "Pad.five = self",
+                                    "cd /", @outer, "exit-all")) do
+      Pry.start(:outer)
     end
-    $inner.should == :inner
-    $five.should == 5
-    $outer.should == :outer
+
+    Pad.inner.should == :inner
+    Pad.five.should == 5
+    Pad.outer.should == :outer
   end
 
   it 'should break out to outer-most session with just cd (no args)' do
-    b = Pry.binding_for(:outer)
-    b.eval("x = :inner")
-
-    redirect_pry_io(InputTester.new("cd x", "$inner = self;", "cd 5", "$five = self", "cd", "$outer = self", "exit-all")) do
-      b.pry
+    redirect_pry_io(InputTester.new("cd :inner", @inner, "cd 5", "Pad.five = self",
+                                    "cd", @outer, "exit-all")) do
+      Pry.start(:outer)
     end
-    $inner.should == :inner
-    $five.should == 5
-    $outer.should == :outer
+
+    Pad.inner.should == :inner
+    Pad.five.should == 5
+    Pad.outer.should == :outer
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar syntax' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-
-    redirect_pry_io(InputTester.new("cd $obj/@x", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("cd @obj/@x", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 3
-    $result[1].eval('self').should == $obj
-    $result[2].eval('self').should == 66
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, @obj, 66]
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-
-    redirect_pry_io(InputTester.new("cd $obj/@x/", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("cd @obj/@x/", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 3
-    $result[1].eval('self').should == $obj
-    $result[2].eval('self').should == 66
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, @obj, 66]
   end
 
   it 'should cd into previous object and its local using cd ../local syntax' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-
-    redirect_pry_io(InputTester.new("cd $obj", "local = :local", "cd @x", "cd ../local", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("cd @obj", "local = :local", "cd @x",
+                                    "cd ../local", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 3
-    $result[1].eval('self').should == $obj
-    $result[2].eval('self').should == :local
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, @obj, :local]
   end
 
   it 'should cd into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-
-    redirect_pry_io(InputTester.new("cd $obj/@x/..", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("cd @obj/@x/..", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 2
-    $result[1].eval('self').should == $obj
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, @obj]
   end
 
   it 'should cd into an object and its ivar and back and then into another ivar using cd obj/@ivar/../@y syntax' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-    $obj.instance_variable_set(:@y, 79)
-
-    redirect_pry_io(InputTester.new("cd $obj/@x/../@y", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("cd @obj/@x/../@y", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 3
-    $result[1].eval('self').should == $obj
-    $result[2].eval('self').should == 79
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, @obj, 79]
   end
 
   it 'should cd back to top-level and then into another ivar using cd /@ivar/ syntax' do
-    $obj = Object.new
-    $obj.instance_variable_set(:@x, 66)
-    TOPLEVEL_BINDING.eval('@z = 20')
-
-    redirect_pry_io(InputTester.new("cd $obj/@x/", "cd /@z", "$result = _pry_.binding_stack.dup", "exit-all")) do
-      Pry.start
+    redirect_pry_io(InputTester.new("@z = 20", "cd @obj/@x/", "cd /@z", @bs1, "exit-all")) do
+      Pry.start(@o)
     end
-    $result.size.should == 2
-    $result[1].eval('self').should == 20
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o, 20]
   end
 
   it 'should start a session on TOPLEVEL_BINDING with cd ::' do
-    redirect_pry_io(InputTester.new("cd ::", "$obj = self", "exit-all")) do
-      5.pry
+    redirect_pry_io(InputTester.new("cd ::", @self, "exit-all")) do
+      Pry.start(@o)
     end
-    $obj.should == TOPLEVEL_BINDING.eval('self')
+
+    Pad.self.should == TOPLEVEL_BINDING.eval("self")
   end
 
   it 'should cd into complex input (with spaces)' do
-    o = Object.new
-    def o.hello(x, y, z)
+    def @o.hello(x, y, z)
       :mon_ouie
     end
 
-    redirect_pry_io(InputTester.new("cd hello 1, 2, 3", "$obj = self", "exit-all")) do
-      o.pry
+    redirect_pry_io(InputTester.new("cd hello 1, 2, 3", @self, "exit-all")) do
+      Pry.start(@o)
     end
-    $obj.should == :mon_ouie
+
+    Pad.self.should == :mon_ouie
   end
 
   # Regression test for ticket #516.
