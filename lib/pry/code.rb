@@ -352,8 +352,8 @@ class Pry
     #
     # @param [Fixnum]  line_number (1-based)
     # @return [String]  the code.
-    def expression_at(line_number)
-      self.class.expression_at(raw, line_number)
+    def expression_at(line_number, consume=0)
+      self.class.expression_at(raw, line_number, :consume => consume)
     end
 
     # Return an unformatted String of the code.

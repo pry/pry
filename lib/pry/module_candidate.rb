@@ -52,8 +52,10 @@ class Pry
         return @source if @source
 
         raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
+        end_line = end_method_source_location.last
 
-        @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
+        num_lines = end_line - line
+        @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, num_lines))
       end
 
       # @raise [Pry::CommandError] If documentation cannot be found.
@@ -86,7 +88,7 @@ class Pry
         return @source_location if @source_location
 
         mod_type_string = wrapped.class.to_s.downcase
-        file, line = method_source_location
+        file, line = start_method_source_location
 
         return nil if !file.is_a?(String)
 
@@ -110,16 +112,22 @@ class Pry
       # starting point for the search for the candidate's definition.
       # @return [Array] The source location of the base method used to
       #   calculate the source location of the candidate.
-      def method_source_location
-        return @method_source_location if @method_source_location
+      def start_method_source_location
+        adjusted_source_location(method_candidates[@rank].first.source_location)
+      end
 
-        file, line = method_candidates[@rank].source_location
+      def end_method_source_location
+        adjusted_source_location(method_candidates[@rank].last.source_location)
+      end
+
+      def adjusted_source_location(sl)
+        file, line = sl
 
         if file && RbxPath.is_core_path?(file)
           file = RbxPath.convert_path_to_full(file)
         end
 
-        @method_source_location = [file, line]
+        [file, line]
       end
 
       # @param [String] doc The raw docstring to process.
