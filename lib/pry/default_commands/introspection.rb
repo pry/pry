@@ -20,11 +20,24 @@ class Pry
       def process(name)
         if module?(name)
           code_or_doc = process_module
-        else method?
+        elsif method?
           code_or_doc = process_method
+        else
+          code_or_doc = process_alternatives
         end
 
         render_output(code_or_doc, opts)
+      end
+
+      def process_alternatives
+        if args.empty? && internal_binding?(target)
+          mod = target_self.is_a?(Module) ? target_self : target_self.class
+          self.module_object = Pry::WrappedModule(mod)
+
+          process_module
+        else
+          process_method
+        end
       end
 
       def module_start_line(mod, candidate_rank=0)

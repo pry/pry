@@ -39,13 +39,16 @@ class Pry
         [file, line_num]
       end
 
+      def internal_binding?(target)
+        m = target.eval("__method__").to_s
+        ["__binding__", "__binding_impl__"].include?(m)
+      end
+
       def get_method_or_raise(name, target, opts={}, omit_help=false)
         meth = Pry::Method.from_str(name, target, opts)
 
         if name && !meth
           command_error("The method '#{name}' could not be found.", omit_help)
-        elsif !meth
-          command_error("No method name given, and context is not a method.", omit_help, NonMethodContextError)
         end
 
         (opts[:super] || 0).times do
@@ -54,6 +57,10 @@ class Pry
           else
             command_error("'#{meth.name_with_owner}' has no super method.", omit_help)
           end
+        end
+
+        if !meth || (!name && internal_binding?(target))
+          command_error("No method name given, and context is not a method.", omit_help, NonMethodContextError)
         end
 
         set_file_and_dir_locals(meth.source_file)
