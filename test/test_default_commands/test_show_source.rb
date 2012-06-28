@@ -324,8 +324,8 @@ if !mri18_and_no_real_source_location?
 
       describe "when show-source is invoked without a method or class argument" do
         before do
-          module Host
-            module M
+          module TestHost
+            class M
               def alpha; end
               def beta; end
             end
@@ -345,40 +345,50 @@ if !mri18_and_no_real_source_location?
         end
 
         after do
-          Object.remove_const(:Host)
+          Object.remove_const(:TestHost)
         end
 
         describe "inside a module" do
           it 'should display module source by default' do
             redirect_pry_io(InputTester.new("show-source", "exit-all"), out = StringIO.new) do
-              Pry.start(Host::M)
+              Pry.start(TestHost::M)
             end
 
-            out.string.should =~ /module M/
+            out.string.should =~ /class M/
             out.string.should =~ /def alpha/
             out.string.should =~ /def beta/
           end
 
           it 'should be unable to find module source if no methods defined' do
             redirect_pry_io(InputTester.new("show-source", "exit-all"), out = StringIO.new) do
-              Pry.start(Host::C)
+              Pry.start(TestHost::C)
             end
 
             out.string.should.should =~ /Cannot find a definition for/
           end
 
           it 'should display method code (rather than class) if Pry started inside method binding' do
-            string = Host::D.invoked_in_method
+            string = TestHost::D.invoked_in_method
             string.should =~ /invoked_in_method/
             string.should.not =~ /module D/
           end
 
-          it 'should allow options to be passed' do
-            redirect_pry_io(InputTester.new("show-source -b", "exit-all"), out = StringIO.new) do
-              Pry.start(Host::M)
+          it 'should display class source when inside instance' do
+            redirect_pry_io(InputTester.new("show-source", "exit-all"), out = StringIO.new) do
+              Pry.start(TestHost::M.new)
             end
 
-            out.string.should =~ /\d:\s*module M/
+            out.string.should =~ /class M/
+            out.string.should =~ /def alpha/
+            out.string.should =~ /def beta/
+          end
+
+          it 'should allow options to be passed' do
+            redirect_pry_io(InputTester.new("show-source -b", "exit-all"), out = StringIO.new) do
+              Pry.start(TestHost::M)
+            end
+
+            out.string.should =~ /\d:\s*class M/
             out.string.should =~ /\d:\s*def alpha/
             out.string.should =~ /\d:\s*def beta/
           end
