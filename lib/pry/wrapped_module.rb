@@ -223,13 +223,7 @@ class Pry
 
       ims = all_methods_for(wrapped)
 
-      ims.reject! do |v|
-        begin
-          v.alias? || v.source_location.nil?
-        rescue Pry::RescuableException
-          true
-        end
-      end
+      ims.select!(&:source_location)
 
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by { |k, v| -v.size }
