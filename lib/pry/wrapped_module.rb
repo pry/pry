@@ -223,7 +223,7 @@ class Pry
 
       ims = all_methods_for(wrapped)
 
-      ims.select!(&:source_location)
+      ims = ims.select(&:source_location)
 
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by { |k, v| -v.size }
