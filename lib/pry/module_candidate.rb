@@ -92,9 +92,9 @@ class Pry
 
         return nil if !file.is_a?(String)
 
-        class_regexes = [/#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/,
-                         /(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-                         /(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
+        class_regexes = [/^\s*#{mod_type_string}\s*(\w*)(::)?#{wrapped.name.split(/::/).last}/,
+                         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
+                         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
 
         host_file_lines = lines_for_file(file)
 
