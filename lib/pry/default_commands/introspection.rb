@@ -261,10 +261,17 @@ class Pry
         def normal_module
           mod = module_object
 
-          file_name, line = mod.source_location
-          set_file_and_dir_locals(file_name)
-          code = Code.from_module(mod, module_start_line(mod)).
-            with_line_numbers(use_line_numbers?).to_s
+          rank = 0
+          begin
+            file_name, line = mod.candidate(rank).source_location
+            set_file_and_dir_locals(file_name)
+            code = Code.from_module(mod, module_start_line(mod, rank), rank).
+              with_line_numbers(use_line_numbers?).to_s
+          rescue Pry::CommandError
+            raise if rank > (mod.number_of_candidates - 1)
+            rank += 1
+            retry
+          end
           result = ""
           result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
           result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
