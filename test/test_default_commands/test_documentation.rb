@@ -247,6 +247,68 @@ if !mri18_and_no_real_source_location?
           result.should =~ /local monkeypatch/
         end
       end
+
+      describe "when no class/module arg is given" do
+        before do
+          module Host
+
+            # hello there froggy
+            module M
+              def d; end
+              def e; end
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:Host)
+        end
+
+        it 'should return doc for current module' do
+          redirect_pry_io(InputTester.new("show-doc"), out = StringIO.new) do
+            Pry.start(Host::M)
+          end
+
+          out.string.should =~ /hello there froggy/
+        end
+
+      end
+
+
+      describe "should skip over broken modules" do
+        before do
+          module Host
+
+            # hello
+            module M
+              binding.eval("def a; end", "dummy.rb", 1)
+              binding.eval("def b; end", "dummy.rb", 2)
+              binding.eval("def c; end", "dummy.rb", 3)
+            end
+
+            # goodbye
+            module M
+              def d; end
+              def e; end
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:Host)
+        end
+
+        it 'should return doc for first valid module' do
+          redirect_pry_io(InputTester.new("show-doc Host::M"), out = StringIO.new) do
+            Pry.start
+          end
+
+          out.string.should =~ /goodbye/
+          out.string.should.not =~ /hello/
+        end
+
+      end
     end
+
   end
 end

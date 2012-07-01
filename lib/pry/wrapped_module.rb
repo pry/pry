@@ -14,6 +14,8 @@ class Pry
   end
 
   class WrappedModule
+    include Pry::Helpers::DocumentationHelpers
+
     attr_reader :wrapped
     private :wrapped
 
@@ -135,8 +137,8 @@ class Pry
     end
     alias_method :source_line, :line
 
-    # Returns documentation for the module, with preference given to yard docs if
-    # available. This documentation is for the primary candidate, if
+    # Returns documentation for the module.
+    # This documentation is for the primary candidate, if
     # you would like documentation for other candidates use
     # `WrappedModule#candidate` to select the candidate you're
     # interested in.
@@ -167,6 +169,11 @@ class Pry
     #   module from YARD, if one exists.
     def yard_line
       YARD::Registry.at(name).line if yard_docs?
+    end
+
+    # @return [String] Return the YARD docs for this module.
+    def yard_doc
+      YARD::Registry.at(name).docstring.to_s if yard_docs?
     end
 
     # Return a candidate for this module of specified rank. A `rank`
@@ -207,10 +214,12 @@ class Pry
       @primary_candidate ||= candidate(0)
     end
 
-    # @return [Array<Pry::Method>] The array of `Pry::Method` objects,
-    #   there is one  associated with each candidate. Each one is the 'base
+    # @return [Array<Array<Pry::Method>>] The array of `Pry::Method` objects,
+    #   there are two associated with each candidate. The first is the 'base
     #   method' for a candidate and it serves as the start point for
-    #   the search in  uncovering the module definition.
+    #   the search in  uncovering the module definition. The second is
+    #   the last method defined for that candidate and it is used to
+    #   speed up source code extraction.
     def method_candidates
       @method_candidates ||= all_source_locations_by_popularity.map do |group|
         methods_sorted_by_source_line  = group.last.sort_by(&:source_line)
@@ -266,5 +275,13 @@ class Pry
     def safe_send(obj, method, *args, &block)
         (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
     end
+
+      # @param [String] doc The raw docstring to process.
+      # @return [String] Process docstring markup and strip leading white space.
+      def process_doc(doc)
+         process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc),
+                                :ruby)
+      end
+
   end
 end
