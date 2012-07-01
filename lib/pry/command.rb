@@ -143,20 +143,21 @@ class Pry
       # This is usually auto-generated from directory naming, but it can be
       # manually overridden if necessary.
       def group(name=nil)
-        @group = name if name
-        @group ||=(
-          case Pry::Method(block).source_file
-          when %r{/pry/.*_commands/(.*).rb}
-            $1.capitalize.gsub(/_/, " ")
-          when %r{(pry-[\w]+)-([\d\.]+)}
-            name, version = $1, $2
-            "#{name.to_s} (v#{version.to_s})"
-          when /pryrc/
-            "~/.pryrc"
-          else
-            "(other)"
-          end
-        )
+        @group = if name
+                   name
+                 else
+                   case Pry::Method(block).source_file
+                   when %r{/pry/.*_commands/(.*).rb}
+                     $1.capitalize.gsub(/_/, " ")
+                   when %r{(pry-\w+)-([\d\.]+([\w\d\.]+)?)}
+                     name, version = $1, $2
+                     "#{name.to_s} (v#{version.to_s})"
+                   when /pryrc/
+                     "~/.pryrc"
+                   else
+                     "(other)"
+                   end
+                 end
       end
     end
 
