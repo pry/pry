@@ -297,6 +297,14 @@ describe 'Pry::DefaultCommands::Cd' do
     Pad.self.should == :mon_ouie
   end
 
+  it 'should not cd into complex input when it encounters an exception' do
+    redirect_pry_io(InputTester.new("cd 1/2/swoop_a_doop/3", @bs1, "exit-all")) do
+      Pry.start(@o)
+    end
+
+    Pad.bs1.map { |v| v.eval("self") }.should == [@o]
+  end
+
   # Regression test for ticket #516.
   #it 'should be able to cd into the Object BasicObject.' do
   #  mock_pry('cd BasicObject.new').should.not =~ /\Aundefined method `__binding__'/
