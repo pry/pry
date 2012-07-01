@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'shellwords'
 require 'pry/default_commands/hist'
 
 class Pry
@@ -141,8 +142,12 @@ class Pry
           line = opts[:l].to_i if opts.present?(:line)
 
           reload = opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
-          invoke_editor(file_name, line, reload)
-          set_file_and_dir_locals(file_name)
+
+          # Sanitize blanks.
+          sanitized_file_name = Shellwords.escape(file_name)
+
+          invoke_editor(sanitized_file_name, line, reload)
+          set_file_and_dir_locals(sanitized_file_name)
 
           if reload
             silence_warnings do
