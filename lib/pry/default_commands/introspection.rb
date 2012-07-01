@@ -51,6 +51,17 @@ class Pry
       def use_line_numbers?
         opts.present?(:b) || opts.present?(:l)
       end
+
+      def attempt
+        rank = 0
+        begin
+          yield(rank)
+        rescue Pry::CommandError
+          raise if rank > (module_object.number_of_candidates - 1)
+          rank += 1
+          retry
+        end
+      end
     end
 
     Introspection = Pry::CommandSet.new do
@@ -93,37 +104,34 @@ class Pry
         end
 
         def normal_module
-          mod = module_object
-
-          # source_file reveals the underlying .c file in case of core
-          # classes on MRI. This is different to source_location, which
-          # will return nil.
-          if mod.yard_docs?
-            file_name, line = mod.yard_file, mod.yard_line
+          doc = ""
+          if module_object.yard_docs?
+            file_name, line = module_object.yard_file, module_object.yard_line
+            doc << module_object.yard_doc
+            start_line = 1
           else
-            file_name, line = mod.source_location
+            attempt do |rank|
+              file_name, line = module_object.candidate(rank).source_location
+              set_file_and_dir_locals(file_name)
+              doc << module_object.candidate(rank).doc
+              start_line = module_start_line(module_object, rank)
+            end
           end
 
-          set_file_and_dir_locals(file_name) if !mod.yard_docs?
-          doc = ""
-          doc << mod.doc
-
-          doc = Code.new(doc, module_start_line(mod), :text).
+          doc = Code.new(doc, start_line, :text).
             with_line_numbers(use_line_numbers?).to_s
 
           doc.insert(0, "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n")
         end
 
         def all_modules
-          mod = module_object
-
           doc = ""
-          doc << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
-          mod.number_of_candidates.times do |v|
-            candidate = mod.candidate(v)
+          doc << "Found #{module_object.number_of_candidates} candidates for `#{module_object.name}` definition:\n"
+          module_object.number_of_candidates.times do |v|
+            candidate = module_object.candidate(v)
             begin
-              doc << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.file} @ #{candidate.line}:\n\n"
-              doc << candidate.doc(false)
+              doc << "\nCandidate #{v+1}/#{module_object.number_of_candidates}: #{candidate.file} @ #{candidate.line}:\n\n"
+              doc << candidate.doc
             rescue Pry::RescuableException => ex
               doc << "No documentation found.\n"
               next
@@ -133,14 +141,13 @@ class Pry
         end
 
         def process_method
-          meth = method_object
-          raise Pry::CommandError, "No documentation found." if meth.doc.nil? || meth.doc.empty?
+          raise Pry::CommandError, "No documentation found." if method_object.doc.nil? || method_object.doc.empty?
 
-          doc = process_comment_markup(meth.doc, meth.source_type)
-          output.puts make_header(meth, doc)
-          output.puts "#{text.bold("Owner:")} #{meth.owner || "N/A"}"
-          output.puts "#{text.bold("Visibility:")} #{meth.visibility}"
-          output.puts "#{text.bold("Signature:")} #{meth.signature}"
+          doc = process_comment_markup(method_object.doc, method_object.source_type)
+          output.puts make_header(method_object, doc)
+          output.puts "#{text.bold("Owner:")} #{method_object.owner || "N/A"}"
+          output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"
+          output.puts "#{text.bold("Signature:")} #{method_object.signature}"
           output.puts
 
           if use_line_numbers?
@@ -259,19 +266,14 @@ class Pry
         end
 
         def normal_module
-          mod = module_object
-
-          rank = 0
-          begin
-            file_name, line = mod.candidate(rank).source_location
+          file_name = line = code = nil
+          attempt do |rank|
+            file_name, line = module_object.candidate(rank).source_location
             set_file_and_dir_locals(file_name)
-            code = Code.from_module(mod, module_start_line(mod, rank), rank).
+            code = Code.from_module(module_object, module_start_line(module_object, rank), rank).
               with_line_numbers(use_line_numbers?).to_s
-          rescue Pry::CommandError
-            raise if rank > (mod.number_of_candidates - 1)
-            rank += 1
-            retry
           end
+
           result = ""
           result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
           result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"

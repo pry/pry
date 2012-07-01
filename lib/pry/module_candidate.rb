@@ -8,7 +8,6 @@ class Pry
     # It provides access to the source, documentation, line and file
     # for a monkeypatch (reopening) of a class/module.
     class Candidate
-      include Pry::Helpers::DocumentationHelpers
       extend Forwardable
 
       # @return [String] The file where the module definition is located.
@@ -19,7 +18,8 @@ class Pry
 
       # Methods to delegate to associated `Pry::WrappedModule instance`.
       to_delegate = [:lines_for_file, :method_candidates, :name, :wrapped,
-                     :yard_docs?, :number_of_candidates]
+                     :yard_docs?, :number_of_candidates, :process_doc,
+                     :strip_leading_whitespace]
 
       def_delegators :@wrapper, *to_delegate
       private *to_delegate
@@ -50,35 +50,18 @@ class Pry
       #   complete module/class definition.
       def source
         return @source if @source
-
         raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
-        end_line = end_method_source_location.last
 
-        num_lines = end_line - line
-        @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, num_lines))
+        @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk))
       end
 
       # @raise [Pry::CommandError] If documentation cannot be found.
-      # @param [Boolean] check_yard Try to retrieve yard docs instead
-      #   (if they exist), otherwise attempt to return the docs for the
-      #   discovered module definition. `check_yard` is only relevant
-      #   for the primary candidate (rank 0) candidate.
       # @return [String] The documentation for the candidate.
-      def doc(check_yard=true)
+      def doc
         return @doc if @doc
+        raise CommandError, "Could not locate doc for #{wrapped}!" if file.nil?
 
-        docstring = if check_yard && @rank == 0 && yard_docs?
-                      from_yard = YARD::Registry.at(name).docstring.to_s
-                      from_yard.empty? ? nil : from_yard
-                    elsif source_location.nil?
-                      nil
-                    else
-                      Pry::Code.from_file(file).comment_describing(line)
-                    end
-
-        raise CommandError, "Could not locate doc for #{wrapped}!" if docstring.nil? || docstring.empty?
-
-        @doc = process_doc(docstring)
+        @doc = process_doc(Pry::Code.from_file(file).comment_describing(line))
       end
 
       # @return [Array, nil] A `[String, Fixnum]` pair representing the
@@ -88,7 +71,7 @@ class Pry
         return @source_location if @source_location
 
         mod_type_string = wrapped.class.to_s.downcase
-        file, line = start_method_source_location
+        file, line = first_method_source_location
 
         return nil if !file.is_a?(String)
 
@@ -112,12 +95,25 @@ class Pry
       # starting point for the search for the candidate's definition.
       # @return [Array] The source location of the base method used to
       #   calculate the source location of the candidate.
-      def start_method_source_location
-        adjusted_source_location(method_candidates[@rank].first.source_location)
+      def first_method_source_location
+        @first_method_source_location ||= adjusted_source_location(method_candidates[@rank].first.source_location)
       end
 
-      def end_method_source_location
-        adjusted_source_location(method_candidates[@rank].last.source_location)
+      # @return [Array] The source location of the last method in this
+      #   candidate's module definition.
+      def last_method_source_location
+        @end_method_source_location ||= adjusted_source_location(method_candidates[@rank].last.source_location)
+      end
+
+      # Return the number of lines between the start of the class definition
+      # and the start of the last method. We use this value so we can
+      # quickly grab these lines from the file (without having to
+      # check each intervening line for validity, which is expensive) speeding up source extraction.
+      # @return [Fixum] Number of lines.
+      def number_of_lines_in_first_chunk
+        end_method_line = last_method_source_location.last
+
+        end_method_line - line
       end
 
       def adjusted_source_location(sl)
@@ -128,13 +124,6 @@ class Pry
         end
 
         [file, line]
-      end
-
-      # @param [String] doc The raw docstring to process.
-      # @return [String] Process docstring markup and strip leading white space.
-      def process_doc(doc)
-         process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc),
-                                :ruby)
       end
     end
   end
