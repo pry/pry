@@ -250,7 +250,7 @@ if !mri18_and_no_real_source_location?
 
       describe "when no class/module arg is given" do
         before do
-          module Host
+          module TestHost
 
             # hello there froggy
             module M
@@ -261,12 +261,12 @@ if !mri18_and_no_real_source_location?
         end
 
         after do
-          Object.remove_const(:Host)
+          Object.remove_const(:TestHost)
         end
 
         it 'should return doc for current module' do
           redirect_pry_io(InputTester.new("show-doc"), out = StringIO.new) do
-            Pry.start(Host::M)
+            Pry.start(TestHost::M)
           end
 
           out.string.should =~ /hello there froggy/
@@ -277,7 +277,7 @@ if !mri18_and_no_real_source_location?
 
       describe "should skip over broken modules" do
         before do
-          module Host
+          module TestHost
 
             # hello
             module M
@@ -295,11 +295,11 @@ if !mri18_and_no_real_source_location?
         end
 
         after do
-          Object.remove_const(:Host)
+          Object.remove_const(:TestHost)
         end
 
         it 'should return doc for first valid module' do
-          redirect_pry_io(InputTester.new("show-doc Host::M"), out = StringIO.new) do
+          redirect_pry_io(InputTester.new("show-doc TestHost::M"), out = StringIO.new) do
             Pry.start
           end
 

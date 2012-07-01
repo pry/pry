@@ -393,17 +393,17 @@ if !mri18_and_no_real_source_location?
             out.string.should =~ /\d:\s*def beta/
           end
 
-          describe "should skip over broken modules" do
+           describe "should skip over broken modules" do
             before do
-              module Host
+              module BabyDuck
 
-                module M
+                module Muesli
                   binding.eval("def a; end", "dummy.rb", 1)
                   binding.eval("def b; end", "dummy.rb", 2)
                   binding.eval("def c; end", "dummy.rb", 3)
                 end
 
-                module M
+                module Muesli
                   def d; end
                   def e; end
                 end
@@ -411,11 +411,11 @@ if !mri18_and_no_real_source_location?
             end
 
             after do
-              Object.remove_const(:Host)
+              Object.remove_const(:BabyDuck)
             end
 
             it 'should return source for first valid module' do
-              redirect_pry_io(InputTester.new("show-source Host::M"), out = StringIO.new) do
+              redirect_pry_io(InputTester.new("show-source BabyDuck::Muesli"), out = StringIO.new) do
                 Pry.start
               end
 
@@ -429,3 +429,4 @@ if !mri18_and_no_real_source_location?
     end
   end
 end
+
