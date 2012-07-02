@@ -132,7 +132,7 @@ class Pry
             begin
               doc << "\nCandidate #{v+1}/#{module_object.number_of_candidates}: #{candidate.file} @ #{candidate.line}:\n\n"
               doc << candidate.doc
-            rescue Pry::RescuableException => ex
+            rescue Pry::RescuableException
               doc << "No documentation found.\n"
               next
             end

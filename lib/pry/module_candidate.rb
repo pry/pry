@@ -22,7 +22,7 @@ class Pry
                      :strip_leading_whitespace]
 
       def_delegators :@wrapper, *to_delegate
-      private *to_delegate
+      private(*to_delegate)
 
       # @raise [Pry::CommandError] If `rank` is out of bounds.
       # @param [Pry::WrappedModule] wrapper The associated

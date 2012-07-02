@@ -73,14 +73,14 @@ class Object
       # it has the nice property that we can memoize this check.
       begin
         # instance_eval sets the default definee to the object's singleton class
-        instance_eval *binding_impl_method
+        instance_eval(*binding_impl_method)
 
       # If we can't define methods on the Object's singleton_class. Then we fall
       # back to setting the default definee to be the Object's class. That seems
       # nicer than having a REPL in which you can't define methods.
       rescue TypeError
         # class_eval sets the default definee to self.class
-        self.class.class_eval *binding_impl_method
+        self.class.class_eval(*binding_impl_method)
       end
     end
 
