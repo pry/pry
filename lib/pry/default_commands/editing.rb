@@ -396,7 +396,7 @@ class Pry
             begin
               self.content << target.eval(arg)
             rescue Pry::RescuableException
-              raise CommandError, "Prblem when evaling #{arg}."
+              raise CommandError, "Problem when evaling #{arg}."
             end
           end
         end
