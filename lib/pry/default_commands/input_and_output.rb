@@ -190,6 +190,8 @@ class Pry
             ex.inc_bt_index
           else
             bt_index = opts[:ex]
+            ex.bt_index = bt_index
+            ex.inc_bt_index
           end
 
           ex_file, ex_line = ex.bt_source_location_for(bt_index)
@@ -256,7 +258,7 @@ class Pry
 
           code = yield(Pry::Code.from_file(file_name))
 
-          code.code_type = detect_code_type_from_file(file_name)
+          code.code_type = opts[:type] || detect_code_type_from_file(file_name)
           if line_num
             code = code.around(line_num.to_i,
                                Pry.config.default_window_size || 7)
@@ -276,17 +278,25 @@ class Pry
                :ruby
             when "js"
               return :javascript
-            when "yml"
-               :yaml
+            when "yml", "prytheme"
+              :yaml
+            when "groovy"
+              :groovy
+            when "c"
+              :c
+            when "cpp"
+              :cpp
+            when "java"
+              :java
             else
-               ext.to_sym
+              :text
             end
           else
             case name
             when "Rakefile", "Gemfile"
               :ruby
             else
-              :plain
+              :text
             end
           end
         end
