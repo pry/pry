@@ -539,6 +539,7 @@ class Pry
   # Manage switching of input objects on encountering EOFErrors
   def handle_read_errors
     should_retry = true
+    exception_count = 0
     begin
       yield
     rescue EOFError
@@ -565,6 +566,11 @@ class Pry
     # anything about it.
     rescue RescuableException => e
       puts "Error: #{e.message}"
+      output.puts e.backtrace
+      exception_count += 1
+      if exception_count < 5
+        retry
+      end
       puts "FATAL: Pry failed to get user input using `#{input}`."
       puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
       puts "  Pry.config.input = STDIN"
