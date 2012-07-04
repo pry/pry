@@ -144,7 +144,7 @@ class Pry
   # @return [Object] The value the local was set to.
   def inject_local(name, value, b)
     Thread.current[:__pry_local__] = value.is_a?(Proc) ? value.call : value
-    b.eval("#{name} = Thread.current[:__pry_local__]")
+    b.eval("#{name} = ::Thread.current[:__pry_local__]")
   ensure
     Thread.current[:__pry_local__] = nil
   end

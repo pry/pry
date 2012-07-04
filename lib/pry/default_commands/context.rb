@@ -42,7 +42,7 @@ class Pry
           if opts.quiet? && (internal_binding? || !code?)
             return
           elsif internal_binding?
-            output.puts "Could not find local context, did you use \`binding.pry\`?"
+            output.puts "Insert #{target_self.inspect}"
             return
           end
 
