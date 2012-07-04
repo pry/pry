@@ -39,9 +39,9 @@ class Pry
         end
 
         def process
-          if opts.quiet? && (internal_binding? || !code?)
+          if opts.quiet? && (internal_binding?(target) || !code?)
             return
-          elsif internal_binding?
+          elsif internal_binding?(target)
             if target_self == TOPLEVEL_BINDING.eval("self")
               output.puts "At the top level."
             else
@@ -58,10 +58,6 @@ class Pry
         end
 
         private
-
-        def internal_binding?
-          @method && ['__binding__', '__binding_impl__'].include?(@method.name)
-        end
 
         def show_method?
           args.empty? && @method && @method.source? && @method.source_range.count < 20 &&
