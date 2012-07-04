@@ -42,7 +42,11 @@ class Pry
           if opts.quiet? && (internal_binding? || !code?)
             return
           elsif internal_binding?
-            output.puts "Insert #{target_self.inspect}"
+            if target_self === TOPLEVEL_BINDING.eval("self")
+              output.puts "At the top level."
+            else
+              output.puts "Inside #{Pry.view_clip(target_self)}."
+            end
             return
           end
 

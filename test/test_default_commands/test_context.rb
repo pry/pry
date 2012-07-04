@@ -140,6 +140,18 @@ describe "Pry::DefaultCommands::Context" do
 
       Pry.config.default_window_size = old_size
     end
+
+    it "should work at the top level" do
+      mock_pry(Pry.toplevel_binding, 'whereami').should =~ /At the top level/
+    end
+
+    it "should work inside a class" do
+      mock_pry(Pry.binding_for(Pry), 'whereami').should =~ /Inside Pry/
+    end
+
+    it "should work inside an object" do
+      mock_pry(Pry.binding_for(Object.new), 'whereami').should =~ /Inside #<Object/
+    end
   end
 
   describe "exit" do
