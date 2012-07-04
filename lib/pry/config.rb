@@ -145,6 +145,10 @@ class Pry
     # @return [Boolean]
     attr_accessor :should_load_rc
 
+    # Determines whether the local rc file (./.pryrc) should be loaded.
+    # @return [Boolean]
+    attr_accessor :should_load_local_rc
+
     # Determines whether plugins should be loaded.
     # @return [Boolean]
     attr_accessor :should_load_plugins

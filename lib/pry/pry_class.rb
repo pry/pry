@@ -5,7 +5,8 @@ require 'pry/config'
 class Pry
 
   # The RC Files to load.
-  RC_FILES = ["~/.pryrc", "./.pryrc"]
+  RC_FILES = ["~/.pryrc"]
+  LOCAL_RC_FILE = "./.pryrc"
 
   # class accessors
   class << self
@@ -56,17 +57,29 @@ class Pry
       :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
   end
 
+
+  # Load the given file in the context of `Pry.toplevel_binding`
+  # @param [String] file_name The unexpanded file path.
+  def self.load_file_at_toplevel(file_name)
+    full_name = File.expand_path(file_name)
+    begin
+      toplevel_binding.eval(File.read(full_name)) if File.exists?(full_name)
+    rescue RescuableException => e
+      puts "Error loading #{file_name}: #{e}"
+    end
+  end
+
   # Load the rc files given in the `Pry::RC_FILES` array.
   # This method can also be used to reload the files if they have changed.
   def self.load_rc
-    files = RC_FILES.collect { |file_name| File.expand_path(file_name) }.uniq
-    files.each do |file_name|
-      begin
-        toplevel_binding.eval(File.read(file_name)) if File.exists?(file_name)
-      rescue RescuableException => e
-        puts "Error loading #{file_name}: #{e}"
-      end
+    RC_FILES.uniq.each do |file_name|
+      load_file_at_toplevel(file_name)
     end
+  end
+
+  # Load the local RC file (./.pryrc)
+  def self.load_local_rc
+    load_file_at_toplevel(LOCAL_RC_FILE)
   end
 
   # Load any Ruby files specified with the -r flag on the command line.
@@ -92,6 +105,7 @@ class Pry
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
     load_rc if Pry.config.should_load_rc
+    load_local_rc if Pry.config.should_load_local_rc
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
@@ -247,6 +261,7 @@ class Pry
     config.system = DEFAULT_SYSTEM
     config.editor = default_editor_for_platform
     config.should_load_rc = true
+    config.should_load_local_rc = true
     config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
     config.disable_auto_reload = false
     config.command_prefix = ""
