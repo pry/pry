@@ -693,4 +693,20 @@ describe "Pry::Command" do
       instance.command_state[/[Hh]ello-world/].my_state.should == 4
     end
   end
+
+  describe 'group' do
+    before do
+      @set.import Pry::DefaultCommands::Cd
+    end
+
+    it 'should not change once it is initialized' do
+      @set.commands["cd"].group("-==CD COMMAND==-")
+      @set.commands["cd"].group.should == "Context"
+    end
+
+    it 'should be correct for default commands' do
+      @set.commands["cd"].group.should == "Context"
+      @set.commands["help"].group.should == "Help"
+    end
+  end
 end
