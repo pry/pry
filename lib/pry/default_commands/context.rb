@@ -1,6 +1,7 @@
 require "pry/default_commands/ls"
 require "pry/default_commands/cd"
 require "pry/default_commands/find_method"
+require "pry/default_commands/whereami"
 
 class Pry
   module DefaultCommands
@@ -9,77 +10,7 @@ class Pry
       import Ls
       import Cd
       import FindMethod
-
-      create_command "whereami" do
-        description "Show code surrounding the current context."
-        banner <<-BANNER
-          Usage: whereami [OPTIONS]
-        BANNER
-
-        def setup
-          @method = Pry::Method.from_binding(target)
-          @file = target.eval('__FILE__')
-          @line = target.eval('__LINE__')
-        end
-
-        def options(opt)
-          opt.on :q, :quiet, "Don't display anything in case of an error"
-        end
-
-        def code
-          @code ||= if show_method?
-                      Pry::Code.from_method(@method)
-                    else
-                      Pry::Code.from_file(@file).around(@line, window_size)
-                    end
-        end
-
-        def location
-          "#{@file} @ line #{show_method? ? @method.source_line : @line} #{@method && @method.name_with_owner}"
-        end
-
-        def process
-          if opts.quiet? && (internal_binding?(target) || !code?)
-            return
-          elsif internal_binding?(target)
-            if target_self == TOPLEVEL_BINDING.eval("self")
-              output.puts "At the top level."
-            else
-              output.puts "Inside #{Pry.view_clip(target_self)}."
-            end
-            return
-          end
-
-          set_file_and_dir_locals(@file)
-
-          output.puts "\n#{text.bold('From:')} #{location}:\n\n"
-          output.puts code.with_line_numbers.with_marker(@line)
-          output.puts
-        end
-
-        private
-
-        def show_method?
-          args.empty? && @method && @method.source? && @method.source_range.count < 20 &&
-          # These checks are needed in case of an eval with a binding and file/line
-          # numbers set to outside the function. As in rails' use of ERB.
-          @method.source_file == @file && @method.source_range.include?(@line)
-        end
-
-        def code?
-          !!code
-        rescue MethodSource::SourceNotFoundError
-          false
-        end
-
-        def window_size
-          if args.empty?
-            Pry.config.default_window_size
-          else
-            args.first.to_i
-          end
-        end
-      end
+      import Whereami
 
       create_command "pry-backtrace", "Show the backtrace for the Pry session." do
         banner <<-BANNER
