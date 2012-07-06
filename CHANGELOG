@@ -1,3 +1,38 @@
+06/07/2012 version 0.10.pre.1
+dependency changes:
+* #561 upgrade the slop gem to version 3
+* #590 move to the jist gem from gist.
+* upgrade method_source to 0.8
+
+new features:
+* #572 add --hist, -o and -k flags to gist command
+* #584 support show-source/doc on methods defined in class-eval
+* #585 support show-source/doc on gem methods defined in C
+* #596 add --disable-plugin and --select-plugin options
+* #597 allow "cd -" to switch between bindings
+* #612 add Pry.config.should_load_local_rc to turn off ./.pryrc
+* allow running a file of pry input with pry <file>
+* support colours in "ri" command
+* add before_eval hook
+
+bug fixes &c.
+* #554 removed the "req" command
+* #567 fix rendering bugs when starting pry
+* #568 fix Array#pretty_print on Jruby
+* #575 fix "edit" on windows
+* #576 fix "find-method" in the presence of badly behaved objects
+* #580 fix "whereami" in erb files on rails
+* #632 raise fewer exceptions while tab completing
+* #605 dont immediately quite pry when an error happens in readline
+* #606 support for ansicon to give jruby windows users colour
+* #613 massive speed improvements to show-source for modules
+* #620 improve whereami command when not in a binding.pry
+* #622 support embedded documents (=begin ... =end)
+* #627 support editing files with spaces in the name
+* support for absolute paths in $EDITOR
+* fix "cat" command on files with unknown extensions
+* many many internal refactorings and tidyings
+
 09/05/2012 version 0.9.9.6 fixes #558
 * #558 has been a thorn in our side for long enough, hopefully this properly fixes it
 (though im not to confident :P)
