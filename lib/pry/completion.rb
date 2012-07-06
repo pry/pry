@@ -93,8 +93,12 @@ class Pry
             # Constant or class methods
             receiver = $1
             message = Regexp.quote($2)
-            candidates = eval("#{receiver}.constants.collect{|m| m.to_s}", bind)
-            candidates |= eval("#{receiver}.methods.collect{|m| m.to_s}", bind)
+            begin
+              candidates = eval("#{receiver}.constants.collect{|m| m.to_s}", bind)
+              candidates |= eval("#{receiver}.methods.collect{|m| m.to_s}", bind)
+            rescue RescuableException
+              candidates = []
+            end
             candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
 
           when /^(:[^:.]+)\.([^.]*)$/
@@ -110,7 +114,11 @@ class Pry
             receiver = $1
             message = Regexp.quote($5)
 
-            candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
+            begin
+              candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
+            rescue RescuableException
+              candidates = []
+            end
             select_message(receiver, message, candidates)
 
           when /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/
@@ -118,7 +126,11 @@ class Pry
             receiver = $1
             message = Regexp.quote($2)
 
-            candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
+            begin
+              candidates = eval(receiver, bind).methods.collect{|m| m.to_s}
+            rescue RescuableException
+              candidates = []
+            end
             select_message(receiver, message, candidates)
 
           when /^(\$[^.]*)$/
@@ -137,12 +149,20 @@ class Pry
             if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
               # foo.func and foo is local var. OR
               # Foo::Bar.func
-              candidates = eval("#{receiver}.methods", bind).collect{|m| m.to_s}
+              begin
+                candidates = eval("#{receiver}.methods", bind).collect{|m| m.to_s}
+              rescue RescuableException
+                candidates = []
+              end
             else
               # func1.func2
               candidates = []
               ObjectSpace.each_object(Module){|m|
-                name = m.name.to_s
+                begin
+                  name = m.name.to_s
+                rescue RescuableException
+                  name = ""
+                end
                 next if name != "IRB::Context" and
                 /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
 
