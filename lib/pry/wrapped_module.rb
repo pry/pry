@@ -233,7 +233,8 @@ class Pry
 
       ims = all_methods_for(wrapped)
 
-      ims = ims.select(&:source_location)
+      # reject __class_init__ because it's an odd rbx specific thing that causes tests to fail
+      ims = ims.select(&:source_location).reject{ |x| x.name == '__class_init__' }
 
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by { |k, v| -v.size }
