@@ -696,17 +696,25 @@ describe "Pry::Command" do
 
   describe 'group' do
     before do
-      @set.import Pry::DefaultCommands::Cd
-    end
-
-    it 'should not change once it is initialized' do
-      @set.commands["cd"].group("-==CD COMMAND==-")
-      @set.commands["cd"].group.should == "Context"
+      @set.import(
+                  Pry::CommandSet.new do
+                    create_command("magic") { group("Not for a public use") }
+                  end
+                 )
     end
 
     it 'should be correct for default commands' do
-      @set.commands["cd"].group.should == "Context"
       @set.commands["help"].group.should == "Help"
+    end
+
+    it 'should not change once it is initialized' do
+      @set.commands["magic"].group("-==CD COMMAND==-")
+      @set.commands["magic"].group.should == "Not for a public use"
+    end
+
+    it 'should not disappear after the call without parameters' do
+      @set.commands["magic"].group
+      @set.commands["magic"].group.should == "Not for a public use"
     end
   end
 end
