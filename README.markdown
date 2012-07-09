@@ -280,7 +280,7 @@ picked up by `rdoc`. Pry also has a basic understanding of both the
 rdoc and yard formats and will attempt to syntax highlight the
 documentation appropriately.
 
-Nonetheless The `ri` functionality is very good and
+Nonetheless, the `ri` functionality is very good and
 has an advantage over Pry's system in that it allows documentation
 lookup for classes as well as methods. Pry therefore has good
 integration with  `ri` through the `ri` command. The syntax
