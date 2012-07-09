@@ -280,8 +280,7 @@ class Pry
       # @param [String] doc The raw docstring to process.
       # @return [String] Process docstring markup and strip leading white space.
       def process_doc(doc)
-         process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc),
-                                :ruby)
+         process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc))
       end
 
   end

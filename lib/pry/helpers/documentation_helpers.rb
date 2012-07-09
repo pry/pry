@@ -4,14 +4,14 @@ class Pry
     # This class contains methods useful for extracting
     # documentation from methods and classes.
     module DocumentationHelpers
-      def process_rdoc(comment, code_type)
+      def process_rdoc(comment)
         comment = comment.dup
-        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
+        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, :ruby).term : $1 }.
           gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
           gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
           gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, code_type).term : $1 }.
-          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{Pry.color ? CodeRay.scan($1, code_type).term : $1}`" }
+          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, :ruby).term : $1 }.
+          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{Pry.color ? CodeRay.scan($1, :ruby).term : $1}`" }
       end
 
       def process_yardoc_tag(comment, tag)
@@ -36,8 +36,8 @@ class Pry
           gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
       end
 
-      def process_comment_markup(comment, code_type)
-        process_yardoc process_rdoc(comment, code_type)
+      def process_comment_markup(comment)
+        process_yardoc process_rdoc(comment)
       end
 
       # @param [String] code
