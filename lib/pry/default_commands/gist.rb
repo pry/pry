@@ -40,7 +40,7 @@ class Pry
           opt.on :d, :doc, "Gist a method's documentation.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
-              self.content << process_comment_markup(meth.doc, self.code_type) << "\n"
+              self.content << process_comment_markup(meth.doc, :plain) << "\n"
             end
             self.filename = meth.source_file + ".doc"
           end
