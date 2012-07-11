@@ -5,12 +5,10 @@ describe "commands" do
     @str_output = StringIO.new
     @o = Object.new
 
-    # The `@bs` Enumerator yields strings for tests that require binding stack
-    # checkings (for example,Pad.bs1, Pad.bs2 and so on).
-    @bs = Enumerator.new do |y|
-      n = 0
-      loop { y << "Pad.bs#{n+=1} = _pry_.binding_stack.dup" }
-    end
+    # Shortcuts. They save a lot of typing.
+    @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
+    @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
+    @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
 
     @self  = "Pad.self = self"
 
@@ -140,8 +138,8 @@ describe "commands" do
           run "cd / "
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
-                                      @self, @bs.next, "exit-all")) do
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs1, "test-run",
+                                      @self, @bs2, "exit-all")) do
         Pry.start(@o, :commands => set)
       end
 
@@ -157,8 +155,8 @@ describe "commands" do
           run "cd /"
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
-                                      @self, @bs.next, "exit-all")) do
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs1, "test-run",
+                                      @self, @bs2, "exit-all")) do
         Pry.start(@o, :commands => set)
       end
 
@@ -174,8 +172,8 @@ describe "commands" do
           run "cd", "/"
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
-                                      @self, @bs.next, "exit-all")) do
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs1, "test-run",
+                                      @self, @bs2, "exit-all")) do
         Pry.start(@o, :commands => set)
       end
 
