@@ -1,6 +1,17 @@
 require 'helper'
 
 describe "Pry::DefaultCommands::Context" do
+
+  before do
+    @self  = "Pad.self = self"
+    @inner = "Pad.inner = self"
+    @outer = "Pad.outer = self"
+  end
+
+  after do
+    Pad.clear
+  end
+
   describe "exit-all" do
     it 'should break out of the repl loop of Pry instance and return nil' do
       redirect_pry_io(InputTester.new("exit-all")) do
@@ -156,14 +167,13 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "exit" do
     it 'should pop a binding with exit' do
-      b = Pry.binding_for(:outer)
-      b.eval("x = :inner")
-
-      redirect_pry_io(InputTester.new("cd x", "$inner = self;", "exit", "$outer = self", "exit-all")) do
-        b.pry
+      redirect_pry_io(InputTester.new("cd :inner", @inner, "exit",
+                                       @outer, "exit-all")) do
+        Pry.start(:outer)
       end
-      $inner.should == :inner
-      $outer.should == :outer
+
+      Pad.inner.should == :inner
+      Pad.outer.should == :outer
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit' do
@@ -187,11 +197,11 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it 'should jump to the proper binding index in the stack' do
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", "$blah = self", "exit-all")) do
+      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", @self, "exit-all")) do
         Pry.start(0)
       end
 
-      $blah.should == 1
+      Pad.self.should == 1
     end
 
     it 'should print error when trying to jump to a non-existent binding index' do
@@ -243,15 +253,13 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should eat the exception at the last new pry instance on raise-up" do
-      b = Pry.binding_for(:outer)
-      b.eval("x = :inner")
-
-      redirect_pry_io(InputTester.new("x.pry", "raise NoMethodError",
-        "$inner = self", "raise-up NoMethodError", "$outer = self", "exit-all")) do
-        b.pry
+      redirect_pry_io(InputTester.new(":inner.pry", "raise NoMethodError", @inner,
+                                      "raise-up NoMethodError", @outer, "exit-all")) do
+        Pry.start(:outer)
       end
-      $inner.should == :inner
-      $outer.should == :outer
+
+      Pad.inner.should == :inner
+      Pad.outer.should == :outer
     end
 
     it "should raise the most recently raised exception" do
@@ -259,16 +267,16 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should allow you to cd up and (eventually) out" do
-      $deep = $inner = $outer = nil
-      b = Pry.binding_for(:outer)
-      b.eval("x = :inner")
-      redirect_pry_io(InputTester.new("cd x", "raise NoMethodError","$inner = self",
-        "deep = :deep", "cd deep","$deep = self","raise-up NoMethodError", "raise-up", "$outer = self", "raise-up", "exit-all")) do
-        lambda { b.pry }.should.raise NoMethodError
+      redirect_pry_io(InputTester.new("cd :inner", "raise NoMethodError", @inner,
+                                      "deep = :deep", "cd deep","Pad.deep = self",
+                                      "raise-up NoMethodError", "raise-up", @outer,
+                                      "raise-up", "exit-all")) do
+        lambda { Pry.start(:outer) }.should.raise NoMethodError
       end
-      $deep.should == :deep
-      $inner.should == :inner
-      $outer.should == :outer
+
+      Pad.deep.should  == :deep
+      Pad.inner.should == :inner
+      Pad.outer.should == :outer
     end
   end
 

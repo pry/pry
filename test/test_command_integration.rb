@@ -3,6 +3,22 @@ require 'helper'
 describe "commands" do
   before do
     @str_output = StringIO.new
+    @o = Object.new
+
+    # The `@bs` Enumerator yields strings for tests that require binding stack
+    # checkings (for example,Pad.bs1, Pad.bs2 and so on).
+    @bs = Enumerator.new do |y|
+      n = 0
+      loop { y << "Pad.bs#{n+=1} = _pry_.binding_stack.dup" }
+    end
+
+    @self  = "Pad.self = self"
+
+    Pad.bong = "bong"
+  end
+
+  after do
+    Pad.clear
   end
 
   describe "alias_command" do
@@ -118,78 +134,54 @@ describe "commands" do
 
   describe "Pry::Command#run" do
     it 'should allow running of commands with following whitespace' do
-      $_scratch = Object.new
-      o = Object.new
-
       set = Pry::CommandSet.new do
         import Pry::Commands
         command "test-run" do
           run "cd / "
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
-                                      "@nesting1 = _pry_.binding_stack.size",
-                                      "test-run",
-                                         "@obj = self",
-                                      "@nesting2 = _pry_.binding_stack.size",
-                                      "exit-all")) do
-        Pry.start(o, :commands => set)
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
+                                      @self, @bs.next, "exit-all")) do
+        Pry.start(@o, :commands => set)
       end
 
-      $_scratch.instance_variable_get(:@nesting1).should == 8
-      o.instance_variable_get(:@obj).should == o
-      o.instance_variable_get(:@nesting2).should == 1
-      $_scratch = nil
+      Pad.bs1.size.should == 7
+      Pad.self.should == @o
+      Pad.bs2.size.should == 1
     end
 
     it 'should allow running of cd command when contained in a single string' do
-      $_scratch = Object.new
-      o = Object.new
-
       set = Pry::CommandSet.new do
         import Pry::Commands
         command "test-run" do
           run "cd /"
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
-                                      "@nesting1 = _pry_.binding_stack.size",
-                                      "test-run",
-                                         "@obj = self",
-                                      "@nesting2 = _pry_.binding_stack.size",
-                                      "exit-all")) do
-        Pry.start(o, :commands => set)
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
+                                      @self, @bs.next, "exit-all")) do
+        Pry.start(@o, :commands => set)
       end
 
-      $_scratch.instance_variable_get(:@nesting1).should == 8
-      o.instance_variable_get(:@obj).should == o
-      o.instance_variable_get(:@nesting2).should == 1
-      $_scratch = nil
+      Pad.bs1.size.should == 7
+      Pad.self.should == @o
+      Pad.bs2.size.should == 1
     end
 
     it 'should allow running of cd command when split into array' do
-      $_scratch = Object.new
-      o = Object.new
-
       set = Pry::CommandSet.new do
         import Pry::Commands
         command "test-run" do
           run "cd", "/"
         end
       end
-      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6/$_scratch",
-                                      "@nesting1 = _pry_.binding_stack.size",
-                                      "test-run",
-                                         "@obj = self",
-                                      "@nesting2 = _pry_.binding_stack.size",
-                                      "exit-all")) do
-        Pry.start(o, :commands => set)
+      redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs.next, "test-run",
+                                      @self, @bs.next, "exit-all")) do
+        Pry.start(@o, :commands => set)
       end
 
-      $_scratch.instance_variable_get(:@nesting1).should == 8
-      o.instance_variable_get(:@obj).should == o
-      o.instance_variable_get(:@nesting2).should == 1
-      $_scratch = nil
+      Pad.bs1.size.should == 7
+      Pad.self.should == @o
+      Pad.bs2.size.should == 1
     end
 
     it 'should run a command from within a command' do
@@ -273,16 +265,16 @@ describe "commands" do
   end
 
   it 'should interpolate ruby code into commands' do
-    klass = Pry::CommandSet.new do
+    set = Pry::CommandSet.new do
       command "hello", "", :keep_retval => true do |arg|
         arg
       end
     end
 
-    $test_interpolation = "bing"
-    Pry.new(:input => StringIO.new('hello #{$test_interpolation}'), :output => @str_output, :commands => klass).rep
-    @str_output.string.should =~ /bing/
-    $test_interpolation = nil
+    str_input = StringIO.new('hello #{Pad.bong}')
+    Pry.new(:input => str_input, :output => @str_output, :commands => set).rep
+
+    @str_output.string.should =~ /bong/
   end
 
   # bug fix for https://github.com/pry/pry/issues/170
@@ -295,16 +287,16 @@ describe "commands" do
   end
 
   it 'should NOT interpolate ruby code into commands if :interpolate => false' do
-    klass = Pry::CommandSet.new do
+    set = Pry::CommandSet.new do
       command "hello", "", :keep_retval => true, :interpolate => false do |arg|
         arg
       end
     end
 
-    $test_interpolation = "bing"
-    Pry.new(:input => StringIO.new('hello #{$test_interpolation}'), :output => @str_output, :commands => klass).rep
-    @str_output.string.should =~ /test_interpolation/
-    $test_interpolation = nil
+    str_input = StringIO.new('hello #{Pad.bong}')
+    Pry.new(:input => str_input, :output => @str_output, :commands => set).rep
+
+    @str_output.string.should =~ /Pad\.bong/
   end
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
@@ -315,12 +307,11 @@ describe "commands" do
     Pry.new(:input => StringIO.new('format #{aggy}'), :output => @str_output).rep
     @str_output.string.should.not =~ /NameError/
 
-    $test_interpolation = "blah"
     @str_output = StringIO.new
-    Pry.new(:input => StringIO.new('format \'#{$test_interpolation}\''), :output => @str_output).rep
+    Pad.interp = "bong"
+    Pry.new(:input => StringIO.new('format \'#{Pad.interp}\''), :output => @str_output).rep
 
-    @str_output.string.should.not =~ /blah/
-    $test_interpolation = nil
+    @str_output.string.should.not =~ /bong/
   end
 
   it 'should create a command with a space in its name' do
@@ -387,14 +378,11 @@ describe "commands" do
       end
     end
 
-    $obj = "bing"
-    redirect_pry_io(InputTester.new('hello #{$obj}'), @str_output) do
+    redirect_pry_io(InputTester.new('hello #{Pad.bong}'), @str_output) do
       Pry.new(:commands => set).rep
     end
 
-    @str_output.string.should =~ /hello bing/
-
-    $obj = nil
+    @str_output.string.should =~ /hello bong/
   end
 
   it 'should create a regex command and arg_string should be interpolated' do
@@ -404,16 +392,14 @@ describe "commands" do
       end
     end
 
-    $a1 = "bing"
-    $a2 = "bong"
-    $a3 = "bang"
-    redirect_pry_io(InputTester.new('hellojohn #{$a1} #{$a2} #{$a3}'), @str_output) do
+    Pad.bing = "bing"
+    Pad.bang = "bang"
+    redirect_pry_io(InputTester.new('hellojohn #{Pad.bing} #{Pad.bong} #{Pad.bang}'),
+                    @str_output) do
       Pry.new(:commands => set).rep
     end
 
     @str_output.string.should =~ /hello john bing bong bang/
-
-    $a1 = $a2 = $a3 = nil
   end
 
   it 'if a regex capture is missing it should be nil' do
@@ -430,7 +416,7 @@ describe "commands" do
     @str_output.string.should =~ /hello nil baby/
   end
 
-  it 'should create a command in  a nested context and that command should be accessible from the parent' do
+  it 'should create a command in a nested context and that command should be accessible from the parent' do
     x = "@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"
     redirect_pry_io(StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"), @str_output) do
       Pry.new.repl(0)

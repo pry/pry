@@ -5,6 +5,7 @@ if !mri18_and_no_real_source_location?
     describe "show-doc" do
       before do
         @str_output = StringIO.new
+        @o = Object.new
       end
 
       it 'should output a method\'s documentation' do
@@ -32,17 +33,17 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should output a method\'s documentation if inside method without needing to use method name' do
-        o = Object.new
+        Pad.str_output = @str_output
 
         # sample comment
-        def o.sample
-          redirect_pry_io(InputTester.new("show-doc", "exit-all"), $out=StringIO.new) do
+        def @o.sample
+          redirect_pry_io(InputTester.new("show-doc", "exit-all"), Pad.str_output) do
             binding.pry
           end
         end
-        o.sample
-        $out.string.should =~ /sample comment/
-        $out = nil
+        @o.sample
+
+        Pad.str_output.string.should =~ /sample comment/
       end
 
       it "should be able to find super methods" do

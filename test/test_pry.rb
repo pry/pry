@@ -59,12 +59,11 @@ describe Pry do
 
       if defined?(BasicObject)
         it 'should be able to operate inside the BasicObject class' do
-          $obj = nil
-          redirect_pry_io(InputTester.new(":foo", "$obj = _", "exit-all"), StringIO.new) do
+          redirect_pry_io(InputTester.new(":foo", "Pad.obj = _", "exit-all")) do
             BasicObject.pry
           end
-          $obj.should == :foo
-          $obj = nil
+
+          Pad.obj.should == :foo
         end
       end
 
