@@ -7,13 +7,18 @@ describe 'Pry::DefaultCommands::Cd' do
     @obj.instance_variable_set(:@y, 79)
     @o.instance_variable_set(:@obj, @obj)
 
-    # Shortcuts. They save a lot of typing.
-    @os1 = "Pad.os1 = _pry_.command_state['cd'].old_stack.dup"
-    @os2 = "Pad.os2 = _pry_.command_state['cd'].old_stack.dup"
+    # The `@bs` Enumerator yields strings for tests that require binding stack
+    # checkings (for example,Pad.bs1, Pad.bs2 and so on).
+    @bs = Enumerator.new do |y|
+      n = 0
+      loop { y << "Pad.bs#{n+=1} = _pry_.binding_stack.dup" }
+    end
 
-    @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
-    @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
-    @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
+    # Same as `@bs`, but for command state's old stack.
+    @os = Enumerator.new do |y|
+      n = 0
+      loop { y << "Pad.os#{n+=1} = _pry_.command_state['cd'].old_stack.dup" }
+    end
 
     @self  = "Pad.self = self"
     @inner = "Pad.inner = self"
@@ -26,7 +31,7 @@ describe 'Pry::DefaultCommands::Cd' do
 
   describe 'state' do
     it 'should not to be set up in fresh instance' do
-      redirect_pry_io(InputTester.new(@os1, "exit-all")) do
+      redirect_pry_io(InputTester.new(@os.next, "exit-all")) do
         Pry.start(@o)
       end
 
@@ -37,7 +42,8 @@ describe 'Pry::DefaultCommands::Cd' do
   describe 'old stack toggling with `cd -`' do
     describe 'in fresh pry instance' do
       it 'should not toggle when there is no old stack' do
-        redirect_pry_io(InputTester.new("cd -", @bs1, "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd -", @bs.next, "cd -",
+                                         @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -52,7 +58,7 @@ describe 'Pry::DefaultCommands::Cd' do
       end
 
       it 'should not toggle and should keep correct old stack' do
-        redirect_pry_io(InputTester.new("cd @", @os1, "cd -", @os2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd @", @os.next, "cd -", @os.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -61,7 +67,8 @@ describe 'Pry::DefaultCommands::Cd' do
       end
 
       it 'should not toggle and should keep correct current binding stack' do
-        redirect_pry_io(InputTester.new("cd @", @bs1, "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd @", @bs.next, "cd -",
+                                         @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -72,8 +79,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
     describe 'when using simple cd syntax' do
       it 'should toggle' do
-        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", @bs1,
-                                        "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", @bs.next,
+                                        "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -84,8 +91,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
     describe "when using complex cd syntax" do
       it 'should toggle with a complex path (simple case)' do
-        redirect_pry_io(InputTester.new("cd 1/2/3", "cd -", @bs1,
-                                        "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd 1/2/3", "cd -", @bs.next,
+                                        "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -95,7 +102,7 @@ describe 'Pry::DefaultCommands::Cd' do
 
       it 'should toggle with a complex path (more complex case)' do
         redirect_pry_io(InputTester.new("cd 1/2/3", "cd ../4", "cd -",
-                                        @bs1, "cd -", @bs2, "exit-all")) do
+                                        @bs.next, "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -107,7 +114,7 @@ describe 'Pry::DefaultCommands::Cd' do
     describe 'series of cd calls' do
       it 'should toggle with fuzzy `cd -` calls' do
         redirect_pry_io(InputTester.new("cd :mon_dogg", "cd -", "cd 42", "cd -",
-                                        @bs1, "cd -", @bs2, "exit-all")) do
+                                        @bs.next, "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -118,8 +125,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
     describe 'when using cd ..' do
       it 'should toggle with a simple path' do
-        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", @bs1,
-                                        "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd :john_dogg", "cd ..", @bs.next,
+                                        "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -128,8 +135,8 @@ describe 'Pry::DefaultCommands::Cd' do
       end
 
       it 'should toggle with a complex path' do
-        redirect_pry_io(InputTester.new("cd 1/2/3/../4", "cd -", @bs1,
-                                        "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd 1/2/3/../4", "cd -", @bs.next,
+                                        "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -140,8 +147,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
     describe 'when using cd ::' do
       it 'should toggle' do
-        redirect_pry_io(InputTester.new("cd ::", "cd -", @bs1,
-                                        "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd ::", "cd -", @bs.next,
+                                        "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -152,8 +159,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
     describe 'when using cd /' do
       it 'should toggle' do
-        redirect_pry_io(InputTester.new("cd /", "cd -", @bs1, "cd :john_dogg",
-                                        "cd /", "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd /", "cd -", @bs.next, "cd :john_dogg",
+                                        "cd /", "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -169,8 +176,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
       it 'should keep correct old binding' do
         redirect_pry_io(InputTester.new("cd :john_dogg", "cd :mon_dogg",
-                                        "cd :kyr_dogg", @control_d, @bs1, "cd -",
-                                        @bs2, "cd -", @bs3, "exit-all")) do
+                                        "cd :kyr_dogg", @control_d, @bs.next,
+                                        "cd -", @bs.next, "cd -", @bs.next, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -229,7 +236,7 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar syntax' do
-    redirect_pry_io(InputTester.new("cd @obj/@x", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd @obj/@x", @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -237,7 +244,7 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
-    redirect_pry_io(InputTester.new("cd @obj/@x/", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd @obj/@x/", @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -246,7 +253,7 @@ describe 'Pry::DefaultCommands::Cd' do
 
   it 'should cd into previous object and its local using cd ../local syntax' do
     redirect_pry_io(InputTester.new("cd @obj", "local = :local", "cd @x",
-                                    "cd ../local", @bs1, "exit-all")) do
+                                    "cd ../local", @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -254,7 +261,7 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
-    redirect_pry_io(InputTester.new("cd @obj/@x/..", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd @obj/@x/..", @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -262,7 +269,7 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd into an object and its ivar and back and then into another ivar using cd obj/@ivar/../@y syntax' do
-    redirect_pry_io(InputTester.new("cd @obj/@x/../@y", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd @obj/@x/../@y", @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -270,7 +277,8 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd back to top-level and then into another ivar using cd /@ivar/ syntax' do
-    redirect_pry_io(InputTester.new("@z = 20", "cd @obj/@x/", "cd /@z", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("@z = 20", "cd @obj/@x/", "cd /@z",
+                                     @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -298,7 +306,8 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should not cd into complex input when it encounters an exception' do
-    redirect_pry_io(InputTester.new("cd 1/2/swoop_a_doop/3", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd 1/2/swoop_a_doop/3",
+                                    @bs.next, "exit-all")) do
       Pry.start(@o)
     end
 

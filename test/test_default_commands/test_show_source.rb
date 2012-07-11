@@ -4,6 +4,11 @@ if !mri18_and_no_real_source_location?
   describe "show-source" do
     before do
       @str_output = StringIO.new
+      @o = Object.new
+    end
+
+    after do
+      Pad.clear
     end
 
     it 'should output a method\'s source' do
@@ -35,43 +40,39 @@ if !mri18_and_no_real_source_location?
     end
 
     it 'should output a method\'s source if inside method without needing to use method name' do
-      $str_output = StringIO.new
+      Pad.str_output = @str_output
 
-      o = Object.new
-      def o.sample
-        redirect_pry_io(InputTester.new("show-source", "exit-all"), $str_output) do
+      def @o.sample
+        redirect_pry_io(InputTester.new("show-source", "exit-all"), Pad.str_output) do
           binding.pry
         end
       end
-      o.sample
+      @o.sample
 
-      $str_output.string.should =~ /def o.sample/
-      $str_output = nil
+      Pad.str_output.string.should =~ /def @o.sample/
     end
 
     it 'should output a method\'s source if inside method without needing to use method name, and using the -l switch' do
-      $str_output = StringIO.new
+      Pad.str_output = @str_output
 
-      o = Object.new
-      def o.sample
-        redirect_pry_io(InputTester.new("show-source -l", "exit-all"), $str_output) do
+      def @o.sample
+        redirect_pry_io(InputTester.new("show-source -l", "exit-all"), Pad.str_output) do
           binding.pry
         end
       end
-      o.sample
+      @o.sample
 
-      $str_output.string.should =~ /\d+: def o.sample/
-      $str_output = nil
+      Pad.str_output.string.should =~ /def @o.sample/
     end
 
     it "should find methods even if there are spaces in the arguments" do
-      o = Object.new
-      def o.foo(*bars);
+      def @o.foo(*bars)
         "Mr flibble"
-        self;
+        self
       end
 
-      redirect_pry_io(InputTester.new("show-source o.foo('bar', 'baz bam').foo", "exit-all"), @str_output) do
+      redirect_pry_io(InputTester.new("show-source @o.foo('bar', 'baz bam').foo",
+                                      "exit-all"), @str_output) do
         binding.pry
       end
 
@@ -146,10 +147,9 @@ if !mri18_and_no_real_source_location?
     end
 
     it "should not raise an exception when a non-extant super method is requested" do
-      o = Object.new
-      def o.foo(*bars); end
+      def @o.foo(*bars); end
 
-      mock_pry(binding, "show-source --super o.foo").should =~ /'self.foo' has no super method/
+      mock_pry(binding, "show-source --super @o.foo").should =~ /'self.foo' has no super method/
     end
 
     # dynamically defined method source retrieval is only supported in
