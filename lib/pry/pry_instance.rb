@@ -323,9 +323,9 @@ class Pry
   # Output the result or pass to an exception handler (if result is an exception).
   def show_result(result)
     if last_result_is_exception?
-      exception_handler.call output, result, self
+      exception_handler.call(output, result, self)
     else
-      print.call output, result
+      print.call(output, result)
     end
   rescue RescuableException => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
@@ -626,13 +626,30 @@ class Pry
   def select_prompt(eval_string, target)
     target_self = target.eval('self')
 
+    open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
+      @indent.stack.last
+
+    c = OpenStruct.new(
+                       :object         => target_self,
+                       :nesting_level  => binding_stack.size - 1,
+                       :open_token     => open_token,
+                       :session_line   => Pry.history.session_line_count + 1,
+                       :history_line   => Pry.history.history_line_count + 1,
+                       :expr_number    => input_array.count,
+                       :_pry_          => self,
+                       :binding_stack  => binding_stack,
+                       :input_array    => input_array,
+                       :eval_string    => eval_string,
+                       :cont           => !eval_string.empty?)
+    def c.to_ary() [object, nesting_level, _pry_] end
+
     # If input buffer is empty then use normal prompt
     if eval_string.empty?
-      Array(prompt).first.call(target_self, binding_stack.size - 1, self)
+      Array(prompt).first.call(c)
 
     # Otherwise use the wait prompt (indicating multi-line expression)
     else
-      Array(prompt).last.call(target_self, binding_stack.size - 1, self)
+      Array(prompt).last.call(c)
     end
   end
 
