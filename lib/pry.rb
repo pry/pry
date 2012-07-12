@@ -85,11 +85,11 @@ class Pry
   NAV_PROMPT = [
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.input_array.size}] (pry) #{tree}: #{conf.nesting_level}> "
+                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}> "
                 end,
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.input_array.size}] (pry) #{tree}: #{conf.nesting_level}* "
+                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}* "
                 end,
                ]
 
