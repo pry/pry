@@ -641,7 +641,6 @@ class Pry
                        :input_array    => input_array,
                        :eval_string    => eval_string,
                        :cont           => !eval_string.empty?)
-    def c.to_ary() [object, nesting_level, _pry_] end
 
     # If input buffer is empty then use normal prompt
     if eval_string.empty?
