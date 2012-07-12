@@ -316,6 +316,7 @@ describe Pry::Hooks do
         redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
           Pry.start binding, :hello => :baby
         end
+
         options[:hello].should == :baby
 
         Pry.config.hooks.delete_hook(:when_started, :test_hook)

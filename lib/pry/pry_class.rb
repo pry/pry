@@ -136,12 +136,7 @@ class Pry
     pry_instance.backtrace.shift if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
 
     # yield the binding_stack to the hook for modification
-    pry_instance.exec_hook(
-                           :when_started,
-                           target,
-                           options,
-                           pry_instance
-                           )
+    pry_instance.exec_hook(:when_started, target, options, pry_instance)
 
     if !pry_instance.binding_stack.empty?
       head = pry_instance.binding_stack.pop

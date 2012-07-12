@@ -83,13 +83,13 @@ class Pry
   # A prompt that includes the full object path as well as
   # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
-                proc do |_, level, pry|
-                  tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{pry.input_array.size}] (pry) #{tree}: #{level}> "
+                proc do |conf|
+                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{conf.input_array.size}] (pry) #{tree}: #{conf.nesting_level}> "
                 end,
-                proc do |_, level, pry|
-                  tree = pry.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{pry.input_array.size}] (pry) #{tree}: #{level}* "
+                proc do |conf|
+                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{conf.input_array.size}] (pry) #{tree}: #{conf.nesting_level}* "
                 end,
                ]
 

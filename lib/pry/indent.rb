@@ -17,8 +17,11 @@ class Pry
   class Indent
     include Helpers::BaseHelpers
 
-    # String containing the spaces to be inserted before the next line.
+    # @return [String] String containing the spaces to be inserted before the next line.
     attr_reader :indent_level
+    
+    # @return [Array<String>] The stack of open tokens.
+    attr_reader :stack
 
     # The amount of spaces to insert for each indent level.
     SPACES = '  '
