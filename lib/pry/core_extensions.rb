@@ -51,7 +51,7 @@ class Object
       return class_eval "binding"
     end
 
-    unless respond_to?(:__binding_impl__)
+    unless respond_to?(:__pry__)
       binding_impl_method = [<<-METHOD, __FILE__, __LINE__ + 1]
         # Get a binding with 'self' set to self, and no locals.
         #
@@ -61,7 +61,7 @@ class Object
         # Please don't call this method directly, see {__binding__}.
         #
         # @return [Binding]
-        def __binding_impl__
+        def __pry__
           binding
         end
       METHOD
@@ -69,7 +69,7 @@ class Object
       # The easiest way to check whether an object has a working singleton class
       # is to try and define a method on it. (just checking for the presence of
       # the singleton class gives false positives for `true` and `false`).
-      # __binding_impl__ is just the closest method we have to hand, and using
+      # __pry__ is just the closest method we have to hand, and using
       # it has the nice property that we can memoize this check.
       begin
         # instance_eval sets the default definee to the object's singleton class
@@ -84,7 +84,7 @@ class Object
       end
     end
 
-    __binding_impl__
+    __pry__
   end
 end
 
