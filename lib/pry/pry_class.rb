@@ -388,11 +388,11 @@ end
 # Grab a copy of the TOPLEVEL_BINDING without any local variables.
 # This binding has a default definee of Object, and new methods are
 # private (just as in TOPLEVEL_BINDING).
-def self.__binding_impl__
+def self.__pry__
   binding
 end
-Pry.toplevel_binding = __binding_impl__
+Pry.toplevel_binding = __pry__
 Pry.toplevel_binding.eval("private")
-class << self; undef __binding_impl__; end
+class << self; undef __pry__; end
 
 Pry.init

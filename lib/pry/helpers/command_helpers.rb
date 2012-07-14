@@ -42,7 +42,7 @@ class Pry
       def internal_binding?(target)
         m = target.eval("__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753
-        ["__binding__", "__binding_impl__", "class_eval"].include?(m)
+        ["__binding__", "__pry__", "class_eval"].include?(m)
       end
 
       def get_method_or_raise(name, target, opts={}, omit_help=false)
