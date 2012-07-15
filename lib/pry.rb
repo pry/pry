@@ -145,6 +145,7 @@ class Pry
   # indicate an exceptional condition that's fatal to the current command.
   class CommandError < StandardError; end
   class NonMethodContextError < CommandError; end
+  class NonMethodError < CommandError; end
 
   # indicates obsolete API
   class ObsoleteError < StandardError; end
