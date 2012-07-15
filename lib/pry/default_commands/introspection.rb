@@ -7,14 +7,29 @@ class Pry
     module ModuleIntrospectionHelpers
       attr_accessor :module_object
 
-      def module?(name)
-        self.module_object = Pry::WrappedModule.from_str(name, target)
-      end
-
+      # is our target binding in a method?
       def method?
         !!method_object
-      rescue CommandError
+      rescue NonMethodError,NonMethodContextError
         false
+      end
+
+      def module?(name)
+        self.module_object = get_module(name)
+      end
+
+      def get_module(name)
+        wrapped = Pry::WrappedModule.from_str(name, target)
+        if !wrapped
+          if args.empty? && internal_binding?(target)
+            wrapped = Pry::WrappedModule(get_module_from_internal_binding)
+          end
+        end
+        wrapped
+      end
+
+      def get_module_from_internal_binding
+        mod = target_self.is_a?(Module) ? target_self : target_self.class
       end
 
       def process(name)
@@ -23,21 +38,10 @@ class Pry
         elsif method?
           code_or_doc = process_method
         else
-          code_or_doc = process_alternatives
+          command_error("method or module for '#{name}' could not be found or derived", false)
         end
 
         render_output(code_or_doc, opts)
-      end
-
-      def process_alternatives
-        if args.empty? && internal_binding?(target)
-          mod = target_self.is_a?(Module) ? target_self : target_self.class
-          self.module_object = Pry::WrappedModule(mod)
-
-          process_module
-        else
-          process_method
-        end
       end
 
       def module_start_line(mod, candidate_rank=0)

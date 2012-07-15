@@ -149,7 +149,7 @@ if !mri18_and_no_real_source_location?
     it "should not raise an exception when a non-extant super method is requested" do
       def @o.foo(*bars); end
 
-      mock_pry(binding, "show-source --super @o.foo").should =~ /'self.foo' has no super method/
+      mock_pry(binding, "show-source --super @o.foo").should =~ /'@o.foo' could not be found/
     end
 
     # dynamically defined method source retrieval is only supported in

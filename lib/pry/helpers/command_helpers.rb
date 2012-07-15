@@ -49,14 +49,14 @@ class Pry
         meth = Pry::Method.from_str(name, target, opts)
 
         if name && !meth
-          command_error("The method '#{name}' could not be found.", omit_help)
+          command_error("The method '#{name}' could not be found.", omit_help, NonMethodError)
         end
 
         (opts[:super] || 0).times do
           if meth.super
             meth = meth.super
           else
-            command_error("'#{meth.name_with_owner}' has no super method.", omit_help)
+            command_error("'#{meth.name_with_owner}' has no super method.", omit_help, NonMethodError)
           end
         end
 
