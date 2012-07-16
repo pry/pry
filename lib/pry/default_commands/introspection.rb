@@ -8,7 +8,12 @@ class Pry
       attr_accessor :module_object
 
       def module?(name)
-        self.module_object = Pry::WrappedModule.from_str(name, target)
+        if opts.present?(:s)
+          self.module_object = Pry::WrappedModule.from_str(name, target)
+          self.module_object = Pry::WrappedModule(self.module_object.superclass) unless self.module_object.nil?
+        else
+          self.module_object = Pry::WrappedModule.from_str(name, target)
+        end
       end
 
       def method?
@@ -225,6 +230,7 @@ class Pry
           e.g: `show-source Pry#rep`         # source for Pry#rep method
           e.g: `show-source Pry`             # source for Pry class
           e.g: `show-source Pry -a`          # source for all Pry class definitions (all monkey patches)
+          e.g: `show-source Pry --super      # source for superclass of Pry (Object class)
 
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
@@ -242,6 +248,7 @@ class Pry
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :a, :all, "Show source for all definitions and monkeypatches of the module/class"
+          opt.on :s, :super, "Show source for the superclass of self or a given class."
         end
 
         def process_method
