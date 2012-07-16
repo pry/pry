@@ -4,9 +4,13 @@ class Pry
   class History
     attr_accessor :loader, :saver, :pusher, :clearer
 
+    # @return [Fixnum] Number of lines in history when Pry first loaded.
+    attr_reader :original_lines
+
     def initialize
       @history = []
       @saved_lines = 0
+      @original_lines = 0
       restore_default_behavior
     end
 
@@ -25,7 +29,7 @@ class Pry
         @pusher.call(line.chomp)
         @history << line.chomp
       end
-      @saved_lines = @history.length
+      @saved_lines = @original_lines = @history.length
     end
 
     # Write this session's history using `History.saver`.
@@ -56,6 +60,15 @@ class Pry
       @clearer.call
       @history = []
       @saved_lines = 0
+    end
+
+    # @return [Fixnum] The number of lines in history.
+    def history_line_count
+      @history.count
+    end
+
+    def session_line_count
+      @history.count - @original_lines
     end
 
     # Return an Array containing all stored history.

@@ -143,7 +143,7 @@ class Pry
         def process_method
           raise Pry::CommandError, "No documentation found." if method_object.doc.nil? || method_object.doc.empty?
 
-          doc = process_comment_markup(method_object.doc, method_object.source_type)
+          doc = process_comment_markup(method_object.doc)
           output.puts make_header(method_object, doc)
           output.puts "#{text.bold("Owner:")} #{method_object.owner || "N/A"}"
           output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"

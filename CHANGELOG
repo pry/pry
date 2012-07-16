@@ -1,4 +1,4 @@
-06/07/2012 version 0.10.pre.1
+14/07/2012 version 0.9.10
 dependency changes:
 * #561 upgrade the slop gem to version 3
 * #590 move to the jist gem from gist.
@@ -14,6 +14,7 @@ new features:
 * allow running a file of pry input with pry <file>
 * support colours in "ri" command
 * add before_eval hook
+* prompt now gets a lot more data when proc arity is 1
 
 bug fixes &c.
 * #554 removed the "req" command
@@ -29,6 +30,7 @@ bug fixes &c.
 * #620 improve whereami command when not in a binding.pry
 * #622 support embedded documents (=begin ... =end)
 * #627 support editing files with spaces in the name
+* changed __binding_impl__ to __pry__
 * support for absolute paths in $EDITOR
 * fix "cat" command on files with unknown extensions
 * many many internal refactorings and tidyings

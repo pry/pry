@@ -8,12 +8,12 @@ describe 'Pry::DefaultCommands::Cd' do
     @o.instance_variable_set(:@obj, @obj)
 
     # Shortcuts. They save a lot of typing.
-    @os1 = "Pad.os1 = _pry_.command_state['cd'].old_stack.dup"
-    @os2 = "Pad.os2 = _pry_.command_state['cd'].old_stack.dup"
-
     @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
     @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
     @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
+
+    @os1 = "Pad.os1 = _pry_.command_state['cd'].old_stack.dup"
+    @os2 = "Pad.os2 = _pry_.command_state['cd'].old_stack.dup"
 
     @self  = "Pad.self = self"
     @inner = "Pad.inner = self"
@@ -37,7 +37,8 @@ describe 'Pry::DefaultCommands::Cd' do
   describe 'old stack toggling with `cd -`' do
     describe 'in fresh pry instance' do
       it 'should not toggle when there is no old stack' do
-        redirect_pry_io(InputTester.new("cd -", @bs1, "cd -", @bs2, "exit-all")) do
+        redirect_pry_io(InputTester.new("cd -", @bs1, "cd -",
+                                         @bs2, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -169,8 +170,8 @@ describe 'Pry::DefaultCommands::Cd' do
 
       it 'should keep correct old binding' do
         redirect_pry_io(InputTester.new("cd :john_dogg", "cd :mon_dogg",
-                                        "cd :kyr_dogg", @control_d, @bs1, "cd -",
-                                        @bs2, "cd -", @bs3, "exit-all")) do
+                                        "cd :kyr_dogg", @control_d, @bs1,
+                                        "cd -", @bs2, "cd -", @bs3, "exit-all")) do
           Pry.start(@o)
         end
 
@@ -270,7 +271,8 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should cd back to top-level and then into another ivar using cd /@ivar/ syntax' do
-    redirect_pry_io(InputTester.new("@z = 20", "cd @obj/@x/", "cd /@z", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("@z = 20", "cd @obj/@x/", "cd /@z",
+                                     @bs1, "exit-all")) do
       Pry.start(@o)
     end
 
@@ -298,7 +300,8 @@ describe 'Pry::DefaultCommands::Cd' do
   end
 
   it 'should not cd into complex input when it encounters an exception' do
-    redirect_pry_io(InputTester.new("cd 1/2/swoop_a_doop/3", @bs1, "exit-all")) do
+    redirect_pry_io(InputTester.new("cd 1/2/swoop_a_doop/3",
+                                    @bs1, "exit-all")) do
       Pry.start(@o)
     end
 

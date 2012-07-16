@@ -323,9 +323,9 @@ class Pry
   # Output the result or pass to an exception handler (if result is an exception).
   def show_result(result)
     if last_result_is_exception?
-      exception_handler.call output, result, self
+      exception_handler.call(output, result, self)
     else
-      print.call output, result
+      print.call(output, result)
     end
   rescue RescuableException => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
@@ -626,15 +626,40 @@ class Pry
   def select_prompt(eval_string, target)
     target_self = target.eval('self')
 
+    open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
+      @indent.stack.last
+
+    c = OpenStruct.new(
+                       :object         => target_self,
+                       :nesting_level  => binding_stack.size - 1,
+                       :open_token     => open_token,
+                       :session_line   => Pry.history.session_line_count + 1,
+                       :history_line   => Pry.history.history_line_count + 1,
+                       :expr_number    => input_array.count,
+                       :_pry_          => self,
+                       :binding_stack  => binding_stack,
+                       :input_array    => input_array,
+                       :eval_string    => eval_string,
+                       :cont           => !eval_string.empty?)
+
     # If input buffer is empty then use normal prompt
     if eval_string.empty?
-      Array(prompt).first.call(target_self, binding_stack.size - 1, self)
+      generate_prompt(Array(prompt).first, c)
 
     # Otherwise use the wait prompt (indicating multi-line expression)
     else
-      Array(prompt).last.call(target_self, binding_stack.size - 1, self)
+      generate_prompt(Array(prompt).last, c)
     end
   end
+
+  def generate_prompt(prompt_proc, conf)
+    if prompt_proc.arity == 1
+      prompt_proc.call(conf)
+    else
+      prompt_proc.call(conf.object, conf.nesting_level, conf._pry_)
+    end
+  end
+  private :generate_prompt
 
   # the array that the prompt stack is stored in
   def prompt_stack

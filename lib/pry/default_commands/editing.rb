@@ -366,7 +366,7 @@ class Pry
           opt.on :d, :doc, "Play a method's documentation.", :argument => true do |meth_name|
             meth = get_method_or_raise(meth_name, target, {})
             text.no_color do
-              self.content << process_comment_markup(meth.doc, :ruby)
+              self.content << process_comment_markup(meth.doc)
             end
           end
           opt.on :c, :command, "Play a command's source.", :argument => true do |command_name|

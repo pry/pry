@@ -98,9 +98,9 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.color = false
   end
 
-  on :f, "Suppress loading of ~/.pryrc" do
-    # load ~/.pryrc, if not suppressed with -f option
+  on :f, "Suppress loading of ~/.pryrc and ./.pryrc" do
     Pry.config.should_load_rc = false
+    Pry.config.should_load_local_rc = false
   end
 
   on :s, "select-plugin", "Only load specified plugin (and no others).", :argument => true do |plugin_name|

@@ -136,12 +136,7 @@ class Pry
     pry_instance.backtrace.shift if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
 
     # yield the binding_stack to the hook for modification
-    pry_instance.exec_hook(
-                           :when_started,
-                           target,
-                           options,
-                           pry_instance
-                           )
+    pry_instance.exec_hook(:when_started, target, options, pry_instance)
 
     if !pry_instance.binding_stack.empty?
       head = pry_instance.binding_stack.pop
@@ -393,11 +388,11 @@ end
 # Grab a copy of the TOPLEVEL_BINDING without any local variables.
 # This binding has a default definee of Object, and new methods are
 # private (just as in TOPLEVEL_BINDING).
-def self.__binding_impl__
+def self.__pry__
   binding
 end
-Pry.toplevel_binding = __binding_impl__
+Pry.toplevel_binding = __pry__
 Pry.toplevel_binding.eval("private")
-class << self; undef __binding_impl__; end
+class << self; undef __pry__; end
 
 Pry.init
