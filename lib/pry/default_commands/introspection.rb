@@ -32,11 +32,19 @@ class Pry
         mod = target_self.is_a?(Module) ? target_self : target_self.class
       end
 
+      def proc?(name)
+        target.eval(name).is_a? Proc
+      rescue TypeError, NameError
+        false
+      end
+
       def process(name)
         if module?(name)
           code_or_doc = process_module
         elsif method?
           code_or_doc = process_method
+        elsif proc?(name)
+          code_or_doc = process_proc
         else
           command_error("method or module for '#{name}' could not be found or derived", false)
         end
@@ -303,6 +311,24 @@ class Pry
             end
           end
           result
+        end
+
+        def process_proc
+          name = args.first
+          target_proc = target.eval(name)
+
+          file_name, line = target_proc.source_location
+
+          source = Pry::Code.from_file(file_name).expression_at(line)
+          code   = Pry::Code.new(source).with_line_numbers(use_line_numbers?).to_s
+          #code = Pry::Code.new(target_proc.source, line).with_line_numbers(use_line_numbers?).to_s
+
+
+          result = ""
+          result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
+          result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
+          result << code
+          result << "\n"
         end
 
         def use_line_numbers?
