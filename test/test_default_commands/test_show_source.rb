@@ -196,7 +196,12 @@ if !mri18_and_no_real_source_location?
 
     describe "on modules" do
       before do
-        class ShowSourceTestClass
+        class ShowSourceTestSuperClass
+          def alpha
+          end
+        end
+
+        class ShowSourceTestClass<ShowSourceTestSuperClass
           def alpha
           end
         end
@@ -218,6 +223,7 @@ if !mri18_and_no_real_source_location?
       end
 
       after do
+        Object.remove_const :ShowSourceTestSuperClass
         Object.remove_const :ShowSourceTestClass
         Object.remove_const :ShowSourceTestClassWeirdSyntax
         Object.remove_const :ShowSourceTestModule
@@ -229,6 +235,10 @@ if !mri18_and_no_real_source_location?
           mock_pry("show-source ShowSourceTestClass").should =~ /class ShowSourceTest.*?def alpha/m
         end
 
+        it 'should show source for a super class' do
+          mock_pry("show-source -s ShowSourceTestClass").should =~ /class ShowSourceTestSuperClass.*?def alpha/m
+        end
+
         it 'should show source for a module' do
           mock_pry("show-source ShowSourceTestModule").should =~ /module ShowSourceTestModule/
         end
@@ -237,16 +247,32 @@ if !mri18_and_no_real_source_location?
           mock_pry("show-source ShowSourceTestClassWeirdSyntax").should =~ /ShowSourceTestClassWeirdSyntax = Class.new/
         end
 
+        it 'should show source for a super class when Const = Class.new syntax is used' do
+          mock_pry("show-source -s ShowSourceTestClassWeirdSyntax").should =~ /class Object/
+        end
+
         it 'should show source for a module when Const = Module.new syntax is used' do
           mock_pry("show-source ShowSourceTestModuleWeirdSyntax").should =~ /ShowSourceTestModuleWeirdSyntax = Module.new/
         end
       end
 
       if !Pry::Helpers::BaseHelpers.mri_18?
+        before do
+          mock_pry("class Dog", "def woof", "end", "end")
+          mock_pry("class TobinaMyDog<Dog", "def woof", "end", "end")
+        end
+
+        after do
+          Object.remove_const :Dog
+          Object.remove_const :TobinaMyDog
+        end
+
         describe "in REPL" do
           it 'should find class defined in repl' do
-            mock_pry("class TobinaMyDog", "def woof", "end", "end", "show-source TobinaMyDog").should =~ /class TobinaMyDog/
-            Object.remove_const :TobinaMyDog
+            mock_pry("show-source TobinaMyDog").should =~ /class TobinaMyDog/
+          end
+          it 'should find superclass defined in repl' do
+            mock_pry("show-source -s TobinaMyDog").should =~ /class Dog/
           end
         end
       end
