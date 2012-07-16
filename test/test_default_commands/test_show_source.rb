@@ -194,6 +194,25 @@ if !mri18_and_no_real_source_location?
       end
     end
 
+    describe "on procs/lambdas" do
+
+      if RUBY_VERSION =~ /1.9/
+        it "should output source defined inside pry" do
+          redirect_pry_io(InputTester.new("hello = proc { puts 'hello world!' }", "show-source hello"), @str_output) do
+            TOPLEVEL_BINDING.pry
+          end
+
+          @str_output.string.should =~ /proc { puts 'hello world!' }/
+        end
+      end
+
+      it "should output source" do
+        hello = proc { puts 'hello world!' }
+        mock_pry(binding, "show-source hello").should =~ /proc { puts 'hello world!' }/
+      end
+
+    end
+
     describe "on modules" do
       before do
         class ShowSourceTestClass
