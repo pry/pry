@@ -7,37 +7,70 @@ class Pry
     module ModuleIntrospectionHelpers
       attr_accessor :module_object
 
-      def module?(name)
-        self.module_object = Pry::WrappedModule.from_str(name, target)
+      def module_object
+        name = args.first
+        @module_object ||= WrappedModule.from_str(name, target)
       end
 
-      def method?
-        !!method_object
-      rescue CommandError
-        false
+      # @param [String]
+      # @param [Binding] target The binding context of the input.
+      # @return [Symbol] type of input
+      def input_type(input,target)
+        if input == ""
+          :blank
+        elsif target.eval("defined? #{input} ") =~ /variable/ &&
+              target.eval(input).respond_to?(:source_location)
+          :sourcable_object
+        elsif Pry::Method.from_str(input,target)
+          :method
+        elsif Pry::WrappedModule.from_str(input, target)
+          :module
+        else
+          :unknown
+        end
       end
 
       def process(name)
-        if module?(name)
-          code_or_doc = process_module
-        elsif method?
-          code_or_doc = process_method
-        else
-          code_or_doc = process_alternatives
-        end
+        input = args.join(" ")
+        type = input_type(input, target)
+
+        code_or_doc = case type
+                      when :blank
+                        process_blank
+                      when :sourcable_object
+                        process_sourcable_object
+                      when :method
+                        process_method
+                      when :module
+                        process_module
+                      else
+                        command_error("method or module for '#{input}' could not be found or derived", false)
+                      end
 
         render_output(code_or_doc, opts)
       end
 
-      def process_alternatives
+      def process_blank
+        if mod = extract_module_from_internal_binding
+          @module_object = mod
+          process_module
+        elsif meth = extract_method_from_binding
+          @method_object = meth
+          process_method
+        else
+          command_error("method or module for '' could not be derived", false)
+        end
+      end
+
+      def extract_module_from_internal_binding
         if args.empty? && internal_binding?(target)
           mod = target_self.is_a?(Module) ? target_self : target_self.class
-          self.module_object = Pry::WrappedModule(mod)
-
-          process_module
-        else
-          process_method
+          Pry::WrappedModule(mod)
         end
+      end
+
+      def extract_method_from_binding
+        Pry::Method.from_binding(target)
       end
 
       def module_start_line(mod, candidate_rank=0)
@@ -242,6 +275,22 @@ class Pry
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :a, :all, "Show source for all definitions and monkeypatches of the module/class"
+        end
+
+        def process_sourcable_object
+          name = args.first
+          object = target.eval(name)
+
+          file_name, line = object.source_location
+
+          source = Pry::Code.from_file(file_name).expression_at(line)
+          code   = Pry::Code.new(source).with_line_numbers(use_line_numbers?).to_s
+
+          result = ""
+          result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
+          result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
+          result << code
+          result << "\n"
         end
 
         def process_method

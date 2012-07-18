@@ -49,19 +49,19 @@ class Pry
         meth = Pry::Method.from_str(name, target, opts)
 
         if name && !meth
-          command_error("The method '#{name}' could not be found.", omit_help)
+          command_error("The method '#{name}' could not be found.", omit_help, MethodNotFound)
         end
 
         (opts[:super] || 0).times do
           if meth.super
             meth = meth.super
           else
-            command_error("'#{meth.name_with_owner}' has no super method.", omit_help)
+            command_error("'#{meth.name_with_owner}' has no super method.", omit_help, MethodNotFound)
           end
         end
 
         if !meth || (!name && internal_binding?(target))
-          command_error("No method name given, and context is not a method.", omit_help, NonMethodContextError)
+          command_error("No method name given, and context is not a method.", omit_help, MethodNotFound)
         end
 
         set_file_and_dir_locals(meth.source_file)
