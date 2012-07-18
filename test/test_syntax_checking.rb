@@ -62,4 +62,16 @@ describe Pry do
   it "should not clobber _ex_ on a SyntaxError in the repl" do
     mock_pry("raise RuntimeError, 'foo';", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
   end
+
+  it "should allow whitespace delimeted strings" do
+    mock_pry('"%s" %% foo ').should =~ /"foo"/
+  end
+
+  it "should allow newline delimeted strings" do
+    mock_pry('"%s" %%','foo').should =~ /"foo"/
+  end
+
+  it "should allow whitespace delimeted strings ending on the first char of a line" do
+    mock_pry('"%s" %% ', ' #done!').should =~ /"\\n"/
+  end
 end

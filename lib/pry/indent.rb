@@ -129,7 +129,6 @@ class Pry
         new_prefix = prefix + SPACES * after
 
         line = prefix + line.lstrip unless previously_in_string
-        line = line.rstrip + "\n"   unless in_string?
 
         output += line
 
@@ -138,7 +137,7 @@ class Pry
 
       @indent_level = prefix
 
-      return output.gsub(/\s+$/, '')
+      return output
     end
 
     # Get the indentation for the start of the next line.
