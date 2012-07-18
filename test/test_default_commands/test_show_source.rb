@@ -149,7 +149,7 @@ if !mri18_and_no_real_source_location?
     it "should not raise an exception when a non-extant super method is requested" do
       def @o.foo(*bars); end
 
-      mock_pry(binding, "show-source --super @o.foo").should =~ /'@o.foo' could not be found/
+      mock_pry(binding, "show-source --super @o.foo").should =~ /'self.foo' has no super method/
     end
 
     # dynamically defined method source retrieval is only supported in
@@ -194,7 +194,7 @@ if !mri18_and_no_real_source_location?
       end
     end
 
-    describe "on procs/lambdas" do
+    describe "on sourcable objects" do
 
       if RUBY_VERSION =~ /1.9/
         it "should output source defined inside pry" do
@@ -206,9 +206,45 @@ if !mri18_and_no_real_source_location?
         end
       end
 
-      it "should output source" do
+      it "should output source for procs/lambdas" do
         hello = proc { puts 'hello world!' }
         mock_pry(binding, "show-source hello").should =~ /proc { puts 'hello world!' }/
+      end
+
+      it "should output source for method objects" do
+        def @o.hi; puts 'hi world'; end
+        meth = @o.method(:hi)
+        mock_pry(binding, "show-source meth").should =~ /puts 'hi world'/
+      end
+
+      describe "on variables that shadow methods" do
+        before do
+          @method_shadow = [
+            "class TestHost ",
+              "def hello",
+                "hello = proc { ' smile ' }",
+                "binding.pry",
+              "end",
+            "end",
+            "TestHost.new.hello"
+          ]
+        end
+
+        after do
+          Object.remove_const(:TestHost)
+        end
+
+        it "source of variable should take precedence over method that is being shadowed" do
+          string = mock_pry(@method_shadow,"show-source hello","exit-all")
+          string.include?("def hello").should == false
+          string =~ /proc { ' smile ' }/
+        end
+
+        it "source of method being shadowed should take precedence over variable
+            if given self.meth_name syntax" do
+          string = mock_pry(@method_shadow,"show-source self.hello","exit-all")
+          string.include?("def hello").should == true
+        end
       end
 
     end
