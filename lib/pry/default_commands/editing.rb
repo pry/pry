@@ -189,7 +189,7 @@ class Pry
 
           begin
             @method = method_object
-          rescue NonMethodContextError => err
+          rescue MethodNotFound => err
           end
 
           if opts.present?(:patch) || (@method && @method.dynamically_defined?)

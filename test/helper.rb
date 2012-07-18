@@ -126,6 +126,7 @@ end
 
 def mock_pry(*args)
 
+  args.flatten!
   binding = args.first.is_a?(Binding) ? args.shift : binding()
 
   input = InputTester.new(*args)
