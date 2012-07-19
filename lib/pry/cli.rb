@@ -73,6 +73,10 @@ class Pry
   end
 end
 
+
+# String that is built to be executed on start (created by -e and -exec switches)
+exec_string = ""
+
 # Bring in options defined by plugins
 Pry::CLI.add_plugin_options
 
@@ -84,7 +88,9 @@ See: `https://github.com/pry` for more information.
 Copyright (c) 2011 John Mair (banisterfiend)
 --
 }
-  on :e, :exec, "A line of code to execute in context before the session starts", :argument => true
+  on :e, :exec, "A line of code to execute in context before the session starts", :argument => true do |input|
+    exec_string << input + "\n"
+  end
 
   on "no-pager", "Disable pager for long output" do
     Pry.config.pager = false
@@ -161,10 +167,6 @@ end.process_options do |opts|
     full_name = File.expand_path(Pry::CLI.input_args.first)
     Pry.load_file_through_repl(full_name)
     exit
-  elsif opts[:exec]
-    exec_string = opts[:exec] + "\n"
-  else
-    exec_string = ""
   end
 
   # Start the session (running any code passed with -e, if there is any)
