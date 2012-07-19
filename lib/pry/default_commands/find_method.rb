@@ -8,6 +8,7 @@ class Pry
         group "Context"
 
         options :requires_gem => "ruby18_source_location" if mri_18?
+        options :shellwords => false
 
         description "Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]"
 

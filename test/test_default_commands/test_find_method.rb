@@ -13,9 +13,15 @@ unless Pry::Helpers::BaseHelpers.mri_18?
     def goodbye
       "jenny"
     end
+    def tea_tim?
+      "timothy"
+    end
+    def tea_time?
+      "polly"
+    end
   end
 
-  describe "find-command" do
+  describe "find-method" do
     describe "find matching methods by name regex (-n option)" do
       it "should find a method by regex" do
         mock_pry("find-method hell MyKlass").should =~ /MyKlass.*?hello/m
@@ -43,6 +49,13 @@ unless Pry::Helpers::BaseHelpers.mri_18?
       end
 
       mock_pry("find-method -c timothy MyKlass").should =~ /MyKlass.*?hello/m
+    end
+
+    it "should escape regexes correctly" do
+      mock_pry('find-method tea_time? MyKlass').should =~ /tea_tim\?/
+      mock_pry('find-method tea_time? MyKlass').should =~ /tea_time\?/
+      mock_pry('find-method tea_time\? MyKlass').should.not =~ /tea_tim\?/
+      mock_pry('find-method tea_time\? MyKlass').should =~ /tea_time\?/
     end
   end
 
