@@ -132,6 +132,14 @@ if !mri18_and_no_real_source_location?
       end
     end
 
+    describe "on sourcable objects" do
+      it "should show documentation for object" do
+        # this is a documentation
+        hello = proc { puts 'hello world!' }
+        mock_pry(binding, "show-doc hello").should =~ /this is a documentation/
+      end
+    end
+
     describe "on modules" do
       before do
         # god this is boring1
