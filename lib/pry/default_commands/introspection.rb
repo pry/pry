@@ -10,6 +10,11 @@ class Pry
       def module_object
         name = args.first
         @module_object ||= WrappedModule.from_str(name, target)
+        sup = @module_object
+        opts[:super].times do
+          sup = Pry::WrappedModule(sup.superclass) unless sup.superclass.nil?
+        end
+        sup
       end
 
       # @param [String]
@@ -126,22 +131,6 @@ class Pry
           opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module/class"
-        end
-
-        def process_sourcable_object
-          name = args.first
-          object = target.eval(name)
-
-          file_name, line = object.source_location
-
-          doc = Pry::Code.from_file(file_name).comment_describing(line)
-          doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
-
-          result = ""
-          result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-          result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{doc.lines.count}\n\n"
-          result << doc
-          result << "\n"
         end
 
         def process_module
@@ -274,6 +263,7 @@ class Pry
           e.g: `show-source Pry#rep`         # source for Pry#rep method
           e.g: `show-source Pry`             # source for Pry class
           e.g: `show-source Pry -a`          # source for all Pry class definitions (all monkey patches)
+          e.g: `show-source Pry --super      # source for superclass of Pry (Object class)
 
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
