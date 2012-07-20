@@ -237,7 +237,7 @@ if !mri18_and_no_real_source_location?
         it "source of variable should take precedence over method that is being shadowed" do
           string = mock_pry(@method_shadow,"show-source hello","exit-all")
           string.include?("def hello").should == false
-          string =~ /proc { ' smile ' }/
+          string.should =~ /proc { ' smile ' }/
         end
 
         it "source of method being shadowed should take precedence over variable
