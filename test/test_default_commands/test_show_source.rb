@@ -237,7 +237,7 @@ if !mri18_and_no_real_source_location?
         it "source of variable should take precedence over method that is being shadowed" do
           string = mock_pry(@method_shadow,"show-source hello","exit-all")
           string.include?("def hello").should == false
-          string =~ /proc { ' smile ' }/
+          string.should =~ /proc { ' smile ' }/
         end
 
         it "source of method being shadowed should take precedence over variable
@@ -261,7 +261,13 @@ if !mri18_and_no_real_source_location?
           end
         end
 
+        module ShowSourceTestSuperModule
+          def alpha
+          end
+        end
+
         module ShowSourceTestModule
+          include ShowSourceTestSuperModule
           def alpha
           end
         end
@@ -281,6 +287,7 @@ if !mri18_and_no_real_source_location?
         Object.remove_const :ShowSourceTestSuperClass
         Object.remove_const :ShowSourceTestClass
         Object.remove_const :ShowSourceTestClassWeirdSyntax
+        Object.remove_const :ShowSourceTestSuperModule
         Object.remove_const :ShowSourceTestModule
         Object.remove_const :ShowSourceTestModuleWeirdSyntax
       end
@@ -296,6 +303,10 @@ if !mri18_and_no_real_source_location?
 
         it 'should show source for a module' do
           mock_pry("show-source ShowSourceTestModule").should =~ /module ShowSourceTestModule/
+        end
+
+        it 'should show source for an ancestor module' do
+          mock_pry("show-source -s ShowSourceTestModule").should =~ /module ShowSourceTestSuperModule/
         end
 
         it 'should show source for a class when Const = Class.new syntax is used' do
