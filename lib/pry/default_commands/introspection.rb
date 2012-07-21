@@ -8,13 +8,18 @@ class Pry
       attr_accessor :module_object
 
       def module_object
-        name = args.first
-        @module_object ||= WrappedModule.from_str(name, target)
-        sup = @module_object
-        opts[:super].times do
-          sup = Pry::WrappedModule(sup.superclass) unless sup.superclass.nil?
+        if @module_object
+          @module_object
+        else
+          name = args.first
+          @module_object = WrappedModule.from_str(name, target)
+          if @module_object
+            sup = @module_object.ancestors.select do |anc|
+              anc.class == @module_object.send(:wrapped).class
+            end[opts[:super]]
+            @module_object = sup ? Pry::WrappedModule(sup) : nil
+          end
         end
-        sup
       end
 
       # @param [String]
