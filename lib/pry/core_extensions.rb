@@ -1,6 +1,7 @@
 class Pry
-  # @return [String] Code of the method used when implementing Pry's
-  #   __binding__.
+  # @return [Array] Code of the method used when implementing Pry's
+  #   __binding__, along with line indication to be used with instance_eval (and
+  #   friends).
   #
   # @see Object#__binding__
   BindingImplMethod = [<<-METHOD, __FILE__, __LINE__ + 1]
