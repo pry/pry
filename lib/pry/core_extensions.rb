@@ -68,7 +68,7 @@ class Object
   def __binding__
     # If you ever feel like changing this method, be careful about variables
     # that you use. They shouldn't be inserted into the binding that will
-    # eventually be retruning.
+    # eventually be returning.
 
     # When you're cd'd into a class, methods you define should be added to it.
     if is_a?(Module)
