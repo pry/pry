@@ -31,6 +31,12 @@ describe Pry do
 
       lambda { Pry.binding_for(o) }.should.not.raise Exception
     end
+
+    it "should not leak local variables" do
+      [Object.new, Array, 3].each do |obj|
+        Pry.binding_for(obj).eval("local_variables").should.be.empty
+      end
+    end
   end
 
   describe "open a Pry session on an object" do

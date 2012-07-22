@@ -1,3 +1,23 @@
+class Pry
+  # @retun [String] Code of the method used when implementing Pry's
+  #   __binding__.
+  #
+  # @see Object#__binding__
+  BindingImplMethod = [<<-METHOD, __FILE__, __LINE__ + 1]
+    # Get a binding with 'self' set to self, and no locals.
+    #
+    # The default definee is determined by the context in which the
+    # definition is eval'd.
+    #
+    # Please don't call this method directly, see {__binding__}.
+    #
+    # @return [Binding]
+    def __pry__
+      binding
+    end
+  METHOD
+end
+
 class Object
   # Start a Pry REPL on self.
   #
@@ -45,6 +65,10 @@ class Object
   #
   # @return [Binding]
   def __binding__
+    # If you ever feel like changing this method, be careful about variables
+    # that you use. They shouldn't be inserted into the binding that will
+    # eventually be retruning.
+
     # When you're cd'd into a class, methods you define should be added to it.
     if is_a?(Module)
       # class_eval sets both self and the default definee to this class.
@@ -52,20 +76,6 @@ class Object
     end
 
     unless respond_to?(:__pry__)
-      binding_impl_method = [<<-METHOD, __FILE__, __LINE__ + 1]
-        # Get a binding with 'self' set to self, and no locals.
-        #
-        # The default definee is determined by the context in which the
-        # definition is eval'd.
-        #
-        # Please don't call this method directly, see {__binding__}.
-        #
-        # @return [Binding]
-        def __pry__
-          binding
-        end
-      METHOD
-
       # The easiest way to check whether an object has a working singleton class
       # is to try and define a method on it. (just checking for the presence of
       # the singleton class gives false positives for `true` and `false`).
@@ -73,14 +83,14 @@ class Object
       # it has the nice property that we can memoize this check.
       begin
         # instance_eval sets the default definee to the object's singleton class
-        instance_eval(*binding_impl_method)
+        instance_eval(*Pry::BindingImplMethod)
 
       # If we can't define methods on the Object's singleton_class. Then we fall
       # back to setting the default definee to be the Object's class. That seems
       # nicer than having a REPL in which you can't define methods.
       rescue TypeError
         # class_eval sets the default definee to self.class
-        self.class.class_eval(*binding_impl_method)
+        self.class.class_eval(*Pry::BindingImplMethod)
       end
     end
 
