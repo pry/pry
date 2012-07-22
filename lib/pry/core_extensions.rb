@@ -1,5 +1,5 @@
 class Pry
-  # @retun [String] Code of the method used when implementing Pry's
+  # @return [String] Code of the method used when implementing Pry's
   #   __binding__.
   #
   # @see Object#__binding__
