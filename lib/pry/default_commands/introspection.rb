@@ -155,6 +155,7 @@ class Pry
         end
 
         def process_module
+            raise Pry::CommandError, "No documentation found." if module_object.nil? || module_object.doc.nil? || module_object.doc.empty?
           if opts.present?(:all)
             all_modules
           else
@@ -334,6 +335,7 @@ class Pry
         end
 
         def process_module
+          raise Pry::CommandError, "No documentation found." if module_object.nil? || module_object.source.nil?
           if opts.present?(:all)
             all_modules
           else
