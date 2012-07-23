@@ -294,7 +294,7 @@ if !mri18_and_no_real_source_location?
 
       describe "basic functionality, should find top-level module definitions" do
         it 'should show source for a class' do
-          mock_pry("show-source ShowSourceTestClass").should =~ /class ShowSourceTest.*?def alpha/m
+          mock_pry("show-source ShowSourceTestClass").should =~ /class ShowSourceTestClass.*?def alpha/m
         end
 
         it 'should show source for a super class' do
