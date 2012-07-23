@@ -15,7 +15,7 @@ class Pry
           @module_object = WrappedModule.from_str(name, target)
           if @module_object
             sup = @module_object.ancestors.select do |anc|
-              anc.class == @module_object.send(:wrapped).class
+              anc.class == @module_object.wrapped.class
             end[opts[:super]]
             @module_object = sup ? Pry::WrappedModule(sup) : nil
           end
@@ -155,7 +155,7 @@ class Pry
         end
 
         def process_module
-            raise Pry::CommandError, "No documentation found." if module_object.nil? || module_object.doc.nil? || module_object.doc.empty?
+          raise Pry::CommandError, "No documentation found." if module_object.nil?
           if opts.present?(:all)
             all_modules
           else
@@ -335,7 +335,7 @@ class Pry
         end
 
         def process_module
-          raise Pry::CommandError, "No documentation found." if module_object.nil? || module_object.source.nil?
+          raise Pry::CommandError, "No documentation found." if module_object.nil?
           if opts.present?(:all)
             all_modules
           else
