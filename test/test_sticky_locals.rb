@@ -138,17 +138,11 @@ describe "Sticky locals (_file_ and friends)" do
     end
 
     it 'should provide different values for successive block invocations' do
-      o = Object.new
-      pi = Pry.new
-      v = [1, 2]
-      pi.add_sticky_local(:test_local) { v.shift }
-      pi.input = InputTester.new("@value1 = test_local",
-                                 "@value2 = test_local", "exit-all")
-      pi.output = StringIO.new
-      pi.repl(o)
-
-      o.instance_variable_get(:@value1).should == 1
-      o.instance_variable_get(:@value2).should == 2
+      pry = Pry.new
+      pry.add_sticky_local(:test_local) { rand }
+      value1 = pry.evaluate_ruby 'test_local'
+      value2 = pry.evaluate_ruby 'test_local'
+      value1.should.not == value2
     end
   end
 

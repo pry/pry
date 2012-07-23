@@ -66,9 +66,16 @@ class Pry
               # Restore old stack to its initial values.
               state.old_stack = old_stack
 
-              output.puts "Bad object path: #{arg_string.chomp}. Failed trying to resolve: #{context}"
-              output.puts e.inspect
-              return
+              msg = [
+                "Bad object path: #{arg_string}.",
+                "Failed trying to resolve: #{context}.",
+                e.inspect
+              ].join(' ')
+
+              CommandError.new(msg).tap do |err|
+                err.set_backtrace e.backtrace
+                raise err
+              end
             end
           end
 

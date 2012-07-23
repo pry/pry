@@ -125,7 +125,6 @@ def redirect_pry_io(new_in, new_out = StringIO.new)
 end
 
 def mock_pry(*args)
-
   args.flatten!
   binding = args.first.is_a?(Binding) ? args.shift : binding()
 

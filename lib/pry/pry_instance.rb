@@ -196,7 +196,6 @@ class Pry
     exec_hook :before_session, output, target, self
     set_last_result(nil, target)
 
-
     @input_array << nil # add empty input so _in_ and _out_ match
 
     binding_stack.push target
@@ -272,10 +271,7 @@ class Pry
 
     exec_hook :before_eval, code, self
 
-    result = target.eval(code, Pry.eval_path, Pry.current_line)
-    set_last_result(result, target, code)
-
-    result
+    result = evaluate_ruby(code, target)
   rescue RescuableException => e
     self.last_exception = e
     e
@@ -318,6 +314,15 @@ class Pry
 
     exec_hook :after_read, eval_string, self
     eval_string
+  end
+
+  def evaluate_ruby(code, target = binding_stack.last)
+    target = Pry.binding_for(target)
+    inject_sticky_locals(target)
+
+    target.eval(code, Pry.eval_path, Pry.current_line).tap do |result|
+      set_last_result(result, target, code)
+    end
   end
 
   # Output the result or pass to an exception handler (if result is an exception).
@@ -419,7 +424,7 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command(val, eval_string, target)
+  def process_command(val, eval_string = '', target = TOPLEVEL_BINDING)
     result = commands.process_line(val, {
       :target => target,
       :output => output,
