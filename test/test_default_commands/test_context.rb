@@ -1,29 +1,7 @@
 require 'helper'
 
-module ContextTestHelpers
-  def pry
-    @pry ||= Pry.new
-  end
-
-  def process_commands(*args)
-    args.flatten.each do |cmd|
-      pry.process_command cmd
-    end
-  end
-
-  def evaluate_ruby(ruby)
-    pry.evaluate_ruby ruby
-  end
-
-  def evaluate_self
-    pry.evaluate_ruby 'self'
-  end
-end
-
 describe "Pry::DefaultCommands::Context" do
   before do
-    extend ContextTestHelpers
-
     @self  = "Pad.self = self"
     @inner = "Pad.inner = self"
     @outer = "Pad.outer = self"
@@ -74,18 +52,16 @@ describe "Pry::DefaultCommands::Context" do
 
       Cor.new.blimey!
 
-      pry.binding_stack << Pad.binding
-      process_commands 'whereami'
-
       # using [.] so the regex doesn't match itself
-      # mock_pry(binding, 'whereami').should =~ /self[.]blimey!/
+      pry_tester(Pad.binding).eval('whereami').should =~ /self[.]blimey!/
+
       Object.remove_const(:Cor)
     end
 
     it 'should work in objects with no method methods' do
       class Cor
         def blimey!
-          mock_pry(binding, 'whereami').should =~ /Cor[#]blimey!/
+          pry_tester(binding).eval('whereami').should =~ /Cor[#]blimey!/
         end
 
         def method; "moo"; end
@@ -97,8 +73,9 @@ describe "Pry::DefaultCommands::Context" do
     it 'should properly set _file_, _line_ and _dir_' do
       class Cor
         def blimey!
-          mock_pry(binding, 'whereami', '_file_') \
-            .should =~ /#{File.expand_path(__FILE__)}/
+          pry_tester(binding).
+            eval('whereami', '_file_').
+            should == File.expand_path(__FILE__)
         end
       end
 
@@ -110,12 +87,12 @@ describe "Pry::DefaultCommands::Context" do
       class Cor
         def blimey!
           eval <<-END, binding, "test/test_default_commands/example.erb", 1
-            mock_pry(binding, 'whereami')
+            pry_tester(binding).eval('whereami')
           END
         end
       end
 
-      Cor.instance_method(:blimey!).source.should =~ /mock_pry/
+      Cor.instance_method(:blimey!).source.should =~ /pry_tester/
 
       Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
       Object.remove_const(:Cor)
@@ -125,7 +102,7 @@ describe "Pry::DefaultCommands::Context" do
       class Cor
         eval <<-END, binding, "test/test_default_commands/example.erb", 1
           def blimey!
-            mock_pry(binding, 'whereami')
+            pry_tester(binding).eval('whereami')
           end
         END
       end
@@ -136,26 +113,28 @@ describe "Pry::DefaultCommands::Context" do
 
       Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
       Object.remove_const(:Cor)
-
     end
 
     it 'should display a description and and error if reading the file goes wrong' do
       class Cor
         def blimey!
           eval <<-END, binding, "not.found.file.erb", 7
-            mock_pry(binding, 'whereami')
+            Pad.tester = pry_tester(binding)
+            Pad.tester.eval('whereami')
           END
         end
       end
 
-      Cor.new.blimey!.should =~ /From: not.found.file.erb @ line 7 Cor#blimey!:\n\nError: Cannot open "not.found.file.erb" for reading./m
+      proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
+      Pad.tester.last_output.should =~
+        /From: not.found.file.erb @ line 7 Cor#blimey!:/
       Object.remove_const(:Cor)
     end
 
     it 'should show code window (not just method source) if parameter passed to whereami' do
       class Cor
         def blimey!
-          mock_pry(binding, 'whereami 3').should =~ /class Cor/
+          pry_tester(binding).eval('whereami 3').should =~ /class Cor/
         end
       end
       Cor.new.blimey!
@@ -166,7 +145,7 @@ describe "Pry::DefaultCommands::Context" do
       old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
       :litella
       :pig
-      out = mock_pry(binding, 'whereami')
+      out = pry_tester(binding).eval('whereami')
       :punk
       :sanders
 
@@ -179,15 +158,16 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should work at the top level" do
-      mock_pry(Pry.toplevel_binding, 'whereami').should =~ /At the top level/
+      pry_tester(Pry.toplevel_binding).eval('whereami').should =~
+        /At the top level/
     end
 
     it "should work inside a class" do
-      mock_pry(Pry.binding_for(Pry), 'whereami').should =~ /Inside Pry/
+      pry_tester(Pry).eval('whereami').should =~ /Inside Pry/
     end
 
     it "should work inside an object" do
-      mock_pry(Pry.binding_for(Object.new), 'whereami').should =~ /Inside #<Object/
+      pry_tester(Object.new).eval('whereami').should =~ /Inside #<Object/
     end
   end
 
@@ -218,32 +198,16 @@ describe "Pry::DefaultCommands::Context" do
   end
 
   describe "jump-to" do
-    before do
-      @str_output = StringIO.new
-    end
-
     it 'should jump to the proper binding index in the stack' do
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 1", @self, "exit-all")) do
-        Pry.start(0)
-      end
-
-      Pad.self.should == 1
+      pry_tester.eval('cd 1', 'cd 2', 'jump-to 1', 'self').should == 1
     end
 
     it 'should print error when trying to jump to a non-existent binding index' do
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 100", "exit-all"), @str_output) do
-        Pry.start(0)
-      end
-
-      @str_output.string.should =~ /Invalid nest level/
+      pry_tester.eval("cd 1", "cd 2", "jump-to 100").should =~ /Invalid nest level/
     end
 
     it 'should print error when trying to jump to the same binding index' do
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "jump-to 2", "exit-all"), @str_output) do
-        Pry.new.repl(0)
-      end
-
-      @str_output.string.should =~ /Already/
+      pry_tester.eval("cd 1", "cd 2", "jump-to 2").should =~ /Already/
     end
   end
 
