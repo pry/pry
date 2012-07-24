@@ -203,6 +203,34 @@ ensure
   file.close(true) if file
 end
 
+def pry_tester(context = nil, &block)
+  PryTester.new(context).tap do |t|
+    (class << t; self; end).class_eval(&block)
+  end
+end
+
+class PryTester
+  attr_reader :pry
+
+  def initialize(context)
+    @pry = Pry.new
+
+    if context
+      @pry.binding_stack << Pry.binding_for(context)
+    end
+  end
+
+  def eval(*strs)
+    strs.flatten.map do |str|
+      if @pry.process_command(str)
+        result = Thread.current[:__pry_cmd_result__]
+        result.retval if result
+      else
+        @pry.evaluate_ruby(str)
+      end
+    end.last
+  end
+end
 
 CommandTester = Pry::CommandSet.new do
   command "command1", "command 1 test" do
