@@ -424,7 +424,7 @@ class Pry
   # @param [String] eval_string The cumulative lines of input.
   # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command(val, eval_string = '', target = TOPLEVEL_BINDING)
+  def process_command(val, eval_string = '', target = binding_stack.last)
     result = commands.process_line(val, {
       :target => target,
       :output => output,
