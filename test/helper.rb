@@ -203,16 +203,16 @@ ensure
   file.close(true) if file
 end
 
-def pry_tester(context = nil, &block)
+def pry_tester(context = TOPLEVEL_BINDING, &block)
   PryTester.new(context).tap do |t|
-    (class << t; self; end).class_eval(&block)
+    (class << t; self; end).class_eval(&block) if block
   end
 end
 
 class PryTester
-  attr_reader :pry
+  attr_reader :pry, :out
 
-  def initialize(context)
+  def initialize(context = TOPLEVEL_BINDING, *cmds)
     @pry = Pry.new
 
     if context
@@ -221,14 +221,33 @@ class PryTester
   end
 
   def eval(*strs)
-    strs.flatten.map do |str|
+    @out = StringIO.new
+    @pry.output = @out
+    result = nil
+
+    strs.flatten.each do |str|
       if @pry.process_command(str)
-        result = Thread.current[:__pry_cmd_result__]
-        result.retval if result
+        result = last_command_result
+        if result == Pry::Command::VOID_VALUE
+          result = last_output
+        end
       else
-        @pry.evaluate_ruby(str)
+        result = @pry.evaluate_ruby(str)
       end
-    end.last
+    end
+
+    result
+  end
+
+  def last_output
+    @out.string if @out
+  end
+
+  protected
+
+  def last_command_result
+    result = Thread.current[:__pry_cmd_result__]
+    result.retval if result
   end
 end
 
