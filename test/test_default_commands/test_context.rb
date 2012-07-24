@@ -1,8 +1,29 @@
 require 'helper'
 
-describe "Pry::DefaultCommands::Context" do
+module ContextTestHelpers
+  def pry
+    @pry ||= Pry.new
+  end
 
+  def process_commands(*args)
+    args.flatten.each do |cmd|
+      pry.process_command cmd
+    end
+  end
+
+  def evaluate_ruby(ruby)
+    pry.evaluate_ruby ruby
+  end
+
+  def evaluate_self
+    pry.evaluate_ruby 'self'
+  end
+end
+
+describe "Pry::DefaultCommands::Context" do
   before do
+    extend ContextTestHelpers
+
     @self  = "Pad.self = self"
     @inner = "Pad.inner = self"
     @outer = "Pad.outer = self"
@@ -47,12 +68,17 @@ describe "Pry::DefaultCommands::Context" do
       class Cor
         def blimey!
           Cor.send :undef_method, :blimey!
-          # using [.] so the regex doesn't match itself
-          mock_pry(binding, 'whereami').should =~ /self[.]blimey!/
+          Pad.binding = binding
         end
       end
 
       Cor.new.blimey!
+
+      pry.binding_stack << Pad.binding
+      process_commands 'whereami'
+
+      # using [.] so the regex doesn't match itself
+      # mock_pry(binding, 'whereami').should =~ /self[.]blimey!/
       Object.remove_const(:Cor)
     end
 
