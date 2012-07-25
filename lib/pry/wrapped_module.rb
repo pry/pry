@@ -17,7 +17,6 @@ class Pry
     include Pry::Helpers::DocumentationHelpers
 
     attr_reader :wrapped
-    private :wrapped
 
     # Convert a string to a module.
     #
