@@ -123,7 +123,7 @@ Copyright (c) 2011 John Mair (banisterfiend)
   end
 
   on "installed-plugins", "List installed plugins." do
-    Pry::PluginManager.show_installed_plugins(Pry.locate_plugins)
+    Pry::PluginManager.show_installed_plugins(Pry.plugins)
     exit
   end
 

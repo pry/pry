@@ -33,6 +33,25 @@ class Pry
           output.puts "Reloaded #{file_name}."
         end
       end
+
+      create_command "plugin" do
+        description "Manage Pry plugins"
+
+        banner <<-BANNER
+          Usage: plugin
+        BANNER
+
+        def options(opt)
+          opt.on :l, :list, "List all installed plugins", :argument => false
+        end
+
+        def process
+          if opts.l?
+            PluginManager.show_installed_plugins(Pry.plugins, output)
+          end
+        end
+
+      end
     end
   end
 end
