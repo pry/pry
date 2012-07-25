@@ -212,7 +212,7 @@ end
 class PryTester
   attr_reader :pry, :out
 
-  def initialize(context = TOPLEVEL_BINDING, *cmds)
+  def initialize(context = TOPLEVEL_BINDING)
     @pry = Pry.new
 
     if context
