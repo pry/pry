@@ -8,8 +8,18 @@ class Pry
       attr_accessor :module_object
 
       def module_object
-        name = args.first
-        @module_object ||= WrappedModule.from_str(name, target)
+        if @module_object
+          @module_object
+        else
+          name = args.first
+          @module_object = WrappedModule.from_str(name, target)
+          if @module_object
+            sup = @module_object.ancestors.select do |anc|
+              anc.class == @module_object.wrapped.class
+            end[opts[:super]]
+            @module_object = sup ? Pry::WrappedModule(sup) : nil
+          end
+        end
       end
 
       # @param [String]
@@ -127,7 +137,7 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module/class"
         end
-
+        
         def process_sourcable_object
           name = args.first
           object = target.eval(name)
@@ -145,6 +155,7 @@ class Pry
         end
 
         def process_module
+          raise Pry::CommandError, "No documentation found." if module_object.nil?
           if opts.present?(:all)
             all_modules
           else
@@ -274,6 +285,7 @@ class Pry
           e.g: `show-source Pry#rep`         # source for Pry#rep method
           e.g: `show-source Pry`             # source for Pry class
           e.g: `show-source Pry -a`          # source for all Pry class definitions (all monkey patches)
+          e.g: `show-source Pry --super      # source for superclass of Pry (Object class)
 
           https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
         BANNER
@@ -323,6 +335,7 @@ class Pry
         end
 
         def process_module
+          raise Pry::CommandError, "No documentation found." if module_object.nil?
           if opts.present?(:all)
             all_modules
           else
