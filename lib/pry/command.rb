@@ -209,7 +209,6 @@ class Pry
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
 
-
     # Instantiate a command, in preparation for calling it.
     # @param [Hash] context The runtime context to use with this command.
     def initialize(context={})
@@ -256,7 +255,7 @@ class Pry
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
 
       if collision_type
-        output.puts "#{Pry::Helpers::Text.bold('WARNING:')} Calling Pry command '#{command_match}'," +
+        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}'," +
                                                           "which conflicts with a #{collision_type}.\n\n"
       end
     rescue Pry::RescuableException
@@ -359,7 +358,7 @@ class Pry
       unless dependencies_met?
         gems_needed = Array(command_options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
-        output.puts "\nThe command '#{command_name}' is #{Helpers::Text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
+        output.puts "\nThe command '#{command_name}' is #{text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
         output.puts "-"
         output.puts "Type `install-command #{command_name}` to install the required gems and activate this command."
         return void
