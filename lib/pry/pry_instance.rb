@@ -276,7 +276,6 @@ class Pry
     self.last_exception = e
     e
   ensure
-    update_input_history(code)
     exec_hook :after_eval, result, self
   end
 
@@ -323,6 +322,8 @@ class Pry
     target.eval(code, Pry.eval_path, Pry.current_line).tap do |result|
       set_last_result(result, target, code)
     end
+  ensure
+    update_input_history(code)
   end
 
   # Output the result or pass to an exception handler (if result is an exception).

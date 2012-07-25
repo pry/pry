@@ -4,50 +4,30 @@ if !mri18_and_no_real_source_location?
   describe "Pry::DefaultCommands::Documentation" do
     describe "show-doc" do
       before do
-        @str_output = StringIO.new
         @o = Object.new
       end
 
       it 'should output a method\'s documentation' do
-        redirect_pry_io(InputTester.new("show-doc sample_method", "exit-all"), @str_output) do
-          pry
-        end
-
-        @str_output.string.should =~ /sample doc/
+        pry_tester.eval("show-doc sample_method").should =~ /sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers' do
-        redirect_pry_io(InputTester.new("show-doc sample_method -l", "exit-all"), @str_output) do
-          pry
-        end
-
-        @str_output.string.should =~ /\d: sample doc/
+        pry_tester.eval("show-doc sample_method -l").should =~ /\d: sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers (base one)' do
-        redirect_pry_io(InputTester.new("show-doc sample_method -b", "exit-all"), @str_output) do
-          pry
-        end
-
-        @str_output.string.should =~ /1: sample doc/
+        pry_tester.eval("show-doc sample_method -b").should =~ /1: sample doc/
       end
 
       it 'should output a method\'s documentation if inside method without needing to use method name' do
-        Pad.str_output = @str_output
-
         # sample comment
         def @o.sample
-          redirect_pry_io(InputTester.new("show-doc", "exit-all"), Pad.str_output) do
-            binding.pry
-          end
+          pry_tester(binding).eval('show-doc').should =~ /sample comment/
         end
         @o.sample
-
-        Pad.str_output.string.should =~ /sample comment/
       end
 
       it "should be able to find super methods" do
-
         c = Class.new{
           # classy initialize!
           def initialize(*args); end
@@ -63,10 +43,18 @@ if !mri18_and_no_real_source_location?
         # instancey initialize!
         def o.initialize; end
 
-        mock_pry(binding, "show-doc o.initialize").should =~ /instancey initialize/
-        mock_pry(binding, "show-doc --super o.initialize").should =~ /grungy initialize/
-        mock_pry(binding, "show-doc o.initialize -ss").should =~ /classy initialize/
-        mock_pry(binding, "show-doc --super o.initialize -ss").should == mock_pry("show-doc Object#initialize")
+        t = pry_tester(binding)
+
+        t.eval("show-doc o.initialize").should =~ /instancey initialize/
+        t.eval("show-doc --super o.initialize").should =~ /grungy initialize/
+        t.eval("show-doc o.initialize -ss").should =~ /classy initialize/
+
+        begin
+          require 'pry-doc'
+          t.eval("show-doc --super o.initialize -ss").should ==
+            t.eval("show-doc Object#initialize")
+        rescue LoadError
+        end
       end
     end
 
@@ -82,11 +70,12 @@ if !mri18_and_no_real_source_location?
         }
 
         begin
-          mock_pry(binding, "show-doc c#initialize").should =~ /c.new :foo/
+          t = pry_tester(binding)
+          t.eval("show-doc c#initialize").should =~ /c.new :foo/
           Pry.config.color = true
           # I don't want the test to rely on which colour codes are there, just to
           # assert that "something" is being colourized.
-          mock_pry(binding, "show-doc c#initialize").should.not =~ /c.new :foo/
+          t.eval("show-doc c#initialize").should.not =~ /c.new :foo/
         ensure
           Pry.config.color = false
         end
@@ -101,11 +90,12 @@ if !mri18_and_no_real_source_location?
         }
 
         begin
-          mock_pry(binding, "show-doc c#initialize").should =~ /c.new\(:foo\)/
+          t = pry_tester(binding)
+          t.eval("show-doc c#initialize").should =~ /c.new\(:foo\)/
           Pry.config.color = true
           # I don't want the test to rely on which colour codes are there, just to
           # assert that "something" is being colourized.
-          mock_pry(binding, "show-doc c#initialize").should.not =~ /c.new\(:foo\)/
+          t.eval("show-doc c#initialize").should.not =~ /c.new\(:foo\)/
         ensure
           Pry.config.color = false
         end
@@ -123,9 +113,10 @@ if !mri18_and_no_real_source_location?
         }
 
         begin
+          t = pry_tester(binding)
           Pry.config.color = true
-          mock_pry(binding, "show-doc c#decolumnize").should =~ /ls -l \$HOME/
-          mock_pry(binding, "show-doc c#decolumnize").should.not =~ /`ls -l \$HOME`/
+          t.eval("show-doc c#decolumnize").should =~ /ls -l \$HOME/
+          t.eval("show-doc c#decolumnize").should.not =~ /`ls -l \$HOME`/
         ensure
           Pry.config.color = false
         end
@@ -176,26 +167,38 @@ if !mri18_and_no_real_source_location?
 
       describe "basic functionality, should show docs for top-level module definitions" do
         it 'should show docs for a class' do
-          mock_pry("show-doc ShowSourceTestClass").should =~ /god this is boring1/
+          pry_tester.eval("show-doc ShowSourceTestClass").should =~
+            /god this is boring1/
         end
 
         it 'should show docs for a module' do
-          mock_pry("show-doc ShowSourceTestModule").should =~ /god this is boring2/
+          pry_tester.eval("show-doc ShowSourceTestModule").should =~
+            /god this is boring2/
         end
 
         it 'should show docs for a class when Const = Class.new syntax is used' do
-          mock_pry("show-doc ShowSourceTestClassWeirdSyntax").should =~ /god this is boring3/
+          pry_tester.eval("show-doc ShowSourceTestClassWeirdSyntax").should =~
+            /god this is boring3/
         end
 
         it 'should show docs for a module when Const = Module.new syntax is used' do
-          mock_pry("show-doc ShowSourceTestModuleWeirdSyntax").should =~ /god this is boring4/
+          pry_tester.eval("show-doc ShowSourceTestModuleWeirdSyntax").should =~
+            /god this is boring4/
         end
       end
 
       if !Pry::Helpers::BaseHelpers.mri_18?
         describe "in REPL" do
           it 'should find class defined in repl' do
-            mock_pry("# hello tobina", "class TobinaMyDog", "def woof", "end", "end", "show-doc TobinaMyDog").should =~ /hello tobina/
+            t = pry_tester
+            t.eval <<-RUBY
+              # hello tobina
+              class TobinaMyDog
+                def woof
+                end
+              end
+            RUBY
+            t.eval('show-doc TobinaMyDog').should =~ /hello tobina/
             Object.remove_const :TobinaMyDog
           end
         end
@@ -203,7 +206,6 @@ if !mri18_and_no_real_source_location?
 
       it 'should lookup module name with respect to current context' do
         constant_scope(:AlphaClass, :BetaClass) do
-
           # top-level beta
           class BetaClass
             def alpha
@@ -211,7 +213,6 @@ if !mri18_and_no_real_source_location?
           end
 
           class AlphaClass
-
             # nested beta
             class BetaClass
               def beta
@@ -219,18 +220,14 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          redirect_pry_io(InputTester.new("show-doc BetaClass", "exit-all"), outp=StringIO.new) do
-            AlphaClass.pry
-          end
-
-          outp.string.should =~ /nested beta/
+          pry_tester(AlphaClass).eval("show-doc BetaClass").should =~
+            /nested beta/
         end
       end
 
-      it 'should lookup nested modules' do
+      it 'should look up nested modules' do
         constant_scope(:AlphaClass) do
           class AlphaClass
-
             # nested beta
             class BetaClass
               def beta
@@ -238,20 +235,20 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          mock_pry("show-doc AlphaClass::BetaClass").should =~ /nested beta/
+          pry_tester.eval("show-doc AlphaClass::BetaClass").should =~
+            /nested beta/
         end
       end
 
       describe "show-doc -a" do
         it 'should show the docs for all monkeypatches defined in different files' do
-
           # local monkeypatch
           class TestClassForShowSource
             def beta
             end
           end
 
-          result = mock_pry("show-doc TestClassForShowSource -a")
+          result = pry_tester.eval("show-doc TestClassForShowSource -a")
           result.should =~ /used by/
           result.should =~ /local monkeypatch/
         end
@@ -274,11 +271,8 @@ if !mri18_and_no_real_source_location?
         end
 
         it 'should return doc for current module' do
-          redirect_pry_io(InputTester.new("show-doc"), out = StringIO.new) do
-            Pry.start(TestHost::M)
-          end
-
-          out.string.should =~ /hello there froggy/
+          pry_tester(TestHost::M).eval("show-doc").should =~
+            /hello there froggy/
         end
 
       end
@@ -287,7 +281,6 @@ if !mri18_and_no_real_source_location?
       describe "should skip over broken modules" do
         before do
           module TestHost
-
             # hello
             module M
               binding.eval("def a; end", "dummy.rb", 1)
@@ -308,16 +301,11 @@ if !mri18_and_no_real_source_location?
         end
 
         it 'should return doc for first valid module' do
-          redirect_pry_io(InputTester.new("show-doc TestHost::M"), out = StringIO.new) do
-            Pry.start
-          end
-
-          out.string.should =~ /goodbye/
-          out.string.should.not =~ /hello/
+          result = pry_tester.eval("show-doc TestHost::M")
+          result.should =~ /goodbye/
+          result.should.not =~ /hello/
         end
-
       end
     end
-
   end
 end
