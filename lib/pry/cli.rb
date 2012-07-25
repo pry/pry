@@ -123,11 +123,7 @@ Copyright (c) 2011 John Mair (banisterfiend)
   end
 
   on "installed-plugins", "List installed plugins." do
-    puts "Installed Plugins:"
-    puts "--"
-    Pry.locate_plugins.each do |plugin|
-      puts "#{plugin.name}".ljust(18) + plugin.spec.summary
-    end
+    Pry::PluginManager.show_installed_plugins(Pry.locate_plugins)
     exit
   end
 

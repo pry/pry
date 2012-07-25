@@ -60,6 +60,20 @@ class Pry
       alias enabled? enabled
     end
 
+    # Display a list of all installed plugins.
+    #
+    # @param [Array<PluginManager::Plugin>] plugins The Array of installed
+    #   plugins.
+    # @param [IO] output The output stream.
+    # @return [void]
+    def self.show_installed_plugins(plugins, output=Pry.config.output)
+      output.puts "Installed Plugins:"
+      output.puts "--"
+      plugins.each do |plugin|
+        output.puts "#{ plugin.name }".ljust(18) + plugin.spec.summary
+      end
+    end
+
     def initialize
       @plugins = []
     end
