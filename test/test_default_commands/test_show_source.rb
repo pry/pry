@@ -206,9 +206,15 @@ if !mri18_and_no_real_source_location?
         end
       end
 
-      it "should output source for procs/lambdas" do
+      it "should output source for procs/lambdas stored in variables" do
         hello = proc { puts 'hello world!' }
         mock_pry(binding, "show-source hello").should =~ /proc { puts 'hello world!' }/
+      end
+
+      it "should output source for procs/lambdas stored in constants" do
+        HELLO = proc { puts 'hello world!' }
+        mock_pry(binding, "show-source HELLO").should =~ /proc { puts 'hello world!' }/
+        Object.remove_const(:HELLO)
       end
 
       it "should output source for method objects" do
