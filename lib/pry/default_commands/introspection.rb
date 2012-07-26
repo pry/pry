@@ -28,7 +28,7 @@ class Pry
       def input_type(input,target)
         if input == ""
           :blank
-        elsif target.eval("defined? #{input} ") =~ /variable/ &&
+        elsif target.eval("defined? #{input} ") =~ /variable|constant/ &&
               target.eval(input).respond_to?(:source_location)
           :sourcable_object
         elsif Pry::Method.from_str(input,target)
@@ -137,7 +137,7 @@ class Pry
           opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
           opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module/class"
         end
-        
+
         def process_sourcable_object
           name = args.first
           object = target.eval(name)
