@@ -274,4 +274,23 @@ OUTPUT
 
     @indent.indent(input).should == output
   end
+
+  describe "nesting" do
+      test = File.read("test/example_nesting.rb")
+
+      test.lines.each_with_index do |line, i|
+        result = line.split("#").last.strip
+        if result == ""
+          it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
+            lambda {
+              Pry::Indent.nesting_at(test, i + 1)
+            }.should.raise(Pry::Indent::UnparseableNestingError)
+          end
+        else
+          it "should parse nesting on line #{i + 1} of example_nesting.rb" do
+            Pry::Indent.nesting_at(test, i + 1).should == eval(result)
+          end
+        end
+      end
+    end
 end
