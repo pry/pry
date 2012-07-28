@@ -17,9 +17,12 @@ class Pry
   class Indent
     include Helpers::BaseHelpers
 
+    # Raised if {#module_nesting} would not work.
+    class UnparseableNestingError < StandardError; end
+
     # @return [String] String containing the spaces to be inserted before the next line.
     attr_reader :indent_level
-    
+
     # @return [Array<String>] The stack of open tokens.
     attr_reader :stack
 
@@ -73,6 +76,32 @@ class Pry
     # don't affect the surrounding code.
     MIDWAY_TOKENS = %w(when else elsif ensure rescue)
 
+    # Clean the indentation of a fragment of ruby.
+    #
+    # @param [String] str
+    # @return [String]
+    def self.indent(str)
+      new.indent(str)
+    end
+
+    # Get the module nesting at the given point in the given string.
+    #
+    # NOTE If the line specified contains a method definition, then the nesting
+    # at the start of the method definition is used. Otherwise the nesting from
+    # the end of the line is used.
+    #
+    # @param String str  The ruby code to analyze
+    # @param Fixnum line_number  The line number (starting from 1)
+    # @return [Array<String>]
+    def self.nesting_at(str, line_number)
+      indent = new
+      lines = str.split("\n")
+      n = line_number - 1
+      to_indent = lines[0...n] + (lines[n] || "").split("def").first(1)
+      indent.indent(to_indent.join("\n") + "\n")
+      indent.module_nesting
+    end
+
     def initialize
       reset
     end
@@ -84,6 +113,8 @@ class Pry
       @heredoc_queue = []
       @close_heredocs = {}
       @string_start = nil
+      @awaiting_class = false
+      @module_nesting = []
       self
     end
 
@@ -191,6 +222,8 @@ class Pry
         last_token, last_kind = token, kind unless kind == :space
         next if IGNORE_TOKENS.include?(kind)
 
+        track_module_nesting(token, kind)
+
         seen_for_at << add_after if token == "for"
 
         if kind == :delimiter
@@ -199,7 +232,8 @@ class Pry
           @stack << token
           add_after += 1
         elsif token == OPEN_TOKENS[@stack.last]
-          @stack.pop
+          popped = @stack.pop
+          track_module_nesting_end(popped)
           if add_after == 0
             remove_before += 1
           else
@@ -279,6 +313,68 @@ class Pry
     # @return String
     def open_delimiters_line
       "puts #{open_delimiters.join(", ")}"
+    end
+
+    # Update the internal state relating to module nesting.
+    #
+    # It's responsible for adding to the @module_nesting array, which looks
+    # something like:
+    #
+    # [ ["class", "Foo"], ["module", "Bar::Baz"], ["class <<", "self"] ]
+    #
+    # A nil value in the @module_nesting array happens in two places: either
+    # when @awaiting_token is true and we're still waiting for the string to
+    # fill that space, or when a parse was rejected.
+    #
+    # At the moment this function is quite restricted about what formats it will
+    # parse, for example we disallow expressions after the class keyword. This
+    # could maybe be improved in the future.
+    #
+    # @param [String] token  a token from Coderay
+    # @param [Symbol] kind  the kind of that token
+    def track_module_nesting(token, kind)
+      if kind == :keyword && (token == "class" || token == "module")
+        @module_nesting << [token, nil]
+        @awaiting_class = true
+      elsif @awaiting_class
+        if kind == :operator && token == "<<" && @module_nesting.last[0] == "class"
+          @module_nesting.last[0] = "class <<"
+          @awaiting_class = true
+        elsif kind == :class && token =~ /\A(self|[A-Z:][A-Za-z0-9_:]*)\z/
+          @module_nesting.last[1] = token if kind == :class
+          @awaiting_class = false
+        else
+          # leave @nesting[-1][
+          @awaiting_class = false
+        end
+      end
+    end
+
+    # Update the internal state relating to module nesting on 'end'.
+    #
+    # If the current 'end' pairs up with a class or a module then we should
+    # pop an array off of @module_nesting
+    #
+    # @param [String] token  a token from Coderay
+    # @param [Symbol] kind  the kind of that token
+    def track_module_nesting_end(token, kind=:keyword)
+      if kind == :keyword && (token == "class" || token == "module")
+        @module_nesting.pop
+      end
+    end
+
+    # Return a list of strings which can be used to re-construct the Module.nesting at
+    # the current point in the file.
+    #
+    # Returns nil if the syntax of the file was not recognizable.
+    #
+    # @return [Array<String>]
+    def module_nesting
+      @module_nesting.map do |(kind, token)|
+        raise UnparseableNestingError, @module_nesting.inspect if token.nil?
+
+        "#{kind} #{token}"
+      end
     end
 
     # Return a string which, when printed, will rewrite the previous line with
