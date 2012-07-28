@@ -295,6 +295,15 @@ describe "Pry::DefaultCommands::Introspection" do
             def y?
               :because
             end
+
+            class B
+              G = :nawt
+
+              def foo
+                :maybe
+                G
+              end
+            end
           end
         EOS
         @tempfile.flush
@@ -402,6 +411,13 @@ describe "Pry::DefaultCommands::Introspection" do
 
           X.instance_method(:y?).owner.should == X
           X.new.y?.should == :maybe
+        end
+
+        it "should preserve module nesting" do
+          mock_pry("edit-method -p X::B#foo")
+
+          X::B.instance_method(:foo).owner.should == X::B
+          X::B.new.foo.should == :nawt
         end
       end
 
