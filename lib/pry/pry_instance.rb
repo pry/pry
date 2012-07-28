@@ -405,7 +405,7 @@ class Pry
 
     begin
       if !process_command(val, eval_string, target)
-        eval_string << "#{indented_val}\n" unless val.empty?
+        eval_string << "#{indented_val.chomp}\n" unless val.empty?
       end
     ensure
       Pry.history << indented_val unless input.is_a?(StringIO)
