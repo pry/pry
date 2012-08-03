@@ -77,6 +77,7 @@ class Pry
       def name
         super.to_s == "" ? "#<class(Pry::Command #{match.inspect})>" : super
       end
+
       def inspect
         name
       end
@@ -459,7 +460,7 @@ class Pry
     end
   end
 
-  # A super-class ofr Commands with structure.
+  # A super-class of Commands with structure.
   #
   # This class implements the bare-minimum functionality that a command should
   # have, namely a --help switch, and then delegates actual processing to its
