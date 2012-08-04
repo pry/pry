@@ -58,5 +58,27 @@ describe Pry::InputCompleter do
     completer.call('@@nu').include?('@@number').should              == true
     completer.call('@@number.cl').include?('@@number.class').should == true
   end
+
+  it 'should complete previous scope' do
+    module Bar
+      @barvar = :bar
+    end
+
+    module Baz
+      @bar = Bar
+      @bazvar = :baz
+    end
+
+    pry = Pry.new()
+    stack = pry.binding_stack
+    stack.push(Pry.binding_for(Baz))
+    stack.push(Pry.binding_for(Bar))
+
+    completer = Pry::InputCompleter.build_completion_proc(
+      Pry.binding_for(Bar), pry
+    )
+
+    completer.call('../@').include?("../@bazvar").should == true
+  end
 end
 

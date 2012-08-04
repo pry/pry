@@ -41,7 +41,7 @@ class Pry
     # Return a new completion proc for use by Readline.
     # @param [Binding] target The current binding context.
     # @param [Array<String>] commands The array of Pry commands.
-    def self.build_completion_proc(target, commands=[""])
+    def self.build_completion_proc(target, pry=nil, commands=[""])
       proc do |input|
         begin
           bind = target
@@ -177,6 +177,20 @@ class Pry
             end
             select_message(receiver, message, candidates)
 
+          when /^(\.{2}\/)(.*)$/
+            # previous scope (../) *
+            stack = pry.binding_stack.dup
+            stack.pop
+            if stack.length >= 1
+              receiver = $1
+              message = $2
+              scope = stack[-1]
+
+              ivars = eval("instance_variables", scope)
+              locals = eval("local_variables", scope)
+              select_message(receiver, message, ivars + locals)
+            end
+
           when /^\.([^.]*)$/
             # unknown(maybe String)
 
@@ -207,13 +221,17 @@ class Pry
 
     def self.select_message(receiver, message, candidates)
       candidates.grep(/^#{message}/).collect do |e|
-      	case e
-      	when /^[a-zA-Z_]/
-      	  receiver + "." + e
-      	when /^[0-9]/
-      	when *Operators
-      	  #receiver + " " + e
-      	end
+        if receiver.match(/^\.{2}\//)
+          receiver + e.to_s
+        else
+          case e
+          when /^[a-zA-Z_]/
+            receiver + "." + e
+          when /^[0-9]/
+          when *Operators
+            #receiver + " " + e
+          end
+        end
       end
     end
   end
