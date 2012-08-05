@@ -23,6 +23,12 @@ describe Pry::Code do
       end
     end
 
+    should 'use the provided extension' do
+      temp_file('.c') do |f|
+        Pry::Code.from_file(f.path, :ruby).code_type.should == :ruby
+      end
+    end
+
     should 'raise an error if the file doesn\'t exist' do
       proc do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')

@@ -41,7 +41,7 @@ class Pry
         else
           if File.readable?(fn)
             f = File.open(fn, 'r')
-            code_type = type_from_filename(fn)
+            code_type ||= type_from_filename(fn)
           else
             raise MethodSource::SourceNotFoundError, "Cannot open #{fn.inspect} for reading."
           end
