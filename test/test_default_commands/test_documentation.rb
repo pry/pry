@@ -8,15 +8,15 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should output a method\'s documentation' do
-        pry_tester.eval("show-doc sample_method").should =~ /sample doc/
+        pry_eval("show-doc sample_method").should =~ /sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers' do
-        pry_tester.eval("show-doc sample_method -l").should =~ /\d: sample doc/
+        pry_eval("show-doc sample_method -l").should =~ /\d: sample doc/
       end
 
       it 'should output a method\'s documentation with line numbers (base one)' do
-        pry_tester.eval("show-doc sample_method -b").should =~ /1: sample doc/
+        pry_eval("show-doc sample_method -b").should =~ /1: sample doc/
       end
 
       it 'should output a method\'s documentation if inside method without needing to use method name' do
@@ -167,22 +167,22 @@ if !mri18_and_no_real_source_location?
 
       describe "basic functionality, should show docs for top-level module definitions" do
         it 'should show docs for a class' do
-          pry_tester.eval("show-doc ShowSourceTestClass").should =~
+          pry_eval("show-doc ShowSourceTestClass").should =~
             /god this is boring1/
         end
 
         it 'should show docs for a module' do
-          pry_tester.eval("show-doc ShowSourceTestModule").should =~
+          pry_eval("show-doc ShowSourceTestModule").should =~
             /god this is boring2/
         end
 
         it 'should show docs for a class when Const = Class.new syntax is used' do
-          pry_tester.eval("show-doc ShowSourceTestClassWeirdSyntax").should =~
+          pry_eval("show-doc ShowSourceTestClassWeirdSyntax").should =~
             /god this is boring3/
         end
 
         it 'should show docs for a module when Const = Module.new syntax is used' do
-          pry_tester.eval("show-doc ShowSourceTestModuleWeirdSyntax").should =~
+          pry_eval("show-doc ShowSourceTestModuleWeirdSyntax").should =~
             /god this is boring4/
         end
       end
@@ -235,7 +235,7 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          pry_tester.eval("show-doc AlphaClass::BetaClass").should =~
+          pry_eval("show-doc AlphaClass::BetaClass").should =~
             /nested beta/
         end
       end
@@ -248,7 +248,7 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          result = pry_tester.eval("show-doc TestClassForShowSource -a")
+          result = pry_eval("show-doc TestClassForShowSource -a")
           result.should =~ /used by/
           result.should =~ /local monkeypatch/
         end
@@ -301,7 +301,7 @@ if !mri18_and_no_real_source_location?
         end
 
         it 'should return doc for first valid module' do
-          result = pry_tester.eval("show-doc TestHost::M")
+          result = pry_eval("show-doc TestHost::M")
           result.should =~ /goodbye/
           result.should.not =~ /hello/
         end
