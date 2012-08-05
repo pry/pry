@@ -14,17 +14,17 @@ describe "'help' command" do
   end
 
   it 'should display help for a specific command' do
-    mock_pry('help ls').should =~ /Usage: ls/
+    pry_eval('help ls').should =~ /Usage: ls/
   end
 
   it 'should display help for a regex command with a "listing"' do
     @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
-    mock_pry('help foo').should =~ /Test listing/
+    pry_eval('help foo').should =~ /Test listing/
   end
 
   it 'should display help for a command with a spaces in its name' do
-    @set.command "command with spaces", "description of a command with spaces" do; end
-    mock_pry('help "command with spaces"').should =~ /description of a command with spaces/
+    @set.command "cmd with spaces", "desc of a cmd with spaces" do; end
+    pry_eval('help "cmd with spaces"').should =~ /desc of a cmd with spaces/
   end
 
   it 'should display help for all commands with a description' do
@@ -33,7 +33,7 @@ describe "'help' command" do
     @set.command "c" do;end
     @set.command "d", "" do;end
 
-    output = mock_pry('help')
+    output = pry_eval('help')
     output.should =~ /Test listing/
     output.should =~ /description for b/
     output.should =~ /No description/
@@ -45,7 +45,7 @@ describe "'help' command" do
     @set.command 'maa', "Mooerizes" do; end
     @set.command 'baa', "Booerizes" do; end
 
-    doc = mock_pry('help')
+    doc = pry_eval('help')
 
     order = [doc.index("baa"),
              doc.index("faa"),
