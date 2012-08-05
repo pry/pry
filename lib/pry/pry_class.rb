@@ -63,7 +63,7 @@ class Pry
   def self.load_file_at_toplevel(file_name)
     full_name = File.expand_path(file_name)
     begin
-      toplevel_binding.eval(File.read(full_name)) if File.exists?(full_name)
+      toplevel_binding.eval(File.read(full_name), full_name) if File.exists?(full_name)
     rescue RescuableException => e
       puts "Error loading #{file_name}: #{e}"
     end
