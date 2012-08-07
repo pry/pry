@@ -150,13 +150,12 @@ describe "Pry::DefaultCommands::Input" do
 
   describe "play" do
     it 'should play a string variable  (with no args)' do
-      b = binding
-      b.eval('x = "\"hello\""')
+      x = "\"hello\""
       redirect_pry_io(InputTester.new("play x", "exit-all"), @str_output) do
-        Pry.start b, :hooks => Pry::Hooks.new
+        Pry.start binding, :hooks => Pry::Hooks.new
       end
 
-      @str_output.string.should =~ /hello/
+      @str_output.string.should =~ /"hello"/
     end
 
     it 'should play a string variable  (with no args) using --lines to select what to play' do
