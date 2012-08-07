@@ -209,6 +209,10 @@ def pry_tester(context = TOPLEVEL_BINDING, &block)
   end
 end
 
+def pry_eval(*eval_strs)
+  pry_tester.eval(*eval_strs)
+end
+
 class PryTester
   attr_reader :pry, :out
 
