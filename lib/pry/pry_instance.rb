@@ -249,7 +249,7 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    show_result(result) if should_print?
+    show_result(result)
   end
 
   # Perform a read-eval
@@ -327,8 +327,10 @@ class Pry
   def show_result(result)
     if last_result_is_exception?
       exception_handler.call(output, result, self)
-    else
+    elsif should_print?
       print.call(output, result)
+    else
+      # nothin'
     end
   rescue RescuableException => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
@@ -614,11 +616,10 @@ class Pry
   end
 
   # Whether the print proc should be invoked.
-  # Currently only invoked if the output is not suppressed OR the last result
-  # is an exception regardless of suppression.
+  # Currently only invoked if the output is not suppressed.
   # @return [Boolean] Whether the print proc should be invoked.
   def should_print?
-    !@suppress_output || last_result_is_exception?
+    !@suppress_output
   end
 
   # Returns the appropriate prompt to use.
