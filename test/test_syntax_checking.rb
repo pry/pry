@@ -59,8 +59,12 @@ describe Pry do
     Pry::Code.complete_expression?("puts 1, 2,\n3").should == true
   end
 
+  it "should not suppress the error output if the line ends in ;" do
+    mock_pry("raise RuntimeError, 'foo';").should =~ /RuntimeError/
+  end
+
   it "should not clobber _ex_ on a SyntaxError in the repl" do
-    mock_pry("raise RuntimeError, 'foo';", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
+    mock_pry("raise RuntimeError, 'foo'", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
   end
 
   it "should allow whitespace delimeted strings" do
