@@ -134,17 +134,17 @@ class Pry
                   $stdout
                 end
 
-        #if text.lines.count < Pry::Pager.page_size || !Pry.pager
-        #  out.puts text
-        #  return
-        #end
+        if text.lines.count < Pry::Pager.page_size || !Pry.pager
+          out.puts text
+          return
+        end
 
         # FIXME! Another JRuby hack
-        
+        if jruby?
           Pry::Pager.new(text, out).page
-        #else
-        #  lesspipe { |less| less.puts text }
-        #end
+        else
+          lesspipe { |less| less.puts text }
+        end
       rescue Errno::ENOENT
         simple_pager(text, out)
       rescue Errno::EPIPE
