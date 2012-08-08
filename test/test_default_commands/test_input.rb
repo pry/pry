@@ -236,7 +236,6 @@ describe "Pry::DefaultCommands::Input" do
       @str_output.string.should =~ /:test_method_content/
     end
 
-
     it 'should play a method with the -m switch (multiple line)' do
       o = Object.new
 
