@@ -264,19 +264,15 @@ class Pry
     target = Pry.binding_for(target)
 
     # It's not actually redundant to inject them continually as we may have
-    # moved into the scope of a new Binding (e.g the user typed `cd`)
+    # moved into the scope of a new Binding (e.g the user typed `cd`).
     inject_sticky_locals(target)
 
     code = r(target)
 
-    exec_hook :before_eval, code, self
-
-    result = evaluate_ruby(code, target)
+    evaluate_ruby(code, target)
   rescue RescuableException => e
     self.last_exception = e
     e
-  ensure
-    exec_hook :after_eval, result, self
   end
 
   # Perform a read.
@@ -318,12 +314,13 @@ class Pry
   def evaluate_ruby(code, target = binding_stack.last)
     target = Pry.binding_for(target)
     inject_sticky_locals(target)
+    exec_hook :before_eval, code, self
 
-    target.eval(code, Pry.eval_path, Pry.current_line).tap do |result|
-      set_last_result(result, target, code)
-    end
+    result = target.eval(code, Pry.eval_path, Pry.current_line)
+    set_last_result(result, target, code)
   ensure
     update_input_history(code)
+    exec_hook :after_eval, result, self
   end
 
   # Output the result or pass to an exception handler (if result is an exception).
