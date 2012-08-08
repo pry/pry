@@ -1,3 +1,4 @@
+require 'delegate'
 require 'pry/helpers/documentation_helpers'
 
 class Pry
@@ -471,19 +472,141 @@ class Pry
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
 
+    # The class that couples together sub commands and top-level options (that
+    # are known as "default" options). The explicitly defined instance methods
+    # of this class provide the coupling with default options of a
+    # Slop::Commands instance. An instance of this class delegates all remaining
+    # methods to an instance of Slop::Commands class.
+    #
+    # @example
+    #   # Define Slop commands.
+    #   commands = Slop::Commands.new do |cmd|
+    #     cmd.on :action do
+    #       on :f, :force, "Use force"
+    #     end
+    #
+    #     cmd.default do
+    #       on :v, :verbose, "Verbose mode"
+    #     end
+    #   end
+    #
+    #   # Pass Slop commands as an argument to Options class.
+    #   opts = Options.new(Slop::Commands.new)
+    #   opts.default
+    #   # => #<Slop ...>
+    #
+    #   # Parse sub commands.
+    #   opts.parse %'action --force'
+    #   opts[:action].present?(:force)
+    #   # => true
+    #   opts.present?(:force)
+    #   # => false
+    #
+    #   # Parse default options.
+    #   opts.parse %'--verbose'
+    #   opts.verbose?
+    #   # => true
+    #   opts[:action].present?(:verbose)
+    #   # => false
+    #   opts.verbose
+    #   # => NoMethodError
+    class Options < SimpleDelegator
+
+      # @param [Slop::Commands] opts The sub commands and options.
+      # @raise [ArgumentError] if the +opts+ isn't a kind of Slop::Commands.
+      #   instance.
+      def initialize(opts)
+        unless opts.kind_of?(Slop::Commands)
+          raise ArgumentError, "Expected an instance of Slop::Command, not #{opts.class} one"
+        end
+        super
+      end
+
+      # Fetch the instance of Slop tied to a command or fetch an options
+      # argument value.
+      #
+      # If the +key+ doesn't correspond to any of the sub commands, the method
+      # tries to find the same +key+ in the list of default options.
+      #
+      # @example
+      #   # A sub command example.
+      #   opts = Options.new(commands)
+      #   opts.parse %w'download video.ogv'
+      #
+      #   opts[:download]
+      #   # => #<Slop ...>
+      #
+      #   # A default option example.
+      #   opts = Options.new(commands)
+      #   opts.parse %w'--host=localhost download video.ogv'
+      #   opts[:host]
+      #   # => true
+      #
+      # @param [String, Symbol] key The sub command name or the default option.
+      # @return [Slop, Boolean, nil] Either instance of Slop tied to the
+      #   command, if any; or `true`, if the default option has the given +key+;
+      #   or nil, if can't find the +key+.
+      # @note The method never returns `false`.
+      def [](key)
+        if command_key = self.get(key)
+          command_key
+        else
+          default.get(key)
+        end
+      end
+
+      # Check for a default options presence.
+      #
+      # @param [String, Symbol] keys The list of keys to check.
+      # @return [Boolean] Whether all of the +keys+ are present in the parsed
+      #   arguments.
+      def present?(*keys)
+        default.present?(*keys)
+      end
+
+      # Convenience method for {#present?}.
+      #
+      # @example
+      #   opts.parse %w'--verbose'
+      #   opts.verbose?
+      #   # => true
+      #   opts.terse?
+      #   # => false
+      #
+      # @return [Boolean, void] On condition of +method_name+ ends with a
+      #   question mark returns `true`, if the _default option_ is present (and
+      #   `false`, if not). Otherwise, calls `super`.
+      def method_missing(method_name, *args, &block)
+        name = method_name.to_s
+        if name.end_with?("?")
+          present?(name.chop)
+        else
+          super
+        end
+      end
+
+      private
+
+      # @return [Slop] The instance of Slop representing default options.
+      def default
+        __getobj__[:default]
+      end
+
+    end
+
     attr_accessor :opts
     attr_accessor :args
 
     # Set up `opts` and `args`, and then call `process`.
     #
-    # This function will display help if necessary.
+    # This method will display help if necessary.
     #
     # @param [Array<String>] args The arguments passed
     # @return [Object] The return value of `process` or VOID_VALUE
     def call(*args)
       setup
 
-      self.opts = slop
+      self.opts = Options.new(slop)
       self.args = self.opts.parse!(args)
 
       if opts.present?(:help)
@@ -499,12 +622,18 @@ class Pry
       slop.help
     end
 
-    # Return an instance of Slop that can parse the options that this command accepts.
+    # Return an instance of Slop::Commands that can parse either sub commands
+    # or the options that this command accepts.
     def slop
-      Slop.new do |opt|
+      opts = proc do |opt|
         opt.banner(unindent(self.class.banner))
         options(opt)
         opt.on(:h, :help, "Show this message.")
+      end
+
+      Slop::Commands.new do |cmd|
+        sub_commands(cmd)
+        cmd.default { |opt| opts.call(opt) }
       end
     end
 
@@ -517,23 +646,35 @@ class Pry
       end.flatten(1).compact + super
     end
 
-    # A function called just before `options(opt)` as part of `call`.
+    # A method called just before `options(opt)` as part of `call`.
     #
-    # This function can be used to set up any context your command needs to run, for example
-    # requiring gems, or setting default values for options.
+    # This method can be used to set up any context your command needs to run,
+    # for example requiring gems, or setting default values for options.
     #
     # @example
-    #   def setup;
+    #   def setup
     #     require 'gist'
     #     @action = :method
     #   end
     def setup; end
 
-    # A function to setup Slop so it can parse the options your command expects.
+    # A method to setup Slop::Commands so it can parse the sub commands your
+    # command expects. If you need to set up default values, use `setup`
+    # instead.
     #
-    # NOTE: please don't do anything side-effecty in the main part of this method,
-    # as it may be called by Pry at any time for introspection reasons. If you need
-    # to set up default values, use `setup` instead.
+    # @example
+    #   def sub_commands(cmd)
+    #     cmd.on(:d, :download, "Download a content from a server.") do
+    #       @action = :download
+    #     end
+    #   end
+    def sub_commands(cmd); end
+
+    # A method to setup Slop so it can parse the options your command expects.
+    #
+    # @note Please don't do anything side-effecty in the main part of this
+    # method, as it may be called by Pry at any time for introspection reasons.
+    # If you need to set up default values, use `setup` instead.
     #
     # @example
     #  def options(opt)

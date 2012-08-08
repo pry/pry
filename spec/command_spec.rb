@@ -138,7 +138,6 @@ describe "Pry::Command" do
     end
   end
 
-
   describe 'context' do
     context = {
       :target => binding,
@@ -168,12 +167,89 @@ describe "Pry::Command" do
     end
   end
 
+  describe Pry::ClassCommand::Options do
+    before do
+      Options = Pry::ClassCommand::Options
+
+      commands = Slop::Commands.new do |cmd|
+        cmd.on :boom do
+          on :v, :verbose, "Verbose boom!"
+        end
+
+        cmd.default do
+          on :n, :nothing, "Do nothing"
+        end
+      end
+
+      @opts = Options.new(commands)
+    end
+
+    describe '#new arguments' do
+      it 'should accept objects that are kind of Slop::Commands as an argument' do
+        class MyCommands < Slop::Commands
+        end
+
+        lambda { Options.new(MyCommands.new) }.should.not.raise ArgumentError
+      end
+
+      it 'should raise ArgumentError if the argument is not kind of Slop::Commands' do
+        lambda { Options.new(Array.new) }.should.raise ArgumentError
+      end
+    end
+
+    describe '#[] method' do
+      it 'should fetch commands' do
+        @opts[:boom].should.be.kind_of Slop
+      end
+
+      it 'should parse default options, if cannot fetch a command' do
+        @opts.parse %w'--nothing'
+
+        @opts[:nothing].should == true
+        @opts[:nothing].should == @opts[:default][:nothing]
+      end
+
+      it 'should return nil if cannot find neither a command nor a default option' do
+        @opts.parse %w'--something'
+
+        @opts[:something].should == nil
+        @opts[:something].should == @opts[:default][:something]
+      end
+    end
+
+    it 'should forward implicitly defined methods to Slop::Commands' do
+      opts = Options.new(Slop::Commands.new)
+      opts.global { on "--something" }
+      opts.parse %w'--something'
+
+      opts[:global][:something].should == true
+    end
+
+    it 'should check for a default options presence' do
+      @opts.parse %w'--nothing'
+
+      @opts.present?(:nothing).should == true
+      @opts.present?(:anything).should == false
+    end
+
+    it "should call #present? on NoMethodError, if the caller's name ends with '?'" do
+      @opts.parse %w'--nothing'
+
+      @opts.nothing?.should == true
+      @opts.anything?.should == false
+    end
+  end
+
   describe 'classy api' do
 
-    it 'should call setup, then options, then process' do
+    it 'should call setup, then sub_commands, then options, then process' do
       cmd = @set.create_command 'rooster', "Has a tasty towel" do
         def setup
           output.puts "setup"
+        end
+
+        def sub_commands(cmd)
+          output.puts "sub_commands"
         end
 
         def options(opt)
@@ -185,7 +261,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).output.should == "setup\noptions\nprocess\n"
+      mock_command(cmd).output.should == "setup\nsub_commands\noptions\nprocess\n"
     end
 
     it 'should raise a command error if process is not overridden' do
@@ -212,17 +288,34 @@ describe "Pry::Command" do
 
     it 'should provide opts and args as provided by slop' do
       cmd = @set.create_command 'lintilla', "One of 800,000,000 clones" do
-         def options(opt)
-           opt.on :f, :four, "A numeric four", :as => Integer, :optional_argument => true
-         end
+        def options(opt)
+          opt.on :f, :four, "A numeric four", :as => Integer, :optional_argument => true
+        end
 
-         def process
-           args.should == ['four']
-           opts[:f].should == 4
-         end
+        def process
+          args.should == ['four']
+          opts[:f].should == 4
+        end
       end
 
       mock_command(cmd, %w(--four 4 four))
+    end
+
+    it 'should provide cmds and args as provided by slop' do
+      cmd = @set.create_command 'dichlorvos', 'Kill insects' do
+        def sub_commands(cmd)
+          cmd.on :kill do
+            on :i, :insect, "An insect."
+          end
+        end
+
+        def process
+          args.should == ["ant"]
+          opts[:kill][:insect].should == true
+        end
+      end
+
+      mock_command(cmd, %w(kill --insect ant))
     end
 
     it 'should allow overriding options after definition' do
