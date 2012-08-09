@@ -1,8 +1,21 @@
 class Pry::Pager
-  def self.page_size
-    27
-  end
-
+  #
+  # @param [String] text
+  #   A piece of text to run through a pager.
+  #
+  # @param [:simple] pager
+  #   Use the pure ruby pager.
+  #   
+  # @param [:system] pager
+  #   Use the system pager (less)
+  #   
+  # @param [nil] pager
+  #   Infer what pager to use from the environment.
+  #   What this really means is that JRuby uses the pure-ruby pager, and other
+  #   platforms will use the system pager.
+  #
+  # @return [void]
+  #
   def self.page(text, pager = nil)
     case pager
     when nil
@@ -15,6 +28,10 @@ class Pry::Pager
     else
       raise "'#{pager}' is not a recongized pager."
     end
+  end
+
+  def self.page_size
+    27
   end
 
   def initialize(text)
