@@ -17,10 +17,6 @@ class Pry::Pager
     end
   end
 
-  def page
-    raise NotImplementedError, "#{self.class} does not implement #page."
-  end
-
   def initialize(text)
     @text = text
   end
