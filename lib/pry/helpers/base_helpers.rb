@@ -137,10 +137,10 @@ class Pry
         if text.lines.count < Pry::Pager.page_size || !Pry.pager
           out.puts text
         else
-          Pry::Pager.page(text, out)
+          Pry::Pager.page(text)
         end
       rescue Errno::ENOENT
-        simple_pager(text, out)
+        Pry::Pager.page(text)
       rescue Errno::EPIPE
       end
 
