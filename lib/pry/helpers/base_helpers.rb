@@ -140,7 +140,7 @@ class Pry
           Pry::Pager.page(text)
         end
       rescue Errno::ENOENT
-        Pry::Pager.page(text)
+        Pry::Pager.page(text, :simple)
       rescue Errno::EPIPE
       end
 

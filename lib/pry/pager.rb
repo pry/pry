@@ -3,9 +3,18 @@ class Pry::Pager
     27
   end
 
-  def self.page(text)
-    is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-    is_jruby ? SimplePager.new(text).page : SystemPager.new(text).page
+  def self.page(text, pager = nil)
+    case pager
+    when nil
+      is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
+      is_jruby ? SimplePager.new(text).page : SystemPager.new(text).page
+    when :simple
+      SimplePager.new(text).page
+    when :system
+      SystemPager.new(text).page
+    else
+      raise "'#{pager}' is not a recongized pager."
+    end
   end
 
   def page
