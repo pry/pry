@@ -22,14 +22,60 @@ class Pry
         BANNER
 
         def process
-          stack, old_stack = context_from_object_path(arg_string, _pry_, state.old_stack||[])
-          state.old_stack = old_stack
-          _pry_.binding_stack = stack unless stack.nil?
+          # Extract command arguments. Delete blank arguments like " ", but
+          # don't delete empty strings like "".
+          path      = arg_string.split(/\//).delete_if { |a| a =~ /\A\s+\z/ }
+          stack     = _pry_.binding_stack.dup
+          old_stack = state.old_stack || []
+
+          # Special case when we only get a single "/", return to root.
+          if path.empty?
+            state.old_stack = stack.dup unless old_stack.empty?
+            stack = [stack.first]
+          end
+
+          path.each_with_index do |context, i|
+            begin
+              case context.chomp
+              when ""
+                state.old_stack = stack.dup
+                stack = [stack.first]
+              when "::"
+                state.old_stack = stack.dup
+                stack.push(TOPLEVEL_BINDING)
+              when "."
+                next
+              when ".."
+                unless stack.size == 1
+                  # Don't rewrite old_stack if we're in complex expression
+                  # (e.g.: `cd 1/2/3/../4).
+                  state.old_stack = stack.dup if path.first == ".."
+                  stack.pop
+                end
+              when "-"
+                unless old_stack.empty?
+                  # Interchange current stack and old stack with each other.
+                  stack, state.old_stack = state.old_stack, stack
+                end
+              else
+                state.old_stack = stack.dup if i == 0
+                stack.push(Pry.binding_for(stack.last.eval(context)))
+              end
+
+            rescue RescuableException => e
+              # Restore old stack to its initial values.
+              state.old_stack = old_stack
+
+              output.puts "Bad object path: #{arg_string.chomp}. Failed trying to resolve: #{context}"
+              output.puts e.inspect
+              return
+            end
+          end
+
+          _pry_.binding_stack = stack
         end
 
       end
     end
   end
-
 end
-
