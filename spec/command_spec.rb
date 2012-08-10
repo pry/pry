@@ -242,14 +242,14 @@ describe "Pry::Command" do
 
   describe 'classy api' do
 
-    it 'should call setup, then sub_commands, then options, then process' do
+    it 'should call setup, then subcommands, then options, then process' do
       cmd = @set.create_command 'rooster', "Has a tasty towel" do
         def setup
           output.puts "setup"
         end
 
-        def sub_commands(cmd)
-          output.puts "sub_commands"
+        def subcommands(cmd)
+          output.puts "subcommands"
         end
 
         def options(opt)
@@ -261,7 +261,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).output.should == "setup\nsub_commands\noptions\nprocess\n"
+      mock_command(cmd).output.should == "setup\nsubcommands\noptions\nprocess\n"
     end
 
     it 'should raise a command error if process is not overridden' do
@@ -303,7 +303,7 @@ describe "Pry::Command" do
 
     it 'should provide cmds and args as provided by slop' do
       cmd = @set.create_command 'dichlorvos', 'Kill insects' do
-        def sub_commands(cmd)
+        def subcommands(cmd)
           cmd.on :kill do
             on :i, :insect, "An insect."
           end

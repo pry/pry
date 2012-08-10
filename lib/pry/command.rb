@@ -472,7 +472,7 @@ class Pry
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
 
-    # The class that couples together sub commands and top-level options (that
+    # The class that couples together subcommands and top-level options (that
     # are known as "default" options). The explicitly defined instance methods
     # of this class provide the coupling with default options of a
     # Slop::Commands instance. An instance of this class delegates all remaining
@@ -495,7 +495,7 @@ class Pry
     #   opts.default
     #   # => #<Slop ...>
     #
-    #   # Parse sub commands.
+    #   # Parse subcommands.
     #   opts.parse %'action --force'
     #   opts[:action].present?(:force)
     #   # => true
@@ -512,7 +512,7 @@ class Pry
     #   # => NoMethodError
     class Options < SimpleDelegator
 
-      # @param [Slop::Commands] opts The sub commands and options.
+      # @param [Slop::Commands] opts The subcommands and options.
       # @raise [ArgumentError] if the +opts+ isn't a kind of Slop::Commands.
       #   instance.
       def initialize(opts)
@@ -525,11 +525,11 @@ class Pry
       # Fetch the instance of Slop tied to a command or fetch an options
       # argument value.
       #
-      # If the +key+ doesn't correspond to any of the sub commands, the method
+      # If the +key+ doesn't correspond to any of the subcommands, the method
       # tries to find the same +key+ in the list of default options.
       #
       # @example
-      #   # A sub command example.
+      #   # A subcommand example.
       #   opts = Options.new(commands)
       #   opts.parse %w'download video.ogv'
       #
@@ -542,7 +542,7 @@ class Pry
       #   opts[:host]
       #   # => true
       #
-      # @param [String, Symbol] key The sub command name or the default option.
+      # @param [String, Symbol] key The subcommand name or the default option.
       # @return [Slop, Boolean, nil] Either instance of Slop tied to the
       #   command, if any; or `true`, if the default option has the given +key+;
       #   or nil, if can't find the +key+.
@@ -618,7 +618,7 @@ class Pry
       slop.help
     end
 
-    # Return an instance of Slop::Commands that can parse either sub commands
+    # Return an instance of Slop::Commands that can parse either subcommands
     # or the options that this command accepts.
     def slop
       opts = proc do |opt|
@@ -628,7 +628,7 @@ class Pry
       end
 
       Slop::Commands.new do |cmd|
-        sub_commands(cmd)
+        subcommands(cmd)
         cmd.default { |opt| opts.call(opt) }
       end
     end
@@ -654,17 +654,17 @@ class Pry
     #   end
     def setup; end
 
-    # A method to setup Slop::Commands so it can parse the sub commands your
+    # A method to setup Slop::Commands so it can parse the subcommands your
     # command expects. If you need to set up default values, use `setup`
     # instead.
     #
     # @example
-    #   def sub_commands(cmd)
+    #   def subcommands(cmd)
     #     cmd.on(:d, :download, "Download a content from a server.") do
     #       @action = :download
     #     end
     #   end
-    def sub_commands(cmd); end
+    def subcommands(cmd); end
 
     # A method to setup Slop so it can parse the options your command expects.
     #
