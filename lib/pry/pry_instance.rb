@@ -228,6 +228,7 @@ class Pry
     exception = catch(:raise_up) do
       break_data = catch(:breakout) do
         loop do
+          throw(:breakout) if binding_stack.empty?
           rep(binding_stack.last)
         end
       end
