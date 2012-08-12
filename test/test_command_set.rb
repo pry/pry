@@ -2,7 +2,10 @@ require 'helper'
 
 describe Pry::CommandSet do
   before do
-    @set = Pry::CommandSet.new{ import Pry::DefaultCommands::Help }
+    @set = Pry::CommandSet.new do
+      import Pry::Commands
+    end
+
     @ctx = {
       :target => binding,
       :command_set => @set

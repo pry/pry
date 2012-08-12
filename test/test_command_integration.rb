@@ -546,7 +546,9 @@ describe "commands" do
   end
 
   it 'should change description of a command using desc' do
-    klass = Pry::CommandSet.new do; import Pry::DefaultCommands::Help; end
+    klass = Pry::CommandSet.new do
+      import Pry::Commands
+    end
     orig = klass.commands["help"].description
     klass.instance_eval do
       desc "help", "blah"

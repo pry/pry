@@ -4,8 +4,7 @@ describe "'help' command" do
   before do
     @oldset = Pry.config.commands
     @set = Pry.config.commands = Pry::CommandSet.new do
-      import Pry::DefaultCommands::Help
-      import Pry::DefaultCommands::Ls
+      import Pry::Commands
     end
   end
 
