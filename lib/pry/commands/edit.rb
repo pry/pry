@@ -1,5 +1,6 @@
 class Pry
   Pry::Commands.create_command "edit" do
+    group 'Editing'
     description "Invoke the default editor on a file."
 
     banner <<-BANNER

@@ -1,5 +1,9 @@
 class Pry
-  Pry::Commands.create_command "cat", "Show code from a file, Pry's input buffer, or the last exception." do
+  Pry::Commands.create_command "cat" do
+    group 'Input and Output'
+    description "Show code from a file, Pry's input buffer, or the last " \
+      "exception."
+
     banner <<-USAGE
       Usage: cat FILE
              cat --ex [STACK_INDEX]

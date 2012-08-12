@@ -1,5 +1,6 @@
 class Pry
   Pry::Commands.create_command "exit" do
+    group 'Navigating Pry'
     description "Pop the previous binding (does NOT exit program). Aliases: quit"
 
     banner <<-BANNER

@@ -1,5 +1,8 @@
 class Pry
-  Pry::Commands.create_command "gem-list", "List and search installed gems." do |pattern|
+  Pry::Commands.create_command "gem-list" do |pattern|
+    group 'Gems'
+    description "List and search installed gems."
+
     banner <<-BANNER
       Usage: gem-list [REGEX]
 

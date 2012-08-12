@@ -3,6 +3,7 @@ class Pry
     include Pry::Helpers::ModuleIntrospectionHelpers
     extend  Pry::Helpers::BaseHelpers
 
+    group 'Introspection'
     description "Show the source for a method or class. Aliases: $, show-method"
 
     banner <<-BANNER

@@ -1,5 +1,10 @@
 class Pry
-  Pry::Commands.command "pry-version", "Show Pry version." do
-    output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
+  Pry::Commands.create_command "pry-version" do
+    group 'Misc'
+    description "Show Pry version."
+
+    def process
+      output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
+    end
   end
 end

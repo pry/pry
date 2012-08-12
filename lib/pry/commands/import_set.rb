@@ -1,6 +1,7 @@
 class Pry
-  Pry::Commands.create_command "import-set", "Import a command set" do
+  Pry::Commands.create_command "import-set" do
     group "Commands"
+    description "Import a command set."
 
     def process(command_set_name)
       raise CommandError, "Provide a command set name" if command_set.nil?

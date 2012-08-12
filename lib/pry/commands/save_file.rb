@@ -1,5 +1,8 @@
 class Pry
-  Pry::Commands.create_command "save-file", "Export to a file using content from the REPL."  do
+  Pry::Commands.create_command "save-file" do
+    group 'Input and Output'
+    description "Export to a file using content from the REPL."
+
     banner <<-USAGE
       Usage: save-file [OPTIONS] [FILE]
       Save REPL content to a file.

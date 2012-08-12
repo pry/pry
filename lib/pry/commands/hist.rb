@@ -1,6 +1,7 @@
 class Pry
-  Pry::Commands.create_command "hist", "Show and replay Readline history. Aliases: history" do
+  Pry::Commands.create_command "hist" do
     group "Editing"
+    description "Show and replay Readline history. Aliases: history"
 
     banner <<-USAGE
       Usage: hist

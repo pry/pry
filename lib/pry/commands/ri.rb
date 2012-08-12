@@ -1,5 +1,8 @@
 class Pry
-  Pry::Commands.create_command "ri", "View ri documentation. e.g `ri Array#each`" do
+  Pry::Commands.create_command "ri" do
+    group 'Introspection'
+    description "View ri documentation. e.g `ri Array#each`"
+
     banner <<-BANNER
       Usage: ri [spec]
       e.g. ri Array#each

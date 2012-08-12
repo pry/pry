@@ -1,5 +1,6 @@
 class Pry
   Pry::Commands.create_command(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/) do
+    group 'Editing'
     description "Amend a line of input in multi-line mode."
     command_options :interpolate => false, :listing => "amend-line"
 

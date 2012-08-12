@@ -1,6 +1,10 @@
 class Pry
-  Pry::Commands.create_command "gist", "Gist a method or expression history to GitHub.", :requires_gem => "jist" do
+  Pry::Commands.create_command "gist" do
     include Pry::Helpers::DocumentationHelpers
+
+    group 'Misc'
+    description "Gist a method or expression history to GitHub."
+    command_options :requires_gem => 'jist', :shellwords => false
 
     banner <<-USAGE
       Usage: gist [OPTIONS] [METH]
@@ -16,8 +20,6 @@ class Pry
       e.g: gist -m hello_world --lines 2..-2    # gist from lines 2 to the second-last of the hello_world method
       e.g: gist -m my_method --clip             # Copy my_method source to clipboard, do not gist it.
     USAGE
-
-    command_options :shellwords => false
 
     attr_accessor :content
     attr_accessor :filename

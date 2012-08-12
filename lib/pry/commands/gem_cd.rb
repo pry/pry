@@ -1,5 +1,9 @@
 class Pry
-  Pry::Commands.create_command "gem-cd", "Change working directory to specified gem's directory.", :argument_required => true do |gem|
+  Pry::Commands.create_command "gem-cd" do |gem|
+    group 'Gems'
+    description "Change working directory to specified gem's directory."
+    command_options :argument_required => true
+
     banner <<-BANNER
       Usage: gem-cd GEM_NAME
 

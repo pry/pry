@@ -1,7 +1,10 @@
 class Pry
   # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
-  Pry::Commands.create_command(/raise-up(!?\b.*)/, :listing => 'raise-up') do
+  Pry::Commands.create_command(/raise-up(!?\b.*)/) do
+    group 'Context'
     description "Raise an exception out of the current pry instance."
+    command_options :listing => 'raise-up'
+
     banner <<-BANNER
       Raise up, like exit, allows you to quit pry. Instead of returning a value however, it raises an exception.
       If you don't provide the exception to be raised, it will use the most recent exception (in pry _ex_).

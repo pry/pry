@@ -1,5 +1,9 @@
 class Pry
-  Pry::Commands.create_command "gem-install", "Install a gem and refresh the gem cache.", :argument_required => true do |gem|
+  Pry::Commands.create_command "gem-install" do |gem|
+    group 'Gems'
+    description "Install a gem and refresh the gem cache."
+    command_options :argument_required => true
+
     banner <<-BANNER
       Usage: gem-install GEM_NAME
 
