@@ -169,6 +169,7 @@ require "coderay"
 require "optparse"
 require "slop"
 require "rbconfig"
+require 'tempfile'
 
 begin
   require 'readline'
