@@ -5,7 +5,7 @@ require 'pry/config'
 class Pry
 
   # The RC Files to load.
-  RC_FILES = ["~/.pryrc"]
+  HOME_RC_FILE = "~/.pryrc"
   LOCAL_RC_FILE = "./.pryrc"
 
   # class accessors
@@ -63,7 +63,7 @@ class Pry
   def self.load_file_at_toplevel(file_name)
     full_name = File.expand_path(file_name)
     begin
-      toplevel_binding.eval(File.read(full_name)) if File.exists?(full_name)
+      toplevel_binding.eval(File.read(full_name), full_name) if File.exists?(full_name)
     rescue RescuableException => e
       puts "Error loading #{file_name}: #{e}"
     end
@@ -72,14 +72,14 @@ class Pry
   # Load the rc files given in the `Pry::RC_FILES` array.
   # This method can also be used to reload the files if they have changed.
   def self.load_rc
-    RC_FILES.uniq.each do |file_name|
-      load_file_at_toplevel(file_name)
-    end
+    load_file_at_toplevel(HOME_RC_FILE)
   end
 
   # Load the local RC file (./.pryrc)
   def self.load_local_rc
-    load_file_at_toplevel(LOCAL_RC_FILE)
+    unless File.expand_path(HOME_RC_FILE) == File.expand_path(LOCAL_RC_FILE)
+      load_file_at_toplevel(LOCAL_RC_FILE)
+    end
   end
 
   # Load any Ruby files specified with the -r flag on the command line.
@@ -115,7 +115,7 @@ class Pry
   end
 
   # Start a Pry REPL.
-  # This method also loads the files specified in `Pry::RC_FILES` the
+  # This method also loads the ~/.pryrc and ./.pryrc as necessary
   # first time it is invoked.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options

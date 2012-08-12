@@ -91,10 +91,6 @@ class Pry
         Pry.color ? "\e[1m#{text}\e[0m": text
       end
 
-      def page_size
-        27
-      end
-
       # have fun on the Windows platform.
       def windows?
         RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
@@ -123,22 +119,8 @@ class Pry
         RUBY_VERSION =~ /1.9/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
       end
 
-      # a simple pager for systems without `less`. A la windows.
-      def simple_pager(text, output=output())
-        text_array = text.lines.to_a
-        text_array.each_slice(page_size) do |chunk|
-          output.puts chunk.join
-          break if chunk.size < page_size
-          if text_array.size > page_size
-            output.puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>"
-            break if $stdin.gets.chomp == "q"
-          end
-        end
-      end
-
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
-      # FIXME! Another JRuby hack
       def stagger_output(text, out = nil)
         out ||= case
         when respond_to?(:output)
@@ -152,76 +134,15 @@ class Pry
           $stdout
         end
 
-        if text.lines.count < page_size || !Pry.pager
+        if text.lines.count < Pry::Pager.page_size || !Pry.pager
           out.puts text
-          return
-        end
-
-        # FIXME! Another JRuby hack
-        if jruby?
-          simple_pager(text, out)
         else
-          lesspipe { |less| less.puts text }
+          Pry::Pager.page(text)
         end
       rescue Errno::ENOENT
-        simple_pager(text, out)
+        Pry::Pager.page(text, :simple)
       rescue Errno::EPIPE
       end
-
-      #
-      # Create scrollable output via less!
-      #
-      # This command runs `less` in a subprocess, and gives you the IO to its STDIN pipe
-      # so that you can communicate with it.
-      #
-      # Example:
-      #
-      #   lesspipe do |less|
-      #     50.times { less.puts "Hi mom!" }
-      #   end
-      #
-      # The default less parameters are:
-      # * Allow colour
-      # * Don't wrap lines longer than the screen
-      # * Quit immediately (without paging) if there's less than one screen of text.
-      #
-      # You can change these options by passing a hash to `lesspipe`, like so:
-      #
-      #   lesspipe(:wrap=>false) { |less| less.puts essay.to_s }
-      #
-      # It accepts the following boolean options:
-      #    :color  => Allow ANSI colour codes?
-      #    :wrap   => Wrap long lines?
-      #    :always => Always page, even if there's less than one page of text?
-      #
-      def lesspipe(*args)
-        if args.any? and args.last.is_a?(Hash)
-          options = args.pop
-        else
-          options = {}
-        end
-
-        output = args.first if args.any?
-
-        params = []
-        params << "-R" unless options[:color] == false
-        params << "-S" unless options[:wrap] == true
-        params << "-F" unless options[:always] == true
-        if options[:tail] == true
-          params << "+\\>"
-          $stderr.puts "Seeking to end of stream..."
-        end
-        params << "-X"
-
-        IO.popen("less #{params * ' '}", "w") do |less|
-          if output
-            less.puts output
-          else
-            yield less
-          end
-        end
-      end
-
     end
   end
 end

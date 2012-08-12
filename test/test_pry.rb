@@ -274,25 +274,26 @@ describe Pry do
       describe "test loading rc files" do
 
         before do
+          Pry::HOME_RC_FILE.replace File.expand_path("../testrc", __FILE__)
+          Pry::LOCAL_RC_FILE.replace File.expand_path("../testrc", __FILE__) + "/../testrc"
           Pry.instance_variable_set(:@initial_session, true)
         end
 
         after do
-          Pry::RC_FILES.clear
+          Pry::HOME_RC_FILE.replace "~/.pryrc"
+          Pry::LOCAL_RC_FILE.replace "./.pryrc"
           Pry.config.should_load_rc = false
+          Object.remove_const(:TEST_RC) if defined?(TEST_RC)
         end
 
-        it "should run the rc file only once" do
+        it "should never run the rc file twice" do
           Pry.config.should_load_rc = true
-          2.times { Pry::RC_FILES << File.expand_path("../testrc", __FILE__) }
 
           Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
 
           Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
           TEST_RC.should == [0]
-
-          Object.remove_const(:TEST_RC)
         end
 
         it "should not load the pryrc if it cannot expand ENV[HOME]" do
@@ -321,8 +322,9 @@ describe Pry do
 
         describe "that raise exceptions" do
           before do
-            Pry::RC_FILES << File.expand_path("../testrcbad", __FILE__)
+            Pry::HOME_RC_FILE = File.expand_path("../testrcbad", __FILE__)
             Pry.config.should_load_rc = true
+            Pry.config.should_load_local_rc = false
 
             putsed = nil
 
