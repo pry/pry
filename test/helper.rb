@@ -18,9 +18,6 @@ end
 # in tests)
 $VERBOSE = nil
 
-# Ensure we do not execute any rc files
-Pry::RC_FILES.clear
-
 # inject a variable into a binding
 def inject_var(name, value, b)
   Thread.current[:__pry_local__] = value

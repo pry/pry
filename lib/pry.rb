@@ -169,6 +169,7 @@ require "coderay"
 require "optparse"
 require "slop"
 require "rbconfig"
+require 'tempfile'
 
 begin
   require 'readline'
@@ -216,3 +217,4 @@ require "pry/core_extensions"
 require "pry/pry_class"
 require "pry/pry_instance"
 require "pry/cli"
+require "pry/pager"
