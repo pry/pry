@@ -1,5 +1,6 @@
 class Pry
   Pry::Commands.create_command "help" do |cmd|
+    group 'Help'
     description "Show a list of commands. Type `help <foo>` for information about <foo>."
 
     banner <<-BANNER
