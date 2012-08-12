@@ -1,13 +1,19 @@
 class Pry
-  Pry::Commands.command "exit-all", "End the current Pry session (popping all bindings) and returning to caller. Accepts optional return value. Aliases: !!@" do
-    # calculate user-given value
-    exit_value = target.eval(arg_string)
+  Pry::Commands.create_command "exit-all" do
+    group 'Navigating Pry'
+    description "End the current Pry session (popping all bindings) and " \
+      "returning to caller. Accepts optional return value. Aliases: !!@"
 
-    # clear the binding stack
-    _pry_.binding_stack.clear
+    def process
+      # calculate user-given value
+      exit_value = target.eval(arg_string)
 
-    # break out of the repl loop
-    throw(:breakout, exit_value)
+      # clear the binding stack
+      _pry_.binding_stack.clear
+
+      # break out of the repl loop
+      throw(:breakout, exit_value)
+    end
   end
 
   Pry::Commands.alias_command "!!@", "exit-all"

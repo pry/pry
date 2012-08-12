@@ -1,5 +1,6 @@
 class Pry
   Pry::Commands.create_command "edit-method" do
+    group 'Editing'
     description "Edit the source code for a method."
 
     banner <<-BANNER

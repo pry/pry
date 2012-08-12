@@ -1,8 +1,8 @@
 class Pry
-  Pry::Commands.create_command "ls","Show the list of vars and methods in the current scope.",
-  :shellwords => false, :interpolate => false do
-
+  Pry::Commands.create_command "ls" do
     group "Context"
+    description "Show the list of vars and methods in the current scope."
+    command_options :shellwords => false, :interpolate => false
 
     def options(opt)
       opt.banner unindent <<-USAGE

@@ -1,5 +1,11 @@
 class Pry
-  Pry::Commands.command "!pry", "Start a Pry session on current self; this even works mid multi-line expression." do
-    target.pry
+  Pry::Commands.create_command "!pry" do
+    group 'Navigating Pry'
+    description "Start a Pry session on current self; this even works mid " \
+      "multi-line expression."
+
+    def process
+      target.pry
+    end
   end
 end

@@ -1,5 +1,9 @@
 class Pry
-  Pry::Commands.create_command "stat", "View method information and set _file_ and _dir_ locals.", :shellwords => false do
+  Pry::Commands.create_command "stat" do
+    group 'Introspection'
+    description "View method information and set _file_ and _dir_ locals."
+    command_options :shellwords => false
+
     banner <<-BANNER
         Usage: stat [OPTIONS] [METH]
         Show method information for method METH and set _file_ and _dir_ locals.

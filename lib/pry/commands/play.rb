@@ -2,6 +2,7 @@ class Pry
   Pry::Commands.create_command "play" do
     include Pry::Helpers::DocumentationHelpers
 
+    group 'Editing'
     description "Play back a string variable or a method or a file as input."
 
     banner <<-BANNER

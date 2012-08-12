@@ -1,6 +1,7 @@
 class Pry
-  Pry::Commands.create_command "install-command", "Install a disabled command." do |name|
+  Pry::Commands.create_command "install-command" do
     group 'Commands'
+    description "Install a disabled command."
 
     banner <<-BANNER
       Usage: install-command COMMAND

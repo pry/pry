@@ -1,5 +1,8 @@
 class Pry
-  Pry::Commands.create_command "pry-backtrace", "Show the backtrace for the Pry session." do
+  Pry::Commands.create_command "pry-backtrace" do
+    group 'Context'
+    description "Show the backtrace for the Pry session."
+
     banner <<-BANNER
       Usage:   pry-backtrace [OPTIONS] [--help]
 
