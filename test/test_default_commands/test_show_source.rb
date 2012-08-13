@@ -255,6 +255,34 @@ if !mri18_and_no_real_source_location?
 
     end
 
+    describe "on variable or constant" do
+      before do
+        class TestHost
+          def hello
+            "hi there"
+          end
+        end
+      end
+
+      after do
+        Object.remove_const(:TestHost)
+      end
+
+      it "should output source of its class if variable doesn't respond to source_location" do
+        test_host = TestHost.new
+        string = mock_pry(binding,"show-source test_host","exit-all")
+        string.should =~ /class TestHost\n.*def hello/
+      end
+
+      it "should output source of its class if constant doesn't respond to source_location" do
+        TEST_HOST = TestHost.new
+        string = mock_pry(binding,"show-source TEST_HOST","exit-all")
+        string.should =~ /class TestHost\n.*def hello/
+
+        Object.remove_const(:TEST_HOST)
+      end
+    end
+
     describe "on modules" do
       before do
         class ShowSourceTestSuperClass
