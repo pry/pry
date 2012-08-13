@@ -31,6 +31,8 @@ class Pry
           :method
         elsif Pry::WrappedModule.from_str(input, target)
           :module
+        elsif target.eval("defined? #{input} ") =~ /variable|constant/
+          :variable_or_constant
         else
           :unknown
         end
@@ -49,6 +51,8 @@ class Pry
                         process_method
                       when :module
                         process_module
+                      when :variable_or_constant
+                        process_variable_or_constant
                       else
                         command_error("method or module for '#{input}' could not be found or derived", false)
                       end
@@ -77,6 +81,14 @@ class Pry
 
       def extract_method_from_binding
         Pry::Method.from_binding(target)
+      end
+
+      def process_variable_or_constant
+        name = args.first
+        object = target.eval(name)
+
+        @module_object = Pry::WrappedModule(object.class)
+        process_module
       end
 
       def module_start_line(mod, candidate_rank=0)
