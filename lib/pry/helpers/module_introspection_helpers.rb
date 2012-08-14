@@ -33,13 +33,21 @@ class Pry
           :module
         elsif target.eval("defined? #{input} ") =~ /variable|constant/
           :variable_or_constant
+        elsif find_command(input)
+          :command
+        else
+          :unknown
+        end
+      rescue SyntaxError
+        if find_command(input)
+          :command
         else
           :unknown
         end
       end
 
       def process(name)
-        input = args.join(" ")
+        input = args.join(" ").gsub(/\"/,"")
         type = input_type(input, target)
 
         code_or_doc = case type
@@ -53,8 +61,10 @@ class Pry
                         process_module
                       when :variable_or_constant
                         process_variable_or_constant
+                      when :command
+                        process_command
                       else
-                        command_error("method or module for '#{input}' could not be found or derived", false)
+                        command_error("method/module/command for '#{input}' could not be found or derived", false)
                       end
 
         render_output(code_or_doc, opts)

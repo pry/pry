@@ -553,6 +553,51 @@ if !mri18_and_no_real_source_location?
         end
       end
     end
+
+    describe "on commands" do
+      before do
+        @oldset = Pry.config.commands
+        @set = Pry.config.commands = Pry::CommandSet.new do
+          import Pry::Commands
+        end
+      end
+
+      after do
+        Pry.config.commands = @oldset
+      end
+
+      it 'should show source for an ordinary command' do
+        @set.command "foo", :body_of_foo do; end
+
+
+        string = mock_pry("show-source foo")
+        string.should =~ /:body_of_foo/
+      end
+
+      it "should output source of commands using special characters" do
+        @set.command "!", "Clear the input buffer" do; end
+
+
+        string = mock_pry("show-source !")
+        string.should =~ /Clear the input buffer/
+      end
+
+      it 'should show source for a command with spaces in its name' do
+        @set.command "foo bar", :body_of_foo_bar do; end
+
+
+        string = mock_pry("show-source \"foo bar\"")
+        string.should =~ /:body_of_foo_bar/
+      end
+
+      it 'should show source for a command by listing name' do
+        @set.command /foo(.*)/, :body_of_foo_bar_regex, :listing => "bar" do; end
+
+        string = mock_pry("show-source bar")
+        string.should =~ /:body_of_foo_bar_regex/
+      end
+    end
+
   end
 end
 

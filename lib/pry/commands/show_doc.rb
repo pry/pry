@@ -111,6 +111,24 @@ class Pry
       doc
     end
 
+    def process_command
+      name = args.join(" ").gsub(/\"/,"")
+      command = find_command(name)
+
+      doc = command.new.help
+      doc = strip_leading_whitespace(doc)
+
+      file_name, line = command.source_location
+      set_file_and_dir_locals(file_name)
+
+
+      result = ""
+      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
+      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{doc.lines.count}\n\n"
+      result << doc
+      result << "\n"
+    end
+
     def module_start_line(mod, candidate=0)
       if opts.present?(:'base-one')
         1
