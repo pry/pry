@@ -57,12 +57,18 @@ class Pry
       end
 
       def parse_options(args=ARGV.dup)
-        raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options." if !options
+        unless options
+          raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
+        end
 
         self.input_args = args
 
         opts = Slop.parse!(args, :help => true, :multiple_switches => false, &options)
-        option_processors.each { |processor| processor.call(opts) } if option_processors # option processors are optional
+
+        # Option processors are optional.
+        if option_processors
+          option_processors.each { |processor| processor.call(opts) }
+        end
 
         self
       end
@@ -139,8 +145,12 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.config.requires << file
   end
 
-  on :I, "Add a path to the $LOAD_PATH", :argument => true do |path|
-    $LOAD_PATH << path
+  on :I, "Add a path to the $LOAD_PATH", :argument => true, :as => Array, :delimiter => ":" do |load_path|
+    load_path.map! do |path|
+      /\A\.\// =~ path ? path : File.expand_path(path)
+    end
+
+    $LOAD_PATH.unshift(*load_path)
   end
 
   on :v, :version, "Display the Pry version" do
