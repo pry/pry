@@ -70,7 +70,7 @@ class Pry
       end
 
       def use_ansi_codes?
-         windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
+        windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
 
       def colorize_code(code)
@@ -123,16 +123,16 @@ class Pry
       # simple_pager. Also do not page if Pry.pager is falsey
       def stagger_output(text, out = nil)
         out ||= case
-        when respond_to?(:output)
-          # Mixin.
-          output
-        when Pry.respond_to?(:output)
-          # Parent.
-          Pry.output
-        else
-          # Sys.
-          $stdout
-        end
+                when respond_to?(:output)
+                  # Mixin.
+                  output
+                when Pry.respond_to?(:output)
+                  # Parent.
+                  Pry.output
+                else
+                  # Sys.
+                  $stdout
+                end
 
         if text.lines.count < Pry::Pager.page_size || !Pry.pager
           out.puts text
@@ -143,6 +143,73 @@ class Pry
         Pry::Pager.page(text, :simple)
       rescue Errno::EPIPE
       end
+
+      # @param [String] arg_string The object path expressed as a string.
+      # @param [Pry] _pry_ The relevant Pry instance.
+      # @param [Array<Binding>] old_stack The state of the old binding stack
+      # @return [Array<Array<Binding>, Array<Binding>>] An array
+      #   containing two elements: The new `binding_stack` and the old `binding_stack`.
+      def context_from_object_path(arg_string, _pry_=nil, old_stack=[])
+
+        # Extract command arguments. Delete blank arguments like " ", but
+        # don't delete empty strings like "".
+        path      = arg_string.split(/\//).delete_if { |a| a =~ /\A\s+\z/ }
+        stack     = _pry_.binding_stack.dup
+        state_old_stack = old_stack
+
+        # Special case when we only get a single "/", return to root.
+        if path.empty?
+          state_old_stack = stack.dup unless old_stack.empty?
+          stack = [stack.first]
+        end
+
+        path.each_with_index do |context, i|
+          begin
+            case context.chomp
+            when ""
+              state_old_stack = stack.dup
+              stack = [stack.first]
+            when "::"
+              state_old_stack = stack.dup
+              stack.push(TOPLEVEL_BINDING)
+            when "."
+              next
+            when ".."
+              unless stack.size == 1
+                # Don't rewrite old_stack if we're in complex expression
+                # (e.g.: `cd 1/2/3/../4).
+                state_old_stack = stack.dup if path.first == ".."
+                stack.pop
+              end
+            when "-"
+              unless old_stack.empty?
+                # Interchange current stack and old stack with each other.
+                stack, state_old_stack = state_old_stack, stack
+              end
+            else
+              state_old_stack = stack.dup if i == 0
+              stack.push(Pry.binding_for(stack.last.eval(context)))
+            end
+
+          rescue RescuableException => e
+            # Restore old stack to its initial values.
+            state_old_stack = old_stack
+
+            msg = [
+              "Bad object path: #{arg_string}.",
+              "Failed trying to resolve: #{context}.",
+              e.inspect
+            ].join(' ')
+
+            CommandError.new(msg).tap do |err|
+              err.set_backtrace e.backtrace
+              raise err
+            end
+          end
+        end
+        return stack, state_old_stack
+      end
+
     end
   end
 end

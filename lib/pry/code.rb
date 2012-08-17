@@ -35,20 +35,23 @@ class Pry
       # @param [String] fn The name of a file, or "(pry)".
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type = nil)
+      def from_file(fn, code_type=type_from_filename(fn))
+
         if fn == Pry.eval_path
-          f = Pry.line_buffer.drop(1)
+          new(Pry.line_buffer.drop(1), 1, code_type)
         else
-          if File.readable?(fn)
-            f = File.open(fn, 'r')
-            code_type ||= type_from_filename(fn)
-          else
+          abs_path = [File.expand_path(fn, Dir.pwd),
+                      File.expand_path(fn, Pry::INITIAL_PWD)
+                     ].detect{ |abs_path| File.readable?(abs_path) }
+
+          unless abs_path
             raise MethodSource::SourceNotFoundError, "Cannot open #{fn.inspect} for reading."
           end
+
+          File.open(abs_path, 'r') do |f|
+            new(f, 1, code_type)
+          end
         end
-        new(f, 1, code_type || :ruby)
-      ensure
-        f.close if f.respond_to?(:close)
       end
 
       # Instantiate a `Code` object containing code extracted from a
@@ -85,8 +88,9 @@ class Pry
         # unknown.
         #
         # @param [String] filename
+        # @param [Symbol] default (:ruby) the file type to assume if none could be detected
         # @return [Symbol, nil]
-        def type_from_filename(filename)
+        def type_from_filename(filename, default=:ruby)
           map = {
             %w(.c .h) => :c,
             %w(.cpp .hpp .cc .h cxx) => :cpp,
@@ -108,7 +112,7 @@ class Pry
             k.any? { |ext| ext == File.extname(filename) }
           end
 
-          type
+          type || default
         end
     end
 

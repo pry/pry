@@ -365,7 +365,7 @@ class Pry
     @indent.reset if eval_string.empty?
 
     current_prompt = select_prompt(eval_string, target)
-    completion_proc = Pry::InputCompleter.build_completion_proc(target,
+    completion_proc = Pry::InputCompleter.build_completion_proc(target, self,
                                                         instance_eval(&custom_completions))
 
 

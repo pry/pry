@@ -34,6 +34,18 @@ describe Pry::Code do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')
       end.should.raise(MethodSource::SourceNotFoundError)
     end
+
+    should 'check for files relative to origin pwd' do
+      Dir.chdir('test') do |f|
+        Pry::Code.from_file('test/' + File.basename(__FILE__)).code_type.should == :ruby
+      end
+    end
+
+    should 'find files that are relative to the current working directory' do
+      Dir.chdir('test') do |f|
+        Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
+      end
+    end
   end
 
   describe '.from_method' do

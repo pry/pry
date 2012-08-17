@@ -307,5 +307,35 @@ if !mri18_and_no_real_source_location?
         end
       end
     end
+
+    describe "on commands" do
+
+      # mostly copied & modified from test_help.rb
+      before do
+        @oldset = Pry.config.commands
+        @set = Pry.config.commands = Pry::CommandSet.new do
+          import Pry::Commands
+        end
+      end
+
+      after do
+        Pry.config.commands = @oldset
+      end
+
+      it 'should display help for a specific command' do
+        mock_pry('show-doc ls').should =~ /Usage: ls/
+      end
+
+      it 'should display help for a regex command with a "listing"' do
+        @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
+        mock_pry('show-doc foo').should =~ /Test listing/
+      end
+
+      it 'should display help for a command with a spaces in its name' do
+        @set.command "command with spaces", "description of a command with spaces" do; end
+        mock_pry('show-doc "command with spaces"').should =~ /description of a command with spaces/
+      end
+
+    end
   end
 end
