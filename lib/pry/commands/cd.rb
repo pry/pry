@@ -20,9 +20,9 @@ class Pry
     BANNER
 
     def process
-      stack, old_stack = context_from_object_path(arg_string, _pry_, state.old_stack||[])
-      state.old_stack = old_stack
-      _pry_.binding_stack = stack unless stack.nil?
+      state.old_stack ||= []
+      stack, state.old_stack = context_from_object_path(arg_string, _pry_, state.old_stack)
+      _pry_.binding_stack = stack if stack
     end
   end
 end
