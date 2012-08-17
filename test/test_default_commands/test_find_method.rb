@@ -4,7 +4,7 @@ require 'helper'
 # for C methods actually runs the methods - and since it runs ALL
 # methods (in an attempt to find a match) it runs 'exit' and aborts
 # the test, causing a failure. We should fix this in the future by
-# blacklisting certain methods for 1.8 MRI (such as exit, fork, and so on) 
+# blacklisting certain methods for 1.8 MRI (such as exit, fork, and so on)
 unless Pry::Helpers::BaseHelpers.mri_18?
   MyKlass = Class.new do
     def hello
