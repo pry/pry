@@ -20,9 +20,9 @@ describe 'Pry::DefaultCommands::Cd' do
         eval '_pry_.command_state["cd"]'
       end
 
-      # def old_stack
-      #   eval '_pry_.command_state["cd"].old_stack.dup'
-      # end
+      def old_stack
+        eval '_pry_.command_state["cd"].old_stack.dup'
+      end
     end
   end
 
@@ -42,20 +42,20 @@ describe 'Pry::DefaultCommands::Cd' do
       end
     end
 
-    # describe 'when an error was raised' do
-    #   it 'should not toggle and should keep correct stacks' do
-    #     proc {
-    #       @t.eval 'cd @'
-    #     }.should.raise(Pry::CommandError)
+    describe 'when an error was raised' do
+      it 'should not toggle and should keep correct stacks' do
+        proc {
+          @t.eval 'cd @'
+        }.should.raise(Pry::CommandError)
 
-    #     @t.old_stack.should == []
-    #     @t.assert_binding_stack [@o]
+        @t.old_stack.should == []
+        @t.assert_binding_stack [@o]
 
-    #     @t.eval 'cd -'
-    #     @t.old_stack.should == []
-    #     @t.assert_binding_stack [@o]
-    #   end
-    # end
+        @t.eval 'cd -'
+        @t.old_stack.should == []
+        @t.assert_binding_stack [@o]
+      end
+    end
 
     describe 'when using simple cd syntax' do
       it 'should toggle' do
