@@ -1,9 +1,12 @@
+require 'pry/helpers/documentation_helpers'
+
 class Pry
 
   # The super-class of all commands, new commands should be created by calling
   # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#create_command}
   # which creates a ClassCommand. Please don't use this class directly.
   class Command
+    extend Helpers::DocumentationHelpers
 
     # represents a void return value for a command
     VOID_VALUE = Object.new
@@ -49,6 +52,14 @@ class Pry
       def block
         @block || instance_method(:process) && instance_method(:process)
       end
+
+      def source
+        strip_leading_whitespace(block.source)
+      end
+
+      def source_location
+        block.source_location
+      end
     end
 
     # Make those properties accessible to instances
@@ -58,6 +69,8 @@ class Pry
     def block; self.class.block; end
     def command_options; self.class.options; end
     def command_name; command_options[:listing]; end
+    def source; self.class.source; end
+    def source_location; self.class.source_location; end
 
     class << self
       def name

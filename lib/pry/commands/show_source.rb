@@ -111,6 +111,23 @@ class Pry
       result
     end
 
+    def process_command
+      name = args.join(" ").gsub(/\"/,"")
+      command = find_command(name)
+
+      file_name, line = command.source_location
+      set_file_and_dir_locals(file_name)
+
+      code = Pry::Code.new(command.source, line).with_line_numbers(use_line_numbers?).to_s
+
+      result = ""
+      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
+      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
+      result << "\n"
+
+      result << code
+    end
+
     def use_line_numbers?
       opts.present?(:b) || opts.present?(:l)
     end
