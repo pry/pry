@@ -1,8 +1,13 @@
 # taken from irb
 
-require "readline"
-
 class Pry
+
+  module BondCompleter
+    def self.build_completion_proc(target, pry=nil, commands=[""])
+      Bond.start
+      proc{ |*a| Bond.agent.call(*a) }
+    end
+  end
 
   # Implements tab completion for Readline in Pry
   module InputCompleter
@@ -42,6 +47,7 @@ class Pry
     # @param [Binding] target The current binding context.
     # @param [Array<String>] commands The array of Pry commands.
     def self.build_completion_proc(target, pry=nil, commands=[""])
+
       proc do |input|
 
         # if there are multiple contexts e.g. cd 1/2/3

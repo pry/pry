@@ -222,3 +222,11 @@ require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/cli'
 require 'pry/pager'
+
+begin
+  require 'bond'
+rescue LoadError
+  Pry.config.completer = Pry::InputCompleter
+else
+  Pry.config.completer = Pry::BondCompleter
+end
