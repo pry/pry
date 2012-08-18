@@ -219,19 +219,17 @@ class PryTester
     if context
       @pry.binding_stack << Pry.binding_for(context)
     end
+
+    reset_output
   end
 
   def eval(*strs)
-    @out = StringIO.new
-    @pry.output = @out
+    reset_output
     result = nil
 
     strs.flatten.each do |str|
       if @pry.process_command(str)
-        result = last_command_result
-        if result == Pry::Command::VOID_VALUE
-          result = last_output
-        end
+        result = last_command_result_or_output
       else
         result = @pry.evaluate_ruby(str)
       end
@@ -244,11 +242,30 @@ class PryTester
     @out.string if @out
   end
 
+  def process_command(command_str, eval_str = '')
+    @pry.process_command(command_str, eval_str) or raise "Not a valid command"
+    last_command_result_or_output
+  end
+
   protected
 
   def last_command_result
     result = Thread.current[:__pry_cmd_result__]
     result.retval if result
+  end
+
+  def last_command_result_or_output
+    result = last_command_result
+    if result != Pry::Command::VOID_VALUE
+      result
+    else
+      last_output
+    end
+  end
+
+  def reset_output
+    @out = StringIO.new
+    @pry.output = @out
   end
 end
 
@@ -260,6 +277,10 @@ CommandTester = Pry::CommandSet.new do
   command "command2", "command 2 test" do |arg|
     output.puts arg
   end
+end
+
+def unindent(*args)
+  Pry::Helpers::CommandHelpers.unindent(*args)
 end
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
