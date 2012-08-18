@@ -7,7 +7,7 @@ describe "Pry::DefaultCommands::Input" do
   end
 
   describe "amend-line" do
-    it 'should correctly amend the last line of input when no line number specified ' do
+    it 'should amend the last line of input when no line number specified' do
       eval_str = unindent(<<-STR)
         def hello
           puts :bing
@@ -21,137 +21,256 @@ describe "Pry::DefaultCommands::Input" do
       STR
     end
 
-    it 'should correctly amend the specified line of input when line number given ' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 1 def goodbye", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should amend the specified line of input when line number given' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
+      @t.process_command 'amend-line 1 def goodbye', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def goodbye
+          puts :bing
+          puts :bang
+      STR
     end
 
-    it 'should correctly amend the specified line of input when line number given, 0 should behave as 1 ' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 0 def goodbye", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should amend the first line of input when 0 given as line number' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\A\d+: def goodbye\n\d+: puts :bing\n\d+: puts :bang/
+      @t.process_command 'amend-line 0 def goodbye', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def goodbye
+          puts :bing
+          puts :bang
+      STR
     end
 
-    it 'should correctly amend the specified line of input when line number given (negative number)' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line -1 puts :bink", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should amend a specified line when negative number given' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts :bink/
+      @t.process_command 'amend-line -1   puts :bink', eval_str
 
-      @str_output = StringIO.new
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line -2 puts :bink", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bink
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bink\n\d+: puts :bang/
+      @t.process_command 'amend-line -2   puts :bink', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bink
+          puts :bink
+      STR
     end
 
-    it 'should correctly amend the specified range of lines of input when range of negative numbers given (negative number)' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boat", "amend-line -3..-2 puts :bink", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should amend a range of lines of input when negative numbers given' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boat
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bink\n\d+: puts :boat/
+      @t.process_command 'amend-line -3..-2   puts :bink', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bink
+          puts :boat
+      STR
     end
 
-    it 'should correctly amend the specified line with string interpolated text' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", 'amend-line puts "#{goodbye}"', "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should correctly amend the specified line with interpolated text' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing\n\d+: puts \"\#\{goodbye\}\"/
+      @t.process_command 'amend-line   puts "#{goodbye}"', eval_str
+
+      eval_str.should == unindent(<<-'STR')
+        def hello
+          puts :bing
+          puts "#{goodbye}"
+      STR
     end
 
     it 'should display error if nothing to amend' do
-      redirect_pry_io(InputTester.new("amend-line", "exit-all"), @str_output) do
-        pry
+      error = nil
+
+      begin
+        @t.process_command 'amend-line'
+      rescue Pry::CommandError => e
+        error = e
       end
 
-      @str_output.string.should =~ /No input to amend/
+      error.should.not.be.nil
+      error.message.should =~ /No input to amend/
     end
 
-
     it 'should correctly amend the specified range of lines' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :heart", "amend-line 2..3 puts :bong", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :heart
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+      @t.process_command 'amend-line 2..3   puts :bong', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bong
+          puts :heart
+      STR
     end
 
     it 'should correctly delete a specific line using the ! for content' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 3 !", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boast
+          puts :heart
+      STR
 
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :bing\n\d+: puts :boast\n\d+: puts :heart/
+      @t.process_command 'amend-line 3 !', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :boast
+          puts :heart
+      STR
     end
 
     it 'should correctly delete a range of lines using the ! for content' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 2..4 !", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boast
+          puts :heart
+      STR
 
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :heart\n\Z/
+      @t.process_command 'amend-line 2..4 !', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :heart
+      STR
     end
 
     it 'should correctly delete the previous line using the ! for content' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line !", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boast
+          puts :heart
+      STR
 
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :bing\n\d+: puts :bang\n\d+: puts :boast\n\Z/
+      @t.process_command 'amend-line !', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boast
+      STR
     end
 
-    it 'should correctly amend the specified range of lines, using negative numbers in range' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "puts :boast", "puts :heart", "amend-line 2..-2 puts :bong", "show-input", "exit-all"), @str_output) do
-        pry
-      end
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :bong\n\d+: puts :heart/
+    it 'should amend the specified range of lines, with numbers < 0 in range' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+          puts :boast
+          puts :heart
+      STR
+
+      @t.process_command 'amend-line 2..-2   puts :bong', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :bong
+          puts :heart
+      STR
     end
 
-    it 'should correctly insert a new line of input before a specified line using the > syntax' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 2 >puts :inserted", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should correctly insert a line before a specified line using >' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
+      @t.process_command 'amend-line 2 >  puts :inserted', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :inserted
+          puts :bing
+          puts :bang
+      STR
     end
 
-    it 'should correctly insert a new line of input before a specified line using the > syntax (should ignore second value of range)' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "puts :bang", "amend-line 2..21 >puts :inserted", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+    it 'should ignore second value of range with > syntax' do
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+          puts :bang
+      STR
 
-      @str_output.string.should =~ /\d+: def hello\n\d+: puts :inserted\n\d+: puts :bing\n\d+: puts :bang/
+      @t.process_command 'amend-line 2..21 >  puts :inserted', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :inserted
+          puts :bing
+          puts :bang
+      STR
     end
   end
 
   describe "show-input" do
     it 'should correctly show the current lines in the input buffer' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :bing/
+      @t.process_command 'show-input', eval_str
+      @t.last_output.should =~ /\A\d+: def hello\n\d+:   puts :bing/
     end
   end
 
   describe "!" do
     it 'should correctly clear the input buffer ' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "!", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+      STR
 
-      stripped_output = @str_output.string.strip!
-      stripped_output.each_line.count.should == 1
-      stripped_output.should =~ /Input buffer cleared!/
+      @t.process_command '!', eval_str
+      @t.last_output.should =~ /Input buffer cleared!/
+
+      eval_str.should == ''
     end
   end
 
