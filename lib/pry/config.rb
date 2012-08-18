@@ -228,6 +228,9 @@ class Pry
     #   Pry.config.extra_sticky_locals = { :random_number => proc {
     #   rand(10) } }
     attr_accessor :extra_sticky_locals
+
+    # @return [#build_completion_proc] A completer to use.
+    attr_accessor :completer
   end
 end
 
