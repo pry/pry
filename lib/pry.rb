@@ -166,13 +166,13 @@ if Pry::Helpers::BaseHelpers.mri_18?
   end
 end
 
-require "method_source"
+require 'method_source'
 require 'shellwords'
-require "stringio"
-require "coderay"
-require "optparse"
-require "slop"
-require "rbconfig"
+require 'stringio'
+require 'coderay'
+require 'optparse'
+require 'slop'
+require 'rbconfig'
 require 'tempfile'
 
 begin
@@ -202,23 +202,23 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
   end
 end
 
-require "pry/version"
-require "pry/rbx_method"
-require "pry/rbx_path"
-require "pry/code"
-require "pry/method"
-require "pry/wrapped_module"
-require "pry/history_array"
-require "pry/helpers"
-require "pry/history"
-require "pry/command"
-require "pry/command_set"
-require "pry/commands"
-require "pry/custom_completions"
-require "pry/completion"
-require "pry/plugins"
-require "pry/core_extensions"
-require "pry/pry_class"
-require "pry/pry_instance"
-require "pry/cli"
-require "pry/pager"
+require 'pry/version'
+require 'pry/rbx_method'
+require 'pry/rbx_path'
+require 'pry/code'
+require 'pry/method'
+require 'pry/wrapped_module'
+require 'pry/history_array'
+require 'pry/helpers'
+require 'pry/history'
+require 'pry/command'
+require 'pry/command_set'
+require 'pry/commands'
+require 'pry/custom_completions'
+require 'pry/completion'
+require 'pry/plugins'
+require 'pry/core_extensions'
+require 'pry/pry_class'
+require 'pry/pry_instance'
+require 'pry/cli'
+require 'pry/pager'
