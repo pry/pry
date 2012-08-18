@@ -3,15 +3,22 @@ require 'helper'
 describe "Pry::DefaultCommands::Input" do
   before do
     @str_output = StringIO.new
+    @t = pry_tester
   end
 
   describe "amend-line" do
     it 'should correctly amend the last line of input when no line number specified ' do
-      redirect_pry_io(InputTester.new("def hello", "puts :bing", "amend-line puts :blah", "show-input", "exit-all"), @str_output) do
-        pry
-      end
+      eval_str = unindent(<<-STR)
+        def hello
+          puts :bing
+      STR
 
-      @str_output.string.should =~ /\A\d+: def hello\n\d+: puts :blah/
+      @t.process_command 'amend-line   puts :blah', eval_str
+
+      eval_str.should == unindent(<<-STR)
+        def hello
+          puts :blah
+      STR
     end
 
     it 'should correctly amend the specified line of input when line number given ' do
