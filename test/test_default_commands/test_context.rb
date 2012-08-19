@@ -13,31 +13,34 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "exit-all" do
     it 'should break out of the repl loop of Pry instance and return nil' do
-      redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.new.repl(0).should == nil
-      end
+      pry_tester(0).simulate_repl do |t|
+        t.eval 'exit-all'
+      end.should == nil
     end
 
     it 'should break out of the repl loop of Pry instance wth a user specified value' do
-      redirect_pry_io(InputTester.new("exit-all 'message'")) do
-        Pry.new.repl(0).should == 'message'
-      end
+      pry_tester(0).simulate_repl do |t|
+        t.eval "exit-all 'message'"
+      end.should == 'message'
     end
 
     it 'should break of the repl loop even if multiple bindings still on stack' do
-      ins = nil
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all 'message'")) do
-        ins = Pry.new.tap { |v| v.repl(0).should == 'message' }
-      end
+      pry_tester(0).simulate_repl do |t|
+        t.eval 'cd 1', 'cd 2', "exit-all 'message'"
+      end.should == 'message'
     end
 
     it 'binding_stack should be empty after breaking out of the repl loop' do
-      ins = nil
-      redirect_pry_io(InputTester.new("cd 1", "cd 2", "exit-all")) do
-        ins = Pry.new.tap { |v| v.repl(0) }
+      t = pry_tester(0) do
+        def binding_stack
+          @pry.binding_stack
+        end
       end
 
-      ins.binding_stack.empty?.should == true
+      t.simulate_repl do |t|
+        t.eval 'cd 1', 'cd 2', 'exit-all'
+      end
+      t.binding_stack.empty?.should == true
     end
   end
 
@@ -173,27 +176,34 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "exit" do
     it 'should pop a binding with exit' do
-      redirect_pry_io(InputTester.new("cd :inner", @inner, "exit",
-                                       @outer, "exit-all")) do
-        Pry.start(:outer)
+      pry_tester(:outer).simulate_repl do |t|
+        t.eval 'cd :inner'
+        t.eval('self').should == :inner
+        t.eval 'exit'
+        t.eval('self').should == :outer
+        t.eval 'exit-all'
       end
-
-      Pad.inner.should == :inner
-      Pad.outer.should == :outer
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit' do
-      Pry.start(0, :input => StringIO.new("exit")).should == nil
+      pry_tester(0).simulate_repl do |t|
+        t.eval 'exit'
+      end.should == nil
     end
 
     it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit, and return user-given value' do
-      Pry.start(0, :input => StringIO.new("exit :john")).should == :john
+      pry_tester(0).simulate_repl do |t|
+        t.eval 'exit :john'
+      end.should == :john
     end
 
     it 'should break out the repl loop of Pry instance even after an exception in user-given value' do
-      redirect_pry_io(InputTester.new("exit = 42", "exit")) do
-        ins = Pry.new.tap { |v| v.repl(0).should == nil }
-      end
+      pry_tester(0).simulate_repl do |t|
+        proc {
+          t.eval 'exit = 42'
+        }.should.raise(SyntaxError)
+        t.eval 'exit'
+      end.should == nil
     end
   end
 
@@ -213,18 +223,18 @@ describe "Pry::DefaultCommands::Context" do
 
   describe "exit-program" do
     it 'should raise SystemExit' do
-      redirect_pry_io(InputTester.new("exit-program")) do
-        lambda { Pry.new.repl(0).should == 0 }.should.raise SystemExit
-      end
+      proc {
+        pry_eval('exit-program')
+      }.should.raise SystemExit
     end
 
     it 'should exit the program with the provided value' do
-      redirect_pry_io(InputTester.new("exit-program 66")) do
-        begin
-          Pry.new.repl(0)
-        rescue SystemExit => e
-          e.status.should == 66
-        end
+      begin
+        pry_eval 'exit-program 66'
+      rescue SystemExit => e
+        e.status.should == 66
+      else
+        raise "Failed to raise SystemExit"
       end
     end
   end
@@ -271,7 +281,7 @@ describe "Pry::DefaultCommands::Context" do
   end
 
   describe "raise-up!" do
-    it "should jump immediately out of nested context's" do
+    it "should jump immediately out of nested contexts" do
       lambda { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.should.raise RuntimeError, 'fancy that...'
     end
   end
