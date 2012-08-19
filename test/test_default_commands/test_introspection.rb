@@ -17,24 +17,26 @@ describe "Pry::DefaultCommands::Introspection" do
 
     describe "with FILE" do
       it "should invoke Pry.config.editor with absolutified filenames" do
-        mock_pry("edit foo.rb")
-        @file.should == File.expand_path("foo.rb")
-        mock_pry("edit /tmp/bar.rb")
-        @file.should == "/tmp/bar.rb"
+        pry_eval 'edit lib/pry.rb'
+        @file.should == File.expand_path('lib/pry.rb')
+
+        FileUtils.touch '/tmp/bar.rb'
+        pry_eval 'edit /tmp/bar.rb'
+        @file.should == '/tmp/bar.rb'
       end
 
       it "should guess the line number from a colon" do
-        mock_pry("edit /tmp/foo.rb:10")
+        pry_eval 'edit lib/pry.rb:10'
         @line.should == 10
       end
 
       it "should use the line number from -l" do
-        mock_pry("edit -l 10 /tmp/foo.rb")
+        pry_eval 'edit -l 10 lib/pry.rb'
         @line.should == 10
       end
 
       it "should not delete the file!" do
-        mock_pry("edit Rakefile")
+        pry_eval 'edit Rakefile'
         File.exist?(@file).should == true
       end
 
@@ -48,39 +50,39 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should reload the file if it is a ruby file" do
-          tf = Tempfile.new(["pry", ".rb"])
-          path = tf.path
+          temp_file do |tf|
+            path = tf.path
+            pry_eval "edit #{path}"
 
-          mock_pry("edit #{path}", "$rand").should =~ /#{@rand}/
-
-          tf.close(true)
+            $rand.should == @rand
+          end
         end
 
         it "should not reload the file if it is not a ruby file" do
-          tf = Tempfile.new(["pry", ".py"])
-          path = tf.path
+          temp_file('.py') do |tf|
+            path = tf.path
+            pry_eval "edit #{path}"
 
-          mock_pry("edit #{path}", "$rand").should.not =~ /#{@rand}/
-
-          tf.close(true)
+            $rand.should.not == @rand
+          end
         end
 
         it "should not reload a ruby file if -n is given" do
-          tf = Tempfile.new(["pry", ".rb"])
-          path = tf.path
+          temp_file do |tf|
+            path = tf.path
+            pry_eval "edit -n #{path}"
 
-          mock_pry("edit -n #{path}", "$rand").should.not =~ /#{@rand}/
-
-          tf.close(true)
+            $rand.should.not == @rand
+          end
         end
 
         it "should reload a non-ruby file if -r is given" do
-          tf = Tempfile.new(["pry", ".pryrc"])
-          path = tf.path
+          temp_file('.pryrc') do |tf|
+            path = tf.path
+            pry_eval "edit -r #{path}"
 
-          mock_pry("edit -r #{path}", "$rand").should =~ /#{@rand}/
-
-          tf.close(true)
+            $rand.should == @rand
+          end
         end
       end
 
@@ -94,9 +96,9 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should pass the editor a reloading arg" do
-          mock_pry("edit foo.rb")
+          pry_eval 'edit lib/pry.rb'
           @reloading.should == true
-          mock_pry("edit -n foo.rb")
+          pry_eval 'edit -n lib/pry.rb'
           @reloading.should == false
         end
       end
@@ -104,113 +106,132 @@ describe "Pry::DefaultCommands::Introspection" do
 
     describe "with --ex" do
       before do
-        @tf = Tempfile.new(["pry", ".rb"])
-        @path = @tf.path
-        @tf << "1\n2\nraise RuntimeError"
-        @tf.flush
-      end
-      after do
-        @tf.close(true)
-        File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
-      end
-      it "should open the correct file" do
-        mock_pry("require #{@path.inspect}", "edit --ex")
-
-        @file.should == @path
-        @line.should == 3
-      end
-
-      it "should reload the file" do
-        Pry.config.editor = lambda {|file, line|
-          File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
-          nil
-        }
-
-        mock_pry("require #{@path.inspect}", "edit --ex", "FOO").should =~ /BAR/
-      end
-
-      it "should not reload the file if -n is passed" do
-        Pry.config.editor = lambda {|file, line|
-          File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
-          nil
-        }
-
-        mock_pry("require #{@path.inspect}", "edit -n --ex", "FOO2").should.not =~ /BAZ/
-      end
-    end
-
-    describe "with --ex NUM" do
-      before do
-        Pry.config.editor = proc do |file, line|
-          @__ex_file__ = file
-          @__ex_line__ = line
-          nil
+        @t = pry_tester do
+          def last_exception=(exception)
+            @pry.last_exception = exception
+          end
         end
       end
 
-      it 'should start editor on first level of backtrace when --ex used with no argument ' do
-        pry_instance = Pry.new(:input => StringIO.new("edit -n --ex"), :output => StringIO.new)
-        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
-        pry_instance.rep(self)
-        @__ex_file__.should == "a"
-        @__ex_line__.should == 1
+      describe "with a real file" do
+        before do
+          @tf = Tempfile.new(["pry", ".rb"])
+          @path = @tf.path
+          @tf << "1\n2\nraise RuntimeError"
+          @tf.flush
+
+          begin
+            load @path
+          rescue RuntimeError => e
+            @t.last_exception = e
+          end
+        end
+
+        after do
+          @tf.close(true)
+          File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
+        end
+
+        it "should reload the file" do
+          Pry.config.editor = lambda {|file, line|
+            File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
+            nil
+          }
+
+          defined?(FOO).should.be.nil
+
+          @t.eval 'edit --ex'
+
+          FOO.should == 'BAR'
+        end
+
+        it "should not reload the file if -n is passed" do
+          Pry.config.editor = lambda {|file, line|
+            File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
+            nil
+          }
+
+          defined?(FOO2).should.be.nil
+
+          @t.eval 'edit -n --ex'
+
+          defined?(FOO2).should.be.nil
+        end
       end
 
-      it 'should start editor on first level of backtrace when --ex 0 used ' do
-        pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 0"), :output => StringIO.new)
-        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
-        pry_instance.rep(self)
-        @__ex_file__.should == "a"
-        @__ex_line__.should == 1
-      end
+      describe "with --ex NUM" do
+        before do
+          Pry.config.editor = proc do |file, line|
+            @__ex_file__ = file
+            @__ex_line__ = line
+            nil
+          end
 
-      it 'should start editor on second level of backtrace when --ex 1 used' do
-        pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 1"), :output => StringIO.new)
-        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
-        pry_instance.rep(self)
-        @__ex_file__.should == "b"
-        @__ex_line__.should == 2
-      end
+          @t.last_exception = mock_exception('a:1', 'b:2', 'c:3')
+        end
 
-      it 'should start editor on third level of backtrace when --ex 2 used' do
-        pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 2"), :output => StringIO.new)
-        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
-        pry_instance.rep(self)
-        @__ex_file__.should == "c"
-        @__ex_line__.should == 3
-      end
+        it 'should start on first level of backtrace with just --ex' do
+          @t.eval 'edit -n --ex'
+          @__ex_file__.should == "a"
+          @__ex_line__.should == 1
+        end
 
-      it 'should display error message when backtrace level is out of bounds (using --ex 4)' do
-        pry_instance = Pry.new(:input => StringIO.new("edit -n --ex 4"), :output => str_output = StringIO.new)
-        pry_instance.last_exception = mock_exception("a:1", "b:2", "c:3")
-        pry_instance.rep(self)
-        str_output.string.should =~ /Exception has no associated file/
+        it 'should start editor on first level of backtrace with --ex 0' do
+          @t.eval 'edit -n --ex 0'
+          @__ex_file__.should == "a"
+          @__ex_line__.should == 1
+        end
+
+        it 'should start editor on second level of backtrace with --ex 1' do
+          @t.eval 'edit -n --ex 1'
+          @__ex_file__.should == "b"
+          @__ex_line__.should == 2
+        end
+
+        it 'should start editor on third level of backtrace with --ex 2' do
+          @t.eval 'edit -n --ex 2'
+          @__ex_file__.should == "c"
+          @__ex_line__.should == 3
+        end
+
+        it 'should display error message when backtrace level is invalid' do
+          proc {
+            @t.eval 'edit -n --ex 4'
+          }.should.raise(Pry::CommandError)
+        end
       end
     end
 
     describe "without FILE" do
+      before do
+        @t = pry_tester
+      end
+
       it "should edit the current expression if it's incomplete" do
-        mock_pry("def a", "edit")
+        eval_str = 'def a'
+        @t.process_command 'edit', eval_str
         @contents.should == "def a\n"
       end
 
       it "should edit the previous expression if the current is empty" do
-        mock_pry("def a; 2; end", "edit")
+        @t.eval 'def a; 2; end', 'edit'
         @contents.should == "def a; 2; end\n"
       end
 
       it "should use a blank file if -t is specified" do
-        mock_pry("def a; 5; end", "edit -t")
+        @t.eval 'def a; 5; end', 'edit -t'
         @contents.should == "\n"
       end
 
-      it "should use a blank file if -t is specified even half-way through an expression" do
-        mock_pry("def a;", "edit -t")
+      it "should use a blank file if -t given, even during an expression" do
+        eval_str = 'def a;'
+        @t.process_command 'edit -t', eval_str
         @contents.should == "\n"
       end
 
       it "should position the cursor at the end of the expression" do
-        mock_pry("def a; 2;"," end", "edit")
+        eval_str = "def a; 2;\nend"
+        @t.process_command 'edit', eval_str
         @line.should == 2
       end
 
@@ -219,44 +240,55 @@ describe "Pry::DefaultCommands::Introspection" do
           File.open(file, 'w'){|f| f << "'FOO'\n" }
           nil
         }
-        mock_pry("edit").should =~ /FOO/
+        eval_str = ''
+        @t.process_command 'edit', eval_str
+        eval_str.should == "'FOO'\n"
       end
+
       it "should not evaluate the expression with -n" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "'FOO'\n" }
           nil
         }
-        mock_pry("edit -n").should.not =~ /FOO/
+        eval_str = ''
+        @t.process_command 'edit -n', eval_str
+        eval_str.should == ''
       end
     end
 
     describe "with --in" do
       it "should edit the nth line of _in_" do
-        mock_pry("10", "11", "edit --in -2")
+        pry_eval '10', '11', 'edit --in -2'
         @contents.should == "10\n"
       end
 
       it "should edit the last line if no argument is given" do
-        mock_pry("10", "11", "edit --in")
+        pry_eval '10', '11', 'edit --in'
         @contents.should == "11\n"
       end
 
       it "should edit a range of lines if a range is given" do
-        mock_pry("10", "11", "edit -i 1,2")
+        pry_eval "10\n", "11\n", "edit -i 1,2"
         @contents.should == "10\n11\n"
       end
 
       it "should edit a multi-line expression as it occupies one line of _in_" do
-        mock_pry("class Fixnum", "  def invert; -self; end", "end", "edit -i 1")
+        pry_eval "class Fixnum\n  def invert; -self; end\nend", "edit -i 1"
         @contents.should == "class Fixnum\n  def invert; -self; end\nend\n"
       end
 
       it "should not work with a filename" do
-        mock_pry("edit ruby.rb -i").should =~ /Only one of --ex, --temp, --in and FILE may be specified/
+        proc {
+          pry_eval 'edit ruby.rb -i'
+        }.should.raise(Pry::CommandError).
+            message.should =~ /Only one of --ex, --temp, --in and FILE/
       end
 
       it "should not work with nonsense" do
-        mock_pry("edit --in three").should =~ /Not a valid range: three/
+        proc {
+          pry_eval 'edit --in three'
+        }.should.raise(Pry::CommandError).
+            message.should =~ /Not a valid range: three/
       end
     end
   end

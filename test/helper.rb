@@ -198,6 +198,7 @@ def temp_file(ext='.rb')
   yield file
 ensure
   file.close(true) if file
+  File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
 end
 
 def pry_tester(context = TOPLEVEL_BINDING, &block)
@@ -220,6 +221,7 @@ class PryTester
       @pry.binding_stack << Pry.binding_for(context)
     end
 
+    @pry.input_array << nil # TODO: shouldn't need this
     reset_output
   end
 
