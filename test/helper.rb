@@ -208,7 +208,13 @@ def pry_tester(context = TOPLEVEL_BINDING, &block)
 end
 
 def pry_eval(*eval_strs)
-  pry_tester.eval(*eval_strs)
+  if eval_strs.first.is_a? String
+    binding = TOPLEVEL_BINDING
+  else
+    binding = Pry.binding_for(eval_strs.shift)
+  end
+
+  pry_tester(binding).eval(*eval_strs)
 end
 
 class PryTester
