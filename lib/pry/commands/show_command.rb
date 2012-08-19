@@ -8,7 +8,7 @@ class Pry
 
       opts = Slop.parse!(args) do |opt|
         opt.banner unindent <<-USAGE
-            NOTE: show-command is DEPRACTED. Use show-source [command_name] instead.
+            NOTE: show-command is DEPRECATED. Use show-source [command_name] instead.
         USAGE
 
         opt.on :h, :help, "This message." do
