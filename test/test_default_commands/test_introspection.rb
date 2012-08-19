@@ -360,31 +360,31 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should correctly find a class method" do
-          mock_pry("edit-method X.x")
+          pry_eval 'edit-method X.x'
           @file.should == @tempfile.path
           @line.should == 14
         end
 
         it "should correctly find an instance method" do
-          mock_pry("edit-method X#x")
+          pry_eval 'edit-method X#x'
           @file.should == @tempfile.path
           @line.should == 18
         end
 
         it "should correctly find a method on an instance" do
-          mock_pry("x = X.new", "edit-method x.x")
+          pry_eval 'x = X.new', 'edit-method x.x'
           @file.should == @tempfile.path
           @line.should == 18
         end
 
         it "should correctly find a method from a module" do
-          mock_pry("edit-method X#a")
+          pry_eval 'edit-method X#a'
           @file.should == @tempfile.path
           @line.should == 2
         end
 
         it "should correctly find an aliased method" do
-          mock_pry("edit-method X#c")
+          pry_eval 'edit-method X#c'
           @file.should == @tempfile.path
           @line.should == 22
         end
@@ -407,7 +407,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should successfully replace a class method" do
-          mock_pry("edit-method -p X.x")
+          pry_eval 'edit-method -p X.x'
 
           class << X
             X.method(:x).owner.should == self
@@ -417,14 +417,14 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should successfully replace an instance method" do
-          mock_pry("edit-method -p X#x")
+          pry_eval 'edit-method -p X#x'
 
           X.instance_method(:x).owner.should == X
           X.new.x.should == :maybe
         end
 
         it "should successfully replace a method on an instance" do
-          mock_pry("instance = X.new", "edit-method -p instance.x")
+          pry_eval 'instance = X.new', 'edit-method -p instance.x'
 
           instance = X.new
           instance.method(:x).owner.should == X
@@ -432,21 +432,21 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should successfully replace a method from a module" do
-          mock_pry("edit-method -p X#a")
+          pry_eval 'edit-method -p X#a'
 
           X.instance_method(:a).owner.should == A
           X.new.a.should == :maybe
         end
 
         it "should successfully replace a method with a question mark" do
-          mock_pry("edit-method -p X#y?")
+          pry_eval 'edit-method -p X#y?'
 
           X.instance_method(:y?).owner.should == X
           X.new.y?.should == :maybe
         end
 
         it "should preserve module nesting" do
-          mock_pry("edit-method -p X::B#foo")
+          pry_eval 'edit-method -p X::B#foo'
 
           X::B.instance_method(:foo).owner.should == X::B
           X::B.new.foo.should == :nawt
@@ -470,7 +470,7 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should change the alias, but not the original, without breaking super" do
-          mock_pry("edit-method -p X#c")
+          pry_eval 'edit-method -p X#c'
 
           Pry::Method.from_str("X#c").alias?.should == true
 
@@ -493,9 +493,9 @@ describe "Pry::DefaultCommands::Introspection" do
         end
 
         it "should pass the editor a reloading arg" do
-          mock_pry('edit-method X.x')
+          pry_eval 'edit-method X.x'
           @reloading.should == true
-          mock_pry('edit-method -n X.x')
+          pry_eval 'edit-method -n X.x'
           @reloading.should == false
         end
       end

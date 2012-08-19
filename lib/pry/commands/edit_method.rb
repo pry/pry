@@ -65,11 +65,11 @@ class Pry
 
         if @method.alias?
           with_method_transaction(original_name, @method.owner) do
-            Pry.new(:input => StringIO.new(source)).rep(TOPLEVEL_BINDING)
+            _pry_.evaluate_ruby source
             Pry.binding_for(@method.owner).eval("alias #{@method.name} #{original_name}")
           end
         else
-          Pry.new(:input => StringIO.new(source)).rep(TOPLEVEL_BINDING)
+          _pry_.evaluate_ruby source
         end
       end
     end
