@@ -386,16 +386,22 @@ describe "Pry::DefaultCommands::Input" do
     before do
       Pry.history.clear
       @hist = Pry.history
+
+      @t = pry_tester do
+        # For looking at what hist pushes into the input stack. The
+        # implementation of this helper will definitely have to change at some
+        # point.
+        def next_input
+          @pry.input.string
+        end
+      end
     end
 
     it 'should display the correct history' do
       @hist.push "hello"
       @hist.push "world"
-      redirect_pry_io(InputTester.new("hist", "exit-all"), @str_output) do
-        pry
-      end
 
-      @str_output.string.should =~ /hello\n.*world/
+      @t.eval('hist').should =~ /hello\n.*world/
     end
 
     it 'should replay history correctly (single item)' do
@@ -403,23 +409,22 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "@x = 10"
       @hist.push "@y = 20"
       @hist.push "@z = 30"
-      redirect_pry_io(InputTester.new("hist --replay -1", "exit-all")) do
-        o.pry
-      end
-      o.instance_variable_get(:@x).should == nil
-      o.instance_variable_get(:@y).should == nil
-      o.instance_variable_get(:@z).should == 30
+
+      @t.context = o
+      @t.eval 'hist --replay -1'
+
+      @t.next_input.should == "@z = 30\n"
     end
 
     it 'should replay a range of history correctly (range of items)' do
       o = Object.new
       @hist.push "@x = 10"
       @hist.push "@y = 20"
-      redirect_pry_io(InputTester.new("hist --replay 0..2", "exit-all")) do
-        o.pry
-      end
-      o.instance_variable_get(:@x).should == 10
-      o.instance_variable_get(:@y).should == 20
+
+      @t.context = o
+      @t.eval 'hist --replay 0..2'
+
+      @t.next_input.should == "@x = 10\n@y = 20\n"
     end
 
     it 'should grep for correct lines in history' do
@@ -433,24 +438,13 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "def boink 2"
       @hist.push "place holder"
 
-      redirect_pry_io(InputTester.new("hist --grep o", "exit-all"), @str_output) do
-        pry
-      end
-      @str_output.string.should =~ /\d:.*?box\n\d:.*?button\n\d:.*?orange/
+      @t.eval('hist --grep o').should =~ /\d:.*?box\n\d:.*?button\n\d:.*?orange/
 
       # test more than one word in a regex match (def blah)
-      @str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --grep def blah", "exit-all"), @str_output) do
-        pry
-      end
-      @str_output.string.should =~ /def blah 1/
+      @t.eval('hist --grep def blah').should =~ /def blah 1/
 
-      @str_output = StringIO.new
       # test more than one word with leading white space in a regex match (def boink)
-      redirect_pry_io(InputTester.new("hist --grep      def boink", "exit-all"), @str_output) do
-        pry
-      end
-      @str_output.string.should =~ /def boink 2/
+      @t.eval('hist --grep      def boink').should =~ /def boink 2/
     end
 
     it 'should return last N lines in history with --tail switch' do
@@ -458,12 +452,9 @@ describe "Pry::DefaultCommands::Input" do
         @hist.push v
       end
 
-      redirect_pry_io(InputTester.new("hist --tail 3", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.count.should == 3
-      @str_output.string.should =~ /x\n\d+:.*y\n\d+:.*z/
+      out = @t.eval 'hist --tail 3'
+      out.each_line.count.should == 3
+      out.should =~ /x\n\d+:.*y\n\d+:.*z/
     end
 
     it 'should apply --tail after --grep' do
@@ -473,13 +464,9 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "print 4"
       @hist.push "puts  5"
 
-      str_output = StringIO.new
-      redirect_pry_io(InputTester.new("hist --tail 2 --grep print", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.count.should == 2
-      @str_output.string.should =~ /\d:.*?print 2\n\d:.*?print 4/
+      out = @t.eval 'hist --tail 2 --grep print'
+      out.each_line.count.should == 2
+      out.should =~ /\d:.*?print 2\n\d:.*?print 4/
     end
 
     it 'should apply --head after --grep' do
@@ -489,12 +476,9 @@ describe "Pry::DefaultCommands::Input" do
       @hist.push "print 4"
       @hist.push "print 5"
 
-      redirect_pry_io(InputTester.new("hist --head 2 --grep print", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.count.should == 2
-      @str_output.string.should =~ /\d:.*?print 2\n\d:.*?print 4/
+      out = @t.eval 'hist --head 2 --grep print'
+      out.each_line.count.should == 2
+      out.should =~ /\d:.*?print 2\n\d:.*?print 4/
     end
 
     # strangeness in this test is due to bug in Readline::HISTORY not
@@ -504,12 +488,9 @@ describe "Pry::DefaultCommands::Input" do
         @hist.push v
       end
 
-      redirect_pry_io(InputTester.new("hist --head 4", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.count.should == 4
-      @str_output.string.should =~ /a\n\d+:.*b\n\d+:.*c/
+      out = @t.eval 'hist --head 4'
+      out.each_line.count.should == 4
+      out.should =~ /a\n\d+:.*b\n\d+:.*c/
     end
 
     # strangeness in this test is due to bug in Readline::HISTORY not
@@ -519,31 +500,10 @@ describe "Pry::DefaultCommands::Input" do
         @hist.push v
       end
 
-      redirect_pry_io(InputTester.new("hist --show 1..4", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.count.should == 4
-      @str_output.string.should =~ /b\n\d+:.*c\n\d+:.*d/
+      out = @t.eval 'hist --show 1..4'
+      out.each_line.count.should == 4
+      out.should =~ /b\n\d+:.*c\n\d+:.*d/
     end
 
-    it "should not contain duplicated lines" do
-      redirect_pry_io(InputTester.new("3", "_ += 1", "_ += 1", "hist", "exit-all"), @str_output) do
-        pry
-      end
-
-      @str_output.string.each_line.grep(/_ \+= 1/).count.should == 1
-    end
-
-    it "should not contain duplicated lines" do
-      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all"), @str_output) do
-        pry
-      end
-
-      a = @str_output.string.each_line.to_a.index{|line| line.include?("2 + 2") }
-      b = @str_output.string.each_line.to_a.index{|line| line.include?("3 + 3") }
-
-      (a + 1).should == b
-    end
   end
 end
