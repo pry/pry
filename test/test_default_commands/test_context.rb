@@ -56,7 +56,7 @@ describe "Pry::DefaultCommands::Context" do
       Cor.new.blimey!
 
       # using [.] so the regex doesn't match itself
-      pry_tester(Pad.binding).eval('whereami').should =~ /self[.]blimey!/
+      pry_eval(Pad.binding, 'whereami').should =~ /self[.]blimey!/
 
       Object.remove_const(:Cor)
     end
@@ -64,7 +64,7 @@ describe "Pry::DefaultCommands::Context" do
     it 'should work in objects with no method methods' do
       class Cor
         def blimey!
-          pry_tester(binding).eval('whereami').should =~ /Cor[#]blimey!/
+          pry_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
         end
 
         def method; "moo"; end
@@ -76,8 +76,7 @@ describe "Pry::DefaultCommands::Context" do
     it 'should properly set _file_, _line_ and _dir_' do
       class Cor
         def blimey!
-          pry_tester(binding).
-            eval('whereami', '_file_').
+          pry_eval(binding, 'whereami', '_file_').
             should == File.expand_path(__FILE__)
         end
       end
@@ -90,12 +89,12 @@ describe "Pry::DefaultCommands::Context" do
       class Cor
         def blimey!
           eval <<-END, binding, "test/test_default_commands/example.erb", 1
-            pry_tester(binding).eval('whereami')
+            pry_eval(binding, 'whereami')
           END
         end
       end
 
-      Cor.instance_method(:blimey!).source.should =~ /pry_tester/
+      Cor.instance_method(:blimey!).source.should =~ /pry_eval/
 
       Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
       Object.remove_const(:Cor)
@@ -105,7 +104,7 @@ describe "Pry::DefaultCommands::Context" do
       class Cor
         eval <<-END, binding, "test/test_default_commands/example.erb", 1
           def blimey!
-            pry_tester(binding).eval('whereami')
+            pry_eval(binding, 'whereami')
           end
         END
       end
@@ -137,7 +136,7 @@ describe "Pry::DefaultCommands::Context" do
     it 'should show code window (not just method source) if parameter passed to whereami' do
       class Cor
         def blimey!
-          pry_tester(binding).eval('whereami 3').should =~ /class Cor/
+          pry_eval(binding, 'whereami 3').should =~ /class Cor/
         end
       end
       Cor.new.blimey!
@@ -148,7 +147,7 @@ describe "Pry::DefaultCommands::Context" do
       old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
       :litella
       :pig
-      out = pry_tester(binding).eval('whereami')
+      out = pry_eval(binding, 'whereami')
       :punk
       :sanders
 
@@ -161,16 +160,16 @@ describe "Pry::DefaultCommands::Context" do
     end
 
     it "should work at the top level" do
-      pry_tester(Pry.toplevel_binding).eval('whereami').should =~
+      pry_eval(Pry.toplevel_binding, 'whereami').should =~
         /At the top level/
     end
 
     it "should work inside a class" do
-      pry_tester(Pry).eval('whereami').should =~ /Inside Pry/
+      pry_eval(Pry, 'whereami').should =~ /Inside Pry/
     end
 
     it "should work inside an object" do
-      pry_tester(Object.new).eval('whereami').should =~ /Inside #<Object/
+      pry_eval(Object.new, 'whereami').should =~ /Inside #<Object/
     end
   end
 
