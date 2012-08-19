@@ -276,27 +276,25 @@ describe "Pry::DefaultCommands::Input" do
 
   describe "play" do
     it 'should play a string variable  (with no args)' do
-      x = "\"hello\""
-      redirect_pry_io(InputTester.new("play x", "exit-all"), @str_output) do
-        Pry.start binding, :hooks => Pry::Hooks.new
-      end
+      eval_str = ''
 
-      @str_output.string.should =~ /"hello"/
+      @t.eval 'x = "\"hello\""'
+      @t.process_command 'play x', eval_str
+
+      eval_str.should == '"hello"'
     end
 
     it 'should play a string variable  (with no args) using --lines to select what to play' do
-      b = binding
-      b.eval('x = "\"hello\"\n\"goodbye\"\n\"love\""')
-      redirect_pry_io(InputTester.new("play x --lines 1", "exit-all"), @str_output) do
-        Pry.start b, :hooks => Pry::Hooks.new
-      end
+      eval_str = ''
 
-      @str_output.string.should =~ /hello/
-      @str_output.string.should.not =~ /love/
-      @str_output.string.should.not =~ /goodbye/
+      @t.eval 'x = "\"hello\"\n\"goodbye\"\n\"love\""'
+      @t.process_command 'play x --lines 1', eval_str
+
+      eval_str.should == "\"hello\"\n"
     end
 
     it 'should play documentation with the -d switch' do
+      eval_str = ''
       o = Object.new
 
       # @v = 10
@@ -305,15 +303,16 @@ describe "Pry::DefaultCommands::Input" do
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('play -d test_method', "exit-all")) do
-        o.pry
-      end
+      pry_tester(o).process_command 'play -d test_method', eval_str
 
-      o.instance_variable_get(:@v).should == 10
-      o.instance_variable_get(:@y).should == 20
+      eval_str.should == unindent(<<-STR)
+        @v = 10
+        @y = 20
+      STR
     end
 
-    it 'should play documentation with the -d switch (restricted by --lines)' do
+    it 'should restrict -d switch with --lines' do
+      eval_str = ''
       o = Object.new
 
       # @x = 0
@@ -324,45 +323,47 @@ describe "Pry::DefaultCommands::Input" do
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('play -d test_method --lines 2..3', "exit-all")) do
-        o.pry
-      end
+      pry_tester(o).process_command 'play -d test_method --lines 2..3', eval_str
 
-      o.instance_variable_get(:@x).should == nil
-      o.instance_variable_get(:@z).should == nil
-      o.instance_variable_get(:@v).should == 10
-      o.instance_variable_get(:@y).should == 20
+      eval_str.should == unindent(<<-STR)
+        @v = 10
+        @y = 20
+      STR
     end
 
-
     it 'should play a method with the -m switch (a single line)' do
+      eval_str = ''
       o = Object.new
+
       def o.test_method
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('play -m test_method --lines 2', "exit-all"), @str_output) do
-        o.pry
-      end
+      pry_tester(o).process_command 'play -m test_method --lines 2', eval_str
 
-      @str_output.string.should =~ /:test_method_content/
+      eval_str.should == "  :test_method_content\n"
     end
 
     it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
+      eval_str = unindent(<<-STR)
+        def another_test_method
+      STR
+
       o = Object.new
       def o.test_method
         :test_method_content
       end
 
-      redirect_pry_io(InputTester.new('def another_test_method', 'play -m test_method --lines 2', 'show-input', 'exit-all'), @str_output) do
-        o.pry
-      end
+      pry_tester(o).process_command 'play -m test_method --lines 2', eval_str
 
-      @str_output.string.should =~ /def another_test_method/
-      @str_output.string.should =~ /:test_method_content/
+      eval_str.should == unindent(<<-STR)
+        def another_test_method
+          :test_method_content
+      STR
     end
 
     it 'should play a method with the -m switch (multiple line)' do
+      eval_str = ''
       o = Object.new
 
       def o.test_method
@@ -372,16 +373,12 @@ describe "Pry::DefaultCommands::Input" do
         @var3 = 40
       end
 
-      redirect_pry_io(InputTester.new('play -m test_method --lines 3..4', "exit-all"), @str_output) do
-        o.pry
-      end
+      pry_tester(o).process_command 'play -m test_method --lines 3..4', eval_str
 
-      o.instance_variable_get(:@var0).should == nil
-      o.instance_variable_get(:@var1).should == 20
-      o.instance_variable_get(:@var2).should == 30
-      o.instance_variable_get(:@var3).should == nil
-      @str_output.string.should =~ /30/
-      @str_output.string.should.not =~ /20/
+      eval_str.should == unindent(<<-STR, 2)
+        @var1 = 20
+        @var2 = 30
+      STR
     end
   end
 

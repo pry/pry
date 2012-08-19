@@ -193,7 +193,7 @@ class Pry
       #
       # @param [String] text The text from which to remove indentation
       # @return [String] The text with indentation stripped.
-      def unindent(text)
+      def unindent(text, left_padding = 0)
         # Empty blank lines
         text = text.sub(/^[ \t]+$/, '')
 
@@ -208,7 +208,7 @@ class Pry
           end
         end
 
-        text.gsub(/^#{margin}/, '')
+        text.gsub(/^#{margin}/, ' ' * left_padding)
       end
 
       # Restrict a string to the given range of lines (1-indexed)
