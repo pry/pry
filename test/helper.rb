@@ -247,6 +247,10 @@ class PryTester
     result
   end
 
+  def context=(context)
+    @pry.binding_stack << Pry.binding_for(context)
+  end
+
   # TODO: eliminate duplication with Pry#repl
   def simulate_repl
     didnt_exit = nil
