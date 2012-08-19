@@ -301,6 +301,20 @@ describe "Pry::DefaultCommands::Input" do
       o.instance_variable_get(:@y).should == 20
     end
 
+    # this is to prevent a regression where input redirection is
+    # replaced by just appending to `eval_string`
+    it 'should replay a range of history correctly (range of commands)' do
+      o = Object.new
+      @hist.push "cd 1"
+      @hist.push "cd 2"
+      redirect_pry_io(InputTester.new("hist --replay 0..2", "Pad.stack = _pry_.binding_stack.dup", "exit-all")) do
+        o.pry
+      end
+      o = Pad.stack[-2..-1].map { |v| v.eval('self') }
+      o.should == [1, 2]
+      Pad.clear
+    end
+
     it 'should grep for correct lines in history' do
       @hist.push "abby"
       @hist.push "box"
