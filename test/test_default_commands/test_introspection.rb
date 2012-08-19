@@ -499,7 +499,6 @@ describe "Pry::DefaultCommands::Introspection" do
           @reloading.should == false
         end
       end
-
     end
   end
 end
