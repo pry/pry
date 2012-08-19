@@ -230,6 +230,7 @@ class PryTester
     result = nil
 
     strs.flatten.each do |str|
+      str = "#{str}\n" unless str.end_with?("\n")
       if @pry.process_command(str)
         result = last_command_result_or_output
       else

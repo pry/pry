@@ -426,6 +426,7 @@ class Pry
   # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command(val, eval_string = '', target = binding_stack.last)
+    val = val.chomp
     result = commands.process_line(val, {
       :target => target,
       :output => output,

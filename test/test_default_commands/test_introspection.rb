@@ -268,7 +268,7 @@ describe "Pry::DefaultCommands::Introspection" do
       end
 
       it "should edit a range of lines if a range is given" do
-        pry_eval "10\n", "11\n", "edit -i 1,2"
+        pry_eval "10", "11", "edit -i 1,2"
         @contents.should == "10\n11\n"
       end
 
