@@ -238,6 +238,23 @@ class PryTester
     result
   end
 
+  # TODO: eliminate duplication with Pry#repl
+  def simulate_repl
+    didnt_exit = nil
+    break_data = nil
+
+    didnt_exit = catch(:didnt_exit) do
+      break_data = catch(:breakout) do
+        yield self
+        throw(:didnt_exit, true)
+      end
+      nil
+    end
+
+    raise "Failed to exit REPL" if didnt_exit
+    break_data
+  end
+
   def last_output
     @out.string if @out
   end
