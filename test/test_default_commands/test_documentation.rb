@@ -22,7 +22,7 @@ if !mri18_and_no_real_source_location?
       it 'should output a method\'s documentation if inside method without needing to use method name' do
         # sample comment
         def @o.sample
-          pry_tester(binding).eval('show-doc').should =~ /sample comment/
+          pry_eval(binding, 'show-doc').should =~ /sample comment/
         end
         @o.sample
       end
@@ -220,8 +220,7 @@ if !mri18_and_no_real_source_location?
             end
           end
 
-          pry_tester(AlphaClass).eval("show-doc BetaClass").should =~
-            /nested beta/
+          pry_eval(AlphaClass, "show-doc BetaClass").should =~ /nested beta/
         end
       end
 
@@ -271,12 +270,9 @@ if !mri18_and_no_real_source_location?
         end
 
         it 'should return doc for current module' do
-          pry_tester(TestHost::M).eval("show-doc").should =~
-            /hello there froggy/
+          pry_eval(TestHost::M, "show-doc").should =~ /hello there froggy/
         end
-
       end
-
 
       describe "should skip over broken modules" do
         before do

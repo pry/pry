@@ -6,7 +6,7 @@ describe "Pry::DefaultCommands::Gems" do
     # fixing bug for 1.8 compat
     it 'should not raise when invoked' do
       proc {
-        pry_tester(self).eval('gem-list')
+        pry_eval(self, 'gem-list')
       }.should.not.raise
     end
 
