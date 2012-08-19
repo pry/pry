@@ -47,7 +47,7 @@ class Pry
       when Fixnum
         _pry_.input_array[opts[:i]] || ""
       else
-        return output.puts "Not a valid range: #{opts[:i]}"
+        raise Pry::CommandError, "Not a valid range: #{opts[:i]}"
       end
     end
 
