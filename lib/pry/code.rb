@@ -36,7 +36,6 @@ class Pry
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
       def from_file(fn, code_type=type_from_filename(fn))
-
         if fn == Pry.eval_path
           new(Pry.line_buffer.drop(1), 1, code_type)
         else
