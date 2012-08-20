@@ -5,6 +5,9 @@ class Pry
   module BondCompleter
     def self.build_completion_proc(target, pry=nil, commands=[""])
       Bond.start
+      Bond.complete(:on => %r/^edit\s/) do |input|
+        ::Readline::FILENAME_COMPLETION_PROC.call(input) || []
+      end
       proc{ |*a| Bond.agent.call(*a) }
     end
   end
