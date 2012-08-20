@@ -62,4 +62,9 @@ describe Pry::HistoryArray do
     @array[1].should  == 1
     @array[10].should == 10
   end
+
+  it 'should not be larger than specified maximum size' do
+    12.times { |n| @array << n }
+    @array.entries.compact.size.should == 10
+  end
 end
