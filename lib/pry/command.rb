@@ -392,6 +392,12 @@ class Pry
       @dependencies_met ||= command_dependencies_met?(command_options)
     end
 
+    # Generate completions for this command
+    #
+    # @param [String] search  The line typed so far
+    # @return [Array<String>]  Completion words
+    def complete(search); Bond::DefaultMission.completions; end
+
     private
 
     # Run the `#call` method and all the registered hooks.
@@ -497,6 +503,15 @@ class Pry
         options(opt)
         opt.on(:h, :help, "Show this message.")
       end
+    end
+
+    # Generate shell completions
+    # @param [String] search  The line typed so far
+    # @return [Array<String>]  the words to complete
+    def complete(search)
+      slop.map do |opt|
+        [opt.long && "--#{opt.long}" || opt.short && "-#{opt.short}"]
+      end.flatten(1).compact + super
     end
 
     # A function called just before `options(opt)` as part of `call`.

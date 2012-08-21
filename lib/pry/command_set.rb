@@ -348,6 +348,20 @@ class Pry
       command.new(context).call_safely(*args)
     end
 
+    # Generate completions for the user's search.
+    # @param [String] search The line to search for
+    # @param [Hash] context  The context to create the command with
+    # @return [Array<String>]
+    def complete(search, context={})
+      if command = find_command(search)
+        command.new(context).complete(search)
+      else
+        commands.keys.select do |x|
+          String === x && x.start_with?(search)
+        end + Bond::DefaultMission.completions
+      end
+    end
+
     private
 
     def default_options(match)

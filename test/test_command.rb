@@ -696,6 +696,20 @@ describe "Pry::Command" do
     end
   end
 
+  describe 'complete' do
+    it 'should return the arguments that are defined' do
+      @set.create_command "torrid" do
+        def options(opt)
+          opt.on :test
+          opt.on :lest
+          opt.on :pests
+        end
+      end
+
+      @set.complete('torrid ').should.include('--test')
+    end
+  end
+
   describe 'group' do
     before do
       @set.import(

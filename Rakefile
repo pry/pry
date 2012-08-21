@@ -25,6 +25,8 @@ def apply_spec_defaults(s)
   s.add_development_dependency('bacon', '~> 1.1')
   s.add_development_dependency('open4', '~> 1.3')
   s.add_development_dependency('rake', '~> 0.9')
+  # TODO: make this a plain dependency:
+  s.add_development_dependency('bond', '~> 0.4.2')
 end
 
 def check_dependencies
