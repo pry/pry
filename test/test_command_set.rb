@@ -610,4 +610,16 @@ describe Pry::CommandSet do
       @set.process_line('nannnnnny oggggg')
     end
   end
+
+  describe '.complete' do
+    it "should list all command names" do
+      @set.create_command('susan'){ }
+      @set.complete('sus').should.include 'susan'
+    end
+
+    it "should delegate to commands" do
+      @set.create_command('susan'){ def complete(search); ['--foo']; end }
+      @set.complete('susan ').should == ['--foo']
+    end
+  end
 end
