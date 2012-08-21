@@ -26,6 +26,10 @@ class Pry
       opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
     end
 
+    def complete(search)
+      super + Bond::Rc.files(search.split(" ").last || '')
+    end
+
     def process
       if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
         raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
