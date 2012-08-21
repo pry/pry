@@ -23,5 +23,9 @@ class Pry
         end
       end
     end
+
+    def complete(search)
+      super + Bond::Rc.files(search.split(" ").last || '')
+    end
   end
 end
