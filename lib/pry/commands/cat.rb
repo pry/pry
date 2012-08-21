@@ -137,6 +137,10 @@ class Pry
       code
     end
 
+    def complete(search)
+      super + Bond::Rc.files(search.split(" ").last || '')
+    end
+
     def detect_code_type_from_file(file_name)
       name, ext = File.basename(file_name).split('.', 2)
 
