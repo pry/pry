@@ -112,6 +112,14 @@ class Pry
     #   Pry.config.prompt = proc { |obj, nest_level, _pry_| "#{obj}:#{nest_level}> " }
     attr_accessor :prompt
 
+    # The display name that is part of the prompt.  Default is 'pry'. 
+    # You can set your own name so you can identify which project your current pry session
+    # is using.  This is useful if you have a local pryrc file in a Rails project for example.
+    # @return [String]
+    # @example 
+    #   Pry.config.prompt_name = 'my_rails_project'
+    attr_accessor :prompt_name
+    
     # The default editor to use. Defaults to $VISUAL, $EDITOR, or a sensible fallback
     # for the platform.
     # If `editor` is a String then that string is used as the shell

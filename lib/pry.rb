@@ -61,14 +61,16 @@ class Pry
   # Don't catch these exceptions
   DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException]
 
+  DEFAULT_PROMPT_NAME = 'pry'
+
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
                     },
 
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
                     }
                    ]
 
@@ -76,8 +78,8 @@ class Pry
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
   SHELL_PROMPT = [
-                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
-                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                  ]
 
   # A prompt that includes the full object path as well as
@@ -85,11 +87,11 @@ class Pry
   NAV_PROMPT = [
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}> "
+                  "[#{conf.expr_number}] (#{Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}> "
                 end,
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}* "
+                  "[#{conf.expr_number}] (#{ Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}* "
                 end,
                ]
 
