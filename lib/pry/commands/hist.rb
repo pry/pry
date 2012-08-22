@@ -65,6 +65,8 @@ class Pry
       end
     end
 
+    private
+
     def process_display
       unless opts.present?(:'no-numbers')
         @history = @history.with_line_numbers
@@ -101,11 +103,51 @@ class Pry
 
     def process_replay
       @history = @history.between(opts[:r])
+      replay_sequence = @history.raw
+
+      check_for_juxtaposed_replay(replay_sequence)
 
       _pry_.input_stack.push _pry_.input
-      _pry_.input = StringIO.new(@history.raw)
+      _pry_.input = StringIO.new(replay_sequence)
       # eval_string << "#{@history.raw}\n"
       # run "show-input" unless _pry_.complete_expression?(eval_string)
+    end
+
+    # If we met another an extra "hist" call to be replayed, check for the
+    # "--replay" option presence. If "hist" command is called with other options
+    # then proceed further. Example:
+    #   [1] pry(main)> hist --show 46894
+    #   46894: hist --replay 46675..46677
+    #   [2] pry(main)> hist --show 46675..46677
+    #   46675: 1+1
+    #   46676: a = 100
+    #   46677: hist --tail
+    #   [3] pry(main)> hist --replay 46894
+    #   Error: Replay index 46894 points out to another replay call: `hist -r 46675..46677`
+    #   [4] pry(main)>
+    #
+    # @raise [Pry::CommandError] If +replay_sequence+ contains another
+    #   "hist --replay" call
+    # @param [String] replay_sequence The sequence of commands to be replayed
+    #   (per saltum)
+    # @return [Boolean] `false` if +replay_sequence+ does not contain another
+    #   "hist --replay" call
+    def check_for_juxtaposed_replay(replay_sequence)
+      if replay_sequence =~ /\Ahist(?:ory)?\b/
+        # Create *fresh* instance of Slop for parsing of "hist" command.
+        _slop = self.slop
+        _slop.parse replay_sequence.split(" ")[1..-1]
+
+        if _slop.present?(:r)
+          replay_sequence = replay_sequence.split("\n").join("; ")
+          index = opts[:r]
+          index = index.min if index.min == index.max
+
+          raise CommandError, "Replay index #{ index } points out to another replay call: `#{ replay_sequence }`"
+        end
+      else
+        false
+      end
     end
   end
 

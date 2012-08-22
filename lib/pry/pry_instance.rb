@@ -409,7 +409,15 @@ class Pry
         eval_string << "#{indented_val.chomp}\n" unless val.empty?
       end
     ensure
-      Pry.history << indented_val unless input.is_a?(StringIO)
+      if input.is_a?(StringIO)
+        # Add to history only those values that were typed by a user. Ignore
+        # programmatically created ones.
+        unless input.string.include?(indented_val)
+          Pry.history << indented_val.chomp
+        end
+      else
+        Pry.history << indented_val
+      end
     end
   end
 
