@@ -428,7 +428,7 @@ describe "Pry::DefaultCommands::Input" do
       @str_output.string.each_line.grep(/_ \+= 1/).count.should == 1
     end
 
-    it "should not contain duplicated lines" do
+    it "should not contain empty lines" do
       redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all"), @str_output) do
         pry
       end
@@ -437,6 +437,47 @@ describe "Pry::DefaultCommands::Input" do
       b = @str_output.string.each_line.to_a.index{|line| line.include?("3 + 3") }
 
       (a + 1).should == b
+    end
+
+    it "should store a call with `--replay` flag" do
+      redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
+                                      "hist", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.should =~ /hist --replay 1/
+    end
+
+    it "should not contain lines produced by `--replay` flag" do
+      redirect_pry_io(InputTester.new(":banzai", ":geronimo", ":huzzah",
+                                      "hist --replay 1..3", "hist",
+                                      "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.each_line.to_a.reject { |line| line.start_with?("=>") }.size.should == 4
+      @str_output.string.each_line.to_a.last.should =~ /hist --replay 1\.\.3/
+      @str_output.string.each_line.to_a[-2].should =~ /:huzzah/
+    end
+
+    it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
+      redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
+                                      "hist --replay 2", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.should =~ /Replay index 2 points out to another replay call: `hist --replay 1`/
+    end
+
+    it "should disallow execution of `--replay <i>` when CommandError raised" do
+      redirect_pry_io(InputTester.new("a = 0", "a += 1", "hist --replay 2",
+                                      "hist --replay 3", "'a is ' + a.to_s",
+                                      "hist", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.each_line.to_a.reject { |line| line !~ /\A\d/ }.size.should == 5
+      @str_output.string.should =~ /a is 2/
     end
   end
 end
