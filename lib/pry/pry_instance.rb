@@ -599,7 +599,8 @@ class Pry
 
       if defined? Coolline and input.is_a? Coolline
         input.completion_proc = proc do |cool|
-          completion_proc.call cool.completed_word
+          completions = completion_proc.call cool.completed_word
+          completions.compact
         end
       elsif input.respond_to? :completion_proc=
         input.completion_proc = completion_proc
