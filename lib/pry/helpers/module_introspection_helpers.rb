@@ -31,7 +31,7 @@ class Pry
           :method
         elsif Pry::WrappedModule.from_str(input, target)
           :module
-        elsif target.eval("defined? #{input} ") =~ /variable|constant/
+        elsif target.eval("defined?(#{input})") =~ /variable|constant/
           :variable_or_constant
         elsif find_command(input)
           :command
