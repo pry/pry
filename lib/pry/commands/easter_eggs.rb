@@ -32,7 +32,7 @@ class Pry
   Is absorbed, not refracted, by grey stone.
   The dahlias sleep in the empty silence.
   Wait for the early owl.
-  -- T.S Eliot
+                -- T.S Eliot
           }
       output.puts text
       text
@@ -63,22 +63,22 @@ class Pry
 
     command "pessoa-poem", "" do
       output.puts <<-TEXT
---
-I've gone to bed with every feeling,
-I've been the pimp of every emotion,
-All felt sensations have bought me drinks,
-I've traded glances with every motive for every act,
-I've held hands with every urge to depart,
-Tremendous fever of time!
-Anguished furnace of emotions!
-Rage, foam, the vastness that doesn't fit in my handkerchief,
-The dog in heat howling in the night,
-The pond from the farm going in circles around my insomnia,
-The woods as they were, on our late-afternoon walks, the rose,
-The indifferent tuft of hair, the moss, the pines,
-The rage of not containing all this, not retaining all this,
-O abstract hunger for things, impotent libido for moments,
-Intellectual orgy of feeling life!
+  --
+  I've gone to bed with every feeling,
+  I've been the pimp of every emotion,
+  All felt sensations have bought me drinks,
+  I've traded glances with every motive for every act,
+  I've held hands with every urge to depart,
+  Tremendous fever of time!
+  Anguished furnace of emotions!
+  Rage, foam, the vastness that doesn't fit in my handkerchief,
+  The dog in heat howling in the night,
+  The pond from the farm going in circles around my insomnia,
+  The woods as they were, on our late-afternoon walks, the rose,
+  The indifferent tuft of hair, the moss, the pines,
+  The rage of not containing all this, not retaining all this,
+  O abstract hunger for things, impotent libido for moments,
+  Intellectual orgy of feeling life!
                 -- Fernando Pessoa
 TEXT
     end
