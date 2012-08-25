@@ -403,6 +403,23 @@ class Pry
       source_file == Pry.eval_path
     end
 
+    # @return [Array<Symbol>] All known aliases for the method. For Ruby 1.8 and
+    #   friends returns [Array<String>].
+    def aliases
+      owner = @method.owner
+      # Avoid using `to_sym` on {Method#name}, which returns a `String`, because
+      # it won't be garbage collected.
+      name = @method.name
+
+      alias_list = owner.instance_methods.combination(2).select do |pair|
+        owner.instance_method(pair.first) == owner.instance_method(pair.last) &&
+          pair.include?(name)
+      end.flatten
+      alias_list.delete(name)
+
+      alias_list
+    end
+
     # @return [Boolean] Is the method definitely an alias?
     def alias?
       name != original_name

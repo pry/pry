@@ -397,5 +397,50 @@ describe Pry::Method do
       meth.send(:method_name_from_first_line, "def obj_name.x").should == "x"
     end
   end
+
+  describe 'method aliases' do
+    before do
+      @class = Class.new {
+        def eat
+        end
+
+        alias fress eat
+        alias_method :omnomnom, :fress
+
+        def eruct
+        end
+      }
+    end
+
+    it 'should be able to find method aliases' do
+      meth = Pry::Method(@class.new.method(:eat))
+
+      if Pry::Helpers::BaseHelpers.mri_19?
+        meth.aliases.should == [:fress, :omnomnom]
+      else
+        meth.aliases.sort.map(&:to_sym).should == [:fress, :omnomnom]
+      end
+    end
+
+    it 'should return an empty Array if cannot find aliases' do
+      meth = Pry::Method(@class.new.method(:eruct))
+      meth.aliases.should.be.empty
+    end
+
+    it 'should not include the own name in the list of aliases' do
+      meth = Pry::Method(@class.new.method(:eat))
+
+      meth.aliases.should.not.include :eat
+      meth.aliases.should.not.include "eat" # For Ruby 1.8 and friends.
+    end
+
+    if Pry::Helpers::BaseHelpers.mri_18? || Pry::Helpers::BaseHelpers.mri_19?
+      it 'should be able to find aliases for methods implemented in C' do
+        meth = Pry::Method(Hash.new.method(:key?))
+        meth.aliases.should == [:include?, :member?, :has_key?]
+      end
+    end
+
+  end
 end
 
