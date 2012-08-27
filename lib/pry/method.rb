@@ -403,8 +403,9 @@ class Pry
       source_file == Pry.eval_path
     end
 
-    # @return [Array<Symbol>] All known aliases for the method. For Ruby 1.8 and
-    #   friends returns [Array<String>].
+    # @return [Array<String>] All known aliases for the method.
+    # @note On Ruby 1.8 this method always returns an empty Array for methods
+    #   implemented in C.
     def aliases
       owner = @method.owner
       # Avoid using `to_sym` on {Method#name}, which returns a `String`, because
@@ -417,7 +418,7 @@ class Pry
       end.flatten
       alias_list.delete(name)
 
-      alias_list
+      alias_list.map(&:to_s)
     end
 
     # @return [Boolean] Is the method definitely an alias?
