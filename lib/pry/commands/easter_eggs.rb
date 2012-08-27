@@ -69,8 +69,7 @@ class Pry
   All felt sensations have bought me drinks,
   I've traded glances with every motive for every act,
   I've held hands with every urge to depart,
-  Tremendous fever of time!
-  Anguished furnace of emotions!
+  ..
   Rage, foam, the vastness that doesn't fit in my handkerchief,
   The dog in heat howling in the night,
   The pond from the farm going in circles around my insomnia,
