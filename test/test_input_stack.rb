@@ -72,6 +72,10 @@ describe "Pry#input_stack" do
   end
 
   if "".respond_to?(:encoding)
+    after do
+      Pry.line_buffer = [""]
+      Pry.current_line = 1
+    end
     it "should pass strings to Pry in the right encoding" do
       input1 = "'f｡｡'.encoding.name" # utf-8, see coding declaration
       input2 = input1.encode('Shift_JIS')

@@ -413,8 +413,8 @@ class Pry
       name = @method.name
 
       alias_list = owner.instance_methods.combination(2).select do |pair|
-        owner.instance_method(pair.first) == owner.instance_method(pair.last) &&
-          pair.include?(name)
+        pair.include?(name) &&
+          owner.instance_method(pair.first) == owner.instance_method(pair.last)
       end.flatten
       alias_list.delete(name)
 

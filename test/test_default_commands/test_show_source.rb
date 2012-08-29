@@ -5,6 +5,7 @@ if !mri18_and_no_real_source_location?
     before do
       @str_output = StringIO.new
       @o = Object.new
+      Object.const_set(:Test, Module.new)
     end
 
     after do
@@ -179,23 +180,19 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should output an instance method\'s source for a method defined inside pry' do
-        Object.remove_const :A if defined?(A)
-        redirect_pry_io(InputTester.new("class A", "def yo", "end", "end", "show-source A#yo"), @str_output) do
+        redirect_pry_io(InputTester.new("class Test::A", "def yo", "end", "end", "show-source Test::A#yo"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
         @str_output.string.should =~ /def yo/
-        Object.remove_const :A
       end
 
       it 'should output an instance method\'s source for a method defined inside pry using define_method' do
-        Object.remove_const :A if defined?(A)
-        redirect_pry_io(InputTester.new("class A", "define_method(:yup) {}", "end", "show-source A#yup"), @str_output) do
+        redirect_pry_io(InputTester.new("class Test::A", "define_method(:yup) {}", "end", "show-source Test::A#yup"), @str_output) do
           TOPLEVEL_BINDING.pry
         end
 
         @str_output.string.should =~ /define_method\(:yup\)/
-        Object.remove_const :A
       end
     end
 
