@@ -1,5 +1,4 @@
 require 'helper'
-require 'set'
 
 describe Pry::Method do
   it "should use String names for compatibility" do
@@ -397,49 +396,6 @@ describe Pry::Method do
       meth.send(:method_name_from_first_line, "def ClassName.x").should == "x"
       meth.send(:method_name_from_first_line, "def obj_name.x").should == "x"
     end
-  end
-
-  describe 'method aliases' do
-    before do
-      @class = Class.new {
-        def eat
-        end
-
-        alias fress eat
-        alias_method :omnomnom, :fress
-
-        def eruct
-        end
-      }
-    end
-
-    it 'should be able to find method aliases' do
-      meth = Pry::Method(@class.new.method(:eat))
-      aliases = Set.new(meth.aliases)
-
-      aliases.should == Set.new(["fress", "omnomnom"])
-    end
-
-    it 'should return an empty Array if cannot find aliases' do
-      meth = Pry::Method(@class.new.method(:eruct))
-      meth.aliases.should.be.empty
-    end
-
-    it 'should not include the own name in the list of aliases' do
-      meth = Pry::Method(@class.new.method(:eat))
-      meth.aliases.should.not.include "eat"
-    end
-
-    unless Pry::Helpers::BaseHelpers.mri_18?
-      # Ruby 1.8 doesn't support this feature.
-      it 'should be able to find aliases for methods implemented in C' do
-        meth = Pry::Method(Hash.new.method(:key?))
-        aliases = Set.new(meth.aliases)
-
-        aliases.should == Set.new(["include?", "member?", "has_key?"])
-      end
-    end
-
   end
 end
 
