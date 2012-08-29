@@ -186,7 +186,10 @@ class Pry
       :_ex_   => proc { last_exception },
       :_file_ => proc { last_file },
       :_dir_  => proc { last_dir },
-      :_      => proc { last_result }
+      :_      => proc { last_result },
+      :__     => proc { @output_array[-2] },
+      :___    => proc { @output_array[-3] },
+      :____   => proc { @output_array[-4] }
     }.merge(extra_sticky_locals)
   end
 
