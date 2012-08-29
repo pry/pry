@@ -92,7 +92,7 @@ if !mri18_and_no_real_source_location?
 
     it "should not show the source when a non-extant method is requested" do
       c = Class.new{ def method; 98; end }
-      mock_pry(binding, "show-source c#wrongmethod").should =~ /could not be found/
+      mock_pry(binding, "show-source c#wrongmethod").should =~ /undefined method/
     end
 
     it "should find instance_methods even if the class has an override instance_method method" do
