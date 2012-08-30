@@ -61,14 +61,16 @@ class Pry
   # Don't catch these exceptions
   DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException]
 
+  DEFAULT_PROMPT_NAME = 'pry'
+
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
                     },
 
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] pry(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
                     }
                    ]
 
@@ -76,8 +78,8 @@ class Pry
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
   SHELL_PROMPT = [
-                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
-                  proc { |target_self, _, _| "pry #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                  ]
 
   # A prompt that includes the full object path as well as
@@ -85,11 +87,11 @@ class Pry
   NAV_PROMPT = [
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}> "
+                  "[#{conf.expr_number}] (#{Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}> "
                 end,
                 proc do |conf|
                   tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (pry) #{tree}: #{conf.nesting_level}* "
+                  "[#{conf.expr_number}] (#{ Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}* "
                 end,
                ]
 
@@ -166,13 +168,13 @@ if Pry::Helpers::BaseHelpers.mri_18?
   end
 end
 
-require "method_source"
+require 'method_source'
 require 'shellwords'
-require "stringio"
-require "coderay"
-require "optparse"
-require "slop"
-require "rbconfig"
+require 'stringio'
+require 'coderay'
+require 'optparse'
+require 'slop'
+require 'rbconfig'
 require 'tempfile'
 
 begin
@@ -202,23 +204,31 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
   end
 end
 
-require "pry/version"
-require "pry/rbx_method"
-require "pry/rbx_path"
-require "pry/code"
-require "pry/method"
-require "pry/wrapped_module"
-require "pry/history_array"
-require "pry/helpers"
-require "pry/history"
-require "pry/command"
-require "pry/command_set"
-require "pry/commands"
-require "pry/custom_completions"
-require "pry/completion"
-require "pry/plugins"
-require "pry/core_extensions"
-require "pry/pry_class"
-require "pry/pry_instance"
-require "pry/cli"
-require "pry/pager"
+require 'pry/version'
+require 'pry/rbx_method'
+require 'pry/rbx_path'
+require 'pry/code'
+require 'pry/method'
+require 'pry/wrapped_module'
+require 'pry/history_array'
+require 'pry/helpers'
+require 'pry/history'
+require 'pry/command'
+require 'pry/command_set'
+require 'pry/commands'
+require 'pry/custom_completions'
+require 'pry/completion'
+require 'pry/plugins'
+require 'pry/core_extensions'
+require 'pry/pry_class'
+require 'pry/pry_instance'
+require 'pry/cli'
+require 'pry/pager'
+
+begin
+  require 'bond'
+rescue LoadError
+  Pry.config.completer = Pry::InputCompleter
+else
+  Pry.config.completer = Pry::BondCompleter
+end

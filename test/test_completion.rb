@@ -10,6 +10,11 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
+describe 'bond-based completion' do
+  it 'should pull in Bond by default' do
+    Pry.config.completer.should == Pry::BondCompleter
+  end
+end
 
 describe Pry::InputCompleter do
 
@@ -20,9 +25,13 @@ describe Pry::InputCompleter do
     module SymbolyName
       def self.name; :symboly_name; end
     end
+
+    $default_completer = Pry.config.completer
+    Pry.config.completer = Pry::InputCompleter
   end
 
   after do
+    Pry.config.completer = $default_completer
     Object.remove_const :SymbolyName
   end
 
@@ -216,4 +225,3 @@ describe Pry::InputCompleter do
   end
 
 end
-

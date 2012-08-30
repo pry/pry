@@ -186,7 +186,10 @@ class Pry
       :_ex_   => proc { last_exception },
       :_file_ => proc { last_file },
       :_dir_  => proc { last_dir },
-      :_      => proc { last_result }
+      :_      => proc { last_result },
+      :__     => proc { @output_array[-2] },
+      :___    => proc { @output_array[-3] },
+      :____   => proc { @output_array[-4] }
     }.merge(extra_sticky_locals)
   end
 
@@ -365,7 +368,7 @@ class Pry
     @indent.reset if eval_string.empty?
 
     current_prompt = select_prompt(eval_string, target)
-    completion_proc = Pry::InputCompleter.build_completion_proc(target, self,
+    completion_proc = Pry.config.completer.build_completion_proc(target, self,
                                                         instance_eval(&custom_completions))
 
 
@@ -414,7 +417,15 @@ class Pry
         eval_string << "#{indented_val.chomp}\n" unless val.empty?
       end
     ensure
-      Pry.history << indented_val unless input.is_a?(StringIO)
+      if input.is_a?(StringIO)
+        # Add to history only those values that were typed by a user. Ignore
+        # programmatically created ones.
+        unless input.string.include?(indented_val)
+          Pry.history << indented_val.chomp
+        end
+      else
+        Pry.history << indented_val
+      end
     end
   end
 
@@ -597,7 +608,8 @@ class Pry
 
       if defined? Coolline and input.is_a? Coolline
         input.completion_proc = proc do |cool|
-          completion_proc.call cool.completed_word
+          completions = completion_proc.call cool.completed_word
+          completions.compact
         end
       elsif input.respond_to? :completion_proc=
         input.completion_proc = completion_proc
