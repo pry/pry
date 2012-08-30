@@ -407,20 +407,16 @@ class Pry
       indented_val = val
     end
 
+    # Check this before processing the line, because a command might change
+    # Pry's input.
+    interactive = !input.is_a?(StringIO)
+
     begin
       if !process_command(val, eval_string, target)
         eval_string << "#{indented_val.chomp}\n" unless val.empty?
       end
     ensure
-      if input.is_a?(StringIO)
-        # Add to history only those values that were typed by a user. Ignore
-        # programmatically created ones.
-        unless input.string.include?(indented_val)
-          Pry.history << indented_val.chomp
-        end
-      else
-        Pry.history << indented_val
-      end
+      Pry.history << indented_val if interactive
     end
   end
 
