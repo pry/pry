@@ -427,6 +427,20 @@ describe "Pry::DefaultCommands::Input" do
       @t.next_input.should == "@x = 10\n@y = 20\n"
     end
 
+    # this is to prevent a regression where input redirection is
+    # replaced by just appending to `eval_string`
+    it 'should replay a range of history correctly (range of commands)' do
+      o = Object.new
+      @hist.push "cd 1"
+      @hist.push "cd 2"
+      redirect_pry_io(InputTester.new("hist --replay 0..2", "Pad.stack = _pry_.binding_stack.dup", "exit-all")) do
+        o.pry
+      end
+      o = Pad.stack[-2..-1].map { |v| v.eval('self') }
+      o.should == [1, 2]
+      Pad.clear
+    end
+
     it 'should grep for correct lines in history' do
       @hist.push "abby"
       @hist.push "box"
@@ -505,5 +519,56 @@ describe "Pry::DefaultCommands::Input" do
       out.should =~ /b\n\d+:.*c\n\d+:.*d/
     end
 
+    it "should not contain empty lines" do
+      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all"), @str_output) do
+        pry
+      end
+
+      a = @str_output.string.each_line.to_a.index{|line| line.include?("2 + 2") }
+      b = @str_output.string.each_line.to_a.index{|line| line.include?("3 + 3") }
+
+      (a + 1).should == b
+    end
+
+    it "should store a call with `--replay` flag" do
+      redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
+                                      "hist", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.should =~ /hist --replay 1/
+    end
+
+    it "should not contain lines produced by `--replay` flag" do
+      redirect_pry_io(InputTester.new(":banzai", ":geronimo", ":huzzah",
+                                      "hist --replay 1..3", "hist",
+                                      "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.each_line.to_a.reject { |line| line.start_with?("=>") }.size.should == 4
+      @str_output.string.each_line.to_a.last.should =~ /hist --replay 1\.\.3/
+      @str_output.string.each_line.to_a[-2].should =~ /:huzzah/
+    end
+
+    it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
+      redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
+                                      "hist --replay 2", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.should =~ /Replay index 2 points out to another replay call: `hist --replay 1`/
+    end
+
+    it "should disallow execution of `--replay <i>` when CommandError raised" do
+      redirect_pry_io(InputTester.new("a = 0", "a += 1", "hist --replay 2",
+                                      "hist --replay 3", "'a is ' + a.to_s",
+                                      "hist", "exit-all"), @str_output) do
+        Pry.start
+      end
+
+      @str_output.string.each_line.to_a.reject { |line| line !~ /\A\d/ }.size.should == 5
+      @str_output.string.should =~ /a is 2/
+    end
   end
 end

@@ -16,10 +16,13 @@ class Pry
 
     def process
       meth = method_object
+      aliases = meth.aliases
+
       output.puts unindent <<-EOS
         Method Information:
         --
         Name: #{meth.name}
+        Alias#{ "es" if aliases.length > 1 }: #{ aliases.any? ? aliases.join(", ") : "None." }
         Owner: #{meth.owner ? meth.owner : "Unknown"}
         Visibility: #{meth.visibility}
         Type: #{meth.is_a?(::Method) ? "Bound" : "Unbound"}

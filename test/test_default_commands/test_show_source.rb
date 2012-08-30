@@ -5,6 +5,7 @@ if !mri18_and_no_real_source_location?
     before do
       @str_output = StringIO.new
       @o = Object.new
+      Object.const_set(:Test, Module.new)
     end
 
     after do
@@ -59,6 +60,11 @@ if !mri18_and_no_real_source_location?
       }
 
       pry_eval(binding, "show-source c.new.method").should =~ /98/
+    end
+
+    it "should not show the source when a non-extant method is requested" do
+      c = Class.new{ def method; 98; end }
+      mock_pry(binding, "show-source c#wrongmethod").should =~ /undefined method/
     end
 
     it "should find instance_methods if the class overrides instance_method" do
@@ -147,21 +153,17 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should output source for an instance method defined inside pry' do
-        Object.remove_const :A if defined?(A)
         pry_tester.tap do |t|
-          t.eval "class A\n  def yo\n  end\nend"
-          t.eval('show-source A#yo').should =~ /def yo/
+          t.eval "class Test::A\n  def yo\n  end\nend"
+          t.eval('show-source Test::A#yo').should =~ /def yo/
         end
-        Object.remove_const :A
       end
 
       it 'should output source for a repl method defined using define_method' do
-        Object.remove_const :A if defined?(A)
         pry_tester.tap do |t|
-          t.eval "class A\n  define_method(:yup) {}\nend"
-          t.eval('show-source A#yup').should =~ /define_method\(:yup\)/
+          t.eval "class Test::A\n  define_method(:yup) {}\nend"
+          t.eval('show-source Test::A#yup').should =~ /define_method\(:yup\)/
         end
-        Object.remove_const :A
       end
     end
 

@@ -31,7 +31,7 @@ class Pry
           :method
         elsif Pry::WrappedModule.from_str(input, target)
           :module
-        elsif target.eval("defined? #{input} ") =~ /variable|constant/
+        elsif target.eval("defined?(#{input})") =~ /variable|constant/
           :variable_or_constant
         elsif find_command(input)
           :command
@@ -64,7 +64,11 @@ class Pry
                       when :command
                         process_command
                       else
-                        command_error("method/module/command for '#{input}' could not be found or derived", false)
+                        saught_in_vain = (input =~ /[.#]/ ? 'undefined method' :
+                                          input =~ (/::|^[A-Z]/) ? 'uninitialized constant' :
+                                          input =~ /^$/ ? 'uninitialized global' :
+                                                   'undefined local variable or method')
+                        command_error("#{saught_in_vain} `#{input}'", true)
                       end
 
         render_output(code_or_doc, opts)
@@ -78,7 +82,7 @@ class Pry
           @method_object = meth
           process_method
         else
-          command_error("method or module for '' could not be derived", false)
+          command_error("no current source", false)
         end
       end
 
