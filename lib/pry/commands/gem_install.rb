@@ -26,6 +26,7 @@ class Pry
       else
         Gem.refresh
         output.puts "Gem `#{text.green gem}` installed."
+        require gem
       end
     end
   end
