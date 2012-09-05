@@ -519,17 +519,6 @@ describe "Pry::DefaultCommands::Input" do
       out.should =~ /b\n\d+:.*c\n\d+:.*d/
     end
 
-    it "should not contain empty lines" do
-      redirect_pry_io(InputTester.new(":place_holder", "2 + 2", "", "", "3 + 3", "hist", "exit-all"), @str_output) do
-        pry
-      end
-
-      a = @str_output.string.each_line.to_a.index{|line| line.include?("2 + 2") }
-      b = @str_output.string.each_line.to_a.index{|line| line.include?("3 + 3") }
-
-      (a + 1).should == b
-    end
-
     it "should store a call with `--replay` flag" do
       redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
                                       "hist", "exit-all"), @str_output) do

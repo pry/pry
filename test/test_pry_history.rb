@@ -30,6 +30,12 @@ describe Pry do
       Pry.history << '_ += 1'
       Pry.history.to_a.grep('_ += 1').count.should == 1
     end
+
+    it "should not record empty lines" do
+      c = Pry.history.to_a.count
+      Pry.history << ''
+      Pry.history.to_a.count.should == c
+    end
   end
 
   describe ".load_history" do
