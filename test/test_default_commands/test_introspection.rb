@@ -42,7 +42,7 @@ describe "Pry::DefaultCommands::Introspection" do
 
       describe do
         before do
-          @rand = rand
+          @rand = rand(100)
           Pry.config.editor = lambda { |file, line|
             File.open(file, 'w') { |f| f << "$rand = #{@rand.inspect}" }
             nil
