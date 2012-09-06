@@ -46,7 +46,7 @@ task :default => [:test]
 desc "Run tests"
 task :test do
   check_dependencies unless ENV['SKIP_DEP_CHECK']
-  sh "bacon -Itest -rubygems -a -q"
+  sh "bacon -Itest -rubygems -a"
 end
 
 desc "Run pry"
