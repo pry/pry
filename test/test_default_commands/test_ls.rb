@@ -13,8 +13,13 @@ describe "ls" do
     end
 
     it "should include super-classes by default" do
-      pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls").should =~ /goo/
-      pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M").should =~ /goo/
+      pry_eval(
+        "cd Class.new(Class.new{ def goo; end; public :goo }).new",
+        "ls").should =~ /goo/
+
+      pry_eval(
+        "cd Class.new(Class.new{ def goo; end; public :goo })",
+        "ls -M").should =~ /goo/
     end
 
     it "should not include super-classes when -q is given" do
@@ -31,7 +36,8 @@ describe "ls" do
 
   describe "methods" do
     it "should show public methods by default" do
-      pry_eval("ls Class.new{ def goo; end }.new").should =~ /methods: goo/
+      output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")
+      output.should =~ /methods: goo/
     end
 
     it "should not show protected/private by default" do
@@ -57,15 +63,23 @@ describe "ls" do
 
   describe "when inside Modules" do
     it "should still work" do
-      pry_eval("cd Module.new{ def foobie; end }", "ls -M").should =~ /foobie/
+      pry_eval(
+        "cd Module.new{ def foobie; end; public :foobie }",
+        "ls -M").should =~ /foobie/
     end
 
     it "should work for ivars" do
-      pry_eval("module StigmaT1sm; def foobie; @@gharble = 456; end; end", "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie", "cd StigmaT1sm", "ls -i").should =~ /@@gharble/
+      pry_eval(
+        "module StigmaT1sm; def foobie; @@gharble = 456; end; end",
+        "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie",
+        "cd StigmaT1sm",
+        "ls -i").should =~ /@@gharble/
     end
 
     it "should include instance methods by default" do
-      pry_eval("ls Module.new{ def shinanagarns; 4; end }").should =~ /shinanagarns/
+      output = pry_eval(
+        "ls Module.new{ def shinanagarns; 4; end; public :shinanagarns }")
+      output.should =~ /shinanagarns/
     end
   end
 
