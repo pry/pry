@@ -265,6 +265,12 @@ class Pry
     config.correct_indent = true
     config.collision_warning = false
 
+    if defined?(Bond) && Readline::VERSION !~ /editline/i
+      config.completer = Pry::BondCompleter
+    else
+      config.completer = Pry::InputCompleter
+    end
+
     config.gist ||= OpenStruct.new
     config.gist.inspecter = proc(&:pretty_inspect)
 
