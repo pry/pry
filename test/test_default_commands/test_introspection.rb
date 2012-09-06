@@ -42,46 +42,52 @@ describe "Pry::DefaultCommands::Introspection" do
 
       describe do
         before do
-          @rand = rand(100)
+          Pad.counter = 0
           Pry.config.editor = lambda { |file, line|
-            File.open(file, 'w') { |f| f << "$rand = #{@rand.inspect}" }
+            File.open(file, 'w') { |f| f << "Pad.counter = Pad.counter + 1" }
             nil
           }
         end
 
         it "should reload the file if it is a ruby file" do
           temp_file do |tf|
-            path = tf.path
+            counter = Pad.counter
+            path    = tf.path
+
             pry_eval "edit #{path}"
 
-            $rand.should == @rand
+            Pad.counter.should == counter + 1
           end
         end
 
         it "should not reload the file if it is not a ruby file" do
           temp_file('.py') do |tf|
-            path = tf.path
+            counter = Pad.counter
+            path    = tf.path
+
             pry_eval "edit #{path}"
 
-            $rand.should.not == @rand
+            Pad.counter.should == counter
           end
         end
 
         it "should not reload a ruby file if -n is given" do
           temp_file do |tf|
-            path = tf.path
-            pry_eval "edit -n #{path}"
+            counter = Pad.counter
+            path    = tf.path
 
-            $rand.should.not == @rand
+            Pad.counter.should == counter
           end
         end
 
         it "should reload a non-ruby file if -r is given" do
           temp_file('.pryrc') do |tf|
-            path = tf.path
+            counter = Pad.counter
+            path    = tf.path
+
             pry_eval "edit -r #{path}"
 
-            $rand.should == @rand
+            Pad.counter.should == counter + 1
           end
         end
       end
