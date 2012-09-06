@@ -696,17 +696,19 @@ describe "Pry::Command" do
     end
   end
 
-  describe 'complete' do
-    it 'should return the arguments that are defined' do
-      @set.create_command "torrid" do
-        def options(opt)
-          opt.on :test
-          opt.on :lest
-          opt.on :pests
+  if defined?(Bond)
+    describe 'complete' do
+      it 'should return the arguments that are defined' do
+        @set.create_command "torrid" do
+          def options(opt)
+            opt.on :test
+            opt.on :lest
+            opt.on :pests
+          end
         end
-      end
 
-      @set.complete('torrid ').should.include('--test')
+        @set.complete('torrid ').should.include('--test')
+      end
     end
   end
 
