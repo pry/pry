@@ -204,6 +204,11 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
   end
 end
 
+begin
+  require 'bond'
+rescue LoadError
+end
+
 require 'pry/version'
 require 'pry/rbx_method'
 require 'pry/rbx_path'
@@ -224,11 +229,3 @@ require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/cli'
 require 'pry/pager'
-
-begin
-  require 'bond'
-rescue LoadError
-  Pry.config.completer = Pry::InputCompleter
-else
-  Pry.config.completer = Pry::BondCompleter
-end
