@@ -53,7 +53,7 @@ describe Pry::InputCompleter do
   end
 
   it 'should complete instance variables' do
-    object = Object.new
+    object = Class.new.new
 
     # set variables in appropriate scope
     object.instance_variable_set(:'@name', 'Pry')
