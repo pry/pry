@@ -83,14 +83,12 @@ describe Pry do
         o.instance_variable_get(:@x).should == 10
       end
 
-      # it 'should display error and throw(:breakout) if Pry instance runs out of input' do
-      #   catch(:breakout) do
-      #     redirect_pry_io(StringIO.new(":nothing\n"), @str_output) do
-      #       Pry.new.repl
-      #     end
-      #   end
-      #   @str_output.string.should =~ /Error: Pry ran out of things to read/
-      # end
+      it 'should display error if Pry instance runs out of input' do
+        redirect_pry_io(StringIO.new, @str_output) do
+          Pry.new.repl
+        end
+        @str_output.string.should =~ /Error: Pry ran out of things to read/
+      end
 
       it 'should make self evaluate to the receiver of the rep session' do
         o = :john
