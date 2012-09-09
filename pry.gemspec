@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Mair (banisterfiend)", "Conrad Irwin", "Ryan Fitzgerald"]
-  s.date = "2012-09-07"
+  s.date = "2012-09-08"
   s.description = "An IRB alternative and runtime developer console"
   s.email = ["jrmair@gmail.com", "conrad.irwin@gmail.com", "rwfitzge@gmail.com"]
   s.executables = ["pry"]
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<bacon>, ["~> 1.1"])
       s.add_development_dependency(%q<open4>, ["~> 1.3"])
       s.add_development_dependency(%q<rake>, ["~> 0.9"])
+      s.add_development_dependency(%q<guard>, ["~> 1.3.2"])
       s.add_development_dependency(%q<bond>, ["~> 0.4.2"])
     else
       s.add_dependency(%q<coderay>, ["~> 1.0.5"])
@@ -35,6 +36,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<bacon>, ["~> 1.1"])
       s.add_dependency(%q<open4>, ["~> 1.3"])
       s.add_dependency(%q<rake>, ["~> 0.9"])
+      s.add_dependency(%q<guard>, ["~> 1.3.2"])
       s.add_dependency(%q<bond>, ["~> 0.4.2"])
     end
   else
@@ -44,6 +46,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<bacon>, ["~> 1.1"])
     s.add_dependency(%q<open4>, ["~> 1.3"])
     s.add_dependency(%q<rake>, ["~> 0.9"])
+    s.add_dependency(%q<guard>, ["~> 1.3.2"])
     s.add_dependency(%q<bond>, ["~> 0.4.2"])
   end
 end
