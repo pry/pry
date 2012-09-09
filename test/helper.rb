@@ -8,6 +8,38 @@ puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), P
 require 'bacon'
 require 'open4'
 
+# Colorize output (greeneggs (c) 2009 Michael Fleet)
+module Bacon
+  class << self
+    # ANSI terminal colors
+    COLORS = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
+
+    def colorize_string(text, color)
+      "\e[1m\e[#{COLORS[color]}m#{text}\e[0m"
+    end
+
+    def colorize_result(out)
+      return out unless Pry::Helpers::BaseHelpers.use_ansi_codes?
+
+      summary_color = (out =~ /0 failures, 0 errors/) ? '.' : 'F'
+
+      out.
+        sub(/^.$/, colorize_string('\0', out)).
+        sub(/^.+\d+ failures, \d+ errors$/, colorize_string('\0', summary_color))
+    end
+
+    def puts(*args)
+      args.map! { |arg| arg.is_a?(String) ? colorize_result(arg) : arg }
+      super
+    end
+
+    def print(*args)
+      args.map! { |arg| arg.is_a?(String) ? colorize_result(arg) : arg }
+      super
+    end
+  end
+end
+
 # A global space for storing temporary state during tests.
 Pad = OpenStruct.new
 def Pad.clear
