@@ -8,34 +8,47 @@ puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), P
 require 'bacon'
 require 'open4'
 
-# Colorize output (greeneggs (c) 2009 Michael Fleet)
+# Colorize output (based on greeneggs (c) 2009 Michael Fleet)
+# TODO: Make own gem (assigned to rking)
 module Bacon
-  class << self
-    # ANSI terminal colors
-    COLORS = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
+  COLORS = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
 
-    def colorize_string(text, color)
-      "\e[1m\e[#{COLORS[color]}m#{text}\e[0m"
+  module TestUnitOutput
+    def handle_specification(name)
+      @use_color = Pry::Helpers::BaseHelpers.use_ansi_codes?
+      yield
     end
 
-    def colorize_result(out)
-      return out unless Pry::Helpers::BaseHelpers.use_ansi_codes?
+    def handle_requirement(description)
+      error = yield
 
-      summary_color = (out =~ /0 failures, 0 errors/) ? '.' : 'F'
-
-      out.
-        sub(/^.$/, colorize_string('\0', out)).
-        sub(/^.+\d+ failures, \d+ errors$/, colorize_string('\0', summary_color))
+      if error.empty?
+        print colorize_string('.')
+      else
+        print colorize_string(error[0..0])
+      end
     end
 
-    def puts(*args)
-      args.map! { |arg| arg.is_a?(String) ? colorize_result(arg) : arg }
-      super
+    def handle_summary
+      puts
+      puts ErrorLog if Backtraces
+
+      out = "%d tests, %d assertions, %d failures, %d errors" %
+        Counter.values_at(:specifications, :requirements, :failed, :errors)
+
+      if Counter.values_at(:failed, :errors).inject(:+) > 0
+        puts colorize_string(out, 'F')
+      else
+        puts colorize_string(out, '.')
+      end
     end
 
-    def print(*args)
-      args.map! { |arg| arg.is_a?(String) ? colorize_result(arg) : arg }
-      super
+    def colorize_string(text, color = nil)
+      if @use_color
+        "\e[#{ COLORS[color || text] }m#{ text }\e[0m"
+      else
+        text
+      end
     end
   end
 end
