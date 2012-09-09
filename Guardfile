@@ -10,12 +10,7 @@ module ::Guard
 
     def run_spec(path)
       if File.exists?(path)
-        success = system "bundle exec bacon -Itest -q #{path}"
-
-        if !success
-          @any_failed = true
-        end
-
+        @success &&= system "bundle exec bacon -Itest -q #{path}"
         puts
       end
     end
@@ -25,16 +20,14 @@ module ::Guard
     end
 
     def run_on_changes(paths)
-      @any_failed = false
+      @success = true
       paths.delete(:all)
 
       paths.each do |path|
         file_changed(path)
       end
 
-      if !@any_failed
-        run_all
-      end
+      run_all if @success
     end
   end
 end
