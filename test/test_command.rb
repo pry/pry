@@ -349,27 +349,30 @@ describe "Pry::Command" do
         inject_var(:@x, command_block.call, target)
       end
       @set.import Pry::Commands
+
+      @t = pry_tester(@context, :commands => @set)
     end
 
     it 'should accept multiline blocks' do
-      pry_tester(@context, :commands => @set).eval <<-EOS
+      @t.eval <<-EOS
         walking-spanish | do
           :jesus
         end
       EOS
+
       @context.instance_variable_get(:@x).should == :jesus
     end
 
     it 'should accept normal parameters along with block' do
-      @set.block_command "walking-spanish", "litella's been screeching for a blind pig.", :takes_block => true do |x, y|
+      @set.block_command "walking-spanish",
+          "litella's been screeching for a blind pig.",
+          :takes_block => true do |x, y|
         inject_var(:@x, x, target)
         inject_var(:@y, y, target)
         inject_var(:@block_var, command_block.call, target)
       end
-      redirect_pry_io(InputTester.new("walking-spanish john carl| { :jesus }",
-                                      "exit-all")) do
-        Pry.start @context, :commands => @set
-      end
+
+      @t.eval 'walking-spanish john carl| { :jesus }'
 
       @context.instance_variable_get(:@x).should == "john"
       @context.instance_variable_get(:@y).should == "carl"
@@ -378,29 +381,19 @@ describe "Pry::Command" do
 
     describe "single line blocks" do
       it 'should accept blocks with do ; end' do
-        redirect_pry_io(InputTester.new("walking-spanish | do ; :jesus; end",
-                                        "exit-all"), out = StringIO.new) do
-          Pry.start @context, :commands => @set
-        end
+        @t.eval 'walking-spanish | do ; :jesus; end'
         @context.instance_variable_get(:@x).should == :jesus
       end
 
       it 'should accept blocks with do; end' do
-        redirect_pry_io(InputTester.new("walking-spanish | do; :jesus; end",
-                                        "exit-all"), out = StringIO.new) do
-          Pry.start @context, :commands => @set
-        end
+        @t.eval 'walking-spanish | do; :jesus; end'
         @context.instance_variable_get(:@x).should == :jesus
       end
 
       it 'should accept blocks with { }' do
-        redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                        "exit-all"), out = StringIO.new) do
-          Pry.start @context, :commands => @set
-        end
+        @t.eval 'walking-spanish | { :jesus }'
         @context.instance_variable_get(:@x).should == :jesus
       end
-
     end
 
     describe "block-related content removed from arguments" do
@@ -411,10 +404,9 @@ describe "Pry::Command" do
             inject_var(:@arg_string, arg_string, target)
             inject_var(:@x, x, target)
           end
-          redirect_pry_io(InputTester.new("walking-spanish john| { :jesus }",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+
+          @t.eval 'walking-spanish john| { :jesus }'
+
           @context.instance_variable_get(:@arg_string).should == @context.instance_variable_get(:@x)
         end
 
@@ -422,10 +414,9 @@ describe "Pry::Command" do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
             inject_var(:@arg_string, arg_string, target)
           end
-          redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+
+          @t.eval 'walking-spanish | { :jesus }'
+
           @context.instance_variable_get(:@arg_string).should == ""
         end
 
@@ -434,10 +425,9 @@ describe "Pry::Command" do
           @set.block_command "walking-spanish", "homemade special", :takes_block => false do
             inject_var(:@arg_string, arg_string, target)
           end
-          redirect_pry_io(InputTester.new("walking-spanish #{block_string}",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+
+          @t.eval "walking-spanish #{block_string}"
+
           @context.instance_variable_get(:@arg_string).should == block_string
         end
       end
@@ -449,10 +439,9 @@ describe "Pry::Command" do
               inject_var(:@x, x, target)
               inject_var(:@y, y, target)
             end
-            redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                            "exit-all"), out = StringIO.new) do
-              Pry.start @context, :commands => @set
-            end
+
+            @t.eval 'walking-spanish | { :jesus }'
+
             @context.instance_variable_get(:@x).should == nil
             @context.instance_variable_get(:@y).should == nil
           end
@@ -462,10 +451,9 @@ describe "Pry::Command" do
               inject_var(:@x, x, target)
               inject_var(:@y, y, target)
             end
-            redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                            "exit-all"), out = StringIO.new) do
-              Pry.start @context, :commands => @set
-            end
+
+            @t.eval 'walking-spanish | { :jesus }'
+
             @context.instance_variable_get(:@x).should == "|"
             @context.instance_variable_get(:@y).should == "{"
           end
@@ -479,10 +467,9 @@ describe "Pry::Command" do
                 inject_var(:@y, y, target)
               end
             end
-            redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                            "exit-all"), out = StringIO.new) do
-              Pry.start @context, :commands => @set
-            end
+
+            @t.eval 'walking-spanish | { :jesus }'
+
             @context.instance_variable_get(:@x).should == nil
             @context.instance_variable_get(:@y).should == nil
           end
@@ -494,10 +481,9 @@ describe "Pry::Command" do
                 inject_var(:@y, y, target)
               end
             end
-            redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                            "exit-all")) do
-              Pry.start @context, :commands => @set
-            end
+
+            @t.eval 'walking-spanish | { :jesus }'
+
             @context.instance_variable_get(:@x).should == "|"
             @context.instance_variable_get(:@y).should == "{"
           end
@@ -512,10 +498,8 @@ describe "Pry::Command" do
             inject_var(:@x, command_block.call(1, 2), target)
           end
 
-          redirect_pry_io(InputTester.new("walking-spanish | { |x, y| [x, y] }",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+          @t.eval 'walking-spanish | { |x, y| [x, y] }'
+
           @context.instance_variable_get(:@x).should == [1, 2]
         end
       end
@@ -528,12 +512,12 @@ describe "Pry::Command" do
             end
           end
 
-          redirect_pry_io(InputTester.new("walking-spanish | do |x, y|",
-                                          "  [x, y]",
-                                          "end",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+          @t.eval <<-EOS
+            walking-spanish | do |x, y|
+              [x, y]
+            end
+          EOS
+
           @context.instance_variable_get(:@x).should == [1, 2]
         end
       end
@@ -541,11 +525,7 @@ describe "Pry::Command" do
 
     describe "closure behaviour" do
       it 'should close over locals in the definition context' do
-        redirect_pry_io(InputTester.new("var = :hello",
-                                        "walking-spanish | { var }",
-                                        "exit-all")) do
-          Pry.start @context, :commands => @set
-        end
+        @t.eval 'var = :hello', 'walking-spanish | { var }'
         @context.instance_variable_get(:@x).should == :hello
       end
     end
@@ -556,10 +536,9 @@ describe "Pry::Command" do
           @set.block_command "walking-spanish", "glass full of sand", :takes_block => true do
             inject_var(:@x, command_block.call, target)
           end
-          redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
+
+          @t.eval 'walking-spanish | { :jesus }'
+
           @context.instance_variable_get(:@x).should == :jesus
         end
       end
@@ -568,14 +547,14 @@ describe "Pry::Command" do
         it "should NOT expose &block in create_command's process method" do
           @set.create_command "walking-spanish", "down the hall", :takes_block => true do
             def process(&block)
-              inject_var(:@x, block.call, target)
+              block.call
             end
           end
-          redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                          "exit-all")) do
-            Pry.start @context, :commands => @set
-          end
-          @context.instance_variable_get(:@x).should == nil
+          @out = StringIO.new
+
+          proc {
+            @t.eval 'walking-spanish | { :jesus }'
+          }.should.raise(NoMethodError)
         end
 
         it "should expose block in command_block method" do
@@ -584,10 +563,9 @@ describe "Pry::Command" do
               inject_var(:@x, command_block.call, target)
             end
           end
-          redirect_pry_io(InputTester.new("walking-spanish | { :jesus }",
-                                          "exit-all"), out = StringIO.new) do
-            Pry.start @context, :commands => @set
-          end
+
+          @t.eval 'walking-spanish | { :jesus }'
+
           @context.instance_variable_get(:@x).should == :jesus
         end
       end
@@ -649,49 +627,31 @@ describe "Pry::Command" do
         end
 
       end.import Pry::Commands
+
+      @t = pry_tester(commands: @set)
     end
 
     it 'should save state for the command on the Pry#command_state hash' do
-      instance = nil
-      redirect_pry_io(InputTester.new("litella",
-                                      "exit-all")) do
-        instance = Pry.new(:commands => @set)
-        instance.repl
-      end
-
-      instance.command_state["litella"].my_state.should == 1
+      @t.eval 'litella'
+      @t.pry.command_state["litella"].my_state.should == 1
     end
 
     it 'should ensure state is maintained between multiple invocations of command' do
-      instance = nil
-      redirect_pry_io(InputTester.new("litella", "litella",
-                                      "exit-all")) do
-        instance = Pry.new(:commands => @set)
-        instance.repl
-      end
-
-      instance.command_state["litella"].my_state.should == 2
+      @t.eval 'litella'
+      @t.eval 'litella'
+      @t.pry.command_state["litella"].my_state.should == 2
     end
 
     it 'should ensure state with same name stored seperately for each command' do
-      instance = nil
-      redirect_pry_io(InputTester.new("litella", "sanders", "exit-all")) do
-        instance = Pry.new(:commands => @set)
-        instance.repl
-      end
+      @t.eval 'litella', 'sanders'
 
-      instance.command_state["litella"].my_state.should == 1
-      instance.command_state["sanders"].my_state.should =="wood"
+      @t.pry.command_state["litella"].my_state.should == 1
+      @t.pry.command_state["sanders"].my_state.should =="wood"
     end
 
     it 'should ensure state is properly saved for regex commands' do
-      instance = nil
-      redirect_pry_io(InputTester.new("hello-world", "Hello-world", "exit-all")) do
-        instance = Pry.new(:commands => @set)
-        instance.repl
-      end
-
-      instance.command_state[/[Hh]ello-world/].my_state.should == 4
+      @t.eval 'hello-world', 'Hello-world'
+      @t.pry.command_state[/[Hh]ello-world/].my_state.should == 4
     end
   end
 

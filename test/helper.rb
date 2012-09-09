@@ -243,7 +243,9 @@ ensure
 end
 
 def pry_tester(*args, &block)
-  args << TOPLEVEL_BINDING if args.length == 0
+  if args.length == 0 || args[0].is_a?(Hash)
+    args.unshift(Pry.toplevel_binding)
+  end
 
   PryTester.new(*args).tap do |t|
     (class << t; self; end).class_eval(&block) if block
