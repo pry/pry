@@ -628,7 +628,7 @@ describe "Pry::Command" do
 
       end.import Pry::Commands
 
-      @t = pry_tester(commands: @set)
+      @t = pry_tester(:commands => @set)
     end
 
     it 'should save state for the command on the Pry#command_state hash' do
