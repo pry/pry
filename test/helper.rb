@@ -250,7 +250,7 @@ end
 
 def pry_eval(*eval_strs)
   if eval_strs.first.is_a? String
-    binding = TOPLEVEL_BINDING
+    binding = Pry.toplevel_binding
   else
     binding = Pry.binding_for(eval_strs.shift)
   end

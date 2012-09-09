@@ -7,7 +7,7 @@ describe Pry::Code do
     end
 
     should 'read lines from Pry\'s line buffer' do
-      mock_pry(':hay_guys')
+      pry_eval ':hay_guys'
       Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should == 1
     end
 
