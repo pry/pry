@@ -253,24 +253,30 @@ describe Pry do
 
       describe "last_result" do
         it "should be set to the most recent value" do
-          mock_pry("2", "_ + 82").should =~ /84/
+          pry_eval("2", "_ + 82").should == 84
         end
 
+        # This test needs mock_pry because the command retvals work by
+        # replacing the eval_string, so _ won't be modified without Pry doing
+        # a REPL loop.
         it "should be set to the result of a command with :keep_retval" do
-          mock_pry("Pry::Commands.block_command '++', '', {:keep_retval => true} do |a| a.to_i + 1; end", '++ 86', '++ #{_}').should =~ /88/
+          Pry::Commands.block_command '++', '', :keep_retval => true do |a|
+            a.to_i + 1
+          end
+
+          mock_pry('++ 86', '++ #{_}').should =~ /88/
         end
 
         it "should be preserved over an empty line" do
-          mock_pry("2 + 2", " ", "\t",  " ", "_ + 92").should =~ /96/
+          pry_eval("2 + 2", " ", "\t",  " ", "_ + 92").should == 96
         end
 
         it "should be preserved when evalling a  command without :keep_retval" do
-          mock_pry("2 + 2", "ls -l", "_ + 96").should =~ /100/
+          pry_eval("2 + 2", "ls -l", "_ + 96").should == 100
         end
       end
 
       describe "test loading rc files" do
-
         before do
           Pry::HOME_RC_FILE.replace File.expand_path("../testrc", __FILE__)
           Pry::LOCAL_RC_FILE.replace File.expand_path("../testrc", __FILE__) + "/../testrc"

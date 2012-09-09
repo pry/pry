@@ -616,12 +616,12 @@ describe "Pry::Command" do
     end
 
     it "should allow creating custom sub-classes of Pry::Command" do
-      mock_pry("my---test").should =~ /my-testmy-test/
+      pry_eval("my---test").should =~ /my-testmy-test/
     end
 
     if !mri18_and_no_real_source_location?
       it "should show the source of the process method" do
-        mock_pry("show-source my-test").should =~ /output.puts command_name/
+        pry_eval("show-source my-test").should =~ /output.puts command_name/
       end
     end
   end

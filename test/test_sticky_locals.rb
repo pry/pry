@@ -2,23 +2,27 @@ require 'helper'
 
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
-    mock_pry("_file_").should.not =~ /NameError/
-    mock_pry("_dir_").should.not =~ /NameError/
-    mock_pry("_ex_").should.not =~ /NameError/
-    mock_pry("_pry_").should.not =~ /NameError/
-    mock_pry("_").should.not =~ /NameError/
+    proc {
+      pry_eval '_file_', '_dir_', '_ex_', '_pry_', '_'
+    }.should.not.raise(NameError)
   end
 
   it 'locals should still exist after cd-ing into a new context' do
-    mock_pry("cd 0", "_file_").should.not =~ /NameError/
-    mock_pry("cd 0","_dir_").should.not =~ /NameError/
-    mock_pry("cd 0","_ex_").should.not =~ /NameError/
-    mock_pry("cd 0","_pry_").should.not =~ /NameError/
-    mock_pry("cd 0","_").should.not =~ /NameError/
+    proc {
+      pry_eval 'cd 0', '_file_', '_dir_', '_ex_', '_pry_', '_'
+    }.should.not.raise(NameError)
   end
 
-  it 'locals should keep value after cd-ing(_pry_ and _ex_)' do
-    mock_pry("$x = _pry_;", "cd 0", "_pry_ == $x").should =~ /true/
+  it 'locals should keep value after cd-ing (_pry_)' do
+    pry_tester.tap do |t|
+      pry = t.eval '_pry_'
+      t.eval 'cd 0'
+      t.eval('_pry_').should == pry
+    end
+  end
+
+  # Using mock_pry here until we figure out exception handling
+  it 'locals should keep value after cd-ing (_ex_)' do
     mock_pry("error blah;", "$x = _ex_;", "cd 0", "_ex_ == $x").should =~ /true/
   end
 
@@ -27,8 +31,12 @@ describe "Sticky locals (_file_ and friends)" do
       set_file_and_dir_locals("/blah/ostrich.rb")
     end
 
-    mock_pry("file-and-dir-test", "cd 0", "_file_").should =~ /\/blah\/ostrich\.rb/
-    a = mock_pry("file-and-dir-test", "cd 0", "_dir_").should =~ /\/blah/
+    pry_eval('file-and-dir-test', 'cd 0', '_file_').
+      should =~ /\/blah\/ostrich\.rb/
+
+    pry_eval('file-and-dir-test', 'cd 0', '_dir_').
+      should =~ /\/blah/
+
     Pry.commands.delete "file-and-dir-test"
   end
 

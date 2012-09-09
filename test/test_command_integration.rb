@@ -258,7 +258,10 @@ describe "commands" do
     end
 
     it 'should run a command in the context of a session' do
-      mock_pry("@session_ivar = 10", "_pry_.run_command('ls')").should =~ /@session_ivar/
+      pry_tester.tap do |t|
+        t.eval "@session_ivar = 10", "_pry_.run_command('ls')"
+        t.last_output.should =~ /@session_ivar/
+      end
     end
   end
 
@@ -481,7 +484,6 @@ describe "commands" do
     Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => @str_output, :commands => klass).rep
     @str_output.string.should =~ /6/
   end
-
 
   it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
     klass = Pry::CommandSet.new do
