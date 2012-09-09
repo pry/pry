@@ -11,14 +11,10 @@ require 'open4'
 # Colorize output (based on greeneggs (c) 2009 Michael Fleet)
 # TODO: Make own gem (assigned to rking)
 module Bacon
-  COLORS = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
+  COLORS    = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
+  USE_COLOR = Pry::Helpers::BaseHelpers.use_ansi_codes?
 
   module TestUnitOutput
-    def handle_specification(name)
-      @use_color = Pry::Helpers::BaseHelpers.use_ansi_codes?
-      yield
-    end
-
     def handle_requirement(description)
       error = yield
 
@@ -44,7 +40,7 @@ module Bacon
     end
 
     def colorize_string(text, color = nil)
-      if @use_color
+      if USE_COLOR
         "\e[#{ COLORS[color || text] }m#{ text }\e[0m"
       else
         text
