@@ -242,8 +242,10 @@ ensure
   File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
 end
 
-def pry_tester(context = TOPLEVEL_BINDING, &block)
-  PryTester.new(context).tap do |t|
+def pry_tester(*args, &block)
+  args << TOPLEVEL_BINDING if args.length == 0
+
+  PryTester.new(*args).tap do |t|
     (class << t; self; end).class_eval(&block) if block
   end
 end
@@ -261,8 +263,8 @@ end
 class PryTester
   attr_reader :pry, :out
 
-  def initialize(context = TOPLEVEL_BINDING)
-    @pry = Pry.new
+  def initialize(context = TOPLEVEL_BINDING, options = {})
+    @pry = Pry.new(options)
 
     if context
       @pry.binding_stack << Pry.binding_for(context)
@@ -277,7 +279,7 @@ class PryTester
     result = nil
 
     strs.flatten.each do |str|
-      str = "#{str}\n" unless str.end_with?("\n")
+      str = "#{str.strip}\n"
       if @pry.process_command(str)
         result = last_command_result_or_output
       else

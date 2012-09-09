@@ -352,12 +352,11 @@ describe "Pry::Command" do
     end
 
     it 'should accept multiline blocks' do
-      redirect_pry_io(InputTester.new("walking-spanish | do",
-                                      "  :jesus",
-                                      "end",
-                                      "exit-all"), out = StringIO.new) do
-        Pry.start @context, :commands => @set
-      end
+      pry_tester(@context, :commands => @set).eval <<-EOS
+        walking-spanish | do
+          :jesus
+        end
+      EOS
       @context.instance_variable_get(:@x).should == :jesus
     end
 
