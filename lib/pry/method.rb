@@ -67,7 +67,7 @@ class Pry
           nil
         else
           method = begin
-                     new(b.eval("Object.instance_method(:method).bind(self).call(#{meth_name.to_s.inspect})"))
+                     new(b.eval("::Object.instance_method(:method).bind(self).call(#{meth_name.to_s.inspect})"))
                    rescue NameError, NoMethodError
                      Disowned.new(b.eval('self'), meth_name.to_s)
                    end
