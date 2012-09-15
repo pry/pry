@@ -1,60 +1,58 @@
 require 'helper'
 
 if !mri18_and_no_real_source_location?
-  describe "Pry::DefaultCommands::Documentation" do
-    describe "show-doc" do
-      before do
-        @o = Object.new
+  describe "show-doc" do
+    before do
+      @o = Object.new
+    end
+
+    it 'should output a method\'s documentation' do
+      pry_eval("show-doc sample_method").should =~ /sample doc/
+    end
+
+    it 'should output a method\'s documentation with line numbers' do
+      pry_eval("show-doc sample_method -l").should =~ /\d: sample doc/
+    end
+
+    it 'should output a method\'s documentation with line numbers (base one)' do
+      pry_eval("show-doc sample_method -b").should =~ /1: sample doc/
+    end
+
+    it 'should output a method\'s documentation if inside method without needing to use method name' do
+      # sample comment
+      def @o.sample
+        pry_eval(binding, 'show-doc').should =~ /sample comment/
       end
+      @o.sample
+    end
 
-      it 'should output a method\'s documentation' do
-        pry_eval("show-doc sample_method").should =~ /sample doc/
-      end
+    it "should be able to find super methods" do
+      c = Class.new{
+        # classy initialize!
+        def initialize(*args); end
+      }
 
-      it 'should output a method\'s documentation with line numbers' do
-        pry_eval("show-doc sample_method -l").should =~ /\d: sample doc/
-      end
+      d = Class.new(c){
+        # grungy initialize??
+        def initialize(*args, &block); end
+      }
 
-      it 'should output a method\'s documentation with line numbers (base one)' do
-        pry_eval("show-doc sample_method -b").should =~ /1: sample doc/
-      end
+      o = d.new
 
-      it 'should output a method\'s documentation if inside method without needing to use method name' do
-        # sample comment
-        def @o.sample
-          pry_eval(binding, 'show-doc').should =~ /sample comment/
-        end
-        @o.sample
-      end
+      # instancey initialize!
+      def o.initialize; end
 
-      it "should be able to find super methods" do
-        c = Class.new{
-          # classy initialize!
-          def initialize(*args); end
-        }
+      t = pry_tester(binding)
 
-        d = Class.new(c){
-          # grungy initialize??
-          def initialize(*args, &block); end
-        }
+      t.eval("show-doc o.initialize").should =~ /instancey initialize/
+      t.eval("show-doc --super o.initialize").should =~ /grungy initialize/
+      t.eval("show-doc o.initialize -ss").should =~ /classy initialize/
 
-        o = d.new
-
-        # instancey initialize!
-        def o.initialize; end
-
-        t = pry_tester(binding)
-
-        t.eval("show-doc o.initialize").should =~ /instancey initialize/
-        t.eval("show-doc --super o.initialize").should =~ /grungy initialize/
-        t.eval("show-doc o.initialize -ss").should =~ /classy initialize/
-
-        begin
-          require 'pry-doc'
-          t.eval("show-doc --super o.initialize -ss").should ==
-            t.eval("show-doc Object#initialize")
-        rescue LoadError
-        end
+      begin
+        require 'pry-doc'
+        t.eval("show-doc --super o.initialize -ss").should ==
+          t.eval("show-doc Object#initialize")
+      rescue LoadError
       end
     end
 

@@ -1,6 +1,6 @@
 require 'helper'
 
-describe 'Pry::DefaultCommands::Cd' do
+describe 'cd' do
   before do
     @o, @obj = Object.new, Object.new
     @obj.instance_variable_set(:@x, 66)

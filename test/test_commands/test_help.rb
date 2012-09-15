@@ -1,6 +1,6 @@
 require 'helper'
 
-describe "'help' command" do
+describe "help" do
   before do
     @oldset = Pry.config.commands
     @set = Pry.config.commands = Pry::CommandSet.new do
