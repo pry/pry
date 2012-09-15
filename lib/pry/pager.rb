@@ -19,9 +19,10 @@ class Pry::Pager
   def self.page(text, pager = nil)
     case pager
     when nil
+      `less` rescue nil
+      no_pager = $?.exitstatus != 0
       is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-      is_windows = Pry::Helpers::BaseHelpers.windows?
-      (is_jruby || is_windows) ? SimplePager.new(text).page : SystemPager.new(text).page
+      (is_jruby || no_pager) ? SimplePager.new(text).page : SystemPager.new(text).page
     when :simple
       SimplePager.new(text).page
     when :system
