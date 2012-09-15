@@ -557,4 +557,3 @@ if !mri18_and_no_real_source_location?
     end
   end
 end
-

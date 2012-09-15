@@ -36,6 +36,8 @@ guard 'bacon' do
   # Example of mapping a lib file to one or more test files
   watch('lib/pry/indent.rb') { 'test/test_indent.rb' }
 
+  watch(%r{^lib/pry/commands/([^.]+)\.rb}) { |m| "test/test_commands/test_#{m[1]}.rb" }
+
   # If no such mapping exists, just run all of them
   watch(%r{^lib/}) { :all }
 
