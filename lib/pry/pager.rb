@@ -20,7 +20,8 @@ class Pry::Pager
     case pager
     when nil
       is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-      is_jruby ? SimplePager.new(text).page : SystemPager.new(text).page
+      is_windows = Pry::Helpers::BaseHelpers.windows?
+      (is_jruby || is_windows) ? SimplePager.new(text).page : SystemPager.new(text).page
     when :simple
       SimplePager.new(text).page
     when :system
