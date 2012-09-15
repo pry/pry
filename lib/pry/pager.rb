@@ -11,8 +11,8 @@ class Pry::Pager
   #   
   # @param [nil] pager
   #   Infer what pager to use from the environment.
-  #   What this really means is that JRuby uses the pure-ruby pager, and other
-  #   platforms will use the system pager.
+  #   What this really means is that JRuby and systems that do not have access
+  #   to 'less' will run through the pure ruby pager.
   #
   # @return [void]
   #
