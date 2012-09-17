@@ -59,4 +59,9 @@ describe Pry::HistoryArray do
     12.times { |n| @array << n }
     @array.entries.compact.size.should == 10
   end
+
+  it 'should pop!' do
+    @populated.pop!
+    @populated.to_a.should == [1, 2, 3]
+  end
 end
