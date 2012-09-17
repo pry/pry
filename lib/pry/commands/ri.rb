@@ -21,7 +21,9 @@ class Pry
 
         subclass.class_eval do
           def page
-            Pry::Helpers::BaseHelpers.lesspipe {|less| yield less}
+            paging_text = StringIO.new
+            yield paging_text
+            Pry::Pager.page(paging_text.string)
           end
 
           def formatter(io)
