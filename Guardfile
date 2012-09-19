@@ -33,8 +33,24 @@ module ::Guard
 end
 
 guard 'bacon' do
-  # Example of mapping a lib file to one or more test files
-  watch('lib/pry/indent.rb') { 'test/test_indent.rb' }
+  def deduce_test_from(token)
+    "test/test_#{token}.rb"
+  end
+
+  Dir['lib/pry/*.rb'].each do |rb|
+    rb[%r(lib/pry/(.+)\.rb$)]
+    test_rb = deduce_test_from $1
+    if File.exists?(test_rb)
+      watch(rb) { test_rb }
+    else
+      exempt = %w(
+        commands
+        version
+      ).map {|token| deduce_test_from token}
+      puts 'Missing ' + test_rb if
+        ENV['WANT_TEST_COMPLAINTS'] and not exempt.include?(test_rb)
+    end
+  end
 
   watch(%r{^lib/pry/commands/([^.]+)\.rb}) { |m| "test/test_commands/test_#{m[1]}.rb" }
 
@@ -45,3 +61,4 @@ guard 'bacon' do
   watch(%r{^test.*/test_.+\.rb$})
 end
 
+# vim:ft=ruby

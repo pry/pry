@@ -89,6 +89,11 @@ class Pry
       ((@count - size)...@count).map { |n| @hash[n] }
     end
 
+    def pop!
+      @hash.delete @count - 1
+      @count -= 1
+    end
+
     def inspect
       "#<#{self.class} size=#{size} first=#{@count - size} max_size=#{max_size}>"
     end
