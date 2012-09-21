@@ -190,8 +190,7 @@ class Pry
       :_dir_  => proc { last_dir },
       :_      => proc { last_result },
       :__     => proc { @output_array[-2] },
-      :___    => proc { @output_array[-3] },
-      :____   => proc { @output_array[-4] }
+      :___    => proc { @output_array[-3] }
     }.merge(extra_sticky_locals)
   end
 
