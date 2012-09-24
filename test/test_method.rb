@@ -126,7 +126,7 @@ describe Pry::Method do
 
         m = Pry::Method.from_binding(a.new.gag)
 
-        m.owner.should == a
+        m.owner.should == a unless Pry::Helpers::BaseHelpers.rbx? # rubinius issue 1921
         m.source_file.should == __FILE__
         m.source_line.should == a.line
       end
