@@ -119,6 +119,18 @@ describe Pry::Method do
       m.source_line.should == b.line
       m.name.should == "gag"
     end
+
+    if defined? BasicObject
+      it "should find the right method from a BasicObject" do
+        a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
+
+        m = Pry::Method.from_binding(a.new.gag)
+
+        m.owner.should == a
+        m.source_file.should == __FILE__
+        m.source_line.should == a.line
+      end
+    end
   end
 
   describe 'super' do

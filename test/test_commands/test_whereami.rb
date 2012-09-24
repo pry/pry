@@ -41,6 +41,18 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
+  if defined?(BasicObject)
+    it 'should work in BasicObjects' do
+      cor = Class.new(BasicObject) do
+        def blimey!
+          ::Kernel.binding # omnom
+        end
+      end.new.blimey!
+
+      pry_eval(cor, 'whereami').should =~ /::Kernel.binding [#] omnom/
+    end
+  end
+
   it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
     class Cor
       def blimey!
