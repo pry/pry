@@ -62,12 +62,16 @@ class Pry
       # @return [Pry::Method, nil]
       #
       def from_binding(b)
-        meth_name = b.eval('__method__')
+        meth_name = b.eval('::Kernel.__method__')
         if [:__script__, nil].include?(meth_name)
           nil
         else
           method = begin
-                     new(Object.instance_method(:method).bind(b.eval("self")).call(meth_name))
+                     if Object === b.eval('self')
+                       new(Kernel.instance_method(:method).bind(b.eval("self")).call(meth_name))
+                     else
+                       new(b.eval('class << self; self; end.instance_method(::Kernel.__method__).bind(self)'))
+                     end
                    rescue NameError, NoMethodError
                      Disowned.new(b.eval('self'), meth_name.to_s)
                    end

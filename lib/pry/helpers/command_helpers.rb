@@ -40,7 +40,7 @@ class Pry
       end
 
       def internal_binding?(target)
-        m = target.eval("__method__").to_s
+        m = target.eval("::Kernel.__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753
         ["__binding__", "__pry__", "class_eval"].include?(m)
       end
