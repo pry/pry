@@ -32,7 +32,7 @@ class Pry
     colorized = Helpers::BaseHelpers.colorize_code(stringified.gsub(/#</, "%<#{nonce}"))
 
     # avoid colour-leak from CodeRay and any of the users' previous output
-    colorized = colorized.sub(/(\n*)$/, "\e[0m\\1") if Pry.color
+    colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
 
     Helpers::BaseHelpers.stagger_output("=> #{colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')}", output)
   end
