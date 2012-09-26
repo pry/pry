@@ -395,6 +395,6 @@ Problems or questions? file an issue at [github](https://github.com/pry/pry/issu
 
 ### Contributors
 
-Pry is primarily the work of [John Mair (banisterfiend)]((http://github.com/banister)), for full list
+Pry is primarily the work of [John Mair (banisterfiend)](http://github.com/banister), for full list
 of contributors see the
 [CONTRIBUTORS](https://github.com/pry/pry/blob/master/CONTRIBUTORS) file.
