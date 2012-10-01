@@ -59,7 +59,7 @@ class Pry
         bt_index = ex.bt_index
         ex.inc_bt_index
       else
-        bt_index = opts[:ex]
+        bt_index = absolute_index_number(opts[:ex], ex.backtrace.size)
         ex.bt_index = bt_index
         ex.inc_bt_index
       end
