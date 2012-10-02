@@ -304,8 +304,8 @@ class Pry
       :protected_method_color   => :yellow,
       :method_missing_color     => :bright_red,
 
-      :local_var_color          => :default,
-      :pry_var_color            => :red,         # e.g. _, _pry_, _file_
+      :local_var_color          => :yellow,
+      :pry_var_color            => :default,         # e.g. _, _pry_, _file_
 
       :instance_var_color       => :blue,        # e.g. @foo
       :class_var_color          => :bright_blue, # e.g. @@foo
