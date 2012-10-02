@@ -24,7 +24,7 @@ class Pry
       opt.on :v, "verbose", "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
 
       opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
-      opt.on :l, "locals", "Show locals, including those provided by Pry (in red)"
+      opt.on :l, "locals", "Show hash of local vars, sorted by descending size"
 
       opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" +
       " " * 32 +              "Constants that are pending autoload? are also shown (in yellow)."
@@ -45,11 +45,12 @@ class Pry
                   opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
                   opts.present?(:ivars))
 
-      show_methods   = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
+      show_methods     = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
       show_self_methods = (!has_opts && Module === obj)
-      show_constants = opts.present?(:constants) || (!has_opts && Module === obj)
-      show_ivars     = opts.present?(:ivars) || !has_opts
-      show_locals    = opts.present?(:locals) || (!has_opts && args.empty?)
+      show_constants   = opts.present?(:constants) || (!has_opts && Module === obj)
+      show_ivars       = opts.present?(:ivars) || !has_opts
+      show_locals      = opts.present?(:locals)
+      show_local_names = !has_opts && args.empty?
 
       grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
 
@@ -95,8 +96,19 @@ class Pry
         output_section("class variables", format_variables(:class_var, kvars))
       end
 
+      if show_local_names
+        output_section("locals", format_local_names(
+          grep[target.eval("local_variables")]))
+      end
+
       if show_locals
-        output_section("locals", format_locals(grep[target.eval("local_variables")]))
+        loc_names = target.eval('local_variables').reject do |e|
+          _pry_.sticky_locals.keys.include? e
+        end
+        name_value_pairs = loc_names.map do |name|
+          [name, (target.eval name.to_s)]
+        end
+        output.puts format_locals(name_value_pairs)
       end
     end
 
@@ -242,13 +254,27 @@ class Pry
       end
     end
 
-    def format_locals(locals)
+    def format_local_names(locals)
       locals.sort_by(&:downcase).map do |name|
         if _pry_.sticky_locals.include?(name.to_sym)
           color(:pry_var, name)
         else
           color(:local_var, name)
         end
+      end
+    end
+
+    def format_locals(name_value_pairs)
+      name_value_pairs.sort_by do |name, value|
+        value.to_s.size
+      end.reverse.map do |name, value|
+        accumulator = StringIO.new
+        Pry.print.call accumulator, value
+        colorized_name= color(:local_var, name)
+        desired_width = 7
+        color_escape_padding = colorized_name.size - name.size
+        pad = desired_width + color_escape_padding
+        "%-#{pad}s = %s" % [color(:local_var, name), accumulator.string]
       end
     end
 
