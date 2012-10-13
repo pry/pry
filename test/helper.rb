@@ -49,6 +49,17 @@ module Bacon
   end
 end
 
+# Reset toplevel binding at the beginning of each test case.
+module Bacon
+  class Context
+    alias _real_it it
+    def it(description, &block)
+      Pry.toplevel_binding = nil
+      _real_it(description, &block)
+    end
+  end
+end
+
 # A global space for storing temporary state during tests.
 Pad = OpenStruct.new
 def Pad.clear
@@ -269,7 +280,9 @@ class PryTester
     @pry = Pry.new(options)
 
     if context
-      @pry.binding_stack << Pry.binding_for(context)
+      target = Pry.binding_for(context)
+      @pry.binding_stack << target
+      @pry.inject_sticky_locals(target)
     end
 
     @pry.input_array << nil # TODO: shouldn't need this
