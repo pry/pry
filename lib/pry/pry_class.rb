@@ -390,16 +390,23 @@ class Pry
       end
     end
   end
-end
 
-# Grab a copy of the TOPLEVEL_BINDING without any local variables.
-# This binding has a default definee of Object, and new methods are
-# private (just as in TOPLEVEL_BINDING).
-def self.__pry__
-  binding
+  def self.toplevel_binding
+    unless @toplevel_binding
+      # Grab a copy of the TOPLEVEL_BINDING without any local variables.
+      # This binding has a default definee of Object, and new methods are
+      # private (just as in TOPLEVEL_BINDING).
+      TOPLEVEL_BINDING.eval <<-RUBY
+        def self.__pry__
+          binding
+        end
+        Pry.toplevel_binding = __pry__
+        class << self; undef __pry__; end
+      RUBY
+    end
+    @toplevel_binding.eval('private')
+    @toplevel_binding
+  end
 end
-Pry.toplevel_binding = __pry__
-Pry.toplevel_binding.eval("private")
-class << self; undef __pry__; end
 
 Pry.init
