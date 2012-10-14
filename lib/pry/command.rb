@@ -501,9 +501,10 @@ class Pry
 
     # Return an instance of Slop that can parse the options that this command accepts.
     def slop
+      cmd = self
       Slop.new do |opt|
-        opt.banner(unindent(self.class.banner))
-        options(opt)
+        opt.banner(cmd.send(:unindent, cmd.class.banner))
+        cmd.options(opt)
         opt.on(:h, :help, "Show this message.")
       end
     end
