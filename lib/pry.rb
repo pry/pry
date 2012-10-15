@@ -15,6 +15,10 @@ class Pry
 
   # The default print
   DEFAULT_PRINT = proc do |output, value|
+    format_for_output(output, value, :hashrocket => true)
+  end
+
+  def self.format_for_output(output, value, options = {})
     stringified = begin
                     value.pretty_inspect
                   rescue RescuableException
@@ -22,19 +26,23 @@ class Pry
                   end
 
     unless String === stringified
-      # Read the class name off of the singleton class to provide a default inspect.
+      # Read the class name off of the singleton class to provide a default
+      # inspect.
       klass = (class << value; self; end).ancestors.first
       stringified = "#<#{klass}:0x#{value.__id__.to_s(16)}>"
     end
 
     nonce = rand(0x100000000).to_s(16) # whatever
 
-    colorized = Helpers::BaseHelpers.colorize_code(stringified.gsub(/#</, "%<#{nonce}"))
+    stringified.gsub!(/#</, "%<#{nonce}")
+    colorized = Helpers::BaseHelpers.colorize_code(stringified)
 
     # avoid colour-leak from CodeRay and any of the users' previous output
     colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
 
-    Helpers::BaseHelpers.stagger_output("=> #{colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')}", output)
+    prefix = if false != options[:hashrocket] then '=> ' else '' end
+    result = prefix + colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')
+    Helpers::BaseHelpers.stagger_output(result, output)
   end
 
   # may be convenient when working with enormous objects and

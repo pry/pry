@@ -268,14 +268,25 @@ class Pry
       name_value_pairs.sort_by do |name, value|
         value.to_s.size
       end.reverse.map do |name, value|
-        accumulator = StringIO.new
-        Pry.print.call accumulator, value
-        colorized_name= color(:local_var, name)
-        desired_width = 7
-        color_escape_padding = colorized_name.size - name.size
-        pad = desired_width + color_escape_padding
-        "%-#{pad}s = %s" % [color(:local_var, name), accumulator.string]
+        colorized_assignment_style(name, format_value_without_hashrocket(value))
       end
+    end
+
+    def colorized_assignment_style(lhs, rhs, desired_width = 7)
+      colorized_lhs = color(:local_var, lhs)
+      color_escape_padding = colorized_lhs.size - lhs.size
+      pad = desired_width + color_escape_padding
+      "%-#{pad}s = %s" % [color(:local_var, colorized_lhs), rhs]
+    end
+
+    def format_value_without_hashrocket(value)
+      accumulator = StringIO.new
+      if Pry::DEFAULT_PRINT.source_location == Pry.print.source_location
+        Pry.format_for_output(accumulator, value, :hashrocket => false)
+      else
+        Pry.print.call(accumulator, value)
+      end
+      accumulator.string
     end
 
     # Add a new section to the output. Outputs nothing if the section would be empty.
