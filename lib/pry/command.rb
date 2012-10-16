@@ -337,7 +337,10 @@ class Pry
     #   Note that if we find the '| do' or '| {' we delete this and the
     #   elements following it from `arg_string`.
     def pass_block(arg_string)
-      block_index = arg_string.rindex(/\| *(?:do|\{)/)
+      # Workaround for weird JRuby bug where rindex in this case can return nil
+      # even when there's a match.
+      arg_string.scan(/\| *(?:do|\{)/)
+      block_index = $~ && $~.offset(0)[0]
 
       return if !block_index
 
