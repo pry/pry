@@ -12,7 +12,7 @@ require 'open4'
 # TODO: Make own gem (assigned to rking)
 module Bacon
   COLORS    = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
-  USE_COLOR = Pry::Helpers::BaseHelpers.use_ansi_codes?
+  USE_COLOR = !(ENV['NO_PRY_COLORED_BACON'] == 'true') && Pry::Helpers::BaseHelpers.use_ansi_codes?
 
   module TestUnitOutput
     def handle_requirement(description)
