@@ -39,7 +39,7 @@ describe "edit-method" do
             G = :nawt
 
             def foo
-              :maybe
+              :possibly
               G
             end
           end
@@ -106,9 +106,11 @@ describe "edit-method" do
           File.open(file, 'w') do |f|
             f.write(lines.join)
           end
+          @patched_def = String(lines[1]).chomp
           nil
         end
       end
+
       after do
         Pry.config.editor = @old_editor
       end
@@ -157,6 +159,93 @@ describe "edit-method" do
 
         X::B.instance_method(:foo).owner.should == X::B
         X::B.new.foo.should == :nawt
+      end
+
+      describe "monkey-patching" do
+        before do
+          @edit = 'edit-method --patch ' # A shortcut.
+        end
+
+        # @param [Integer] lineno
+        # @return [String] the stripped line from the tempfile at +lineno+
+        def stripped_line_at(lineno)
+          @tempfile.rewind
+          @tempfile.lines.to_a[lineno].strip
+        end
+
+        # Applies the monkey patch for +method+ with help of evaluation of
+        # +eval_strs+. The idea is to capture the initial line number (before
+        # the monkey patch), because it gets overwritten by the line number from
+        # the monkey patch. And our goal is to check that the original
+        # definition hasn't changed.
+        # @param [UnboundMethod] method
+        # @param [Array<String>] eval_strs
+        # @return [Array<String] the lines with definitions of the same line
+        #   before monkey patching and after (normally, they should be equal)
+        def apply_monkey_patch(method, *eval_strs)
+          _, lineno = method.source_location
+          definition_before = stripped_line_at(lineno)
+
+          pry_eval(*eval_strs)
+
+          definition_after = stripped_line_at(lineno)
+
+          [definition_before, definition_after]
+        end
+
+        it "should work for a class method" do
+          def_before, def_after =
+            apply_monkey_patch(X.method(:x), "#@edit X.x")
+
+          def_before.should   == ':double_yup'
+          def_after.should    == ':double_yup'
+          @patched_def.should == ':maybe'
+        end
+
+        it "should work for an instance method" do
+          def_before, def_after =
+            apply_monkey_patch(X.instance_method(:x), "#@edit X#x")
+
+          def_before.should   == ':nope'
+          def_after.should    == ':nope'
+          @patched_def.should == ':maybe'
+        end
+
+        it "should work for a method on an instance" do
+          def_before, def_after =
+            apply_monkey_patch(X.instance_method(:x), 'instance = X.new', "#@edit instance.x")
+
+          def_before.should   == ':nope'
+          def_after.should    == ':nope'
+          @patched_def.should == ':maybe'
+        end
+
+        it "should work for a method from a module" do
+          def_before, def_after =
+            apply_monkey_patch(X.instance_method(:a), "#@edit X#a")
+
+          def_before.should   == ':yup'
+          def_after.should    == ':yup'
+          @patched_def.should == ':maybe'
+        end
+
+        it "should work for a method with a question mark" do
+          def_before, def_after =
+            apply_monkey_patch(X.instance_method(:y?), "#@edit X#y?")
+
+          def_before.should   == ':because'
+          def_after.should    == ':because'
+          @patched_def.should == ':maybe'
+        end
+
+        it "should work with nesting" do
+          def_before, def_after =
+            apply_monkey_patch(X::B.instance_method(:foo), "#@edit X::B#foo")
+
+          def_before.should   == ':possibly'
+          def_after.should    == ':possibly'
+          @patched_def.should == ':maybe'
+        end
       end
     end
 
