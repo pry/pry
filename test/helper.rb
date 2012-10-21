@@ -150,11 +150,6 @@ def sample_method
   :sample
 end
 
-# another sample doc
-def another_sample_method
-  :another_sample
-end
-
 # Set I/O streams.
 #
 # Out defaults to an anonymous StringIO.
