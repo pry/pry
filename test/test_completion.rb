@@ -10,7 +10,7 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
-if defined?(Bond)
+if defined?(Bond) && Readline::VERSION !~ /editline/i
   describe 'bond-based completion' do
     it 'should pull in Bond by default' do
       Pry.config.completer.should == Pry::BondCompleter
