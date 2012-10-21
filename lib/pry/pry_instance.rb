@@ -309,7 +309,9 @@ class Pry
       end
     end
 
-    @suppress_output = true if eval_string =~ /;\Z/ || eval_string.empty?
+    if eval_string =~ /;\Z/ || eval_string.empty? || eval_string =~ /\A *#.*\n\z/
+      @suppress_output = true
+    end
 
     exec_hook :after_read, eval_string, self
     eval_string
