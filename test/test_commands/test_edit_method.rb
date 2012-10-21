@@ -56,7 +56,7 @@ describe "edit-method" do
     describe 'without -p' do
       before do
         @old_editor = Pry.config.editor
-        @file, @line, @contents = nil, nil, nil
+        @file = @line = @contents = nil
         Pry.config.editor = lambda do |file, line|
           @file = file; @line = line
           nil
@@ -278,7 +278,7 @@ describe "edit-method" do
     describe 'with three-arg editor' do
       before do
         @old_editor = Pry.config.editor
-        @file, @line, @reloading = nil, nil, nil
+        @file = @line = @reloading = nil
         Pry.config.editor = lambda do |file, line, reloading|
           @file = file; @line = line; @reloading = reloading
           nil
