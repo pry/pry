@@ -3,7 +3,7 @@ require 'helper'
 describe "edit" do
   before do
     @old_editor = Pry.config.editor
-    @file = nil; @line = nil; @contents = nil
+    @file = @line = @contents = nil
     Pry.config.editor = lambda do |file, line|
       @file = file; @line = line; @contents = File.read(@file)
       nil
@@ -161,6 +161,27 @@ describe "edit" do
         @t.eval 'edit -n --ex'
 
         defined?(FOO2).should.be.nil
+      end
+
+      describe "with --patch" do
+        # Original source code must be untouched.
+        it "should apply changes only in memory (monkey patching)" do
+          Pry.config.editor = lambda {|file, line|
+            File.open(file, 'w'){|f| f << "FOO3 = 'PIYO'" }
+            @patched_def = File.open(file, 'r').read
+            nil
+          }
+
+          defined?(FOO3).should.be.nil
+
+          @t.eval 'edit --ex --patch'
+
+          FOO3.should == 'PIYO'
+
+          @tf.rewind
+          @tf.read.should == "1\n2\nraise RuntimeError"
+          @patched_def.should == "FOO3 = 'PIYO'"
+        end
       end
     end
 
