@@ -1,4 +1,11 @@
 class Pry
+  # Uses the following state variables:
+  #   - dynamical_ex_file [Array<String>]
+  #       Utilised in `edit --ex --patch` operations. Contains the source code
+  #       of a monkey patched file, in which an exception was raised. We store
+  #       the entire source code because an exception may happen anywhere in the
+  #       code and there is no way to predict that. So we simply superimpose
+  #       everything (admittedly, doing extra job).
   Pry::Commands.create_command "edit" do
     group 'Editing'
     description "Invoke the default editor on a file."
@@ -22,8 +29,9 @@ class Pry
       opt.on :t, :temp, "Open an empty temporary file"
       opt.on :l, :line, "Jump to this line in the opened file", :argument => true, :as => Integer
       opt.on :n, :"no-reload", "Don't automatically reload the edited code"
-      opt.on :c, :"current", "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
+      opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
       opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
+      opt.on :p, :patch, "Instead of opening the file that raised the exception, try to edit in a tempfile an apply as a monkey patch."
     end
 
     def complete(search)
@@ -108,6 +116,7 @@ class Pry
         if Pry.eval_path == file_name
           raise CommandError, "Cannot edit exceptions raised in REPL."
         end
+
       elsif opts.present?(:current)
         file_name = target.eval("__FILE__")
         line = target.eval("__LINE__")
@@ -126,15 +135,32 @@ class Pry
 
       reload = opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
 
-      # Sanitize blanks.
-      sanitized_file_name = Shellwords.escape(file_name)
+      if opts.present?(:ex) && opts.present?(:patch)
+        lines = state.dynamical_ex_file || File.open(ex_file).read
 
-      invoke_editor(sanitized_file_name, line, reload)
-      set_file_and_dir_locals(sanitized_file_name)
+        temp_file do |f|
+          f.puts lines
+          f.flush
+          f.close(false)
 
-      if reload
-        silence_warnings do
-          TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+          tempfile_path = f.path
+          invoke_editor(tempfile_path, line, reload)
+          source = File.read(tempfile_path)
+          _pry_.evaluate_ruby source
+
+          state.dynamical_ex_file = source.split("\n")
+        end
+      else
+        # Sanitize blanks.
+        sanitized_file_name = Shellwords.escape(file_name)
+
+        invoke_editor(sanitized_file_name, line, reload)
+        set_file_and_dir_locals(sanitized_file_name)
+
+        if reload
+          silence_warnings do
+            TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+          end
         end
       end
     end
