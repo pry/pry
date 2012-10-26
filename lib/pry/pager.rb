@@ -19,7 +19,7 @@ class Pry::Pager
   def self.page(text, pager = nil)
     case pager
     when nil
-      no_pager = !(`less` rescue nil)
+      no_pager = !SystemPager.available?
       is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
       (is_jruby || no_pager) ? SimplePager.new(text).page : SystemPager.new(text).page
     when :simple
@@ -54,9 +54,22 @@ class Pry::Pager
   end
 
   class SystemPager < Pry::Pager
+    def self.default_pager
+      ENV["PAGER"] || "less -R -S -F -X"
+    end
+
+    def self.available?
+      `#{default_pager}`rescue nil
+    end
+
+    def initialize(*)
+      super
+      @pager = ENV["PAGER"] || "less -R -S -F -X"
+    end
+
     def page
-      IO.popen("less -R -S -F -X", "w") do |less|
-        less.puts @text
+      IO.popen(@pager, 'w') do |io|
+        io.write @text
       end
     end
   end
