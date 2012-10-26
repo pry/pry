@@ -7,7 +7,7 @@ class Pry::Pager
   #   Use the pure ruby pager.
   #   
   # @param [:system] pager
-  #   Use the system pager (less)
+  #   Use the system pager (less) or the environment variable $PAGER if set.
   #   
   # @param [nil] pager
   #   Infer what pager to use from the environment.
