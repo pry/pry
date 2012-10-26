@@ -64,7 +64,7 @@ class Pry::Pager
 
     def initialize(*)
       super
-      @pager = ENV["PAGER"] || "less -R -S -F -X"
+      @pager = SystemPager.default_pager
     end
 
     def page
