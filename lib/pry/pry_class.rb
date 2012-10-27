@@ -240,6 +240,14 @@ class Pry
     end
   end
 
+  def self.auto_resize!
+    trap :WINCH do
+      size = `stty size`.split(/\s+/).map &:to_i
+      Readline.set_screen_size *size
+      Readline.refresh_line
+    end
+  end
+
   def self.set_config_defaults
     config.input = Readline
     config.output = $stdout
