@@ -1,6 +1,6 @@
 class Pry
   Pry::Commands.create_command "disable-pry" do
-    group 'Navigating pry'
+    group 'Navigating Pry'
     description 'Stops all future calls to pry and exits the current session.'
 
     banner <<-BANNER
@@ -17,7 +17,7 @@ class Pry
     BANNER
 
     def process
-      ENV['NO_PRY'] = 'true'
+      ENV['DISABLE_PRY'] = 'true'
       _pry_.run_command "exit"
     end
   end

@@ -20,13 +20,13 @@ describe Pry do
     end
   end
 
-  describe 'NO_PRY' do
+  describe 'DISABLE_PRY' do
     before do
-      ENV['NO_PRY'] = 'true'
+      ENV['DISABLE_PRY'] = 'true'
     end
 
     after do
-      ENV.delete 'NO_PRY'
+      ENV.delete 'DISABLE_PRY'
     end
 
     it 'should not binding.pry' do
