@@ -20,6 +20,24 @@ describe Pry do
     end
   end
 
+  describe 'NO_PRY' do
+    before do
+      ENV['NO_PRY'] = 'true'
+    end
+
+    after do
+      ENV.delete 'NO_PRY'
+    end
+
+    it 'should not binding.pry' do
+      binding.pry.should == nil
+    end
+
+    it 'should not Pry.start' do
+      Pry.start.should == nil
+    end
+  end
+
   describe "Pry.binding_for" do
 
     # regression test for burg's bug (see git history)

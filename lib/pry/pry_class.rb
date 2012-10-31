@@ -123,6 +123,7 @@ class Pry
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=toplevel_binding, options={})
+    return if ENV['NO_PRY']
     target = Pry.binding_for(target)
     initial_session_setup
 
