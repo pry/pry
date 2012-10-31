@@ -6,7 +6,7 @@ describe "disable-pry" do
   end
 
   after do
-    ENV.delete 'NO_PRY'
+    ENV.delete 'DISABLE_PRY'
   end
 
   it 'should quit the current session' do
@@ -15,11 +15,11 @@ describe "disable-pry" do
     }.should.throw(:breakout)
   end
 
-  it "should set NO_PRY" do
-    ENV['NO_PRY'].should == nil
+  it "should set DISABLE_PRY" do
+    ENV['DISABLE_PRY'].should == nil
     lambda{
       @t.process_command 'disable-pry'
     }.should.throw(:breakout)
-    ENV['NO_PRY'].should == 'true'
+    ENV['DISABLE_PRY'].should == 'true'
   end
 end
