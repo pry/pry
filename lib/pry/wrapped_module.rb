@@ -14,6 +14,7 @@ class Pry
   end
 
   class WrappedModule
+    include Pry::Helpers::BaseHelpers
     include Pry::Helpers::DocumentationHelpers
 
     attr_reader :wrapped
@@ -271,16 +272,11 @@ class Pry
       end
     end
 
-    # FIXME: this method is also found in Pry::Method
-    def safe_send(obj, method, *args, &block)
-        (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
+    # @param [String] doc The raw docstring to process.
+    # @return [String] Process docstring markup and strip leading white space.
+    def process_doc(doc)
+      process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc))
     end
-
-      # @param [String] doc The raw docstring to process.
-      # @return [String] Process docstring markup and strip leading white space.
-      def process_doc(doc)
-         process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc))
-      end
 
   end
 end
