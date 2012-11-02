@@ -133,6 +133,7 @@ class Pry
       #
       # @param [Class, Module] klass
       # @param [String] name
+      # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_class(klass, name, target=TOPLEVEL_BINDING)
         new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
@@ -145,6 +146,7 @@ class Pry
       #
       # @param [Object] obj
       # @param [String] name
+      # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_obj(obj, name, target=TOPLEVEL_BINDING)
         new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
