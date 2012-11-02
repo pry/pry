@@ -8,6 +8,11 @@ class Pry
   HOME_RC_FILE = "~/.pryrc"
   LOCAL_RC_FILE = "./.pryrc"
 
+  # @return [Hash] Pry's `Thread.current` hash
+  def self.th
+    Thread.current[:__pry__] ||= {}
+  end
+
   # class accessors
   class << self
     extend Forwardable
@@ -56,7 +61,6 @@ class Pry
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
       :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
   end
-
 
   # Load the given file in the context of `Pry.toplevel_binding`
   # @param [String] file_name The unexpanded file path.
