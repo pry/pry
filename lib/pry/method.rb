@@ -17,6 +17,7 @@ class Pry
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
   class Method
+    extend Helpers::BaseHelpers
     include RbxMethod if Helpers::BaseHelpers.rbx?
     include Helpers::DocumentationHelpers
 
@@ -40,14 +41,14 @@ class Pry
           from_binding(target)
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
           context, meth_name = $1, $2
-          from_module(target.eval(context), meth_name)
+          from_module(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)\.(\S+)\Z/
           context, meth_name = $1, $2
-          from_obj(target.eval(context), meth_name)
+          from_obj(target.eval(context), meth_name, target)
         elsif options[:instance]
-          from_module(target.eval("self"), name)
+          from_module(target.eval("self"), name, target)
         elsif options[:methods]
-          from_obj(target.eval("self"), name)
+          from_obj(target.eval("self"), name, target)
         else
           from_str(name, target, :instance => true) or
             from_str(name, target, :methods => true)
@@ -110,6 +111,22 @@ class Pry
         end
       end
 
+      # In order to support 2.0 Refinements we need to look up methods
+      # inside the relevant Binding.
+      # @param [Object] obj The owner/receiver of the method.
+      # @param [Symbol] method_name The name of the method.
+      # @param [Symbol] method_type The type of method: :method or :instance_method
+      # @param [Binding] target The binding where the method is looked up.
+      # @return [Method, UnboundMethod] The 'refined' method object.
+      def lookup_method_via_binding(obj, method_name, method_type, target=TOPLEVEL_BINDING)
+        Pry.th[:obj] = obj
+        Pry.th[:name] = method_name
+        receiver = obj.is_a?(Module) ? "Module" : "Kernel"
+        target.eval("::#{receiver}.instance_method(:#{method_type}).bind(Pry.th[:obj]).call(Pry.th[:name])")
+      ensure
+        Pry.th[:obj] = Pry.th[:name] = nil
+      end
+
       # Given a `Class` or `Module` and the name of a method, try to
       # instantiate a `Pry::Method` containing the instance method of
       # that name. Return `nil` if no such method exists.
@@ -117,8 +134,8 @@ class Pry
       # @param [Class, Module] klass
       # @param [String] name
       # @return [Pry::Method, nil]
-      def from_class(klass, name)
-        new(safe_send(klass, :instance_method, name)) rescue nil
+      def from_class(klass, name, target=TOPLEVEL_BINDING)
+        new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
       end
       alias from_module from_class
 
@@ -129,10 +146,10 @@ class Pry
       # @param [Object] obj
       # @param [String] name
       # @return [Pry::Method, nil]
-      def from_obj(obj, name)
-        new(safe_send(obj, :method, name)) rescue nil
+      def from_obj(obj, name, target=TOPLEVEL_BINDING)
+        new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
       end
-
+      
       # Get all of the instance methods of a `Class` or `Module`
       # @param [Class,Module] klass
       # @param [Boolean] include_super Whether to include methods from ancestors.
@@ -186,15 +203,6 @@ class Pry
           end
         end.flatten(1)
       end
-
-      # Acts like send but ignores any methods defined below Object or Class in the
-      # inheritance hierarchy.
-      # This is required to introspect methods on objects like Net::HTTP::Get that
-      # have overridden the `method` method.
-      def safe_send(obj, method, *args, &block)
-        (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
-      end
-      public :safe_send
 
       # Get the singleton classes of superclasses that could define methods on
       # the given class object, and any modules they include.
