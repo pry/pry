@@ -148,7 +148,7 @@ class Pry
         case ext
         when "py"
            :python
-        when "rb", "gemspec", "rakefile", "ru"
+        when "rb", "gemspec", "rakefile", "ru", "pryrc", "irbrc"
            :ruby
         when "js"
           return :javascript
