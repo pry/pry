@@ -90,8 +90,8 @@ class Pry
     # at the start of the method definition is used. Otherwise the nesting from
     # the end of the line is used.
     #
-    # @param String str  The ruby code to analyze
-    # @param Fixnum line_number  The line number (starting from 1)
+    # @param [String] str The ruby code to analyze
+    # @param [Fixnum] line_number The line number (starting from 1)
     # @return [Array<String>]
     def self.nesting_at(str, line_number)
       indent = new

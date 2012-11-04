@@ -18,10 +18,10 @@ class Pry
         end
       end
 
-      # @param [String]
+      # @param [String] input
       # @param [Binding] target The binding context of the input.
       # @return [Symbol] type of input
-      def input_type(input,target)
+      def input_type(input, target)
         if input == ""
           :blank
         elsif target.eval("defined? #{input} ") =~ /variable|constant/ &&
