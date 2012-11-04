@@ -1,21 +1,13 @@
 class Pry::Pager
-  #
   # @param [String] text
   #   A piece of text to run through a pager.
-  #
-  # @param [:simple] pager
-  #   Use the pure ruby pager.
-  #   
-  # @param [:system] pager
-  #   Use the system pager (less) or the environment variable $PAGER if set.
-  #   
-  # @param [nil] pager
-  #   Infer what pager to use from the environment.
-  #   What this really means is that JRuby and systems that do not have access
-  #   to 'less' will run through the pure ruby pager.
-  #
-  # @return [void]
-  #
+  # @param [Symbol?] pager
+  #   `:simple` -- Use the pure ruby pager.
+  #   `:system` -- Use the system pager (less) or the environment variable
+  #                $PAGER if set.
+  #   `nil`     -- Infer what pager to use from the environment.  What this
+  #                really means is that JRuby and systems that do not have
+  #                access to 'less' will run through the pure ruby pager.
   def self.page(text, pager = nil)
     case pager
     when nil
