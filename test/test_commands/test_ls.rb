@@ -61,6 +61,15 @@ describe "ls" do
     end
   end
 
+  describe 'with -l' do
+    it 'should find locals and sort by descending size' do
+      pry_eval("a = 'asdf'; b = 'xyz'", 'ls -l').should =~ /asdf.*xyz/m
+    end
+    it 'should not list pry noise' do
+      pry_eval('ls -l').should.not =~ /_(?:dir|file|ex|pry|out|in)_/
+    end
+  end
+
   describe "when inside Modules" do
     it "should still work" do
       pry_eval(
