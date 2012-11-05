@@ -15,10 +15,10 @@ class Pry
 
   # The default print
   DEFAULT_PRINT = proc do |output, value|
-    format_for_output(output, value, :hashrocket => true)
+    output_with_default_format(output, value, :hashrocket => true)
   end
 
-  def self.format_for_output(output, value, options = {})
+  def self.output_with_default_format(output, value, options = {})
     stringified = begin
                     value.pretty_inspect
                   rescue RescuableException

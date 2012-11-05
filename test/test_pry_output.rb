@@ -36,7 +36,7 @@ describe Pry do
 
     it 'should have a milder-mannered companion without the hashrocket' do
       s = StringIO.new
-      Pry.format_for_output s, '2', :hashrocket => false
+      Pry.output_with_default_format s, '2', :hashrocket => false
       s.string.should.not =~ /^=>/
     end
 

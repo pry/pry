@@ -282,7 +282,7 @@ class Pry
     def format_value_without_hashrocket(value)
       accumulator = StringIO.new
       if Pry::DEFAULT_PRINT.source_location == Pry.print.source_location
-        Pry.format_for_output(accumulator, value, :hashrocket => false)
+        Pry.output_with_default_format(accumulator, value, :hashrocket => false)
       else
         Pry.print.call(accumulator, value)
       end
