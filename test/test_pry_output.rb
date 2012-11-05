@@ -37,7 +37,7 @@ describe Pry do
     it 'should have a milder-mannered companion without the hashrocket' do
       s = StringIO.new
       Pry.format_for_output s, '2', :hashrocket => false
-      s.string.should !~ /^=>/
+      s.string.should.not =~ /^=>/
     end
 
     it "should not be phased by un-inspectable things" do

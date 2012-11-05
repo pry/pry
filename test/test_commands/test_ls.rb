@@ -64,8 +64,8 @@ describe "ls" do
   describe 'with -l' do
     it 'should find locals and sort by descending size' do
       result = pry_eval("aa = 'asdf'; bb = 'xyz'", 'ls -l')
-      result.should !~ /=>/
-      result.should !~ /0x\d{5}/
+      result.should.not =~ /=>/
+      result.should.not =~ /0x\d{5}/
       result.should =~ /asdf.*xyz/m
     end
     it 'should not list pry noise' do
