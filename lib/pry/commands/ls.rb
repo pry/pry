@@ -103,7 +103,7 @@ class Pry
 
       if show_locals
         loc_names = target.eval('local_variables').reject do |e|
-          _pry_.sticky_locals.keys.include? e
+          _pry_.sticky_locals.keys.include? e.to_sym
         end
         name_value_pairs = loc_names.map do |name|
           [name, (target.eval name.to_s)]
