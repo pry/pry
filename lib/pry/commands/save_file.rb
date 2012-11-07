@@ -85,6 +85,7 @@ class Pry
           f.puts content
         end
       end
+      output.puts "#{file_name} successfully saved"
     end
 
     def mode
