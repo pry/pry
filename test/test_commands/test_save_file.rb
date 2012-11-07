@@ -32,6 +32,11 @@ describe "save-file" do
       File.read(@path).should == ":horse_nostrils\n"
     end
 
+    it "should display a success message on save" do
+      @t.eval ':horse_nostrils'
+      @t.eval("save-file -i 1 #{@path}").should =~ /successfully saved/
+    end
+
     it 'should save input expressions to a file (range)' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever'
       @t.eval "save-file -i 1..2 #{@path}"
@@ -56,6 +61,10 @@ describe "save-file" do
       it 'should save a method to a file' do
         @t.eval "save-file #{@path} -m baby"
         File.read(@path).should == Pry::Method.from_obj(@o, :baby).source
+      end
+
+      it "should display a success message on save" do
+        @t.eval("save-file #{@path} -m baby").should =~ /successfully saved/
       end
 
       it 'should save a method to a file truncated by --lines' do
