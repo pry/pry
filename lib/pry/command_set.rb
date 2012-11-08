@@ -234,6 +234,12 @@ class Pry
         run action, *args
       end
 
+      c.class_eval do
+        define_method(:complete) do |input|
+          cmd.new(context).complete(input)
+        end
+      end
+
       c.group "Aliases"
 
       c
