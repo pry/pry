@@ -40,8 +40,7 @@ class Pry
     # avoid colour-leak from CodeRay and any of the users' previous output
     colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
 
-    prefix = if false != options[:hashrocket] then '=> ' else '' end
-    result = prefix + colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')
+    result = colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')
     Helpers::BaseHelpers.stagger_output(result, output)
   end
 
@@ -49,15 +48,15 @@ class Pry
   # pretty_print is too slow
   SIMPLE_PRINT = proc do |output, value|
     begin
-      output.puts "=> #{value.inspect}"
+      output.puts value.inspect
     rescue RescuableException
-      output.puts "=> unknown"
+      output.puts "unknown"
     end
   end
 
   # useful when playing with truly enormous objects
   CLIPPED_PRINT = proc do |output, value|
-    output.puts "=> #{Pry.view_clip(value)}"
+    output.puts Pry.view_clip(value)
   end
 
   # Will only show the first line of the backtrace

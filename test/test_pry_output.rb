@@ -34,10 +34,10 @@ describe Pry do
       mock_pry("{:a => 1}").should =~ /^=> \{:a=>1\}/
     end
 
-    it 'should have a milder-mannered companion without the hashrocket' do
-      s = StringIO.new
-      Pry.output_with_default_format s, '2', :hashrocket => false
-      s.string.should.not =~ /^=>/
+    it "should not include the =>" do
+      accumulator = StringIO.new
+      Pry.config.print.call(accumulator, :a => 1)
+      accumulator.string.should == "{:a=>1}\n"
     end
 
     it "should not be phased by un-inspectable things" do
