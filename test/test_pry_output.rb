@@ -31,7 +31,13 @@ describe Pry do
 
   describe "DEFAULT_PRINT" do
     it "should output the right thing" do
-      mock_pry("{:a => 1}").should =~ /\{:a=>1\}/
+      mock_pry("{:a => 1}").should =~ /^=> \{:a=>1\}/
+    end
+
+    it 'should have a milder-mannered companion without the hashrocket' do
+      s = StringIO.new
+      Pry.output_with_default_format s, '2', :hashrocket => false
+      s.string.should.not =~ /^=>/
     end
 
     it "should not be phased by un-inspectable things" do
