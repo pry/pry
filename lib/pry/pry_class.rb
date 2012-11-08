@@ -157,7 +157,7 @@ class Pry
 
     # Enter the matrix
     pry_instance.repl(head)
-  rescue $SAFE > 0 && SecurityError
+  rescue Pry::TooSafeException
     puts "ERROR: Pry cannot work with $SAFE > 0"
     raise
   end
