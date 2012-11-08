@@ -268,7 +268,7 @@ class Pry
       name_value_pairs.sort_by do |name, value|
         value.to_s.size
       end.reverse.map do |name, value|
-        colorized_assignment_style(name, format_value_without_hashrocket(value))
+        colorized_assignment_style(name, format_value(value))
       end
     end
 
@@ -279,13 +279,9 @@ class Pry
       "%-#{pad}s = %s" % [color(:local_var, colorized_lhs), rhs]
     end
 
-    def format_value_without_hashrocket(value)
+    def format_value(value)
       accumulator = StringIO.new
-      if Pry::DEFAULT_PRINT.source_location == Pry.print.source_location
-        Pry.output_with_default_format(accumulator, value, :hashrocket => false)
-      else
-        Pry.print.call(accumulator, value)
-      end
+      Pry.print.call(accumulator, value)
       accumulator.string
     end
 

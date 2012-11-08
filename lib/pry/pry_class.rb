@@ -272,6 +272,7 @@ class Pry
     config.auto_indent = Helpers::BaseHelpers.use_ansi_codes?
     config.correct_indent = true
     config.collision_warning = false
+    config.output_prefix = "=> "
 
     if defined?(Bond) && Readline::VERSION !~ /editline/i
       config.completer = Pry::BondCompleter

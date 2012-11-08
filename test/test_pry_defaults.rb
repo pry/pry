@@ -92,22 +92,22 @@ describe "test Pry defaults" do
   end
 
   it "should set the print default, and the default should be overridable" do
-    new_print = proc { |out, value| out.puts value }
+    new_print = proc { |out, value| out.puts "LOL" }
     Pry.print =  new_print
 
     Pry.new.print.should == Pry.print
     Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
-    @str_output.string.should == "test\n"
+    @str_output.string.should == "=> LOL\n"
 
     @str_output = StringIO.new
     Pry.new(:input => InputTester.new("\"test\""), :output => @str_output,
             :print => proc { |out, value| out.puts value.reverse }).rep
-    @str_output.string.should == "tset\n"
+    @str_output.string.should == "=> tset\n"
 
     Pry.new.print.should == Pry.print
     @str_output = StringIO.new
     Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
-    @str_output.string.should == "test\n"
+    @str_output.string.should == "=> LOL\n"
   end
 
   describe "pry return values" do
