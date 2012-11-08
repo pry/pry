@@ -140,6 +140,10 @@ class Pry
         # intended for pry itself. We should also make sure that Kernel#exit works.
       when *Pry.config.exception_whitelist
         false
+        # If $SAFE is set, we'll raise-up any SecurityErrors we see
+        # as pry will not work anyway.
+      when $SAFE > 0 && SecurityError
+        false
         # All other exceptions will be caught.
       else
         true

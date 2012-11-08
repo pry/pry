@@ -126,9 +126,9 @@ class Pry
   # @option options (see Pry#initialize)
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
-  def self.start(target=toplevel_binding, options={})
+  def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
-    target = Pry.binding_for(target)
+    target = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
 
     # create the Pry instance to manage the session
@@ -157,6 +157,9 @@ class Pry
 
     # Enter the matrix
     pry_instance.repl(head)
+  rescue $SAFE > 0 && SecurityError
+    puts "ERROR: Pry cannot work with $SAFE > 0"
+    raise
   end
 
   # Execute the file through the REPL loop, non-interactively.
