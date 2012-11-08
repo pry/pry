@@ -58,9 +58,6 @@ class Pry
     output.puts "from #{exception.backtrace.first}"
   end
 
-  # Don't catch these exceptions
-  DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException]
-
   DEFAULT_PROMPT_NAME = 'pry'
 
   # The default prompt; includes the target and nesting level
@@ -140,16 +137,22 @@ class Pry
         # intended for pry itself. We should also make sure that Kernel#exit works.
       when *Pry.config.exception_whitelist
         false
-        # If $SAFE is set, we'll raise-up any SecurityErrors we see
-        # as pry will not work anyway.
-      when $SAFE > 0 && SecurityError
-        false
         # All other exceptions will be caught.
       else
         true
       end
     end
   end
+
+  # Catches SecurityErrors if $SAFE is set
+  module TooSafeException
+    def self.===(exception)
+      $SAFE > 0 && SecurityError === exception
+    end
+  end
+
+  # Don't catch these exceptions
+  DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException, Pry::TooSafeException]
 
   # CommandErrors are caught by the REPL loop and displayed to the user. They
   # indicate an exceptional condition that's fatal to the current command.
