@@ -315,13 +315,13 @@ class Pry
     end
 
     # Compiled and stationary regex for optimization
-    PIPE = %r/((?<=[^'"])(?<=.)?\|(?!.*(?!do\s*(\|.*\|)*|\{(\|.*\|)*|\'|\")))/
+    PIPE = %r/(?<=[^'"])(?<=.)*?\|(?=.*)(?<=[^'"])/
 
     # Process a line that Command.matches? this command.
     # @param [String] line The line to process
     # @return [Object, Command::VOID_VALUE]
-    def process_line(line)
-      if line =~ PIPE
+    def process_line(line) 
+      if line =~ PIPE 
         command_stack = line.split PIPE
         command_stack.map!(&:strip)
         clr = Pry.config.color
