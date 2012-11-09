@@ -290,7 +290,6 @@ class Pry
     # @return [Array]
     def tokenize(val)
       val.replace(interpolate_string(val)) if command_options[:interpolate]
-
       self.class.command_regex =~ val
 
       # please call Command.matches? before Command#call_safely
@@ -315,10 +314,45 @@ class Pry
       [val[0..pos].rstrip, arg_string, captures, args]
     end
 
+    # Compiled and stationary regex for optimization
+    PIPE = %r/((?<=[^'"])(?<=.)?\|(?!.*(?!do\s*(\|.*\|)*|\{(\|.*\|)*|\'|\")))/
+
     # Process a line that Command.matches? this command.
     # @param [String] line The line to process
     # @return [Object, Command::VOID_VALUE]
     def process_line(line)
+      if line =~ PIPE
+        command_stack = line.split PIPE
+        command_stack.map!(&:strip)
+        clr = Pry.config.color
+        out = Pry.config.output
+        stdout = $stdout
+        Pry.config.color = false
+        begin
+          obj = ""
+          command_stack[0..-2].each do |cmd|
+            args = obj
+            s = ""
+            o = StringIO.new(s)
+            Pry.config.output = o
+            $stdout = o
+            if Pry.commands[cmd.split[0]].description =~ /Alias for `(.+?)`/ then cmd = $1 + " " +  cmd.split[1..-1].join end
+            Pry.run_command(cmd + " " + args)
+            obj = s
+          end
+            Pry.config.color = clr
+            Pry.config.output = out
+            $stdout = stdout
+            cmd = command_stack.last
+            if Pry.commands[cmd.split[0]].description =~ /Alias for `(.+?)`/ then cmd = $1 + " " +  cmd.split[1..-1].join end
+            Pry.run_command(cmd + " #{obj}")
+        ensure
+          Pry.config.color = clr
+          Pry.config.output = out
+          $stdout = stdout
+          return void
+        end
+      end
       command_match, arg_string, captures, args = tokenize(line)
 
       check_for_command_collision(command_match, arg_string) if Pry.config.collision_warning
