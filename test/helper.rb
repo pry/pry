@@ -366,6 +366,25 @@ def unindent(*args)
   Pry::Helpers::CommandHelpers.unindent(*args)
 end
 
+
+# https://gist.github.com/194554
+class InputFaker
+  def initialize(string)
+    @string = string
+  end
+
+  def gets
+    @string
+  end
+
+  def self.with_fake_input(string)
+    $stdin = new(string)
+    yield
+  ensure
+    $stdin = STDIN
+  end
+end
+
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
   require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?

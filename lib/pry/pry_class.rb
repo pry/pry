@@ -338,6 +338,8 @@ class Pry
       # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
       :ceiling                  => [Object, Module, Class]
     })
+
+    config.save_file_path = "~/pry"
   end
 
   # Set all the configurable options back to their default values
