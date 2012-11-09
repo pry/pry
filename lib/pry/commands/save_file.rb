@@ -73,7 +73,7 @@ class Pry
 
     def process
       if args.empty?
-        ask_and_create_directory! unless Dir.exists?(Pry.config.save_file_path)
+        ask_and_create_directory! unless File.directory?(Pry.config.save_file_path)
         generate_file_name
       else
         tmp_name = args.first

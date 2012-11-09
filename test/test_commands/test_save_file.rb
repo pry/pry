@@ -180,18 +180,18 @@ describe "save-file" do
       ["y", "Y", ""].each do |correct_input|
         it "creates the directory if it doesn't exist and input is #{correct_input}" do
           @t.eval ':horse_nostrils'
-          Dir.exists?(@save_dir).should == false
+          File.directory?(@save_dir).should == false
           InputFaker.with_fake_input("#{correct_input}\n") do
             @t.eval "save-file -i 1"
           end
-          Dir.exists?(@save_dir).should == true
+          File.directory?(@save_dir).should == true
         end
       end
 
       ["n", "N", "please?"].each do |invalid_input|
         it "doesn't create the directory if input is #{invalid_input}" do
           @t.eval ':horse_nostrils'
-          Dir.exists?(@save_dir).should == false
+          File.directory?(@save_dir).should == false
           lambda do
             InputFaker.with_fake_input("#{invalid_input}\n") do
               @t.eval "save-file -i 1"
@@ -203,7 +203,7 @@ describe "save-file" do
 
     describe "generate right filename with all options" do
       before do
-        Dir.mkdir(@save_dir) unless Dir.exists?(@save_dir)
+        Dir.mkdir(@save_dir) unless File.directory?(@save_dir)
       end
 
       after do
