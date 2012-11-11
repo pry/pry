@@ -181,7 +181,7 @@ describe "save-file" do
         it "creates the directory if it doesn't exist and input is #{correct_input}" do
           @t.eval ':horse_nostrils'
           File.directory?(@save_dir).should == false
-          InputFaker.with_fake_input("#{correct_input}\n") do
+          InputFaker.with_fake_input(@t.pry, "#{correct_input}\n") do
             @t.eval "save-file -i 1"
           end
           File.directory?(@save_dir).should == true
@@ -193,7 +193,7 @@ describe "save-file" do
           @t.eval ':horse_nostrils'
           File.directory?(@save_dir).should == false
           lambda do
-            InputFaker.with_fake_input("#{invalid_input}\n") do
+            InputFaker.with_fake_input(@t.pry, "#{invalid_input}\n") do
               @t.eval "save-file -i 1"
             end
           end.should.raise Pry::CommandError

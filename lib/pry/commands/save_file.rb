@@ -118,7 +118,7 @@ class Pry
         You can edit it in Pry.config.save_file_path
         Would you like to create it ? [Y/n]
       }).strip
-      yn = $stdin.gets
+      yn = _pry_.input.readline
       if yn.strip.empty? || yn.strip.downcase == "y"
         Dir.mkdir(Pry.config.save_file_path)
       else

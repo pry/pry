@@ -366,22 +366,12 @@ def unindent(*args)
   Pry::Helpers::CommandHelpers.unindent(*args)
 end
 
-
-# https://gist.github.com/194554
 class InputFaker
-  def initialize(string)
-    @string = string
-  end
-
-  def gets
-    @string
-  end
-
-  def self.with_fake_input(string)
-    $stdin = new(string)
+  def self.with_fake_input(pry, string)
+    old_input = pry.input
+    pry.input = InputTester.new(string)
     yield
-  ensure
-    $stdin = STDIN
+    pry.input = old_input
   end
 end
 
