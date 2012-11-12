@@ -366,6 +366,15 @@ def unindent(*args)
   Pry::Helpers::CommandHelpers.unindent(*args)
 end
 
+class InputFaker
+  def self.with_fake_input(pry, string)
+    old_input = pry.input
+    pry.input = InputTester.new(string)
+    yield
+    pry.input = old_input
+  end
+end
+
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
   require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?

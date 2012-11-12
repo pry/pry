@@ -1,4 +1,5 @@
 require 'helper'
+require 'fileutils'
 
 describe "save-file" do
   before do
@@ -161,6 +162,104 @@ describe "save-file" do
       str = ":horse_nostrils\n" + Pry::Method.from_obj(@o, :baby).source
       File.read(@path).should == str.lines.to_a[1..-2].join
     end
+  end
+
+  describe "save-file without path should save anyway" do
+    before do
+      @save_dir = "/tmp/pry-save"
+      Pry.config.save_file_path = @save_dir
+
+      @t = pry_tester
+    end
+
+    describe "asks for input if directory doesn't exist" do
+      before do
+        FileUtils.rm_rf @save_dir
+      end
+
+      ["y", "Y", ""].each do |correct_input|
+        it "creates the directory if it doesn't exist and input is #{correct_input}" do
+          @t.eval ':horse_nostrils'
+          File.directory?(@save_dir).should == false
+          InputFaker.with_fake_input(@t.pry, "#{correct_input}\n") do
+            @t.eval "save-file -i 1"
+          end
+          File.directory?(@save_dir).should == true
+        end
+      end
+
+      ["n", "N", "please?"].each do |invalid_input|
+        it "doesn't create the directory if input is #{invalid_input}" do
+          @t.eval ':horse_nostrils'
+          File.directory?(@save_dir).should == false
+          lambda do
+            InputFaker.with_fake_input(@t.pry, "#{invalid_input}\n") do
+              @t.eval "save-file -i 1"
+            end
+          end.should.raise Pry::CommandError
+        end
+      end
+    end
+
+    describe "generate right filename with all options" do
+      before do
+        Dir.mkdir(@save_dir) unless File.directory?(@save_dir)
+      end
+
+      after do
+        FileUtils.rm_rf @save_dir
+      end
+
+      it "should never generate twice the same filename" do
+        @t.eval("def tata; p 'tata'; end;")
+        generated_filename = "#{@save_dir}/tata.rb"
+        @t.eval("save-file -m tata").should =~ /^#{generated_filename}/
+        @t.eval("save-file -m tata").should =~ /^#{@save_dir}\/tata-\d{10}\.rb/
+      end
+
+      it "should work with -f" do
+        temp_file do |f|
+          path = f.path
+          f.puts ":cute_horse"
+          f.flush
+          generated_filename = "#{@save_dir}/#{File.basename(path)}"
+          @t.eval("save-file -f #{path}").should =~ /^#{generated_filename}/
+        end
+      end
+
+      it "should work with -i" do
+        @t.eval ':horse_nostrils'
+        generated_filename = "#{@save_dir}/input_history.rb"
+        @t.eval("save-file -i 1").should =~ /^#{generated_filename}/
+      end
+
+      it "should work with -m" do
+        @t.eval("def toto; p 'toto'; end; def titi; p 'titi'; end;")
+
+        generated_filename = "#{@save_dir}/toto.rb"
+        @t.eval("save-file -m toto").should =~ /^#{generated_filename}/
+
+        generated_filename = "#{@save_dir}/toto-titi.rb"
+        @t.eval("save-file -m toto -m titi").should =~ /^#{generated_filename}/
+      end
+
+      it "should work with -k" do
+        generated_filename = "#{@save_dir}/show-method.rb"
+        @t.eval("save-file -k show-method").should =~ /^#{generated_filename}/
+      end
+
+      it "should work with -o" do
+        generated_filename = "#{@save_dir}/output_history.rb"
+        @t.eval("save-file -o -1..1").should =~ /^#{generated_filename}/
+      end
+
+      it "should work with combined options" do
+        @t.eval("def toto; p 'toto'; end; def titi; p 'titi'; end;")
+        generated_filename = "#{@save_dir}/input_history-toto-output_history.rb"
+        @t.eval("save-file -i 1 -m toto -o -3..1").should =~ /^#{generated_filename}/
+      end
+    end
+
   end
 end
 

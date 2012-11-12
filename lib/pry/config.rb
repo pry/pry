@@ -239,6 +239,13 @@ class Pry
 
     # @return [#build_completion_proc] A completer to use.
     attr_accessor :completer
+
+    # Set where you files will be saved using the `save-file` command
+    # defaults to ~/pry
+    attr_accessor :save_file_path
+    def save_file_path= directory
+      @save_file_path = File.expand_path(directory)
+    end
   end
 end
 
