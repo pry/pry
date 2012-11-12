@@ -72,10 +72,7 @@ class Pry
     end
 
     def process
-      if args.empty?
-        ask_and_create_directory! unless File.directory?(Pry.config.save_file_path)
-        generate_file_name
-      else
+      unless args.empty?
         tmp_name = args.first
         if tmp_name == File.basename(tmp_name)
           self.file_name = File.join(Pry.config.save_file_path, tmp_name)
@@ -90,6 +87,11 @@ class Pry
     def save_file
       if self.content.empty?
         raise CommandError, "Found no code to save."
+      end
+
+      if args.empty?
+        ask_and_create_directory! unless File.directory?(Pry.config.save_file_path)
+        generate_file_name
       end
 
       File.open(file_name, mode) do |f|
