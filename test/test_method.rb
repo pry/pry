@@ -73,6 +73,12 @@ describe Pry::Method do
       meth = Pry::Method.from_str("klass.meth#initialize", Pry.binding_for(binding))
       meth.name.should == "initialize"
     end
+
+    it 'should look up methods using instance::bar syntax' do
+      klass = Class.new{ def self.meth; Class.new; end }
+      meth = Pry::Method.from_str("klass::meth", Pry.binding_for(binding))
+      meth.name.should == "meth"
+    end
   end
 
   describe '.from_binding' do
