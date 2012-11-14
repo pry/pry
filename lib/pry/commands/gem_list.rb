@@ -12,11 +12,7 @@ class Pry
 
     def process(pattern=nil)
       pattern = Regexp.compile(pattern || '')
-      gems    = if Gem::Specification.respond_to?(:each)
-                  Gem::Specification.select{|spec| spec.name =~ pattern }.group_by(&:name)
-                else
-                  Gem.source_index.gems.values.group_by(&:name).select { |gemname, specs| gemname =~ pattern }
-                end
+      gems    = gem_list(pattern).group_by(&:name)
 
       gems.each do |gem, specs|
         specs.sort! do |a,b|

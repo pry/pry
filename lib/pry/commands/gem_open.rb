@@ -16,5 +16,9 @@ class Pry
         invoke_editor(".", 0, false)
       end
     end
+
+    def complete(str)
+      gem_complete(str)
+    end
   end
 end
