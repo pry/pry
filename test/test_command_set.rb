@@ -615,7 +615,7 @@ describe Pry::CommandSet do
     describe '.complete' do
       it "should list all command names" do
         @set.create_command('susan'){ }
-        @set.complete('sus').should.include 'susan'
+        @set.complete('sus').should.include 'susan '
       end
 
       it "should delegate to commands" do

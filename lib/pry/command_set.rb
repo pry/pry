@@ -365,7 +365,7 @@ class Pry
       else
         commands.keys.select do |x|
           String === x && x.start_with?(search)
-        end + Bond::DefaultMission.completions
+        end.map{ |command| command + " " } + Bond::DefaultMission.completions
       end
     end
 

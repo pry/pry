@@ -666,7 +666,7 @@ describe "Pry::Command" do
           end
         end
 
-        @set.complete('torrid ').should.include('--test')
+        @set.complete('torrid ').should.include('--test ')
       end
     end
   end
