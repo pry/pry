@@ -261,7 +261,21 @@ class Pry
 
         Range.new(a, b)
       end
-    end
 
+      # Get the gem spec object for the given gem
+      # @param [String] gem name
+      # @return [Gem::Specification]
+      def gem_spec(gem)
+        specs = if Gem::Specification.respond_to?(:each)
+                  Gem::Specification.find_all_by_name(gem)
+                else
+                  Gem.source_index.find_name(gem)
+                end
+
+        spec = specs.sort_by{ |spec| Gem::Version.new(spec.version) }.first
+
+        spec or raise CommandError, "Gem `#{gem}` not found"
+      end
+    end
   end
 end

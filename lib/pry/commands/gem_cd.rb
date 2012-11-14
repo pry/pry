@@ -11,14 +11,8 @@ class Pry
     BANNER
 
     def process(gem)
-      specs = Gem::Specification.respond_to?(:each) ? Gem::Specification.find_all_by_name(gem) : Gem.source_index.find_name(gem)
-      spec  = specs.sort { |a,b| Gem::Version.new(b.version) <=> Gem::Version.new(a.version) }.first
-      if spec
-        Dir.chdir(spec.full_gem_path)
-        output.puts(Dir.pwd)
-      else
-        raise CommandError, "Gem `#{gem}` not found."
-      end
+      Dir.chdir(gem_spec(gem).full_gem_path)
+      output.puts(Dir.pwd)
     end
   end
 end
