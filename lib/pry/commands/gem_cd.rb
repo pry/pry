@@ -14,5 +14,9 @@ class Pry
       Dir.chdir(gem_spec(gem).full_gem_path)
       output.puts(Dir.pwd)
     end
+
+    def complete(str)
+      gem_complete(str)
+    end
   end
 end
