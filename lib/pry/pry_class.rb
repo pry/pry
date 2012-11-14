@@ -128,6 +128,13 @@ class Pry
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
+
+    if in_critical_section?
+      output.puts "ERROR: Pry started inside Pry."
+      output.puts "This can happen if you have a binding.pry inside a #to_s or #inspect function."
+      return
+    end
+
     target = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
 
@@ -415,6 +422,17 @@ class Pry
     end
     @toplevel_binding.eval('private')
     @toplevel_binding
+  end
+
+  def self.in_critical_section?
+    @critical_section.to_i > 0
+  end
+
+  def self.critical_section(&block)
+    @critical_section = @critical_section.to_i + 1
+    yield
+  ensure
+    @critical_section -= 1
   end
 end
 

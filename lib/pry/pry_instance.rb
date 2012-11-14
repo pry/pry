@@ -253,7 +253,9 @@ class Pry
     target = Pry.binding_for(target)
     result = re(target)
 
-    show_result(result)
+    Pry.critical_section do
+      show_result(result)
+    end
   end
 
   # Perform a read-eval
@@ -374,11 +376,12 @@ class Pry
     completion_proc = Pry.config.completer.build_completion_proc(target, self,
                                                         instance_eval(&custom_completions))
 
+    safe_completion_proc = proc{ |*a| Pry.critical_section{ completion_proc.call(*a) } }
 
     indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
     begin
-      val = readline("#{current_prompt}#{indentation}", completion_proc)
+      val = readline("#{current_prompt}#{indentation}", safe_completion_proc)
 
     # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
     # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
@@ -659,13 +662,15 @@ class Pry
                        :eval_string    => eval_string,
                        :cont           => !eval_string.empty?)
 
-    # If input buffer is empty then use normal prompt
-    if eval_string.empty?
-      generate_prompt(Array(prompt).first, c)
+    Pry.critical_section do
+      # If input buffer is empty then use normal prompt
+      if eval_string.empty?
+        generate_prompt(Array(prompt).first, c)
 
-    # Otherwise use the wait prompt (indicating multi-line expression)
-    else
-      generate_prompt(Array(prompt).last, c)
+      # Otherwise use the wait prompt (indicating multi-line expression)
+      else
+        generate_prompt(Array(prompt).last, c)
+      end
     end
   end
 

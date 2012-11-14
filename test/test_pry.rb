@@ -38,6 +38,17 @@ describe Pry do
     end
   end
 
+  describe "Pry.critical_section" do
+    it "should prevent Pry being called" do
+      output = StringIO.new
+      Pry.output = output
+      Pry.critical_section do
+        Pry.start
+      end
+      output.string.should =~ /Pry started inside Pry/
+    end
+  end
+
   describe "Pry.binding_for" do
 
     # regression test for burg's bug (see git history)
