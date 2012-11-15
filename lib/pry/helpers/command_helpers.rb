@@ -23,6 +23,22 @@ class Pry
         end
       end
 
+      # Given a string and a binding, return the corresponding
+      # `Pry::Method` or `Pry::WrappedModule`. Also give precedence to modules
+      # when the `::` syntax is used.
+      # @param [String] input The full name of the method or module.
+      # @param [Binding] target The binding where the object is found.
+      # @return [Pry::WrappedModule, Pry::Method] The relevant code object.
+      def retrieve_code_object_from_string(input, target)
+
+        # ensure modules have precedence when `MyClass::X` syntax is used.
+        if input =~ /::(?:\S+)\Z/
+          Pry::WrappedModule.from_str(input,target) || Pry::Method.from_str(input, target)
+        else
+          Pry::Method.from_str(input,target) || Pry::WrappedModule.from_str(input, target)
+        end
+      end
+      
       # Return the file and line for a Binding.
       # @param [Binding] target The binding
       # @return [Array] The file and line
