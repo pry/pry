@@ -18,7 +18,7 @@ def apply_spec_defaults(s)
   s.homepage = 'http://pry.github.com'
   s.executables = ['pry']
   s.files = `git ls-files`.split("\n")
-  s.test_files = `git ls-files -- test/*`.split("\n")
+  s.test_files = `git ls-files -- spec/*`.split("\n")
   s.add_dependency('coderay', '~> 1.0.5')
   s.add_dependency('slop', ['~> 3.3.1'])
   s.add_dependency('method_source','~> 0.8')
@@ -47,8 +47,11 @@ task :default => [:test]
 desc "Run tests"
 task :test do
   check_dependencies unless ENV['SKIP_DEP_CHECK']
-  sh "bacon -Itest -rubygems -a -q"
+  all_specs = Dir['spec/**/*_spec.rb']
+  all_specs.shuffle! if all_specs.respond_to? :shuffle!
+  sh "bacon -Ispec -rubygems -a -q #{all_specs.join ' '}"
 end
+task :spec => :test
 
 desc "Run pry"
 task :pry do
