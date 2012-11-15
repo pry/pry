@@ -27,10 +27,8 @@ class Pry
         elsif target.eval("defined? #{input} ") =~ /variable|constant/ &&
               target.eval(input).respond_to?(:source_location)
           :sourcable_object
-        elsif Pry::Method.from_str(input,target)
-          :method
-        elsif Pry::WrappedModule.from_str(input, target)
-          :module
+        elsif co = retrieve_code_object_from_string(input, target)
+          co.is_a?(Pry::Method) ? :method : :module
         elsif target.eval("defined?(#{input})") =~ /variable|constant/
           :variable_or_constant
         elsif find_command(input)
