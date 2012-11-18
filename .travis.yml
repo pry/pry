@@ -5,7 +5,8 @@ rvm:
   - ree
   - rbx-18mode
   - rbx-19mode
-  - jruby
+  - jruby-18mode
+  - jruby-19mode
 
 notifications:
   irc: "irc.freenode.org#pry"
