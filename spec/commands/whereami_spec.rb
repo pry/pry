@@ -56,7 +56,7 @@ describe "whereami" do
   it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
     class Cor
       def blimey!
-        eval <<-END, binding, "test/test_commands/example.erb", 1
+        eval <<-END, binding, "spec/cmd/example.erb", 1
           pry_eval(binding, 'whereami')
         END
       end
@@ -70,7 +70,7 @@ describe "whereami" do
 
   it 'should show description and correct code when @method.source_location would raise an error' do
     class Cor
-      eval <<-END, binding, "test/test_commands/example.erb", 1
+      eval <<-END, binding, "spec/cmd/example.erb", 1
         def blimey!
           pry_eval(binding, 'whereami')
         end

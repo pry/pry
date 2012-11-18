@@ -36,13 +36,13 @@ describe Pry::Code do
     end
 
     should 'check for files relative to origin pwd' do
-      Dir.chdir('test') do |f|
-        Pry::Code.from_file('test/' + File.basename(__FILE__)).code_type.should == :ruby
+      Dir.chdir('spec') do |f|
+        Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type.should == :ruby
       end
     end
 
     should 'find files that are relative to the current working directory' do
-      Dir.chdir('test') do |f|
+      Dir.chdir('spec') do |f|
         Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
       end
     end
