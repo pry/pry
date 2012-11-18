@@ -3,14 +3,16 @@ require 'guard/guard'
 module ::Guard
   class Bacon < Guard
     def run_all
-      system "bundle exec bacon -Itest -q -a"
+      system "rake spec"
       puts
       true
     end
 
     def run_spec(path)
       if File.exists?(path)
-        @success &&= system "bundle exec bacon -Itest -q #{path}"
+        cmd = "bundle exec bacon -Ispec -q #{path}"
+        puts cmd
+        @success &&= system cmd
         puts
       end
     end
@@ -33,32 +35,32 @@ module ::Guard
 end
 
 guard 'bacon' do
-  def deduce_test_from(token)
-    "test/test_#{token}.rb"
+  def deduce_spec_from(token)
+    "spec/#{token}_spec.rb"
   end
 
   Dir['lib/pry/*.rb'].each do |rb|
     rb[%r(lib/pry/(.+)\.rb$)]
-    test_rb = deduce_test_from $1
-    if File.exists?(test_rb)
-      watch(rb) { test_rb }
+    spec_rb = deduce_spec_from $1
+    if File.exists?(spec_rb)
+      watch(rb) { spec_rb }
     else
       exempt = %w(
         commands
         version
-      ).map {|token| deduce_test_from token}
-      puts 'Missing ' + test_rb if
-        ENV['WANT_TEST_COMPLAINTS'] and not exempt.include?(test_rb)
+      ).map {|token| deduce_spec_from token}
+      puts 'Missing ' + spec_rb if
+        ENV['WANT_SPEC_COMPLAINTS'] and not exempt.include?(spec_rb)
     end
   end
 
-  watch(%r{^lib/pry/commands/([^.]+)\.rb}) { |m| "test/test_commands/test_#{m[1]}.rb" }
+  watch(%r{^lib/pry/commands/([^.]+)\.rb}) { |m| "spec/commands/#{m[1]}_spec.rb" }
 
   # If no such mapping exists, just run all of them
   watch(%r{^lib/}) { :all }
 
-  # If we modified one test file, run it
-  watch(%r{^test.*/test_.+\.rb$})
+  # If we modified one spec file, run it
+  watch(%r{^spec/.+\.rb$})
 end
 
 # vim:ft=ruby
