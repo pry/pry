@@ -31,13 +31,13 @@ describe Pry do
 
   describe "DEFAULT_PRINT" do
     it "should output the right thing" do
-      mock_pry("{:a => 1}").should =~ /^=> \{:a=>1\}/
+      mock_pry("[1]").should =~ /^=> \[1\]/
     end
 
     it "should not include the =>" do
       accumulator = StringIO.new
-      Pry.config.print.call(accumulator, :a => 1)
-      accumulator.string.should == "{:a=>1}\n"
+      Pry.config.print.call(accumulator, [1])
+      accumulator.string.should == "\[1\]\n"
     end
 
     it "should not be phased by un-inspectable things" do
