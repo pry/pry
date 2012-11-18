@@ -119,3 +119,15 @@ if [[1, 2]].pretty_inspect == "[1]\n"
     end
   end
 end
+
+if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.0"
+  require 'io/console'
+  class IO
+    def winsize
+      stty_info = `stty -a`
+      match = stty_info.match(/(\d+) rows; (\d+) columns/) # BSD version of stty, like the one used in Mac OS X
+      match ||= stty_info.match(/; rows (\d+); columns (\d+)/) # GNU version of stty, like the one used in Ubuntu
+      [match[1].to_i, match[2].to_i]
+    end
+  end
+end
