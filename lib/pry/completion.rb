@@ -5,16 +5,18 @@ class Pry
   module BondCompleter
 
     def self.build_completion_proc(target, pry=nil, commands=[""])
-      Bond.restart(:eval_binding => lambda{ pry.current_context })
-      Bond.complete(:on => /\A/) do |input|
-        Pry.commands.complete(input.line,
-                             :pry_instance => pry,
-                             :target       => pry.current_context,
-                             :command_set  => pry.commands)
-      end
-
+      Pry.th[:pry] = pry
       proc{ |*a| Bond.agent.call(*a) }
     end
+
+    Bond.start(:eval_binding => lambda{ Pry.th[:pry].current_context })
+    Bond.complete(:on => /\A/) do |input|
+      Pry.commands.complete(input.line,
+                           :pry_instance => Pry.th[:pry],
+                           :target       => Pry.th[:pry].current_context,
+                           :command_set  => Pry.th[:pry].commands)
+    end
+
   end
 
   # Implements tab completion for Readline in Pry
