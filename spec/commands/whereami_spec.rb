@@ -128,15 +128,15 @@ describe "whereami" do
   end
 
   it "should work at the top level" do
-    pry_eval(Pry.toplevel_binding, 'whereami', :backtrace => ['bin/pry:5:__foo__']).should =~
+    pry_eval(Pry.toplevel_binding, 'whereami').should =~
       /At the top level/
   end
 
   it "should work inside a class" do
-    pry_eval(Pry, 'whereami', :backtrace => ['spec/fixtures/example.erb:5:__foo__']).should =~ /example.erb/
+    pry_eval(Pry, 'whereami').should =~ /Inside Pry/
   end
 
   it "should work inside an object" do
-    pry_eval(Object.new, 'whereami', :backtrace => ['spec/fixtures/example.erb:5:bar']).should =~ /example.erb/
+    pry_eval(Object.new, 'whereami').should =~ /Inside #<Object/
   end
 end

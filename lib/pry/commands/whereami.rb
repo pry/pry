@@ -21,15 +21,14 @@ class Pry
     BANNER
 
     def setup
+      @method = Pry::Method.from_binding(target)
       if internal_binding?(target)
         location = _pry_.backtrace.detect do |x|
                      !x.start_with?(File.expand_path('../../../../lib', __FILE__))
                    end
-        @method = nil
         @file = location.split(":").first
         @line = location.split(":")[1].to_i
       else
-        @method = Pry::Method.from_binding(target)
         @file = target.eval('__FILE__')
         @line = target.eval('__LINE__')
       end
@@ -52,11 +51,13 @@ class Pry
     end
 
     def process
-      if opts.quiet? && (at_top_level? || !code?)
+      if opts.quiet? && (internal_binding?(target) || !code?)
         return
-      elsif at_top_level?
-        output.puts "At the top level."
-        return
+      elsif internal_binding?(target)
+        if @file.end_with?("bin/pry")
+          output.puts "At the top level."
+          return
+        end
       end
 
       set_file_and_dir_locals(@file)
@@ -67,10 +68,6 @@ class Pry
     end
 
     private
-
-    def at_top_level?
-      @file.end_with?("bin/pry")
-    end
 
     def show_method?
       args.empty? && @method && @method.source? && @method.source_range.count < 20 &&
