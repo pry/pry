@@ -259,13 +259,14 @@ def pry_tester(*args, &block)
 end
 
 def pry_eval(*eval_strs)
+  opts = eval_strs.last.is_a?(Hash) ? eval_strs.pop : {}
   if eval_strs.first.is_a? String
     binding = Pry.toplevel_binding
   else
     binding = Pry.binding_for(eval_strs.shift)
   end
 
-  pry_tester(binding).eval(*eval_strs)
+  pry_tester(binding, opts).eval(*eval_strs)
 end
 
 class PryTester
@@ -273,6 +274,7 @@ class PryTester
 
   def initialize(context = TOPLEVEL_BINDING, options = {})
     @pry = Pry.new(options)
+    @pry.backtrace = options[:backtrace]
 
     if context
       target = Pry.binding_for(context)
