@@ -51,7 +51,9 @@ class Pry::Pager
     end
 
     def self.available?
-      `#{default_pager}`rescue nil
+      pager_executable = default_pager.split(' ').first
+      `which #{ pager_executable }`
+    rescue
     end
 
     def initialize(*)
