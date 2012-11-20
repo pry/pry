@@ -39,7 +39,7 @@ class Pry
     end
 
     def location
-      "#{@file} @ line #{show_method? ? @method.source_line : @line} #{@method && @method.name_with_owner}"
+      "#{@file} @ line #{@line} #{@method && @method.name_with_owner}"
     end
 
     def process
