@@ -22,16 +22,8 @@ class Pry
 
     def setup
       @method = Pry::Method.from_binding(target)
-      if internal_binding?(target)
-        location = _pry_.backtrace.detect do |x|
-                     !x.start_with?(File.expand_path('../../../../lib', __FILE__))
-                   end
-        @file = location.split(":").first
-        @line = location.split(":")[1].to_i
-      else
-        @file = target.eval('__FILE__')
-        @line = target.eval('__LINE__')
-      end
+      @file = target.eval('__FILE__')
+      @line = target.eval('__LINE__')
     end
 
     def options(opt)
@@ -54,10 +46,12 @@ class Pry
       if opts.quiet? && (internal_binding?(target) || !code?)
         return
       elsif internal_binding?(target)
-        if @file.end_with?("bin/pry")
+        if target_self == TOPLEVEL_BINDING.eval("self")
           output.puts "At the top level."
-          return
+        else
+          output.puts "Inside #{Pry.view_clip(target_self)}."
         end
+        return
       end
 
       set_file_and_dir_locals(@file)
