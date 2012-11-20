@@ -8,16 +8,19 @@ class Pry::Pager
   #   `nil`     -- Infer what pager to use from the environment.  What this
   #                really means is that JRuby and systems that do not have
   #                access to 'less' will run through the pure ruby pager.
-  def self.page(text, pager = nil)
+  # @param [TrueClass,FalseClass?] tail
+  #   `true`    -- Start the pager at the end of the text.
+  #   `false`   -- Start the pager at the beginning (DEFAULT)
+  def self.page(text, pager = nil, tail = false)
     case pager
     when nil
       no_pager = !SystemPager.available?
       is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-      (is_jruby || no_pager) ? SimplePager.new(text).page : SystemPager.new(text).page
+      (is_jruby || no_pager) ? SimplePager.new(text).page : SystemPager.new(text).page(tail)
     when :simple
-      SimplePager.new(text).page
+      SimplePager.new(text).page 
     when :system
-      SystemPager.new(text).page
+      SystemPager.new(text).page(tail)
     else
       raise "'#{pager}' is not a recongized pager."
     end
@@ -32,7 +35,7 @@ class Pry::Pager
   end
 
   class SimplePager < Pry::Pager
-    def page
+    def page()
       text_array = @text.lines.to_a
       text_array.each_slice(Pry::Pager.page_size) do |chunk|
         puts chunk.join
@@ -61,8 +64,8 @@ class Pry::Pager
       @pager = SystemPager.default_pager
     end
 
-    def page
-      IO.popen(@pager, 'w') do |io|
+    def page(tail=false)
+      IO.popen(@pager + ((tail) ? ' +G' : ''), 'w') do |io|
         io.write @text
       end
     end
