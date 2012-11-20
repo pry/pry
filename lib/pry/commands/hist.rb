@@ -71,8 +71,8 @@ class Pry
       unless opts.present?(:'no-numbers')
         @history = @history.with_line_numbers
       end
-
-      render_output(@history, opts)
+      
+      render_output(@history, nil, true)
     end
 
     def process_save
