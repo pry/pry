@@ -1,0 +1,18 @@
+---
+Pry#retrieve_line:
+- ! 'This method is much too long and complicated.
+
+  I have no idea how it got to be like this but it''s terrifying, somebody fix it,
+  please. Kyrylo?
+
+'
+Pry#binding_stack:
+- ! 'Should binding_stack be turned into a fully-fledged object? Keeping it as an
+  array seems a bit low-level somehow..
+
+'
+Pry::Pager:
+- ! 'has someone fixed this broken class yet? i still get warnings (and sometimes
+  errors) when content goes through ''less''
+
+'
