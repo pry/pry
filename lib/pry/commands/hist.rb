@@ -105,6 +105,9 @@ class Pry
       @history = @history.between(opts[:r])
       replay_sequence = @history.raw
 
+      # If we met follow-up "hist" call, check for the "--replay" option
+      # presence. If "hist" command is called with other options, proceed
+      # further.
       check_for_juxtaposed_replay(replay_sequence)
 
       _pry_.input_stack.push _pry_.input
@@ -113,9 +116,8 @@ class Pry
       # run "show-input" unless _pry_.complete_expression?(eval_string)
     end
 
-    # If we met another an extra "hist" call to be replayed, check for the
-    # "--replay" option presence. If "hist" command is called with other options
-    # then proceed further. Example:
+    # Checks +replay_sequence+ for the presence of neighboring replay calls.
+    # @example
     #   [1] pry(main)> hist --show 46894
     #   46894: hist --replay 46675..46677
     #   [2] pry(main)> hist --show 46675..46677
@@ -135,11 +137,11 @@ class Pry
     def check_for_juxtaposed_replay(replay_sequence)
       if replay_sequence =~ /\Ahist(?:ory)?\b/
         # Create *fresh* instance of Options for parsing of "hist" command.
-        _slop = Options.new(self.slop)
-        _slop.parse replay_sequence.split(" ")[1..-1]
+        _slop = ClassCommand::Options.new(self.slop)
+        _slop.parse replay_sequence.split(' ')[1..-1]
 
         if _slop.present?(:r)
-          replay_sequence = replay_sequence.split("\n").join("; ")
+          replay_sequence = replay_sequence.split("\n").join('; ')
           index = opts[:r]
           index = index.min if index.min == index.max
 
