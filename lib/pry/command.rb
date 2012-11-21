@@ -548,11 +548,7 @@ class Pry
       #   or nil, if can't find the +key+.
       # @note The method never returns `false`.
       def [](key)
-        if command_key = self.get(key)
-          command_key
-        else
-          default.get(key)
-        end
+        self.get(key) || default.get(key)
       end
 
       # Check for a default options presence.
