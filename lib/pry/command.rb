@@ -637,7 +637,7 @@ class Pry
     # @param [String] search  The line typed so far
     # @return [Array<String>]  the words to complete
     def complete(search)
-      slop.map do |opt|
+      slop[:default].map do |opt|
         [opt.long && "--#{opt.long} " || opt.short && "-#{opt.short}"]
       end.flatten(1).compact + super
     end
