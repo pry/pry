@@ -301,23 +301,6 @@ describe "Pry::Command" do
       mock_command(cmd, %w(--four 4 four))
     end
 
-    it 'should provide cmds and args as provided by slop' do
-      cmd = @set.create_command 'dichlorvos', 'Kill insects' do
-        def subcommands(cmd)
-          cmd.on :kill do
-            on :i, :insect, "An insect."
-          end
-        end
-
-        def process
-          args.should == ["ant"]
-          opts[:kill][:insect].should == true
-        end
-      end
-
-      mock_command(cmd, %w(kill --insect ant))
-    end
-
     it 'should allow overriding options after definition' do
       cmd = @set.create_command /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false do
 
@@ -326,6 +309,53 @@ describe "Pry::Command" do
 
       cmd.command_options[:shellwords].should == false
       cmd.command_options[:listing].should == 'number-one'
+    end
+
+    it "should create subcommands" do
+      cmd = @set.create_command 'mum', 'Your mum' do
+        def subcommands(cmd)
+          cmd.on :yell
+        end
+
+        def process
+          opts.command?(:blahblah).should == false
+          opts.command?(:yell).should == true
+        end
+      end
+
+      mock_command(cmd, ['yell'])
+    end
+
+    it "should create subcommand options" do
+      cmd = @set.create_command 'mum', 'Your mum' do
+        def subcommands(cmd)
+          cmd.on :yell do |opt|
+            opt.on :p, :person
+          end
+        end
+
+        def process
+          args.should == ['papa']
+          opts[:yell][:person].should == true
+          opts[:yell].present? :person
+        end
+      end
+
+      mock_command(cmd, %w|yell --person papa|)
+    end
+
+    it "should accept top-level arguments" do
+      cmd = @set.create_command 'mum', 'Your mum' do
+        def subcommands(cmd)
+          cmd.on :yell
+        end
+
+        def process
+          opts.arguments.should == ['papa', 'sonny', 'daughter']
+        end
+      end
+
+      mock_command(cmd, %w|yell papa sonny daughter|)
     end
   end
 
