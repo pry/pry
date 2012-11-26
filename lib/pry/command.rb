@@ -552,13 +552,29 @@ class Pry
         self.get(key) || default.get(key)
       end
 
-      # Check for a default options presence.
+      # Check for default options presence.
       #
       # @param [String, Symbol] keys The list of keys to check.
       # @return [Boolean] Whether all of the +keys+ are present in the parsed
       #   arguments.
       def present?(*keys)
         default.present?(*keys)
+      end
+
+      # Check for a command presence.
+      #
+      # @example
+      #   opts.parse %w'install'
+      #   opts.command?(:install)
+      #   # => true
+      #   opts.command?(:list)
+      #   # => false
+      #
+      # @param [Symbol, String] name The name of the command to be checked
+      # @return [Boolean] `true` if the given +name+ is present in the parsed
+      #   arguments
+      def command?(name)
+        __getobj__.present?(name)
       end
 
       # Convenience method for {#present?}.
@@ -622,15 +638,14 @@ class Pry
     # Return an instance of Slop::Commands that can parse either subcommands
     # or the options that this command accepts.
     def slop
-      opts = proc do |opt|
-        opt.banner(unindent(self.class.banner))
-        options(opt)
-        opt.on(:h, :help, "Show this message.")
-      end
-
       Slop::Commands.new do |cmd|
         subcommands(cmd)
-        cmd.default { |opt| opts.call(opt) }
+
+        cmd.default do |opt|
+          opt.banner(unindent(self.class.banner))
+          options(opt)
+          opt.on(:h, :help, "Show this message.")
+        end
       end
     end
 
