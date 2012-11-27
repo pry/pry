@@ -246,7 +246,5 @@ class Pry
     def hook_exists?(event_name, hook_name)
       !!@hooks[event_name].find { |name, _| name == hook_name }
     end
-    private :hook_exists?
-
   end
 end
