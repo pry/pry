@@ -149,7 +149,7 @@ class Pry
       def from_obj(obj, name, target=TOPLEVEL_BINDING)
         new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
       end
-      
+
       # Get all of the instance methods of a `Class` or `Module`
       # @param [Class,Module] klass
       # @param [Boolean] include_super Whether to include methods from ancestors.
@@ -334,12 +334,14 @@ class Pry
         source_location.first
       end
     end
+    alias_method :file, :source_file
 
     # @return [Fixnum, nil] The line of code in `source_file` which begins
     #   the method's definition, or `nil` if that information is unavailable.
     def source_line
       source_location.nil? ? nil : source_location.last
     end
+    alias_method :line, :source_line
 
     # @return [Range, nil] The range of lines in `source_file` which contain
     #    the method's definition, or `nil` if that information is unavailable.
