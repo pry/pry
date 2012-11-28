@@ -45,6 +45,33 @@ describe Pry do
     end
   end
 
+  describe "color" do
+    before do
+      Pry.color = true
+    end
+
+    after do
+      Pry.color = false
+    end
+
+    it "should colorize strings as though they were ruby" do
+      accumulator = StringIO.new
+      Pry.config.print.call(accumulator, [1])
+      accumulator.string.should == "[\e[1;34m1\e[0m]\e[0m\n"
+    end
+
+    it "should not colorize strings that already include color" do
+      f = Object.new
+      def f.inspect
+        "\e[1;31mFoo\e[0m"
+      end
+      accumulator = StringIO.new
+      Pry.config.print.call(accumulator, f)
+      # We add an extra \e[0m to prevent color leak
+      accumulator.string.should == "\e[1;31mFoo\e[0m\e[0m\n"
+    end
+  end
+
   describe "output suppression" do
     before do
       @t = pry_tester
