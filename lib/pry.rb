@@ -35,7 +35,12 @@ class Pry
     nonce = rand(0x100000000).to_s(16) # whatever
 
     stringified.gsub!(/#</, "%<#{nonce}")
-    colorized = Helpers::BaseHelpers.colorize_code(stringified)
+    # Don't recolorize output with color (for cucumber, looksee, etc.) [Issue #751]
+    colorized = if stringified =~ /\e\[/
+                  stringified
+                else
+                  Helpers::BaseHelpers.colorize_code(stringified)
+                end
 
     # avoid colour-leak from CodeRay and any of the users' previous output
     colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
