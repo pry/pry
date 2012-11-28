@@ -49,7 +49,7 @@ task :test do
   check_dependencies unless ENV['SKIP_DEP_CHECK']
   all_specs = Dir['spec/**/*_spec.rb']
   all_specs.shuffle! if all_specs.respond_to? :shuffle!
-  sh "bacon -Ispec -rubygems -a -q #{all_specs.join ' '}"
+  system "bacon -Ilib/pry/test -Ispec -rubygems -a -q #{all_specs.join ' '}"
 end
 task :spec => :test
 

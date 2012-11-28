@@ -1,64 +1,11 @@
 unless Object.const_defined? 'Pry'
-  $:.unshift File.expand_path '../../lib', __FILE__
+  $:.unshift File.expand_path '../../../../lib', __FILE__
   require 'pry'
 end
 
 puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"
 
-require 'bacon'
-require 'open4'
-
-# Colorize output (based on greeneggs (c) 2009 Michael Fleet)
-# TODO: Make own gem (assigned to rking)
-module Bacon
-  COLORS    = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
-  USE_COLOR = !(ENV['NO_PRY_COLORED_BACON'] == 'true') && Pry::Helpers::BaseHelpers.use_ansi_codes?
-
-  module TestUnitOutput
-    def handle_requirement(description)
-      error = yield
-
-      if error.empty?
-        print colorize_string('.')
-      else
-        print colorize_string(error[0..0])
-      end
-    end
-
-    def handle_summary
-      puts
-      puts ErrorLog if Backtraces
-
-      out = "%d tests, %d assertions, %d failures, %d errors" %
-        Counter.values_at(:specifications, :requirements, :failed, :errors)
-
-      if Counter.values_at(:failed, :errors).inject(:+) > 0
-        puts colorize_string(out, 'F')
-      else
-        puts colorize_string(out, '.')
-      end
-    end
-
-    def colorize_string(text, color = nil)
-      if USE_COLOR
-        "\e[#{ COLORS[color || text] }m#{ text }\e[0m"
-      else
-        text
-      end
-    end
-  end
-end
-
-# Reset toplevel binding at the beginning of each test case.
-module Bacon
-  class Context
-    alias _real_it it
-    def it(description, &block)
-      Pry.toplevel_binding = nil
-      _real_it(description, &block)
-    end
-  end
-end
+require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper') if defined?(Bacon)
 
 # A global space for storing temporary state during tests.
 Pad = OpenStruct.new
