@@ -295,6 +295,7 @@ class Pry
       things = things.compact
       screen_width = TerminalInfo.screen_size[1]
       maximum_width = things.map{|t| Pry::Helpers::Text.strip_color(t).length}.max + Pry.config.ls.separator.length
+      maximum_width = screen_width if maximum_width > screen_width
       columns = screen_width / maximum_width
 
       things.each_slice(columns).map do |slice|
