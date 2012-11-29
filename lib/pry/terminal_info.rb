@@ -21,6 +21,6 @@ class Pry::TerminalInfo
       ENV['ANSICON'] =~ /\((.*)x(.*)\)/ && [$2, $1]
     ].detect do |(_, cols)|
       cols.to_i > 0
-    end
+    end.map!(&:to_i)
   end
 end
