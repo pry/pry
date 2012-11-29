@@ -3,6 +3,15 @@ class Pry::TerminalInfo
   #
   # If the window size cannot be determined, return nil.
   def self.screen_size
+    rows, cols = actual_screen_size
+    if rows && cols
+      [rows.to_i, cols.to_i]
+    else
+      nil
+    end
+  end
+
+  def self.actual_screen_size
     [
       # Some readlines also provides get_screen_size.
       # Readline comes before IO#winsize because jruby sometimes defaults winsize to [25, 80]
@@ -18,9 +27,9 @@ class Pry::TerminalInfo
 
       # If the user is running within ansicon, then use the screen size
       # that it reports (same caveats apply as with ROWS and COLUMNS)
-      ENV['ANSICON'] =~ /\((.*)x(.*)\)/ && [$2, $1]
+      ENV['ANSICON'] =~ /\((.*)x(.*)\)/ && [$2, $1],
     ].detect do |(_, cols)|
       cols.to_i > 0
-    end.map!(&:to_i)
+    end
   end
 end
