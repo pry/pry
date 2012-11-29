@@ -33,7 +33,7 @@ class Pry
         #
         # @param  [String, #to_s] text
         # @return [String] _text_ stripped of any color codes.
-        def strip_color text
+        def strip_color(text)
           text.to_s.gsub(/\e\[.*?(\d)+m/ , '')
         end
 
@@ -42,7 +42,7 @@ class Pry
         #
         # @param [String, #to_s] text
         # @return [String] _text_
-        def bold text
+        def bold(text)
           Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
         end
 
@@ -59,7 +59,7 @@ class Pry
         # Executes the block with `Pry.color` set to false.
         # @yield
         # @return [void]
-        def no_color &block
+        def no_color(&block)
           boolean = Pry.config.color
           Pry.config.color = false
           yield
@@ -70,7 +70,7 @@ class Pry
         # Executes the block with `Pry.config.pager` set to false.
         # @yield
         # @return [void]
-        def no_pager &block
+        def no_pager(&block)
           boolean = Pry.config.pager
           Pry.config.pager = false
           yield

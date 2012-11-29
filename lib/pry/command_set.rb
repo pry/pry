@@ -148,7 +148,7 @@ class Pry
       cmd.hooks[:after] << block
     end
 
-    def each &block
+    def each(&block)
       @commands.each(&block)
     end
 
