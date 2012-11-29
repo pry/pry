@@ -291,7 +291,7 @@ class Pry
       output.puts "#{text.bold(color(:heading, heading))}: \n#{tablify(body)}"
     end
 
-    def tablify things
+    def tablify(things)
       things = things.compact
       screen_width = TerminalInfo.screen_size[1]
       maximum_width = things.map{|t| Pry::Helpers::Text.strip_color(t).length}.max + Pry.config.ls.separator.length
