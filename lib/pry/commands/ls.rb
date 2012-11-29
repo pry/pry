@@ -288,7 +288,18 @@ class Pry
     # Add a new section to the output. Outputs nothing if the section would be empty.
     def output_section(heading, body)
       return if body.compact.empty?
-      output.puts "#{text.bold(color(:heading, heading))}: #{body.compact.join(Pry.config.ls.separator)}"
+      output.puts "#{text.bold(color(:heading, heading))}: #{tablify(body)}"
+    end
+
+    def tablify things
+      things = things.compact
+      screen_width = TerminalInfo.screen_size[1]
+      maximum_width = things.map{|t| t.size}.max + 1
+      columns = screen_width.div(maximum_width)
+
+      "\n" + things.each_slice(columns).map do |slice|
+        slice.map {|s| s.ljust(maximum_width)}.join("")
+      end.join("\n")
     end
 
     # Color output based on config.ls.*_color
