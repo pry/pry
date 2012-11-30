@@ -293,6 +293,8 @@ class Pry
 
     def tablify things
       things = things.compact
+      return things.join(Pry.config.ls.separator) if TerminalInfo.screen_size.nil?
+
       screen_width = TerminalInfo.screen_size[1]
       maximum_width = things.map{|t| Pry::Helpers::Text.strip_color(t).length}.max + Pry.config.ls.separator.length
       columns = screen_width / maximum_width
