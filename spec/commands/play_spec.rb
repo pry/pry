@@ -5,22 +5,66 @@ describe "play" do
     @t = pry_tester
   end
 
-  it 'should play a string variable  (with no args)' do
-    eval_str = ''
+  describe "with an argument" do
+    before do
+      @eval_str = ''
+    end
 
-    @t.eval 'x = "\"hello\""'
-    @t.process_command 'play x', eval_str
+    describe "string variable" do
+      it "without --lines switch" do
+        @t.eval 'x = "\"hello\""'
+        @t.process_command 'play x', @eval_str
+        @eval_str.should == '"hello"'
+      end
 
-    eval_str.should == '"hello"'
-  end
+      it 'using --lines switch to select what to play' do
+        @t.eval 'x = "\"hello\"\n\"goodbye\"\n\"love\""'
+        @t.process_command 'play x --lines 1', @eval_str
+        @eval_str.should == "\"hello\"\n"
+      end
+    end
 
-  it 'should play a string variable  (with no args) using --lines to select what to play' do
-    eval_str = ''
+    describe "numbers" do
+      before do
+        @tempfile = Tempfile.new(%w|pry .rb|)
+        @tempfile.puts <<-EOS
+          bing = :bing
+          bang = :bang
+          bong = :bong
+        EOS
+        @tempfile.flush
 
-    @t.eval 'x = "\"hello\"\n\"goodbye\"\n\"love\""'
-    @t.process_command 'play x --lines 1', eval_str
+        @t.eval %|_pry_.last_file = "#{ @tempfile.path }"|
+      end
 
-    eval_str.should == "\"hello\"\n"
+      after do
+        @tempfile.close(true)
+      end
+
+      describe "integer" do
+        it "should process one line from _pry_.last_file" do
+          @t.process_command 'play 1', @eval_str
+          @eval_str.should =~ /bing = :bing\n/
+        end
+      end
+
+      describe "range" do
+        it "should process multiple lines at once from _pry_.last_file" do
+          @t.process_command 'play 1..3', @eval_str
+          [/bing = :bing\n/, /bang = :bang\n/, /bong = :bong\n/].each { |str|
+            @eval_str.should =~ str
+          }
+        end
+      end
+    end
+
+    describe "malformed" do
+      it "should return nothing" do
+        @t.process_command 'play 69', @eval_str
+        @eval_str.should == ''
+        lambda { @t.process_command('play zZz') }.should.raise Pry::CommandError
+      end
+    end
   end
 
   it 'should play documentation with the -d switch' do

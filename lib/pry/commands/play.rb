@@ -22,7 +22,14 @@ class Pry
     attr_accessor :content
 
     def setup
-      self.content   = ""
+      self.content = ""
+      @integer_or_range = %r/
+        \A           # Example:
+          \d+        # 22
+          (?:\.{2,3} # ...
+          \d+)?      # 24
+        \z
+      /x             # Matches: "22..24" or "22".
     end
 
     def options(opt)
@@ -69,7 +76,11 @@ class Pry
     end
 
     def perform_play
-      process_non_opt
+      if args.first =~ @integer_or_range
+        process_first_argument
+      else
+        process_non_opt
+      end
 
       if opts.present?(:lines)
         self.content = restrict_to_lines(self.content, opts[:l])
@@ -81,5 +92,22 @@ class Pry
 
       eval_string << self.content
     end
+
+    # Tries to play lines from a file.
+    # Mimicking `play --file #{_file_} --lines 69`.
+    def process_first_argument
+      return unless _pry_.last_file
+
+      start_line, exclusive, end_line = args.first.split(/(\.{2,3})/)
+      lines = if exclusive.nil?
+                start_line.to_i
+              else
+                Range.new(start_line.to_i, end_line.to_i, exclusive.length == 3)
+              end
+
+      self.content << File.read(_pry_.last_file)
+      self.content = restrict_to_lines(self.content, lines)
+    end
+
   end
 end
