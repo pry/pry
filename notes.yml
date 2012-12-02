@@ -11,8 +11,15 @@ Pry#binding_stack:
   array seems a bit low-level somehow..
 
 '
-Pry::Pager:
-- ! 'has someone fixed this broken class yet? i still get warnings (and sometimes
-  errors) when content goes through ''less''
-
-'
+gist:
+- ! "currently gisting (as well as 'play' and a few other commands) is too complicated,
+  we must remember -m, -c, -i, -k and so on.Instead, if those commands could act similarly
+  to `show-source` and infer the object type \nfrom the 'name' of the object it would
+  make things a lot more streamlined.\n\nHowever, although we have ways of identifying
+  and disambiguating between methods and classes and commands, and potentially file
+  names, we don't have any syntax for specifying input expressions, output expressions,
+  \nor history. Do we need syntax for these ? are they rare enough not to bother optimising?\n\nPrecedence
+  for names \n* classes/modules (e.g Pry::Code)\n* methods (e.g Pry#run_command)\n*
+  commands (e.g show-source)\n* files  (e.g alpha.rb)\n\nExplicit flags (do these
+  need their own syntax to avoid flags?)\n-i input expressions\n-o output expressions\n--hist
+  history\n\n"
