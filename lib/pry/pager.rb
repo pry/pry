@@ -19,7 +19,7 @@ class Pry::Pager
     when :system
       SystemPager.new(text).page
     else
-      raise "'#{pager}' is not a recongized pager."
+      raise "'#{pager}' is not a recognized pager."
     end
   end
 
