@@ -61,6 +61,16 @@ class Pry
       def source_location
         block.source_location
       end
+
+      def source_file
+        Array(block.source_location).first
+      end
+      alias_method :file, :source_file
+
+      def source_line
+        Array(block.source_location).last
+      end
+      alias_method :line, :source_line
     end
 
     # Make those properties accessible to instances
@@ -69,7 +79,7 @@ class Pry
     def description; self.class.description; end
     def block; self.class.block; end
     def command_options; self.class.options; end
-    def command_name; command_options[:listing]; end
+    def command_name; self.class.command_name; end
     def source; self.class.source; end
     def source_location; self.class.source_location; end
 
@@ -80,6 +90,10 @@ class Pry
 
       def inspect
         name
+      end
+
+      def command_name
+        self.options[:listing]
       end
 
       # Create a new command with the given properties.
