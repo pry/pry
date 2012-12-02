@@ -60,16 +60,17 @@ class Pry
       raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
       raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
 
+      all_output = ""
 
       if opts.present?(:globals)
-        output_section("global variables", grep[format_globals(target.eval("global_variables"))])
+        all_output << output_section("global variables", grep[format_globals(target.eval("global_variables"))])
       end
 
       if show_constants
         mod = Module === obj ? obj : Object
         constants = mod.constants
         constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
-        output_section("constants", grep[format_constants(mod, constants)])
+        all_output << output_section("constants", grep[format_constants(mod, constants)])
       end
 
       if show_methods
@@ -79,25 +80,25 @@ class Pry
         # reverse the resolution order so that the most useful information appears right by the prompt
         resolution_order(obj).take_while(&below_ceiling(obj)).reverse.each do |klass|
           methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
-          output_section "#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here
+          all_output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
         end
       end
 
       if show_self_methods
         methods = all_methods(obj, true).select{ |m| m.owner == obj && m.name =~ grep_regex }
-        output_section "#{Pry::WrappedModule.new(obj).method_prefix}methods", format_methods(methods)
+        all_output << output_section("#{Pry::WrappedModule.new(obj).method_prefix}methods", format_methods(methods))
       end
 
       if show_ivars
         klass = (Module === obj ? obj : obj.class)
         ivars = Pry::Method.safe_send(obj, :instance_variables)
         kvars = Pry::Method.safe_send(klass, :class_variables)
-        output_section("instance variables", format_variables(:instance_var, ivars))
-        output_section("class variables", format_variables(:class_var, kvars))
+        all_output << output_section("instance variables", format_variables(:instance_var, ivars))
+        all_output << output_section("class variables", format_variables(:class_var, kvars))
       end
 
       if show_local_names
-        output_section("locals", format_local_names(
+        all_output << output_section("locals", format_local_names(
           grep[target.eval("local_variables")]))
       end
 
@@ -108,8 +109,10 @@ class Pry
         name_value_pairs = loc_names.map do |name|
           [name, (target.eval name.to_s)]
         end
-        output.puts format_locals(name_value_pairs)
+        all_output << format_locals(name_value_pairs).join("")
       end
+
+      stagger_output(all_output)
     end
 
     private
@@ -287,8 +290,8 @@ class Pry
 
     # Add a new section to the output. Outputs nothing if the section would be empty.
     def output_section(heading, body)
-      return if body.compact.empty?
-      output.puts "#{text.bold(color(:heading, heading))}: \n#{tablify(body)}"
+      return "" if body.compact.empty?
+      "#{text.bold(color(:heading, heading))}: \n#{tablify(body)}\n"
     end
 
     def tablify(things)
