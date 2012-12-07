@@ -26,27 +26,51 @@ class Pry
     end
   end
 
+  module Gist
+    DESCRIPTION = 'Upload code, docs, history to https://gist.github.com/'
+    INVOCATIONS = {
+      :method   => ['gist -m my_method', 'gist the method my_method' ],
+      :doc      => ['gist -d my_method', 'gist the docs for my_method' ],
+      :input    => ['gist -i 1..2', 'gist the input expressions from 1 to 2' ],
+      :kommand  => ['gist -k show-method', 'gists pry command show-method' ],
+      :class    => ['gist -c Pry', 'gist the Pry class' ],
+      :jist     => ['jist -c Pry', 'alias for the above' ],
+      :lines    => ['gist -m my_method --lines 2..-2', 'limit by range' ],
+      :cliponly => ['gist -m my_method --clip', 'copy (but do not gist)' ],
+      :clipit   => ['clipit -m my_method', 'alias for the above' ],
+      # TODO:
+      # :var      =>
+      # :hist     =>
+      # :file     =>
+    }
+    class << self
+      def example_code sym; INVOCATIONS[sym][0] end
+      def example_description sym; INVOCATIONS[sym][1] end
+      def examples_docs
+        INVOCATIONS.keys.map do |e|
+          "e.g.: %-33s # %s " % [example_code(e), example_description(e)]
+        end.join "\n"
+      end
+    end
+    
+  end
+
   Pry::Commands.create_command "gist" do
     include Pry::Helpers::DocumentationHelpers
 
     group 'Misc'
-    description "Gist a method or expression history to GitHub."
+    description Pry::Gist::DESCRIPTION
     command_options :requires_gem => 'jist', :shellwords => false
 
     banner <<-USAGE
-      Usage: gist [OPTIONS] [METH]
-      Gist method (doc or source) or input expression to GitHub.
+      Usage: gist [options]
+      #{Pry::Gist::DESCRIPTION}
 
-      If you'd like to permanently associate your gists with your GitHub account run `gist --login`.
+      If you'd like to associate your gists with your GitHub account, run:
+          gist --login
 
-      e.g: gist -m my_method       # gist the method my_method
-      e.g: gist -d my_method       # gist the documentation for my_method
-      e.g: gist -i 1..10           # gist the input expressions from 1 to 10
-      e.g: gist -k show-method     # gist the command show-method
-      e.g: gist -c Pry             # gist the Pry class
-      e.g: gist -m my_method --lines 2..-2    # gist from lines 2 to the second-last of the hello_world method
-      e.g: gist -m my_method --clip             # Copy my_method source to clipboard, do not gist it.
     USAGE
+    banner << Pry::Gist.examples_docs << "\n"
 
     attr_accessor :content, :filename
 

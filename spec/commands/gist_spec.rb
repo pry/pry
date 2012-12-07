@@ -32,22 +32,14 @@ describe 'gist' do
   end
   EOT
 
-  INVOCATIONS = {
-    :method   => ['gist -m my_method' ],
-    :doc      => ['gist -d my_method' ],
-    :input    => ['a = 1', 'b = 2', 'gist -i 1..2' ],
-    :kommand  => ['gist -k show-method' ],
-    :class    => ['gist -c Pry' ],
-    :jist     => ['jist -c Pry'],
-    :lines    => ['gist -m my_method --lines 2..-2' ],
-    :cliponly => ['gist -m my_method --clip' ],
-    :clipit   => ['clipit -m my_method' ],
-  }
-
-  run_case = proc {|sym| pry_eval *([EXAMPLE_REPL_METHOD] + INVOCATIONS[sym]) }
+  RANDOM_COUPLE_OF_LINES = %w(a=1 b=2)
+  run_case = proc do |sym|
+    actual_command = Pry::Gist.example_code(sym)
+    pry_eval EXAMPLE_REPL_METHOD, RANDOM_COUPLE_OF_LINES, actual_command
+  end
 
   it 'deduces filenames' do
-    INVOCATIONS.keys.each do |e|
+    Pry::Gist::INVOCATIONS.keys.each do |e|
       run_case.call(e)
       if $jist_gisted
         text, args = $jist_gisted
@@ -61,5 +53,13 @@ describe 'gist' do
   it 'equates aliae' do
     run_case.call(:clipit).should == run_case.call(:cliponly)
     run_case.call(:jist).should   == run_case.call(:class)
+  end
+
+  it 'has a reasonable --help' do
+    help = pry_eval('gist --help')
+    Pry::Gist::INVOCATIONS.keys.each do |e|
+      help.should.include? Pry::Gist.example_code(e)
+      help.should.include? Pry::Gist.example_description(e)
+    end
   end
 end
