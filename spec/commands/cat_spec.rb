@@ -25,7 +25,7 @@ describe "cat" do
 
   describe "with --in" do
     it 'should display the last few expressions with indices' do
-      @t.eval('10', '20', 'cat --in').should == unindent(<<-STR)
+      @t.eval('10', '20', 'cat --in').should == PryTestHelpers.unindent(<<-STR)
         1:
           10
         2:
@@ -52,7 +52,7 @@ describe "cat" do
       @t.insert_nil_input # normally happens when a command is executed
       @t.eval ':hello'
 
-      @t.eval('cat --in 1..3').should == unindent(<<-EOS)
+      @t.eval('cat --in 1..3').should == PryTestHelpers.unindent(<<-EOS)
         1:
           10
         3:
@@ -64,9 +64,18 @@ describe "cat" do
   # this doesnt work so well on rbx due to differences in backtrace
   # so we currently skip rbx until we figure out a workaround
   describe "with --ex" do
+    before do
+      @o = Object.new
+
+      # this is to test exception code (cat --ex)
+      def @o.broken_method
+        this method is broken
+      end
+    end
+
     if !Pry::Helpers::BaseHelpers.rbx?
       it 'cat --ex should display repl code that generated exception' do
-        @t.eval unindent(<<-EOS)
+        @t.eval PryTestHelpers.unindent(<<-EOS)
           begin
             this raises error
           rescue => e
@@ -78,7 +87,7 @@ describe "cat" do
 
       it 'cat --ex should correctly display code that generated exception' do
         begin
-          broken_method
+          @o.broken_method
         rescue => e
           @t.last_exception = e
         end
@@ -89,7 +98,7 @@ describe "cat" do
 
   describe "with --ex N" do
     it 'should cat first level of backtrace when --ex used with no argument ' do
-      temp_file do |f|
+      PryTestHelpers.temp_file do |f|
         f << "bt number 1"
         f.flush
         @t.last_exception = mock_exception("#{f.path}:1", 'x', 'x')
@@ -98,7 +107,7 @@ describe "cat" do
     end
 
     it 'should cat first level of backtrace when --ex 0 used ' do
-      temp_file do |f|
+      PryTestHelpers.temp_file do |f|
         f << "bt number 1"
         f.flush
         @t.last_exception = mock_exception("#{f.path}:1", 'x', 'x')
@@ -107,7 +116,7 @@ describe "cat" do
     end
 
     it 'should cat second level of backtrace when --ex 1 used ' do
-      temp_file do |f|
+      PryTestHelpers.temp_file do |f|
         f << "bt number 2"
         f.flush
         @t.last_exception = mock_exception('x', "#{f.path}:1", 'x')
@@ -116,7 +125,7 @@ describe "cat" do
     end
 
     it 'should cat third level of backtrace when --ex 2 used' do
-      temp_file do |f|
+      PryTestHelpers.temp_file do |f|
         f << "bt number 3"
         f.flush
         @t.last_exception = mock_exception('x', 'x', "#{f.path}:1")
