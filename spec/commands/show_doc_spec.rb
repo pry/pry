@@ -209,7 +209,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       end
 
       it 'should lookup module name with respect to current context' do
-        PryTestHelpers.constant_scope(:AlphaClass, :BetaClass) do
+        constant_scope(:AlphaClass, :BetaClass) do
           # top-level beta
           class BetaClass
             def alpha
@@ -229,7 +229,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       end
 
       it 'should look up nested modules' do
-        PryTestHelpers.constant_scope(:AlphaClass) do
+        constant_scope(:AlphaClass) do
           class AlphaClass
             # nested beta
             class BetaClass

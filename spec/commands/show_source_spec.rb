@@ -201,7 +201,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
       describe "on variables that shadow methods" do
         before do
-          @t = pry_tester.eval PryTestHelpers.unindent(<<-EOS)
+          @t = pry_tester.eval unindent(<<-EOS)
             class ::TestHost
               def hello
                 hello = proc { ' smile ' }
@@ -339,7 +339,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
       if !Pry::Helpers::BaseHelpers.mri_18?
         before do
-          pry_eval PryTestHelpers.unindent(<<-EOS)
+          pry_eval unindent(<<-EOS)
             class Dog
               def woof
               end
@@ -369,7 +369,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
         it 'should lookup module name with respect to current context' do
 
-        PryTestHelpers.constant_scope(:AlphaClass, :BetaClass) do
+        constant_scope(:AlphaClass, :BetaClass) do
           class BetaClass
             def alpha
             end
@@ -387,7 +387,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       end
 
       it 'should lookup nested modules' do
-        PryTestHelpers.constant_scope(:AlphaClass) do
+        constant_scope(:AlphaClass) do
           class AlphaClass
             class BetaClass
               def beta

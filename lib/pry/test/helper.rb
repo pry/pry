@@ -2,10 +2,6 @@ require 'pry'
 
 puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"
 
-if defined?(Bacon)
-  require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper')
-end
-
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
 class << Pry
@@ -34,15 +30,18 @@ def Pad.clear
 end
 
 module PryTestHelpers
+
+  module_function
+
   # inject a variable into a binding
-  def self.inject_var(name, value, b)
+  def inject_var(name, value, b)
     Thread.current[:__pry_local__] = value
     b.eval("#{name} = Thread.current[:__pry_local__]")
   ensure
     Thread.current[:__pry_local__] = nil
   end
 
-  def self.constant_scope(*names)
+  def constant_scope(*names)
     names.each do |name|
       Object.remove_const name if Object.const_defined?(name)
     end
@@ -54,13 +53,13 @@ module PryTestHelpers
     end
   end
 
-  def self.mri18_and_no_real_source_location?
+  def mri18_and_no_real_source_location?
     Pry::Helpers::BaseHelpers.mri_18? && !(Method.instance_method(:source_location).owner == Method)
   end
 
   # Open a temp file and yield it to the block, closing it after
   # @return [String] The path of the temp file
-  def self.temp_file(ext='.rb')
+  def temp_file(ext='.rb')
     file = Tempfile.new(['pry', ext])
     yield file
   ensure
@@ -68,7 +67,7 @@ module PryTestHelpers
     File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
   end
 
-  def self.unindent(*args)
+  def unindent(*args)
     Pry::Helpers::CommandHelpers.unindent(*args)
   end
 end
@@ -203,4 +202,8 @@ class PryTester
     @out = StringIO.new
     @pry.output = @out
   end
+end
+
+if defined?(Bacon)
+  require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper')
 end

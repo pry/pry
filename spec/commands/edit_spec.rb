@@ -49,7 +49,7 @@ describe "edit" do
       end
 
       it "should reload the file if it is a ruby file" do
-        PryTestHelpers.temp_file do |tf|
+        temp_file do |tf|
           counter = Pad.counter
           path    = tf.path
 
@@ -60,7 +60,7 @@ describe "edit" do
       end
 
       it "should not reload the file if it is not a ruby file" do
-        PryTestHelpers.temp_file('.py') do |tf|
+        temp_file('.py') do |tf|
           counter = Pad.counter
           path    = tf.path
 
@@ -71,7 +71,7 @@ describe "edit" do
       end
 
       it "should not reload a ruby file if -n is given" do
-        PryTestHelpers.temp_file do |tf|
+        temp_file do |tf|
           counter = Pad.counter
           path    = tf.path
 
@@ -80,7 +80,7 @@ describe "edit" do
       end
 
       it "should reload a non-ruby file if -r is given" do
-        PryTestHelpers.temp_file('.pryrc') do |tf|
+        temp_file('.pryrc') do |tf|
           counter = Pad.counter
           path    = tf.path
 
