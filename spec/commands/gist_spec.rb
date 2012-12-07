@@ -10,16 +10,13 @@ describe 'gist' do
         $jist_gisted = args
         {'html_url' => 'http://gist.blahblah'}
       end
+      def copy(content); $clipped_content = content end
     end
   end
 
   it 'nominally logs in' do
     pry_eval 'gist --login'
     $jist_logged_in.should.not.be.nil
-  end
-
-  module Pry::Helpers::Clipboard
-    def self.copy(content); $clipped_content = content end
   end
 
   EXAMPLE_REPL_METHOD = <<-EOT
