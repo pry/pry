@@ -1,21 +1,27 @@
 require 'helper'
+require "fixtures/show_source_doc_examples"
 
-if !mri18_and_no_real_source_location?
+if !PryTestHelpers.mri18_and_no_real_source_location?
   describe "show-doc" do
     before do
       @o = Object.new
+
+      # sample doc
+      def @o.sample_method
+        :sample
+      end
     end
 
     it 'should output a method\'s documentation' do
-      pry_eval("show-doc sample_method").should =~ /sample doc/
+      pry_eval(binding, "show-doc @o.sample_method").should =~ /sample doc/
     end
 
     it 'should output a method\'s documentation with line numbers' do
-      pry_eval("show-doc sample_method -l").should =~ /\d: sample doc/
+      pry_eval(binding, "show-doc @o.sample_method -l").should =~ /\d: sample doc/
     end
 
     it 'should output a method\'s documentation with line numbers (base one)' do
-      pry_eval("show-doc sample_method -b").should =~ /1: sample doc/
+      pry_eval(binding, "show-doc @o.sample_method -b").should =~ /1: sample doc/
     end
 
     it 'should output a method\'s documentation if inside method without needing to use method name' do
@@ -203,7 +209,7 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should lookup module name with respect to current context' do
-        constant_scope(:AlphaClass, :BetaClass) do
+        PryTestHelpers.constant_scope(:AlphaClass, :BetaClass) do
           # top-level beta
           class BetaClass
             def alpha
@@ -223,7 +229,7 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should look up nested modules' do
-        constant_scope(:AlphaClass) do
+        PryTestHelpers.constant_scope(:AlphaClass) do
           class AlphaClass
             # nested beta
             class BetaClass

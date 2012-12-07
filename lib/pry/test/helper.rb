@@ -1,60 +1,9 @@
-unless Object.const_defined? 'Pry'
-  $:.unshift File.expand_path '../../../../lib', __FILE__
-  require 'pry'
-end
+require 'pry'
 
 puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"
 
-require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper') if defined?(Bacon)
-
-# A global space for storing temporary state during tests.
-Pad = OpenStruct.new
-def Pad.clear
-  @table = {}
-end
-
-# turn warnings off (esp for Pry::Hooks which will generate warnings
-# in tests)
-$VERBOSE = nil
-
-# inject a variable into a binding
-def inject_var(name, value, b)
-  Thread.current[:__pry_local__] = value
-  b.eval("#{name} = Thread.current[:__pry_local__]")
-ensure
-  Thread.current[:__pry_local__] = nil
-end
-
-def constant_scope(*names)
-  names.each do |name|
-    Object.remove_const name if Object.const_defined?(name)
-  end
-
-  yield
-ensure
-  names.each do |name|
-    Object.remove_const name if Object.const_defined?(name)
-  end
-end
-
-def mri18_and_no_real_source_location?
-  Pry::Helpers::BaseHelpers.mri_18? && !(Method.instance_method(:source_location).owner == Method)
-end
-
-# used by test_show_source.rb and test_documentation.rb
-class TestClassForShowSource
-  def alpha
-  end
-end
-
-class TestClassForShowSourceClassEval
-  def alpha
-  end
-end
-
-class TestClassForShowSourceInstanceEval
-  def alpha
-  end
+if defined?(Bacon)
+  require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper')
 end
 
 # in case the tests call reset_defaults, ensure we reset them to
@@ -76,42 +25,51 @@ class << Pry
     Pry.config.collision_warning   = false
   end
 end
-
-def mock_exception(*mock_backtrace)
-  e = StandardError.new("mock exception")
-  (class << e; self; end).class_eval do
-    define_method(:backtrace) { mock_backtrace }
-  end
-  e
-end
-
 Pry.reset_defaults
 
-# this is to test exception code (cat --ex)
-def broken_method
-  this method is broken
+# A global space for storing temporary state during tests.
+Pad = OpenStruct.new
+def Pad.clear
+  @table = {}
 end
 
-# sample doc
-def sample_method
-  :sample
-end
+module PryTestHelpers
+  # inject a variable into a binding
+  def self.inject_var(name, value, b)
+    Thread.current[:__pry_local__] = value
+    b.eval("#{name} = Thread.current[:__pry_local__]")
+  ensure
+    Thread.current[:__pry_local__] = nil
+  end
 
-# Set I/O streams.
-#
-# Out defaults to an anonymous StringIO.
-#
-def redirect_pry_io(new_in, new_out = StringIO.new)
-  old_in = Pry.input
-  old_out = Pry.output
+  def self.constant_scope(*names)
+    names.each do |name|
+      Object.remove_const name if Object.const_defined?(name)
+    end
 
-  Pry.input = new_in
-  Pry.output = new_out
-  begin
     yield
   ensure
-    Pry.input = old_in
-    Pry.output = old_out
+    names.each do |name|
+      Object.remove_const name if Object.const_defined?(name)
+    end
+  end
+
+  def self.mri18_and_no_real_source_location?
+    Pry::Helpers::BaseHelpers.mri_18? && !(Method.instance_method(:source_location).owner == Method)
+  end
+
+  # Open a temp file and yield it to the block, closing it after
+  # @return [String] The path of the temp file
+  def self.temp_file(ext='.rb')
+    file = Tempfile.new(['pry', ext])
+    yield file
+  ensure
+    file.close(true) if file
+    File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
+  end
+
+  def self.unindent(*args)
+    Pry::Helpers::CommandHelpers.unindent(*args)
   end
 end
 
@@ -135,64 +93,12 @@ def mock_command(cmd, args=[], opts={})
   Struct.new(:output, :return).new(output.string, ret)
 end
 
-def redirect_global_pry_input(new_io)
-  old_io = Pry.input
-    Pry.input = new_io
-    begin
-      yield
-    ensure
-      Pry.input = old_io
-    end
-end
-
-def redirect_global_pry_output(new_io)
-  old_io = Pry.output
-    Pry.output = new_io
-    begin
-      yield
-    ensure
-      Pry.output = old_io
-    end
-end
-
-class Module
-  public :remove_const
-  public :remove_method
-end
-
-
-class InputTester
-  def initialize(*actions)
-    @orig_actions = actions.dup
-    @actions = actions
+def mock_exception(*mock_backtrace)
+  e = StandardError.new("mock exception")
+  (class << e; self; end).class_eval do
+    define_method(:backtrace) { mock_backtrace }
   end
-
-  def readline(*)
-    @actions.shift
-  end
-
-  def rewind
-    @actions = @orig_actions.dup
-  end
-end
-
-class Pry
-
-  # null output class - doesn't write anywwhere.
-  class NullOutput
-    def self.puts(*) end
-    def self.string(*) end
-  end
-end
-
-# Open a temp file and yield it to the block, closing it after
-# @return [String] The path of the temp file
-def temp_file(ext='.rb')
-  file = Tempfile.new(['pry', ext])
-  yield file
-ensure
-  file.close(true) if file
-  File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
+  e
 end
 
 def pry_tester(*args, &block)
@@ -297,26 +203,4 @@ class PryTester
     @out = StringIO.new
     @pry.output = @out
   end
-end
-
-CommandTester = Pry::CommandSet.new do
-  command "command1", "command 1 test" do
-    output.puts "command1"
-  end
-
-  command "command2", "command 2 test" do |arg|
-    output.puts arg
-  end
-end
-
-def unindent(*args)
-  Pry::Helpers::CommandHelpers.unindent(*args)
-end
-
-# to help with tracking down bugs that cause an infinite loop in the test suite
-if ENV["SET_TRACE_FUNC"]
-  require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?
-  set_trace_func proc { |event, file, line, id, binding, classname|
-     STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
-  }
 end

@@ -81,7 +81,7 @@ describe "play" do
 
       pry_tester(@o).process_command 'play -d test_method', @eval_str
 
-      @eval_str.should == unindent(<<-STR)
+      @eval_str.should == PryTestHelpers.unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -98,7 +98,7 @@ describe "play" do
 
       pry_tester(@o).process_command 'play -d test_method --lines 2..3', @eval_str
 
-      @eval_str.should == unindent(<<-STR)
+      @eval_str.should == PryTestHelpers.unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -110,13 +110,13 @@ describe "play" do
     end
 
     it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
-      @eval_str = unindent(<<-STR)
+      @eval_str = PryTestHelpers.unindent(<<-STR)
         def another_test_method
       STR
 
       pry_tester(@o).process_command 'play -m test_method --lines 2', @eval_str
 
-      @eval_str.should == unindent(<<-STR)
+      @eval_str.should == PryTestHelpers.unindent(<<-STR)
         def another_test_method
           :test_method_content
       STR
@@ -132,7 +132,7 @@ describe "play" do
 
       pry_tester(@o).process_command 'play -m test_method --lines 3..4', @eval_str
 
-      @eval_str.should == unindent(<<-STR, 2)
+      @eval_str.should == PryTestHelpers.unindent(<<-STR, 2)
         @var1 = 20
         @var2 = 30
       STR
