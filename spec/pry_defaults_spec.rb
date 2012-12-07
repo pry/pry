@@ -40,7 +40,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      Pry.start(self, :input => arity_one_input, :output => Pry::NullOutput)
+      Pry.start(self, :input => arity_one_input, :output => StringIO.new)
       arity_one_input.prompt.should == Pry.prompt.call
     end
 
@@ -53,7 +53,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      lambda { Pry.start(self, :input => arity_zero_input, :output => Pry::NullOutput) }.should.not.raise Exception
+      lambda { Pry.start(self, :input => arity_zero_input, :output => StringIO.new) }.should.not.raise Exception
     end
 
     it 'should not pass in the prompt if the arity is -1' do
@@ -68,7 +68,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      Pry.start(self, :input => arity_multi_input, :output => Pry::NullOutput)
+      Pry.start(self, :input => arity_multi_input, :output => StringIO.new)
       arity_multi_input.prompt.should == nil
     end
 
@@ -112,23 +112,23 @@ describe "test Pry defaults" do
 
   describe "pry return values" do
     it 'should return nil' do
-      Pry.start(self, :input => StringIO.new("exit-all"), :output => Pry::NullOutput).should == nil
+      Pry.start(self, :input => StringIO.new("exit-all"), :output => StringIO.new).should == nil
     end
 
     it 'should return the parameter given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all 10"), :output => Pry::NullOutput).should == 10
+      Pry.start(self, :input => StringIO.new("exit-all 10"), :output => StringIO.new).should == 10
     end
 
     it 'should return the parameter (multi word string) given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all \"john mair\""), :output => Pry::NullOutput).should == "john mair"
+      Pry.start(self, :input => StringIO.new("exit-all \"john mair\""), :output => StringIO.new).should == "john mair"
     end
 
     it 'should return the parameter (function call) given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all 'abc'.reverse"), :output => Pry::NullOutput).should == 'cba'
+      Pry.start(self, :input => StringIO.new("exit-all 'abc'.reverse"), :output => StringIO.new).should == 'cba'
     end
 
     it 'should return the parameter (self) given to exit-all' do
-      Pry.start("carl", :input => StringIO.new("exit-all self"), :output => Pry::NullOutput).should == "carl"
+      Pry.start("carl", :input => StringIO.new("exit-all self"), :output => StringIO.new).should == "carl"
     end
   end
 

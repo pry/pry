@@ -12,19 +12,19 @@ describe Pry::Code do
     end
 
     should 'default to Ruby' do
-      temp_file('') do |f|
+      PryTestHelpers.temp_file('') do |f|
         Pry::Code.from_file(f.path).code_type.should == :ruby
       end
     end
 
     should 'check the extension' do
-      temp_file('.c') do |f|
+      PryTestHelpers.temp_file('.c') do |f|
         Pry::Code.from_file(f.path).code_type.should == :c
       end
     end
 
     should 'use the provided extension' do
-      temp_file('.c') do |f|
+      PryTestHelpers.temp_file('.c') do |f|
         Pry::Code.from_file(f.path, :ruby).code_type.should == :ruby
       end
     end

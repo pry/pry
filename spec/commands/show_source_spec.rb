@@ -1,10 +1,15 @@
 require 'helper'
+require "fixtures/show_source_doc_examples"
 
-if !mri18_and_no_real_source_location?
+if !PryTestHelpers.mri18_and_no_real_source_location?
   describe "show-source" do
     before do
       @str_output = StringIO.new
       @o = Object.new
+      def @o.sample_method
+        :sample
+      end
+
       Object.const_set(:Test, Module.new)
     end
 
@@ -13,7 +18,7 @@ if !mri18_and_no_real_source_location?
     end
 
     it "should output a method's source" do
-      pry_eval('show-source sample_method').should =~ /def sample/
+      pry_eval(binding, 'show-source @o.sample_method').should =~ /def @o.sample/
     end
 
     it "should output help" do
@@ -21,11 +26,11 @@ if !mri18_and_no_real_source_location?
     end
 
     it "should output a method's source with line numbers" do
-      pry_eval('show-source -l sample_method').should =~ /\d+: def sample/
+      pry_eval(binding, 'show-source -l @o.sample_method').should =~ /\d+: def @o.sample/
     end
 
     it "should output a method's source with line numbers starting at 1" do
-      pry_eval('show-source -b sample_method').should =~ /1: def sample/
+      pry_eval(binding, 'show-source -b @o.sample_method').should =~ /1: def @o.sample/
     end
 
     it "should output a method's source if inside method and no name given" do
@@ -196,7 +201,7 @@ if !mri18_and_no_real_source_location?
 
       describe "on variables that shadow methods" do
         before do
-          @t = pry_tester.eval unindent(<<-EOS)
+          @t = pry_tester.eval PryTestHelpers.unindent(<<-EOS)
             class ::TestHost
               def hello
                 hello = proc { ' smile ' }
@@ -334,7 +339,7 @@ if !mri18_and_no_real_source_location?
 
       if !Pry::Helpers::BaseHelpers.mri_18?
         before do
-          pry_eval unindent(<<-EOS)
+          pry_eval PryTestHelpers.unindent(<<-EOS)
             class Dog
               def woof
               end
@@ -362,8 +367,9 @@ if !mri18_and_no_real_source_location?
         end
       end
 
-      it 'should lookup module name with respect to current context' do
-        constant_scope(:AlphaClass, :BetaClass) do
+        it 'should lookup module name with respect to current context' do
+
+        PryTestHelpers.constant_scope(:AlphaClass, :BetaClass) do
           class BetaClass
             def alpha
             end
@@ -381,7 +387,7 @@ if !mri18_and_no_real_source_location?
       end
 
       it 'should lookup nested modules' do
-        constant_scope(:AlphaClass) do
+        PryTestHelpers.constant_scope(:AlphaClass) do
           class AlphaClass
             class BetaClass
               def beta

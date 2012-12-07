@@ -13,7 +13,7 @@ describe "save-file" do
 
   describe "-f" do
     it 'should save a file to a file' do
-      temp_file do |f|
+      PryTestHelpers.temp_file do |f|
         path = f.path
         f.puts ":cute_horse"
         f.flush
@@ -163,4 +163,3 @@ describe "save-file" do
     end
   end
 end
-
