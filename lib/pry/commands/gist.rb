@@ -1,31 +1,4 @@
 class Pry
-  module Helpers
-    module Clipboard
-      # Copy a string to the clipboard.
-      #
-      # @param [String] content
-      #
-      # @copyright Copyright (c) 2008 Chris Wanstrath (MIT)
-      # @see https://github.com/defunkt/gist/blob/master/lib/gist.rb#L178
-      def self.copy(content)
-        cmd = case true
-        when system("type pbcopy > /dev/null 2>&1")
-          :pbcopy
-        when system("type xclip > /dev/null 2>&1")
-          :xclip
-        when system("type putclip > /dev/null 2>&1")
-          :putclip
-        end
-
-        if cmd
-          IO.popen(cmd.to_s, 'r+') { |clip| clip.print content }
-        end
-
-        content
-      end
-    end
-  end
-
   module Gist
     DESCRIPTION = 'Upload code, docs, history to https://gist.github.com/'
     INVOCATIONS = {
@@ -52,7 +25,6 @@ class Pry
         end.join "\n"
       end
     end
-    
   end
 
   Pry::Commands.create_command "gist" do
@@ -81,7 +53,7 @@ class Pry
 
     def from_pry_api api_obj
       @content << api_obj.source << "\n"
-      @filename = api_obj.source
+      @filename = api_obj.source_file
     end
 
     def options(opt)
@@ -167,7 +139,7 @@ class Pry
 
     # copy content to clipboard instead (only used with --clip flag)
     def perform_clipboard
-      Pry::Helpers::Clipboard.copy(@content)
+      Jist.copy(@content)
       output.puts "Copied content to clipboard!"
     end
 
@@ -181,7 +153,7 @@ class Pry
 
       if response
         url = response['html_url']
-        Pry::Helpers::Clipboard.copy(url)
+        Jist.copy(url)
         output.puts 'Gist created at URL, which is now in the clipboard: ', url
       end
     end
