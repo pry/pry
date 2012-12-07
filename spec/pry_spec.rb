@@ -107,7 +107,7 @@ describe Pry do
         input = InputTester.new(input_string)
         o = Object.new
 
-        pry_tester = Pry.new(:input => input, :output => Pry::NullOutput)
+        pry_tester = Pry.new(:input => input, :output => StringIO.new)
         pry_tester.rep(o)
         o.instance_variable_get(:@x).should == 10
       end
@@ -136,7 +136,7 @@ describe Pry do
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
-        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => Pry::NullOutput)
+        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => StringIO.new)
         pry_tester.rep(Hello)
         Hello.const_defined?(:Nested).should == true
       end
@@ -204,7 +204,7 @@ describe Pry do
 
           o = Object.new
 
-          pry_tester = Pry.start(o, :input => input, :output => Pry::NullOutput)
+          pry_tester = Pry.start(o, :input => input, :output => StringIO.new)
 
           o.instance_variable_get(:@x).should == 10
         end
@@ -223,7 +223,7 @@ describe Pry do
         it 'sets _ to the last result' do
           res   = []
           input = InputTester.new *[":foo", "self << _", "42", "self << _"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry   = Pry.new(:input => input, :output => StringIO.new)
           pry.repl(res)
 
           res.should == [:foo, 42]
@@ -232,7 +232,7 @@ describe Pry do
         it 'sets out to an array with the result' do
           res   = {}
           input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry   = Pry.new(:input => input, :output => StringIO.new)
           pry.repl(res)
 
           res[:res].should.be.kind_of Pry::HistoryArray
@@ -242,7 +242,7 @@ describe Pry do
         it 'sets _in_ to an array with the entered lines' do
           res   = {}
           input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry   = Pry.new(:input => input, :output => StringIO.new)
           pry.repl(res)
 
           res[:res].should.be.kind_of Pry::HistoryArray
@@ -252,7 +252,7 @@ describe Pry do
         it 'uses 100 as the size of _in_ and _out_' do
           res   = []
           input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput)
+          pry   = Pry.new(:input => input, :output => StringIO.new)
           pry.repl(res)
 
           res.should == [100, 100]
@@ -261,7 +261,7 @@ describe Pry do
         it 'can change the size of the history arrays' do
           res   = []
           input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput,
+          pry   = Pry.new(:input => input, :output => StringIO.new,
                           :memory_size => 1000)
           pry.repl(res)
 
@@ -271,7 +271,7 @@ describe Pry do
         it 'store exceptions' do
           res   = []
           input = InputTester.new *["foo!","self << _in_[-1] << _out_[-1]"]
-          pry   = Pry.new(:input => input, :output => Pry::NullOutput,
+          pry   = Pry.new(:input => input, :output => StringIO.new,
                           :memory_size => 1000)
           pry.repl(res)
 
@@ -322,10 +322,10 @@ describe Pry do
         it "should never run the rc file twice" do
           Pry.config.should_load_rc = true
 
-          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
           TEST_RC.should == [0]
 
-          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
           TEST_RC.should == [0]
         end
 
@@ -334,7 +334,7 @@ describe Pry do
           old_rc = Pry.config.should_load_rc
           ENV['HOME'] = nil
           Pry.config.should_load_rc = true
-          lambda { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput) }.should.not.raise
+          lambda { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.should.not.raise
 
           ENV['HOME'] = old_home
           Pry.config.should_load_rc = old_rc
@@ -342,13 +342,13 @@ describe Pry do
 
         it "should not run the rc file at all if Pry.config.should_load_rc is false" do
           Pry.config.should_load_rc = false
-          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => Pry::NullOutput)
+          Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
           Object.const_defined?(:TEST_RC).should == false
         end
 
         it "should not load the rc file if #repl method invoked" do
           Pry.config.should_load_rc = true
-          Pry.new(:input => StringIO.new("exit-all\n"), :output => Pry::NullOutput).repl(self)
+          Pry.new(:input => StringIO.new("exit-all\n"), :output => StringIO.new).repl(self)
           Object.const_defined?(:TEST_RC).should == false
           Pry.config.should_load_rc = false
         end
@@ -368,7 +368,7 @@ describe Pry do
             }
 
             @doing_it = lambda{
-              Pry.start(self, :input => StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), :output => Pry::NullOutput)
+              Pry.start(self, :input => StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), :output => StringIO.new)
               putsed
             }
           end

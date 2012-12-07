@@ -6,21 +6,21 @@ describe "amend-line" do
   end
 
   it 'should amend the last line of input when no line number specified' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
     STR
 
     @t.process_command 'amend-line   puts :blah', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :blah
     STR
   end
 
   it 'should amend the specified line of input when line number given' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -28,7 +28,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 1 def goodbye', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def goodbye
         puts :bing
         puts :bang
@@ -36,7 +36,7 @@ describe "amend-line" do
   end
 
   it 'should amend the first line of input when 0 given as line number' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -44,7 +44,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 0 def goodbye', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def goodbye
         puts :bing
         puts :bang
@@ -52,7 +52,7 @@ describe "amend-line" do
   end
 
   it 'should amend a specified line when negative number given' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -60,7 +60,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -1   puts :bink', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bink
@@ -68,7 +68,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -2   puts :bink', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bink
         puts :bink
@@ -76,7 +76,7 @@ describe "amend-line" do
   end
 
   it 'should amend a range of lines of input when negative numbers given' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -85,7 +85,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -3..-2   puts :bink', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bink
         puts :boat
@@ -93,7 +93,7 @@ describe "amend-line" do
   end
 
   it 'should correctly amend the specified line with interpolated text' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -101,7 +101,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line   puts "#{goodbye}"', eval_str
 
-    eval_str.should == unindent(<<-'STR')
+    eval_str.should == PryTestHelpers.unindent(<<-'STR')
       def hello
         puts :bing
         puts "#{goodbye}"
@@ -122,7 +122,7 @@ describe "amend-line" do
   end
 
   it 'should correctly amend the specified range of lines' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -131,7 +131,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..3   puts :bong', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bong
         puts :heart
@@ -139,7 +139,7 @@ describe "amend-line" do
   end
 
   it 'should correctly delete a specific line using the ! for content' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -149,7 +149,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 3 !', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :boast
@@ -158,7 +158,7 @@ describe "amend-line" do
   end
 
   it 'should correctly delete a range of lines using the ! for content' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -168,14 +168,14 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..4 !', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :heart
     STR
   end
 
   it 'should correctly delete the previous line using the ! for content' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -185,7 +185,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line !', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -194,7 +194,7 @@ describe "amend-line" do
   end
 
   it 'should amend the specified range of lines, with numbers < 0 in range' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -204,7 +204,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..-2   puts :bong', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bong
         puts :heart
@@ -212,7 +212,7 @@ describe "amend-line" do
   end
 
   it 'should correctly insert a line before a specified line using >' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -220,7 +220,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2 >  puts :inserted', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :inserted
         puts :bing
@@ -229,7 +229,7 @@ describe "amend-line" do
   end
 
   it 'should ignore second value of range with > syntax' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -237,7 +237,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..21 >  puts :inserted', eval_str
 
-    eval_str.should == unindent(<<-STR)
+    eval_str.should == PryTestHelpers.unindent(<<-STR)
       def hello
         puts :inserted
         puts :bing
@@ -245,4 +245,3 @@ describe "amend-line" do
     STR
   end
 end
-

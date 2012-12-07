@@ -1,5 +1,6 @@
 require 'helper'
 
+
 describe "commands" do
   before do
     @str_output = StringIO.new
@@ -11,6 +12,16 @@ describe "commands" do
     @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
 
     @self  = "Pad.self = self"
+
+    @command_tester = Pry::CommandSet.new do
+      command "command1", "command 1 test" do
+        output.puts "command1"
+      end
+
+      command "command2", "command 2 test" do |arg|
+        output.puts arg
+      end
+    end
 
     Pad.bong = "bong"
   end
@@ -46,17 +57,10 @@ describe "commands" do
         alias_command "test-alias", "test-command"
       end
 
-      redirect_pry_io(InputTester.new("test-command hello baby duck"), out1 = StringIO.new) do
-        Pry.start self, :commands => set
-      end
+      t = pry_tester(:commands => set)
 
-      out1.string.should =~ /hello baby duck/
-
-      redirect_pry_io(InputTester.new("test-alias hello baby duck"), out2 = StringIO.new) do
-        Pry.start self, :commands => set
-      end
-
-      out2.string.should == out1.string
+      t.process_command "test-alias hello baby duck"
+      t.last_output.should =~ /testing hello baby duck/
     end
 
     it 'should pass option arguments to original' do
@@ -66,17 +70,10 @@ describe "commands" do
       end
 
       obj = Class.new { @x = 10 }
-      redirect_pry_io(InputTester.new("ls -i"), out1 = StringIO.new) do
-        Pry.start obj, :commands => set
-      end
+      t = pry_tester(obj, :commands => set)
 
-      out1.string.should =~ /@x/
-
-      redirect_pry_io(InputTester.new("test-alias -i"), out2 = StringIO.new) do
-        Pry.start obj, :commands => set
-      end
-
-      out2.string.should == out1.string
+      t.process_command "test-alias -i"
+      t.last_output.should =~ /@x/
     end
 
     it 'should pass option arguments to original with additional parameters' do
@@ -86,17 +83,9 @@ describe "commands" do
       end
 
       obj = Class.new { @x = Class.new { define_method(:plymouth) {} } }
-      redirect_pry_io(InputTester.new("ls -M @x"), out1 = StringIO.new) do
-        Pry.start obj, :commands => set
-      end
-
-      out1.string.should =~ /plymouth/
-
-      redirect_pry_io(InputTester.new("test-alias @x"), out2 = StringIO.new) do
-        Pry.start obj, :commands => set
-      end
-
-      out2.string.should == out1.string
+      t = pry_tester(obj, :commands => set)
+      t.process_command "test-alias @x"
+      t.last_output.should =~ /plymouth/
     end
 
     it 'should be able to alias a regex command' do
@@ -107,11 +96,9 @@ describe "commands" do
         alias_command "test-alias", "duck"
       end
 
-      redirect_pry_io(InputTester.new("test-alias"), out1 = StringIO.new) do
-        Pry.start self, :commands => set
-      end
-
-      out1.string.should =~ /ducky/
+      t = pry_tester(:commands => set)
+      t.process_command "test-alias"
+      t.last_output.should =~ /ducky/
     end
 
     it 'should be able to make the alias a regex' do
@@ -138,6 +125,7 @@ describe "commands" do
           run "cd / "
         end
       end
+
       redirect_pry_io(InputTester.new("cd 1/2/3/4/5/6", @bs1, "test-run",
                                       @self, @bs2, "exit-all")) do
         Pry.start(@o, :commands => set)
@@ -630,9 +618,9 @@ describe "commands" do
 
   it 'should run a command with no parameter' do
     pry_tester = Pry.new
-    pry_tester.commands = CommandTester
+    pry_tester.commands = @command_tester
     pry_tester.input = InputTester.new("command1", "exit-all")
-    pry_tester.commands = CommandTester
+    pry_tester.commands = @command_tester
 
     pry_tester.output = @str_output
 
@@ -643,9 +631,9 @@ describe "commands" do
 
   it 'should run a command with one parameter' do
     pry_tester = Pry.new
-    pry_tester.commands = CommandTester
+    pry_tester.commands = @command_tester
     pry_tester.input = InputTester.new("command2 horsey", "exit-all")
-    pry_tester.commands = CommandTester
+    pry_tester.commands = @command_tester
 
     pry_tester.output = @str_output
 

@@ -6,7 +6,7 @@ describe "show-input" do
   end
 
   it 'should correctly show the current lines in the input buffer' do
-    eval_str = unindent(<<-STR)
+    eval_str = PryTestHelpers.unindent(<<-STR)
       def hello
         puts :bing
     STR
