@@ -2,9 +2,8 @@ source :rubygems
 gemspec
 
 # For Guard
-case RUBY_PLATFORM
-when /linux/i
-  gem 'rb-inotify'
-when /darwin/i
-  gem 'rb-fsevent'
+group :development do
+  gem 'jist'
+  gem 'rb-inotify', :require => 'false'
+  gem 'rb-fsevent', :require => 'false'
 end
