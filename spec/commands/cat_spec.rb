@@ -25,7 +25,7 @@ describe "cat" do
 
   describe "with --in" do
     it 'should display the last few expressions with indices' do
-      @t.eval('10', '20', 'cat --in').should == PryTestHelpers.unindent(<<-STR)
+      @t.eval('10', '20', 'cat --in').should == unindent(<<-STR)
         1:
           10
         2:
@@ -52,7 +52,7 @@ describe "cat" do
       @t.insert_nil_input # normally happens when a command is executed
       @t.eval ':hello'
 
-      @t.eval('cat --in 1..3').should == PryTestHelpers.unindent(<<-EOS)
+      @t.eval('cat --in 1..3').should == unindent(<<-EOS)
         1:
           10
         3:
@@ -75,7 +75,7 @@ describe "cat" do
 
     if !Pry::Helpers::BaseHelpers.rbx?
       it 'cat --ex should display repl code that generated exception' do
-        @t.eval PryTestHelpers.unindent(<<-EOS)
+        @t.eval unindent(<<-EOS)
           begin
             this raises error
           rescue => e
@@ -98,7 +98,7 @@ describe "cat" do
 
   describe "with --ex N" do
     it 'should cat first level of backtrace when --ex used with no argument ' do
-      PryTestHelpers.temp_file do |f|
+      temp_file do |f|
         f << "bt number 1"
         f.flush
         @t.last_exception = mock_exception("#{f.path}:1", 'x', 'x')
@@ -107,7 +107,7 @@ describe "cat" do
     end
 
     it 'should cat first level of backtrace when --ex 0 used ' do
-      PryTestHelpers.temp_file do |f|
+      temp_file do |f|
         f << "bt number 1"
         f.flush
         @t.last_exception = mock_exception("#{f.path}:1", 'x', 'x')
@@ -116,7 +116,7 @@ describe "cat" do
     end
 
     it 'should cat second level of backtrace when --ex 1 used ' do
-      PryTestHelpers.temp_file do |f|
+      temp_file do |f|
         f << "bt number 2"
         f.flush
         @t.last_exception = mock_exception('x', "#{f.path}:1", 'x')
@@ -125,7 +125,7 @@ describe "cat" do
     end
 
     it 'should cat third level of backtrace when --ex 2 used' do
-      PryTestHelpers.temp_file do |f|
+      temp_file do |f|
         f << "bt number 3"
         f.flush
         @t.last_exception = mock_exception('x', 'x', "#{f.path}:1")

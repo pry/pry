@@ -719,7 +719,7 @@ describe "Pry::Command" do
       pry_eval("my---test").should =~ /my-testmy-test/
     end
 
-    if !PryTestHelpers.mri18_and_no_real_source_location?
+    if !mri18_and_no_real_source_location?
       it "should show the source of the process method" do
         pry_eval("show-source my-test").should =~ /output.puts command_name/
       end

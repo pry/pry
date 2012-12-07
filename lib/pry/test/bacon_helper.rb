@@ -1,6 +1,10 @@
 # Colorize output (based on greeneggs (c) 2009 Michael Fleet)
 # TODO: Make own gem (assigned to rking)
 module Bacon
+  class Context
+    include PryTestHelpers
+  end
+
   COLORS    = {'F' => 31, 'E' => 35, 'M' => 33, '.' => 32}
   USE_COLOR = !(ENV['NO_PRY_COLORED_BACON'] == 'true') && Pry::Helpers::BaseHelpers.use_ansi_codes?
 
