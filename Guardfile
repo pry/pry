@@ -10,7 +10,7 @@ module ::Guard
 
     def run_spec(path)
       if File.exists?(path)
-        cmd = "bundle exec bacon -Ilib/pry/test -Ispec -q #{path}"
+        cmd = "rake spec run=#{path}"
         puts cmd
         @success &&= system cmd
         puts
