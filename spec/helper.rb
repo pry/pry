@@ -31,6 +31,20 @@ def redirect_pry_io(new_in, new_out = StringIO.new)
   end
 end
 
+def mock_pry(*args)
+  args.flatten!
+  binding = args.first.is_a?(Binding) ? args.shift : binding()
+
+  input = InputTester.new(*args)
+  output = StringIO.new
+
+  redirect_pry_io(input, output) do
+    binding.pry
+  end
+
+  output.string
+end
+
 Pad = OpenStruct.new
 def Pad.clear
   @table = {}
