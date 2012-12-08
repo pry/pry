@@ -41,7 +41,7 @@ describe Pry do
     end
 
     it "should not be phased by un-inspectable things" do
-      mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<NastyClass:0x.*?>/
+      mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<.*NastyClass:0x.*?>/
     end
   end
 

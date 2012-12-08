@@ -31,6 +31,11 @@ def redirect_pry_io(new_in, new_out = StringIO.new)
   end
 end
 
+Pad = OpenStruct.new
+def Pad.clear
+  @table = {}
+end
+
 class InputTester
   def initialize(*actions)
     @orig_actions = actions.dup

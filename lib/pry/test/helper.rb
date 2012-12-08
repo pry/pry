@@ -24,10 +24,6 @@ end
 Pry.reset_defaults
 
 # A global space for storing temporary state during tests.
-Pad = OpenStruct.new
-def Pad.clear
-  @table = {}
-end
 
 module PryTestHelpers
 
@@ -70,34 +66,34 @@ module PryTestHelpers
   def unindent(*args)
     Pry::Helpers::CommandHelpers.unindent(*args)
   end
-end
 
-def mock_pry(*args)
-  args.flatten!
-  binding = args.first.is_a?(Binding) ? args.shift : binding()
+  def mock_pry(*args)
+    args.flatten!
+    binding = args.first.is_a?(Binding) ? args.shift : binding()
 
-  input = InputTester.new(*args)
-  output = StringIO.new
+    input = InputTester.new(*args)
+    output = StringIO.new
 
-  redirect_pry_io(input, output) do
-    binding.pry
+    redirect_pry_io(input, output) do
+      binding.pry
+    end
+
+    output.string
   end
 
-  output.string
-end
-
-def mock_command(cmd, args=[], opts={})
-  output = StringIO.new
-  ret = cmd.new(opts.merge(:output => output)).call_safely(*args)
-  Struct.new(:output, :return).new(output.string, ret)
-end
-
-def mock_exception(*mock_backtrace)
-  e = StandardError.new("mock exception")
-  (class << e; self; end).class_eval do
-    define_method(:backtrace) { mock_backtrace }
+  def mock_command(cmd, args=[], opts={})
+    output = StringIO.new
+    ret = cmd.new(opts.merge(:output => output)).call_safely(*args)
+    Struct.new(:output, :return).new(output.string, ret)
   end
-  e
+
+  def mock_exception(*mock_backtrace)
+    e = StandardError.new("mock exception")
+    (class << e; self; end).class_eval do
+      define_method(:backtrace) { mock_backtrace }
+    end
+    e
+  end
 end
 
 def pry_tester(*args, &block)
