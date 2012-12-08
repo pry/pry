@@ -67,20 +67,6 @@ module PryTestHelpers
     Pry::Helpers::CommandHelpers.unindent(*args)
   end
 
-  def mock_pry(*args)
-    args.flatten!
-    binding = args.first.is_a?(Binding) ? args.shift : binding()
-
-    input = InputTester.new(*args)
-    output = StringIO.new
-
-    redirect_pry_io(input, output) do
-      binding.pry
-    end
-
-    output.string
-  end
-
   def mock_command(cmd, args=[], opts={})
     output = StringIO.new
     ret = cmd.new(opts.merge(:output => output)).call_safely(*args)
