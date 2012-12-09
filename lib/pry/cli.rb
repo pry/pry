@@ -186,8 +186,6 @@ end.process_options do |opts|
     Pry.load_file_through_repl(full_name)
     exit
   end
-
-  parser = Slop.new
     
   # Start the session (running any code passed with -e, if there is any)
   Pry.start(context, :input => StringIO.new(exec_string))
