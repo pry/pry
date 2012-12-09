@@ -105,6 +105,7 @@ class PryTester
 
   def initialize(context = TOPLEVEL_BINDING, options = {})
     @pry = Pry.new(options)
+    @history = options[:history]
 
     if context
       target = Pry.binding_for(context)
@@ -122,6 +123,7 @@ class PryTester
 
     strs.flatten.each do |str|
       str = "#{str.strip}\n"
+      @history.push str if @history
       if @pry.process_command(str)
         result = last_command_result_or_output
       else

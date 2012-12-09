@@ -29,7 +29,8 @@ class Pry
     end
 
     def process
-      @history = Pry::Code(Pry.history.to_a)
+      # The last value in history will be the 'hist' command itself
+      @history = Pry::Code(Pry.history.to_a[0..-2])
 
       if opts.present?(:show)
         @history = @history.between(opts[:show])

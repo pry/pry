@@ -422,12 +422,10 @@ class Pry
     # Pry's input.
     interactive = !input.is_a?(StringIO)
 
-    begin
-      if !process_command(val, eval_string, target)
-        eval_string << "#{indented_val.chomp}\n" unless val.empty?
-      end
-    ensure
-      Pry.history << indented_val if interactive
+    Pry.history << indented_val if interactive
+
+    if !process_command(val, eval_string, target)
+      eval_string << "#{indented_val.chomp}\n" unless val.empty?
     end
   end
 
