@@ -6,7 +6,7 @@ describe "hist" do
     @hist = Pry.history
 
     @str_output = StringIO.new
-    @t = pry_tester do
+    @t = pry_tester :history => @hist do
       # For looking at what hist pushes into the input stack. The
       # implementation of this helper will definitely have to change at some
       # point.
