@@ -3,7 +3,12 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
-require File.expand_path('../../lib/pry/test/helper', __FILE__)
+require 'mocha/api'
+
+require 'pry/test/helper'
+
+require File.expand_path('../helpers/bacon', __FILE__)
+require File.expand_path('../helpers/mock_pry', __FILE__)
 
 class Module
   public :remove_const
@@ -14,55 +19,9 @@ end
 # in tests)
 $VERBOSE = nil
 
-# Set I/O streams.
-#
-# Out defaults to an anonymous StringIO.
-def redirect_pry_io(new_in, new_out = StringIO.new)
-  old_in = Pry.input
-  old_out = Pry.output
-
-  Pry.input = new_in
-  Pry.output = new_out
-  begin
-    yield
-  ensure
-    Pry.input = old_in
-    Pry.output = old_out
-  end
-end
-
-def mock_pry(*args)
-  args.flatten!
-  binding = args.first.is_a?(Binding) ? args.shift : binding()
-
-  input = InputTester.new(*args)
-  output = StringIO.new
-
-  redirect_pry_io(input, output) do
-    binding.pry
-  end
-
-  output.string
-end
-
 Pad = OpenStruct.new
 def Pad.clear
   @table = {}
-end
-
-class InputTester
-  def initialize(*actions)
-    @orig_actions = actions.dup
-    @actions = actions
-  end
-
-  def readline(*)
-    @actions.shift
-  end
-
-  def rewind
-    @actions = @orig_actions.dup
-  end
 end
 
 # to help with tracking down bugs that cause an infinite loop in the test suite

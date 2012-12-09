@@ -43,7 +43,7 @@ module Bacon
   end
 end
 
-# Reset toplevel binding at the beginning of each test case.
+# Reset top-level binding at the beginning of each test case.
 module Bacon
   class Context
     def it_with_reset_binding(description, &block)
@@ -57,8 +57,6 @@ end
 
 # Support mocha
 # mocha-on-bacon (c) Copyright (C) 2011, Eloy Durán <eloy.de.enige@gmail.com>
-require 'mocha/api'
-
 module Bacon
   module MochaRequirementsCounter
     def self.increment
