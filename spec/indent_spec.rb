@@ -276,7 +276,7 @@ OUTPUT
   end
 
   describe "nesting" do
-      test = File.read("spec/example_nesting.rb")
+      test = File.read("spec/fixtures/example_nesting.rb")
 
       test.lines.each_with_index do |line, i|
         result = line.split("#").last.strip

@@ -307,8 +307,8 @@ describe Pry do
 
       describe "test loading rc files" do
         before do
-          Pry::HOME_RC_FILE.replace File.expand_path("../testrc", __FILE__)
-          Pry::LOCAL_RC_FILE.replace File.expand_path("../testrc", __FILE__) + "/../testrc"
+          Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
+          Pry::LOCAL_RC_FILE.replace "spec/fixtures/testrc/../testrc"
           Pry.instance_variable_set(:@initial_session, true)
         end
 
@@ -355,7 +355,7 @@ describe Pry do
 
         describe "that raise exceptions" do
           before do
-            Pry::HOME_RC_FILE = File.expand_path("../testrcbad", __FILE__)
+            Pry::HOME_RC_FILE = "spec/fixtures/testrcbad"
             Pry.config.should_load_rc = true
             Pry.config.should_load_local_rc = false
 
@@ -390,7 +390,8 @@ describe Pry do
           end
 
           it "should output an error" do
-            @doing_it[].should =~ /Error loading #{File.expand_path("../testrcbad", __FILE__)}: messin with ya/
+            @doing_it.call.should ==
+              "Error loading spec/fixtures/testrcbad: messin with ya"
           end
         end
       end
