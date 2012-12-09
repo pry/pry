@@ -185,7 +185,3 @@ class PryTester
     @pry.output = @out
   end
 end
-
-if defined?(Bacon)
-  require File.join(File.expand_path(File.dirname(__FILE__)), 'bacon_helper')
-end
