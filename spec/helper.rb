@@ -3,7 +3,7 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
-require File.join(File.expand_path(File.dirname(__FILE__)), '../lib/pry/test/helper')
+require File.expand_path('../../lib/pry/test/helper', __FILE__)
 
 class Module
   public :remove_const

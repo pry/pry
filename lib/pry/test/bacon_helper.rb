@@ -46,10 +46,43 @@ end
 # Reset toplevel binding at the beginning of each test case.
 module Bacon
   class Context
-    alias _real_it it
-    def it(description, &block)
+    def it_with_reset_binding(description, &block)
       Pry.toplevel_binding = nil
-      _real_it(description, &block)
+      it_without_reset_binding(description, &block)
     end
+    alias it_without_reset_binding it
+    alias it it_with_reset_binding
+  end
+end
+
+# Support mocha
+# mocha-on-bacon (c) Copyright (C) 2011, Eloy Durán <eloy.de.enige@gmail.com>
+require 'mocha/api'
+
+module Bacon
+  module MochaRequirementsCounter
+    def self.increment
+      Counter[:requirements] += 1
+    end
+  end
+
+  class Context
+    include Mocha::API
+
+    def it_with_mocha(description, &block)
+      it_without_mocha(description) do
+        begin
+          mocha_setup
+          block.call
+          mocha_verify(MochaRequirementsCounter)
+        rescue Mocha::ExpectationError => e
+          raise Error.new(:failed, e.message)
+        ensure
+          mocha_teardown
+        end
+      end
+    end
+    alias it_without_mocha it
+    alias it it_with_mocha
   end
 end
