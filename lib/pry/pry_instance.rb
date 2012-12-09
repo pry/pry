@@ -287,20 +287,30 @@ class Pry
   # Ruby expression is received.
   # Pry commands are also accepted here and operate on the target.
   # @param [Object, Binding] target The receiver of the read.
-  # @param [String] eval_string Optionally Prime `eval_string` with a start value.
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
-  def r(target=TOPLEVEL_BINDING, eval_string="")
+  def r(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
+    eval_string = ""
     @suppress_output = false
 
     loop do
-      begin
-        # eval_string will probably be mutated by this method
-        retrieve_line(eval_string, target)
-      rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
-        output.puts "Error: #{e.message}"
+
+      case val = retrieve_line(eval_string, target)
+      when :control_c
+        output.puts ""
+        eval_string = ""
+      when :control_d
+        output.puts ""
+        Pry.config.control_d_handler.call(eval_string, self)
+      else
+        # Change the eval_string into the input encoding (Issue 284)
+        ensure_correct_encoding!(eval_string, val)
+
+        if !process_command_safely(val, eval_string, target)
+          eval_string << "#{val.chomp}\n" unless val.empty?
+        end
       end
 
       begin
@@ -356,10 +366,12 @@ class Pry
     end
   end
 
-  def should_force_encoding?(eval_string, val)
-    eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+  def ensure_correct_encoding!(eval_string, val)
+    if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
+      eval_string.force_encoding(val.encoding)
+    end
   end
-  private :should_force_encoding?
+  private :ensure_correct_encoding!
 
   # Read and process a line of input -- check for ^D, determine which prompt to
   # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
@@ -387,24 +399,11 @@ class Pry
     # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
     # from within Readline.
     rescue Interrupt
-      output.puts ""
-      eval_string.replace("")
-      return
+      return :control_c
     end
 
     # invoke handler if we receive EOF character (^D)
-    if !val
-      output.puts ""
-      Pry.config.control_d_handler.call(eval_string, self)
-      return
-    end
-
-    # Change the eval_string into the input encoding (Issue 284)
-    # TODO: This wouldn't be necessary if the eval_string was constructed from
-    # input strings only.
-    if should_force_encoding?(eval_string, val)
-      eval_string.force_encoding(val.encoding)
-    end
+    return :control_d unless val
 
     if Pry.config.auto_indent && !input.is_a?(StringIO)
       original_val = "#{indentation}#{val}"
@@ -424,9 +423,7 @@ class Pry
 
     Pry.history << indented_val if interactive
 
-    if !process_command(val, eval_string, target)
-      eval_string << "#{indented_val.chomp}\n" unless val.empty?
-    end
+    indented_val
   end
 
   # If the given line is a valid command, process it in the context of the
@@ -462,6 +459,18 @@ class Pry
     else
       false
     end
+  end
+
+  # Same as process_command, but outputs exceptions to {output} instead of raising.
+  # @param [String] val  The line to process.
+  # @param [String] eval_string  The cumulative lines of input
+  # @param [Binding] target  The target of the Pry session
+  # @return [Boolean] `true` if `val` is a command, `false` otherwise
+  def process_command_safely(val, eval_string, target)
+    process_command(val, eval_string, target)
+  rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
+    output.puts "Error: #{e.message}"
+    true
   end
 
   # Run the specified command.
