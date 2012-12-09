@@ -11,10 +11,8 @@ describe Pry::WrappedModule do
   describe "candidates" do
     before do
       class Host
-        source_files = [File.join(File.dirname(__FILE__), "candidate_helper1.rb"),
-                        File.join(File.dirname(__FILE__), "candidate_helper2.rb")]
-
-        source_files.each do |file|
+        %w(spec/fixtures/candidate_helper1.rb
+           spec/fixtures/candidate_helper2.rb).each do |file|
           binding.eval File.read(file), file, 1
         end
 

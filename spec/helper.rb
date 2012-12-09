@@ -6,9 +6,8 @@ end
 require 'mocha/api'
 
 require 'pry/test/helper'
-
-require File.expand_path('../helpers/bacon', __FILE__)
-require File.expand_path('../helpers/mock_pry', __FILE__)
+require 'helpers/bacon'
+require 'helpers/mock_pry'
 
 class Module
   public :remove_const
