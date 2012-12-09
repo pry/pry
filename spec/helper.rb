@@ -31,3 +31,5 @@ if ENV["SET_TRACE_FUNC"]
      STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
   }
 end
+
+puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"

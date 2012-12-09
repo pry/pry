@@ -1,7 +1,5 @@
 require 'pry'
 
-puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Slop v#{Slop::VERSION}"
-
 # in case the tests call reset_defaults, ensure we reset them to
 # amended (test friendly) values
 class << Pry
