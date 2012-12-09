@@ -84,10 +84,6 @@ end
 exec_string = ""
 
 # Bring in options defined by plugins
-#Pry::CLI.add_plugin_options
-
-# The default Pry command line options (before plugin options are included)
-
 Slop.new do
   on "no-plugins" do
     Pry.config.should_load_plugins = false
@@ -98,6 +94,7 @@ if Pry.config.should_load_plugins
   Pry::CLI.add_plugin_options 
 end
 
+# The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
@@ -190,10 +187,8 @@ end.process_options do |opts|
     exit
   end
 
-  if Pry.config.should_load_plugins 
-    parser = Slop.new
+  parser = Slop.new
     
-  end
   # Start the session (running any code passed with -e, if there is any)
   Pry.start(context, :input => StringIO.new(exec_string))
 end
