@@ -1,22 +1,24 @@
 require 'helper'
 
 describe 'gist' do
+  Pad.jist_calls = {}
 
   # In absence of normal mocking, just monkeysmash these with no undoing after.
   module Jist
     class << self
-      def login!; $jist_logged_in = true end
+      def login!; Pad.jist_calls[:login!] = true end
       def gist(*args)
-        $jist_gisted = args
+        Pad.jist_calls[:gist_args] = args
         {'html_url' => 'http://gist.blahblah'}
       end
-      def copy(content); $clipped_content = content end
+      def copy(content); Pad.jist_calls[:copy_args] = content end
     end
   end
 
   it 'nominally logs in' do
     pry_eval 'gist --login'
-    $jist_logged_in.should.not.be.nil
+    Pad.jist_calls[:login!].should.not.be.nil
+    Pad.jist_calls = {}
   end
 
   EXAMPLE_REPL_METHOD = <<-EOT
@@ -38,12 +40,12 @@ describe 'gist' do
   it 'deduces filenames' do
     Pry::Gist::INVOCATIONS.keys.each do |e|
       run_case.call(e)
-      if $jist_gisted
-        text, args = $jist_gisted
+      if Pad.jist_calls[:gist_args]
+        text, args = Pad.jist_calls[:gist_args]
         args[:filename].should.not == '(pry)'
       end
-      $clipped_content.should.not.be.nil
-      $clipped_content = $jist_gisted = nil
+      Pad.jist_calls[:copy_args].should.not.be.nil
+      Pad.jist_calls = {}
     end
   end
 
