@@ -24,6 +24,7 @@ class Pry
           "e.g.: %-33s # %s " % [example_code(e), example_description(e)]
         end.join "\n"
       end
+      def require_jist; require 'jist' end
     end
   end
 
@@ -47,7 +48,7 @@ class Pry
     attr_accessor :content, :filename
 
     def setup
-      require 'jist'
+      Pry::Gist.require_jist # extracted so test can stub out
       @content = ''
     end
 
