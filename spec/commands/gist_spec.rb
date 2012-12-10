@@ -15,6 +15,12 @@ describe 'gist' do
     end
   end
 
+  module Pry::Gist
+    # a) The actual require fails for jruby for some odd reason.
+    # b) 100% of jist should be stubbed by the above, so this ensures that.
+    def self.require_jist; 'nope' end
+  end
+
   it 'nominally logs in' do
     pry_eval 'gist --login'
     Pad.jist_calls[:login!].should.not.be.nil
