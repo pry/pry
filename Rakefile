@@ -55,7 +55,7 @@ task :test do
       Dir['spec/**/*_spec.rb']
     end
   all_specs.shuffle! if all_specs.respond_to? :shuffle!
-  system "bacon -Ispec -rubygems -q #{all_specs.join ' '}"
+  exec "bacon -Ispec -rubygems -q #{all_specs.join ' '}"
 end
 task :spec => :test
 
