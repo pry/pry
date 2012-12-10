@@ -8,59 +8,57 @@ module ::Guard
       true
     end
 
-    def run_spec(path)
-      if File.exists?(path)
-        cmd = "rake spec run=#{path}"
-        puts cmd
-        @success &&= system cmd
-        puts
-      end
-    end
-
-    def file_changed(path)
-      run_spec(path)
-    end
-
     def run_on_changes(paths)
-      @success = true
-      paths.delete(:all)
-
-      paths.each do |path|
-        file_changed(path)
+      paths.delete('some_lib')
+      if paths.size.zero?
+        all = Dir['spec/**/*_spec.rb'].sort_by{|path| File.mtime(path)}.reverse
+        warn <<-EOT
+No deduced mapping.
+Running all, sorting by mtime: #{all[0..2].join(' ')} ...etc.
+        EOT
+        system "rake spec run=#{all.join(',')}" or return
+      else
+        paths.each do |path|
+          system "rake spec run=#{path}" or return
+          warn "\e[32;1mNice!!\e[0m  Now running all specs, just to be sure."
+          run_all
+        end
       end
-
-      run_all if @success
     end
   end
 end
 
 guard 'bacon' do
   def deduce_spec_from(token)
-    "spec/#{token}_spec.rb"
-  end
-
-  Dir['lib/pry/*.rb'].each do |rb|
-    rb[%r(lib/pry/(.+)\.rb$)]
-    spec_rb = deduce_spec_from $1
-    if File.exists?(spec_rb)
-      watch(rb) { spec_rb }
-    else
-      exempt = %w(
-        commands
-        version
-      ).map {|token| deduce_spec_from token}
-      puts 'Missing ' + spec_rb if
-        ENV['WANT_SPEC_COMPLAINTS'] and not exempt.include?(spec_rb)
+    %W(
+      spec/#{token}_spec.rb
+      spec/pry_#{token}_spec.rb
+      spec/commands/#{token}_spec.rb
+    ).each do |e|
+      return e if File.exists? e
     end
+    nil
   end
 
-  watch(%r{^lib/pry/commands/([^.]+)\.rb}) { |m| "spec/commands/#{m[1]}_spec.rb" }
+  Dir['lib/pry/**/*.rb'].each do |rb|
+    rb[%r(lib/pry/(.+)\.rb$)]
+    spec_rb = deduce_spec_from($1)
+    if spec_rb
+      # run as 'bundle exec guard -d' to see these.
+      ::Guard::UI.debug "'#{rb}' maps to '#{spec_rb}'"
+    else
+      ::Guard::UI.debug "No map, so run all for: '#{rb}'"
+    end
+    next unless spec_rb
+    watch(rb) do |m| spec_rb end
+  end
 
-  # If no such mapping exists, just run all of them
-  watch(%r{^lib/}) { :all }
+  watch(%r{^lib/.+\.rb$}) do |m|
+    return if deduce_spec_from(m[0])
+    'some_lib'
+  end
 
-  # If we modified one spec file, run it
-  watch(%r{^spec/.+\.rb$})
+  watch(%r{^spec/.+\.rb$}) do |m| m end
 end
 
 # vim:ft=ruby
