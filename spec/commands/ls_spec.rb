@@ -164,13 +164,13 @@ describe "ls" do
   if Pry::Helpers::BaseHelpers.jruby?
     describe 'on java objects' do
       it 'should omit java-esque aliases by default' do
-        pry_eval('ls java.lang.Thread.current_thread').should =~ / thread_group /
-        pry_eval('ls java.lang.Thread.current_thread').should.not =~ / getThreadGroup /
+        pry_eval('ls java.lang.Thread.current_thread').should =~ /\bthread_group\b/
+        pry_eval('ls java.lang.Thread.current_thread').should.not =~ /\bgetThreadGroup\b/
       end
 
       it 'should include java-esque aliases if requested' do
-        pry_eval('ls java.lang.Thread.current_thread -J').should =~ / thread_group /
-        pry_eval('ls java.lang.Thread.current_thread -J').should =~ / getThreadGroup /
+        pry_eval('ls java.lang.Thread.current_thread -J').should =~ /\bthread_group\b/
+        pry_eval('ls java.lang.Thread.current_thread -J').should =~ /\bgetThreadGroup\b/
       end
     end
   end
