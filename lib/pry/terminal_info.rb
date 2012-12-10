@@ -15,7 +15,7 @@ class Pry::TerminalInfo
     [
       # Some readlines also provides get_screen_size.
       # Readline comes before IO#winsize because jruby sometimes defaults winsize to [25, 80]
-      Readline.respond_to?(:get_screen_size) && Readline.get_screen_size,
+      readline_screen_size,
 
       # io/console adds a winsize method to IO streams.
       # rescue nil for jruby 1.7.0 [jruby/jruby#354]
@@ -30,6 +30,19 @@ class Pry::TerminalInfo
       ENV['ANSICON'] =~ /\((.*)x(.*)\)/ && [$2, $1],
     ].detect do |(_, cols)|
       cols.to_i > 0
+    end
+  end
+
+  def self.readline_screen_size
+    if Pry::Helpers::BaseHelpers.jruby?
+      begin
+        Readline.get_screen_size
+      # https://github.com/jruby/jruby/pull/436
+      rescue Java::JavaLang::NullPointerException
+        nil
+      end
+    elsif Readline.respond_to?(:get_screen_size)
+      Readline.get_screen_size
     end
   end
 end
