@@ -11,12 +11,7 @@ module ::Guard
     def run_on_changes(paths)
       paths.delete('some_lib')
       if paths.size.zero?
-        all = Dir['spec/**/*_spec.rb'].sort_by{|path| File.mtime(path)}.reverse
-        warn <<-EOT
-No deduced mapping.
-Running all, sorting by mtime: #{all[0..2].join(' ')} ...etc.
-        EOT
-        system "rake spec run=#{all.join(',')}" or return
+        system 'rake recspec'
       else
         paths.each do |path|
           system "rake spec run=#{path}" or return
