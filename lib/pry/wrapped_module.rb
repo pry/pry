@@ -204,6 +204,24 @@ class Pry
       !!(defined?(YARD) && YARD::Registry.at(name))
     end
 
+    # @param [Fixnum] times How far to travel up the ancestor chain.
+    # @return [Pry::WrappedModule, nil] The wrapped module that is the
+    #   superclass.
+    #   When `self` is a `Module` then return the
+    #   nth ancestor, otherwise (in the case of classes) return the
+    #   nth ancestor that is a class.
+    def super(times=1)
+      return self if times.zero?
+
+      if wrapped.is_a?(Class)
+        sup = ancestors.select { |v| v.is_a?(Class) }[times]
+      else
+        sup = ancestors[times]
+      end
+
+      Pry::WrappedModule(sup) if sup
+    end
+
     private
 
     # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
