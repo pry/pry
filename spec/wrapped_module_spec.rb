@@ -168,5 +168,59 @@ describe Pry::WrappedModule do
       Pry::WrappedModule.new(class << Object; self; end).singleton_instance.should.equal?(Object)
     end
   end
-end
 
+  describe ".super" do
+    describe "receiver is a class" do
+      before do
+        @a = Class.new
+        @m = Module.new
+        @b = Class.new(@a)
+        @b.send(:include, @m)
+        @c = Class.new(@b)
+      end
+
+      it 'should return superclass for a wrapped class'  do
+        Pry::WrappedModule(@c).super.wrapped.should == @b
+      end
+
+      it 'should return nth superclass for a wrapped class'  do
+        d = Class.new(@c)
+        Pry::WrappedModule(d).super(2).wrapped.should == @b
+      end
+
+      it 'should ignore modules when retrieving nth superclass'  do
+        Pry::WrappedModule(@c).super(2).wrapped.should == @a
+      end
+
+      it 'should return nil when no nth superclass exists' do
+        Pry::WrappedModule(@c).super(10).should == nil
+      end
+
+      it 'should return self when .super(0) is used' do
+        c = Pry::WrappedModule(@c)
+        c.super(0).should == c
+      end
+    end
+
+    describe "receiver is a module" do
+      before do
+        @m1 = Module.new
+        @m2 = Module.new.tap { |v| v.send(:include, @m1) }
+        @m3 = Module.new.tap { |v| v.send(:include, @m2) }
+      end
+
+      it 'should not ignore modules when retrieving supers' do
+        Pry::WrappedModule(@m3).super.wrapped.should == @m2
+      end
+
+      it 'should retrieve nth super' do
+        Pry::WrappedModule(@m3).super(2).wrapped.should == @m1
+      end
+
+      it 'should return self when .super(0) is used' do
+        m = Pry::WrappedModule(@m1)
+        m.super(0).should == m
+      end
+    end
+  end
+end
