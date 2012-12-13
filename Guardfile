@@ -10,6 +10,7 @@ module ::Guard
 
     def run_on_changes(paths)
       paths.delete('some_lib')
+      puts "Running: #{paths.join ' '}"
       if paths.size.zero?
         system 'rake recspec'
       else
