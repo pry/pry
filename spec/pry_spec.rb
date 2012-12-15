@@ -81,34 +81,21 @@ describe Pry do
 
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        input_string = "Command"
-        o = Object.new
-        pry_tester = Pry.new(:input => StringIO.new(input_string),
-                             :output => @str_output,
-                             :exception_handler => proc { |_, exception, _pry_| @excep = exception },
-                             :print => proc {}
-                             ).rep(o)
-
-        @excep.is_a?(NameError).should == true
+        lambda{
+          pry_eval(Object.new, "Command")
+        }.should.raise(NameError)
       end
 
       if defined?(BasicObject)
         it 'should be able to operate inside the BasicObject class' do
-          redirect_pry_io(InputTester.new(":foo", "Pad.obj = _", "exit-all")) do
-            BasicObject.pry
-          end
-
+          pry_eval(BasicObject, ":foo", "Pad.obj = _")
           Pad.obj.should == :foo
         end
       end
 
       it 'should set an ivar on an object' do
-        input_string = "@x = 10"
-        input = InputTester.new(input_string)
         o = Object.new
-
-        pry_tester = Pry.new(:input => input, :output => StringIO.new)
-        pry_tester.rep(o)
+        pry_eval(o, "@x = 10")
         o.instance_variable_get(:@x).should == 10
       end
 
@@ -121,10 +108,7 @@ describe Pry do
 
       it 'should make self evaluate to the receiver of the rep session' do
         o = :john
-
-        pry_tester = Pry.new(:input => InputTester.new("self"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should =~ /:john/
+        pry_eval(o, "self").should == o
       end
 
       it 'should work with multi-line input' do
@@ -417,24 +401,20 @@ describe Pry do
       describe "defining methods" do
         it 'should define a method on the singleton class of an object when performing "def meth;end" inside the object' do
           [Object.new, {}, []].each do |val|
-            str_input = StringIO.new("def hello;end")
-            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
-
+            pry_eval(val, 'def hello; end')
             val.methods(false).map(&:to_sym).include?(:hello).should == true
           end
         end
 
         it 'should define an instance method on the module when performing "def meth;end" inside the module' do
-          str_input = StringIO.new("def hello;end")
           hello = Module.new
-          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          pry_eval(hello, "def hello; end")
           hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
         end
 
         it 'should define an instance method on the class when performing "def meth;end" inside the class' do
-          str_input = StringIO.new("def hello;end")
           hello = Class.new
-          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          pry_eval(hello, "def hello; end")
           hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
         end
 
@@ -442,8 +422,7 @@ describe Pry do
           # should include  float in here, but test fails for some reason
           # on 1.8.7, no idea why!
           [:test, 0, true, false, nil].each do |val|
-            str_input = StringIO.new("def hello;end")
-            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
+            pry_eval(val, "def hello; end");
             val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
           end
         end
