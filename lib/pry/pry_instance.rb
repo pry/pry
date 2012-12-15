@@ -308,7 +308,7 @@ class Pry
         # Change the eval_string into the input encoding (Issue 284)
         ensure_correct_encoding!(eval_string, val)
 
-        if !process_command_safely(val, eval_string, target)
+        if !process_command_safely(val.lstrip, eval_string, target)
           eval_string << "#{val.chomp}\n" unless val.empty?
         end
       end
