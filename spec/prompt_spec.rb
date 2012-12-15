@@ -23,6 +23,7 @@ describe "Prompts" do
       redirect_pry_io(InputTester.new("def hello", "exit-all")) do
         Pry.start(self, :prompt => proc { |v| config = v })
       end
+
       config.eval_string.should =~ /def hello/
       config.nesting_level.should == 0
       config.expr_number.should == 1

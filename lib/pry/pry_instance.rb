@@ -200,8 +200,6 @@ class Pry
     set_last_result(nil, target)
 
     @input_array << nil # add empty input so _in_ and _out_ match
-
-    binding_stack.push target
   end
 
   # Clean-up after the repl session.
@@ -209,7 +207,6 @@ class Pry
   def repl_epilogue(target)
     exec_hook :after_session, output, target, self
 
-    binding_stack.pop
     Pry.save_history if Pry.config.history.should_save
   end
 
@@ -226,7 +223,7 @@ class Pry
 
     repl_prologue(target)
 
-    rep(binding_stack.last)
+    rep(target)
   ensure
     repl_epilogue(target)
   end
@@ -252,7 +249,7 @@ class Pry
     break_data = nil
     exception = catch(:raise_up) do
       break_data = catch(:breakout) do
-        r(binding_stack.last)
+        r(target)
       end
       exception = false
     end
@@ -272,11 +269,12 @@ class Pry
   # @example
   #   Pry.new.r(Object.new)
   def r(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
+    binding_stack.push Pry.binding_for(target)
     eval_string = ""
 
     loop do
       throw(:breakout) if binding_stack.empty?
+      target = binding_stack.last
       @suppress_output = false
       inject_sticky_locals(target)
 
@@ -325,6 +323,9 @@ class Pry
 
     exec_hook :after_read, eval_string, self
     eval_string
+
+  ensure
+    binding_stack.pop
   end
 
   def evaluate_ruby(code, target = binding_stack.last)
