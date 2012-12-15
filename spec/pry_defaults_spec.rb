@@ -75,16 +75,17 @@ describe "test Pry defaults" do
   end
 
   it 'should set the output default, and the default should be overridable' do
-    Pry.input = InputTester.new("5", "6", "7")
-
     Pry.output = @str_output
 
+    Pry.input  = InputTester.new("5")
     Pry.new.rep
     @str_output.string.should =~ /5/
 
+    Pry.input  = InputTester.new("6")
     Pry.new.rep
     @str_output.string.should =~ /5\n.*6/
 
+    Pry.input  = InputTester.new("7")
     @str_output = StringIO.new
     Pry.new(:output => @str_output).rep
     @str_output.string.should.not =~ /5\n.*6/
@@ -198,12 +199,11 @@ describe "test Pry defaults" do
       end
 
       it 'should restore overridden prompts when returning from file-mode' do
-        pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
-        :prompt => [ proc { 'P>' } ] * 2
+        pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
         pry.select_prompt(@empty_input_buffer, @context).should == "P>"
-        pry.re
+        pry.process_command('shell-mode')
         pry.select_prompt(@empty_input_buffer, @context).should =~ /\Apry .* \$ \z/
-        pry.re
+        pry.process_command('shell-mode')
         pry.select_prompt(@empty_input_buffer, @context).should == "P>"
       end
 
