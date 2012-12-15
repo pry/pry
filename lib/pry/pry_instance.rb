@@ -229,10 +229,7 @@ class Pry
     break_data = nil
     exception = catch(:raise_up) do
       break_data = catch(:breakout) do
-        loop do
-          throw(:breakout) if binding_stack.empty?
-          rep(binding_stack.last)
-        end
+        rep(binding_stack.last)
       end
       exception = false
     end
@@ -250,12 +247,7 @@ class Pry
   # @example
   #   Pry.new.rep(Object.new)
   def rep(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
-    result = re(target)
-
-    Pry.critical_section do
-      show_result(result)
-    end
+    re(target)
   end
 
   # Perform a read-eval
@@ -267,18 +259,7 @@ class Pry
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
-
-    # It's not actually redundant to inject them continually as we may have
-    # moved into the scope of a new Binding (e.g the user typed `cd`).
-    inject_sticky_locals(target)
-
-    code = r(target)
-
-    evaluate_ruby(code, target)
-  rescue RescuableException => e
-    self.last_exception = e
-    e
+    r(target)
   end
 
   # Perform a read.
@@ -296,6 +277,8 @@ class Pry
     @suppress_output = false
 
     loop do
+      throw(:breakout) if binding_stack.empty?
+      inject_sticky_locals(target)
 
       case val = retrieve_line(eval_string, target)
       when :control_c
@@ -314,15 +297,30 @@ class Pry
       end
 
       begin
-        break if Pry::Code.complete_expression?(eval_string)
+        complete_expr = Pry::Code.complete_expression?(eval_string)
       rescue SyntaxError => e
         output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
         eval_string = ""
       end
-    end
 
-    if eval_string =~ /;\Z/ || eval_string.empty? || eval_string =~ /\A *#.*\n\z/
-      @suppress_output = true
+      if complete_expr
+        if eval_string =~ /;\Z/ || eval_string.empty? || eval_string =~ /\A *#.*\n\z/
+          @suppress_output = true
+        end
+
+        begin
+          result = evaluate_ruby(eval_string, target)
+        rescue RescuableException => e
+          self.last_exception = e
+          result = e
+        ensure
+          eval_string.replace('')
+        end
+
+        Pry.critical_section do
+          show_result(result)
+        end
+      end
     end
 
     exec_hook :after_read, eval_string, self
