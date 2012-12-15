@@ -77,19 +77,19 @@ describe Pry do
       @t = pry_tester
     end
     it "should normally output the result" do
-      mock_pry("1 + 2").should == "=> 3\n\n"
+      mock_pry("1 + 2").should == "=> 3\n"
     end
 
     it "should not output anything if the input ends with a semicolon" do
-      mock_pry("1 + 2;").should == "\n"
+      mock_pry("1 + 2;").should == ""
     end
 
     it "should output something if the input ends with a comment" do
-      mock_pry("1 + 2 # basic addition").should == "=> 3\n\n"
+      mock_pry("1 + 2 # basic addition").should == "=> 3\n"
     end
 
     it "should not output something if the input is only a comment" do
-      mock_pry("# basic addition").should == "\n"
+      mock_pry("# basic addition").should == ""
     end
   end
 end
