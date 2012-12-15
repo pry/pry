@@ -312,7 +312,7 @@ class Pry
           self.last_exception = e
           result = e
         ensure
-          eval_string.replace('')
+          eval_string = ""
         end
 
         Pry.critical_section do
