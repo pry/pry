@@ -274,10 +274,10 @@ class Pry
   def r(target=TOPLEVEL_BINDING)
     target = Pry.binding_for(target)
     eval_string = ""
-    @suppress_output = false
 
     loop do
       throw(:breakout) if binding_stack.empty?
+      @suppress_output = false
       inject_sticky_locals(target)
 
       case val = retrieve_line(eval_string, target)
