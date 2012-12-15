@@ -282,8 +282,8 @@ class Pry
       when :control_c
         output.puts ""
         eval_string = ""
-      when :control_d
-        output.puts ""
+      when :end_of_file
+        output.puts "" if interactive?
         Pry.config.control_d_handler.call(eval_string, self)
       else
         # Change the eval_string into the input encoding (Issue 284)
@@ -402,7 +402,7 @@ class Pry
     end
 
     # invoke handler if we receive EOF character (^D)
-    return :control_d unless val
+    return :end_of_file unless val
 
     if Pry.config.auto_indent && !input.is_a?(StringIO)
       original_val = "#{indentation}#{val}"
@@ -416,13 +416,15 @@ class Pry
       indented_val = val
     end
 
-    # Check this before processing the line, because a command might change
-    # Pry's input.
-    interactive = !input.is_a?(StringIO)
-
-    Pry.history << indented_val if interactive
+    Pry.history << indented_val if interactive?
 
     indented_val
+  end
+
+  # Is the user typing into this pry instance directly?
+  # @return [Boolean]
+  def interactive?
+    input.respond_to?(:tty?) && input.tty?
   end
 
   # If the given line is a valid command, process it in the context of the
