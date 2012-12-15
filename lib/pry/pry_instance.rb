@@ -226,17 +226,7 @@ class Pry
 
     repl_prologue(target)
 
-    break_data = nil
-    exception = catch(:raise_up) do
-      break_data = catch(:breakout) do
-        rep(binding_stack.last)
-      end
-      exception = false
-    end
-
-    raise exception if exception
-
-    break_data
+    rep(binding_stack.last)
   ensure
     repl_epilogue(target)
   end
@@ -259,7 +249,17 @@ class Pry
   # @example
   #   Pry.new.re(Object.new)
   def re(target=TOPLEVEL_BINDING)
-    r(target)
+    break_data = nil
+    exception = catch(:raise_up) do
+      break_data = catch(:breakout) do
+        r(binding_stack.last)
+      end
+      exception = false
+    end
+
+    raise exception if exception
+
+    break_data
   end
 
   # Perform a read.
