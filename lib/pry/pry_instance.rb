@@ -301,8 +301,18 @@ class Pry
       # Change the eval_string into the input encoding (Issue 284)
       ensure_correct_encoding!(@eval_string, val)
 
-      if !process_command_safely(val.lstrip, @eval_string, target)
-        @eval_string << "#{val.chomp}\n" unless val.empty?
+      begin
+        if !process_command_safely(val.lstrip, @eval_string, target)
+          @eval_string << "#{val.chomp}\n" unless val.empty?
+        end
+      rescue RescuableException => e
+        self.last_exception = e
+        result = e
+
+        Pry.critical_section do
+          show_result(result)
+        end
+        return
       end
     end
 
