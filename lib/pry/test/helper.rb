@@ -164,12 +164,12 @@ class PryTester
     last_command_result_or_output
   end
 
-  protected
-
   def last_command_result
     result = Thread.current[:__pry_cmd_result__]
     result.retval if result
   end
+
+  protected
 
   def last_command_result_or_output
     result = last_command_result

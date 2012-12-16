@@ -38,15 +38,10 @@ describe "commands" do
         end
         alias_command "test-alias", "test-command"
       end
-      redirect_pry_io(InputTester.new("test-alias"), out1 = StringIO.new) do
-        Pry.start self, :commands => set
-      end
 
-      redirect_pry_io(InputTester.new("test-command"), out2 = StringIO.new) do
-        Pry.start self, :commands => set
+      pry_tester(:commands => set).tap do |t|
+        t.eval('test-command').should == t.eval('test-alias')
       end
-
-      out1.string.should == out2.string
     end
 
     it 'should pass on arguments to original' do
@@ -181,9 +176,7 @@ describe "commands" do
         end
       end
 
-      Pry.new(:input => InputTester.new("run_v"), :output => @str_output, :commands => klass).rep
-
-      @str_output.string.should =~ /v command/
+      pry_tester(:commands => klass).eval('run_v').should =~ /v command/
     end
 
     it 'should run a regex command from within a command' do
@@ -197,11 +190,7 @@ describe "commands" do
         end
       end
 
-      redirect_pry_io(InputTester.new("run_v"), @str_output) do
-        Pry.new(:commands => klass).rep
-      end
-
-      @str_output.string.should =~ /v baby/
+      pry_tester(:commands => klass).eval('run_v').should =~ /v baby/
     end
 
     it 'should run a command from within a command with arguments' do
@@ -220,10 +209,7 @@ describe "commands" do
       end
 
       ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
-        redirect_pry_io(InputTester.new(cmd), @str_output) do
-          Pry.new(:commands => klass).rep
-        end
-        @str_output.string.should =~ /v baby param/
+        pry_tester(:commands => klass).eval(cmd).should =~ /v baby param/
       end
     end
   end
@@ -260,10 +246,7 @@ describe "commands" do
       end
     end
 
-    str_input = StringIO.new('hello #{Pad.bong}')
-    Pry.new(:input => str_input, :output => @str_output, :commands => set).rep
-
-    @str_output.string.should =~ /bong/
+    pry_tester(:commands => set).eval('hello #{Pad.bong}').should =~ /bong/
   end
 
   # bug fix for https://github.com/pry/pry/issues/170
@@ -282,39 +265,32 @@ describe "commands" do
       end
     end
 
-    str_input = StringIO.new('hello #{Pad.bong}')
-    Pry.new(:input => str_input, :output => @str_output, :commands => set).rep
-
-    @str_output.string.should =~ /Pad\.bong/
+    pry_tester(:commands => set).eval('hello #{Pad.bong}').
+      should =~ /Pad\.bong/
   end
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
-    Pry.new(:input => StringIO.new('format \'#{aggy}\''), :output => @str_output).rep
-    @str_output.string.should.not =~ /NameError/
+    # These should raise RuntimeError instead of NameError
+    proc {
+      pry_eval 'raise \'#{aggy}\''
+    }.should.raise(RuntimeError)
 
-    @str_output = StringIO.new
-    Pry.new(:input => StringIO.new('format #{aggy}'), :output => @str_output).rep
-    @str_output.string.should.not =~ /NameError/
+    proc {
+      pry_eval 'raise #{aggy}'
+    }.should.raise(RuntimeError)
 
-    @str_output = StringIO.new
-    Pad.interp = "bong"
-    Pry.new(:input => StringIO.new('format \'#{Pad.interp}\''), :output => @str_output).rep
-
-    @str_output.string.should.not =~ /bong/
+    pry_eval('format \'#{my_var}\'').should == "\#{my_var}"
   end
 
-  it 'should create a command with a space in its name' do
+  it 'should create a command with a space in its name zzz' do
     set = Pry::CommandSet.new do
       command "hello baby", "" do
         output.puts "hello baby command"
       end
     end
 
-    redirect_pry_io(InputTester.new("hello baby", "exit-all"), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello baby command/
+    pry_tester(:commands => set).eval('hello baby').
+      should =~ /hello baby command/
   end
 
   it 'should create a command with a space in its name and pass an argument' do
@@ -324,11 +300,8 @@ describe "commands" do
       end
     end
 
-    redirect_pry_io(InputTester.new("hello baby john"), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello baby command john/
+    pry_tester(:commands => set).eval('hello baby john').
+      should =~ /hello baby command john/
   end
 
   it 'should create a regex command and be able to invoke it' do
@@ -339,11 +312,7 @@ describe "commands" do
       end
     end
 
-    redirect_pry_io(InputTester.new("hello1"), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello1/
+    pry_tester(:commands => set).eval('hello1').should =~ /hello1/
   end
 
   it 'should create a regex command and pass captures into the args list before regular arguments' do
@@ -353,11 +322,7 @@ describe "commands" do
       end
     end
 
-    redirect_pry_io(InputTester.new("hello1 baby"), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello 1 baby/
+    pry_tester(:commands => set).eval('hello1 baby').should =~ /hello 1 baby/
   end
 
   it 'should create a regex command and interpolate the captures' do
@@ -367,11 +332,9 @@ describe "commands" do
       end
     end
 
-    redirect_pry_io(InputTester.new('hello #{Pad.bong}'), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello bong/
+    bong = "bong"
+    pry_tester(binding, :commands => set).eval('hello #{bong}').
+      should =~ /hello bong/
   end
 
   it 'should create a regex command and arg_string should be interpolated' do
@@ -381,14 +344,13 @@ describe "commands" do
       end
     end
 
-    Pad.bing = "bing"
-    Pad.bang = "bang"
-    redirect_pry_io(InputTester.new('hellojohn #{Pad.bing} #{Pad.bong} #{Pad.bang}'),
-                    @str_output) do
-      Pry.new(:commands => set).rep
-    end
+    bing = 'bing'
+    bong = 'bong'
+    bang = 'bang'
 
-    @str_output.string.should =~ /hello john bing bong bang/
+    pry_tester(binding, :commands => set).
+      eval('hellojohn #{bing} #{bong} #{bang}').
+      should =~ /hello john bing bong bang/
   end
 
   it 'if a regex capture is missing it should be nil' do
@@ -398,20 +360,21 @@ describe "commands" do
       end
     end
 
-    redirect_pry_io(InputTester.new("hello baby"), @str_output) do
-      Pry.new(:commands => set).rep
-    end
-
-    @str_output.string.should =~ /hello nil baby/
+    pry_tester(:commands => set).eval('hello baby').should =~ /hello nil baby/
   end
 
   it 'should create a command in a nested context and that command should be accessible from the parent' do
-    x = "@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"
     redirect_pry_io(StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"), @str_output) do
       Pry.new.repl(0)
     end
 
-    @str_output.string.should =~ /@x/
+    pry_tester(0).eval(*(<<-RUBY.split("\n"))).should =~ /instance variables:\s+@x/m
+      @x = nil
+      cd 7
+      _pry_.commands.instance_eval { command('bing') { |arg| run arg } }
+      cd ..
+      bing ls
+    RUBY
   end
 
   it 'should define a command that keeps its return value' do
@@ -421,9 +384,9 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("hello\n"), :output => @str_output, :commands => klass).rep
-    @str_output.string.should =~ /:kept_hello/
-    @str_output.string.should =~ /=>/
+    t = pry_tester(:commands => klass)
+    t.eval("hello\n")
+    t.last_command_result.should == :kept_hello
   end
 
   it 'should define a command that does NOT keep its return value' do
@@ -433,9 +396,9 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("hello\n"), :output => @str_output, :commands => klass).rep
-    (@str_output.string =~ /:kept_hello/).should == nil
-    @str_output.string !~ /=>/
+    t = pry_tester(:commands => klass)
+    t.eval("hello\n").should == ''
+    t.last_command_result.should == Pry::Command::VOID_VALUE
   end
 
   it 'should define a command that keeps its return value even when nil' do
@@ -445,10 +408,9 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("hello\n"), :output => @str_output, :commands => klass).rep
-
-    @str_output.string.should =~ /nil/
-    @str_output.string.should =~ /=>/
+    t = pry_tester(:commands => klass)
+    t.eval("hello\n")
+    t.last_command_result.should == nil
   end
 
   it 'should define a command that keeps its return value but does not return when value is void' do
@@ -458,8 +420,7 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("hello\n"), :output => @str_output, :commands => klass).rep
-    @str_output.string.empty?.should == true
+    pry_tester(:commands => klass).eval("hello\n").empty?.should == true
   end
 
   it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
@@ -469,8 +430,13 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => @str_output, :commands => klass).rep
-    @str_output.string.should =~ /6/
+    output = StringIO.new
+
+    redirect_pry_io(InputTester.new('def yo', 'hello'), output) do
+      Pry.start self, :commands => klass
+    end
+
+    output.string.should =~ /6/
   end
 
   it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
@@ -481,10 +447,7 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => @str_output, :commands => klass).rep
-
-    @str_output.string.should =~ /7/
-    @str_output.string.should.not =~ /6/
+    pry_tester(:commands => klass).eval("def yo\nhello\n").should == 7
   end
 
   it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
@@ -494,9 +457,7 @@ describe "commands" do
       end
     end
 
-    Pry.new(:input => StringIO.new("def yo\nhello\n"), :output => @str_output, :commands => klass).rep
-
-    @str_output.string.should =~ /5/
+    pry_tester(:commands => klass).eval("def yo\nhello\n").should == 5
   end
 
   it 'should set the commands default, and the default should be overridable' do
@@ -617,28 +578,12 @@ describe "commands" do
   end
 
   it 'should run a command with no parameter' do
-    pry_tester = Pry.new
-    pry_tester.commands = @command_tester
-    pry_tester.input = InputTester.new("command1", "exit-all")
-    pry_tester.commands = @command_tester
-
-    pry_tester.output = @str_output
-
-    pry_tester.rep
-
-    @str_output.string.should =~ /command1/
+    pry_tester(:commands => @command_tester).eval('command1').
+      should == "command1\n"
   end
 
   it 'should run a command with one parameter' do
-    pry_tester = Pry.new
-    pry_tester.commands = @command_tester
-    pry_tester.input = InputTester.new("command2 horsey", "exit-all")
-    pry_tester.commands = @command_tester
-
-    pry_tester.output = @str_output
-
-    pry_tester.rep
-
-    @str_output.string.should =~ /horsey/
+    pry_tester(:commands => @command_tester).eval('command2 horsey').
+      should == "horsey\n"
   end
 end
