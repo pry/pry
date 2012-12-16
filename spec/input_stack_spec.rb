@@ -80,11 +80,11 @@ describe "Pry#input_stack" do
       input1 = "'f｡｡'.encoding.name" # utf-8, see coding declaration
       input2 = input1.encode('Shift_JIS')
 
-      mock_pry(input1, input2).should == %{=> "UTF-8"\n=> "Shift_JIS"\n\n}
+      mock_pry(input1, input2).should == %{=> "UTF-8"\n=> "Shift_JIS"\n}
     end
 
     it "should be able to use unicode regexes on a UTF-8 terminal" do
-      mock_pry('":-Þ" =~ /þ/i').should == %{=> 2\n\n}
+      mock_pry('":-Þ" =~ /þ/i').should == %{=> 2\n}
     end
   end
 end
