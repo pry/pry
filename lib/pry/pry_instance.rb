@@ -274,46 +274,42 @@ class Pry
     @eval_string = ""
 
     loop do
-      r_body
+      throw(:breakout) if binding_stack.empty?
+      target = binding_stack.last
+      @suppress_output = false
+      inject_sticky_locals(target)
+
+      case val = retrieve_line(@eval_string, target)
+      when :control_c
+        output.puts ""
+        @eval_string = ""
+      when :end_of_file
+        output.puts "" if output.tty?
+        Pry.config.control_d_handler.call(@eval_string, self)
+      else
+        ensure_correct_encoding!(@eval_string, val)
+        accept_line(val, target)
+      end
+
+      exec_hook :after_read, @eval_string, self
     end
-
-    exec_hook :after_read, eval_string, self
-    @eval_string
-
   ensure
     binding_stack.pop
   end
 
-  def r_body
-    throw(:breakout) if binding_stack.empty?
-    target = binding_stack.last
-    @suppress_output = false
-    inject_sticky_locals(target)
-
-    case val = retrieve_line(@eval_string, target)
-    when :control_c
-      output.puts ""
-      @eval_string = ""
-    when :end_of_file
-      output.puts "" if output.tty?
-      Pry.config.control_d_handler.call(@eval_string, self)
-    else
-      # Change the eval_string into the input encoding (Issue 284)
-      ensure_correct_encoding!(@eval_string, val)
-
-      begin
-        if !process_command_safely(val.lstrip, @eval_string, target)
-          @eval_string << "#{val.chomp}\n" unless val.empty?
-        end
-      rescue RescuableException => e
-        self.last_exception = e
-        result = e
-
-        Pry.critical_section do
-          show_result(result)
-        end
-        return
+  def accept_line(line, target)
+    begin
+      if !process_command_safely(line.lstrip, @eval_string, target)
+        @eval_string << "#{line.chomp}\n" unless line.empty?
       end
+    rescue RescuableException => e
+      self.last_exception = e
+      result = e
+
+      Pry.critical_section do
+        show_result(result)
+      end
+      return
     end
 
     begin
@@ -342,7 +338,6 @@ class Pry
       end
     end
   end
-  private :r_body
 
   def evaluate_ruby(code, target = binding_stack.last)
     target = Pry.binding_for(target)
@@ -381,6 +376,7 @@ class Pry
     end
   end
 
+  # Change the eval_string into the input encoding (Issue 284)
   def ensure_correct_encoding!(eval_string, val)
     if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
       eval_string.force_encoding(val.encoding)
