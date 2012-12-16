@@ -440,7 +440,7 @@ class Pry
   # Is the user typing into this pry instance directly?
   # @return [Boolean]
   def interactive?
-    input.respond_to?(:tty?) && input.tty?
+    !(input.is_a?(StringIO) || (defined?(InputTester) && input.is_a?(InputTester)))
   end
 
   # If the given line is a valid command, process it in the context of the
