@@ -35,14 +35,15 @@ describe "Pry#input_stack" do
                        :output => @str_output,
                        :input_stack => stack)
 
+    instance.binding_stack << binding
     stack.size.should == 2
 
-    instance.rep
+    instance.send :r_body
     @str_output.string.should =~ /:alex/
-    instance.rep
+    instance.send :r_body
     @str_output.string.should =~ /:baron/
     stack.size.should == 1
-    instance.rep
+    instance.send :r_body
     @str_output.string.should =~ /:cloister/
     stack.size.should == 0
   end
