@@ -37,14 +37,11 @@ describe "Pry#input_stack" do
 
     instance.binding_stack << binding
     stack.size.should == 2
-
-    instance.send :r_body
-    @str_output.string.should =~ /:alex/
-    instance.send :r_body
-    @str_output.string.should =~ /:baron/
+    instance.retrieve_line('', binding).should == ":alex\n"
+    stack.size.should == 2
+    instance.retrieve_line('', binding).should == ":baron\n"
     stack.size.should == 1
-    instance.send :r_body
-    @str_output.string.should =~ /:cloister/
+    instance.retrieve_line('', binding).should == ":cloister\n"
     stack.size.should == 0
   end
 
