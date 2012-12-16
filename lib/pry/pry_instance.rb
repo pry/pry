@@ -86,6 +86,7 @@ class Pry
     @binding_stack = []
     @indent        = Pry::Indent.new
     @command_state = {}
+    @eval_string   = ""
   end
 
   # Refresh the Pry instance settings from the Pry class.
@@ -270,63 +271,68 @@ class Pry
   #   Pry.new.r(Object.new)
   def r(target=TOPLEVEL_BINDING)
     binding_stack.push Pry.binding_for(target)
-    eval_string = ""
+    @eval_string = ""
 
     loop do
-      throw(:breakout) if binding_stack.empty?
-      target = binding_stack.last
-      @suppress_output = false
-      inject_sticky_locals(target)
-
-      case val = retrieve_line(eval_string, target)
-      when :control_c
-        output.puts ""
-        eval_string = ""
-      when :end_of_file
-        output.puts "" if interactive?
-        Pry.config.control_d_handler.call(eval_string, self)
-      else
-        # Change the eval_string into the input encoding (Issue 284)
-        ensure_correct_encoding!(eval_string, val)
-
-        if !process_command_safely(val.lstrip, eval_string, target)
-          eval_string << "#{val.chomp}\n" unless val.empty?
-        end
-      end
-
-      begin
-        complete_expr = Pry::Code.complete_expression?(eval_string)
-      rescue SyntaxError => e
-        output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
-        eval_string = ""
-      end
-
-      if complete_expr
-        if eval_string =~ /;\Z/ || eval_string.empty? || eval_string =~ /\A *#.*\n\z/
-          @suppress_output = true
-        end
-
-        begin
-          result = evaluate_ruby(eval_string, target)
-        rescue RescuableException => e
-          self.last_exception = e
-          result = e
-        ensure
-          eval_string = ""
-        end
-
-        Pry.critical_section do
-          show_result(result)
-        end
-      end
+      r_body
     end
 
     exec_hook :after_read, eval_string, self
-    eval_string
+    @eval_string
 
   ensure
     binding_stack.pop
   end
+
+  def r_body
+    throw(:breakout) if binding_stack.empty?
+    target = binding_stack.last
+    @suppress_output = false
+    inject_sticky_locals(target)
+
+    case val = retrieve_line(@eval_string, target)
+    when :control_c
+      output.puts ""
+      @eval_string = ""
+    when :end_of_file
+      output.puts "" if interactive?
+      Pry.config.control_d_handler.call(@eval_string, self)
+    else
+      # Change the eval_string into the input encoding (Issue 284)
+      ensure_correct_encoding!(@eval_string, val)
+
+      if !process_command_safely(val.lstrip, @eval_string, target)
+        @eval_string << "#{val.chomp}\n" unless val.empty?
+      end
+    end
+
+    begin
+      complete_expr = Pry::Code.complete_expression?(@eval_string)
+    rescue SyntaxError => e
+      output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
+      @eval_string = ""
+    end
+
+    if complete_expr
+      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
+        @suppress_output = true
+      end
+
+      begin
+        result = evaluate_ruby(@eval_string, target)
+      rescue RescuableException => e
+        self.last_exception = e
+        result = e
+      ensure
+        @eval_string = ""
+      end
+
+      Pry.critical_section do
+        show_result(result)
+      end
+    end
+  end
+  private :r_body
 
   def evaluate_ruby(code, target = binding_stack.last)
     target = Pry.binding_for(target)
