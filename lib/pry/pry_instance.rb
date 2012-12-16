@@ -295,7 +295,7 @@ class Pry
       output.puts ""
       @eval_string = ""
     when :end_of_file
-      output.puts "" if interactive?
+      output.puts "" if output.tty?
       Pry.config.control_d_handler.call(@eval_string, self)
     else
       # Change the eval_string into the input encoding (Issue 284)
@@ -440,7 +440,7 @@ class Pry
   # Is the user typing into this pry instance directly?
   # @return [Boolean]
   def interactive?
-    !(input.is_a?(StringIO) || (defined?(InputTester) && input.is_a?(InputTester)))
+    !input.is_a?(StringIO)
   end
 
   # If the given line is a valid command, process it in the context of the
