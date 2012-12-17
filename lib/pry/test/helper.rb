@@ -108,8 +108,7 @@ class PryTester
     @history = options[:history]
 
     if context
-      target = Pry.binding_for(context)
-      @pry.binding_stack << target
+      self.context = context
       @pry.inject_sticky_locals!
     end
 
@@ -135,7 +134,7 @@ class PryTester
   end
 
   def context=(context)
-    @pry.binding_stack << Pry.binding_for(context)
+    @pry.push_binding context
   end
 
   # TODO: eliminate duplication with Pry#repl

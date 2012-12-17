@@ -35,7 +35,7 @@ describe "Pry#input_stack" do
                        :output => @str_output,
                        :input_stack => stack)
 
-    instance.binding_stack << binding
+    instance.push_binding binding
     stack.size.should == 2
     instance.retrieve_line.should == ":alex\n"
     stack.size.should == 2

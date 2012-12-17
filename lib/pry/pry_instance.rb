@@ -116,10 +116,15 @@ class Pry
 
   # The currently active `Binding`.
   # @return [Binding] The currently active `Binding` for the session.
-  def current_context
+  def current_binding
     binding_stack.last
   end
-  alias target current_context
+  alias current_context current_binding # support previous API
+
+  # Push a binding for the given object onto the stack.
+  def push_binding(object)
+    binding_stack << Pry.binding_for(object)
+  end
 
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
@@ -164,11 +169,10 @@ class Pry
     @output_array = Pry::HistoryArray.new(size)
   end
 
-  # Inject all the sticky locals into the `target` binding.
-  # @param [Binding] target
+  # Inject all the sticky locals into the current binding.
   def inject_sticky_locals!
     sticky_locals.each_pair do |name, value|
-      inject_local(name, value, target)
+      inject_local(name, value, current_binding)
     end
   end
 
@@ -271,11 +275,11 @@ class Pry
   # @example
   #   Pry.new.r(Object.new)
   def r(target_object = TOPLEVEL_BINDING)
-    binding_stack.push Pry.binding_for(target_object)
+    push_binding target_object
     @eval_string = ""
 
     loop do
-      throw(:breakout) if binding_stack.empty?
+      throw(:breakout) if current_binding.nil?
       @suppress_output = false
       inject_sticky_locals!
 
@@ -299,7 +303,7 @@ class Pry
 
   def accept_line(line)
     begin
-      if !process_command_safely(line.lstrip, @eval_string, target)
+      if !process_command_safely(line.lstrip, @eval_string, current_binding)
         @eval_string << "#{line.chomp}\n" unless line.empty?
       end
     rescue RescuableException => e
@@ -343,8 +347,8 @@ class Pry
     inject_sticky_locals!
     exec_hook :before_eval, code, self
 
-    result = target.eval(code, Pry.eval_path, Pry.current_line)
-    set_last_result(result, target, code)
+    result = current_binding.eval(code, Pry.eval_path, Pry.current_line)
+    set_last_result(result, current_binding, code)
   ensure
     update_input_history(code)
     exec_hook :after_eval, result, self
@@ -393,8 +397,8 @@ class Pry
   def retrieve_line(eval_string = '')
     @indent.reset if eval_string.empty?
 
-    current_prompt = select_prompt(eval_string, target)
-    completion_proc = Pry.config.completer.build_completion_proc(target, self,
+    current_prompt = select_prompt(eval_string, current_binding)
+    completion_proc = Pry.config.completer.build_completion_proc(current_binding, self,
                                                         instance_eval(&custom_completions))
 
     safe_completion_proc = proc{ |*a| Pry.critical_section{ completion_proc.call(*a) } }
@@ -438,7 +442,7 @@ class Pry
   end
 
   # If the given line is a valid command, process it in the context of the
-  # current `eval_string` and context.
+  # current `eval_string` and binding.
   # This method should not need to be invoked directly.
   # @param [String] val The line to process.
   # @param [String] eval_string The cumulative lines of input.
