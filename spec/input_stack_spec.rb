@@ -37,11 +37,11 @@ describe "Pry#input_stack" do
 
     instance.binding_stack << binding
     stack.size.should == 2
-    instance.retrieve_line('', binding).should == ":alex\n"
+    instance.retrieve_line.should == ":alex\n"
     stack.size.should == 2
-    instance.retrieve_line('', binding).should == ":baron\n"
+    instance.retrieve_line.should == ":baron\n"
     stack.size.should == 1
-    instance.retrieve_line('', binding).should == ":cloister\n"
+    instance.retrieve_line.should == ":cloister\n"
     stack.size.should == 0
   end
 
