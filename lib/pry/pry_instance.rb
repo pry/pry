@@ -203,7 +203,7 @@ class Pry
   # @param [Binding] target The target binding for the session.
   def repl_prologue(target)
     exec_hook :before_session, output, target, self
-    set_last_result(nil, target)
+    set_last_result nil
 
     @input_array << nil # add empty input so _in_ and _out_ match
   end
@@ -303,7 +303,7 @@ class Pry
 
   def accept_line(line)
     begin
-      if !process_command_safely(line.lstrip, @eval_string, current_binding)
+      if !process_command_safely(line.lstrip, @eval_string)
         @eval_string << "#{line.chomp}\n" unless line.empty?
       end
     rescue RescuableException => e
@@ -348,7 +348,7 @@ class Pry
     exec_hook :before_eval, code, self
 
     result = current_binding.eval(code, Pry.eval_path, Pry.current_line)
-    set_last_result(result, current_binding, code)
+    set_last_result(result, code)
   ensure
     update_input_history(code)
     exec_hook :after_eval, result, self
@@ -397,7 +397,7 @@ class Pry
   def retrieve_line(eval_string = '')
     @indent.reset if eval_string.empty?
 
-    current_prompt = select_prompt(eval_string, current_binding)
+    current_prompt = select_prompt(eval_string)
     completion_proc = Pry.config.completer.build_completion_proc(current_binding, self,
                                                         instance_eval(&custom_completions))
 
@@ -446,16 +446,15 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [String] val The line to process.
   # @param [String] eval_string The cumulative lines of input.
-  # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command(val, eval_string = '', target = binding_stack.last)
+  def process_command(val, eval_string = '')
     val = val.chomp
-    result = commands.process_line(val, {
-      :target => target,
+    result = commands.process_line(val,
+      :target => current_binding,
       :output => output,
       :eval_string => eval_string,
       :pry_instance => self
-    })
+    )
 
     # set a temporary (just so we can inject the value we want into eval_string)
     Thread.current[:__pry_cmd_result__] = result
@@ -479,10 +478,9 @@ class Pry
   # Same as process_command, but outputs exceptions to {output} instead of raising.
   # @param [String] val  The line to process.
   # @param [String] eval_string  The cumulative lines of input
-  # @param [Binding] target  The target of the Pry session
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command_safely(val, eval_string, target)
-    process_command(val, eval_string, target)
+  def process_command_safely(val, eval_string)
+    process_command(val, eval_string)
   rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
     output.puts "Error: #{e.message}"
     true
@@ -527,9 +525,8 @@ class Pry
   # Set the last result of an eval.
   # This method should not need to be invoked directly.
   # @param [Object] result The result.
-  # @param [Binding] target The binding to set `_` on.
   # @param [String] code The code that was run.
-  def set_last_result(result, target, code="")
+  def set_last_result(result, code="")
     @last_result_is_exception = false
     @output_array << result
 
@@ -663,16 +660,15 @@ class Pry
   # Returns the appropriate prompt to use.
   # This method should not need to be invoked directly.
   # @param [String] eval_string The current input buffer.
-  # @param [Binding] target The target Binding of the Pry session.
   # @return [String] The prompt.
-  def select_prompt(eval_string, target)
-    target_self = target.eval('self')
+  def select_prompt(eval_string)
+    object = current_binding.eval('self')
 
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
     c = OpenStruct.new(
-                       :object         => target_self,
+                       :object         => object,
                        :nesting_level  => binding_stack.size - 1,
                        :open_token     => open_token,
                        :session_line   => Pry.history.session_line_count + 1,
