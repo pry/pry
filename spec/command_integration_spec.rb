@@ -223,10 +223,10 @@ describe "commands" do
     end
 
     it 'should run a command that modifies the passed in eval_string' do
-      b = Pry.binding_for(7)
       p = Pry.new(:output => @str_output)
+      p.push_binding 7
       eval_string = "def hello\npeter pan\n"
-      p.run_command("amend-line !", eval_string, b)
+      p.run_command("amend-line !", eval_string)
       eval_string.should =~ /def hello/
       eval_string.should.not =~ /peter pan/
     end

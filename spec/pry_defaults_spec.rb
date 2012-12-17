@@ -144,38 +144,56 @@ describe "test Pry defaults" do
       new_prompt = proc { "test prompt> " }
       Pry.prompt =  new_prompt
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
+      pry = Pry.new
+      pry.push_binding @context
+
+      pry.prompt.should == Pry.prompt
+      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
+      pry.select_prompt(@non_empty_input_buffer).should == "test prompt> "
 
       new_prompt = proc { "A" }
-      pry_tester = Pry.new(:prompt => new_prompt)
-      pry_tester.prompt.should == new_prompt
-      pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
-      pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "A"
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
+      pry = Pry.new(:prompt => new_prompt)
+      pry.push_binding @context
+
+      pry.prompt.should == new_prompt
+      pry.select_prompt(@empty_input_buffer).should == "A"
+      pry.select_prompt(@non_empty_input_buffer).should == "A"
+
+      pry = Pry.new
+      pry.push_binding @context
+
+      pry.prompt.should == Pry.prompt
+      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
+      pry.select_prompt(@non_empty_input_buffer).should == "test prompt> "
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
       new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
       Pry.prompt =  new_prompt
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
+      pry = Pry.new
+      pry.push_binding @context
+
+      pry.prompt.should == Pry.prompt
+      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
+      pry.select_prompt(@non_empty_input_buffer).should == "test prompt* "
 
       new_prompt = [proc { "A" }, proc { "B" }]
-      pry_tester = Pry.new(:prompt => new_prompt)
-      pry_tester.prompt.should == new_prompt
-      pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
-      pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "B"
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
+      pry = Pry.new(:prompt => new_prompt)
+      pry.push_binding @context
+
+      pry.prompt.should == new_prompt
+      pry.select_prompt(@empty_input_buffer).should == "A"
+      pry.select_prompt(@non_empty_input_buffer).should == "B"
+
+      pry = Pry.new
+      pry.push_binding @context
+
+      pry.prompt.should == Pry.prompt
+      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
+      pry.select_prompt(@non_empty_input_buffer).should == "test prompt* "
     end
 
     describe 'storing and restoring the prompt' do
@@ -200,11 +218,12 @@ describe "test Pry defaults" do
 
       it 'should restore overridden prompts when returning from file-mode' do
         pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
-        pry.select_prompt(@empty_input_buffer, @context).should == "P>"
+        pry.push_binding @context
+        pry.select_prompt(@empty_input_buffer).should == "P>"
         pry.process_command('shell-mode')
-        pry.select_prompt(@empty_input_buffer, @context).should =~ /\Apry .* \$ \z/
+        pry.select_prompt(@empty_input_buffer).should =~ /\Apry .* \$ \z/
         pry.process_command('shell-mode')
-        pry.select_prompt(@empty_input_buffer, @context).should == "P>"
+        pry.select_prompt(@empty_input_buffer).should == "P>"
       end
 
       it '#pop_prompt should return the popped prompt' do
