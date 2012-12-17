@@ -110,7 +110,7 @@ class PryTester
     if context
       target = Pry.binding_for(context)
       @pry.binding_stack << target
-      @pry.inject_sticky_locals(target)
+      @pry.inject_sticky_locals!
     end
 
     @pry.input_array << nil # TODO: shouldn't need this

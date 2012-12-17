@@ -119,6 +119,7 @@ class Pry
   def current_context
     binding_stack.last
   end
+  alias target current_context
 
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
@@ -165,7 +166,7 @@ class Pry
 
   # Inject all the sticky locals into the `target` binding.
   # @param [Binding] target
-  def inject_sticky_locals(target)
+  def inject_sticky_locals!
     sticky_locals.each_pair do |name, value|
       inject_local(name, value, target)
     end
@@ -269,17 +270,16 @@ class Pry
   # @return [String] The Ruby expression.
   # @example
   #   Pry.new.r(Object.new)
-  def r(target=TOPLEVEL_BINDING)
-    binding_stack.push Pry.binding_for(target)
+  def r(target_object = TOPLEVEL_BINDING)
+    binding_stack.push Pry.binding_for(target_object)
     @eval_string = ""
 
     loop do
       throw(:breakout) if binding_stack.empty?
-      target = binding_stack.last
       @suppress_output = false
-      inject_sticky_locals(target)
+      inject_sticky_locals!
 
-      case val = retrieve_line(@eval_string, target)
+      case val = retrieve_line(@eval_string)
       when :control_c
         output.puts ""
         @eval_string = ""
@@ -288,7 +288,7 @@ class Pry
         Pry.config.control_d_handler.call(@eval_string, self)
       else
         ensure_correct_encoding!(@eval_string, val)
-        accept_line(val, target)
+        accept_line(val)
       end
 
       exec_hook :after_read, @eval_string, self
@@ -297,7 +297,7 @@ class Pry
     binding_stack.pop
   end
 
-  def accept_line(line, target)
+  def accept_line(line)
     begin
       if !process_command_safely(line.lstrip, @eval_string, target)
         @eval_string << "#{line.chomp}\n" unless line.empty?
@@ -325,7 +325,7 @@ class Pry
       end
 
       begin
-        result = evaluate_ruby(@eval_string, target)
+        result = evaluate_ruby(@eval_string)
       rescue RescuableException => e
         self.last_exception = e
         result = e
@@ -339,9 +339,8 @@ class Pry
     end
   end
 
-  def evaluate_ruby(code, target = binding_stack.last)
-    target = Pry.binding_for(target)
-    inject_sticky_locals(target)
+  def evaluate_ruby(code)
+    inject_sticky_locals!
     exec_hook :before_eval, code, self
 
     result = target.eval(code, Pry.eval_path, Pry.current_line)
@@ -390,9 +389,8 @@ class Pry
   # This method should not need to be invoked directly.
   #
   # @param [String] eval_string The cumulative lines of input.
-  # @param [Binding] target The target of the session.
   # @return [String] The line received.
-  def retrieve_line(eval_string, target)
+  def retrieve_line(eval_string = '')
     @indent.reset if eval_string.empty?
 
     current_prompt = select_prompt(eval_string, target)

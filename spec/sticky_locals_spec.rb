@@ -147,6 +147,7 @@ describe "Sticky locals (_file_ and friends)" do
 
     it 'should provide different values for successive block invocations' do
       pry = Pry.new
+      pry.binding_stack << binding
       pry.add_sticky_local(:test_local) { rand }
       value1 = pry.evaluate_ruby 'test_local'
       value2 = pry.evaluate_ruby 'test_local'
