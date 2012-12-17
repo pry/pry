@@ -59,6 +59,7 @@
     <a href="#HOMEPAGE">HOMEPAGE</a>
     <a href="#OPTIONS">OPTIONS</a>
     <a href="#FILES">FILES</a>
+    <a href="#Pry-Commands">Pry Commands</a>
     <a href="#EXAMPLES">EXAMPLES</a>
     <a href="#AUTHORS">AUTHORS</a>
   </div>
@@ -107,6 +108,356 @@
 <h2 id="FILES">FILES</h2>
 
 <p>~/.pryrc Personal pry initialization</p>
+
+<h2 id="Pry-Commands">Pry Commands</h2>
+
+<dl>
+<dt><code>toggle-color</code></dt><dd><p>Toggle syntax highlighting.
+Toggle syntax highlighting.</p></dd>
+<dt><code>simple-prompt</code></dt><dd><p>Toggle the simple prompt.
+Toggle the simple prompt.</p></dd>
+<dt><code>pry-version</code></dt><dd><p>Show Pry version.
+Show Pry version.</p></dd>
+<dt><code>reload-method</code></dt><dd><p>Reload the source file that contains the specified method
+Reload the source file that contains the specified method</p></dd>
+<dt class="flush"><code>help</code></dt><dd><p>Show a list of commands. Type <code>help &lt;foo></code> for information about <var>foo</var>.</p>
+
+<pre><code>      Usage: help [ COMMAND ]
+
+    With no arguments, help lists all the available commands in the current
+    command-set along with their description.
+
+    When given a command name as an argument, shows the help for that command.
+</code></pre></dd>
+<dt><code>gem-install</code></dt><dd><p>Install a gem and refresh the gem cache.</p>
+
+<pre><code>      Usage: gem-install GEM_NAME
+
+    Installs the given gem and refreshes the gem cache so that you can immediately 'require GEM_FILE'
+</code></pre></dd>
+<dt class="flush"><code>gem-cd</code></dt><dd><p>Change working directory to specified gem's directory.</p>
+
+<pre><code>      Usage: gem-cd GEM_NAME
+
+    Change the current working directory to that in which the given gem is installed.
+</code></pre></dd>
+<dt><code>gem-list</code></dt><dd><p>List and search installed gems.</p>
+
+<pre><code>      Usage: gem-list [REGEX]
+
+    List all installed gems, when a regex is provided, limit the output to those that
+    match the regex.
+</code></pre></dd>
+<dt class="flush"><code>ls</code></dt><dd><p>Show the list of vars and methods in the current scope.
+Show the list of vars and methods in the current scope.</p></dd>
+<dt class="flush"><code>cd</code></dt><dd><p>Move into a new context (object or scope).</p>
+
+<pre><code>      Usage: cd [OPTIONS] [--help]
+
+    Move into new context (object or scope). As in unix shells use
+    `cd ..` to go back, `cd /` to return to Pry top-level and `cd -`
+    to toggle between last two scopes).
+    Complex syntax (e.g `cd ../@x/y`) also supported.
+
+    e.g: `cd @x`
+    e.g: `cd ..`
+    e.g: `cd /`
+    e.g: `cd -`
+
+    https://github.com/pry/pry/wiki/State-navigation#wiki-Changing_scope
+</code></pre></dd>
+<dt><code>find-method</code></dt><dd><p>Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]</p>
+
+<pre><code>      Usage: find-method  [-n | -c] METHOD [NAMESPACE]
+
+    Recursively search for a method within a Class/Module or the current namespace.
+    Use the `-n` switch (the default) to search for methods whose name matches the given regex.
+    Use the `-c` switch to search for methods that contain the given code.
+
+    e.g find-method re Pry                # find all methods whose name match /re/ inside the Pry namespace. Matches Pry#repl, etc.
+    e.g find-method -c 'output.puts' Pry  # find all methods that contain the code: output.puts inside the Pry namepsace.
+</code></pre></dd>
+<dt><code>whereami</code></dt><dd><p>Show code surrounding the current context.</p>
+
+<pre><code>      Usage: whereami [-q] [N]
+
+    Describe the current location. If you use `binding.pry` inside a
+    method then whereami will print out the source for that method.
+
+    If a number is passed, then N lines before and after the current line
+    will be shown instead of the method itself.
+
+    The `-q` flag can be used to suppress error messages in the case that
+    there's no code to show. This is used by pry in the default
+    before_session hook to show you when you arrive at a `binding.pry`.
+
+    When pry was started on an Object and there is no associated method,
+    whereami will instead output a brief description of the current
+    object.
+</code></pre></dd>
+<dt><code>pry-backtrace</code></dt><dd><p>Show the backtrace for the Pry session.</p>
+
+<pre><code>      Usage:   pry-backtrace [OPTIONS] [--help]
+
+    Show the backtrace for the position in the code where Pry was started. This can be used to
+    infer the behavior of the program immediately before it entered Pry, just like the backtrace
+    property of an exception.
+
+    (NOTE: if you are looking for the backtrace of the most recent exception raised,
+    just type: `_ex_.backtrace` instead, see https://github.com/pry/pry/wiki/Special-Locals)
+
+    e.g: pry-backtrace
+</code></pre></dd>
+<dt class="flush"><code>reset</code></dt><dd><p>Reset the REPL to a clean state.
+Reset the REPL to a clean state.</p></dd>
+<dt><code>(?-mix:wtf([?!]*))</code></dt><dd><p>Show the backtrace of the most recent exception</p>
+
+<pre><code>      Show's a few lines of the backtrace of the most recent exception (also available
+    as _ex_.backtrace).
+
+    If you want to see more lines, add more question marks or exclamation marks:
+
+    e.g.
+    pry(main)&gt; wtf?
+    pry(main)&gt; wtf?!???!?!?
+
+    To see the entire backtrace, pass the -v/--verbose flag:
+
+    e.g.
+    pry(main)&gt; wtf -v
+</code></pre></dd>
+<dt><code>(?-mix:raise-up(!?\b.*))</code></dt><dd><p>Raise an exception out of the current pry instance.</p>
+
+<pre><code>      Raise up, like exit, allows you to quit pry. Instead of returning a value however, it raises an exception.
+    If you don't provide the exception to be raised, it will use the most recent exception (in pry _ex_).
+
+    e.g. `raise-up "get-me-out-of-here"` is equivalent to:
+         `raise "get-me-out-of-here"
+          raise-up`
+
+    When called as raise-up! (with an exclamation mark), this command raises the exception through
+    any nested prys you have created by "cd"ing into objects.
+</code></pre></dd>
+<dt><code>switch-to</code></dt><dd><p>Start a new sub-session on a binding in the current stack (numbered by nesting).
+Start a new sub-session on a binding in the current stack (numbered by nesting).</p></dd>
+<dt class="flush"><code>nesting</code></dt><dd><p>Show nesting information.
+Show nesting information.</p></dd>
+<dt class="flush"><code>jump-to</code></dt><dd><p>Jump to a binding further up the stack, popping all bindings below.
+Jump to a binding further up the stack, popping all bindings below.</p></dd>
+<dt><code>exit-all</code></dt><dd><p>End the current Pry session (popping all bindings) and returning to caller. Accepts optional return value. Aliases: !!@
+End the current Pry session (popping all bindings) and returning to caller. Accepts optional return value. Aliases: !!@</p></dd>
+<dt class="flush"><code>!!@</code></dt><dd><p>Alias for <code>exit-all</code>
+Alias for <code>exit-all</code></p></dd>
+<dt class="flush"><code>exit</code></dt><dd><p>Pop the previous binding (does NOT exit program). Aliases: quit</p>
+
+<pre><code>      Usage:   exit [OPTIONS] [--help]
+    Aliases: quit
+
+    It can be useful to exit a context with a user-provided value. For
+    instance an exit value can be used to determine program flow.
+
+    e.g: `exit "pry this"`
+    e.g: `exit`
+
+    https://github.com/pry/pry/wiki/State-navigation#wiki-Exit_with_value
+</code></pre></dd>
+<dt class="flush"><code>quit</code></dt><dd><p>Alias for <code>exit</code>
+Alias for <code>exit</code></p></dd>
+<dt><code>exit-program</code></dt><dd><p>End the current program. Aliases: quit-program, !!!
+End the current program. Aliases: quit-program, !!!</p></dd>
+<dt><code>quit-program</code></dt><dd><p>Alias for <code>exit-program</code>
+Alias for <code>exit-program</code></p></dd>
+<dt class="flush"><code>!!!</code></dt><dd><p>Alias for <code>exit-program</code>
+Alias for <code>exit-program</code></p></dd>
+<dt class="flush"><code>!pry</code></dt><dd><p>Start a Pry session on current self; this even works mid multi-line expression.
+Start a Pry session on current self; this even works mid multi-line expression.</p></dd>
+<dt class="flush"><code>hist</code></dt><dd><p>Show and replay Readline history. Aliases: history</p>
+
+<pre><code>      Usage: hist
+           hist --head N
+           hist --tail N
+           hist --show START..END
+           hist --grep PATTERN
+           hist --clear
+           hist --replay START..END
+           hist --save [START..END] FILE
+</code></pre></dd>
+<dt class="flush"><code>history</code></dt><dd><p>Alias for <code>hist</code>
+Alias for <code>hist</code></p></dd>
+<dt class="flush"><code>!</code></dt><dd><p>Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.
+Clear the input buffer. Useful if the parsing process goes wrong and you get stuck in the read loop.</p></dd>
+<dt><code>show-input</code></dt><dd><p>Show the contents of the input buffer for the current multi-line expression.
+Show the contents of the input buffer for the current multi-line expression.</p></dd>
+<dt class="flush"><code>edit</code></dt><dd><p>Invoke the default editor on a file.</p>
+
+<pre><code>      Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
+
+    Open a text editor. When no FILE is given, edits the pry input buffer.
+    Ensure Pry.config.editor is set to your editor of choice.
+
+    e.g: `edit sample.rb`
+    e.g: `edit sample.rb --line 105`
+    e.g: `edit --ex`
+
+    https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
+</code></pre></dd>
+<dt><code>edit-method</code></dt><dd><p>Edit the source code for a method.</p>
+
+<pre><code>      Usage: edit-method [OPTIONS] [METH]
+
+    Edit the method METH in an editor.
+    Ensure Pry.config.editor is set to your editor of choice.
+
+    e.g: `edit-method hello_method`
+    e.g: `edit-method Pry#rep`
+    e.g: `edit-method`
+
+    https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_method
+</code></pre></dd>
+<dt><code>(?-mix:amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?)</code></dt><dd><p>Amend a line of input in multi-line mode.</p>
+
+<pre><code>      Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
+
+    Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead.
+    e.g amend-line 1 puts 'hello world! # replace line 1'
+    e.g amend-line 1..4 !               # delete lines 1..4
+    e.g amend-line 3 &gt;puts 'goodbye'    # insert before line 3
+    e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
+</code></pre></dd>
+<dt class="flush"><code>play</code></dt><dd><p>Play back a string variable or a method or a file as input.</p>
+
+<pre><code>      Usage: play [OPTIONS] [--help]
+
+    The play command enables you to replay code from files and methods as
+    if they were entered directly in the Pry REPL. Default action (no
+    options) is to play the provided string variable
+
+    e.g: `play -i 20 --lines 1..3`
+    e.g: `play -m Pry#repl --lines 1..-1`
+    e.g: `play -f Rakefile --lines 5`
+
+    https://github.com/pry/pry/wiki/User-Input#wiki-Play
+</code></pre></dd>
+<dt class="flush"><code>gist</code></dt><dd><p>Gist a method or expression history to GitHub.</p>
+
+<pre><code>      Usage: gist [OPTIONS] [METH]
+    Gist method (doc or source) or input expression to GitHub.
+
+    If you'd like to permanently associate your gists with your GitHub account run `gist --login`.
+
+    e.g: gist -m my_method       # gist the method my_method
+    e.g: gist -d my_method       # gist the documentation for my_method
+    e.g: gist -i 1..10           # gist the input expressions from 1 to 10
+    e.g: gist -k show-method     # gist the command show-method
+    e.g: gist -c Pry             # gist the Pry class
+    e.g: gist -m hello_world --lines 2..-2    # gist from lines 2 to the second-last of the hello_world method
+    e.g: gist -m my_method --clip             # Copy my_method source to clipboard, do not gist it.
+</code></pre></dd>
+<dt class="flush"><code>clipit</code></dt><dd><p>Alias for <code>gist --clip</code>
+Alias for <code>gist --clip</code></p></dd>
+<dt class="flush"><code>jist</code></dt><dd><p>Alias for <code>gist</code>
+Alias for <code>gist</code></p></dd>
+<dt><code>(?-mix:\.(.*))</code></dt><dd><p>All text following a '.' is forwarded to the shell.
+All text following a '.' is forwarded to the shell.</p></dd>
+<dt><code>shell-mode</code></dt><dd><p>Toggle shell mode. Bring in pwd prompt and file completion.
+Toggle shell mode. Bring in pwd prompt and file completion.</p></dd>
+<dt><code>file-mode</code></dt><dd><p>Alias for <code>shell-mode</code>
+Alias for <code>shell-mode</code></p></dd>
+<dt><code>save-file</code></dt><dd><p>Export to a file using content from the REPL.</p>
+
+<pre><code>      Usage: save-file [OPTIONS] [FILE]
+    Save REPL content to a file.
+    e.g: save-file -m my_method -m my_method2 ./hello.rb
+    e.g: save-file -i 1..10 ./hello.rb --append
+    e.g: save-file -k show-method ./my_command.rb
+    e.g: save-file -f sample_file --lines 2..10 ./output_file.rb
+</code></pre></dd>
+<dt class="flush"><code>cat</code></dt><dd><p>Show code from a file, Pry's input buffer, or the last exception.</p>
+
+<pre><code>      Usage: cat FILE
+           cat --ex [STACK_INDEX]
+           cat --in [INPUT_INDEX_OR_RANGE]
+
+    cat is capable of showing part or all of a source file, the context of the
+    last exception, or an expression from Pry's input history.
+
+    cat --ex defaults to showing the lines surrounding the location of the last
+    exception. Invoking it more than once travels up the exception's backtrace,
+    and providing a number shows the context of the given index of the backtrace.
+</code></pre></dd>
+<dt><code>show-doc</code></dt><dd><p>Show the documentation for a method or class. Aliases: ?</p>
+
+<pre><code>      Usage: show-doc [OPTIONS] [METH]
+    Aliases: ?
+
+    Show the documentation for a method or class. Tries instance methods first and then methods by default.
+    e.g show-doc hello_method    # docs for hello_method
+    e.g show-doc Pry             # docs for Pry class
+    e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
+</code></pre></dd>
+<dt class="flush"><code>?</code></dt><dd><p>Alias for <code>show-doc</code>
+Alias for <code>show-doc</code></p></dd>
+<dt class="flush"><code>stat</code></dt><dd><p>View method information and set <em>file</em> and <em>dir</em> locals.</p>
+
+<pre><code>        Usage: stat [OPTIONS] [METH]
+      Show method information for method METH and set _file_ and _dir_ locals.
+      e.g: stat hello_method
+</code></pre></dd>
+<dt><code>show-source</code></dt><dd><p>Show the source for a method or class. Aliases: $, show-method</p>
+
+<pre><code>      Usage: show-source [OPTIONS] [METH|CLASS]
+    Aliases: $, show-method
+
+    Show the source for a method or class. Tries instance methods first and then methods by default.
+
+    e.g: `show-source hello_method`
+    e.g: `show-source -m hello_method`
+    e.g: `show-source Pry#rep`         # source for Pry#rep method
+    e.g: `show-source Pry`             # source for Pry class
+    e.g: `show-source Pry -a`          # source for all Pry class definitions (all monkey patches)
+
+    https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
+</code></pre></dd>
+<dt><code>show-method</code></dt><dd><p>Alias for <code>show-source</code>
+Alias for <code>show-source</code></p></dd>
+<dt class="flush"><code>$</code></dt><dd><p>Alias for <code>show-source</code>
+Alias for <code>show-source</code></p></dd>
+<dt><code>show-command</code></dt><dd><p>Show the source for CMD.
+Show the source for CMD.</p></dd>
+<dt class="flush"><code>ri</code></dt><dd><p>View ri documentation. e.g <code>ri Array#each</code></p>
+
+<pre><code>      Usage: ri [spec]
+    e.g. ri Array#each
+
+    Relies on the rdoc gem being installed. See also: show-doc.
+</code></pre></dd>
+<dt><code>nyan-cat</code>:</dt><dd><p></p></dd>
+<dt><code>(?-mix:!s\/(.*?)\/(.*?))</code>:</dt><dd><p></p></dd>
+<dt><code>get-naked</code>:</dt><dd><p></p></dd>
+<dt><code>east-coker</code>:</dt><dd><p></p></dd>
+<dt><code>cohen-poem</code>:</dt><dd><p></p></dd>
+<dt><code>test-ansi</code>:</dt><dd><p></p></dd>
+<dt><code>import-set</code></dt><dd><p>Import a command set
+Import a command set</p></dd>
+<dt><code>install-command</code></dt><dd><p>Install a disabled command.</p>
+
+<pre><code>      Usage: install-command COMMAND
+
+    Installs the gems necessary to run the given COMMAND. You will generally not
+    need to run this unless told to by an error message.
+</code></pre></dd>
+<dt class="flush"><code>copy</code></dt><dd><p>Copy argument to the clip-board
+Copy argument to the clip-board</p></dd>
+<dt class="flush"><code>clear</code></dt><dd><p>No description.
+No description.</p></dd>
+<dt class="flush"><code>sql</code></dt><dd><p>Send sql over AR.
+Send sql over AR.</p></dd>
+<dt><code>caller_method</code></dt><dd><p>No description.
+No description.</p></dd>
+<dt class="flush"><code>growl</code></dt><dd><p>No description.
+No description.</p></dd>
+</dl>
+
 
 <h2 id="EXAMPLES">EXAMPLES</h2>
 
@@ -195,7 +546,7 @@ end
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>November 2011</li>
+    <li class='tc'>December 2012</li>
     <li class='tr'>PRY(1)</li>
   </ol>
 
