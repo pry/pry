@@ -135,7 +135,7 @@ class Pry
       return
     end
 
-    target = Pry.binding_for(target || toplevel_binding)
+    options[:target] = target
     initial_session_setup
 
     # create the Pry instance to manage the session
@@ -150,12 +150,6 @@ class Pry
     # yield the binding_stack to the hook for modification
     pry_instance.exec_hook(:when_started, target, options, pry_instance)
 
-    if !pry_instance.binding_stack.empty?
-      head = pry_instance.binding_stack.pop
-    else
-      head = target
-    end
-
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
     if Pry.config.auto_indent
@@ -163,7 +157,7 @@ class Pry
     end
 
     # Enter the matrix
-    pry_instance.repl(head)
+    pry_instance.repl
   rescue Pry::TooSafeException
     puts "ERROR: Pry cannot work with $SAFE > 0"
     raise

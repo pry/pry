@@ -365,7 +365,7 @@ describe "commands" do
 
   it 'should create a command in a nested context and that command should be accessible from the parent' do
     redirect_pry_io(StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"), @str_output) do
-      Pry.new.repl(0)
+      Pry.new(:target => 0).repl
     end
 
     pry_tester(0).eval(*(<<-RUBY.split("\n"))).should =~ /instance variables:\s+@x/m

@@ -81,19 +81,20 @@ class Pry
   # @option options [Boolean] :quiet If true, omit the whereami banner when starting.
   #   component of the REPL. (see print.rb)
   def initialize(options={})
-    refresh(options)
-
     @binding_stack = []
     @indent        = Pry::Indent.new
     @command_state = {}
     @eval_string   = ""
+
+    refresh_config(options)
+    push_initial_binding(options)
   end
 
   # Refresh the Pry instance settings from the Pry class.
   # Allows options to be specified to override settings from Pry class.
   # @param [Hash] options The options to override Pry class settings
   #   for this instance.
-  def refresh(options={})
+  def refresh_config(options={})
     defaults   = {}
     attributes = [
                    :input, :output, :commands, :print, :quiet,
@@ -112,6 +113,10 @@ class Pry
     end
 
     true
+  end
+
+  def push_initial_binding(options)
+    push_binding(options[:target] || Pry.toplevel_binding)
   end
 
   # The currently active `Binding`.
@@ -201,8 +206,8 @@ class Pry
 
   # Initialize the repl session.
   # @param [Binding] target The target binding for the session.
-  def repl_prologue(target)
-    exec_hook :before_session, output, target, self
+  def repl_prologue
+    exec_hook :before_session, output, current_binding, self
     set_last_result nil
 
     @input_array << nil # add empty input so _in_ and _out_ match
@@ -210,52 +215,29 @@ class Pry
 
   # Clean-up after the repl session.
   # @param [Binding] target The target binding for the session.
-  def repl_epilogue(target)
-    exec_hook :after_session, output, target, self
+  def repl_epilogue
+    exec_hook :after_session, output, current_binding, self
 
     Pry.save_history if Pry.config.history.should_save
   end
 
-  # Start a read-eval-print-loop.
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the Pry session
-  # @return [Object] The target of the Pry session or an explictly given
-  #   return value. If given return value is `nil` or no return value
-  #   is specified then `target` will be returned.
-  # @example
-  #   Pry.new.repl(Object.new)
-  def repl(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
-
-    repl_prologue(target)
-
-    rep(target)
+  # Start a read-eval-print-loop in the current context.
+  def repl
+    repl_prologue
+    rep
   ensure
-    repl_epilogue(target)
+    repl_epilogue
   end
 
-  # Perform a read-eval-print.
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the read-eval-print
-  # @example
-  #   Pry.new.rep(Object.new)
-  def rep(target=TOPLEVEL_BINDING)
-    re(target)
+  def rep
+    re
   end
 
-  # Perform a read-eval
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the read-eval-print
-  # @return [Object] The result of the eval or an `Exception` object in case of
-  #   error. In the latter case, you can check whether the exception was raised
-  #   or is just the result of the expression using #last_result_is_exception?
-  # @example
-  #   Pry.new.re(Object.new)
-  def re(target=TOPLEVEL_BINDING)
+  def re
     break_data = nil
     exception = catch(:raise_up) do
       break_data = catch(:breakout) do
-        r(target)
+        r
       end
       exception = false
     end
@@ -265,19 +247,7 @@ class Pry
     break_data
   end
 
-  # Perform a read.
-  # If no parameter is given, default to top-level (main).
-  # This is a multi-line read; so the read continues until a valid
-  # Ruby expression is received.
-  # Pry commands are also accepted here and operate on the target.
-  # @param [Object, Binding] target The receiver of the read.
-  # @return [String] The Ruby expression.
-  # @example
-  #   Pry.new.r(Object.new)
-  def r(target_object = TOPLEVEL_BINDING)
-    push_binding target_object
-    @eval_string = ""
-
+  def r
     loop do
       throw(:breakout) if current_binding.nil?
       @suppress_output = false
@@ -297,8 +267,6 @@ class Pry
 
       exec_hook :after_read, @eval_string, self
     end
-  ensure
-    binding_stack.pop
   end
 
   def accept_line(line)
