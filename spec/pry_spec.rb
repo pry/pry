@@ -207,8 +207,7 @@ describe Pry do
         it 'sets _ to the last result' do
           res   = []
           input = InputTester.new *[":foo", "self << _", "42", "self << _"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          Pry.new(:input => input, :output => StringIO.new, :target => res).repl
 
           res.should == [:foo, 42]
         end
@@ -216,8 +215,7 @@ describe Pry do
         it 'sets out to an array with the result' do
           res   = {}
           input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          Pry.new(:input => input, :output => StringIO.new, :target => res).repl
 
           res[:res].should.be.kind_of Pry::HistoryArray
           res[:res][1..2].should == [:foo, 42]
@@ -226,8 +224,7 @@ describe Pry do
         it 'sets _in_ to an array with the entered lines' do
           res   = {}
           input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          Pry.new(:input => input, :output => StringIO.new, :target => res).repl
 
           res[:res].should.be.kind_of Pry::HistoryArray
           res[:res][1..2].should == [":foo\n", "42\n"]
@@ -236,8 +233,7 @@ describe Pry do
         it 'uses 100 as the size of _in_ and _out_' do
           res   = []
           input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          Pry.new(:input => input, :output => StringIO.new, :target => res).repl
 
           res.should == [100, 100]
         end
@@ -245,9 +241,12 @@ describe Pry do
         it 'can change the size of the history arrays' do
           res   = []
           input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => StringIO.new,
-                          :memory_size => 1000)
-          pry.repl(res)
+          Pry.new(
+            :input => input,
+            :output => StringIO.new,
+            :memory_size => 1000,
+            :target => res
+          ).repl
 
           res.should == [1000, 1000]
         end
@@ -255,9 +254,11 @@ describe Pry do
         it 'store exceptions' do
           res   = []
           input = InputTester.new *["foo!","self << _in_[-1] << _out_[-1]"]
-          pry   = Pry.new(:input => input, :output => StringIO.new,
-                          :memory_size => 1000)
-          pry.repl(res)
+          Pry.new(
+            :input => input,
+            :output => StringIO.new,
+            :memory_size => 1000
+          ).repl
 
           res.first.should == "foo!\n"
           res.last.should.be.kind_of NoMethodError
@@ -332,7 +333,12 @@ describe Pry do
 
         it "should not load the rc file if #repl method invoked" do
           Pry.config.should_load_rc = true
-          Pry.new(:input => StringIO.new("exit-all\n"), :output => StringIO.new).repl(self)
+
+          Pry.new(
+            :input  => StringIO.new("exit-all\n"),
+            :output => StringIO.new
+          ).repl
+
           Object.const_defined?(:TEST_RC).should == false
           Pry.config.should_load_rc = false
         end
