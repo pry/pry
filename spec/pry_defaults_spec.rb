@@ -135,15 +135,13 @@ describe "test Pry defaults" do
   describe "prompts" do
     before do
       Pry.output = StringIO.new
-      @empty_input_buffer = ""
-      @non_empty_input_buffer = "def hello"
     end
 
     def get_prompts(pry)
       a = pry.select_prompt
-      pry.accept_line "def hello"
+      pry.accept_line "["
       b = pry.select_prompt
-      pry.accept_line "end"
+      pry.accept_line "]"
       [a, b]
     end
 
