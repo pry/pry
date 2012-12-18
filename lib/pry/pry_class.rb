@@ -145,10 +145,13 @@ class Pry
     pry_instance.backtrace = caller
 
     # if Pry was started via binding.pry, elide that from the backtrace.
-    pry_instance.backtrace.shift if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
+    if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
+      pry_instance.backtrace.shift
+    end
 
     # yield the binding_stack to the hook for modification
-    pry_instance.exec_hook(:when_started, target, options, pry_instance)
+    pry_instance.exec_hook(:when_started,
+      Pry.binding_for(target), options, pry_instance)
 
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
