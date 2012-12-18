@@ -244,7 +244,7 @@ class Pry
       @suppress_output = false
       inject_sticky_locals!
 
-      case val = retrieve_line(@eval_string)
+      case val = retrieve_line
       when :control_c
         output.puts ""
         @eval_string = ""
@@ -252,7 +252,7 @@ class Pry
         output.puts "" if output.tty?
         Pry.config.control_d_handler.call(@eval_string, self)
       else
-        ensure_correct_encoding!(@eval_string, val)
+        ensure_correct_encoding!(val)
         accept_line(val)
       end
 
@@ -262,7 +262,7 @@ class Pry
 
   def accept_line(line)
     begin
-      if !process_command_safely(line.lstrip, @eval_string)
+      if !process_command_safely(line.lstrip)
         @eval_string << "#{line.chomp}\n" unless line.empty?
       end
     rescue RescuableException => e
@@ -338,25 +338,25 @@ class Pry
     end
   end
 
-  # Change the eval_string into the input encoding (Issue 284)
-  def ensure_correct_encoding!(eval_string, val)
-    if eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
-      eval_string.force_encoding(val.encoding)
+  # Change the @eval_string into the input encoding (Issue 284)
+  def ensure_correct_encoding!(val)
+    if @eval_string.empty? &&
+        val.respond_to?(:encoding) &&
+        val.encoding != @eval_string.encoding
+      @eval_string.force_encoding(val.encoding)
     end
   end
   private :ensure_correct_encoding!
 
   # Read and process a line of input -- check for ^D, determine which prompt to
   # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
-  # if the line is a command, process it and alter the eval_string accordingly.
-  # This method should not need to be invoked directly.
+  # if the line is a command, process it and alter the @eval_string accordingly.
   #
-  # @param [String] eval_string The cumulative lines of input.
   # @return [String] The line received.
-  def retrieve_line(eval_string = '')
-    @indent.reset if eval_string.empty?
+  def retrieve_line
+    @indent.reset if @eval_string.empty?
 
-    current_prompt = select_prompt(eval_string)
+    current_prompt = select_prompt
     completion_proc = Pry.config.completer.build_completion_proc(current_binding, self,
                                                         instance_eval(&custom_completions))
 
@@ -401,17 +401,16 @@ class Pry
   end
 
   # If the given line is a valid command, process it in the context of the
-  # current `eval_string` and binding.
+  # current `@eval_string` and binding.
   # This method should not need to be invoked directly.
   # @param [String] val The line to process.
-  # @param [String] eval_string The cumulative lines of input.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command(val, eval_string = '')
+  def process_command(val)
     val = val.chomp
     result = commands.process_line(val,
       :target => current_binding,
       :output => output,
-      :eval_string => eval_string,
+      :eval_string => @eval_string,
       :pry_instance => self
     )
 
@@ -426,7 +425,7 @@ class Pry
         # the command that was invoked was non-void (had a return value) and so we make
         # the value of the current expression equal to the return value
         # of the command.
-        eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
+        @eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
       end
       true
     else
@@ -436,10 +435,9 @@ class Pry
 
   # Same as process_command, but outputs exceptions to {output} instead of raising.
   # @param [String] val  The line to process.
-  # @param [String] eval_string  The cumulative lines of input
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command_safely(val, eval_string)
-    process_command(val, eval_string)
+  def process_command_safely(val)
+    process_command(val)
   rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
     output.puts "Error: #{e.message}"
     true
@@ -447,13 +445,13 @@ class Pry
 
   # Run the specified command.
   # @param [String] val The command (and its params) to execute.
-  # @param [String] eval_string The current input buffer.
+  # @param [Binding] target The binding to use..
   # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
-  def run_command(val, eval_string = "")
+  def run_command(val)
     commands.process_line(val,
-      :eval_string => eval_string,
+      :eval_string => @eval_string,
       :target => current_binding,
       :pry_instance => self,
       :output => output
@@ -553,7 +551,7 @@ class Pry
 
       retry
 
-    # Interrupts are handled in r() because they need to tweak eval_string
+    # Interrupts are handled in r() because they need to tweak @eval_string
     # TODO: Refactor this baby.
     rescue Interrupt
       raise
@@ -616,10 +614,8 @@ class Pry
   end
 
   # Returns the appropriate prompt to use.
-  # This method should not need to be invoked directly.
-  # @param [String] eval_string The current input buffer.
   # @return [String] The prompt.
-  def select_prompt(eval_string)
+  def select_prompt
     object = current_binding.eval('self')
 
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
@@ -635,12 +631,12 @@ class Pry
                        :_pry_          => self,
                        :binding_stack  => binding_stack,
                        :input_array    => input_array,
-                       :eval_string    => eval_string,
-                       :cont           => !eval_string.empty?)
+                       :eval_string    => @eval_string,
+                       :cont           => !@eval_string.empty?)
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt
-      if eval_string.empty?
+      if @eval_string.empty?
         generate_prompt(Array(prompt).first, c)
 
       # Otherwise use the wait prompt (indicating multi-line expression)
