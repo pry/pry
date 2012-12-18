@@ -205,7 +205,6 @@ class Pry
   end
 
   # Initialize the repl session.
-  # @param [Binding] target The target binding for the session.
   def repl_prologue
     exec_hook :before_session, output, current_binding, self
     set_last_result nil
@@ -214,7 +213,6 @@ class Pry
   end
 
   # Clean-up after the repl session.
-  # @param [Binding] target The target binding for the session.
   def repl_epilogue
     exec_hook :after_session, output, current_binding, self
 
@@ -450,14 +448,13 @@ class Pry
   # Run the specified command.
   # @param [String] val The command (and its params) to execute.
   # @param [String] eval_string The current input buffer.
-  # @param [Binding] target The binding to use..
   # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
-  def run_command(val, eval_string = "", target = binding_stack.last)
+  def run_command(val, eval_string = "")
     commands.process_line(val,
       :eval_string => eval_string,
-      :target => target,
+      :target => current_binding,
       :pry_instance => self,
       :output => output
     )

@@ -10,7 +10,7 @@ class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
     next if _pry_.quiet?
-    _pry_.run_command("whereami --quiet", "", target)
+    _pry_.run_command("whereami --quiet")
   end
 
   # The default print

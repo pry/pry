@@ -215,13 +215,6 @@ describe "commands" do
   end
 
   describe "Pry#run_command" do
-    it 'should run a command in a specified context' do
-      b = Pry.binding_for(7)
-      p = Pry.new(:output => @str_output)
-      p.run_command("ls -m", "", b)
-      p.output.string.should =~ /divmod/
-    end
-
     it 'should run a command that modifies the passed in eval_string' do
       p = Pry.new(:output => @str_output)
       p.push_binding 7
