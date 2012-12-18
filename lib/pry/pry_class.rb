@@ -135,7 +135,7 @@ class Pry
       return
     end
 
-    options[:target] = target
+    options[:target] = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
 
     # create the Pry instance to manage the session
@@ -151,7 +151,7 @@ class Pry
 
     # yield the binding_stack to the hook for modification
     pry_instance.exec_hook(:when_started,
-      Pry.binding_for(target), options, pry_instance)
+      options[:target], options, pry_instance)
 
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
