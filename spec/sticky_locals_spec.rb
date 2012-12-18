@@ -123,10 +123,11 @@ describe "Sticky locals (_file_ and friends)" do
 
     it 'should create a new sticky local' do
       o = Object.new
-      pi = Pry.new
-      pi.add_sticky_local(:test_local) { :test_value }
-      pi.input, pi.output = InputTester.new("@value = test_local", "exit-all"), StringIO.new
-      pi.repl(o)
+      pry = Pry.new(:target => o)
+      pry.add_sticky_local(:test_local) { :test_value }
+      pry.input  = InputTester.new("@value = test_local", "exit-all")
+      pry.output = StringIO.new
+      pry.repl
 
       o.instance_variable_get(:@value).should == :test_value
     end
@@ -135,12 +136,11 @@ describe "Sticky locals (_file_ and friends)" do
       o = Object.new
       o2 = Object.new
       o.instance_variable_set(:@o2, o2)
-      pi = Pry.new
-      pi.add_sticky_local(:test_local) { :test_value }
-      pi.input = InputTester.new("cd @o2\n",
-                                 "@value = test_local", "exit-all")
-      pi.output = StringIO.new
-      pi.repl(o)
+      pry = Pry.new(:target => o)
+      pry.add_sticky_local(:test_local) { :test_value }
+      pry.input = InputTester.new("cd @o2\n", "@value = test_local", "exit-all")
+      pry.output = StringIO.new
+      pry.repl
 
       o2.instance_variable_get(:@value).should == :test_value
     end
