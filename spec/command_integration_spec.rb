@@ -217,11 +217,10 @@ describe "commands" do
   describe "Pry#run_command" do
     it 'should run a command that modifies the passed in eval_string' do
       p = Pry.new(:output => @str_output)
-      p.push_binding 7
-      eval_string = "def hello\npeter pan\n"
-      p.run_command("amend-line !", eval_string)
-      eval_string.should =~ /def hello/
-      eval_string.should.not =~ /peter pan/
+      p.accept_line "def hello\npeter pan\n"
+      p.run_command "amend-line !"
+      p.eval_string.should =~ /def hello/
+      p.eval_string.should.not =~ /peter pan/
     end
 
     it 'should run a command in the context of a session' do
