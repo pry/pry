@@ -518,10 +518,9 @@ describe "commands" do
     child_klass = Pry::CommandSet.new klass do
     end
 
-    Pry.new(:print => proc {}, :input => InputTester.new("v"),
-            :output => @str_output, :commands => child_klass).rep("john")
-
-    @str_output.string.rstrip.should == "john"
+    mock_pry(Pry.binding_for('john'), "v", :print => proc {}, :commands => child_klass,
+                                           :output => @str_output)
+    @str_output.string.should == "john\n"
   end
 
   it 'should import commands from another command object' do
