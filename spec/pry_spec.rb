@@ -112,64 +112,35 @@ describe Pry do
       end
 
       it 'should work with multi-line input' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should =~ /5/
+        mock_pry("x = ", "1 + 4").should =~ /5/
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
-        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => StringIO.new)
-        pry_tester.rep(Hello)
+        mock_pry(Pry.binding_for(Hello), "class Nested", "end")
         Hello.const_defined?(:Nested).should == true
       end
 
       it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("Exception.new;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("Exception.new;").should == ""
       end
 
       it 'should suppress output if input ends in a ";" (single line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("x = 5;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("x = 5;").should == ""
       end
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("def self.blah", ":test", "end;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("def self.blah", ":test", "end;").should == ""
       end
 
       it 'should be able to evaluate exceptions normally' do
-        o = Exception.new
-
         was_called = false
-        pry_tester = Pry.new(:input => InputTester.new("self"),
-                             :output => @str_output,
-                             :exception_handler => proc { was_called = true })
-
-        pry_tester.rep(o)
+        mock_pry("RuntimeError.new", :exception_handler => proc{ was_called = true })
         was_called.should == false
       end
 
       it 'should notice when exceptions are raised' do
-        o = Exception.new
-
         was_called = false
-        pry_tester = Pry.new(:input => InputTester.new("raise self"),
-                             :output => @str_output,
-                             :exception_handler => proc { was_called = true })
-
-        pry_tester.rep(o)
+        mock_pry("raise RuntimeError", :exception_handler => proc{ was_called = true })
         was_called.should == true
       end
 
@@ -252,16 +223,10 @@ describe Pry do
         end
 
         it 'store exceptions' do
-          res   = []
-          input = InputTester.new *["foo!","self << _in_[-1] << _out_[-1]"]
-          Pry.new(
-            :input => input,
-            :output => StringIO.new,
-            :memory_size => 1000
-          ).repl
+          mock_pry("foo!", "Pad.in = _in_[-1]; Pad.out = _out_[-1]")
 
-          res.first.should == "foo!\n"
-          res.last.should.be.kind_of NoMethodError
+          Pad.in.should == "foo!\n"
+          Pad.out.should.be.kind_of NoMethodError
         end
       end
 
