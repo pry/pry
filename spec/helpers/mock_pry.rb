@@ -1,12 +1,13 @@
 def mock_pry(*args)
   args.flatten!
   binding = args.first.is_a?(Binding) ? args.shift : binding()
+  options = args.last.is_a?(Hash) ? args.pop : {}
 
   input = InputTester.new(*args)
   output = StringIO.new
 
   redirect_pry_io(input, output) do
-    binding.pry
+    binding.pry(options)
   end
 
   output.string
