@@ -29,7 +29,7 @@ describe "hist" do
     @hist.push "@y = 20"
     @hist.push "@z = 30"
 
-    @t.context = o
+    @t.push_binding o
     @t.eval 'hist --replay -1'
 
     @t.next_input.should == "@z = 30\n"
@@ -40,7 +40,7 @@ describe "hist" do
     @hist.push "@x = 10"
     @hist.push "@y = 20"
 
-    @t.context = o
+    @t.push_binding o
     @t.eval 'hist --replay 0..2'
 
     @t.next_input.should == "@x = 10\n@y = 20\n"

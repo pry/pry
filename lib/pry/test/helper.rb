@@ -130,7 +130,7 @@ class PryTester
     result
   end
 
-  def context=(context)
+  def push_binding(context)
     @pry.push_binding context
   end
 
