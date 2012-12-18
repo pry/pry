@@ -103,14 +103,11 @@ end
 class PryTester
   attr_reader :pry, :out
 
-  def initialize(context = TOPLEVEL_BINDING, options = {})
-    @pry = Pry.new(options)
+  def initialize(target = TOPLEVEL_BINDING, options = {})
+    @pry = Pry.new(options.merge(:target => target))
     @history = options[:history]
 
-    if context
-      self.context = context
-      @pry.inject_sticky_locals!
-    end
+    @pry.inject_sticky_locals!
 
     @pry.input_array << nil # TODO: shouldn't need this
     reset_output
