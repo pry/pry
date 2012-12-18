@@ -234,8 +234,8 @@ describe "edit" do
     end
 
     it "should edit the current expression if it's incomplete" do
-      eval_str = 'def a'
-      @t.process_command 'edit', eval_str
+      @t.accept_line 'def a'
+      @t.process_command 'edit'
       @contents.should == "def a\n"
     end
 
@@ -250,14 +250,14 @@ describe "edit" do
     end
 
     it "should use a blank file if -t given, even during an expression" do
-      eval_str = 'def a;'
-      @t.process_command 'edit -t', eval_str
+      @t.accept_line 'def a;'
+      @t.process_command 'edit -t'
       @contents.should == "\n"
     end
 
     it "should position the cursor at the end of the expression" do
-      eval_str = "def a; 2;\nend"
-      @t.process_command 'edit', eval_str
+      @t.eval "def a; 2;\nend"
+      @t.process_command 'edit'
       @line.should == 2
     end
 
@@ -266,9 +266,8 @@ describe "edit" do
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
-      eval_str = ''
-      @t.process_command 'edit', eval_str
-      eval_str.should == "'FOO'\n"
+      @t.process_command 'edit'
+      @t.eval_string.should == "'FOO'\n"
     end
 
     it "should not evaluate the expression with -n" do
@@ -276,9 +275,8 @@ describe "edit" do
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
-      eval_str = ''
-      @t.process_command 'edit -n', eval_str
-      eval_str.should == ''
+      @t.process_command 'edit -n'
+      @t.eval_string.should == ''
     end
   end
 
