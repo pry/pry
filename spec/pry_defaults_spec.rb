@@ -136,63 +136,50 @@ describe "test Pry defaults" do
     before do
       @empty_input_buffer = ""
       @non_empty_input_buffer = "def hello"
-      @context = Pry.binding_for(0)
+    end
+
+    def get_prompts(pry)
+      a = pry.select_prompt
+      pry.accept_line "def hello"
+      b = pry.select_prompt
+      pry.accept_line "end"
+      [a, b]
     end
 
     it 'should set the prompt default, and the default should be overridable (single prompt)' do
-      new_prompt = proc { "test prompt> " }
-      Pry.prompt =  new_prompt
-
-      pry = Pry.new
-      pry.push_binding @context
-
-      pry.prompt.should == Pry.prompt
-      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
-      pry.select_prompt(@non_empty_input_buffer).should == "test prompt> "
-
+      Pry.prompt = proc { "test prompt> " }
       new_prompt = proc { "A" }
 
-      pry = Pry.new(:prompt => new_prompt)
-      pry.push_binding @context
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
 
+
+      pry = Pry.new(:prompt => new_prompt)
       pry.prompt.should == new_prompt
-      pry.select_prompt(@empty_input_buffer).should == "A"
-      pry.select_prompt(@non_empty_input_buffer).should == "A"
+      get_prompts(pry).should == ["A",  "A"]
 
       pry = Pry.new
-      pry.push_binding @context
-
       pry.prompt.should == Pry.prompt
-      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
-      pry.select_prompt(@non_empty_input_buffer).should == "test prompt> "
+      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
-      new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
-      Pry.prompt =  new_prompt
-
-      pry = Pry.new
-      pry.push_binding @context
-
-      pry.prompt.should == Pry.prompt
-      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
-      pry.select_prompt(@non_empty_input_buffer).should == "test prompt* "
-
+      Pry.prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
       new_prompt = [proc { "A" }, proc { "B" }]
 
-      pry = Pry.new(:prompt => new_prompt)
-      pry.push_binding @context
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
 
+
+      pry = Pry.new(:prompt => new_prompt)
       pry.prompt.should == new_prompt
-      pry.select_prompt(@empty_input_buffer).should == "A"
-      pry.select_prompt(@non_empty_input_buffer).should == "B"
+      get_prompts(pry).should == ["A",  "B"]
 
       pry = Pry.new
-      pry.push_binding @context
-
       pry.prompt.should == Pry.prompt
-      pry.select_prompt(@empty_input_buffer).should == "test prompt> "
-      pry.select_prompt(@non_empty_input_buffer).should == "test prompt* "
+      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
     end
 
     describe 'storing and restoring the prompt' do
@@ -217,12 +204,11 @@ describe "test Pry defaults" do
 
       it 'should restore overridden prompts when returning from file-mode' do
         pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
-        pry.push_binding @context
-        pry.select_prompt(@empty_input_buffer).should == "P>"
+        pry.select_prompt.should == "P>"
         pry.process_command('shell-mode')
-        pry.select_prompt(@empty_input_buffer).should =~ /\Apry .* \$ \z/
+        pry.select_prompt.should =~ /\Apry .* \$ \z/
         pry.process_command('shell-mode')
-        pry.select_prompt(@empty_input_buffer).should == "P>"
+        pry.select_prompt.should == "P>"
       end
 
       it '#pop_prompt should return the popped prompt' do
