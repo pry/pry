@@ -224,16 +224,7 @@ class Pry
   # Start a read-eval-print-loop in the current context.
   def repl
     repl_prologue
-    rep
-  ensure
-    repl_epilogue
-  end
 
-  def rep
-    re
-  end
-
-  def re
     break_data = nil
     exception = catch(:raise_up) do
       break_data = catch(:breakout) do
@@ -245,6 +236,8 @@ class Pry
     raise exception if exception
 
     break_data
+  ensure
+    repl_epilogue
   end
 
   def r
