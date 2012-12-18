@@ -469,7 +469,7 @@ describe "commands" do
 
     Pry.commands = klass
 
-    Pry.new(:input => InputTester.new("hello"), :output => @str_output).rep
+    Pry.new(:input => InputTester.new("hello"), :output => @str_output).repl
     @str_output.string.should =~ /hello world/
 
     other_klass = Pry::CommandSet.new do
@@ -480,7 +480,7 @@ describe "commands" do
 
     @str_output = StringIO.new
 
-    Pry.new(:input => InputTester.new("goodbye"), :output => @str_output, :commands => other_klass).rep
+    Pry.new(:input => InputTester.new("goodbye"), :output => @str_output, :commands => other_klass).repl
     @str_output.string.should =~ /goodbye world/
   end
 
@@ -520,6 +520,7 @@ describe "commands" do
 
     mock_pry(Pry.binding_for('john'), "v", :print => proc {}, :commands => child_klass,
                                            :output => @str_output)
+
     @str_output.string.should == "john\n"
   end
 
@@ -564,11 +565,11 @@ describe "commands" do
     # suppress evaluation output
     Pry.print = proc {}
 
-    Pry.new(:input => InputTester.new("jump-to"), :output => @str_output, :commands => klass).rep
+    Pry.new(:input => InputTester.new("jump-to"), :output => @str_output, :commands => klass).repl
     @str_output.string.rstrip.should == "jump-to the music"
 
     @str_output = StringIO.new
-    Pry.new(:input => InputTester.new("help"), :output => @str_output, :commands => klass).rep
+    Pry.new(:input => InputTester.new("help"), :output => @str_output, :commands => klass).repl
     @str_output.string.should == "help to the music\n"
 
 

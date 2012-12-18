@@ -20,12 +20,11 @@ describe "test Pry defaults" do
 
     it 'should set the input default, and the default should be overridable' do
       Pry.input = InputTester.new("5")
-
       Pry.output = @str_output
-      Pry.new.rep
+      Pry.new.repl
       @str_output.string.should =~ /5/
 
-      Pry.new(:input => InputTester.new("6")).rep
+      Pry.new(:input => InputTester.new("6")).repl
       @str_output.string.should =~ /6/
     end
 
@@ -78,16 +77,16 @@ describe "test Pry defaults" do
     Pry.output = @str_output
 
     Pry.input  = InputTester.new("5")
-    Pry.new.rep
+    Pry.new.repl
     @str_output.string.should =~ /5/
 
     Pry.input  = InputTester.new("6")
-    Pry.new.rep
+    Pry.new.repl
     @str_output.string.should =~ /5\n.*6/
 
     Pry.input  = InputTester.new("7")
     @str_output = StringIO.new
-    Pry.new(:output => @str_output).rep
+    Pry.new(:output => @str_output).repl
     @str_output.string.should.not =~ /5\n.*6/
     @str_output.string.should =~ /7/
   end
@@ -97,17 +96,17 @@ describe "test Pry defaults" do
     Pry.print =  new_print
 
     Pry.new.print.should == Pry.print
-    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
+    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).repl
     @str_output.string.should == "=> LOL\n"
 
     @str_output = StringIO.new
     Pry.new(:input => InputTester.new("\"test\""), :output => @str_output,
-            :print => proc { |out, value| out.puts value.reverse }).rep
+            :print => proc { |out, value| out.puts value.reverse }).repl
     @str_output.string.should == "=> tset\n"
 
     Pry.new.print.should == Pry.print
     @str_output = StringIO.new
-    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
+    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).repl
     @str_output.string.should == "=> LOL\n"
   end
 
