@@ -35,6 +35,7 @@ class Pry
   attr_accessor :custom_completions
 
   attr_accessor :binding_stack
+  attr_accessor :eval_string
 
   attr_accessor :last_result
   attr_accessor :last_file
