@@ -142,10 +142,8 @@ describe Pry::InputCompleter do
       Con = :constant
     end
 
-    pry = Pry.new()
-    stack = pry.binding_stack
-    stack.push(Pry.binding_for(Baz))
-    stack.push(Pry.binding_for(Bar))
+    pry = Pry.new(:target => Baz)
+    pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
     completer_test(b, pry).call("../@bazvar")
@@ -216,10 +214,8 @@ describe Pry::InputCompleter do
       Con = :constant
     end
 
-    pry = Pry.new()
-    stack = pry.binding_stack
-    stack.push(Pry.binding_for(Baz))
-    stack.push(Pry.binding_for(Bar))
+    pry = Pry.new(:target => Baz)
+    pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
     completer_test(b, pry).call("../@bazvar")
