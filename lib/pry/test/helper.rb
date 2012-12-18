@@ -101,7 +101,11 @@ def pry_eval(*eval_strs)
 end
 
 class PryTester
+  extend Forwardable
+
   attr_reader :pry, :out
+
+  def_delegators :@pry, :eval_string, :eval_string=, :accept_line
 
   def initialize(target = TOPLEVEL_BINDING, options = {})
     @pry = Pry.new(options.merge(:target => target))
@@ -130,6 +134,10 @@ class PryTester
     result
   end
 
+  def accept_lines(*lines)
+    lines.each(&method(:accept_line))
+  end
+
   def push_binding(context)
     @pry.push_binding context
   end
@@ -155,8 +163,8 @@ class PryTester
     @out.string if @out
   end
 
-  def process_command(command_str, eval_str = '')
-    @pry.process_command(command_str, eval_str) or raise "Not a valid command"
+  def process_command(command_str)
+    @pry.process_command(command_str) or raise "Not a valid command"
     last_command_result_or_output
   end
 
