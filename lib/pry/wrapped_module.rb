@@ -31,7 +31,7 @@ class Pry
 
       # if we dont limit it to constants then from_str could end up
       # executing methods which is not good, i.e `show-source pry`
-      if (kind == "constant" && target.eval(mod_name).is_a?(Module))
+      if ((kind == "constant" || kind =~ /variable/) && target.eval(mod_name).is_a?(Module))
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
