@@ -1,10 +1,13 @@
 class Pry
   class CodeObject
+    include Helpers::CommandHelpers
 
     class << self
       def lookup(str, target, _pry_, options={})
         co = new(str, target, _pry_, options)
-        co.other_object || co.method_or_class || co.command
+
+        co.default_lookup || co.method_or_class_lookup ||
+          co.command_lookup || co.binding_lookup
       end
     end
 
@@ -24,11 +27,24 @@ class Pry
       @super_level = options[:super]
     end
 
-    def command
+    def command_lookup
       pry.commands[str]
     end
 
-    def other_object
+    # extract the object from the binding
+    def binding_lookup
+      return nil if str && !str.empty?
+
+      if internal_binding?(target)
+        mod = target_self.is_a?(Module) ? target_self : target_self.class
+        Pry::WrappedModule(mod)
+      else
+        Pry::Method.from_binding(target)
+      end
+    end
+
+    # lookup variables and constants that are not modules
+    def default_lookup
       if target.eval("defined? #{str} ") =~ /variable|constant/
         obj = target.eval(str)
 
@@ -45,7 +61,13 @@ class Pry
       nil
     end
 
-    def method_or_class
+    def method_or_class_lookup
+      # we need this here because stupid Pry::Method.from_str() does a
+      # Pry::Method.from_binding when str is nil.
+      # Once we refactor Pry::Method.from_str() so it doesnt lookup
+      # from bindings, we can get rid of this check
+      return nil if !str || str.empty?
+
       obj = if str =~ /::(?:\S+)\Z/
         Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
       else
@@ -58,6 +80,11 @@ class Pry
       else
         sup
       end
+    end
+
+    private
+    def target_self
+      target.eval('self')
     end
   end
 end
