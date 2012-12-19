@@ -10,6 +10,7 @@ describe Pry::CodeObject do
 
       class ClassyWassy
         def piggy
+          binding
         end
       end
     end
@@ -52,6 +53,43 @@ describe Pry::CodeObject do
       m = Pry::CodeObject.lookup("moddy", binding, Pry.new)
       m.is_a?(Pry::WrappedModule).should == true
       m.source.should =~ /piggy/
+    end
+
+    describe "inferring object from binding when lookup str is empty/nil" do
+      before do
+        @b1 = Pry.binding_for(ClassyWassy)
+        @b2 = Pry.binding_for(ClassyWassy.new)
+      end
+
+      describe "infer module objects" do
+        it 'should infer module object when binding self is a module' do
+          ["", nil].each do |v|
+            m = Pry::CodeObject.lookup(v, @b1, Pry.new)
+            m.is_a?(Pry::WrappedModule).should == true
+            m.name.should =~ /ClassyWassy/
+          end
+        end
+
+        it 'should infer module object when binding self is an instance' do
+          ["", nil].each do |v|
+            m = Pry::CodeObject.lookup(v, @b2, Pry.new)
+            m.is_a?(Pry::WrappedModule).should == true
+            m.name.should =~ /ClassyWassy/
+          end
+        end
+      end
+
+      describe "infer method objects" do
+        it 'should infer method object from binding when inside method context' do
+          b = ClassyWassy.new.piggy
+
+          ["", nil].each do |v|
+            m = Pry::CodeObject.lookup(v, b, Pry.new)
+            m.is_a?(Pry::Method).should == true
+            m.name.should =~ /piggy/
+          end
+        end
+      end
     end
   end
 
