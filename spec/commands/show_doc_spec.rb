@@ -33,7 +33,12 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
     end
 
     it "should be able to find super methods" do
-      c = Class.new{
+      b = Class.new{
+        # daddy initialize!
+        def initialize(*args) ;end
+      }
+      
+      c = Class.new(b){
         # classy initialize!
         def initialize(*args); end
       }
@@ -53,13 +58,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       t.eval("show-doc o.initialize").should =~ /instancey initialize/
       t.eval("show-doc --super o.initialize").should =~ /grungy initialize/
       t.eval("show-doc o.initialize -ss").should =~ /classy initialize/
-
-      begin
-        require 'pry-doc'
-        t.eval("show-doc --super o.initialize -ss").should ==
-          t.eval("show-doc Object#initialize")
-      rescue LoadError
-      end
+      t.eval("show-doc o.initialize -sss").should =~ /daddy initialize/
     end
 
     describe "rdoc highlighting" do
