@@ -223,4 +223,23 @@ describe Pry::WrappedModule do
       end
     end
   end
+
+  describe ".from_str" do
+    it 'should lookup a constant' do
+      m = Pry::WrappedModule.from_str("Host::CandidateTest", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+
+    it 'should lookup a local' do
+      local = Host::CandidateTest
+      m = Pry::WrappedModule.from_str("local", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+
+    it 'should lookup an ivar' do
+      @ivar = Host::CandidateTest
+      m = Pry::WrappedModule.from_str("@ivar", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+  end
 end
