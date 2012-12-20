@@ -17,28 +17,25 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
 
     describe 'at top-level session' do
       it 'should break out of a REPL loop' do
-        instance = nil
-        redirect_pry_io(InputTester.new(@control_d)) do
-          instance = Pry.new
-          instance.repl
-        end
-
+        instance = Pry.new
+        instance.binding_stack.should.not.be.empty
+        called = false
+        catch(:breakout) {
+          instance.accept_eof
+          called = true
+        }
+        called.should == false
         instance.binding_stack.should.be.empty
       end
     end
 
     describe 'in a nested session' do
       it 'should pop last binding from the binding stack' do
-        base = OpenStruct.new
-        base.obj = OpenStruct.new
-
-        redirect_pry_io(InputTester.new("cd obj", "self.stack_size = _pry_.binding_stack.size",
-                                        @control_d, "self.stack_size = _pry_.binding_stack.size", "exit-all")) do
-          Pry.start(base)
-        end
-
-        base.obj.stack_size.should == 2
-        base.stack_size.should == 1
+        t = pry_tester
+        t.eval "cd Object.new"
+        t.eval("_pry_.binding_stack.size").should == 2
+        t.eval("_pry_.accept_eof")
+        t.eval("_pry_.binding_stack.size").should == 1
       end
     end
   end

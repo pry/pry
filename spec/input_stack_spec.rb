@@ -17,13 +17,12 @@ describe "Pry#input_stack" do
     Pry.config.input_stack = []
   end
 
-  it 'should read from all input objects on stack and exit session (usingn repl)' do
+  it 'should read from all input objects on stack and exit session' do
     stack = [b = StringIO.new(":cloister\nexit\n"), c = StringIO.new(":baron\n")]
-    instance = Pry.new(:input => StringIO.new(":alex\n"),
-                       :output => @str_output,
-                       :input_stack => stack)
+    Object.new.pry :input => StringIO.new(":alex\n"),
+                    :output => @str_output,
+                    :input_stack => stack
 
-    instance.repl
     @str_output.string.should =~ /:alex/
     @str_output.string.should =~ /:baron/
     @str_output.string.should =~ /:cloister/
@@ -31,28 +30,25 @@ describe "Pry#input_stack" do
 
   it 'input objects should be popped off stack as they are used up' do
     stack = [StringIO.new(":cloister\n"), StringIO.new(":baron\n")]
-    instance = Pry.new(:input => StringIO.new(":alex\n"),
-                       :output => @str_output,
-                       :input_stack => stack)
-
-    instance.push_binding binding
+    driver = Pry::Driver.new :input => StringIO.new(":alex\n"),
+                             :output => @str_output,
+                             :input_stack => stack
     stack.size.should == 2
-    instance.retrieve_line.should == ":alex\n"
+    driver.send(:retrieve_line).should == ":alex\n"
     stack.size.should == 2
-    instance.retrieve_line.should == ":baron\n"
+    driver.send(:retrieve_line).should == ":baron\n"
     stack.size.should == 1
-    instance.retrieve_line.should == ":cloister\n"
+    driver.send(:retrieve_line).should == ":cloister\n"
     stack.size.should == 0
   end
 
   it 'should revert to Pry.config.input when it runs out of input objects in input_stack' do
     redirect_pry_io(StringIO.new(":rimbaud\nexit\n"), StringIO.new) do
       stack = [StringIO.new(":cloister\n"), StringIO.new(":baron\n")]
-      instance = Pry.new(:input => StringIO.new(":alex\n"),
-                         :output => @str_output,
-                         :input_stack => stack)
+      Object.new.pry :input => StringIO.new(":alex\n"),
+                     :output => @str_output,
+                     :input_stack => stack
 
-      instance.repl
       @str_output.string.should =~ /:alex/
       @str_output.string.should =~ /:baron/
       @str_output.string.should =~ /:cloister/
@@ -63,7 +59,7 @@ describe "Pry#input_stack" do
   it 'should display error and throw(:breakout) if at end of input after using up input_stack objects' do
     catch(:breakout) do
       redirect_pry_io(StringIO.new(":rimbaud\n"), @str_output) do
-        Pry.new(:input_stack => [StringIO.new(":a\n"), StringIO.new(":b\n")]).repl
+        Object.new.pry :input_stack => [StringIO.new(":a\n"), StringIO.new(":b\n")]
       end
     end
     @str_output.string.should =~ /Error: Pry ran out of things to read/

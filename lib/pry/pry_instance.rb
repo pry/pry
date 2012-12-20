@@ -231,48 +231,18 @@ class Pry
     Pry.save_history if Pry.config.history.should_save
   end
 
-  # Start a read-eval-print-loop in the current context.
-  def repl
-    repl_prologue
-
-    break_data = nil
-    exception = catch(:raise_up) do
-      break_data = catch(:breakout) do
-        r
-      end
-      exception = false
-    end
-
-    raise exception if exception
-
-    break_data
-  ensure
-    repl_epilogue
+  def reset_line
+    @eval_string = ""
   end
 
-  def r
-    loop do
-      throw(:breakout) if current_binding.nil?
-      @suppress_output = false
-      inject_sticky_locals!
-
-      case val = retrieve_line
-      when :control_c
-        output.puts ""
-        @eval_string = ""
-      when :end_of_file
-        output.puts "" if output.tty?
-        Pry.config.control_d_handler.call(@eval_string, self)
-      else
-        ensure_correct_encoding!(val)
-        accept_line(val)
-      end
-
-      exec_hook :after_read, @eval_string, self
-    end
+  def accept_eof
+    Pry.config.control_d_handler.call(@eval_string, self)
   end
 
   def accept_line(line)
+    @suppress_output = false
+    inject_sticky_locals!
+    ensure_correct_encoding!(line)
     begin
       if !process_command_safely(line.lstrip)
         @eval_string << "#{line.chomp}\n" unless line.empty?
@@ -286,6 +256,10 @@ class Pry
       end
       return
     end
+
+    # This hook is supposed to be executed after each line of ruby code
+    # has been read (regardless of whether eval_string is yet a complete expression)
+    exec_hook :after_read, eval_string, self
 
     begin
       complete_expr = Pry::Code.complete_expression?(@eval_string)
@@ -312,6 +286,8 @@ class Pry
         show_result(result)
       end
     end
+
+    throw(:breakout) if current_binding.nil?
   end
 
   def evaluate_ruby(code)
@@ -359,52 +335,6 @@ class Pry
     end
   end
   private :ensure_correct_encoding!
-
-  # Read and process a line of input -- check for ^D, determine which prompt to
-  # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
-  # if the line is a command, process it and alter the @eval_string accordingly.
-  #
-  # @return [String] The line received.
-  def retrieve_line
-    @indent.reset if @eval_string.empty?
-
-    current_prompt = select_prompt
-    completion_proc = Pry.config.completer.build_completion_proc(current_binding, self,
-                                                        instance_eval(&custom_completions))
-
-    safe_completion_proc = proc{ |*a| Pry.critical_section{ completion_proc.call(*a) } }
-
-    indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
-
-    begin
-      val = readline("#{current_prompt}#{indentation}", safe_completion_proc)
-
-    # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
-    # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
-    # from within Readline.
-    rescue Interrupt
-      return :control_c
-    end
-
-    # invoke handler if we receive EOF character (^D)
-    return :end_of_file unless val
-
-    if Pry.config.auto_indent && !input.is_a?(StringIO)
-      original_val = "#{indentation}#{val}"
-      indented_val = @indent.indent(val)
-
-      if output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
-        output.print @indent.correct_indentation(current_prompt, indented_val, original_val.length - indented_val.length)
-        output.flush
-      end
-    else
-      indented_val = val
-    end
-
-    Pry.history << indented_val if interactive?
-
-    indented_val
-  end
 
   # Is the user typing into this pry instance directly?
   # @return [Boolean]
@@ -541,81 +471,6 @@ class Pry
   #   Exception.new)
   def last_result_is_exception?
     @last_result_is_exception
-  end
-
-  # Manage switching of input objects on encountering EOFErrors
-  def handle_read_errors
-    should_retry = true
-    exception_count = 0
-    begin
-      yield
-    rescue EOFError
-      if input_stack.empty?
-        self.input = Pry.config.input
-        if !should_retry
-          output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
-          throw(:breakout)
-        end
-        should_retry = false
-      else
-        self.input = input_stack.pop
-      end
-
-      retry
-
-    # Interrupts are handled in r() because they need to tweak @eval_string
-    # TODO: Refactor this baby.
-    rescue Interrupt
-      raise
-
-    # If we get a random error when trying to read a line we don't want to automatically
-    # retry, as the user will see a lot of error messages scroll past and be unable to do
-    # anything about it.
-    rescue RescuableException => e
-      puts "Error: #{e.message}"
-      output.puts e.backtrace
-      exception_count += 1
-      if exception_count < 5
-        retry
-      end
-      puts "FATAL: Pry failed to get user input using `#{input}`."
-      puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
-      puts "  Pry.config.input = STDIN"
-      puts "  Pry.config.output = STDOUT"
-      puts "  binding.pry"
-      throw(:breakout)
-    end
-  end
-  private :handle_read_errors
-
-  # Returns the next line of input to be used by the pry instance.
-  # This method should not need to be invoked directly.
-  # @param [String] current_prompt The prompt to use for input.
-  # @return [String] The next line of input.
-  def readline(current_prompt="> ", completion_proc=nil)
-    handle_read_errors do
-
-      if defined? Coolline and input.is_a? Coolline
-        input.completion_proc = proc do |cool|
-          completions = completion_proc.call cool.completed_word
-          completions.compact
-        end
-      elsif input.respond_to? :completion_proc=
-        input.completion_proc = completion_proc
-      end
-
-      if input == Readline
-        input.readline(current_prompt, false) # false since we'll add it manually
-      elsif defined? Coolline and input.is_a? Coolline
-        input.readline(current_prompt)
-      else
-        if input.method(:readline).arity == 1
-          input.readline(current_prompt)
-        else
-          input.readline
-        end
-      end
-    end
   end
 
   # Whether the print proc should be invoked.
