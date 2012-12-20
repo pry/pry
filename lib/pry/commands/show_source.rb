@@ -37,19 +37,27 @@ class Pry
     end
 
     def process
-      obj_name = args.empty? ? nil : args.join(" ")
-      o = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
-      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !o
+      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
 
-      if opts[:a]
-        result = all_modules(o)
+      if !code_object
+        raise Pry::CommandError, "Couldn't locate #{obj_name}!"
+      end
+
+      if code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
+        # show all monkey patches for a module
+        result = source_for_all_module_candidates(code_object)
       else
-        result = header(o)
-        result << Code.new(o.source, start_line_for(o)).
+        # show the source for a specific code object
+        result = header(code_object)
+        result << Code.new(code_object.source, start_line_for(code_object)).
           with_line_numbers(use_line_numbers?).to_s
       end
 
       stagger_output result
+    end
+
+    def obj_name
+      @obj_name ||= args.empty? ? nil : args.join(" ")
     end
 
     # we need this helper as some Pry::Method objects can wrap Procs
@@ -76,7 +84,7 @@ class Pry
       h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} #{code_object.source.lines.count}\n\n"
     end
 
-    def all_modules(mod)
+    def source_for_all_module_candidates(mod)
       result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
       mod.number_of_candidates.times do |v|
         candidate = mod.candidate(v)
