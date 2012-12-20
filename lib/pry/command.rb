@@ -55,7 +55,8 @@ class Pry
       end
 
       def source
-        strip_leading_whitespace(block.source)
+        file, line = block.source_location
+        strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
       end
 
       def source_location
