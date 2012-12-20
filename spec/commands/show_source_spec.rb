@@ -435,6 +435,17 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
           result.should =~ /def class_eval_method/
         end
 
+        it 'should ignore -a when object is not a module' do
+          TestClassForShowSourceClassEval.class_eval do
+            def class_eval_method
+              :bing
+            end
+          end
+
+          result = pry_eval('show-source TestClassForShowSourceClassEval#class_eval_method -a')
+          result.should =~ /bing/
+        end
+
         it 'should show the source for an instance_eval-based monkeypatch' do
           TestClassForShowSourceInstanceEval.instance_eval do
             def instance_eval_method
