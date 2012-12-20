@@ -28,7 +28,9 @@ class Pry
     end
 
     def command_lookup
-      pry.commands[str]
+      # TODO: just make it so find_command_by_match_or_listing doesn't
+      # raise?
+      pry.commands.find_command_by_match_or_listing(str) rescue nil
     end
 
     # extract the object from the binding
@@ -76,7 +78,7 @@ class Pry
 
       sup = obj.super(super_level) if obj
       if obj && !sup
-        raise ArgumentError, "No superclass found for #{obj.wrapped}"
+        raise Pry::CommandError, "No superclass found for #{obj.wrapped}"
       else
         sup
       end
