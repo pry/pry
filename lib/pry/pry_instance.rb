@@ -81,14 +81,19 @@ class Pry
   # @option options [Proc] :print The Proc to use for the 'print'
   # @option options [Boolean] :quiet If true, omit the whereami banner when starting.
   #   component of the REPL. (see print.rb)
+  # @option options [Array<String>] :backtrace The backtrace of the `binding.pry` line.
   def initialize(options={})
     @binding_stack = []
     @indent        = Pry::Indent.new
     @command_state = {}
     @eval_string   = ""
+    @backtace      = options[:backtrace] || caller
 
     refresh_config(options)
     push_initial_binding(options)
+
+    # yield the binding_stack to the hook for modification
+    exec_hook(:when_started, options[:target], options, self)
   end
 
   # Refresh the Pry instance settings from the Pry class.
@@ -211,6 +216,12 @@ class Pry
     set_last_result nil
 
     @input_array << nil # add empty input so _in_ and _out_ match
+
+    # Clear the line before starting Pry. This fixes the issue discussed here:
+    # https://github.com/pry/pry/issues/566
+    if Pry.config.auto_indent
+      Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
+    end
   end
 
   # Clean-up after the repl session.

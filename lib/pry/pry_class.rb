@@ -138,29 +138,18 @@ class Pry
     options[:target] = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
 
-    # create the Pry instance to manage the session
-    pry_instance = new(options)
-
     # save backtrace
-    pry_instance.backtrace = caller
+    if options[:backtrace].nil?
+      options[:backtrace] = caller
 
-    # if Pry was started via binding.pry, elide that from the backtrace.
-    if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
-      pry_instance.backtrace.shift
-    end
-
-    # yield the binding_stack to the hook for modification
-    pry_instance.exec_hook(:when_started,
-      options[:target], options, pry_instance)
-
-    # Clear the line before starting Pry. This fixes the issue discussed here:
-    # https://github.com/pry/pry/issues/566
-    if Pry.config.auto_indent
-      Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
+      # if Pry was started via binding.pry, elide that from the backtrace.
+      if options[:backtrace].first =~ /pry.*core_extensions.*pry/
+        options[:backtrace].backtrace.shift
+      end
     end
 
     # Enter the matrix
-    pry_instance.repl
+    new(options).repl
   rescue Pry::TooSafeException
     puts "ERROR: Pry cannot work with $SAFE > 0"
     raise
