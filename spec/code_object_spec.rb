@@ -48,6 +48,16 @@ describe Pry::CodeObject do
       m.source.should =~ /lobster/
     end
 
+    it 'should lookup commands by :listing name as well' do
+      p = Pry.new
+      p.commands.command /jeremy-.*/, "", :listing => "jeremy-baby" do
+        "lobster"
+      end
+      m = Pry::CodeObject.lookup("jeremy-baby", binding, p)
+      (m <= Pry::Command).should == true
+      m.source.should =~ /lobster/
+    end
+
     it 'should lookup the class of an object (when given a variable)' do
       moddy = ClassyWassy.new
       m = Pry::CodeObject.lookup("moddy", binding, Pry.new)

@@ -69,7 +69,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
     it "should not show the source when a non-extant method is requested" do
       c = Class.new{ def method; 98; end }
-      mock_pry(binding, "show-source c#wrongmethod").should =~ /undefined method/
+      mock_pry(binding, "show-source c#wrongmethod").should =~ /Couldn't locate/
     end
 
     it "should find instance_methods if the class overrides instance_method" do
@@ -84,41 +84,41 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       pry_eval(binding, "show-source c#method").should =~ /98/
     end
 
-    it "should find instance methods with -M" do
+    it "should find instance methods with self#moo" do
       c = Class.new{ def moo; "ve over!"; end }
 
-      pry_eval(binding, "cd c", "show-source -M moo").should =~ /ve over/
+      pry_eval(binding, "cd c", "show-source self#moo").should =~ /ve over/
     end
 
-    it "should not find instance methods with -m" do
+    it "should not find instance methods with self.moo" do
       c = Class.new{ def moo; "ve over!"; end }
 
       proc {
-        pry_eval(binding, 'cd c', 'show-source -m moo')
-      }.should.raise(Pry::CommandError).message.should =~ /could not be found/
+        pry_eval(binding, 'cd c', 'show-source self.moo')
+      }.should.raise(Pry::CommandError).message.should =~ /Couldn't locate/
     end
 
-    it "should find normal methods with -m" do
+    it "should find normal methods with self.moo" do
       c = Class.new{ def self.moo; "ve over!"; end }
 
-      pry_eval(binding, 'cd c', 'show-source -m moo').should =~ /ve over/
+      pry_eval(binding, 'cd c', 'show-source self.moo').should =~ /ve over/
     end
 
-    it "should not find normal methods with -M" do
+    it "should not find normal methods with self#moo" do
       c = Class.new{ def self.moo; "ve over!"; end }
 
       proc {
-        pry_eval(binding, 'cd c', 'show-source -M moo')
-      }.should.raise(Pry::CommandError).message.should =~ /could not be found/
+        pry_eval(binding, 'cd c', 'show-source self#moo')
+      }.should.raise(Pry::CommandError).message.should =~ /Couldn't locate/
     end
 
-    it "should find normal methods with no -M or -m" do
+    it "should find normal methods (i.e non-instance methods) by default" do
       c = Class.new{ def self.moo; "ve over!"; end }
 
       pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
     end
 
-    it "should find instance methods with no -M or -m" do
+    it "should find instance methods if no normal methods available" do
       c = Class.new{ def moo; "ve over!"; end }
 
       pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
@@ -145,7 +145,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
       proc {
         pry_eval(binding, "show-source --super @o.foo")
-      }.should.raise(Pry::CommandError).message.should =~ /no super method/
+      }.should.raise(Pry::CommandError).message.should =~ /No superclass found/
     end
 
     # dynamically defined method source retrieval is only supported in
@@ -216,11 +216,11 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
           Object.remove_const(:TestHost)
         end
 
-        it "source of variable should take precedence over method that is being shadowed" do
-          source = @t.eval('show-source hello')
-          source.should.not =~ /def hello/
-          source.should =~ /proc { ' smile ' }/
-        end
+          it "source of variable should take precedence over method that is being shadowed" do
+            source = @t.eval('show-source hello')
+            source.should.not =~ /def hello/
+            source.should =~ /proc { ' smile ' }/
+          end
 
         it "source of method being shadowed should take precedence over variable
             if given self.meth_name syntax" do

@@ -30,11 +30,43 @@ class Pry
     end
 
     def options(opt)
-      method_options(opt)
+      # method_options(opt)
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
       opt.on :l, "line-numbers", "Show line numbers."
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
       opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
       opt.on :a, :all, "Show source for all definitions and monkeypatches of the module/class"
+    end
+
+    def process
+      obj_name = args.empty? ? nil : args.join(" ")
+      o = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !o
+
+      result = ""
+      result << header(o)
+      result << Code.new(o.source).with_line_numbers(use_line_numbers?).to_s
+      stagger_output result
+    end
+
+    def header(code_object)
+      file_name, line_num = code_object.source_file, code_object.source_line
+
+      h = ""
+      h << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+
+      if code_object.is_a?(::Method) || code_object.is_a?(::UnboundMethod)
+        if code_object.source_type == :c
+          h << "(C Method):\n"
+        else
+          h << "@ line #{line_num}:\n"
+        end
+
+        h << "#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
+        h << "#{text.bold("Visibility:")} #{code_object.visibility}"
+      end
+
+      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} #{code_object.source.lines.count}\n\n"
     end
 
     def process_sourcable_object
