@@ -18,6 +18,7 @@ class Pry
   # to provide extra functionality useful to Pry.
   class Method
     extend Helpers::BaseHelpers
+    include Helpers::BaseHelpers
     include RbxMethod if Helpers::BaseHelpers.rbx?
     include Helpers::DocumentationHelpers
 
@@ -241,6 +242,12 @@ class Pry
     # @return [Pry::Module]
     def wrapped_owner
       @wrapped_owner ||= Pry::WrappedModule.new(owner)
+    end
+
+    # Get underlying object wrapped by this Pry::Method instance
+    # @return [Method, UnboundMethod, Proc]
+    def wrapped
+      @method
     end
 
     # Is the method undefined? (aka `Disowned`)
@@ -507,7 +514,8 @@ class Pry
           end
           next_owner = ancestors[i] or return nil
         end
-        next_owner.instance_method(name) rescue nil
+
+        safe_send(next_owner, :instance_method, name) rescue nil
       end
 
       # @param [String] first_ln The first line of a method definition.
