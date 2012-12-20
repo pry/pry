@@ -34,15 +34,10 @@ class Pry::TerminalInfo
   end
 
   def self.readline_screen_size
-    if Pry::Helpers::BaseHelpers.jruby?
-      begin
-        Readline.get_screen_size
-      # https://github.com/jruby/jruby/pull/436
-      rescue Java::JavaLang::NullPointerException
-        nil
-      end
-    elsif Readline.respond_to?(:get_screen_size)
-      Readline.get_screen_size
-    end
+    Readline.get_screen_size if Readline.respond_to?(:get_screen_size)
+  rescue Java::JavaLang::NullPointerException
+    # This rescue won't happen on jrubies later than:
+    #     https://github.com/jruby/jruby/pull/436
+    nil
   end
 end
