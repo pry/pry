@@ -55,7 +55,8 @@ unless [].respond_to? :shuffle!
 end
 
 def run_specs paths
-  exec "bacon -Ispec -rubygems -q #{paths.join ' '}"
+  quiet = ENV['VERBOSE'] ? '' : '-q'
+  exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
 end
 
 desc "Run tests"
