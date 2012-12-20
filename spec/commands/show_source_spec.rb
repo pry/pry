@@ -170,6 +170,17 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
           t.eval('show-source Test::A#yup').should =~ /define_method\(:yup\)/
         end
       end
+
+      it "should output the source of a command defined inside Pry" do
+        command_definition = %{
+          Pry.commands.command "hubba-hubba" do
+            puts "that's what she said!"
+          end
+        }
+        out = pry_eval(command_definition, 'show-source hubba-hubba')
+        out.should =~ /what she said/
+        Pry.commands.delete "hubba-hubba"
+      end
     end
 
     describe "on sourcable objects" do
@@ -514,11 +525,13 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
               Object.remove_const(:BabyDuck)
             end
 
-            it 'should return source for first valid module' do
-              out = pry_eval('show-source BabyDuck::Muesli')
-              out.should =~ /def d; end/
-              out.should.not =~ /def a; end/
-            end
+            # TODO: !!! This is a bad spec, should not be expected behaviour?!?!
+            #
+            # it 'should return source for first valid module' do
+            #   out = pry_eval('show-source BabyDuck::Muesli')
+            #   out.should =~ /def d; end/
+            #   out.should.not =~ /def a; end/
+            # end
 
           end
         end
@@ -544,15 +557,15 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       end
 
       it "should output source of commands using special characters" do
-        @set.command "!", "Clear the input buffer" do; end
+        @set.command "!%$", "I gots the yellow fever" do; end
 
-        pry_eval('show-source !').should =~ /Clear the input buffer/
+        pry_eval('show-source !%$').should =~ /yellow fever/
       end
 
       it 'should show source for a command with spaces in its name' do
         @set.command "foo bar", :body_of_foo_bar do; end
 
-        pry_eval('show-source "foo bar"').should =~ /:body_of_foo_bar/
+        pry_eval('show-source foo bar').should =~ /:body_of_foo_bar/
       end
 
       it 'should show source for a command by listing name' do
