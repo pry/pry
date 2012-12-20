@@ -28,6 +28,7 @@ describe "commands" do
 
   after do
     Pad.clear
+    Pry.reset_defaults
   end
 
   describe "alias_command" do
@@ -356,11 +357,7 @@ describe "commands" do
   end
 
   it 'should create a command in a nested context and that command should be accessible from the parent' do
-    redirect_pry_io(StringIO.new("@x=nil\ncd 7\n_pry_.commands.instance_eval {\ncommand('bing') { |arg| run arg }\n}\ncd ..\nbing ls\nexit-all"), @str_output) do
-      Pry.new(:target => 0).repl
-    end
-
-    pry_tester(0).eval(*(<<-RUBY.split("\n"))).should =~ /instance variables:\s+@x/m
+    pry_tester(Object.new).eval(*(<<-RUBY.split("\n"))).should =~ /instance variables:\s+@x/m
       @x = nil
       cd 7
       _pry_.commands.instance_eval { command('bing') { |arg| run arg } }
@@ -459,21 +456,15 @@ describe "commands" do
       end
     end
 
-    Pry.commands = klass
-
-    Pry.new(:input => InputTester.new("hello"), :output => @str_output).repl
-    @str_output.string.should =~ /hello world/
-
     other_klass = Pry::CommandSet.new do
       command "goodbye", "" do
         output.puts "goodbye world"
       end
     end
 
-    @str_output = StringIO.new
-
-    Pry.new(:input => InputTester.new("goodbye"), :output => @str_output, :commands => other_klass).repl
-    @str_output.string.should =~ /goodbye world/
+    Pry.commands = klass
+    pry_tester.eval("hello").should == "hello world\n"
+    pry_tester(:commands => other_klass).eval("goodbye").should == "goodbye world\n"
   end
 
   it 'should inherit commands from Pry::Commands' do
@@ -554,19 +545,9 @@ describe "commands" do
       end
     end
 
-    # suppress evaluation output
-    Pry.print = proc {}
-
-    Pry.new(:input => InputTester.new("jump-to"), :output => @str_output, :commands => klass).repl
-    @str_output.string.rstrip.should == "jump-to the music"
-
-    @str_output = StringIO.new
-    Pry.new(:input => InputTester.new("help"), :output => @str_output, :commands => klass).repl
-    @str_output.string.should == "help to the music\n"
-
-
-    Pry.reset_defaults
-    Pry.color = false
+    t = pry_tester(:commands => klass)
+    t.eval('jump-to').should == "jump-to the music\n"
+    t.eval('help').should == "help to the music\n"
   end
 
   it 'should run a command with no parameter' do
