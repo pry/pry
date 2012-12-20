@@ -205,7 +205,6 @@ class Pry
       raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!" if !cmd
       cmd
     end
-    protected :find_command_by_match_or_listing
 
     # Aliases a command
     # @param [String, Regex] match The match of the alias (can be a regex).
