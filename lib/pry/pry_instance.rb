@@ -92,6 +92,9 @@ class Pry
     refresh_config(options)
     push_initial_binding(options)
 
+    set_last_result nil
+    @input_array << nil # add empty input so _in_ and _out_ match
+
     # yield the binding_stack to the hook for modification
     exec_hook(:when_started, options[:target], options, self)
   end
@@ -213,9 +216,6 @@ class Pry
   # Initialize the repl session.
   def repl_prologue
     exec_hook :before_session, output, current_binding, self
-    set_last_result nil
-
-    @input_array << nil # add empty input so _in_ and _out_ match
 
     # Clear the line before starting Pry. This fixes the issue discussed here:
     # https://github.com/pry/pry/issues/566
