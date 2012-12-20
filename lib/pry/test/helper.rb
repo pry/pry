@@ -112,8 +112,6 @@ class PryTester
     @history = options[:history]
 
     @pry.inject_sticky_locals!
-
-    @pry.input_array << nil # TODO: shouldn't need this
     reset_output
   end
 
