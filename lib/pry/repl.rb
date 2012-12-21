@@ -56,7 +56,7 @@ class Pry
           pry.reset_line
         when :end_of_file
           output.puts "" if output.tty?
-          pry.accept_eof
+          pry.accept_line nil
         else
           pry.accept_line val
         end

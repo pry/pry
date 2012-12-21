@@ -235,11 +235,12 @@ class Pry
     @eval_string = ""
   end
 
-  def accept_eof
-    Pry.config.control_d_handler.call(@eval_string, self)
-  end
-
   def accept_line(line)
+    if line.nil?
+      Pry.config.control_d_handler.call(@eval_string, self)
+      return
+    end
+
     @suppress_output = false
     inject_sticky_locals!
     ensure_correct_encoding!(line)
