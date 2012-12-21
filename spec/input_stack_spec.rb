@@ -30,15 +30,15 @@ describe "Pry#input_stack" do
 
   it 'input objects should be popped off stack as they are used up' do
     stack = [StringIO.new(":cloister\n"), StringIO.new(":baron\n")]
-    driver = Pry::Driver.new :input => StringIO.new(":alex\n"),
-                             :output => @str_output,
-                             :input_stack => stack
+    repl = Pry::REPL.new :input => StringIO.new(":alex\n"),
+                         :output => @str_output,
+                         :input_stack => stack
     stack.size.should == 2
-    driver.send(:retrieve_line).should == ":alex\n"
+    repl.send(:retrieve_line).should == ":alex\n"
     stack.size.should == 2
-    driver.send(:retrieve_line).should == ":baron\n"
+    repl.send(:retrieve_line).should == ":baron\n"
     stack.size.should == 1
-    driver.send(:retrieve_line).should == ":cloister\n"
+    repl.send(:retrieve_line).should == ":cloister\n"
     stack.size.should == 0
   end
 

@@ -229,7 +229,7 @@ rescue LoadError
 end
 
 require 'pry/version'
-require 'pry/driver'
+require 'pry/repl'
 require 'pry/rbx_method'
 require 'pry/rbx_path'
 require 'pry/code'

@@ -148,11 +148,10 @@ class Pry
       end
     end
 
-    driver = options[:driver] || Pry::Driver
+    driver = options[:driver] || Pry::REPL
 
     # Enter the matrix
-    driver.new(options).repl
-
+    driver.start(options)
   rescue Pry::TooSafeException
     puts "ERROR: Pry cannot work with $SAFE > 0"
     raise
