@@ -21,7 +21,7 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
         instance.binding_stack.should.not.be.empty
         called = false
         catch(:breakout) {
-          instance.accept_eof
+          instance.accept_line(nil)
           called = true
         }
         called.should == false
@@ -34,7 +34,7 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
         t = pry_tester
         t.eval "cd Object.new"
         t.eval("_pry_.binding_stack.size").should == 2
-        t.eval("_pry_.accept_eof")
+        t.eval("_pry_.accept_line(nil)")
         t.eval("_pry_.binding_stack.size").should == 1
       end
     end
