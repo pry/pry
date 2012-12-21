@@ -95,6 +95,19 @@ task :profile do
   Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
 end
 
+desc "Generate man page."
+task :generate_man_page do  
+  root_path = File.expand_path(File.join(File.dirname(__FILE__)))
+  gpm_path = File.join(root_path, "man", "generate_pry_man")
+  if File.directory?(gpm_path)
+    $:.unshift gpm_path
+    require 'generate_pry_man'
+  end
+  
+  gpm = GeneratePryMan.new
+  gpm.copy_files_to_man_dir(File.join(root_path, "man"))
+end
+
 desc "Build the gemspec file"
 task :gemspec => "ruby:gemspec"
 
