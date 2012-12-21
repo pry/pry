@@ -19,12 +19,7 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       it 'should break out of a REPL loop' do
         instance = Pry.new
         instance.binding_stack.should.not.be.empty
-        called = false
-        catch(:breakout) {
-          instance.accept_line(nil)
-          called = true
-        }
-        called.should == false
+        instance.accept_line(nil).should.be.false
         instance.binding_stack.should.be.empty
       end
     end
@@ -34,7 +29,7 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
         t = pry_tester
         t.eval "cd Object.new"
         t.eval("_pry_.binding_stack.size").should == 2
-        t.eval("_pry_.accept_line(nil)")
+        t.eval("_pry_.accept_line(nil)").should.be.true
         t.eval("_pry_.binding_stack.size").should == 1
       end
     end
