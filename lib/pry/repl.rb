@@ -1,13 +1,14 @@
 require 'forwardable'
+
 class Pry
-  class Driver
+  class REPL
     extend Forwardable
     attr_accessor :pry
 
     def_delegators :pry, :input, :output, :input_stack
 
     def self.start(options)
-      new(options).repl
+      new(options).start
     end
 
     def initialize(options)
@@ -15,14 +16,14 @@ class Pry
       @indent = Pry::Indent.new
     end
 
-    def repl
+    def start
       repl_prologue
 
       # FIXME: move these catchers back into Pry#accept_line
       break_data = nil
       exception = catch(:raise_up) do
         break_data = catch(:breakout) do
-          repl_body
+          repl
         end
         exception = false
       end
@@ -47,7 +48,7 @@ class Pry
 
     end
 
-    def repl_body
+    def repl
       loop do
         case val = retrieve_line
         when :control_c
