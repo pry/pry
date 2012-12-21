@@ -15,7 +15,6 @@ class Pry
 
   class WrappedModule
     include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::DocumentationHelpers
 
     attr_reader :wrapped
 
@@ -289,12 +288,5 @@ class Pry
         @lines_for_file[file] ||= File.readlines(file)
       end
     end
-
-    # @param [String] doc The raw docstring to process.
-    # @return [String] Process docstring markup and strip leading white space.
-    def process_doc(doc)
-      process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc))
-    end
-
   end
 end
