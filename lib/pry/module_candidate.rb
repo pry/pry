@@ -8,6 +8,7 @@ class Pry
     # It provides access to the source, documentation, line and file
     # for a monkeypatch (reopening) of a class/module.
     class Candidate
+      include Pry::Helpers::DocumentationHelpers
       extend Forwardable
 
       # @return [String] The file where the module definition is located.
@@ -20,8 +21,7 @@ class Pry
 
       # Methods to delegate to associated `Pry::WrappedModule instance`.
       to_delegate = [:lines_for_file, :method_candidates, :name, :wrapped,
-                     :yard_docs?, :number_of_candidates, :process_doc,
-                     :strip_leading_whitespace]
+                     :yard_docs?, :number_of_candidates]
 
       def_delegators :@wrapper, *to_delegate
       private(*to_delegate)
@@ -63,7 +63,7 @@ class Pry
         return @doc if @doc
         raise CommandError, "Could not locate doc for #{wrapped}!" if file.nil?
 
-        @doc = process_doc(Pry::Code.from_file(file).comment_describing(line))
+        @doc = strip_leading_hash_and_whitespace_from_ruby_comments(Pry::Code.from_file(file).comment_describing(line))
       end
 
       # @return [Array, nil] A `[String, Fixnum]` pair representing the
