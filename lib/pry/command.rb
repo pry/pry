@@ -59,6 +59,10 @@ class Pry
         strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
       end
 
+      def doc
+        new.help
+      end
+
       def source_location
         block.source_location
       end
