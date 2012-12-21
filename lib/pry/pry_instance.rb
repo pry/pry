@@ -235,7 +235,48 @@ class Pry
     @eval_string = ""
   end
 
+  # Pass a line of input to pry.
+  #
+  # This is the equivalent of `binding.eval` but with extra pry!
+  # In particular:
+  # 1. Pry-commands will be executed immediately if the line matches,
+  # 2. Partial lines of input will be queued up until a complete expression has been
+  # accepted,
+  # 3. Output is written to {output} in pretty colours, not returned.
+  #
+  # If this method returns false, that means the user has asked pry to end the session,
+  # probably by invoking the 'exit' command, 'cd ..' out of the top, typing '<ctrl-d>,
+  # or running `raise-up`. You should `return pry.finish` when this happens, so that
+  # the user gets any return value they've asked for (if possible) and any exceptions
+  # they've asked to raise get raised.
+  #
+  # @param [String, nil] line  The line of input, nil if the user types <ctrl-d>
+  # @return [Boolean]  true if pry is ready for more input, false otherwise
   def accept_line(line)
+    unless @started
+      @started = true
+      exec_hook :before_session, output, current_binding, self
+    end
+    return false if @stopped
+
+    break_data = nil
+    exception = catch(:raise_up) do
+      break_data = catch(:breakout) do
+        handle_line(line)
+        return true
+      end
+      exception = false
+    end
+
+    @stopped = exception ? :raise : :return
+    @stop_value = exception || break_data
+    return false
+  rescue RescuableException => e
+    @stopped = :raise
+    @stop_value = e
+  end
+
+  def handle_line(line)
     if line.nil?
       Pry.config.control_d_handler.call(@eval_string, self)
       return
@@ -289,6 +330,17 @@ class Pry
     end
 
     throw(:breakout) if current_binding.nil?
+  end
+
+  # Called after the user has finished interacting with pry.
+  #
+  # @return [Object, nil] the value the user exited with, if any.
+  # @raise [Exception] the exception the user 'raise-up'd, if any.
+  def finish
+    @stopped ||= :finish
+    exec_hook :after_session, output, current_binding, self
+    raise @stop_value if @stopped == :raise
+    return @stop_value if @stopped == :return
   end
 
   def evaluate_ruby(code)

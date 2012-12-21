@@ -19,18 +19,7 @@ class Pry
     def start
       repl_prologue
 
-      # FIXME: move these catchers back into Pry#accept_line
-      break_data = nil
-      exception = catch(:raise_up) do
-        break_data = catch(:breakout) do
-          repl
-        end
-        exception = false
-      end
-
-      raise exception if exception
-
-      break_data
+      repl
     ensure
       repl_epilogue
     end
@@ -38,14 +27,11 @@ class Pry
     private
 
     def repl_prologue
-      pry.exec_hook :before_session, pry.output, pry.current_binding, pry
-
       # Clear the line before starting Pry. This fixes the issue discussed here:
       # https://github.com/pry/pry/issues/566
       if Pry.config.auto_indent
         Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
       end
-
     end
 
     def repl
@@ -56,17 +42,18 @@ class Pry
           pry.reset_line
         when :end_of_file
           output.puts "" if output.tty?
-          pry.accept_line nil
+          return pry.finish unless pry.accept_line(nil)
+        when :no_more_input
+          output.puts "" if output.tty?
+          return pry.finish
         else
-          pry.accept_line val
+          return pry.finish unless pry.accept_line(val)
         end
       end
     end
 
     # Clean-up after the repl session.
     def repl_epilogue
-      pry.exec_hook :after_session, pry.output, pry.current_binding, pry
-
       Pry.save_history if Pry.config.history.should_save
     end
 
@@ -133,7 +120,7 @@ class Pry
           pry.input = Pry.config.input
           if !should_retry
             output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
-            throw(:breakout)
+            return :no_more_input
           end
           should_retry = false
         else
@@ -162,7 +149,7 @@ class Pry
         puts "  Pry.config.input = STDIN"
         puts "  Pry.config.output = STDOUT"
         puts "  binding.pry"
-        throw(:breakout)
+        return :no_more_input
       end
     end
 
