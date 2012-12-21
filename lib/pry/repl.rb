@@ -27,6 +27,7 @@ class Pry
     private
 
     def repl_prologue
+      pry.exec_hook :before_session, pry.output, pry.current_binding, pry
       # Clear the line before starting Pry. This fixes the issue discussed here:
       # https://github.com/pry/pry/issues/566
       if Pry.config.auto_indent
@@ -40,20 +41,20 @@ class Pry
         when :control_c
           output.puts ""
           pry.reset_line
-        when :end_of_file
-          output.puts "" if output.tty?
-          return pry.finish unless pry.accept_line(nil)
         when :no_more_input
           output.puts "" if output.tty?
-          return pry.finish
+          break
         else
-          return pry.finish unless pry.accept_line(val)
+          output.puts "" if val.nil? && output.tty?
+          return pry.exit_value unless pry.accept_line(val)
         end
       end
     end
 
     # Clean-up after the repl session.
     def repl_epilogue
+      pry.exec_hook :after_session, pry.output, pry.current_binding, pry
+
       Pry.save_history if Pry.config.history.should_save
     end
 
@@ -83,8 +84,8 @@ class Pry
         return :control_c
       end
 
-      # invoke handler if we receive EOF character (^D)
-      return :end_of_file unless val
+      # return nil for EOF
+      return unless val
 
       if Pry.config.auto_indent && !input.is_a?(StringIO)
         original_val = "#{indentation}#{val}"
