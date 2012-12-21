@@ -23,3 +23,5 @@ gist:
   commands (e.g show-source)\n* files  (e.g alpha.rb)\n\nExplicit flags (do these
   need their own syntax to avoid flags?)\n-i input expressions\n-o output expressions\n--hist
   history\n\n"
+show-source:
+- it displays 'Other options' at top of help output when u do help show-source *BUG*

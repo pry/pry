@@ -126,21 +126,6 @@ class Pry
         end
       end
 
-      def complete(input)
-        if input =~ /([^ ]*)#([a-z0-9_]*)\z/
-          prefix, search = [$1, $2]
-          methods = begin
-                      Pry::Method.all_from_class(binding.eval(prefix))
-                    rescue RescuableException => e
-                      return super
-                    end
-          methods.map do |method|
-            [prefix, method.name].join('#') if method.name.start_with?(search)
-          end.compact
-        else
-          super
-        end
-      end
     end
   end
 end
