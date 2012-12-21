@@ -55,6 +55,8 @@ class Pry
   # This is exposed via Pry::Command#state.
   attr_reader :command_state
 
+  attr_reader :exit_value
+
   # Special treatment for hooks as we want to alert people of the
   # changed API
   attr_reader :hooks
@@ -244,36 +246,30 @@ class Pry
   # accepted,
   # 3. Output is written to {output} in pretty colours, not returned.
   #
-  # If this method returns false, that means the user has asked pry to end the session,
-  # probably by invoking the 'exit' command, 'cd ..' out of the top, typing '<ctrl-d>,
-  # or running `raise-up`. You should `return pry.finish` when this happens, so that
-  # the user gets any return value they've asked for (if possible) and any exceptions
-  # they've asked to raise get raised.
+  # Once this method has raised an exception or returned false, this instance of pry
+  # is no longer usable. You can return pry.exit_value to your caller.
   #
   # @param [String, nil] line  The line of input, nil if the user types <ctrl-d>
   # @return [Boolean]  true if pry is ready for more input, false otherwise
+  # @raise [Exception]  if the user has explicitly 'raise-up'd an exception
   def accept_line(line)
-    unless @started
-      @started = true
-      exec_hook :before_session, output, current_binding, self
-    end
     return false if @stopped
 
-    break_data = nil
+    exit_value = nil
     exception = catch(:raise_up) do
-      break_data = catch(:breakout) do
+      exit_value = catch(:breakout) do
         handle_line(line)
         return true
       end
       exception = false
     end
 
-    @stopped = exception ? :raise : :return
-    @stop_value = exception || break_data
+    @stopped = true
+    @exit_value = exit_value
+
+    # TODO: make this configurable?
+    raise exception if exception
     return false
-  rescue RescuableException => e
-    @stopped = :raise
-    @stop_value = e
   end
 
   def handle_line(line)
@@ -330,17 +326,6 @@ class Pry
     end
 
     throw(:breakout) if current_binding.nil?
-  end
-
-  # Called after the user has finished interacting with pry.
-  #
-  # @return [Object, nil] the value the user exited with, if any.
-  # @raise [Exception] the exception the user 'raise-up'd, if any.
-  def finish
-    @stopped ||= :finish
-    exec_hook :after_session, output, current_binding, self
-    raise @stop_value if @stopped == :raise
-    return @stop_value if @stopped == :return
   end
 
   def evaluate_ruby(code)
