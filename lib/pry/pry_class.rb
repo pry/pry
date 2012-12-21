@@ -144,7 +144,7 @@ class Pry
 
       # if Pry was started via binding.pry, elide that from the backtrace.
       if options[:backtrace].first =~ /pry.*core_extensions.*pry/
-        options[:backtrace].backtrace.shift
+        options[:backtrace].shift
       end
     end
 
