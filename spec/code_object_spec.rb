@@ -58,6 +58,30 @@ describe Pry::CodeObject do
       m.source.should =~ /lobster/
     end
 
+    it 'should lookup instance methods defined on classes accessed via local variable' do
+      o = Class.new do
+        def princess_bubblegum
+          "mathematic!"
+        end
+      end
+
+      m = Pry::CodeObject.lookup("o#princess_bubblegum", binding, Pry.new)
+      m.is_a?(Pry::Method).should == true
+      m.source.should =~ /mathematic!/
+    end
+
+    it 'should lookup class methods defined on classes accessed via local variable' do
+      o = Class.new do
+        def self.finn
+          "4 realzies"
+        end
+      end
+
+      m = Pry::CodeObject.lookup("o.finn", binding, Pry.new)
+      m.is_a?(Pry::Method).should == true
+      m.source.should =~ /4 realzies/
+    end
+
     it 'should lookup the class of an object (when given a variable)' do
       moddy = ClassyWassy.new
       m = Pry::CodeObject.lookup("moddy", binding, Pry.new)

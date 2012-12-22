@@ -47,7 +47,7 @@ class Pry
 
     # lookup variables and constants that are not modules
     def default_lookup
-      if target.eval("defined? #{str} ") =~ /variable|constant/
+      if str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
         obj = target.eval(str)
 
         if obj.respond_to?(:source_location)
