@@ -328,6 +328,12 @@ class Pry
     throw(:breakout) if current_binding.nil?
   end
 
+  # @deprecated
+  def repl
+    @@repl_warning ||= (warn "Pry#repl has been replaced by Pry::REPL.start(pry: pry)"; true)
+    Pry::REPL.start(:pry => self)
+  end
+
   def evaluate_ruby(code)
     inject_sticky_locals!
     exec_hook :before_eval, code, self

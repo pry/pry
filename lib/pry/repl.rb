@@ -12,7 +12,7 @@ class Pry
     end
 
     def initialize(options)
-      @pry = Pry.new(options)
+      @pry = options[:pry] || Pry.new(options)
       @indent = Pry::Indent.new
     end
 
