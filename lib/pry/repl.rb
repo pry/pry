@@ -13,6 +13,9 @@ class Pry
 
     def initialize(options)
       @pry = options[:pry] || Pry.new(options)
+      if options[:pry] && options[:target]
+        @pry.push_binding options[:target]
+      end
       @indent = Pry::Indent.new
     end
 
