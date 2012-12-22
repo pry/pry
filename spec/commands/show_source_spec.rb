@@ -4,7 +4,6 @@ require "fixtures/show_source_doc_examples"
 if !PryTestHelpers.mri18_and_no_real_source_location?
   describe "show-source" do
     before do
-      @str_output = StringIO.new
       @o = Object.new
       def @o.sample_method
         :sample
@@ -583,6 +582,15 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         @set.command /foo(.*)/, :body_of_foo_bar_regex, :listing => "bar" do; end
 
         pry_eval('show-source bar').should =~ /:body_of_foo_bar_regex/
+      end
+    end
+
+    describe "should set _file_ and _dir_" do
+      it 'should set _file_ and _dir_ to file containing method source' do
+        t = pry_tester
+        t.process_command "show-source TestClassForShowSource#alpha"
+        t.pry.last_file.should =~ /show_source_doc_examples/
+        t.pry.last_dir.should =~ /fixtures/
       end
     end
   end
