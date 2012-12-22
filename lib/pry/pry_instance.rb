@@ -139,6 +139,7 @@ class Pry
 
   # Push a binding for the given object onto the stack.
   def push_binding(object)
+    @stopped = false
     binding_stack << Pry.binding_for(object)
   end
 
@@ -328,10 +329,10 @@ class Pry
     throw(:breakout) if current_binding.nil?
   end
 
-  # @deprecated
-  def repl
-    @@repl_warning ||= (warn "Pry#repl has been replaced by Pry::REPL.start(pry: pry)"; true)
-    Pry::REPL.start(:pry => self)
+  # @deprecated - Please use Pry::REPL.start(:pry => pry, :target => target) instead.
+  def repl(target=binding_stack.last)
+    @@repl_warning ||= (warn "(deprecation) Pry#repl has been replaced by Pry::REPL.start(:pry => pry)"; true)
+    Pry::REPL.start(:pry => self, :target => target)
   end
 
   def evaluate_ruby(code)
