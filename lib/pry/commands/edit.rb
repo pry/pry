@@ -91,6 +91,11 @@ class Pry
       end
     end
 
+    def probably_a_file?(str)
+      [".rb", ".c", ".py", ".yml", ".gemspec"].include? File.extname(str) ||
+      str =~ /\/|\\/
+    end
+
     def process_remote_edit
       if opts.present?(:ex)
         if _pry_.last_exception.nil?
@@ -122,9 +127,14 @@ class Pry
         line = target.eval("__LINE__")
       else
 
-        # break up into file:line
-        file_name = File.expand_path(args.first)
-        line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+        if !probably_a_file?(args.first) && code_object = Pry::CodeObject.lookup(args.first, target, _pry_)
+          file_name = code_object.source_file
+          line = code_object.source_line
+        else
+          # break up into file:line
+          file_name = File.expand_path(args.first)
+          line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+        end
       end
 
       if not_a_real_file?(file_name)
