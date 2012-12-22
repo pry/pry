@@ -336,5 +336,14 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         pry_eval('show-doc command with spaces').should =~ /description of a command with spaces/
       end
     end
+
+    describe "should set _file_ and _dir_" do
+      it 'should set _file_ and _dir_ to file containing method source' do
+        t = pry_tester
+        t.process_command "show-doc TestClassForShowSource#alpha"
+        t.pry.last_file.should =~ /show_source_doc_examples/
+        t.pry.last_dir.should =~ /fixtures/
+      end
+    end
   end
 end

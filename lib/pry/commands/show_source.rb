@@ -37,7 +37,7 @@ class Pry
     end
 
     def process
-      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      code_object = Pry::CodeObject.lookup obj_name, target, _pry_, :super => opts[:super]
 
       if !code_object
         raise Pry::CommandError, "Couldn't locate #{obj_name}!"
@@ -51,6 +51,8 @@ class Pry
         result = header(code_object)
         result << Code.new(code_object.source, start_line_for(code_object)).
           with_line_numbers(use_line_numbers?).to_s
+
+        set_file_and_dir_locals(code_object.source_file)
       end
 
       stagger_output result
