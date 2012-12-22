@@ -54,6 +54,9 @@ class Pry
           from_str(name, target, :instance => true) or
             from_str(name, target, :methods => true)
         end
+
+      rescue Pry::RescuableException
+        nil
       end
 
       # Given a `Binding`, try to extract the `::Method` it originated from and
