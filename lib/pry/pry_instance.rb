@@ -313,12 +313,15 @@ class Pry
       end
 
       begin
-        result = evaluate_ruby(@eval_string)
+        # Reset eval string, in case we're evaluating Ruby that does something
+        # like open a nested REPL on this instance.
+        eval_string = @eval_string
+        reset_line
+
+        result = evaluate_ruby(eval_string)
       rescue RescuableException => e
         self.last_exception = e
         result = e
-      ensure
-        @eval_string = ""
       end
 
       Pry.critical_section do
