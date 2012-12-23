@@ -30,9 +30,10 @@ describe "Pry#input_stack" do
 
   it 'input objects should be popped off stack as they are used up' do
     stack = [StringIO.new(":cloister\n"), StringIO.new(":baron\n")]
-    repl = Pry::REPL.new :input => StringIO.new(":alex\n"),
-                         :output => @str_output,
-                         :input_stack => stack
+    pry   = Pry.new :input => StringIO.new(":alex\n"),
+                    :output => @str_output,
+                    :input_stack => stack
+    repl  = Pry::REPL.new pry
     stack.size.should == 2
     repl.send(:retrieve_line).should == ":alex\n"
     stack.size.should == 2
