@@ -47,10 +47,23 @@ describe "The REPL" do
       end
     end
 
-    it "should immediately evaluate if eval_string is complete" do
-      ReplTester.start do
-        input  '_pry_.eval_string = "10"'
-        output '=> 10'
+    it "should immediately evaluate eval_string after cmd if complete" do
+      set = Pry::CommandSet.new do
+        import Pry::Commands
+
+        command 'hello!' do
+          eval_string.replace('"hello"')
+        end
+      end
+
+      ReplTester.start(:commands => set) do
+        input  'def x'
+        output ''
+        prompt /\* $/
+
+        input  'hello!'
+        output '=> "hello"'
+        prompt /> $/
       end
     end
   end

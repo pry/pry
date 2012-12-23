@@ -9,9 +9,9 @@ class ReplTester
     end
   end
 
-  def self.start(&block)
+  def self.start(options = {}, &block)
     redirect_pry_io Input.new, StringIO.new do
-      instance = new
+      instance = new(options)
       instance.instance_eval(&block)
       instance.ensure_exit
     end
@@ -19,8 +19,8 @@ class ReplTester
 
   attr_accessor :pry, :repl, :fiber
 
-  def initialize
-    @pry   = Pry.new
+  def initialize(options = {})
+    @pry   = Pry.new(options)
     @repl  = Pry::REPL.new(@pry)
 
     @fiber = Fiber.new do
