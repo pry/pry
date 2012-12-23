@@ -8,6 +8,7 @@ require 'mocha/api'
 require 'pry/test/helper'
 require 'helpers/bacon'
 require 'helpers/mock_pry'
+require 'helpers/repl_tester'
 
 class Module
   public :remove_const
