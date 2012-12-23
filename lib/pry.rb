@@ -120,6 +120,7 @@ class Pry
     else
       # Otherwise, saves current binding stack as old stack and pops last
       # binding out of binding stack (the old stack still has that binding).
+      _pry_.command_state["cd"] ||= OpenStruct.new # FIXME
       _pry_.command_state["cd"].old_stack = _pry_.binding_stack.dup
       _pry_.binding_stack.pop
     end
