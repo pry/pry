@@ -9,13 +9,11 @@ class ReplTester
     end
   end
 
-  def self.start
+  def self.start(&block)
     redirect_pry_io Input.new, StringIO.new do
       instance = new
-
-      yield instance
-      instance.in "exit-all"
-      raise "REPL didn't die" if instance.fiber.alive?
+      instance.instance_eval(&block)
+      instance.ensure_exit
     end
   end
 
@@ -32,7 +30,7 @@ class ReplTester
     @fiber.resume
   end
 
-  def in(input)
+  def input(input)
     Pry.output.send(:initialize) # reset StringIO
     @fiber.resume(input)
   end
@@ -41,7 +39,20 @@ class ReplTester
     match.should === @pry.select_prompt
   end
 
-  def out(match)
+  def output(match)
     match.should === Pry.output.string.chomp
+  end
+
+  def ensure_exit
+    if @should_exit_naturally
+      fiber.should.not.be.alive
+    else
+      input "exit-all"
+      raise "REPL didn't die" if fiber.alive?
+    end
+  end
+
+  def assert_exited
+    @should_exit_naturally = true
   end
 end
