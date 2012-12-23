@@ -23,7 +23,7 @@ class ReplTester
 
   def initialize
     @pry   = Pry.new
-    @repl  = Pry::REPL.new(:pry => @pry)
+    @repl  = Pry::REPL.new(@pry)
 
     @fiber = Fiber.new do
       @repl.start

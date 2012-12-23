@@ -15,7 +15,7 @@ describe "The REPL" do
 
   it "shouldn't break if we start a nested session" do
     ReplTester.start do |t|
-      t.in  'Pry::REPL.start(:pry => _pry_, :target => 10)'
+      t.in  'Pry::REPL.new(_pry_, :target => 10).start'
       t.out ''
       t.prompt /10.*> $/
 

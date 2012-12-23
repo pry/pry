@@ -8,15 +8,16 @@ class Pry
     def_delegators :pry, :input, :output, :input_stack
 
     def self.start(options)
-      new(options).start
+      new(Pry.new(options)).start
     end
 
-    def initialize(options)
-      @pry = options[:pry] || Pry.new(options)
-      if options[:pry] && options[:target]
+    def initialize(pry, options = {})
+      @pry    = pry
+      @indent = Pry::Indent.new
+
+      if options[:target]
         @pry.push_binding options[:target]
       end
-      @indent = Pry::Indent.new
     end
 
     def start

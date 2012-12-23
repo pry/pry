@@ -137,7 +137,8 @@ class Pry
   end
   alias current_context current_binding # support previous API
 
-  # Push a binding for the given object onto the stack.
+  # Push a binding for the given object onto the stack. If this instance is
+  # currently stopped, mark it as usable again.
   def push_binding(object)
     @stopped = false
     binding_stack << Pry.binding_for(object)
@@ -304,7 +305,7 @@ class Pry
       complete_expr = Pry::Code.complete_expression?(@eval_string)
     rescue SyntaxError => e
       output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
-      @eval_string = ""
+      reset_line
     end
 
     if complete_expr
@@ -332,10 +333,20 @@ class Pry
     throw(:breakout) if current_binding.nil?
   end
 
-  # @deprecated - Please use Pry::REPL.start(:pry => pry, :target => target) instead.
-  def repl(target=binding_stack.last)
-    @@repl_warning ||= (warn "(deprecation) Pry#repl has been replaced by Pry::REPL.start(:pry => pry)"; true)
-    Pry::REPL.start(:pry => self, :target => target)
+  # @deprecated Use `Pry::REPL.new(pry, :target => target).start` instead.
+  def repl(target = nil)
+    @@repl_warning ||= (warn Pry::Helpers::CommandHelpers.unindent(<<-S); true)
+      DEPRECATION: Pry#repl is deprecated. Instead, use
+
+        Pry::REPL.new(pry, :target => target).start
+
+      where pry is the Pry instance you called #repl on and target is the
+      optional target parameter of #repl.
+
+      Call stack:
+        #{caller.join("\n" + (' ' * 8))}
+    S
+    Pry::REPL.new(self, :target => target).start
   end
 
   def evaluate_ruby(code)
@@ -551,7 +562,7 @@ class Pry
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt
-      if @eval_string.empty?
+      if eval_string.empty?
         generate_prompt(Array(prompt).first, c)
 
       # Otherwise use the wait prompt (indicating multi-line expression)
