@@ -1,6 +1,6 @@
 require 'helper'
 
-describe "The REPL" do
+describe "The whole thing" do
   before do
     Pry.config.auto_indent = true
   end
@@ -10,7 +10,14 @@ describe "The REPL" do
   end
 
   it "should let you run commands in the middle of multiline expressions" do
-    mock_pry("def a", "!", "5").should =~ /Input buffer cleared/
+    ReplTester.start do
+      input  'def a'
+      input  '!'
+      output /^Input buffer cleared/
+
+      input  '5'
+      output '=> 5'
+    end
   end
 
   describe "eval_string and binding_stack" do
