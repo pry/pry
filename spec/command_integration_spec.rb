@@ -225,7 +225,7 @@ describe "commands" do
     end
 
     it 'should run a command in the context of a session' do
-      pry_tester.tap do |t|
+      pry_tester(Object.new).tap do |t|
         t.eval "@session_ivar = 10", "_pry_.run_command('ls')"
         t.last_output.should =~ /@session_ivar/
       end
