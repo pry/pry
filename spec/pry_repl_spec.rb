@@ -14,7 +14,7 @@ describe "The REPL" do
   end
 
   describe "eval_string and binding_stack" do
-    it "shouldn't break if we start a nested session" do
+    it "shouldn't break if we start a nested REPL" do
       ReplTester.start do
         input  'Pry::REPL.new(_pry_, :target => 10).start'
         output ''
@@ -25,6 +25,23 @@ describe "The REPL" do
 
         input  nil # Ctrl-D
         output ''
+
+        input  'self'
+        output '=> main'
+      end
+    end
+
+    it "shouldn't break if we start a nested instance" do
+      ReplTester.start do
+        input  'Pry.start(10)'
+        output ''
+        prompt /10.*> $/
+
+        input  'self'
+        output '=> 10'
+
+        input  nil # Ctrl-D
+        output '=> nil' # return value of Pry session
 
         input  'self'
         output '=> main'
@@ -59,7 +76,7 @@ describe "The REPL" do
       ReplTester.start(:commands => set) do
         input  'def x'
         output ''
-        prompt /\* $/
+        prompt /\*   $/
 
         input  'hello!'
         output '=> "hello"'
