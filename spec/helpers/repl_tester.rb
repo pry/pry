@@ -1,6 +1,7 @@
 # This is for super-high-level integration testing.
 
 require 'thread'
+require 'delegate'
 
 class ReplTester
   class Input
@@ -9,24 +10,28 @@ class ReplTester
     end
 
     def readline(prompt)
-      awaken_tester
+      @tester_mailbox.push prompt
       mailbox.pop
     end
 
     def mailbox
       Thread.current[:mailbox]
     end
+  end
 
-    def awaken_tester
-      @tester_mailbox.push nil
+  class Output < SimpleDelegator
+    def clear
+      __setobj__(StringIO.new)
     end
   end
 
   def self.start(options = {}, &block)
     Thread.current[:mailbox] = Queue.new
     instance = nil
+    input    = Input.new(Thread.current[:mailbox])
+    output   = Output.new(StringIO.new)
 
-    redirect_pry_io Input.new(Thread.current[:mailbox]), StringIO.new do
+    redirect_pry_io input, output do
       instance = new(options)
       instance.instance_eval(&block)
       instance.ensure_exit
@@ -37,7 +42,7 @@ class ReplTester
     end
   end
 
-  attr_accessor :thread, :mailbox
+  attr_accessor :thread, :mailbox, :last_prompt
 
   def initialize(options = {})
     @pry     = Pry.new(options)
@@ -61,12 +66,12 @@ class ReplTester
   def input(input)
     reset_output
     repl_mailbox.push input
-    mailbox.pop # wait until the instance either calls readline or ends
+    self.last_prompt = mailbox.pop
   end
 
   # Assert that the current prompt matches the given string or regex.
   def prompt(match)
-    match.should === @pry.select_prompt
+    match.should === last_prompt
   end
 
   # Assert that the most recent output (since the last time input was called)
@@ -93,7 +98,7 @@ class ReplTester
   private
 
   def reset_output
-    @pry.output = Pry.output = StringIO.new
+    Pry.output.clear
   end
 
   def repl_mailbox
