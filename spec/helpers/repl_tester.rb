@@ -59,14 +59,14 @@ class ReplTester
       end
     end
 
-    mailbox.pop # wait until the instance reaches its first readline
+    wait # wait until the instance reaches its first readline
   end
 
   # Accept a line of input, as if entered by a user.
   def input(input)
     reset_output
     repl_mailbox.push input
-    self.last_prompt = mailbox.pop
+    wait
   end
 
   # Assert that the current prompt matches the given string or regex.
@@ -103,5 +103,9 @@ class ReplTester
 
   def repl_mailbox
     @thread[:mailbox]
+  end
+
+  def wait
+    @last_prompt = mailbox.pop
   end
 end
