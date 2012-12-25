@@ -695,13 +695,14 @@ describe "Pry::Command" do
     end
   end
 
-  describe "commands made with custom sub-classes" do
-    before do
+  describe "a command made with a custom sub-class" do
 
+    before do
       class MyTestCommand < Pry::ClassCommand
         match /my-*test/
-        description "So just how many sound technicians does it take to change a lightbulb? 1? 2? 3? 1-2-3? Testing?"
-        options :shellwords => false, :listing => "my-test"
+        description 'So just how many sound technicians does it take to' \
+          'change a lightbulb? 1? 2? 3? 1-2-3? Testing?'
+        options :shellwords => false, :listing => 'my-test'
 
         def process
           output.puts command_name * 2
@@ -715,13 +716,27 @@ describe "Pry::Command" do
       Pry.commands.delete 'my-test'
     end
 
-    it "should allow creating custom sub-classes of Pry::Command" do
-      pry_eval("my---test").should =~ /my-testmy-test/
+    it "allows creation of custom sub-classes of Pry::Command" do
+      pry_eval('my---test').should =~ /my-testmy-test/
+    end
+
+    it "never loses its command options" do
+      options_hash = {
+        :requires_gem      => [],
+        :keep_retval       => false,
+        :argument_required => false,
+        :interpolate       => true,
+        :shellwords        => false,
+        :listing           => 'my-test',
+        :use_prefix        => true,
+        :takes_block       => false
+      }
+      MyTestCommand.options.should == options_hash
     end
 
     if !mri18_and_no_real_source_location?
-      it "should show the source of the process method" do
-        pry_eval("show-source my-test").should =~ /output.puts command_name/
+      it "shows the source of the process method" do
+        pry_eval('show-source my-test').should =~ /output.puts command_name/
       end
     end
   end
