@@ -37,7 +37,7 @@ class Pry
 
       # Define or get the command's options
       def command_options(arg=nil)
-        @command_options ||= {}
+        @command_options ||= Pry::DEFAULT_COMMAND_OPTIONS.call(match)
         @command_options.merge!(arg) if arg
         @command_options
       end
