@@ -26,7 +26,7 @@ class Pry
 
       def find_command(name, set = Pry::Commands)
         command_match = set.find do |_, command|
-          command.options[:listing] == name
+          (listing = command.options[:listing]) == name && listing != nil
         end
         command_match.last if command_match
       end
