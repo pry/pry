@@ -196,14 +196,9 @@ class Pry
     #   of the command to retrieve.
     # @return [Command] The command object matched.
     def find_command_by_match_or_listing(match_or_listing)
-      if commands[match_or_listing]
-        cmd = commands[match_or_listing]
-      else
-        _, cmd = commands.find { |match, command| command.options[:listing] == match_or_listing }
-      end
-
-      raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!" if !cmd
-      cmd
+      cmd = (commands[match_or_listing] ||
+        Pry::Helpers::BaseHelpers.find_command(match_or_listing, commands))
+      cmd or raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!"
     end
 
     # Aliases a command

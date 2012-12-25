@@ -24,8 +24,8 @@ class Pry
       end
       public :safe_send
 
-      def find_command(name)
-        command_match = Pry::Commands.find do |_, command|
+      def find_command(name, set = Pry::Commands)
+        command_match = set.find do |_, command|
           command.options[:listing] == name
         end
         command_match.last if command_match
