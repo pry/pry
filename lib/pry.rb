@@ -130,6 +130,19 @@ class Pry
     end
   end
 
+  Pry::DEFAULT_COMMAND_OPTIONS = proc do |match|
+    {
+      :requires_gem      => [],
+      :keep_retval       => false,
+      :argument_required => false,
+      :interpolate       => true,
+      :shellwords        => true,
+      :listing           => (String === match ? match : match.inspect),
+      :use_prefix        => true,
+      :takes_block       => false
+    }
+  end
+
   # Store the current working directory. This allows show-source etc. to work if
   # your process has changed directory since boot. [Issue #675]
   INITIAL_PWD = Dir.pwd
