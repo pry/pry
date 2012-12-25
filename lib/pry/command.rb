@@ -51,7 +51,7 @@ class Pry
       end
 
       def block
-        @block || instance_method(:process) && instance_method(:process)
+        @block || instance_method(:process)
       end
 
       def source
