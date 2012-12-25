@@ -9,6 +9,7 @@ class Pry
     # for a monkeypatch (reopening) of a class/module.
     class Candidate
       include Pry::Helpers::DocumentationHelpers
+      include Pry::CodeObject::Helpers
       extend Forwardable
 
       # @return [String] The file where the module definition is located.

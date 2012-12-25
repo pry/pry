@@ -8,6 +8,7 @@ class Pry
   # which creates a ClassCommand. Please don't use this class directly.
   class Command
     extend Helpers::DocumentationHelpers
+    extend CodeObject::Helpers
 
     # represents a void return value for a command
     VOID_VALUE = Object.new

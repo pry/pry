@@ -1,6 +1,26 @@
 class Pry
   class CodeObject
-    include Helpers::CommandHelpers
+    module Helpers
+      # we need this helper as some Pry::Method objects can wrap Procs
+      # @return [Boolean]
+      def real_method_object?
+        is_a?(::Method) || is_a?(::UnboundMethod)
+      end
+
+      def c_method?
+        real_method_object? && source_type == :c
+      end
+
+      def module_with_yard_docs?
+        is_a?(WrappedModule) && yard_docs?
+      end
+
+      def command?
+        is_a?(Module) && self <= Pry::Command
+      end
+    end
+
+    include Pry::Helpers::CommandHelpers
 
     class << self
       def lookup(str, target, _pry_, options={})
