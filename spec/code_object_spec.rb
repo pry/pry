@@ -38,24 +38,35 @@ describe Pry::CodeObject do
       m.source.should =~ /hello/
     end
 
-    it 'should lookup commands' do
-      p = Pry.new
-      p.commands.command "jeremy-jones" do
-        "lobster"
+    describe 'commands lookup' do
+      it 'works' do
+        p = Pry.new
+        p.commands.command "jeremy-jones" do
+          "lobster"
+        end
+        m = Pry::CodeObject.lookup("jeremy-jones", binding, p)
+        (m <= Pry::Command).should == true
+        m.source.should =~ /lobster/
       end
-      m = Pry::CodeObject.lookup("jeremy-jones", binding, p)
-      (m <= Pry::Command).should == true
-      m.source.should =~ /lobster/
-    end
 
-    it 'should lookup commands by :listing name as well' do
-      p = Pry.new
-      p.commands.command /jeremy-.*/, "", :listing => "jeremy-baby" do
-        "lobster"
+      it 'looks up commands by :listing name as well' do
+        p = Pry.new
+        p.commands.command /jeremy-.*/, "", :listing => "jeremy-baby" do
+          "lobster"
+        end
+        m = Pry::CodeObject.lookup("jeremy-baby", binding, p)
+        (m <= Pry::Command).should == true
+        m.source.should =~ /lobster/
       end
-      m = Pry::CodeObject.lookup("jeremy-baby", binding, p)
-      (m <= Pry::Command).should == true
-      m.source.should =~ /lobster/
+
+      it 'finds nothing when passing nil as the first argument' do
+        p = Pry.new
+        p.commands.command /kierkegaard-.*/, '', :listing => 'kierkegaard-baby' do
+          "lobster"
+        end
+        Pry::CodeObject.lookup(nil, binding, p).should == nil
+      end
+
     end
 
     it 'should lookup instance methods defined on classes accessed via local variable' do
