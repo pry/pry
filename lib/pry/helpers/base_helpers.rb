@@ -25,10 +25,10 @@ class Pry
       public :safe_send
 
       def find_command(name)
-        command_match = commands.find { |_, command| command.options[:listing] == name }
-
-        return command_match.last if command_match
-        nil
+        command_match = Pry::Commands.find do |_, command|
+          command.options[:listing] == name
+        end
+        command_match.last if command_match
       end
 
       def gem_installed?(gem_name)
