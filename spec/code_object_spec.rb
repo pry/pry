@@ -39,32 +39,30 @@ describe Pry::CodeObject do
     end
 
     describe 'commands lookup' do
+      before do
+        @p = Pry.new
+      end
+
       it 'works' do
-        p = Pry.new
-        p.commands.command "jeremy-jones" do
+        @p.commands.command "jeremy-jones" do
           "lobster"
         end
-        m = Pry::CodeObject.lookup("jeremy-jones", binding, p)
+        m = Pry::CodeObject.lookup("jeremy-jones", binding, @p)
         (m <= Pry::Command).should == true
         m.source.should =~ /lobster/
       end
 
       it 'looks up commands by :listing name as well' do
-        p = Pry.new
-        p.commands.command /jeremy-.*/, "", :listing => "jeremy-baby" do
+        @p.commands.command /jeremy-.*/, "", :listing => "jeremy-baby" do
           "lobster"
         end
-        m = Pry::CodeObject.lookup("jeremy-baby", binding, p)
+        m = Pry::CodeObject.lookup("jeremy-baby", binding, @p)
         (m <= Pry::Command).should == true
         m.source.should =~ /lobster/
       end
 
       it 'finds nothing when passing nil as the first argument' do
-        p = Pry.new
-        p.commands.command /kierkegaard-.*/, '', :listing => 'kierkegaard-baby' do
-          "lobster"
-        end
-        Pry::CodeObject.lookup(nil, binding, p).should == nil
+        Pry::CodeObject.lookup(nil, binding, @p).should == nil
       end
 
     end
