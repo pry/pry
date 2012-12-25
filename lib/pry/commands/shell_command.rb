@@ -1,8 +1,9 @@
 class Pry
-  Pry::Commands.create_command(/\.(.*)/) do
+  class Command::ShellCommand < Pry::ClassCommand
+    match /\.(.*)/
     group 'Input and Output'
     description "All text following a '.' is forwarded to the shell."
-    command_options :listing => ".<shell command>", :use_prefix => false,
+    command_options :listing => '.<shell command>', :use_prefix => false,
       :takes_block => true
 
     def process(cmd)
@@ -28,4 +29,6 @@ class Pry
       super + Bond::Rc.files(search.split(" ").last || '')
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::ShellCommand)
 end

@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "gem-list" do |pattern|
+  class Command::GemList < Pry::ClassCommand
+    match 'gem-list'
     group 'Gems'
-    description "List and search installed gems."
+    description 'List and search installed gems.'
 
     banner <<-BANNER
       Usage: gem-list [REGEX]
@@ -10,7 +11,7 @@ class Pry
       match the regex.
     BANNER
 
-    def process(pattern=nil)
+    def process(pattern = nil)
       pattern = Regexp.compile(pattern || '')
       gems    = gem_list(pattern).group_by(&:name)
 
@@ -27,4 +28,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::GemList)
 end

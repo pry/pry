@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "ls" do
-    group "Context"
-    description "Show the list of vars and methods in the current scope."
+  class Command::Ls < Pry::ClassCommand
+    match 'ls'
+    group 'Context'
+    description 'Show the list of vars and methods in the current scope.'
     command_options :shellwords => false, :interpolate => false
 
     def options(opt)
@@ -320,4 +321,6 @@ class Pry
       text.send(Pry.config.ls.send(:"#{type}_color"), str)
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Ls)
 end

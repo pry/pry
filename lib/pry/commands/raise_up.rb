@@ -1,8 +1,9 @@
 class Pry
   # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
-  Pry::Commands.create_command(/raise-up(!?\b.*)/) do
+  class Command::RaiseUp < Pry::ClassCommand
+    match /raise-up(!?\b.*)/
     group 'Context'
-    description "Raise an exception out of the current pry instance."
+    description 'Raise an exception out of the current pry instance.'
     command_options :listing => 'raise-up'
 
     banner <<-BANNER
@@ -23,4 +24,6 @@ class Pry
       target.eval("_pry_.raise_up#{captures[0]}")
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::RaiseUp)
 end

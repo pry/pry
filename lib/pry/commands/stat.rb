@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "stat" do
+  class Command::Stat < Pry::ClassCommand
+    match 'stat'
     group 'Introspection'
-    description "View method information and set _file_ and _dir_ locals."
+    description 'View method information and set _file_ and _dir_ locals.'
     command_options :shellwords => false
 
     banner <<-BANNER
@@ -32,4 +33,6 @@ class Pry
       EOS
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Stat)
 end

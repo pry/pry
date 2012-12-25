@@ -1,12 +1,13 @@
 class Pry
-  Pry::Commands.create_command "show-doc" do
+  class Command::ShowDoc < Pry::ClassCommand
     include Pry::Helpers::DocumentationHelpers
     extend  Pry::Helpers::BaseHelpers
 
+    match 'show-doc'
     group 'Introspection'
-    description "Show the documentation for a method or class. Aliases: \?"
+    description 'Show the documentation for a method or class. Aliases: \?'
     command_options :shellwords => false
-    command_options :requires_gem => "ruby18_source_location" if mri_18?
+    command_options :requires_gem => 'ruby18_source_location' if mri_18?
 
     banner <<-BANNER
       Usage: show-doc [OPTIONS] [METH]
@@ -174,5 +175,6 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "?", "show-doc"
+  Pry::Commands.add_command(Pry::Command::ShowDoc)
+  Pry::Commands.alias_command '?', 'show-doc'
 end

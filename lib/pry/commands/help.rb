@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "help" do |cmd|
+  class Command::Help < Pry::ClassCommand
+    match 'help'
     group 'Help'
-    description "Show a list of commands. Type `help <foo>` for information about <foo>."
+    description 'Show a list of commands. Type `help <foo>` for information about <foo>.'
 
     banner <<-BANNER
       Usage: help [ COMMAND ]
@@ -121,4 +122,6 @@ class Pry
       [%w(Help Context Editing Introspection Input_and_output Navigating_pry Gems Basic Commands).index(group_name.gsub(' ', '_')) || 99, group_name]
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Help)
 end

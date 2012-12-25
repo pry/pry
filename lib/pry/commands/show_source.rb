@@ -1,9 +1,10 @@
 class Pry
-  Pry::Commands.create_command "show-source" do
+  class Command::ShowSource < Pry::ClassCommand
     extend  Pry::Helpers::BaseHelpers
 
+    match 'show-source'
     group 'Introspection'
-    description "Show the source for a method or class. Aliases: $, show-method"
+    description 'Show the source for a method or class. Aliases: $, show-method'
 
     banner <<-BANNER
       Usage: show-source [OPTIONS] [METH|CLASS]
@@ -130,6 +131,7 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "show-method", "show-source"
-  Pry::Commands.alias_command "$", "show-source"
+  Pry::Commands.add_command(Pry::Command::ShowSource)
+  Pry::Commands.alias_command 'show-method', 'show-source'
+  Pry::Commands.alias_command '$', 'show-source'
 end

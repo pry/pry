@@ -1,7 +1,9 @@
 class Pry
-  Pry::Commands.create_command "whereami" do
-    description "Show code surrounding the current context."
+  class Command::Whereami < Pry::ClassCommand
+    match 'whereami'
+    description 'Show code surrounding the current context.'
     group 'Context'
+
     banner <<-BANNER
       Usage: whereami [-q] [N]
 
@@ -84,4 +86,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Whereami)
 end

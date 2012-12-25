@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "pry-backtrace" do
+  class Command::PryBacktrace < Pry::ClassCommand
+    match 'pry-backtrace'
     group 'Context'
-    description "Show the backtrace for the Pry session."
+    description 'Show the backtrace for the Pry session.'
 
     banner <<-BANNER
       Usage:   pry-backtrace [OPTIONS] [--help]
@@ -21,4 +22,6 @@ class Pry
       stagger_output _pry_.backtrace.join("\n")
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::PryBacktrace)
 end

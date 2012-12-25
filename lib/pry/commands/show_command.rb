@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "show-command" do
+  class Command::ShowCommand < Pry::ClassCommand
+    match 'show-command'
     group 'Introspection'
-    description "Show the source for CMD."
+    description 'Show the source for CMD.'
 
     def process(*args)
       target = target()
@@ -19,4 +20,6 @@ class Pry
       render_output opts.banner
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::ShowCommand)
 end

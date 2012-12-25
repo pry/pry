@@ -6,9 +6,10 @@ class Pry
   #       the entire source code because an exception may happen anywhere in the
   #       code and there is no way to predict that. So we simply superimpose
   #       everything (admittedly, doing extra job).
-  Pry::Commands.create_command "edit" do
+  class Command::Edit < Pry::ClassCommand
+    match 'edit'
     group 'Editing'
-    description "Invoke the default editor on a file."
+    description 'Invoke the default editor on a file.'
 
     banner <<-BANNER
       Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
@@ -175,4 +176,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Edit)
 end
