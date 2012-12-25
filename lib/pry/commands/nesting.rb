@@ -1,11 +1,12 @@
 class Pry
-  Pry::Commands.create_command "nesting" do
+  class Command::Nesting < Pry::ClassCommand
+    match 'nesting'
     group 'Navigating Pry'
-    description "Show nesting information."
+    description 'Show nesting information.'
 
     def process
-      output.puts "Nesting status:"
-      output.puts "--"
+      output.puts 'Nesting status:'
+      output.puts '--'
       _pry_.binding_stack.each_with_index do |obj, level|
         if level == 0
           output.puts "#{level}. #{Pry.view_clip(obj.eval('self'))} (Pry top level)"
@@ -15,4 +16,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Nesting)
 end

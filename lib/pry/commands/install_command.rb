@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "install-command" do
+  class Command::InstallCommand < Pry::ClassCommand
+    match 'install-command'
     group 'Commands'
-    description "Install a disabled command."
+    description 'Install a disabled command.'
 
     banner <<-BANNER
       Usage: install-command COMMAND
@@ -45,4 +46,6 @@ class Pry
       output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::InstallCommand)
 end
