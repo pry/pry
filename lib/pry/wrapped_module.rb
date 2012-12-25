@@ -14,7 +14,8 @@ class Pry
   end
 
   class WrappedModule
-    include Pry::Helpers::BaseHelpers
+    include Helpers::BaseHelpers
+    include CodeObject::Helpers
 
     attr_reader :wrapped
 

@@ -37,56 +37,28 @@ class Pry
     end
 
     def process
-      code_object = Pry::CodeObject.lookup obj_name, target, _pry_, :super => opts[:super]
+      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
 
-      if !code_object
-        raise Pry::CommandError, "Couldn't locate #{obj_name}!"
-      end
-
-      if code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
+      if show_source_for_all_modules?(code_object)
         # show all monkey patches for a module
-        result = source_for_all_module_candidates(code_object)
+        result = source_and_headers_for_all_module_candidates(code_object)
       else
         # show the source for a specific code object
-        result = header(code_object)
-        result << Code.new(code_object.source, start_line_for(code_object)).
-          with_line_numbers(use_line_numbers?).to_s
-
-        set_file_and_dir_locals(code_object.source_file)
+        result = source_and_header_for_code_object(code_object)
       end
 
+      set_file_and_dir_locals(code_object.source_file)
       stagger_output result
     end
 
-    def obj_name
-      @obj_name ||= args.empty? ? nil : args.join(" ")
+    def source_and_header_for_code_object(code_object)
+      result = header(code_object)
+      result << Code.new(code_object.source, start_line_for(code_object)).
+        with_line_numbers(use_line_numbers?).to_s
     end
 
-    # we need this helper as some Pry::Method objects can wrap Procs
-    # @return [Boolean]
-    def real_method_object?(code_object)
-      code_object.is_a?(::Method) || code_object.is_a?(::UnboundMethod)
-    end
-
-    # Generate a header (meta-data information) for all the code
-    # object types: methods, modules, commands, procs...
-    def header(code_object)
-      file_name, line_num = code_object.source_file, code_object.source_line
-      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
-      if real_method_object?(code_object) && code_object.source_type == :c
-        h << "(C Method):"
-      else
-        h << "@ line #{line_num}:"
-      end
-
-      if real_method_object?(code_object)
-        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
-        h << "#{text.bold("Visibility:")} #{code_object.visibility}"
-      end
-      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} #{code_object.source.lines.count}\n\n"
-    end
-
-    def source_for_all_module_candidates(mod)
+    def source_and_headers_for_all_module_candidates(mod)
       result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
       mod.number_of_candidates.times do |v|
         candidate = mod.candidate(v)
@@ -100,6 +72,33 @@ class Pry
         end
       end
       result
+    end
+
+    def show_source_for_all_modules?(code_object)
+      code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
+    end
+
+    def obj_name
+      @obj_name ||= args.empty? ? nil : args.join(" ")
+    end
+
+    # Generate a header (meta-data information) for all the code
+    # object types: methods, modules, commands, procs...
+    def header(code_object)
+      file_name, line_num = code_object.source_file, code_object.source_line
+      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+      if code_object.c_method?
+        h << "(C Method):"
+      else
+        h << "@ line #{line_num}:"
+      end
+
+      if code_object.real_method_object?
+        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
+        h << "#{text.bold("Visibility:")} #{code_object.visibility}"
+      end
+      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
+        "#{code_object.source.lines.count}\n\n"
     end
 
     def start_line_for(code_object)

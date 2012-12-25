@@ -21,6 +21,7 @@ class Pry
     include Helpers::BaseHelpers
     include RbxMethod if Helpers::BaseHelpers.rbx?
     include Helpers::DocumentationHelpers
+    include CodeObject::Helpers
 
     class << self
       # Given a string representing a method name and optionally a binding to
