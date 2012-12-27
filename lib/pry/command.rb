@@ -506,6 +506,30 @@ class Pry
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
 
+    class << self
+      def source
+        Pry::WrappedModule(self).source
+      end
+
+      def doc
+        new.help
+      end
+
+      def source_location
+        Pry::WrappedModule(self).source_location
+      end
+
+      def source_file
+        Pry::WrappedModule(self).source_file
+      end
+      alias_method :file, :source_file
+
+      def source_line
+        Pry::WrappedModule(self).source_line
+      end
+      alias_method :line, :source_line
+    end
+
     # The class that couples together subcommands and top-level options (that
     # are known as "default" options). The explicitly defined instance methods
     # of this class provide the coupling with default options of a
