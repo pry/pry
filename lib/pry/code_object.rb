@@ -70,7 +70,9 @@ class Pry
       if str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
         obj = target.eval(str)
 
-        if obj.respond_to?(:source_location)
+        # restrict to only objects we KNOW for sure support the full API
+        # Do NOT support just any object that responds to source_location
+        if [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
           Pry::Method(obj)
         elsif !obj.is_a?(Module)
           Pry::WrappedModule(obj.class)
