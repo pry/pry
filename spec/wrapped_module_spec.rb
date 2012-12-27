@@ -115,7 +115,7 @@ describe Pry::WrappedModule do
         Pry::WrappedModule(Host::CandidateTest).candidate(2).doc.should =~ /rank 2/
       end
 
-      it 'should return source for deeply nested class' do
+      it 'should return docs for deeply nested class' do
         Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
     end

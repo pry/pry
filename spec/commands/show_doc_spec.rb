@@ -338,7 +338,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
       describe "class commands" do
         before do
-          # cute pink pincers
+          # pretty pink pincers
           class LobsterLady < Pry::ClassCommand
             match "lobster-lady"
             description "nada."
@@ -360,7 +360,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         end
 
         it 'should display actual preceding comment for a class command, when class is used (rather than command name) when looking up' do
-          pry_eval('show-doc LobsterLady').should =~ /cute pink pincers/
+          pry_eval('show-doc LobsterLady').should =~ /pretty pink pincers/
           Pry.commands.delete("lobster-lady")
         end
       end
