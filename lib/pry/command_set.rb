@@ -81,7 +81,7 @@ class Pry
     #   # number-N regex command
     def block_command(match, description="No description.", options={}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
-      options = Pry::DEFAULT_COMMAND_OPTIONS.call(match).merge!(options)
+      options = Pry::Command::DEFAULT_OPTIONS.call(match).merge!(options)
 
       commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
     end
@@ -113,7 +113,7 @@ class Pry
     #
     def create_command(match, description="No description.", options={}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
-      options = Pry::DEFAULT_COMMAND_OPTIONS.call(match).merge!(options)
+      options = Pry::Command::DEFAULT_OPTIONS.call(match).merge!(options)
 
       commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
       commands[match].class_eval(&block)
