@@ -37,7 +37,7 @@ class Pry
 
       # Define or get the command's options
       def command_options(arg=nil)
-        @command_options ||= DEFAULT_OPTIONS.call(match)
+        @command_options ||= default_options(match)
         @command_options.merge!(arg) if arg
         @command_options
       end
@@ -77,6 +77,19 @@ class Pry
         Array(block.source_location).last
       end
       alias_method :line, :source_line
+
+      def default_options(match)
+        {
+          :requires_gem      => [],
+          :keep_retval       => false,
+          :argument_required => false,
+          :interpolate       => true,
+          :shellwords        => true,
+          :listing           => (String === match ? match : match.inspect),
+          :use_prefix        => true,
+          :takes_block       => false
+        }
+      end
     end
 
     # Make those properties accessible to instances
@@ -194,19 +207,6 @@ class Pry
                      end
                    end
       end
-    end
-
-    DEFAULT_OPTIONS = proc do |match|
-      {
-        :requires_gem      => [],
-        :keep_retval       => false,
-        :argument_required => false,
-        :interpolate       => true,
-        :shellwords        => true,
-        :listing           => (String === match ? match : match.inspect),
-        :use_prefix        => true,
-        :takes_block       => false
-      }
     end
 
     # Properties of one execution of a command (passed by {Pry#run_command} as a hash of
