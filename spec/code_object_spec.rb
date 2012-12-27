@@ -43,13 +43,45 @@ describe Pry::CodeObject do
         @p = Pry.new
       end
 
-      it 'works' do
+      it 'should return command class' do
         @p.commands.command "jeremy-jones" do
           "lobster"
         end
         m = Pry::CodeObject.lookup("jeremy-jones", binding, @p)
         (m <= Pry::Command).should == true
         m.source.should =~ /lobster/
+      end
+
+      describe "class commands" do
+        before do
+          class LobsterLady < Pry::ClassCommand
+            match "lobster-lady"
+            description "nada."
+            def process
+              "lobster"
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:LobsterLady)
+        end
+
+        it 'should return Pry::ClassCommand class when looking up class command' do
+          Pry.commands.add_command(LobsterLady)
+          m = Pry::CodeObject.lookup("lobster-lady", binding, @p)
+          (m <= Pry::ClassCommand).should == true
+          m.source.should =~ /class LobsterLady/
+          Pry.commands.delete("lobster-lady")
+        end
+
+        it 'should return Pry::WrappedModule when looking up command class directly (as a class, not as a command)' do
+          Pry.commands.add_command(LobsterLady)
+          m = Pry::CodeObject.lookup("LobsterLady", binding, @p)
+          m.is_a?(Pry::WrappedModule).should == true
+          m.source.should =~ /class LobsterLady/
+          Pry.commands.delete("lobster-lady")
+        end
       end
 
       it 'looks up commands by :listing name as well' do
@@ -215,7 +247,7 @@ describe Pry::CodeObject do
       o.is_a?(Pry::WrappedModule).should == true
     end
 
-    # actually locals are never looked up (via co.other_object)  when they're classes, it
+    # actually locals are never looked up (via co.default_lookup)  when they're classes, it
     # just falls through to co.method_or_class
     it 'should look up classes before locals' do
       c = ClassyWassy

@@ -23,6 +23,13 @@ describe Pry::WrappedModule do
         end
 
         class ForeverAlone
+          class DoublyNested
+            # nested docs
+            class TriplyNested
+              def nested_method
+              end
+            end
+          end
         end
       end
     end
@@ -83,6 +90,11 @@ describe Pry::WrappedModule do
       it 'should return source for third ranked candidate' do
         Pry::WrappedModule(Host::CandidateTest).candidate(2).source.should =~ /test6/
       end
+
+      it 'should return source for deeply nested class' do
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.should =~ /nested_method/
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count.should == 4
+      end
     end
 
     describe "doc" do
@@ -101,6 +113,10 @@ describe Pry::WrappedModule do
 
       it 'should return doc for third ranked candidate' do
         Pry::WrappedModule(Host::CandidateTest).candidate(2).doc.should =~ /rank 2/
+      end
+
+      it 'should return source for deeply nested class' do
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
     end
 

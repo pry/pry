@@ -335,6 +335,35 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         @set.command "command with spaces", "description of a command with spaces" do; end
         pry_eval('show-doc command with spaces').should =~ /description of a command with spaces/
       end
+
+      describe "class commands" do
+        before do
+          # cute pink pincers
+          class LobsterLady < Pry::ClassCommand
+            match "lobster-lady"
+            description "nada."
+            def process
+              "lobster"
+            end
+          end
+
+          Pry.commands.add_command(LobsterLady)
+        end
+
+        after do
+          Object.remove_const(:LobsterLady)
+        end
+
+        it 'should display "help" when looking up by command name' do
+          pry_eval('show-doc lobster-lady').should =~ /nada/
+          Pry.commands.delete("lobster-lady")
+        end
+
+        it 'should display actual preceding comment for a class command, when class is used (rather than command name) when looking up' do
+          pry_eval('show-doc LobsterLady').should =~ /cute pink pincers/
+          Pry.commands.delete("lobster-lady")
+        end
+      end
     end
 
     describe "should set _file_ and _dir_" do
