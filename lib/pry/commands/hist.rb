@@ -144,7 +144,7 @@ class Pry
         if _slop.present?(:r)
           replay_sequence = replay_sequence.split("\n").join('; ')
           index = opts[:r]
-          index = index.min if index.min == index.max
+          index = index.min if index.min == index.max || index.max.nil?
 
           raise CommandError, "Replay index #{ index } points out to another replay call: `#{ replay_sequence }`"
         end
