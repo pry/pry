@@ -119,7 +119,7 @@ class Pry
   end
 
   # Start a Pry REPL.
-  # This method also loads the ~/.pryrc and ./.pryrc as necessary
+  # This method also loads `~/.pryrc` and `./.pryrc` as necessary the
   # first time it is invoked.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
@@ -136,13 +136,14 @@ class Pry
     end
 
     options[:target] = Pry.binding_for(target || toplevel_binding)
+
     initial_session_setup
 
-    # save backtrace
+    # Unless we were given a backtrace, save the current one
     if options[:backtrace].nil?
       options[:backtrace] = caller
 
-      # if Pry was started via binding.pry, elide that from the backtrace.
+      # If Pry was started via `binding.pry`, elide that from the backtrace
       if options[:backtrace].first =~ /pry.*core_extensions.*pry/
         options[:backtrace].shift
       end
