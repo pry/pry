@@ -22,7 +22,6 @@ require "pry/indent"
 # * the IRC channel, which is #pry on the Freenode network
 #
 class Pry
-
   attr_accessor :input
   attr_accessor :output
   attr_accessor :commands
@@ -57,33 +56,41 @@ class Pry
 
   attr_reader :exit_value
 
-  # Special treatment for hooks as we want to alert people of the
-  # changed API
-  attr_reader :hooks
+  attr_reader :hooks # Special treatment as we want to alert people of the
+                     # changed API.
 
-  # FIXME:
-  # This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] v Only accept `Pry::Hooks` now!
-  def hooks=(v)
-    if v.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(v)
+  # FIXME: This is a hack to alert people of the new API.
+  # @param [Pry::Hooks] hooks
+  def hooks=(hooks)
+    if hooks.is_a?(Hash)
+      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
+           "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      @hooks = Pry::Hooks.from_hash(hooks)
     else
-      @hooks = v
+      @hooks = hooks
     end
   end
 
-  # Create a new `Pry` object.
-  # @param [Hash] options The optional configuration parameters.
-  # @option options [#readline] :input The object to use for input.
-  # @option options [#puts] :output The object to use for output.
-  # @option options [Pry::CommandBase] :commands The object to use for commands.
-  # @option options [Hash] :hooks The defined hook Procs
-  # @option options [Array<Proc>] :prompt The array of Procs to use for the prompts.
-  # @option options [Proc] :print The Proc to use for the 'print'
-  # @option options [Boolean] :quiet If true, omit the whereami banner when starting.
-  #   component of the REPL. (see print.rb)
-  # @option options [Array<String>] :backtrace The backtrace of the `binding.pry` line.
+  # Create a new {Pry} instance.
+  # @param [Hash] options
+  # @option options [#readline] :input
+  #   The object to use for input.
+  # @option options [#puts] :output
+  #   The object to use for output.
+  # @option options [Pry::CommandBase] :commands
+  #   The object to use for commands.
+  # @option options [Hash] :hooks
+  #   The defined hook Procs.
+  # @option options [Array<Proc>] :prompt
+  #   The array of Procs to use for prompts.
+  # @option options [Proc] :print
+  #   The Proc to use for printing return values.
+  # @option options [Boolean] :quiet
+  #   Omit the `whereami` banner when starting.
+  # @option options [Array<String>] :backtrace
+  #   The backtrace of the session's `binding.pry` line, if applicable.
+  # @option options [Object] :target
+  #   The initial context for this session.
   def initialize(options={})
     @binding_stack = []
     @indent        = Pry::Indent.new
@@ -233,7 +240,7 @@ class Pry
   # 1. Pry-commands will be executed immediately if the line matches,
   # 2. Partial lines of input will be queued up until a complete expression has been
   # accepted,
-  # 3. Output is written to {output} in pretty colours, not returned.
+  # 3. Output is written to {#output} in pretty colours, not returned.
   #
   # Once this method has raised an exception or returned false, this instance of pry
   # is no longer usable. You can return pry.exit_value to your caller.
@@ -372,7 +379,7 @@ class Pry
     end
   end
 
-  # Change the @eval_string into the input encoding (Issue 284)
+  # Force `eval_string` into the encoding of `val`. [Issue #284]
   def ensure_correct_encoding!(val)
     if @eval_string.empty? &&
         val.respond_to?(:encoding) &&
@@ -382,15 +389,14 @@ class Pry
   end
   private :ensure_correct_encoding!
 
-  # Is the user typing into this pry instance directly?
+  # Is the user typing into this {Pry} instance directly?
   # @return [Boolean]
   def interactive?
     !input.is_a?(StringIO)
   end
 
   # If the given line is a valid command, process it in the context of the
-  # current `@eval_string` and binding.
-  # This method should not need to be invoked directly.
+  # current `eval_string` and binding.
   # @param [String] val The line to process.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command(val)
@@ -421,7 +427,8 @@ class Pry
     end
   end
 
-  # Same as process_command, but outputs exceptions to {output} instead of raising.
+  # Same as process_command, but outputs exceptions to {#output} instead of
+  # raising.
   # @param [String] val  The line to process.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command_safely(val)
@@ -433,7 +440,6 @@ class Pry
 
   # Run the specified command.
   # @param [String] val The command (and its params) to execute.
-  # @param [Binding] target The binding to use..
   # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
