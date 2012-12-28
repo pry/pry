@@ -94,13 +94,6 @@ class Pry
       end
     end
 
-    # Get/Set the stack of input objects that a Pry instance switches
-    # to when its current input object encounters EOF.
-    # @return [Array] The array of input objects.
-    # @example
-    #   Pry.config.input_stack = [StringIO.new("puts 'hello world'\nexit")]
-    attr_accessor :input_stack
-
     # Get the array of Procs (or single Proc) to be used for the prompts by default by
     # all Pry instances.
     # Three parameters are passed into the prompt procs, (1) the
