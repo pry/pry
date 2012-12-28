@@ -22,7 +22,7 @@ class Pry
 
     def start
       prologue
-      loop
+      repl
     ensure
       epilogue
     end
@@ -38,8 +38,8 @@ class Pry
       end
     end
 
-    def loop
-      super do # haha
+    def repl
+      loop do
         case val = read
         when :control_c
           output.puts ""
