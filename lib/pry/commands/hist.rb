@@ -113,7 +113,7 @@ class Pry
       check_for_juxtaposed_replay(replay_sequence)
 
       replay_sequence.lines.each do |line|
-        _pry_.eval line
+        _pry_.eval line, :generated => true
       end
     end
 
