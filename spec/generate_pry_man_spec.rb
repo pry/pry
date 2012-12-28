@@ -15,10 +15,10 @@ describe GeneratePryMan do
       :options      => "Here are some of my cool options",
       :pry_commands => "Some commands."}
 
-    @gpm = GeneratePryMan.new({ man_sections: @man_sections,
-                                ronn_file:    @tmp_ronn,
-                                html_file:    @tmp_html,
-                                roff_file:    @tmp_roff })
+    @gpm = GeneratePryMan.new({ :man_sections => @man_sections,
+                                :ronn_file    => @tmp_ronn,
+                                :html_file    => @tmp_html,
+                                :roff_file    => @tmp_roff })
   end
 
   it "generates a proper man-page roff file" do
