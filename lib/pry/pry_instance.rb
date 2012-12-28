@@ -92,7 +92,8 @@ class Pry
     @backtrace     = options[:backtrace] || caller
 
     refresh_config(options)
-    push_initial_binding(options)
+
+    push_initial_binding(options[:target])
 
     set_last_result nil
     @input_array << nil # add empty input so _in_ and _out_ match
@@ -126,8 +127,10 @@ class Pry
     true
   end
 
-  def push_initial_binding(options)
-    push_binding(options[:target] || Pry.toplevel_binding)
+  # Initialize this instance by pushing its initial context into the binding
+  # stack. If no target is given, start at the top level.
+  def push_initial_binding(target=nil)
+    push_binding(target || Pry.toplevel_binding)
   end
 
   # The currently active `Binding`.
