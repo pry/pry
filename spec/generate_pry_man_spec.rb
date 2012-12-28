@@ -1,8 +1,9 @@
+exit if RUBY_PLATFORM=="java"
+
 require File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/generate_pry_man.rb")
 require 'tempfile'
 
 describe GeneratePryMan do
-
   before  do
     @tmp_html=Tempfile.new('man-html')
     @tmp_roff=Tempfile.new('man-roff')
