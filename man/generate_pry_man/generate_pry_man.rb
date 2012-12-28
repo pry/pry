@@ -36,10 +36,12 @@ class GeneratePryMan
     ronn_file.close
   end
 
-  def copy_files_to_man_dir(destination_dir)
+  def move_files_to_man_dir(destination_dir)
+    require 'fileutils'
+
     generate_all
     files = [@html_file, @roff_file, ronn_file].map(&:path)
-    FileUtils.cp(files, destination_dir) if File.directory?(destination_dir)
+    FileUtils.mv(files, destination_dir) if File.directory?(destination_dir)
   end
 
   protected

@@ -105,7 +105,7 @@ task :generate_man_page do
   end
   
   gpm = GeneratePryMan.new
-  gpm.copy_files_to_man_dir(File.join(root_path, "man"))
+  gpm.move_files_to_man_dir(File.join(root_path, "man"))
 end
 
 desc "Build the gemspec file"
