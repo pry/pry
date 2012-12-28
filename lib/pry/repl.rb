@@ -21,16 +21,15 @@ class Pry
     end
 
     def start
-      repl_prologue
-
-      repl
+      prologue
+      loop
     ensure
-      repl_epilogue
+      epilogue
     end
 
     private
 
-    def repl_prologue
+    def prologue
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
       # Clear the line before starting Pry. This fixes the issue discussed here:
       # https://github.com/pry/pry/issues/566
@@ -39,8 +38,8 @@ class Pry
       end
     end
 
-    def repl
-      loop do
+    def loop
+      super do # haha
         case val = retrieve_line
         when :control_c
           output.puts ""
@@ -56,7 +55,7 @@ class Pry
     end
 
     # Clean-up after the repl session.
-    def repl_epilogue
+    def epilogue
       pry.exec_hook :after_session, pry.output, pry.current_binding, pry
 
       Pry.save_history if Pry.config.history.should_save
