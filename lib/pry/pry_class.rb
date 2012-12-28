@@ -59,7 +59,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
+      :hooks, :color, :pager, :editor, :memory_size, :extra_sticky_locals
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
@@ -255,7 +255,6 @@ class Pry
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.default_window_size = 5
     config.hooks = DEFAULT_HOOKS
-    config.input_stack = []
     config.color = Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM

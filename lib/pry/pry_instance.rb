@@ -27,7 +27,6 @@ class Pry
   attr_accessor :commands
   attr_accessor :print
   attr_accessor :exception_handler
-  attr_accessor :input_stack
   attr_accessor :quiet
   alias :quiet? :quiet
 
@@ -124,8 +123,6 @@ class Pry
     attributes.each do |attribute|
       defaults[attribute] = Pry.send attribute
     end
-
-    defaults[:input_stack] = Pry.input_stack.dup
 
     defaults.merge!(options).each do |key, value|
       send("#{key}=", value) if respond_to?("#{key}=")

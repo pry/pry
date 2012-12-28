@@ -5,7 +5,7 @@ class Pry
     extend Forwardable
     attr_accessor :pry
 
-    def_delegators :pry, :input, :output, :input_stack
+    def_delegators :pry, :input, :output
 
     def self.start(options)
       new(Pry.new(options)).start
@@ -112,16 +112,12 @@ class Pry
       begin
         yield
       rescue EOFError
-        if input_stack.empty?
-          pry.input = Pry.config.input
-          if !should_retry
-            output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
-            return :no_more_input
-          end
-          should_retry = false
-        else
-          pry.input = input_stack.pop
+        pry.input = Pry.config.input
+        if !should_retry
+          output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
+          return :no_more_input
         end
+        should_retry = false
 
         retry
 
