@@ -44,7 +44,7 @@ class Pry
         case val = retrieve_line
         when :control_c
           output.puts ""
-          pry.reset_line
+          pry.reset_eval_string
         when :no_more_input
           output.puts "" if output.tty?
           break

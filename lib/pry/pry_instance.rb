@@ -220,25 +220,9 @@ class Pry
     }.merge(extra_sticky_locals)
   end
 
-  # Initialize the repl session.
-  def repl_prologue
-    exec_hook :before_session, output, current_binding, self
-
-    # Clear the line before starting Pry. This fixes the issue discussed here:
-    # https://github.com/pry/pry/issues/566
-    if Pry.config.auto_indent
-      Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
-    end
-  end
-
-  # Clean-up after the repl session.
-  def repl_epilogue
-    exec_hook :after_session, output, current_binding, self
-
-    Pry.save_history if Pry.config.history.should_save
-  end
-
-  def reset_line
+  # Reset the current eval string. If the user has entered part of a multiline
+  # expression, this discards that input.
+  def reset_eval_string
     @eval_string = ""
   end
 
@@ -308,7 +292,7 @@ class Pry
       complete_expr = Pry::Code.complete_expression?(@eval_string)
     rescue SyntaxError => e
       output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
-      reset_line
+      reset_eval_string
     end
 
     if complete_expr
@@ -320,7 +304,7 @@ class Pry
         # Reset eval string, in case we're evaluating Ruby that does something
         # like open a nested REPL on this instance.
         eval_string = @eval_string
-        reset_line
+        reset_eval_string
 
         result = evaluate_ruby(eval_string)
       rescue RescuableException => e
