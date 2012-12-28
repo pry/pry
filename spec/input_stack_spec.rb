@@ -35,11 +35,11 @@ describe "Pry#input_stack" do
                     :input_stack => stack
     repl  = Pry::REPL.new pry
     stack.size.should == 2
-    repl.send(:retrieve_line).should == ":alex\n"
+    repl.send(:read).should == ":alex\n"
     stack.size.should == 2
-    repl.send(:retrieve_line).should == ":baron\n"
+    repl.send(:read).should == ":baron\n"
     stack.size.should == 1
-    repl.send(:retrieve_line).should == ":cloister\n"
+    repl.send(:read).should == ":cloister\n"
     stack.size.should == 0
   end
 

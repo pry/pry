@@ -40,7 +40,7 @@ class Pry
 
     def loop
       super do # haha
-        case val = retrieve_line
+        case val = read
         when :control_c
           output.puts ""
           pry.reset_eval_string
@@ -66,7 +66,7 @@ class Pry
     # if the line is a command, process it and alter the @eval_string accordingly.
     #
     # @return [String] The line received.
-    def retrieve_line
+    def read
       @indent.reset if pry.eval_string.empty?
 
       current_prompt = pry.select_prompt
@@ -78,7 +78,7 @@ class Pry
       indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
       begin
-        val = readline("#{current_prompt}#{indentation}", safe_completion_proc)
+        val = read_line("#{current_prompt}#{indentation}", safe_completion_proc)
 
       # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
       # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
@@ -158,10 +158,9 @@ class Pry
     end
 
     # Returns the next line of input to be used by the pry instance.
-    # This method should not need to be invoked directly.
     # @param [String] current_prompt The prompt to use for input.
     # @return [String] The next line of input.
-    def readline(current_prompt="> ", completion_proc=nil)
+    def read_line(current_prompt="> ", completion_proc=nil)
       handle_read_errors do
         if defined? Coolline and input.is_a? Coolline
           input.completion_proc = proc do |cool|
