@@ -10,11 +10,9 @@ describe Pry do
       # regression test for exotic object support
       it "Should not error when return value is a BasicObject instance" do
 
-        lambda do
-          redirect_pry_io(InputTester.new("BasicObject.new", "exit-all"), StringIO.new) do
-            Pry.start
-          end
-        end.should.not.raise NoMethodError
+        ReplTester.start do
+          input('BasicObject.new').should =~ /^=> #<BasicObject:/
+        end
 
       end
     end

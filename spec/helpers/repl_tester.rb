@@ -67,6 +67,7 @@ class ReplTester
     reset_output
     repl_mailbox.push input
     wait
+    Pry.output.string
   end
 
   # Assert that the current prompt matches the given string or regex.
