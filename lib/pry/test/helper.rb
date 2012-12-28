@@ -105,7 +105,7 @@ class PryTester
 
   attr_reader :pry, :out
 
-  def_delegators :@pry, :eval_string, :eval_string=, :accept_line
+  def_delegators :@pry, :eval_string, :eval_string=
 
   def initialize(target = TOPLEVEL_BINDING, options = {})
     @pry = Pry.new(options.merge(:target => target))
@@ -132,8 +132,10 @@ class PryTester
     result
   end
 
-  def accept_lines(*lines)
-    lines.each(&method(:accept_line))
+  def push(*lines)
+    Array(lines).flatten.each do |line|
+      @pry.eval(line)
+    end
   end
 
   def push_binding(context)

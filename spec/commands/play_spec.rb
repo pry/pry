@@ -109,7 +109,7 @@ describe "play" do
     end
 
     it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
-      @t.accept_line 'def another_test_method'
+      @t.push 'def another_test_method'
       @t.process_command 'play -m test_method --lines 2'
       @t.eval_string.should == unindent(<<-STR)
         def another_test_method

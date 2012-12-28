@@ -233,22 +233,25 @@ class Pry
     @eval_string = ""
   end
 
-  # Pass a line of input to pry.
+  # Pass a line of input to Pry.
   #
-  # This is the equivalent of `binding.eval` but with extra pry!
+  # This is the equivalent of `Binding#eval` but with extra Pry!
+  #
   # In particular:
-  # 1. Pry-commands will be executed immediately if the line matches,
-  # 2. Partial lines of input will be queued up until a complete expression has been
-  # accepted,
+  # 1. Pry commands will be executed immediately if the line matches.
+  # 2. Partial lines of input will be queued up until a complete expression has
+  #    been accepted.
   # 3. Output is written to {#output} in pretty colours, not returned.
   #
-  # Once this method has raised an exception or returned false, this instance of pry
-  # is no longer usable. You can return pry.exit_value to your caller.
+  # Once this method has raised an exception or returned false, this instance
+  # is no longer usable. {#exit_value} will return the session's breakout
+  # value if applicable.
   #
-  # @param [String, nil] line  The line of input, nil if the user types <ctrl-d>
-  # @return [Boolean]  true if pry is ready for more input, false otherwise
-  # @raise [Exception]  if the user has explicitly 'raise-up'd an exception
-  def accept_line(line)
+  # @param [String?] line The line of input; `nil` if the user types `<Ctrl-D>`
+  # @return [Boolean] Is Pry ready to accept more input?
+  # @raise [Exception] If the user uses the `raise-up` command, this method
+  #   will raise that exception.
+  def eval(line)
     return false if @stopped
 
     exit_value = nil
