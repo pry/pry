@@ -102,15 +102,7 @@ class Pry
         indented_val = val
       end
 
-      Pry.history << indented_val if interactive?
-
       indented_val
-    end
-
-    # Is the user typing into this pry instance directly?
-    # @return [Boolean]
-    def interactive?
-      !input.is_a?(StringIO)
     end
 
     # Manage switching of input objects on encountering EOFErrors

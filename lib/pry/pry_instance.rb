@@ -248,16 +248,18 @@ class Pry
   # value if applicable.
   #
   # @param [String?] line The line of input; `nil` if the user types `<Ctrl-D>`
+  # @option options [Boolean] :generated Whether this line was generated automatically.
+  #   Generated lines are not stored in history.
   # @return [Boolean] Is Pry ready to accept more input?
   # @raise [Exception] If the user uses the `raise-up` command, this method
   #   will raise that exception.
-  def eval(line)
+  def eval(line, options={})
     return false if @stopped
 
     exit_value = nil
     exception = catch(:raise_up) do
       exit_value = catch(:breakout) do
-        handle_line(line)
+        handle_line(line, options)
         # We use 'return !@stopped' here instead of 'return true' so that if
         # handle_line has stopped this pry instance (e.g. by opening _pry_.repl and
         # then popping all the bindings) we still exit immediately.
@@ -274,15 +276,17 @@ class Pry
     return false
   end
 
-  def handle_line(line)
+  def handle_line(line, options)
     if line.nil?
       Pry.config.control_d_handler.call(@eval_string, self)
       return
     end
 
+    ensure_correct_encoding!(line)
+    Pry.history << line unless options[:generated]
+
     @suppress_output = false
     inject_sticky_locals!
-    ensure_correct_encoding!(line)
     begin
       if !process_command_safely(line.lstrip)
         @eval_string << "#{line.chomp}\n" unless line.empty?
@@ -332,6 +336,7 @@ class Pry
 
     throw(:breakout) if current_binding.nil?
   end
+  private :handle_line
 
   # @deprecated Use `Pry::REPL.new(pry, :target => target).start` instead.
   def repl(target = nil)
@@ -394,12 +399,6 @@ class Pry
     end
   end
   private :ensure_correct_encoding!
-
-  # Is the user typing into this {Pry} instance directly?
-  # @return [Boolean]
-  def interactive?
-    !input.is_a?(StringIO)
-  end
 
   # If the given line is a valid command, process it in the context of the
   # current `eval_string` and binding.
