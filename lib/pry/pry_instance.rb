@@ -89,7 +89,7 @@ class Pry
     @indent        = Pry::Indent.new
     @command_state = {}
     @eval_string   = ""
-    @backtace      = options[:backtrace] || caller
+    @backtrace     = options[:backtrace] || caller
 
     refresh_config(options)
     push_initial_binding(options)
