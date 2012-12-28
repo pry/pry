@@ -171,6 +171,18 @@ class Pry
     end
   end
 
+  # Generate completions.
+  #
+  # @param [String]  what the user has typed so far
+  # @return [Array<String>]  possible completions
+  def complete(input)
+    Pry.critical_section do
+      Pry.config.completer.call(input, :target => current_binding,
+                                       :pry  => self,
+                                       :custom_completions => instance_eval(&custom_completions))
+    end
+  end
+
   # Injects a local variable into the provided binding.
   # @param [String] name The name of the local to inject.
   # @param [Object] value The value to set the local to.

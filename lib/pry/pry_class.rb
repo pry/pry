@@ -270,9 +270,9 @@ class Pry
     config.output_prefix = "=> "
 
     if defined?(Bond) && Readline::VERSION !~ /editline/i
-      config.completer = Pry::BondCompleter
+      config.completer = Pry::BondCompleter.start
     else
-      config.completer = Pry::InputCompleter
+      config.completer = Pry::InputCompleter.start
     end
 
     config.gist ||= OpenStruct.new
