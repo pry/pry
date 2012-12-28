@@ -1,12 +1,8 @@
 require 'helper'
 
-def new_completer(bind, pry=nil)
-    Pry::InputCompleter.build_completion_proc(Pry.binding_for(bind), pry)
-end
-
 def completer_test(bind, pry=nil, assert_flag=true)
-  completer = new_completer(bind, pry)
-  test = proc {|symbol| completer.call(symbol[0..-2]).include?(symbol).should  == assert_flag}
+  test = proc {|symbol|
+    Pry::InputCompleter.call(symbol[0..-2], :target => Pry.binding_for(bind), :pry => pry).include?(symbol).should  == assert_flag}
   return proc {|*symbols| symbols.each(&test) }
 end
 
@@ -40,16 +36,12 @@ describe Pry::InputCompleter do
   # another jruby hack :((
   if !Pry::Helpers::BaseHelpers.jruby?
     it "should not crash if there's a Module that has a symbolic name." do
-      completer = Pry::InputCompleter.build_completion_proc(Pry.binding_for(Object.new))
-      lambda{ completer.call "a.to_s." }.should.not.raise Exception
+      lambda{ Pry::InputCompleter.call "a.to_s.", :target => Pry.binding_for(Object.new) }.should.not.raise Exception
     end
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    b         = Pry.binding_for(Object.new)
-    completer = Pry::InputCompleter.build_completion_proc(b)
-
-    lambda { completer.call(":class)") }.should.not.raise(RegexpError)
+    lambda { Pry::InputCompleter.call(":class)", :target => Pry.binding_for(Object.new)) }.should.not.raise(RegexpError)
   end
 
   it 'should complete instance variables' do
@@ -128,7 +120,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    new_completer(Mod).call('Mod2/').include?('Mod2/').should   == true
+    Pry::InputCompleter.call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
   end
 
   it 'should complete for arbitrary scopes' do
@@ -199,7 +191,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    new_completer(Mod).call('Mod2/').include?('Mod2/').should   == true
+    Pry::InputCompleter.call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
 
   end
 

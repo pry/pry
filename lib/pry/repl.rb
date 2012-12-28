@@ -70,15 +70,11 @@ class Pry
       @indent.reset if pry.eval_string.empty?
 
       current_prompt = pry.select_prompt
-      completion_proc = Pry.config.completer.build_completion_proc(pry.current_binding, pry,
-                                                          pry.instance_eval(&pry.custom_completions))
-
-      safe_completion_proc = proc{ |*a| Pry.critical_section{ completion_proc.call(*a) } }
 
       indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
       begin
-        val = read_line("#{current_prompt}#{indentation}", safe_completion_proc)
+        val = read_line("#{current_prompt}#{indentation}")
 
       # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
       # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
@@ -148,15 +144,17 @@ class Pry
     # Returns the next line of input to be used by the pry instance.
     # @param [String] current_prompt The prompt to use for input.
     # @return [String] The next line of input.
-    def read_line(current_prompt="> ", completion_proc=nil)
+    def read_line(current_prompt)
       handle_read_errors do
         if defined? Coolline and input.is_a? Coolline
           input.completion_proc = proc do |cool|
-            completions = completion_proc.call cool.completed_word
+            completions = @pry.complete cool.completed_word
             completions.compact
           end
         elsif input.respond_to? :completion_proc=
-          input.completion_proc = completion_proc
+          input.completion_proc = proc do |input|
+            @pry.complete input
+          end
         end
 
         if input == Readline
