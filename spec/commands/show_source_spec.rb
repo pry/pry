@@ -187,19 +187,19 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         it "should output source defined inside pry" do
           pry_tester.tap do |t|
             t.eval "hello = proc { puts 'hello world!' }"
-            t.eval("show-source hello").should =~ /proc { puts/
+            t.eval("show-source hello").should =~ /proc \{ puts/
           end
         end
       end
 
       it "should output source for procs/lambdas stored in variables" do
         hello = proc { puts 'hello world!' }
-        pry_eval(binding, 'show-source hello').should =~ /proc { puts/
+        pry_eval(binding, 'show-source hello').should =~ /proc \{ puts/
       end
 
       it "should output source for procs/lambdas stored in constants" do
         HELLO = proc { puts 'hello world!' }
-        pry_eval(binding, "show-source HELLO").should =~ /proc { puts/
+        pry_eval(binding, "show-source HELLO").should =~ /proc \{ puts/
         Object.remove_const(:HELLO)
       end
 
@@ -229,7 +229,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
           it "source of variable should take precedence over method that is being shadowed" do
             source = @t.eval('show-source hello')
             source.should.not =~ /def hello/
-            source.should =~ /proc { ' smile ' }/
+            source.should =~ /proc \{ ' smile ' \}/
           end
 
         it "source of method being shadowed should take precedence over variable
