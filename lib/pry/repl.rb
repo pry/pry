@@ -33,7 +33,7 @@ class Pry
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
       # Clear the line before starting Pry. This fixes the issue discussed here:
       # https://github.com/pry/pry/issues/566
-      if Pry.config.auto_indent
+      if Pry.config.correct_indent
         Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
       end
     end
@@ -80,13 +80,13 @@ class Pry
       # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
       # from within Readline.
       rescue Interrupt
-        return :control_c
+        val = :control_c
       end
 
-      # return nil for EOF
-      return unless val
+      # return nil for EOF, :no_more_input for error, or :control_c for <ctrl+c>
+      return val unless String === val
 
-      if Pry.config.auto_indent && !input.is_a?(StringIO)
+      if Pry.config.auto_indent
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
