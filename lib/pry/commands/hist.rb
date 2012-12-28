@@ -111,10 +111,9 @@ class Pry
       # further.
       check_for_juxtaposed_replay(replay_sequence)
 
-      _pry_.input_stack.push _pry_.input
-      _pry_.input = StringIO.new(replay_sequence)
-      # eval_string << "#{@history.raw}\n"
-      # run "show-input" unless _pry_.complete_expression?(eval_string)
+      replay_sequence.lines.each do |line|
+        _pry_.eval line
+      end
     end
 
     # Checks +replay_sequence+ for the presence of neighboring replay calls.
