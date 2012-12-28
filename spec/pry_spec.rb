@@ -428,4 +428,14 @@ describe Pry do
       }
     end
   end
+
+  describe "a fresh instance" do
+    it "should use `caller` as its backtrace" do
+      location  = "#{__FILE__}:#{__LINE__ + 1}"
+      backtrace = Pry.new.backtrace
+
+      backtrace.should.not.be.nil
+      backtrace.any? { |l| l.include?(location) }.should.be.true
+    end
+  end
 end
