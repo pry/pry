@@ -1,8 +1,9 @@
 class Pry
-  Pry::Commands.create_command "jump-to" do
+  class Command::JumpTo < Pry::ClassCommand
+    match 'jump-to'
     group 'Navigating Pry'
-    description "Jump to a binding further up the stack, popping all " \
-      "bindings below."
+    description 'Jump to a binding further up the stack, popping all ' \
+      'bindings below.'
 
     def process(break_level)
       break_level = break_level.to_i
@@ -20,4 +21,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::JumpTo)
 end

@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command(/wtf([?!]*)/) do
+  class Command::Wtf < Pry::ClassCommand
+    match /wtf([?!]*)/
     group 'Context'
-    description "Show the backtrace of the most recent exception"
+    description 'Show the backtrace of the most recent exception'
     options :listing => 'wtf?'
 
     banner <<-BANNER
@@ -35,4 +36,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Wtf)
 end

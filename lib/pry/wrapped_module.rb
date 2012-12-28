@@ -14,8 +14,8 @@ class Pry
   end
 
   class WrappedModule
-    include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::DocumentationHelpers
+    include Helpers::BaseHelpers
+    include CodeObject::Helpers
 
     attr_reader :wrapped
 
@@ -31,7 +31,7 @@ class Pry
 
       # if we dont limit it to constants then from_str could end up
       # executing methods which is not good, i.e `show-source pry`
-      if (kind == "constant" && target.eval(mod_name).is_a?(Module))
+      if ((kind == "constant" || kind =~ /variable/) && target.eval(mod_name).is_a?(Module))
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
@@ -204,6 +204,24 @@ class Pry
       !!(defined?(YARD) && YARD::Registry.at(name))
     end
 
+    # @param [Fixnum] times How far to travel up the ancestor chain.
+    # @return [Pry::WrappedModule, nil] The wrapped module that is the
+    #   superclass.
+    #   When `self` is a `Module` then return the
+    #   nth ancestor, otherwise (in the case of classes) return the
+    #   nth ancestor that is a class.
+    def super(times=1)
+      return self if times.zero?
+
+      if wrapped.is_a?(Class)
+        sup = ancestors.select { |v| v.is_a?(Class) }[times]
+      else
+        sup = ancestors[times]
+      end
+
+      Pry::WrappedModule(sup) if sup
+    end
+
     private
 
     # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
@@ -271,12 +289,5 @@ class Pry
         @lines_for_file[file] ||= File.readlines(file)
       end
     end
-
-    # @param [String] doc The raw docstring to process.
-    # @return [String] Process docstring markup and strip leading white space.
-    def process_doc(doc)
-      process_comment_markup(strip_leading_hash_and_whitespace_from_ruby_comments(doc))
-    end
-
   end
 end

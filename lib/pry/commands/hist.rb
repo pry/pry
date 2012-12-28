@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "hist" do
-    group "Editing"
-    description "Show and replay Readline history. Aliases: history"
+  class Command::Hist < Pry::ClassCommand
+    match 'hist'
+    group 'Editing'
+    description 'Show and replay Readline history. Aliases: history'
 
     banner <<-USAGE
       Usage: hist
@@ -143,7 +144,7 @@ class Pry
         if _slop.present?(:r)
           replay_sequence = replay_sequence.split("\n").join('; ')
           index = opts[:r]
-          index = index.min if index.min == index.max
+          index = index.min if index.min == index.max || index.max.nil?
 
           raise CommandError, "Replay index #{ index } points out to another replay call: `#{ replay_sequence }`"
         end
@@ -153,5 +154,6 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "history", "hist"
+  Pry::Commands.add_command(Pry::Command::Hist)
+  Pry::Commands.alias_command 'history', 'hist'
 end

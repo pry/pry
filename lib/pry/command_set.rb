@@ -81,7 +81,7 @@ class Pry
     #   # number-N regex command
     def block_command(match, description="No description.", options={}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
-      options = default_options(match).merge!(options)
+      options = Pry::Command.default_options(match).merge!(options)
 
       commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
     end
@@ -113,7 +113,7 @@ class Pry
     #
     def create_command(match, description="No description.", options={}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
-      options = default_options(match).merge!(options)
+      options = Pry::Command.default_options(match).merge!(options)
 
       commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
       commands[match].class_eval(&block)
@@ -196,16 +196,10 @@ class Pry
     #   of the command to retrieve.
     # @return [Command] The command object matched.
     def find_command_by_match_or_listing(match_or_listing)
-      if commands[match_or_listing]
-        cmd = commands[match_or_listing]
-      else
-        _, cmd = commands.find { |match, command| command.options[:listing] == match_or_listing }
-      end
-
-      raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!" if !cmd
-      cmd
+      cmd = (commands[match_or_listing] ||
+        Pry::Helpers::BaseHelpers.find_command(match_or_listing, commands))
+      cmd or raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!"
     end
-    protected :find_command_by_match_or_listing
 
     # Aliases a command
     # @param [String, Regex] match The match of the alias (can be a regex).
@@ -367,21 +361,6 @@ class Pry
           String === x && x.start_with?(search)
         end.map{ |command| command + " " } + Bond::DefaultMission.completions
       end
-    end
-
-    private
-
-    def default_options(match)
-      {
-        :requires_gem => [],
-        :keep_retval => false,
-        :argument_required => false,
-        :interpolate => true,
-        :shellwords => true,
-        :listing => (String === match ? match : match.inspect),
-        :use_prefix => true,
-        :takes_block => false
-      }
     end
   end
 

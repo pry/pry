@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "edit-method" do
+  class Command::EditMethod < Pry::ClassCommand
+    match 'edit-method'
     group 'Editing'
-    description "Edit the source code for a method."
+    description 'Edit the source code for a method.'
 
     banner <<-BANNER
       Usage: edit-method [OPTIONS] [METH]
@@ -177,4 +178,6 @@ class Pry
         source
       end
   end
+
+  Pry::Commands.add_command(Pry::Command::EditMethod)
 end

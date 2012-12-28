@@ -1,13 +1,13 @@
 class Pry
-  Pry::Commands.create_command "show-doc" do
-    include Pry::Helpers::ModuleIntrospectionHelpers
+  class Command::ShowDoc < Pry::ClassCommand
     include Pry::Helpers::DocumentationHelpers
     extend  Pry::Helpers::BaseHelpers
 
+    match 'show-doc'
     group 'Introspection'
-    description "Show the documentation for a method or class. Aliases: \?"
+    description 'Show the documentation for a method or class. Aliases: \?'
     command_options :shellwords => false
-    command_options :requires_gem => "ruby18_source_location" if mri_18?
+    command_options :requires_gem => 'ruby18_source_location' if mri_18?
 
     banner <<-BANNER
       Usage: show-doc [OPTIONS] [METH]
@@ -24,131 +24,157 @@ class Pry
     end
 
     def options(opt)
-      method_options(opt)
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
       opt.on :l, "line-numbers", "Show line numbers."
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
       opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
       opt.on :a, :all, "Show docs for all definitions and monkeypatches of the module/class"
     end
 
-    def process_sourcable_object
-      name = args.first
-      object = target.eval(name)
+    def process
+      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
 
-      file_name, line = object.source_location
-
-      doc = Pry::Code.from_file(file_name).comment_describing(line)
-      doc = strip_leading_hash_and_whitespace_from_ruby_comments(doc)
-
-      result = ""
-      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{doc.lines.count}\n\n"
-      result << doc
-      result << "\n"
-    end
-
-    def process_module
-      raise Pry::CommandError, "No documentation found." if module_object.nil?
-      if opts.present?(:all)
-        all_modules
+      if show_docs_for_all_modules?(code_object)
+        # show docs for all monkey patches for a module
+        result = docs_and_headers_for_all_module_candidates(code_object)
       else
-        normal_module
-      end
-    end
-
-    def normal_module
-      doc = ""
-      if module_object.yard_docs?
-        file_name, line = module_object.yard_file, module_object.yard_line
-        doc << module_object.yard_doc
-        start_line = 1
-      else
-        attempt do |rank|
-          file_name, line = module_object.candidate(rank).source_location
-          set_file_and_dir_locals(file_name)
-          doc << module_object.candidate(rank).doc
-          start_line = module_start_line(module_object, rank)
-        end
+        # show the source for a specific code object
+        result = docs_and_header_for_code_object(code_object)
       end
 
-      doc = Pry::Code.new(doc, start_line, :text).
+      set_file_and_dir_locals(code_object.source_file)
+      stagger_output result
+    end
+
+    def docs_and_header_for_code_object(code_object)
+      result = header(code_object)
+      result << Code.new(render_doc_markup_for(code_object),
+                         opts.present?(:b) ? 1 : start_line_for(code_object),
+                         :text).
         with_line_numbers(use_line_numbers?).to_s
-
-      doc.insert(0, "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line ? line : "N/A"}:\n\n")
     end
 
-    def all_modules
-      doc = ""
-      doc << "Found #{module_object.number_of_candidates} candidates for `#{module_object.name}` definition:\n"
-      module_object.number_of_candidates.times do |v|
-        candidate = module_object.candidate(v)
+    def docs_and_headers_for_all_module_candidates(mod)
+      result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+      mod.number_of_candidates.times do |v|
+        candidate = mod.candidate(v)
         begin
-          doc << "\nCandidate #{v+1}/#{module_object.number_of_candidates}: #{candidate.file} @ #{candidate.line}:\n\n"
-          doc << candidate.doc
+          result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
+          doc = Code.new(render_doc_markup_for(candidate),
+                         opts.present?(:b) ? 1 : candidate.source_line,
+                         :text).with_line_numbers(use_line_numbers?).to_s
+          result << "Number of lines: #{doc.lines.count}\n\n" << doc
         rescue Pry::RescuableException
-          doc << "No documentation found.\n"
+          result << "\nNo code found.\n"
+
           next
         end
       end
-      doc
+      result
     end
 
-    def process_method
-      raise Pry::CommandError, "No documentation found." if method_object.doc.nil? || method_object.doc.empty?
-
-      doc = process_comment_markup(method_object.doc)
-      output.puts make_header(method_object, doc)
-      output.puts "#{text.bold("Owner:")} #{method_object.owner || "N/A"}"
-      output.puts "#{text.bold("Visibility:")} #{method_object.visibility}"
-      output.puts "#{text.bold("Signature:")} #{method_object.signature}"
-      output.puts
-
-      if use_line_numbers?
-        doc = Pry::Code.new(doc, start_line, :text).
-          with_line_numbers(true).to_s
-      end
-
-      doc
+    def show_docs_for_all_modules?(code_object)
+      code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
     end
 
-    def process_command
-      name = args.join(" ").gsub(/\"/,"")
-      command = find_command(name)
-
-      doc = command.new.help
-      doc = strip_leading_whitespace(doc)
-
-      file_name, line = command.source_location
-      set_file_and_dir_locals(file_name)
-
-
-      result = ""
-      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{doc.lines.count}\n\n"
-      result << doc
-      result << "\n"
+    # simple function to piece together the name of the object
+    # passed in from the arg list
+    def obj_name
+      @obj_name ||= args.empty? ? nil : args.join(" ")
     end
 
-    def module_start_line(mod, candidate=0)
-      if opts.present?(:'base-one')
-        1
+    # process the markup (if necessary) and apply colors
+    def render_doc_markup_for(code_object)
+      docs = docs_for(code_object)
+
+      if code_object.command?
+        # command '--help' shouldn't use markup highlighting
+        docs
       else
-        if mod.candidate(candidate).line
-          mod.candidate(candidate).line - mod.candidate(candidate).doc.lines.count
-        else
-          1
-        end
+        process_comment_markup(docs)
       end
     end
 
-    def start_line
-      if opts.present?(:'base-one')
+    # Return docs for the code_object, adjusting for whether the code_object
+    # has yard docs available, in which case it returns those.
+    # (note we only have to check yard docs for modules since they can
+    # have multiple docs, but methods can only be doc'd once so we
+    # dont need to check them)
+    def docs_for(code_object)
+      if code_object.module_with_yard_docs?
+        # yard docs
+        code_object.yard_doc
+      else
+        # normal docs (i.e comments above method/module/command)
+        code_object.doc
+      end
+    end
+
+    # takes into account possible yard docs, and returns yard_file / yard_line
+    # Also adjusts for start line of comments (using start_line_for), which it has to infer
+    # by subtracting number of lines of comment from start line of code_object
+    def file_and_line_for(code_object)
+      if code_object.module_with_yard_docs?
+        [code_object.yard_file, code_object.yard_line]
+      else
+        [code_object.source_file, start_line_for(code_object)]
+      end
+    end
+
+    # Generate a header (meta-data information) for all the code
+    # object types: methods, modules, commands, procs...
+    def header(code_object)
+      file_name, line_num = file_and_line_for(code_object)
+      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+      if code_object.c_method?
+        h << "(C Method):"
+      else
+        h << "@ line #{line_num}:"
+      end
+
+      if code_object.real_method_object?
+        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
+        h << "#{text.bold("Visibility:")} #{code_object.visibility}\n"
+        h << "#{text.bold("Signature:")} #{code_object.signature}"
+      end
+      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
+        "#{docs_for(code_object).lines.count}\n\n"
+    end
+
+    # figure out start line of docs by back-calculating based on
+    # number of lines in the comment and the start line of the code_object
+    # @return [Fixnum] start line of docs
+    def start_line_for(code_object)
+      if code_object.command?
          1
       else
-        (method_object.source_line - method_object.doc.lines.count) || 1
+        code_object.source_line.nil? ? 1 :
+          (code_object.source_line - code_object.doc.lines.count)
+      end
+    end
+
+    def use_line_numbers?
+      opts.present?(:b) || opts.present?(:l)
+    end
+
+    def complete(input)
+      if input =~ /([^ ]*)#([a-z0-9_]*)\z/
+        prefix, search = [$1, $2]
+        methods = begin
+                    Pry::Method.all_from_class(binding.eval(prefix))
+                  rescue RescuableException => e
+                    return super
+                  end
+        methods.map do |method|
+          [prefix, method.name].join('#') if method.name.start_with?(search)
+        end.compact
+      else
+        super
       end
     end
   end
 
-  Pry::Commands.alias_command "?", "show-doc"
+  Pry::Commands.add_command(Pry::Command::ShowDoc)
+  Pry::Commands.alias_command '?', 'show-doc'
 end

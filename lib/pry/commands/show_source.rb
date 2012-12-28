@@ -1,10 +1,10 @@
 class Pry
-  Pry::Commands.create_command "show-source" do
-    include Pry::Helpers::ModuleIntrospectionHelpers
+  class Command::ShowSource < Pry::ClassCommand
     extend  Pry::Helpers::BaseHelpers
 
+    match 'show-source'
     group 'Introspection'
-    description "Show the source for a method or class. Aliases: $, show-method"
+    description 'Show the source for a method or class. Aliases: $, show-method'
 
     banner <<-BANNER
       Usage: show-source [OPTIONS] [METH|CLASS]
@@ -30,79 +30,43 @@ class Pry
     end
 
     def options(opt)
-      method_options(opt)
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
       opt.on :l, "line-numbers", "Show line numbers."
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
       opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
       opt.on :a, :all, "Show source for all definitions and monkeypatches of the module/class"
     end
 
-    def process_sourcable_object
-      name = args.first
-      object = target.eval(name)
+    def process
+      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
 
-      file_name, line = object.source_location
-
-      source = Pry::Code.from_file(file_name).expression_at(line)
-      code   = Pry::Code.new(source).with_line_numbers(use_line_numbers?).to_s
-
-      result = ""
-      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
-      result << code
-      result << "\n"
-    end
-
-    def process_method
-      raise CommandError, "Could not find method source" unless method_object.source
-
-      code = ""
-      code << make_header(method_object)
-      code << "#{text.bold("Owner:")} #{method_object.owner || "N/A"}\n"
-      code << "#{text.bold("Visibility:")} #{method_object.visibility}\n"
-      code << "\n"
-
-      code << Code.from_method(method_object, start_line).
-               with_line_numbers(use_line_numbers?).to_s
-    end
-
-    def process_module
-      raise Pry::CommandError, "No documentation found." if module_object.nil?
-      if opts.present?(:all)
-        all_modules
+      if show_source_for_all_modules?(code_object)
+        # show all monkey patches for a module
+        result = source_and_headers_for_all_module_candidates(code_object)
       else
-        normal_module
-      end
-    end
-
-    def normal_module
-      file_name = line = code = nil
-      attempt do |rank|
-        file_name, line = module_object.candidate(rank).source_location
-        set_file_and_dir_locals(file_name)
-        code = Code.from_module(module_object, module_start_line(module_object, rank), rank).
-          with_line_numbers(use_line_numbers?).to_s
+        # show the source for a specific code object
+        result = source_and_header_for_code_object(code_object)
       end
 
-      result = ""
-      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
-      result << code
+      set_file_and_dir_locals(code_object.source_file)
+      stagger_output result
     end
 
-    def all_modules
-      mod = module_object
+    def source_and_header_for_code_object(code_object)
+      result = header(code_object)
+      result << Code.new(code_object.source, start_line_for(code_object)).
+        with_line_numbers(use_line_numbers?).to_s
+    end
 
-      result = ""
-      result << "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+    def source_and_headers_for_all_module_candidates(mod)
+      result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
       mod.number_of_candidates.times do |v|
         candidate = mod.candidate(v)
         begin
           result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.file} @ line #{candidate.line}:\n"
-          code = Code.from_module(mod, module_start_line(mod, v), v).
-            with_line_numbers(use_line_numbers?).to_s
-          result << "Number of lines: #{code.lines.count}\n\n"
-          result << code
+          code = Code.from_module(mod, start_line_for(candidate), v).with_line_numbers(use_line_numbers?).to_s
+          result << "Number of lines: #{code.lines.count}\n\n" << code
         rescue Pry::RescuableException
           result << "\nNo code found.\n"
           next
@@ -111,36 +75,63 @@ class Pry
       result
     end
 
-    def process_command
-      name = args.join(" ").gsub(/\"/,"")
-      command = find_command(name)
+    def show_source_for_all_modules?(code_object)
+      code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
+    end
 
-      file_name, line = command.source_location
-      set_file_and_dir_locals(file_name)
+    def obj_name
+      @obj_name ||= args.empty? ? nil : args.join(" ")
+    end
 
-      code = Pry::Code.new(command.source, line).with_line_numbers(use_line_numbers?).to_s
+    # Generate a header (meta-data information) for all the code
+    # object types: methods, modules, commands, procs...
+    def header(code_object)
+      file_name, line_num = code_object.source_file, code_object.source_line
+      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+      if code_object.c_method?
+        h << "(C Method):"
+      else
+        h << "@ line #{line_num}:"
+      end
 
-      result = ""
-      result << "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} @ line #{line}:\n"
-      result << "#{Pry::Helpers::Text.bold('Number of lines:')} #{code.lines.count}\n\n"
-      result << "\n"
+      if code_object.real_method_object?
+        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
+        h << "#{text.bold("Visibility:")} #{code_object.visibility}"
+      end
+      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
+        "#{code_object.source.lines.count}\n\n"
+    end
 
-      result << code
+    def start_line_for(code_object)
+      if opts.present?(:'base-one')
+        1
+      else
+        code_object.source_line || 1
+      end
     end
 
     def use_line_numbers?
       opts.present?(:b) || opts.present?(:l)
     end
 
-    def start_line
-      if opts.present?(:'base-one')
-        1
+    def complete(input)
+      if input =~ /([^ ]*)#([a-z0-9_]*)\z/
+        prefix, search = [$1, $2]
+        methods = begin
+                    Pry::Method.all_from_class(binding.eval(prefix))
+                  rescue RescuableException => e
+                    return super
+                  end
+        methods.map do |method|
+          [prefix, method.name].join('#') if method.name.start_with?(search)
+        end.compact
       else
-        method_object.source_line || 1
+        super
       end
     end
   end
 
-  Pry::Commands.alias_command "show-method", "show-source"
-  Pry::Commands.alias_command "$", "show-source"
+  Pry::Commands.add_command(Pry::Command::ShowSource)
+  Pry::Commands.alias_command 'show-method', 'show-source'
+  Pry::Commands.alias_command '$', 'show-source'
 end

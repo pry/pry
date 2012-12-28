@@ -1,13 +1,13 @@
 class Pry
-  Pry::Commands.create_command "find-method" do
+  class Command::FindMethod < Pry::ClassCommand
     extend Pry::Helpers::BaseHelpers
 
-    group "Context"
-
-    options :requires_gem => "ruby18_source_location" if mri_18?
+    match 'find-method'
+    group 'Context'
+    options :requires_gem => 'ruby18_source_location' if mri_18?
     options :shellwords => false
 
-    description "Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]"
+    description 'Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]'
 
     banner <<-BANNER
       Usage: find-method  [-n | -c] METHOD [NAMESPACE]
@@ -162,4 +162,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::FindMethod)
 end

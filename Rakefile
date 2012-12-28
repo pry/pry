@@ -22,7 +22,7 @@ def apply_spec_defaults(s)
   s.add_dependency('coderay', '~> 1.0.5')
   s.add_dependency('slop', ['~> 3.3.1'])
   s.add_dependency('method_source','~> 0.8')
-  s.add_development_dependency('bacon', '~> 1.1')
+  s.add_development_dependency('bacon', '~> 1.2')
   s.add_development_dependency('open4', '~> 1.3')
   s.add_development_dependency('rake',  '~> 0.9')
   s.add_development_dependency('guard', '~> 1.3.2')
@@ -45,19 +45,38 @@ end
 desc "Set up and run tests"
 task :default => [:test]
 
+unless [].respond_to? :shuffle!
+  class Array
+    def shuffle!
+      # TODO: fill this in if anyone cares
+      self
+    end
+  end
+end
+
+def run_specs paths
+  quiet = ENV['VERBOSE'] ? '' : '-q'
+  exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
+end
+
 desc "Run tests"
 task :test do
   check_dependencies unless ENV['SKIP_DEP_CHECK']
-  all_specs =
+  paths =
     if explicit_list = ENV['run']
       explicit_list.split(',')
     else
-      Dir['spec/**/*_spec.rb']
+      Dir['spec/**/*_spec.rb'].shuffle!
     end
-  all_specs.shuffle! if all_specs.respond_to? :shuffle!
-  exec "bacon -Ispec -rubygems -q #{all_specs.join ' '}"
+  run_specs paths
 end
 task :spec => :test
+
+task :recspec do
+  all = Dir['spec/**/*_spec.rb'].sort_by{|path| File.mtime(path)}.reverse
+  warn "Running all, sorting by mtime: #{all[0..2].join(' ')} ...etc."
+  run_specs all
+end
 
 desc "Run pry"
 task :pry do

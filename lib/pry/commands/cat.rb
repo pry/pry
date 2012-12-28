@@ -1,5 +1,6 @@
 class Pry
-  Pry::Commands.create_command "cat" do
+  class Command::Cat < Pry::ClassCommand
+    match 'cat'
     group 'Input and Output'
     description "Show code from a file, Pry's input buffer, or the last " \
       "exception."
@@ -175,4 +176,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Cat)
 end

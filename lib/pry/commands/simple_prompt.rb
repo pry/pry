@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "simple-prompt" do
+  class Command::SimplePrompt < Pry::ClassCommand
+    match 'simple-prompt'
     group 'Misc'
-    description "Toggle the simple prompt."
+    description 'Toggle the simple prompt.'
 
     def process
       case _pry_.prompt
@@ -12,4 +13,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::SimplePrompt)
 end
