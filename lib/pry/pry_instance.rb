@@ -258,7 +258,10 @@ class Pry
     exception = catch(:raise_up) do
       exit_value = catch(:breakout) do
         handle_line(line)
-        return true
+        # We use 'return !@stopped' here instead of 'return true' so that if
+        # handle_line has stopped this pry instance (e.g. by opening _pry_.repl and
+        # then popping all the bindings) we still exit immediately.
+        return !@stopped
       end
       exception = false
     end
