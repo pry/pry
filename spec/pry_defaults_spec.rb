@@ -140,9 +140,9 @@ describe "test Pry defaults" do
 
     def get_prompts(pry)
       a = pry.select_prompt
-      pry.accept_line "["
+      pry.eval "["
       b = pry.select_prompt
-      pry.accept_line "]"
+      pry.eval "]"
       [a, b]
     end
 

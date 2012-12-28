@@ -6,7 +6,7 @@ describe "!" do
   end
 
   it 'should correctly clear the input buffer ' do
-    @t.accept_line unindent(<<-STR)
+    @t.push unindent(<<-STR)
       def hello
         puts :bing
     STR

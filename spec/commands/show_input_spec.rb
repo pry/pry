@@ -6,7 +6,7 @@ describe "show-input" do
   end
 
   it 'should correctly show the current lines in the input buffer' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
     STR

@@ -234,7 +234,7 @@ describe "edit" do
     end
 
     it "should edit the current expression if it's incomplete" do
-      @t.accept_line 'def a'
+      @t.push 'def a'
       @t.process_command 'edit'
       @contents.should == "def a\n"
     end
@@ -250,7 +250,7 @@ describe "edit" do
     end
 
     it "should use a blank file if -t given, even during an expression" do
-      @t.accept_line 'def a;'
+      @t.push 'def a;'
       @t.process_command 'edit -t'
       @contents.should == "\n"
     end

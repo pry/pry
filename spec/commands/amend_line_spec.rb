@@ -6,7 +6,7 @@ describe "amend-line" do
   end
 
   it 'should amend the last line of input when no line number specified' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
     STR
@@ -20,7 +20,7 @@ describe "amend-line" do
   end
 
   it 'should amend the specified line of input when line number given' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -36,7 +36,7 @@ describe "amend-line" do
   end
 
   it 'should amend the first line of input when 0 given as line number' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -52,7 +52,7 @@ describe "amend-line" do
   end
 
   it 'should amend a specified line when negative number given' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -76,7 +76,7 @@ describe "amend-line" do
   end
 
   it 'should amend a range of lines of input when negative numbers given' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -93,7 +93,7 @@ describe "amend-line" do
   end
 
   it 'should correctly amend the specified line with interpolated text' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -122,7 +122,7 @@ describe "amend-line" do
   end
 
   it 'should correctly amend the specified range of lines' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -139,7 +139,7 @@ describe "amend-line" do
   end
 
   it 'should correctly delete a specific line using the ! for content' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -158,7 +158,7 @@ describe "amend-line" do
   end
 
   it 'should correctly delete a range of lines using the ! for content' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -175,7 +175,7 @@ describe "amend-line" do
   end
 
   it 'should correctly delete the previous line using the ! for content' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -194,7 +194,7 @@ describe "amend-line" do
   end
 
   it 'should amend the specified range of lines, with numbers < 0 in range' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -212,7 +212,7 @@ describe "amend-line" do
   end
 
   it 'should correctly insert a line before a specified line using >' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang
@@ -229,7 +229,7 @@ describe "amend-line" do
   end
 
   it 'should ignore second value of range with > syntax' do
-    @t.accept_lines *unindent(<<-STR).split("\n")
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
         puts :bang

@@ -50,7 +50,7 @@ class Pry
           break
         else
           output.puts "" if val.nil? && output.tty?
-          return pry.exit_value unless pry.accept_line(val)
+          return pry.exit_value unless pry.eval(val)
         end
       end
     end

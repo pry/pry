@@ -218,7 +218,7 @@ describe "commands" do
   describe "Pry#run_command" do
     it 'should run a command that modifies the passed in eval_string' do
       p = Pry.new(:output => @str_output)
-      p.accept_line "def hello\npeter pan\n"
+      p.eval "def hello\npeter pan\n"
       p.run_command "amend-line !"
       p.eval_string.should =~ /def hello/
       p.eval_string.should.not =~ /peter pan/
