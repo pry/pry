@@ -1,5 +1,6 @@
 class Pry
-  Pry::Commands.create_command "disable-pry" do
+  class Command::DisablePry < Pry::ClassCommand
+    match 'disable-pry'
     group 'Navigating Pry'
     description 'Stops all future calls to pry and exits the current session.'
 
@@ -21,4 +22,6 @@ class Pry
       _pry_.run_command "exit"
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::DisablePry)
 end

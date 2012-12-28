@@ -18,8 +18,10 @@ class Pry
   # to provide extra functionality useful to Pry.
   class Method
     extend Helpers::BaseHelpers
+    include Helpers::BaseHelpers
     include RbxMethod if Helpers::BaseHelpers.rbx?
     include Helpers::DocumentationHelpers
+    include CodeObject::Helpers
 
     class << self
       # Given a string representing a method name and optionally a binding to
@@ -53,6 +55,9 @@ class Pry
           from_str(name, target, :instance => true) or
             from_str(name, target, :methods => true)
         end
+
+      rescue Pry::RescuableException
+        nil
       end
 
       # Given a `Binding`, try to extract the `::Method` it originated from and
@@ -133,6 +138,7 @@ class Pry
       #
       # @param [Class, Module] klass
       # @param [String] name
+      # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_class(klass, name, target=TOPLEVEL_BINDING)
         new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
@@ -145,6 +151,7 @@ class Pry
       #
       # @param [Object] obj
       # @param [String] name
+      # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_obj(obj, name, target=TOPLEVEL_BINDING)
         new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
@@ -239,6 +246,12 @@ class Pry
     # @return [Pry::Module]
     def wrapped_owner
       @wrapped_owner ||= Pry::WrappedModule.new(owner)
+    end
+
+    # Get underlying object wrapped by this Pry::Method instance
+    # @return [Method, UnboundMethod, Proc]
+    def wrapped
+      @method
     end
 
     # Is the method undefined? (aka `Disowned`)
@@ -505,7 +518,8 @@ class Pry
           end
           next_owner = ancestors[i] or return nil
         end
-        next_owner.instance_method(name) rescue nil
+
+        safe_send(next_owner, :instance_method, name) rescue nil
       end
 
       # @param [String] first_ln The first line of a method definition.

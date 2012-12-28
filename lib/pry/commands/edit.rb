@@ -6,9 +6,10 @@ class Pry
   #       the entire source code because an exception may happen anywhere in the
   #       code and there is no way to predict that. So we simply superimpose
   #       everything (admittedly, doing extra job).
-  Pry::Commands.create_command "edit" do
+  class Command::Edit < Pry::ClassCommand
+    match 'edit'
     group 'Editing'
-    description "Invoke the default editor on a file."
+    description 'Invoke the default editor on a file.'
 
     banner <<-BANNER
       Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
@@ -91,6 +92,11 @@ class Pry
       end
     end
 
+    def probably_a_file?(str)
+      [".rb", ".c", ".py", ".yml", ".gemspec"].include? File.extname(str) ||
+      str =~ /\/|\\/
+    end
+
     def process_remote_edit
       if opts.present?(:ex)
         if _pry_.last_exception.nil?
@@ -122,9 +128,14 @@ class Pry
         line = target.eval("__LINE__")
       else
 
-        # break up into file:line
-        file_name = File.expand_path(args.first)
-        line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+        if !probably_a_file?(args.first) && code_object = Pry::CodeObject.lookup(args.first, target, _pry_)
+          file_name = code_object.source_file
+          line = code_object.source_line
+        else
+          # break up into file:line
+          file_name = File.expand_path(args.first)
+          line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+        end
       end
 
       if not_a_real_file?(file_name)
@@ -165,4 +176,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Edit)
 end

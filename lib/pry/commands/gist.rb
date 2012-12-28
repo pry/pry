@@ -28,9 +28,10 @@ class Pry
     end
   end
 
-  Pry::Commands.create_command "gist" do
+  class Command::Gist < Pry::ClassCommand
     include Pry::Helpers::DocumentationHelpers
 
+    match 'gist'
     group 'Misc'
     description Pry::Gist::DESCRIPTION
     command_options :requires_gem => 'jist', :shellwords => false
@@ -192,6 +193,7 @@ class Pry
 
   end
 
-  Pry::Commands.alias_command "clipit", "gist --clip"
-  Pry::Commands.alias_command "jist", "gist"
+  Pry::Commands.add_command(Pry::Command::Gist)
+  Pry::Commands.alias_command 'clipit', 'gist --clip'
+  Pry::Commands.alias_command 'jist', 'gist'
 end

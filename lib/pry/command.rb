@@ -8,6 +8,7 @@ class Pry
   # which creates a ClassCommand. Please don't use this class directly.
   class Command
     extend Helpers::DocumentationHelpers
+    extend CodeObject::Helpers
 
     # represents a void return value for a command
     VOID_VALUE = Object.new
@@ -36,7 +37,7 @@ class Pry
 
       # Define or get the command's options
       def command_options(arg=nil)
-        @command_options ||= {}
+        @command_options ||= default_options(match)
         @command_options.merge!(arg) if arg
         @command_options
       end
@@ -51,11 +52,16 @@ class Pry
       end
 
       def block
-        @block || instance_method(:process) && instance_method(:process)
+        @block || instance_method(:process)
       end
 
       def source
-        strip_leading_whitespace(block.source)
+        file, line = block.source_location
+        strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line))
+      end
+
+      def doc
+        new.help
       end
 
       def source_location
@@ -71,6 +77,19 @@ class Pry
         Array(block.source_location).last
       end
       alias_method :line, :source_line
+
+      def default_options(match)
+        {
+          :requires_gem      => [],
+          :keep_retval       => false,
+          :argument_required => false,
+          :interpolate       => true,
+          :shellwords        => true,
+          :listing           => (String === match ? match : match.inspect),
+          :use_prefix        => true,
+          :takes_block       => false
+        }
+      end
     end
 
     # Make those properties accessible to instances
@@ -486,6 +505,30 @@ class Pry
   # `setup` which will be called before `options`, for example to require any
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
+
+    class << self
+      def source
+        Pry::WrappedModule(self).source
+      end
+
+      def doc
+        new.help
+      end
+
+      def source_location
+        Pry::WrappedModule(self).source_location
+      end
+
+      def source_file
+        Pry::WrappedModule(self).source_file
+      end
+      alias_method :file, :source_file
+
+      def source_line
+        Pry::WrappedModule(self).source_line
+      end
+      alias_method :line, :source_line
+    end
 
     # The class that couples together subcommands and top-level options (that
     # are known as "default" options). The explicitly defined instance methods

@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "exit-program" do
+  class Command::ExitProgram < Pry::ClassCommand
+    match 'exit-program'
     group 'Navigating Pry'
-    description "End the current program. Aliases: quit-program, !!!"
+    description 'End the current program. Aliases: quit-program, !!!'
 
     def process
       Pry.save_history if Pry.config.history.should_save
@@ -9,6 +10,7 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "quit-program", "exit-program"
-  Pry::Commands.alias_command "!!!", "exit-program"
+  Pry::Commands.add_command(Pry::Command::ExitProgram)
+  Pry::Commands.alias_command 'quit-program', 'exit-program'
+  Pry::Commands.alias_command '!!!', 'exit-program'
 end

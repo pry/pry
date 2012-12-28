@@ -1,9 +1,10 @@
 class Pry
-  Pry::Commands.create_command "play" do
+  class Command::Play < Pry::ClassCommand
     include Pry::Helpers::DocumentationHelpers
 
+    match 'play'
     group 'Editing'
-    description "Play back a string variable or a method or a file as input."
+    description 'Play back a string variable or a method or a file as input.'
 
     banner <<-BANNER
       Usage: play [OPTIONS] [--help]
@@ -115,6 +116,7 @@ class Pry
       self.content << File.read(_pry_.last_file)
       self.content = restrict_to_lines(self.content, lines)
     end
-
   end
+
+  Pry::Commands.add_command(Pry::Command::Play)
 end

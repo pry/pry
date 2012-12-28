@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "reload-method" do
+  class Command::ReloadMethod < Pry::ClassCommand
+    match 'reload-method'
     group 'Misc'
-    description "Reload the source file that contains the specified method"
+    description 'Reload the source file that contains the specified method'
 
     def process(meth_name)
       meth = get_method_or_raise(meth_name, target, {}, :omit_help)
@@ -17,4 +18,6 @@ class Pry
       end
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::ReloadMethod)
 end

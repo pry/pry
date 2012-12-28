@@ -1,8 +1,9 @@
 class Pry
-  Pry::Commands.create_command "exit-all" do
+  class Command::ExitAll < Pry::ClassCommand
+    match 'exit-all'
     group 'Navigating Pry'
-    description "End the current Pry session (popping all bindings) and " \
-      "returning to caller. Accepts optional return value. Aliases: !!@"
+    description 'End the current Pry session (popping all bindings) and ' \
+      'returning to caller. Accepts optional return value. Aliases: !!@'
 
     def process
       # calculate user-given value
@@ -16,5 +17,6 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "!!@", "exit-all"
+  Pry::Commands.add_command(Pry::Command::ExitAll)
+  Pry::Commands.alias_command '!!@', 'exit-all'
 end

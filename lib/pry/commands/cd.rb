@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "cd" do
-    group "Context"
-    description "Move into a new context (object or scope)."
+  class Command::Cd < Pry::ClassCommand
+    match 'cd'
+    group 'Context'
+    description 'Move into a new context (object or scope).'
 
     banner <<-BANNER
       Usage: cd [OPTIONS] [--help]
@@ -25,4 +26,6 @@ class Pry
       _pry_.binding_stack = stack if stack
     end
   end
+
+  Pry::Commands.add_command(Pry::Command::Cd)
 end

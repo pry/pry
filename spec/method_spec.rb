@@ -79,6 +79,10 @@ describe Pry::Method do
       meth = Pry::Method.from_str("klass::meth", Pry.binding_for(binding))
       meth.name.should == "meth"
     end
+
+    it 'should not raise an exception if receiver does not exist' do
+      lambda { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }.should.not.raise
+    end
   end
 
   describe '.from_binding' do
@@ -459,4 +463,3 @@ describe Pry::Method do
 
   end
 end
-

@@ -23,6 +23,13 @@ describe Pry::WrappedModule do
         end
 
         class ForeverAlone
+          class DoublyNested
+            # nested docs
+            class TriplyNested
+              def nested_method
+              end
+            end
+          end
         end
       end
     end
@@ -83,6 +90,11 @@ describe Pry::WrappedModule do
       it 'should return source for third ranked candidate' do
         Pry::WrappedModule(Host::CandidateTest).candidate(2).source.should =~ /test6/
       end
+
+      it 'should return source for deeply nested class' do
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.should =~ /nested_method/
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count.should == 4
+      end
     end
 
     describe "doc" do
@@ -101,6 +113,10 @@ describe Pry::WrappedModule do
 
       it 'should return doc for third ranked candidate' do
         Pry::WrappedModule(Host::CandidateTest).candidate(2).doc.should =~ /rank 2/
+      end
+
+      it 'should return docs for deeply nested class' do
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
     end
 
@@ -168,5 +184,78 @@ describe Pry::WrappedModule do
       Pry::WrappedModule.new(class << Object; self; end).singleton_instance.should.equal?(Object)
     end
   end
-end
 
+  describe ".super" do
+    describe "receiver is a class" do
+      before do
+        @a = Class.new
+        @m = Module.new
+        @b = Class.new(@a)
+        @b.send(:include, @m)
+        @c = Class.new(@b)
+      end
+
+      it 'should return superclass for a wrapped class'  do
+        Pry::WrappedModule(@c).super.wrapped.should == @b
+      end
+
+      it 'should return nth superclass for a wrapped class'  do
+        d = Class.new(@c)
+        Pry::WrappedModule(d).super(2).wrapped.should == @b
+      end
+
+      it 'should ignore modules when retrieving nth superclass'  do
+        Pry::WrappedModule(@c).super(2).wrapped.should == @a
+      end
+
+      it 'should return nil when no nth superclass exists' do
+        Pry::WrappedModule(@c).super(10).should == nil
+      end
+
+      it 'should return self when .super(0) is used' do
+        c = Pry::WrappedModule(@c)
+        c.super(0).should == c
+      end
+    end
+
+    describe "receiver is a module" do
+      before do
+        @m1 = Module.new
+        @m2 = Module.new.tap { |v| v.send(:include, @m1) }
+        @m3 = Module.new.tap { |v| v.send(:include, @m2) }
+      end
+
+      it 'should not ignore modules when retrieving supers' do
+        Pry::WrappedModule(@m3).super.wrapped.should == @m2
+      end
+
+      it 'should retrieve nth super' do
+        Pry::WrappedModule(@m3).super(2).wrapped.should == @m1
+      end
+
+      it 'should return self when .super(0) is used' do
+        m = Pry::WrappedModule(@m1)
+        m.super(0).should == m
+      end
+    end
+  end
+
+  describe ".from_str" do
+    it 'should lookup a constant' do
+      m = Pry::WrappedModule.from_str("Host::CandidateTest", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+
+    it 'should lookup a local' do
+      local = Host::CandidateTest
+      m = Pry::WrappedModule.from_str("local", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+
+    it 'should lookup an ivar' do
+      @ivar = Host::CandidateTest
+      m = Pry::WrappedModule.from_str("@ivar", binding)
+      m.wrapped.should == Host::CandidateTest
+    end
+  end
+end

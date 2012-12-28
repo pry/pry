@@ -1,7 +1,8 @@
 class Pry
-  Pry::Commands.create_command "shell-mode" do
+  class Command::ShellMode < Pry::ClassCommand
+    match 'shell-mode'
     group 'Input and Output'
-    description "Toggle shell mode. Bring in pwd prompt and file completion."
+    description 'Toggle shell mode. Bring in pwd prompt and file completion.'
 
     def process
       case _pry_.prompt
@@ -17,5 +18,6 @@ class Pry
     end
   end
 
-  Pry::Commands.alias_command "file-mode", "shell-mode"
+  Pry::Commands.add_command(Pry::Command::ShellMode)
+  Pry::Commands.alias_command 'file-mode', 'shell-mode'
 end
