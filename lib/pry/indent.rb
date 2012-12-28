@@ -54,6 +54,9 @@ class Pry
     # a single-line.
     SINGLELINE_TOKENS = %w(if while until unless rescue)
 
+    # Which tokens can be followed by an optional "do" keyword.
+    OPTIONAL_DO_TOKENS = %(for while until)
+
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
     # indented incorrectly.
@@ -224,7 +227,7 @@ class Pry
 
         track_module_nesting(token, kind)
 
-        seen_for_at << add_after if token == "for"
+        seen_for_at << add_after if OPTIONAL_DO_TOKENS.include?(token)
 
         if kind == :delimiter
           track_delimiter(token)

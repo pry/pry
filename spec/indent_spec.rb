@@ -150,6 +150,11 @@ TXT
     @indent.indent(input).should == output
   end
 
+  it "should correctly handle while <foo> do" do
+    input = "while 5 do\n5\nend"
+    @indent.indent(input).should == "while 5 do\n  5\nend"
+  end
+
   it "should ident case statements" do
     input = <<TXT.strip
 case foo
