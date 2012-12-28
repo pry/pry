@@ -36,17 +36,23 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       end
 
       it "breaks out of the parent session" do
-        pry_tester(:outer).simulate_repl do |o|
-          o.context = :inner
-          o.simulate_repl { |i|
-            i.eval('_pry_.current_context.eval("self")').should == :inner
-            i.eval('_pry_.binding_stack.size').should == 2
-            i.eval('_pry_.eval(nil)')
-            i.eval('_pry_.binding_stack.size').should == 1
-            i.eval('_pry_.current_context.eval("self")').should == :outer
-            i.eval 'throw :breakout'
-          }
-          o.eval 'exit-all'
+        ReplTester.start do
+          input  'Pry::REPL.new(_pry_, :target => 10).start'
+          output ''
+          prompt(/10.*> $/)
+
+          input  'self'
+          output '=> 10'
+
+          input  nil # Ctrl-D
+          output ''
+
+          input  'self'
+          output '=> main'
+
+          input  nil # Ctrl-D
+          output '=> nil' # Exit value of nested REPL.
+          assert_exited
         end
       end
     end
