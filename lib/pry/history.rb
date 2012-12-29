@@ -82,15 +82,6 @@ class Pry
       end
     end
 
-    # The default saver. Appends the given lines to `Pry.history.config.file`.
-    # @param [Array<String>] lines
-    def write_to_file(lines)
-      if write_to_history?
-        history_file.close
-        @history_file = nil
-      end
-    end
-
     # The default pusher. Appends the given line to Readline::HISTORY.
     # @param [String] line
     def push_to_readline(line)
