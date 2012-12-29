@@ -1,34 +1,28 @@
 require 'helper'
 
 describe "exit" do
-  it 'should pop a binding with exit' do
-    pry_tester(:outer).simulate_repl do |t|
-      t.eval 'cd :inner'
-      t.eval('self').should == :inner
-      t.eval 'exit'
-      t.eval('self').should == :outer
-      t.eval 'exit-all'
-    end
+  before { @pry = Pry.new(:target => :outer, :output => StringIO.new) }
+
+  it "should pop a binding" do
+    @pry.eval "cd :inner"
+    @pry.evaluate_ruby("self").should == :inner
+    @pry.eval "exit"
+    @pry.evaluate_ruby("self").should == :outer
   end
 
-  it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit' do
-    pry_tester(0).simulate_repl do |t|
-      t.eval 'exit'
-    end.should == nil
+  it "should break out of the repl when binding_stack has only one binding" do
+    @pry.eval("exit").should.be.false
+    @pry.exit_value.should.be.nil
   end
 
-  it 'should break out of the repl loop of Pry instance when binding_stack has only one binding with exit, and return user-given value' do
-    pry_tester(0).simulate_repl do |t|
-      t.eval 'exit :john'
-    end.should == :john
+  it "should break out of the repl and return user-given value" do
+    @pry.eval("exit :john").should.be.false
+    @pry.exit_value.should == :john
   end
 
-  it 'should break out the repl loop of Pry instance even after an exception in user-given value' do
-    pry_tester(0).simulate_repl do |t|
-      proc {
-        t.eval 'exit = 42'
-      }.should.raise(SyntaxError)
-      t.eval 'exit'
-    end.should == nil
+  it "should break out of the repl even after an exception" do
+    @pry.eval "exit = 42"
+    @pry.output.string.should =~ /^SyntaxError/
+    @pry.eval("exit").should.be.false
   end
 end
