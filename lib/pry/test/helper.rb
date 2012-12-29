@@ -122,6 +122,7 @@ class PryTester
     strs.flatten.each do |str|
       str = "#{str.strip}\n"
       @history.push str if @history
+
       if @pry.process_command(str)
         result = last_command_result_or_output
       else
@@ -140,23 +141,6 @@ class PryTester
 
   def push_binding(context)
     @pry.push_binding context
-  end
-
-  # TODO: eliminate duplication with Pry#repl
-  def simulate_repl
-    didnt_exit = nil
-    break_data = nil
-
-    didnt_exit = catch(:didnt_exit) do
-      break_data = catch(:breakout) do
-        yield self
-        throw(:didnt_exit, true)
-      end
-      nil
-    end
-
-    raise "Failed to exit REPL" if didnt_exit
-    break_data
   end
 
   def last_output
