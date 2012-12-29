@@ -172,9 +172,8 @@ class Pry
   end
 
   # Generate completions.
-  #
-  # @param [String]  what the user has typed so far
-  # @return [Array<String>]  possible completions
+  # @param [String] input What the user has typed so far
+  # @return [Array<String>] Possible completions
   def complete(input)
     Pry.critical_section do
       Pry.config.completer.call(input, :target => current_binding,
