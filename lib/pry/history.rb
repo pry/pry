@@ -1,6 +1,6 @@
 class Pry
-  # The History class is responsible for maintaining the user's input history, both
-  # internally and within Readline.
+  # The History class is responsible for maintaining the user's input history,
+  # both internally and within Readline.
   class History
     attr_accessor :loader, :saver, :pusher, :clearer
 
@@ -44,9 +44,8 @@ class Pry
     end
     alias << push
 
-    # Clear all history. Anything the user entered before this point won't be
-    # saved, but anything they put in afterwards will still be appended to the
-    # history file on exit.
+    # Clear this session's history. This won't affect the contents of the
+    # history file.
     def clear
       @clearer.call
       @history = []
@@ -57,6 +56,7 @@ class Pry
       @history.count
     end
 
+    # @return [Fixnum] The number of lines in history from just this session.
     def session_line_count
       @history.count - @original_lines
     end
@@ -69,18 +69,16 @@ class Pry
     end
 
     private
+
     # The default loader. Yields lines from `Pry.history.config.file`.
     def read_from_file
-      begin
-        history_file = File.expand_path(Pry.config.history.file)
-        if File.exists?(history_file)
-          File.foreach(history_file) { |line| yield(line) }
-        end
-      rescue => error
-        unless error.message.empty?
-          warn "History file not loaded, received an error: #{error.message}"
-        end
+      filename = File.expand_path(Pry.config.history.file)
+
+      if File.exists?(filename)
+        File.foreach(filename) { |line| yield(line) }
       end
+    rescue => error
+      warn "History file not loaded: #{error.message}"
     end
 
     # The default pusher. Appends the given line to Readline::HISTORY.
@@ -94,23 +92,21 @@ class Pry
       Readline::HISTORY.shift until Readline::HISTORY.empty?
     end
 
+    # The default saver. Appends the given line to `Pry.history.config.file`.
     def save_to_file(line)
       history_file.puts line if history_file
     end
 
-    # The history file for appending
+    # The history file, opened for appending.
     def history_file
-      if @history_file.nil?
-        begin
-          @history_file ||= File.open(file_path, 'a')
-          @history_file.sync = true
-        rescue Errno::EACCES
-          # We should probably create an option Pry.show_warnings?!?!?!
-          warn 'Unable to write to your history file, history not saved'
-          @history_file = false
-        end
+      if defined?(@history_file)
+        @history_file
+      else
+        @history_file = File.open(file_path, 'a').tap { |f| f.sync = true }
       end
-      @history_file
+    rescue Errno::EACCES
+      warn 'History not saved; unable to open your history file for writing.'
+      @history_file = false
     end
 
     def file_path
