@@ -25,7 +25,7 @@ class Pry
     # @return [Integer] The number of lines loaded
     def load
       @loader.call do |line|
-        Readline::HISTORY << line.chomp
+        @pusher.call(line.chomp)
         @history << line.chomp
       end
     end
