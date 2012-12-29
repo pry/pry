@@ -7,10 +7,17 @@ class Pry
 
     def_delegators :pry, :input, :output
 
+    # Start a new Pry::REPL wrapping a pry created with the given options.
+    #
+    # @option options (see Pry#initialize)
     def self.start(options)
       new(Pry.new(options)).start
     end
 
+    # Create a new REPL.
+    #
+    # @param [Pry] pry  The instance of pry in which to eval code.
+    # @option options [Object] :target  The target to REPL on.
     def initialize(pry, options = {})
       @pry    = pry
       @indent = Pry::Indent.new
@@ -20,6 +27,10 @@ class Pry
       end
     end
 
+    # Start the read-eval-print-loop.
+    #
+    # @return [Object]  anything returned by the user from within Pry
+    # @raise [Exception]  anything raise-up'd by the user from within Pry
     def start
       prologue
       repl
@@ -29,6 +40,7 @@ class Pry
 
     private
 
+    # Set up the repl session
     def prologue
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
       # Clear the line before starting Pry. This fixes the issue discussed here:
@@ -38,6 +50,13 @@ class Pry
       end
     end
 
+    # The actual read-eval-print-loop.
+    #
+    # This object is responsible for reading and looping, and it delegates
+    # to Pry for the evaling and printing.
+    #
+    # @return [Object]  anything returned by the user from Pry
+    # @raise [Exception]  anything raise-up'd by the user from Pry
     def repl
       loop do
         case val = read
@@ -61,11 +80,12 @@ class Pry
       Pry.save_history if Pry.config.history.should_save
     end
 
-    # Read and process a line of input -- check for ^D, determine which prompt to
-    # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
-    # if the line is a command, process it and alter the @eval_string accordingly.
+    # Read a line of input from the user, special handling for:
     #
-    # @return [String] The line received.
+    # @return [nil] on <ctrl+d>
+    # @return [:control_c] on <ctrl+c>
+    # @return [:no_more_input] on EOF from Pry.input
+    # @return [String] The line from the user
     def read
       @indent.reset if pry.eval_string.empty?
 
@@ -102,6 +122,9 @@ class Pry
     end
 
     # Manage switching of input objects on encountering EOFErrors
+    #
+    # @return [:no_more_input] if no more input can be read.
+    # @return [String?]
     def handle_read_errors
       should_retry = true
       exception_count = 0
@@ -114,11 +137,8 @@ class Pry
           return :no_more_input
         end
         should_retry = false
-
         retry
 
-      # Interrupts are handled in r() because they need to tweak @eval_string
-      # TODO: Refactor this baby.
       rescue Interrupt
         raise
 
@@ -143,7 +163,7 @@ class Pry
 
     # Returns the next line of input to be used by the pry instance.
     # @param [String] current_prompt The prompt to use for input.
-    # @return [String] The next line of input.
+    # @return [String?] The next line of input, nil on <ctrl+d>
     def read_line(current_prompt)
       handle_read_errors do
         if defined? Coolline and input.is_a? Coolline
