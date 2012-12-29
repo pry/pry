@@ -94,22 +94,25 @@ class Pry
       begin
         val = read_line("#{current_prompt}#{indentation}")
 
-      # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
-      # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
-      # from within Readline.
+      # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
+      # quit.  This is only for MRI 1.9; other versions of Ruby don't let you
+      # send Interrupt from within Readline.
       rescue Interrupt
         val = :control_c
       end
 
-      # return nil for EOF, :no_more_input for error, or :control_c for <ctrl+c>
+      # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless String === val
 
       if Pry.config.auto_indent
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
-        if output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
-          output.print @indent.correct_indentation(current_prompt, indented_val, original_val.length - indented_val.length)
+        if output.tty? && @indent.should_correct_indentation?
+          output.print @indent.correct_indentation(
+            current_prompt, indented_val,
+            original_val.length - indented_val.length
+          )
           output.flush
         end
       else
