@@ -3,21 +3,22 @@ require 'forwardable'
 class Pry
   class REPL
     extend Forwardable
+    def_delegators :@pry, :input, :output
+
+    # @return [Pry] The instance of {Pry} that the user is controlling.
     attr_accessor :pry
 
-    def_delegators :pry, :input, :output
-
-    # Start a new Pry::REPL wrapping a pry created with the given options.
-    #
-    # @option options (see Pry#initialize)
+    # Instantiate a new {Pry} instance with the given options, then start a
+    # {REPL} instance wrapping it.
+    # @option options See {Pry#initialize}
     def self.start(options)
       new(Pry.new(options)).start
     end
 
-    # Create a new REPL.
-    #
-    # @param [Pry] pry  The instance of pry in which to eval code.
-    # @option options [Object] :target  The target to REPL on.
+    # Create an instance of {REPL} wrapping the given {Pry}.
+    # @param [Pry] pry The instance of {Pry} that this {REPL} will control.
+    # @param [Hash] options Options for this {REPL} instance.
+    # @option options [Object] :target The initial target of the session.
     def initialize(pry, options = {})
       @pry    = pry
       @indent = Pry::Indent.new
@@ -27,10 +28,11 @@ class Pry
       end
     end
 
-    # Start the read-eval-print-loop.
-    #
-    # @return [Object]  anything returned by the user from within Pry
-    # @raise [Exception]  anything raise-up'd by the user from within Pry
+    # Start the read-eval-print loop.
+    # @return [Object?] If the session throws `:breakout`, return the value
+    #   thrown with it.
+    # @raise [Exception] If the session throws `:raise_up`, raise the exception
+    #   thrown with it.
     def start
       prologue
       repl
@@ -40,23 +42,27 @@ class Pry
 
     private
 
-    # Set up the repl session
+    # Set up the repl session.
+    # @return [void]
     def prologue
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
-      # Clear the line before starting Pry. This fixes the issue discussed here:
-      # https://github.com/pry/pry/issues/566
+
+      # Clear the line before starting Pry. This fixes issue #566.
       if Pry.config.correct_indent
         Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
       end
     end
 
-    # The actual read-eval-print-loop.
+    # The actual read-eval-print loop.
     #
-    # This object is responsible for reading and looping, and it delegates
-    # to Pry for the evaling and printing.
+    # The {REPL} instance is responsible for reading and looping, whereas the
+    # {Pry} instance is responsible for evaluating user input and printing
+    # return values and command output.
     #
-    # @return [Object]  anything returned by the user from Pry
-    # @raise [Exception]  anything raise-up'd by the user from Pry
+    # @return [Object?] If the session throws `:breakout`, return the value
+    #   thrown with it.
+    # @raise [Exception] If the session throws `:raise_up`, raise the exception
+    #   thrown with it.
     def repl
       loop do
         case val = read
@@ -73,17 +79,17 @@ class Pry
       end
     end
 
-    # Clean-up after the repl session.
+    # Clean up after the repl session.
+    # @return [void]
     def epilogue
       pry.exec_hook :after_session, pry.output, pry.current_binding, pry
     end
 
-    # Read a line of input from the user, special handling for:
-    #
-    # @return [nil] on <ctrl+d>
-    # @return [:control_c] on <ctrl+c>
-    # @return [:no_more_input] on EOF from Pry.input
-    # @return [String] The line from the user
+    # Read a line of input from the user.
+    # @return [String] The line entered by the user.
+    # @return [nil] On `<Ctrl-D>`.
+    # @return [:control_c] On `<Ctrl+C>`.
+    # @return [:no_more_input] On EOF.
     def read
       @indent.reset if pry.eval_string.empty?
 
@@ -122,19 +128,20 @@ class Pry
       indented_val
     end
 
-    # Manage switching of input objects on encountering EOFErrors
-    #
-    # @return [:no_more_input] if no more input can be read.
-    # @return [String?]
+    # Manage switching of input objects on encountering `EOFError`s.
+    # @return [Object] Whatever the given block returns.
+    # @return [:no_more_input] Indicates that no more input can be read.
     def handle_read_errors
       should_retry = true
       exception_count = 0
+
       begin
         yield
       rescue EOFError
         pry.input = Pry.config.input
         if !should_retry
-          output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
+          output.puts "Error: Pry ran out of things to read from! " \
+            "Attempting to break out of REPL."
           return :no_more_input
         end
         should_retry = false
@@ -143,9 +150,9 @@ class Pry
       rescue Interrupt
         raise
 
-      # If we get a random error when trying to read a line we don't want to automatically
-      # retry, as the user will see a lot of error messages scroll past and be unable to do
-      # anything about it.
+      # If we get a random error when trying to read a line we don't want to
+      # automatically retry, as the user will see a lot of error messages
+      # scroll past and be unable to do anything about it.
       rescue RescuableException => e
         puts "Error: #{e.message}"
         output.puts e.backtrace
@@ -154,7 +161,8 @@ class Pry
           retry
         end
         puts "FATAL: Pry failed to get user input using `#{input}`."
-        puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
+        puts "To fix this you may be able to pass input and output file " \
+          "descriptors to pry directly. e.g."
         puts "  Pry.config.input = STDIN"
         puts "  Pry.config.output = STDOUT"
         puts "  binding.pry"
@@ -162,9 +170,9 @@ class Pry
       end
     end
 
-    # Returns the next line of input to be used by the pry instance.
+    # Returns the next line of input to be sent to the {Pry} instance.
     # @param [String] current_prompt The prompt to use for input.
-    # @return [String?] The next line of input, nil on <ctrl+d>
+    # @return [String?] The next line of input, or `nil` on <Ctrl-D>.
     def read_line(current_prompt)
       handle_read_errors do
         if defined? Coolline and input.is_a? Coolline
