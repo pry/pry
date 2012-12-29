@@ -60,7 +60,7 @@ class Pry
         f.puts lines
         f.flush
         f.close(false)
-        invoke_editor(f.path, 0, true)
+        Pry::Editor.invoke_editor(f.path, 0, true)
 
         source = wrap_for_nesting(wrap_for_owner(File.read(f.path)))
 
@@ -79,7 +79,7 @@ class Pry
       file, line = extract_file_and_line
 
       reload = !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
-      invoke_editor(file, opts["no-jump"] ? 0 : line, reload)
+      Pry::Editor.invoke_editor(file, opts["no-jump"] ? 0 : line, reload)
       silence_warnings do
         load file if reload
       end
