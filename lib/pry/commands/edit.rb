@@ -39,21 +39,33 @@ class Pry
       super + Bond::Rc.files(search.split(" ").last || '')
     end
 
+    def bad_option_combination?
+      [opts.present?(:ex), opts.present?(:temp),
+       opts.present?(:in), !args.empty?].count(true) > 1
+    end
+
+    def local_edit?
+      !opts.present?(:ex) && !opts.present?(:current) && args.empty?
+    end
+
     def process
-      if [opts.present?(:ex), opts.present?(:temp), opts.present?(:in), !args.empty?].count(true) > 1
+      if bad_option_combination?
         raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
       end
 
-      if !opts.present?(:ex) && !opts.present?(:current) && args.empty?
+      if local_edit?
         # edit of local code, eval'd within pry.
         process_local_edit
+      elsif patch_exception?
+        # patch an exception
+        apply_runtime_patch_to_exception
       else
         # edit of remote code, eval'd at top-level
         process_remote_edit
       end
     end
 
-    def process_i
+    def retrieve_input_expression
       case opts[:i]
       when Range
         (_pry_.input_array[opts[:i]] || []).join
@@ -64,114 +76,121 @@ class Pry
       end
     end
 
-    def process_local_edit
-      content = case
-        when opts.present?(:temp)
-          ""
-        when opts.present?(:in)
-          process_i
-        when eval_string.strip != ""
-          eval_string
-        else
-          _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
+    def reloadable?
+      opts.present?(:reload) || opts.present?(:ex)
+    end
+
+    def never_reload?
+      opts.present?(:'no-reload') || Pry.config.disable_auto_reload
+    end
+
+    # conditions much less strict than for reload? (which is for remote reloads)
+    def local_reload?
+      !never_reload?
+    end
+
+    def reload?(file_name="")
+      (reloadable? || file_name.end_with?(".rb")) && !never_reload?
+    end
+
+    def initial_temp_file_content
+      case
+      when opts.present?(:temp)
+        ""
+      when opts.present?(:in)
+        retrieve_input_expression
+      when eval_string.strip != ""
+        eval_string
+      else
+        _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
       end
+    end
+
+    def process_local_edit
+      content = initial_temp_file_content
 
       line = content.lines.count
-
-      temp_file do |f|
-        f.puts(content)
-        f.flush
-        reload = !opts.present?(:'no-reload') && !Pry.config.disable_auto_reload
-        f.close(false)
-        invoke_editor(f.path, line, reload)
-        if reload
-          silence_warnings do
-            eval_string.replace(File.read(f.path))
-          end
+      source = Pry::Editor.edit_tempfile_with_content(content, line)
+      if local_reload?
+        silence_warnings do
+          eval_string.replace(source)
         end
       end
     end
 
     def probably_a_file?(str)
       [".rb", ".c", ".py", ".yml", ".gemspec"].include? File.extname(str) ||
-      str =~ /\/|\\/
+        str =~ /\/|\\/
     end
 
-    def process_remote_edit
-      if opts.present?(:ex)
-        if _pry_.last_exception.nil?
-          raise CommandError, "No exception found."
-        end
+    def file_and_line_for_exception
+      raise CommandError, "No exception found." if _pry_.last_exception.nil?
 
-        ex = _pry_.last_exception
-        bt_index = opts[:ex].to_i
+      file_name, line = _pry_.last_exception.bt_source_location_for(opts[:ex].to_i)
+      raise CommandError, "Exception has no associated file." if file_name.nil?
+      raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
 
-        ex_file, ex_line = ex.bt_source_location_for(bt_index)
-        if ex_file && RbxPath.is_core_path?(ex_file)
-          file_name = RbxPath.convert_path_to_full(ex_file)
-        else
-          file_name = ex_file
-        end
+      file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
 
-        line = ex_line
+      [file_name, line]
+    end
 
-        if file_name.nil?
-          raise CommandError, "Exception has no associated file."
-        end
+    def current_file_and_line
+      [target.eval("__FILE__"), target.eval("__LINE__")]
+    end
 
-        if Pry.eval_path == file_name
-          raise CommandError, "Cannot edit exceptions raised in REPL."
-        end
-
-      elsif opts.present?(:current)
-        file_name = target.eval("__FILE__")
-        line = target.eval("__LINE__")
+    def object_file_and_line
+      if !probably_a_file?(args.first) && code_object = Pry::CodeObject.lookup(args.first, target, _pry_)
+        [code_object.source_file, code_object.source_line]
       else
-
-        if !probably_a_file?(args.first) && code_object = Pry::CodeObject.lookup(args.first, target, _pry_)
-          file_name = code_object.source_file
-          line = code_object.source_line
-        else
-          # break up into file:line
-          file_name = File.expand_path(args.first)
-          line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
-        end
+        # break up into file:line
+        file_name = File.expand_path(args.first)
+        line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+        [file_name, line]
       end
+    end
+
+    def retrieve_file_and_line
+      file_name, line = if opts.present?(:ex)
+                          file_and_line_for_exception
+                        elsif opts.present?(:current)
+                          current_file_and_line
+                        else
+                          object_file_and_line
+                        end
 
       if not_a_real_file?(file_name)
         raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
       end
 
-      line = opts[:l].to_i if opts.present?(:line)
+      [file_name, opts.present?(:line) ? opts[:l].to_i : line]
+    end
 
-      reload = opts.present?(:reload) || ((opts.present?(:ex) || file_name.end_with?(".rb")) && !opts.present?(:'no-reload')) && !Pry.config.disable_auto_reload
+    def patch_exception?
+      opts.present?(:ex) && opts.present?(:patch)
+    end
 
-      if opts.present?(:ex) && opts.present?(:patch)
-        lines = state.dynamical_ex_file || File.open(ex_file).read
+    def apply_runtime_patch_to_exception
+      file_name, line = file_and_line_for_exception
+      lines = state.dynamical_ex_file || File.read(file_name)
 
-        temp_file do |f|
-          f.puts lines
-          f.flush
-          f.close(false)
+      source = Pry::Editor.edit_tempfile_with_content(lines)
+      _pry_.evaluate_ruby source
+      state.dynamical_ex_file = source.split("\n")
+    end
 
-          tempfile_path = f.path
-          invoke_editor(tempfile_path, line, reload)
-          source = File.read(tempfile_path)
-          _pry_.evaluate_ruby source
+    def process_remote_edit
+      file_name, line = retrieve_file_and_line
 
-          state.dynamical_ex_file = source.split("\n")
-        end
-      else
-        # Sanitize blanks.
-        sanitized_file_name = Shellwords.escape(file_name)
+      # Sanitize blanks.
+      sanitized_file_name = Shellwords.escape(file_name)
 
-        invoke_editor(sanitized_file_name, line, reload)
-        set_file_and_dir_locals(sanitized_file_name)
+      Pry::Editor.invoke_editor(sanitized_file_name, line, reload?(file_name))
+      set_file_and_dir_locals(sanitized_file_name)
 
-        if reload
-          silence_warnings do
-            TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
-          end
+      if reload?(file_name)
+        silence_warnings do
+          TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
         end
       end
     end
