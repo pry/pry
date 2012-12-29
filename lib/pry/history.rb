@@ -17,6 +17,7 @@ class Pry
     # Assign the default methods for loading, saving, pushing, and clearing.
     def restore_default_behavior
       @loader  = method(:read_from_file)
+      @saver   = method(:save_to_file)
       @pusher  = method(:push_to_readline)
       @clearer = method(:clear_readline)
     end
@@ -37,7 +38,7 @@ class Pry
       unless line.empty? || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
-        @history_file.puts line if save_history?
+        @saver.call(line) if Pry.config.history.should_save
       end
       line
     end
@@ -93,6 +94,10 @@ class Pry
       Readline::HISTORY.shift until Readline::HISTORY.empty?
     end
 
+    def save_to_file(line)
+      history_file.puts line if history_file
+    end
+
     # The history file for appending
     def history_file
       if @history_file.nil?
@@ -106,10 +111,6 @@ class Pry
         end
       end
       @history_file
-    end
-
-    def save_history?
-      Pry.config.history.should_save && history_file
     end
 
     def file_path
