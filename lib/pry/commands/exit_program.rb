@@ -5,7 +5,6 @@ class Pry
     description 'End the current program. Aliases: quit-program, !!!'
 
     def process
-      Pry.save_history if Pry.config.history.should_save
       Kernel.exit target.eval(arg_string).to_i
     end
   end

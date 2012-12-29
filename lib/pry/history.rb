@@ -7,17 +7,16 @@ class Pry
     # @return [Fixnum] Number of lines in history when Pry first loaded.
     attr_reader :original_lines
 
-    def initialize
+    def initialize(options={})
       @history = []
-      @saved_lines = 0
       @original_lines = 0
+      @file_path = options[:file_path]
       restore_default_behavior
     end
 
     # Assign the default methods for loading, saving, pushing, and clearing.
     def restore_default_behavior
       @loader  = method(:read_from_file)
-      @saver   = method(:write_to_file)
       @pusher  = method(:push_to_readline)
       @clearer = method(:clear_readline)
     end
@@ -26,19 +25,9 @@ class Pry
     # @return [Integer] The number of lines loaded
     def load
       @loader.call do |line|
-        @pusher.call(line.chomp)
+        Readline::HISTORY << line.chomp
         @history << line.chomp
       end
-      @saved_lines = @original_lines = @history.length
-    end
-
-    # Write this session's history using `History.saver`.
-    # @return [Integer] The number of lines saved
-    def save
-      history_to_save = @history[@saved_lines..-1]
-      @saver.call(history_to_save)
-      @saved_lines = @history.length
-      history_to_save.length
     end
 
     # Add a line to the input history, ignoring blank and duplicate lines.
@@ -48,6 +37,7 @@ class Pry
       unless line.empty? || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
+        @history_file.puts line if save_history?
       end
       line
     end
@@ -59,7 +49,6 @@ class Pry
     def clear
       @clearer.call
       @history = []
-      @saved_lines = 0
     end
 
     # @return [Fixnum] The number of lines in history.
@@ -96,15 +85,9 @@ class Pry
     # The default saver. Appends the given lines to `Pry.history.config.file`.
     # @param [Array<String>] lines
     def write_to_file(lines)
-      history_file = File.expand_path(Pry.config.history.file)
-
-      begin
-        File.open(history_file, 'a') do |f|
-          lines.each { |ln| f.puts ln }
-        end
-      rescue Errno::EACCES
-        # We should probably create an option Pry.show_warnings?!?!?!
-        warn 'Unable to write to your history file, history not saved'
+      if write_to_history?
+        history_file.close
+        @history_file = nil
       end
     end
 
@@ -117,6 +100,29 @@ class Pry
     # The default clearer. Clears Readline::HISTORY.
     def clear_readline
       Readline::HISTORY.shift until Readline::HISTORY.empty?
+    end
+
+    # The history file for appending
+    def history_file
+      if @history_file.nil?
+        begin
+          @history_file ||= File.open(file_path, 'a')
+          @history_file.sync = true
+        rescue Errno::EACCES
+          # We should probably create an option Pry.show_warnings?!?!?!
+          warn 'Unable to write to your history file, history not saved'
+          @history_file = false
+        end
+      end
+      @history_file
+    end
+
+    def save_history?
+      Pry.config.history.should_save && history_file
+    end
+
+    def file_path
+      @file_path || Pry.config.history.file
     end
   end
 end

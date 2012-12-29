@@ -11,10 +11,6 @@ describe Pry do
       @saved_history.lines.each { |l| blk.call(l) }
     end
 
-    Pry.history.saver = proc do |lines|
-      @saved_history << lines.map { |l| "#{l}\n" }.join
-    end
-
     Pry.load_history
   end
 
@@ -44,56 +40,30 @@ describe Pry do
     end
   end
 
-  describe ".save_history" do
-    it "should include a trailing newline" do
-      Pry.history << "4"
-      Pry.save_history
-      @saved_history.should =~ /4\n\z/
+  describe "saving to a file" do
+    before do
+      @histfile = Tempfile.new(["pryhistory", "txt"])
+      @history = Pry::History.new(:file_path => @histfile.path)
+      Pry.config.history.should_save = true
+      @history.pusher = proc{ }
     end
 
-    it "should not change anything if history is not changed" do
-      @saved_history = "4\n5\n6\n"
-      Pry.save_history
-      @saved_history.should == "4\n5\n6\n"
+    after do
+      @histfile.close(true)
+      Pry.config.history.should_save = false
     end
 
-    it "should append new lines to the file" do
-      Pry.history << "4"
-      Pry.save_history
-      @saved_history.should == "1\n2\n3\n4\n"
+    it "should save lines to a file as they are written" do
+      @history.push "5"
+      File.read(@histfile.path).should == "5\n"
     end
 
-    it "should not clobber lines written by other Pry's in the meantime" do
-      Pry.history << "5"
-      @saved_history << "4\n"
-      Pry.save_history
+    it "should interleave lines from many places" do
+      @history.push "5"
+      File.open(@histfile.path, 'a'){ |f| f.puts "6" }
+      @history.push "7"
 
-      Pry.history.to_a[-3..-1].should == ["2", "3", "5"]
-      @saved_history.should == "1\n2\n3\n4\n5\n"
-    end
-
-    it "should not delete lines from the file if this session's history was cleared" do
-      Pry.history.clear
-      Pry.save_history
-      @saved_history.should == "1\n2\n3\n"
-    end
-
-    it "should save new lines that are added after the history was cleared" do
-      Pry.history.clear
-      Pry.history << "4"
-      Pry.save_history
-      @saved_history.should =~ /1\n2\n3\n4\n/
-    end
-
-    it "should only append new lines the second time it is saved" do
-      Pry.history << "4"
-      Pry.save_history
-      @saved_history << "5\n"
-      Pry.history << "6"
-      Pry.save_history
-
-      Pry.history.to_a[-4..-1].should == ["2", "3", "4", "6"]
-      @saved_history.should == "1\n2\n3\n4\n5\n6\n"
+      File.read(@histfile.path).should == "5\n6\n7\n"
     end
   end
 end

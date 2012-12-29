@@ -191,11 +191,6 @@ class Pry
     Pry.history.load
   end
 
-  # Save new lines of Readline history if required.
-  def self.save_history
-    Pry.history.save
-  end
-
   # @return [Boolean] Whether this is the first time a Pry session has
   #   been started since loading the Pry class.
   def self.initial_session?

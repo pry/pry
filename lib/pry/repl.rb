@@ -76,8 +76,6 @@ class Pry
     # Clean-up after the repl session.
     def epilogue
       pry.exec_hook :after_session, pry.output, pry.current_binding, pry
-
-      Pry.save_history if Pry.config.history.should_save
     end
 
     # Read a line of input from the user, special handling for:
