@@ -14,13 +14,16 @@ class Pry
     description 'Invoke the default editor on a file.'
 
     banner <<-BANNER
-      Usage: edit [--no-reload|--reload] [--line LINE] [--temp|--ex|FILE[:LINE]|--in N]
+      Usage: edit [--no-reload|--reload|--patch] [--line LINE] [--temp|--ex|FILE[:LINE]|OBJECT|--in N]
 
       Open a text editor. When no FILE is given, edits the pry input buffer.
       Ensure Pry.config.editor is set to your editor of choice.
 
       e.g: `edit sample.rb`
       e.g: `edit sample.rb --line 105`
+      e.g: `edit MyClass#my_method`
+      e.g: `edit -p MyClass#my_method`
+      e.g: `edit YourClass`
       e.g: `edit --ex`
 
       https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
@@ -34,7 +37,7 @@ class Pry
       opt.on :n, :"no-reload", "Don't automatically reload the edited code"
       opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
       opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
-      opt.on :p, :patch, "Instead of opening the file that raised the exception, try to edit in a tempfile an apply as a monkey patch."
+      opt.on :p, :patch, "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch."
     end
 
     def complete(search)
@@ -44,10 +47,6 @@ class Pry
     def bad_option_combination?
       [opts.present?(:ex), opts.present?(:temp),
        opts.present?(:in), !args.empty?].count(true) > 1
-    end
-
-    def local_edit?
-      !opts.present?(:ex) && !opts.present?(:current) && args.empty?
     end
 
     def process
@@ -67,8 +66,51 @@ class Pry
       end
     end
 
+    def process_local_edit
+      content = initial_temp_file_content
+
+      if local_reload?
+        silence_warnings do
+          eval_string.replace Pry::Editor.edit_tempfile_with_content(content, content.lines.count)
+        end
+      end
+    end
+
+    def apply_runtime_patch
+      if patch_exception?
+        apply_runtime_patch_to_exception
+      else
+        if code_object.is_a?(Pry::Method)
+          MethodPatcher.new(code_object, target, _pry_).perform_patch
+        else
+          raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
+        end
+      end
+    end
+
+    def process_remote_edit
+      file_name, line = retrieve_file_and_line
+
+      # Sanitize blanks.
+      sanitized_file_name = Shellwords.escape(file_name)
+
+      Pry::Editor.invoke_editor(sanitized_file_name, line, reload?(file_name))
+      set_file_and_dir_locals(sanitized_file_name)
+
+      if reload?(file_name)
+        silence_warnings do
+          TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+        end
+      end
+    end
+
     def code_object
-      @code_object ||= args.first && !probably_a_file?(args.first) && Pry::CodeObject.lookup(args.first, target, _pry_)
+      @code_object ||= args.first && !probably_a_file?(args.first) &&
+        Pry::CodeObject.lookup(args.first, target, _pry_)
+    end
+
+    def local_edit?
+      !opts.present?(:ex) && !opts.present?(:current) && args.empty?
     end
 
     def runtime_patch?
@@ -76,7 +118,8 @@ class Pry
     end
 
     def dynamically_defined_method?
-      code_object.is_a?(Pry::Method) && code_object.dynamically_defined?
+      code_object.is_a?(Pry::Method) &&
+        code_object.dynamically_defined?
     end
 
     def retrieve_input_expression
@@ -117,16 +160,6 @@ class Pry
         eval_string
       else
         _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
-      end
-    end
-
-    def process_local_edit
-      content = initial_temp_file_content
-
-      if local_reload?
-        silence_warnings do
-          eval_string.replace Pry::Editor.edit_tempfile_with_content(content, content.lines.count)
-        end
       end
     end
 
@@ -189,34 +222,6 @@ class Pry
       source = Pry::Editor.edit_tempfile_with_content(lines)
       _pry_.evaluate_ruby source
       state.dynamical_ex_file = source.split("\n")
-    end
-
-    def apply_runtime_patch
-      if patch_exception?
-        apply_runtime_patch_to_exception
-      else
-        if code_object.is_a?(Pry::Method)
-          MethodPatcher.new(code_object, target, _pry_).perform_patch
-        else
-          raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
-        end
-      end
-    end
-
-    def process_remote_edit
-      file_name, line = retrieve_file_and_line
-
-      # Sanitize blanks.
-      sanitized_file_name = Shellwords.escape(file_name)
-
-      Pry::Editor.invoke_editor(sanitized_file_name, line, reload?(file_name))
-      set_file_and_dir_locals(sanitized_file_name)
-
-      if reload?(file_name)
-        silence_warnings do
-          TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
-        end
-      end
     end
   end
 
