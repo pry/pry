@@ -8,6 +8,7 @@ class Pry
   #       everything (admittedly, doing extra job).
   class Command::Edit < Pry::ClassCommand
     require 'pry/commands/edit/method_patcher'
+    require 'pry/commands/edit/exception_patcher'
 
     match 'edit'
     group 'Editing'
@@ -67,21 +68,21 @@ class Pry
     end
 
     def process_local_edit
-      content = initial_temp_file_content
-
+      content = Pry::Editor.edit_tempfile_with_content(initial_temp_file_content,
+                                                       initial_temp_file_content.lines.count)
       if local_reload?
         silence_warnings do
-          eval_string.replace Pry::Editor.edit_tempfile_with_content(content, content.lines.count)
+          eval_string.replace content
         end
       end
     end
 
     def apply_runtime_patch
       if patch_exception?
-        apply_runtime_patch_to_exception
+        ExceptionPatcher.new(self).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          MethodPatcher.new(code_object, target, _pry_).perform_patch
+          MethodPatcher.new(self).perform_patch
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
@@ -90,6 +91,7 @@ class Pry
 
     def process_remote_edit
       file_name, line = retrieve_file_and_line
+      raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
 
       # Sanitize blanks.
       sanitized_file_name = Shellwords.escape(file_name)
@@ -122,7 +124,11 @@ class Pry
         code_object.dynamically_defined?
     end
 
-    def retrieve_input_expression
+    def patch_exception?
+      opts.present?(:ex) && opts.present?(:patch)
+    end
+
+    def input_expression
       case opts[:i]
       when Range
         (_pry_.input_array[opts[:i]] || []).join
@@ -155,17 +161,29 @@ class Pry
       when opts.present?(:temp)
         ""
       when opts.present?(:in)
-        retrieve_input_expression
+        input_expression
       when eval_string.strip != ""
         eval_string
       else
-        _pry_.input_array.reverse_each.find{ |x| x && x.strip != "" } || ""
+        _pry_.input_array.reverse_each.find { |x| x && x.strip != "" } || ""
       end
     end
 
     def probably_a_file?(str)
       [".rb", ".c", ".py", ".yml", ".gemspec"].include? File.extname(str) ||
         str =~ /\/|\\/
+    end
+
+    def retrieve_file_and_line
+      file_name, line = if opts.present?(:ex)
+                          file_and_line_for_exception
+                        elsif opts.present?(:current)
+                          current_file_and_line
+                        else
+                          object_file_and_line
+                        end
+
+      [file_name, opts.present?(:line) ? opts[:l].to_i : line]
     end
 
     def file_and_line_for_exception
@@ -193,35 +211,6 @@ class Pry
         line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
         [file_name, line]
       end
-    end
-
-    def retrieve_file_and_line
-      file_name, line = if opts.present?(:ex)
-                          file_and_line_for_exception
-                        elsif opts.present?(:current)
-                          current_file_and_line
-                        else
-                          object_file_and_line
-                        end
-
-      if not_a_real_file?(file_name)
-        raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
-      end
-
-      [file_name, opts.present?(:line) ? opts[:l].to_i : line]
-    end
-
-    def patch_exception?
-      opts.present?(:ex) && opts.present?(:patch)
-    end
-
-    def apply_runtime_patch_to_exception
-      file_name, line = file_and_line_for_exception
-      lines = state.dynamical_ex_file || File.read(file_name)
-
-      source = Pry::Editor.edit_tempfile_with_content(lines)
-      _pry_.evaluate_ruby source
-      state.dynamical_ex_file = source.split("\n")
     end
   end
 

@@ -5,17 +5,15 @@ class Pry
       attr_accessor :target
       attr_accessor :_pry_
 
-      def initialize(method_object, target, _pry_)
-        @method_object = method_object
-        @target        = target
-        @_pry_         = _pry_
+      def initialize(edit_context)
+        @method_object = edit_context.code_object
+        @target        = edit_context.target
+        @_pry_         = edit_context._pry_
       end
 
       # perform the patch
       def perform_patch
-        lines = method_object.source.lines.to_a
-        lines[0] = definition_line_for_owner(lines[0])
-        source = wrap_for_nesting(wrap_for_owner(Pry::Editor.edit_tempfile_with_content(lines)))
+        source = wrap_for_nesting(wrap_for_owner(Pry::Editor.edit_tempfile_with_content(adjusted_lines)))
 
         if method_object.alias?
           with_method_transaction do
@@ -28,6 +26,14 @@ class Pry
       end
 
       private
+
+      # The method code adjusted so that the first line is rewritten
+      # so that def self.foo --> def foo
+      def adjusted_lines
+        lines = method_object.source.lines.to_a
+        lines[0] = definition_line_for_owner(lines.first)
+        lines
+      end
 
       # Run some code ensuring that at the end target#meth_name will not have changed.
       #
