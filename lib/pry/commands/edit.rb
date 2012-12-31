@@ -7,6 +7,8 @@ class Pry
   #       code and there is no way to predict that. So we simply superimpose
   #       everything (admittedly, doing extra job).
   class Command::Edit < Pry::ClassCommand
+    require 'pry/commands/edit/method_patcher'
+
     match 'edit'
     group 'Editing'
     description 'Invoke the default editor on a file.'
@@ -57,7 +59,7 @@ class Pry
         # edit of local code, eval'd within pry.
         process_local_edit
       elsif runtime_patch?
-        # patch an exception
+        # patch code without persisting changes
         apply_runtime_patch
       else
         # edit of remote code, eval'd at top-level
@@ -65,12 +67,16 @@ class Pry
       end
     end
 
-    def retrieve_code_object
-      !probably_a_file?(args.first) && Pry::CodeObject.lookup(args.first, target, _pry_)
+    def code_object
+      @code_object ||= args.first && !probably_a_file?(args.first) && Pry::CodeObject.lookup(args.first, target, _pry_)
     end
 
     def runtime_patch?
-      opts.present?(:patch)
+      opts.present?(:patch) || dynamically_defined_method?
+    end
+
+    def dynamically_defined_method?
+      code_object.is_a?(Pry::Method) && code_object.dynamically_defined?
     end
 
     def retrieve_input_expression
@@ -146,7 +152,7 @@ class Pry
     end
 
     def object_file_and_line
-      if code_object = retrieve_code_object
+      if code_object
         [code_object.source_file, code_object.source_line]
       else
         # break up into file:line
@@ -185,29 +191,12 @@ class Pry
       state.dynamical_ex_file = source.split("\n")
     end
 
-    def apply_runtime_patch_to_method(method_object)
-      lines = method_object.source.lines.to_a
-      lines[0] = definition_line_for_owner(lines[0], method_object.original_name)
-
-      source = wrap_for_nesting(wrap_for_owner(Pry::Editor.edit_tempfile_with_content(lines), method_object.owner), method_object)
-
-      if method_object.alias?
-        with_method_transaction(method_object.original_name, method_object.owner) do
-          _pry_.evaluate_ruby source
-          Pry.binding_for(method_object.owner).eval("alias #{method_object.name} #{original_name}")
-        end
-      else
-        _pry_.evaluate_ruby source
-      end
-    end
-
     def apply_runtime_patch
       if patch_exception?
         apply_runtime_patch_to_exception
       else
-        code_object = retrieve_code_object
         if code_object.is_a?(Pry::Method)
-          apply_runtime_patch_to_method(code_object)
+          MethodPatcher.new(code_object, target, _pry_).perform_patch
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
@@ -229,81 +218,6 @@ class Pry
         end
       end
     end
-
-
-    # Run some code ensuring that at the end target#meth_name will not have changed.
-    #
-    # When we're redefining aliased methods we will overwrite the method at the
-    # unaliased name (so that super continues to work). By wrapping that code in a
-    # transation we make that not happen, which means that alias_method_chains, etc.
-    # continue to work.
-    #
-    # @param [String] meth_name  The method name before aliasing
-    # @param [Module] target  The owner of the method
-    def with_method_transaction(meth_name, target)
-      target = Pry.binding_for(target)
-      temp_name = "__pry_#{meth_name}__"
-
-      target.eval("alias #{temp_name} #{meth_name}")
-      yield
-      target.eval("alias #{meth_name} #{temp_name}")
-    ensure
-      target.eval("undef #{temp_name}") rescue nil
-    end
-
-    # Update the definition line so that it can be eval'd directly on the Method's
-    # owner instead of from the original context.
-    #
-    # In particular this takes `def self.foo` and turns it into `def foo` so that we
-    # don't end up creating the method on the singleton class of the singleton class
-    # by accident.
-    #
-    # This is necessarily done by String manipulation because we can't find out what
-    # syntax is needed for the argument list by ruby-level introspection.
-    #
-    # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
-    # @return String  The new definition line. e.g. def foo(bar, baz=1)
-    def definition_line_for_owner(line, original_name)
-      if line =~ /^def (?:.*?\.)?#{Regexp.escape(original_name)}(?=[\(\s;]|$)/
-        "def #{original_name}#{$'}"
-      else
-        raise CommandError, "Could not find original `def #{original_name}` line to patch."
-      end
-    end
-
-    # Update the source code so that when it has the right owner when eval'd.
-    #
-    # This (combined with definition_line_for_owner) is backup for the case that
-    # wrap_for_nesting fails, to ensure that the method will stil be defined in
-    # the correct place.
-    #
-    # @param [String] source  The source to wrap
-    # @return [String]
-    def wrap_for_owner(source, owner)
-      Thread.current[:__pry_owner__] = owner
-      source = "Thread.current[:__pry_owner__].class_eval do\n#{source}\nend"
-    end
-
-    # Update the new source code to have the correct Module.nesting.
-    #
-    # This method uses syntactic analysis of the original source file to determine
-    # the new nesting, so that we can tell the difference between:
-    #
-    #   class A; def self.b; end; end
-    #   class << A; def b; end; end
-    #
-    # The resulting code should be evaluated in the TOPLEVEL_BINDING.
-    #
-    # @param [String] source  The source to wrap.
-    # @return [String]
-    def wrap_for_nesting(source, method_object)
-      nesting = Pry::Code.from_file(method_object.source_file).nesting_at(method_object.source_line)
-
-      (nesting + [source] + nesting.map{ "end" } + [""]).join("\n")
-    rescue Pry::Indent::UnparseableNestingError => e
-      source
-    end
-
   end
 
   Pry::Commands.add_command(Pry::Command::Edit)
