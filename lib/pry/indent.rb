@@ -55,7 +55,7 @@ class Pry
     SINGLELINE_TOKENS = %w(if while until unless rescue)
 
     # Which tokens can be followed by an optional "do" keyword.
-    OPTIONAL_DO_TOKENS = %(for while until)
+    OPTIONAL_DO_TOKENS = %w(for while until)
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
