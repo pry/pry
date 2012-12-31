@@ -27,10 +27,6 @@ class Pry
     end
 
     def process
-      if !Pry.config.editor
-        raise CommandError, "No editor set!\nEnsure that #{text.bold("Pry.config.editor")} is set to your editor of choice."
-      end
-
       begin
         @method = method_object
       rescue MethodNotFound => err
@@ -53,25 +49,17 @@ class Pry
 
     def process_patch
       lines = @method.source.lines.to_a
-
       lines[0] = definition_line_for_owner(lines[0])
 
-      temp_file do |f|
-        f.puts lines
-        f.flush
-        f.close(false)
-        Pry::Editor.invoke_editor(f.path, 0, true)
+      source = wrap_for_nesting(wrap_for_owner(Pry::Editor.edit_tempfile_with_content(lines)))
 
-        source = wrap_for_nesting(wrap_for_owner(File.read(f.path)))
-
-        if @method.alias?
-          with_method_transaction(original_name, @method.owner) do
-            _pry_.evaluate_ruby source
-            Pry.binding_for(@method.owner).eval("alias #{@method.name} #{original_name}")
-          end
-        else
+      if @method.alias?
+        with_method_transaction(original_name, @method.owner) do
           _pry_.evaluate_ruby source
+          Pry.binding_for(@method.owner).eval("alias #{@method.name} #{original_name}")
         end
+      else
+        _pry_.evaluate_ruby source
       end
     end
 
