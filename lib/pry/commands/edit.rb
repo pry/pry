@@ -9,6 +9,7 @@ class Pry
   class Command::Edit < Pry::ClassCommand
     require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
+    require 'pry/commands/edit/context_locator'
 
     match 'edit'
     group 'Editing'
@@ -39,15 +40,6 @@ class Pry
       opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
       opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
       opt.on :p, :patch, "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch."
-    end
-
-    def complete(search)
-      super + Bond::Rc.files(search.split(" ").last || '')
-    end
-
-    def bad_option_combination?
-      [opts.present?(:ex), opts.present?(:temp),
-       opts.present?(:in), !args.empty?].count(true) > 1
     end
 
     def process
@@ -90,7 +82,7 @@ class Pry
     end
 
     def process_remote_edit
-      file_name, line = retrieve_file_and_line
+      file_name, line = ContextLocator.new(self).file_and_line
       raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
 
       # Sanitize blanks.
@@ -126,6 +118,11 @@ class Pry
 
     def patch_exception?
       opts.present?(:ex) && opts.present?(:patch)
+    end
+
+    def bad_option_combination?
+      [opts.present?(:ex), opts.present?(:temp),
+       opts.present?(:in), !args.empty?].count(true) > 1
     end
 
     def input_expression
@@ -174,43 +171,8 @@ class Pry
         str =~ /\/|\\/
     end
 
-    def retrieve_file_and_line
-      file_name, line = if opts.present?(:ex)
-                          file_and_line_for_exception
-                        elsif opts.present?(:current)
-                          current_file_and_line
-                        else
-                          object_file_and_line
-                        end
-
-      [file_name, opts.present?(:line) ? opts[:l].to_i : line]
-    end
-
-    def file_and_line_for_exception
-      raise CommandError, "No exception found." if _pry_.last_exception.nil?
-
-      file_name, line = _pry_.last_exception.bt_source_location_for(opts[:ex].to_i)
-      raise CommandError, "Exception has no associated file." if file_name.nil?
-      raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-
-      file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
-
-      [file_name, line]
-    end
-
-    def current_file_and_line
-      [target.eval("__FILE__"), target.eval("__LINE__")]
-    end
-
-    def object_file_and_line
-      if code_object
-        [code_object.source_file, code_object.source_line]
-      else
-        # break up into file:line
-        file_name = File.expand_path(args.first)
-        line = file_name.sub!(/:(\d+)$/, "") ? $1.to_i : 1
-        [file_name, line]
-      end
+    def complete(search)
+      super + Bond::Rc.files(search.split(" ").last || '')
     end
   end
 
