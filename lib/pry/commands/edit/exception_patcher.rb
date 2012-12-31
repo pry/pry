@@ -1,7 +1,11 @@
+require 'forwardable'
+
 class Pry
   class Command::Edit
     class ExceptionPatcher
-      attr_accessor :edit_context
+      extend Forwardable
+
+      def_delegators :@edit_context, :state, :_pry_
 
       def initialize(edit_context)
         @edit_context = edit_context
@@ -9,12 +13,12 @@ class Pry
 
       # perform the patch
       def perform_patch
-        file_name, line = edit_context.retrieve_file_and_line
-        lines = edit_context.state.dynamical_ex_file || File.read(file_name)
+        file_name, line = ContextLocator.new(@edit_context).file_and_line
+        lines = state.dynamical_ex_file || File.read(file_name)
 
         source = Pry::Editor.edit_tempfile_with_content(lines)
-        edit_context._pry_.evaluate_ruby source
-        edit_context.state.dynamical_ex_file = source.split("\n")
+        _pry_.evaluate_ruby source
+        state.dynamical_ex_file = source.split("\n")
       end
     end
   end
