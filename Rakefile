@@ -7,30 +7,6 @@ require 'pry/version'
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
 CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
 
-def apply_spec_defaults(s)
-  s.name = 'pry'
-  s.summary = "An IRB alternative and runtime developer console"
-  s.version = Pry::VERSION
-  s.date = Time.now.strftime '%Y-%m-%d'
-  s.authors = ["John Mair (banisterfiend)", "Conrad Irwin", "Ryan Fitzgerald"]
-  s.email = ['jrmair@gmail.com', 'conrad.irwin@gmail.com', 'rwfitzge@gmail.com']
-  s.description = s.summary
-  s.homepage = 'http://pry.github.com'
-  s.executables = ['pry']
-  s.files = `git ls-files`.split("\n")
-  s.test_files = `git ls-files -- spec/*`.split("\n")
-  s.add_dependency('coderay', '~> 1.0.5')
-  s.add_dependency('slop', ['~> 3.3.1'])
-  s.add_dependency('method_source','~> 0.8')
-  s.add_development_dependency('bacon', '~> 1.2')
-  s.add_development_dependency('open4', '~> 1.3')
-  s.add_development_dependency('rake',  '~> 0.9')
-  s.add_development_dependency('guard', '~> 1.3.2')
-  s.add_development_dependency('mocha', '~> 0.13.1')
-  # TODO: make this a plain dependency:
-  s.add_development_dependency('bond',  '~> 0.4.2')
-end
-
 def check_dependencies
   require 'bundler'
   Bundler.definition.missing_specs
@@ -96,12 +72,12 @@ task :profile do
   Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
 end
 
-desc "Build the gemspec file"
-task :gemspec => "ruby:gemspec"
+def modify_base_gemspec
+  eval(File.read('pry.gemspec')).tap { |s| yield s }
+end
 
 namespace :ruby do
-  spec = Gem::Specification.new do |s|
-    apply_spec_defaults(s)
+  spec = modify_base_gemspec do |s|
     s.platform = Gem::Platform::RUBY
   end
 
@@ -109,17 +85,10 @@ namespace :ruby do
     pkg.need_zip = false
     pkg.need_tar = false
   end
-
-  task :gemspec do
-    File.open("#{spec.name}.gemspec", "w") do |f|
-      f << spec.to_ruby
-    end
-  end
 end
 
 namespace :jruby do
-  spec = Gem::Specification.new do |s|
-    apply_spec_defaults(s)
+  spec = modify_base_gemspec do |s|
     s.add_dependency('spoon', '~> 0.0')
     s.platform = 'java'
   end
@@ -133,8 +102,7 @@ end
 
 [:mingw32, :mswin32].each do |v|
   namespace v do
-    spec = Gem::Specification.new do |s|
-      apply_spec_defaults(s)
+    spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')
       s.platform = "i386-#{v}"
     end
