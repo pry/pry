@@ -505,8 +505,16 @@ class Pry
   # `setup` which will be called before `options`, for example to require any
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
-
     class << self
+
+      # Ensure that subclasses inherit the options, description and
+      # match from a ClassCommand super class.
+      def inherited(klass)
+        klass.match  match
+        klass.description  description
+        klass.command_options options
+      end
+
       def source
         Pry::WrappedModule(self).source
       end

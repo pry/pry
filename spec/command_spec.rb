@@ -357,6 +357,23 @@ describe "Pry::Command" do
 
       mock_command(cmd, %w|yell papa sonny daughter|)
     end
+
+    describe "explicit classes" do
+      before do
+        @x = Class.new(Pry::ClassCommand) do
+          options :baby => :pig
+          match /goat/
+          description "waaaninngggiiigygygygygy"
+        end
+      end
+
+      it 'subclasses should inherit options, match and description from superclass' do
+        k = Class.new(@x)
+        k.options.should == @x.options
+        k.match.should == @x.match
+        k.description.should == @x.description
+      end
+    end
   end
 
   describe 'tokenize' do
