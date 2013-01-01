@@ -59,26 +59,33 @@ class Pry
     def header(code_object)
       file_name, line_num = file_and_line_for(code_object)
       h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
-      if code_object.c_method?
-        h << "(C Method):"
-      else
-        h << "@ line #{line_num}:"
-      end
-
-      if code_object.real_method_object?
-        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n" if header_options[:owner]
-        h << "#{text.bold("Visibility:")} #{code_object.visibility}\n" if header_options[:visibility]
-        h << "#{text.bold("Signature:")} #{code_object.signature}" if header_options[:signature]
-      end
+      h << method_header(code_object, line_num) if code_object.real_method_object?
       h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
         "#{content_for(code_object).lines.count}\n\n"
+    end
+
+    def method_header(code_object, line_num)
+      h = ""
+      h << (code_object.c_method? ? "(C Method):" : "@ line #{line_num}:")
+      h << method_sections(code_object)[:owner]
+      h << method_sections(code_object)[:visibility]
+      h << method_sections(code_object)[:signature]
+      h
+    end
+
+    def method_sections(code_object)
+      {
+        :owner => "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n",
+        :visibility => "#{text.bold("Visibility:")} #{code_object.visibility}",
+        :signature => "\n#{text.bold("Signature:")} #{code_object.signature}"
+      }.merge(header_options) { |key, old, new| (new && old).to_s }
     end
 
     def header_options
       {
         :owner => true,
         :visibility => true,
-        :signature => false
+        :signature => nil
       }
     end
 
