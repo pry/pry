@@ -18,7 +18,7 @@ class Pry
         if method_object.alias?
           with_method_transaction do
             _pry_.evaluate_ruby source
-            Pry.binding_for(method_object.owner).eval("alias #{method_object.name} #{original_name}")
+            Pry.binding_for(method_object.owner).eval("alias #{method_object.name} #{method_object.original_name}")
           end
         else
           _pry_.evaluate_ruby source
@@ -45,7 +45,7 @@ class Pry
       # @param [String] meth_name  The method name before aliasing
       # @param [Module] target  The owner of the method
       def with_method_transaction
-        target = Pry.binding_for(target)
+        target = Pry.binding_for(method_object.owner)
         temp_name = "__pry_#{method_object.original_name}__"
 
         target.eval("alias #{temp_name} #{method_object.original_name}")
