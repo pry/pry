@@ -70,6 +70,7 @@ class Pry
       toplevel_binding.eval(File.read(full_name), full_name) if File.exists?(full_name)
     rescue RescuableException => e
       puts "Error loading #{file_name}: #{e}"
+      puts e.backtrace.first
     end
   end
 
