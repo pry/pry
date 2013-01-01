@@ -1,0 +1,27 @@
+PRY(1) -- A Reference to the PRY repl.
+======================================
+
+##Synopsis
+#
+
+## DESCRIPTION
+
+Does stuff.
+## HOMEPAGE
+
+Here are some places to look on the intrawebz
+##OPTIONS
+
+Here are some of my cool options
+##FILES
+
+Here are some places to look on your system
+##Pry Commands
+
+Some commands.
+##EXAMPLES
+
+Look at me do stuff.
+##AUTHORS
+
+Fred Flintstone

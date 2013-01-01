@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "PRY" "1" "November 2011" "" ""
+.TH "PRY" "1" "December 2012" "" ""
 .
 .SH "NAME"
 \fBPRY\fR \- A Reference to the PRY repl\.
@@ -67,6 +67,702 @@ Start the session in the specified context\. Equivalent to \fBcontext\.pry\fR in
 .
 .SH "FILES"
 ~/\.pryrc Personal pry initialization
+.
+.SH "Pry Commands"
+.
+.TP
+\fBtoggle\-color\fR
+Toggle syntax highlighting\. Toggle syntax highlighting\.
+.
+.TP
+\fBsimple\-prompt\fR
+Toggle the simple prompt\. Toggle the simple prompt\.
+.
+.TP
+\fBpry\-version\fR
+Show Pry version\. Show Pry version\.
+.
+.TP
+\fBreload\-method\fR
+Reload the source file that contains the specified method Reload the source file that contains the specified method
+.
+.TP
+\fBhelp\fR
+Show a list of commands\. Type \fBhelp <foo>\fR for information about \fIfoo\fR\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: help [ COMMAND ]
+
+    With no arguments, help lists all the available commands in the current
+    command\-set along with their description\.
+
+    When given a command name as an argument, shows the help for that command\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBgem\-install\fR
+Install a gem and refresh the gem cache\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: gem\-install GEM_NAME
+
+    Installs the given gem and refreshes the gem cache so that you can immediately \'require GEM_FILE\'
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBgem\-cd\fR
+Change working directory to specified gem\'s directory\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: gem\-cd GEM_NAME
+
+    Change the current working directory to that in which the given gem is installed\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBgem\-list\fR
+List and search installed gems\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: gem\-list [REGEX]
+
+    List all installed gems, when a regex is provided, limit the output to those that
+    match the regex\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBls\fR
+Show the list of vars and methods in the current scope\. Show the list of vars and methods in the current scope\.
+.
+.TP
+\fBcd\fR
+Move into a new context (object or scope)\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: cd [OPTIONS] [\-\-help]
+
+    Move into new context (object or scope)\. As in unix shells use
+    `cd \.\.` to go back, `cd /` to return to Pry top\-level and `cd \-`
+    to toggle between last two scopes)\.
+    Complex syntax (e\.g `cd \.\./@x/y`) also supported\.
+
+    e\.g: `cd @x`
+    e\.g: `cd \.\.`
+    e\.g: `cd /`
+    e\.g: `cd \-`
+
+    https://github\.com/pry/pry/wiki/State\-navigation#wiki\-Changing_scope
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBfind\-method\fR
+Recursively search for a method within a Class/Module or the current namespace\. find\-method [\-n | \-c] METHOD [NAMESPACE]
+.
+.IP "" 4
+.
+.nf
+
+      Usage: find\-method  [\-n | \-c] METHOD [NAMESPACE]
+
+    Recursively search for a method within a Class/Module or the current namespace\.
+    Use the `\-n` switch (the default) to search for methods whose name matches the given regex\.
+    Use the `\-c` switch to search for methods that contain the given code\.
+
+    e\.g find\-method re Pry                # find all methods whose name match /re/ inside the Pry namespace\. Matches Pry#repl, etc\.
+    e\.g find\-method \-c \'output\.puts\' Pry  # find all methods that contain the code: output\.puts inside the Pry namepsace\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBwhereami\fR
+Show code surrounding the current context\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: whereami [\-q] [N]
+
+    Describe the current location\. If you use `binding\.pry` inside a
+    method then whereami will print out the source for that method\.
+
+    If a number is passed, then N lines before and after the current line
+    will be shown instead of the method itself\.
+
+    The `\-q` flag can be used to suppress error messages in the case that
+    there\'s no code to show\. This is used by pry in the default
+    before_session hook to show you when you arrive at a `binding\.pry`\.
+
+    When pry was started on an Object and there is no associated method,
+    whereami will instead output a brief description of the current
+    object\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBpry\-backtrace\fR
+Show the backtrace for the Pry session\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage:   pry\-backtrace [OPTIONS] [\-\-help]
+
+    Show the backtrace for the position in the code where Pry was started\. This can be used to
+    infer the behavior of the program immediately before it entered Pry, just like the backtrace
+    property of an exception\.
+
+    (NOTE: if you are looking for the backtrace of the most recent exception raised,
+    just type: `_ex_\.backtrace` instead, see https://github\.com/pry/pry/wiki/Special\-Locals)
+
+    e\.g: pry\-backtrace
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBreset\fR
+Reset the REPL to a clean state\. Reset the REPL to a clean state\.
+.
+.TP
+\fB(?\-mix:wtf([?!]*))\fR
+Show the backtrace of the most recent exception
+.
+.IP "" 4
+.
+.nf
+
+      Show\'s a few lines of the backtrace of the most recent exception (also available
+    as _ex_\.backtrace)\.
+
+    If you want to see more lines, add more question marks or exclamation marks:
+
+    e\.g\.
+    pry(main)> wtf?
+    pry(main)> wtf?!???!?!?
+
+    To see the entire backtrace, pass the \-v/\-\-verbose flag:
+
+    e\.g\.
+    pry(main)> wtf \-v
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fB(?\-mix:raise\-up(!?\eb\.*))\fR
+Raise an exception out of the current pry instance\.
+.
+.IP "" 4
+.
+.nf
+
+      Raise up, like exit, allows you to quit pry\. Instead of returning a value however, it raises an exception\.
+    If you don\'t provide the exception to be raised, it will use the most recent exception (in pry _ex_)\.
+
+    e\.g\. `raise\-up "get\-me\-out\-of\-here"` is equivalent to:
+         `raise "get\-me\-out\-of\-here"
+          raise\-up`
+
+    When called as raise\-up! (with an exclamation mark), this command raises the exception through
+    any nested prys you have created by "cd"ing into objects\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBswitch\-to\fR
+Start a new sub\-session on a binding in the current stack (numbered by nesting)\. Start a new sub\-session on a binding in the current stack (numbered by nesting)\.
+.
+.TP
+\fBnesting\fR
+Show nesting information\. Show nesting information\.
+.
+.TP
+\fBjump\-to\fR
+Jump to a binding further up the stack, popping all bindings below\. Jump to a binding further up the stack, popping all bindings below\.
+.
+.TP
+\fBexit\-all\fR
+End the current Pry session (popping all bindings) and returning to caller\. Accepts optional return value\. Aliases: !!@ End the current Pry session (popping all bindings) and returning to caller\. Accepts optional return value\. Aliases: !!@
+.
+.TP
+\fB!!@\fR
+Alias for \fBexit\-all\fR Alias for \fBexit\-all\fR
+.
+.TP
+\fBexit\fR
+Pop the previous binding (does NOT exit program)\. Aliases: quit
+.
+.IP "" 4
+.
+.nf
+
+      Usage:   exit [OPTIONS] [\-\-help]
+    Aliases: quit
+
+    It can be useful to exit a context with a user\-provided value\. For
+    instance an exit value can be used to determine program flow\.
+
+    e\.g: `exit "pry this"`
+    e\.g: `exit`
+
+    https://github\.com/pry/pry/wiki/State\-navigation#wiki\-Exit_with_value
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBquit\fR
+Alias for \fBexit\fR Alias for \fBexit\fR
+.
+.TP
+\fBexit\-program\fR
+End the current program\. Aliases: quit\-program, !!! End the current program\. Aliases: quit\-program, !!!
+.
+.TP
+\fBquit\-program\fR
+Alias for \fBexit\-program\fR Alias for \fBexit\-program\fR
+.
+.TP
+\fB!!!\fR
+Alias for \fBexit\-program\fR Alias for \fBexit\-program\fR
+.
+.TP
+\fB!pry\fR
+Start a Pry session on current self; this even works mid multi\-line expression\. Start a Pry session on current self; this even works mid multi\-line expression\.
+.
+.TP
+\fBhist\fR
+Show and replay Readline history\. Aliases: history
+.
+.IP "" 4
+.
+.nf
+
+      Usage: hist
+           hist \-\-head N
+           hist \-\-tail N
+           hist \-\-show START\.\.END
+           hist \-\-grep PATTERN
+           hist \-\-clear
+           hist \-\-replay START\.\.END
+           hist \-\-save [START\.\.END] FILE
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBhistory\fR
+Alias for \fBhist\fR Alias for \fBhist\fR
+.
+.TP
+\fB!\fR
+Clear the input buffer\. Useful if the parsing process goes wrong and you get stuck in the read loop\. Clear the input buffer\. Useful if the parsing process goes wrong and you get stuck in the read loop\.
+.
+.TP
+\fBshow\-input\fR
+Show the contents of the input buffer for the current multi\-line expression\. Show the contents of the input buffer for the current multi\-line expression\.
+.
+.TP
+\fBedit\fR
+Invoke the default editor on a file\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: edit [\-\-no\-reload|\-\-reload] [\-\-line LINE] [\-\-temp|\-\-ex|FILE[:LINE]|\-\-in N]
+
+    Open a text editor\. When no FILE is given, edits the pry input buffer\.
+    Ensure Pry\.config\.editor is set to your editor of choice\.
+
+    e\.g: `edit sample\.rb`
+    e\.g: `edit sample\.rb \-\-line 105`
+    e\.g: `edit \-\-ex`
+
+    https://github\.com/pry/pry/wiki/Editor\-integration#wiki\-Edit_command
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBedit\-method\fR
+Edit the source code for a method\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: edit\-method [OPTIONS] [METH]
+
+    Edit the method METH in an editor\.
+    Ensure Pry\.config\.editor is set to your editor of choice\.
+
+    e\.g: `edit\-method hello_method`
+    e\.g: `edit\-method Pry#rep`
+    e\.g: `edit\-method`
+
+    https://github\.com/pry/pry/wiki/Editor\-integration#wiki\-Edit_method
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fB(?\-mix:amend\-line(?: (\-?\ed+)(?:\e\.\e\.(\-?\ed+))?)?)\fR
+Amend a line of input in multi\-line mode\.
+.
+.IP "" 4
+.
+.nf
+
+      Amend a line of input in multi\-line mode\. `amend\-line N`, where the N in `amend\-line N` represents line to replace\.
+
+    Can also specify a range of lines using `amend\-line N\.\.M` syntax\. Passing \'!\' as replacement content deletes the line(s) instead\.
+    e\.g amend\-line 1 puts \'hello world! # replace line 1\'
+    e\.g amend\-line 1\.\.4 !               # delete lines 1\.\.4
+    e\.g amend\-line 3 >puts \'goodbye\'    # insert before line 3
+    e\.g amend\-line puts \'hello again\'   # no line number modifies immediately preceding line
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBplay\fR
+Play back a string variable or a method or a file as input\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: play [OPTIONS] [\-\-help]
+
+    The play command enables you to replay code from files and methods as
+    if they were entered directly in the Pry REPL\. Default action (no
+    options) is to play the provided string variable
+
+    e\.g: `play \-i 20 \-\-lines 1\.\.3`
+    e\.g: `play \-m Pry#repl \-\-lines 1\.\.\-1`
+    e\.g: `play \-f Rakefile \-\-lines 5`
+
+    https://github\.com/pry/pry/wiki/User\-Input#wiki\-Play
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBgist\fR
+Gist a method or expression history to GitHub\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: gist [OPTIONS] [METH]
+    Gist method (doc or source) or input expression to GitHub\.
+
+    If you\'d like to permanently associate your gists with your GitHub account run `gist \-\-login`\.
+
+    e\.g: gist \-m my_method       # gist the method my_method
+    e\.g: gist \-d my_method       # gist the documentation for my_method
+    e\.g: gist \-i 1\.\.10           # gist the input expressions from 1 to 10
+    e\.g: gist \-k show\-method     # gist the command show\-method
+    e\.g: gist \-c Pry             # gist the Pry class
+    e\.g: gist \-m hello_world \-\-lines 2\.\.\-2    # gist from lines 2 to the second\-last of the hello_world method
+    e\.g: gist \-m my_method \-\-clip             # Copy my_method source to clipboard, do not gist it\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBclipit\fR
+Alias for \fBgist \-\-clip\fR Alias for \fBgist \-\-clip\fR
+.
+.TP
+\fBjist\fR
+Alias for \fBgist\fR Alias for \fBgist\fR
+.
+.TP
+\fB(?\-mix:\e\.(\.*))\fR
+All text following a \'\.\' is forwarded to the shell\. All text following a \'\.\' is forwarded to the shell\.
+.
+.TP
+\fBshell\-mode\fR
+Toggle shell mode\. Bring in pwd prompt and file completion\. Toggle shell mode\. Bring in pwd prompt and file completion\.
+.
+.TP
+\fBfile\-mode\fR
+Alias for \fBshell\-mode\fR Alias for \fBshell\-mode\fR
+.
+.TP
+\fBsave\-file\fR
+Export to a file using content from the REPL\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: save\-file [OPTIONS] [FILE]
+    Save REPL content to a file\.
+    e\.g: save\-file \-m my_method \-m my_method2 \./hello\.rb
+    e\.g: save\-file \-i 1\.\.10 \./hello\.rb \-\-append
+    e\.g: save\-file \-k show\-method \./my_command\.rb
+    e\.g: save\-file \-f sample_file \-\-lines 2\.\.10 \./output_file\.rb
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBcat\fR
+Show code from a file, Pry\'s input buffer, or the last exception\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: cat FILE
+           cat \-\-ex [STACK_INDEX]
+           cat \-\-in [INPUT_INDEX_OR_RANGE]
+
+    cat is capable of showing part or all of a source file, the context of the
+    last exception, or an expression from Pry\'s input history\.
+
+    cat \-\-ex defaults to showing the lines surrounding the location of the last
+    exception\. Invoking it more than once travels up the exception\'s backtrace,
+    and providing a number shows the context of the given index of the backtrace\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBshow\-doc\fR
+Show the documentation for a method or class\. Aliases: ?
+.
+.IP "" 4
+.
+.nf
+
+      Usage: show\-doc [OPTIONS] [METH]
+    Aliases: ?
+
+    Show the documentation for a method or class\. Tries instance methods first and then methods by default\.
+    e\.g show\-doc hello_method    # docs for hello_method
+    e\.g show\-doc Pry             # docs for Pry class
+    e\.g show\-doc Pry \-a          # docs for all definitions of Pry class (all monkey patches)
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fB?\fR
+Alias for \fBshow\-doc\fR Alias for \fBshow\-doc\fR
+.
+.TP
+\fBstat\fR
+View method information and set \fIfile\fR and \fIdir\fR locals\.
+.
+.IP "" 4
+.
+.nf
+
+        Usage: stat [OPTIONS] [METH]
+      Show method information for method METH and set _file_ and _dir_ locals\.
+      e\.g: stat hello_method
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBshow\-source\fR
+Show the source for a method or class\. Aliases: $, show\-method
+.
+.IP "" 4
+.
+.nf
+
+      Usage: show\-source [OPTIONS] [METH|CLASS]
+    Aliases: $, show\-method
+
+    Show the source for a method or class\. Tries instance methods first and then methods by default\.
+
+    e\.g: `show\-source hello_method`
+    e\.g: `show\-source \-m hello_method`
+    e\.g: `show\-source Pry#rep`         # source for Pry#rep method
+    e\.g: `show\-source Pry`             # source for Pry class
+    e\.g: `show\-source Pry \-a`          # source for all Pry class definitions (all monkey patches)
+
+    https://github\.com/pry/pry/wiki/Source\-browsing#wiki\-Show_method
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBshow\-method\fR
+Alias for \fBshow\-source\fR Alias for \fBshow\-source\fR
+.
+.TP
+\fB$\fR
+Alias for \fBshow\-source\fR Alias for \fBshow\-source\fR
+.
+.TP
+\fBshow\-command\fR
+Show the source for CMD\. Show the source for CMD\.
+.
+.TP
+\fBri\fR
+View ri documentation\. e\.g \fBri Array#each\fR
+.
+.IP "" 4
+.
+.nf
+
+      Usage: ri [spec]
+    e\.g\. ri Array#each
+
+    Relies on the rdoc gem being installed\. See also: show\-doc\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBnyan\-cat\fR:
+
+.
+.TP
+\fB(?\-mix:!s\e/(\.*?)\e/(\.*?))\fR:
+
+.
+.TP
+\fBget\-naked\fR:
+
+.
+.TP
+\fBeast\-coker\fR:
+
+.
+.TP
+\fBcohen\-poem\fR:
+
+.
+.TP
+\fBtest\-ansi\fR:
+
+.
+.TP
+\fBimport\-set\fR
+Import a command set Import a command set
+.
+.TP
+\fBinstall\-command\fR
+Install a disabled command\.
+.
+.IP "" 4
+.
+.nf
+
+      Usage: install\-command COMMAND
+
+    Installs the gems necessary to run the given COMMAND\. You will generally not
+    need to run this unless told to by an error message\.
+.
+.fi
+.
+.IP "" 0
+
+.
+.TP
+\fBcopy\fR
+Copy argument to the clip\-board Copy argument to the clip\-board
+.
+.TP
+\fBclear\fR
+No description\. No description\.
+.
+.TP
+\fBsql\fR
+Send sql over AR\. Send sql over AR\.
+.
+.TP
+\fBcaller_method\fR
+No description\. No description\.
+.
+.TP
+\fBgrowl\fR
+No description\. No description\.
 .
 .SH "EXAMPLES"
 .
