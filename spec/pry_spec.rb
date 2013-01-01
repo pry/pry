@@ -390,7 +390,7 @@ describe Pry do
           end
 
           it "should output an error" do
-            @doing_it.call.should ==
+            @doing_it.call.split("\n").first.should ==
               "Error loading spec/fixtures/testrcbad: messin with ya"
           end
         end
