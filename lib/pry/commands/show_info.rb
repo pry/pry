@@ -18,7 +18,6 @@ class Pry
     end
 
     def process
-
       code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
       raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
 
@@ -32,6 +31,55 @@ class Pry
 
       set_file_and_dir_locals(code_object.source_file)
       stagger_output result
+    end
+
+    def content_and_header_for_code_object(code_object)
+      header(code_object) << content_for(code_object)
+    end
+
+    def content_and_headers_for_all_module_candidates(mod)
+      result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
+      mod.number_of_candidates.times do |v|
+        candidate = mod.candidate(v)
+        begin
+          result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
+          content = content_for(candidate)
+
+          result << "Number of lines: #{content.lines.count}\n\n" << content
+        rescue Pry::RescuableException
+          result << "\nNo content found.\n"
+          next
+        end
+      end
+      result
+    end
+
+    # Generate a header (meta-data information) for all the code
+    # object types: methods, modules, commands, procs...
+    def header(code_object)
+      file_name, line_num = file_and_line_for(code_object)
+      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+      if code_object.c_method?
+        h << "(C Method):"
+      else
+        h << "@ line #{line_num}:"
+      end
+
+      if code_object.real_method_object?
+        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n" if header_options[:owner]
+        h << "#{text.bold("Visibility:")} #{code_object.visibility}\n" if header_options[:visibility]
+        h << "#{text.bold("Signature:")} #{code_object.signature}" if header_options[:signature]
+      end
+      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
+        "#{content_for(code_object).lines.count}\n\n"
+    end
+
+    def header_options
+      {
+        :owner => true,
+        :visibility => true,
+        :signature => false
+      }
     end
 
     def show_all_modules?(code_object)
@@ -51,6 +99,17 @@ class Pry
         1
       else
         code_object.source_line || 1
+      end
+    end
+
+    # takes into account possible yard docs, and returns yard_file / yard_line
+    # Also adjusts for start line of comments (using start_line_for), which it has to infer
+    # by subtracting number of lines of comment from start line of code_object
+    def file_and_line_for(code_object)
+      if code_object.module_with_yard_docs?
+        [code_object.yard_file, code_object.yard_line]
+      else
+        [code_object.source_file, start_line_for(code_object)]
       end
     end
 

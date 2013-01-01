@@ -22,45 +22,10 @@ class Pry
       https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
     BANNER
 
-    def content_and_header_for_code_object(code_object)
-      result = header(code_object)
-      result << Code.new(code_object.source, start_line_for(code_object)).
+    # The source for code_object prepared for display.
+    def content_for(code_object)
+      Code.new(code_object.source, start_line_for(code_object)).
         with_line_numbers(use_line_numbers?).to_s
-    end
-
-    def content_and_headers_for_all_module_candidates(mod)
-      result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
-      mod.number_of_candidates.times do |v|
-        candidate = mod.candidate(v)
-        begin
-          result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.file} @ line #{candidate.line}:\n"
-          code = Code.from_module(mod, start_line_for(candidate), v).with_line_numbers(use_line_numbers?).to_s
-          result << "Number of lines: #{code.lines.count}\n\n" << code
-        rescue Pry::RescuableException
-          result << "\nNo code found.\n"
-          next
-        end
-      end
-      result
-    end
-
-    # Generate a header (meta-data information) for all the code
-    # object types: methods, modules, commands, procs...
-    def header(code_object)
-      file_name, line_num = code_object.source_file, code_object.source_line
-      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
-      if code_object.c_method?
-        h << "(C Method):"
-      else
-        h << "@ line #{line_num}:"
-      end
-
-      if code_object.real_method_object?
-        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
-        h << "#{text.bold("Visibility:")} #{code_object.visibility}"
-      end
-      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
-        "#{code_object.source.lines.count}\n\n"
     end
   end
 

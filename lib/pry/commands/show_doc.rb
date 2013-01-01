@@ -18,31 +18,11 @@ class Pry
       e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
     BANNER
 
-    def content_and_header_for_code_object(code_object)
-      result = header(code_object)
-      result << Code.new(render_doc_markup_for(code_object),
-                         opts.present?(:b) ? 1 : start_line_for(code_object),
-                         :text).
+    # The docs for code_object prepared for display.
+    def content_for(code_object)
+      Code.new(render_doc_markup_for(code_object),
+               start_line_for(code_object), :text).
         with_line_numbers(use_line_numbers?).to_s
-    end
-
-    def content_and_headers_for_all_module_candidates(mod)
-      result = "Found #{mod.number_of_candidates} candidates for `#{mod.name}` definition:\n"
-      mod.number_of_candidates.times do |v|
-        candidate = mod.candidate(v)
-        begin
-          result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
-          doc = Code.new(render_doc_markup_for(candidate),
-                         opts.present?(:b) ? 1 : candidate.source_line,
-                         :text).with_line_numbers(use_line_numbers?).to_s
-          result << "Number of lines: #{doc.lines.count}\n\n" << doc
-        rescue Pry::RescuableException
-          result << "\nNo code found.\n"
-
-          next
-        end
-      end
-      result
     end
 
     # process the markup (if necessary) and apply colors
@@ -72,42 +52,17 @@ class Pry
       end
     end
 
-    # takes into account possible yard docs, and returns yard_file / yard_line
-    # Also adjusts for start line of comments (using start_line_for), which it has to infer
-    # by subtracting number of lines of comment from start line of code_object
-    def file_and_line_for(code_object)
-      if code_object.module_with_yard_docs?
-        [code_object.yard_file, code_object.yard_line]
-      else
-        [code_object.source_file, start_line_for(code_object)]
-      end
-    end
-
-    # Generate a header (meta-data information) for all the code
-    # object types: methods, modules, commands, procs...
-    def header(code_object)
-      file_name, line_num = file_and_line_for(code_object)
-      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
-      if code_object.c_method?
-        h << "(C Method):"
-      else
-        h << "@ line #{line_num}:"
-      end
-
-      if code_object.real_method_object?
-        h << "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n"
-        h << "#{text.bold("Visibility:")} #{code_object.visibility}\n"
-        h << "#{text.bold("Signature:")} #{code_object.signature}"
-      end
-      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
-        "#{docs_for(code_object).lines.count}\n\n"
+    # Which sections to include in the 'header', can toggle: :owner,
+    # :signature and visibility.
+    def header_options
+      super.merge :signature => true
     end
 
     # figure out start line of docs by back-calculating based on
     # number of lines in the comment and the start line of the code_object
     # @return [Fixnum] start line of docs
     def start_line_for(code_object)
-      if code_object.command?
+      if code_object.command? || opts.present?(:'base-one')
          1
       else
         code_object.source_line.nil? ? 1 :
