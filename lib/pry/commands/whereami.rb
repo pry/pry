@@ -44,19 +44,11 @@ class Pry
       "#{@file} @ line #{@line} #{@method && @method.name_with_owner}"
     end
 
-    def nothing_to_do?
-      opts.quiet? && (internal_binding?(target) || !code?)
-    end
-
     def process
       if nothing_to_do?
         return
       elsif internal_binding?(target)
-        if target_self == TOPLEVEL_BINDING.eval("self")
-          output.puts "At the top level."
-        else
-          output.puts "Inside #{Pry.view_clip(target_self)}."
-        end
+        handle_internal_binding
         return
       end
 
@@ -68,6 +60,22 @@ class Pry
     end
 
     private
+
+    def nothing_to_do?
+      opts.quiet? && (internal_binding?(target) || !code?)
+    end
+
+    def top_level?
+      target_self == TOPLEVEL_BINDING.eval("self")
+    end
+
+    def handle_internal_binding
+      if top_level?
+        output.puts "At the top level."
+      else
+        output.puts "Inside #{Pry.view_clip(target_self)}."
+      end
+    end
 
     def show_method?
       args.empty? && @method && @method.source? && @method.source_range.count < 20 &&

@@ -32,10 +32,16 @@ class Pry
       if opts.verbose?
         output.puts Pry::Code.new(_pry_.last_exception.backtrace, 0, :text).with_line_numbers.to_s
       else
-        output.puts Pry::Code.new(_pry_.last_exception.backtrace.first([captures[0].size, 0.5].max * 10), 0, :text).with_line_numbers.to_s
+        output.puts Pry::Code.new(_pry_.last_exception.backtrace.first(size_of_backtrace), 0, :text).with_line_numbers.to_s
       end
     end
-  end
 
-  Pry::Commands.add_command(Pry::Command::Wtf)
+    private
+
+    def size_of_backtrace
+      [captures[0].size, 0.5].max * 10
+  end
+end
+
+Pry::Commands.add_command(Pry::Command::Wtf)
 end
