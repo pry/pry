@@ -408,10 +408,11 @@ class Pry
     undef =~
 
     protected
-      # An abstraction of the `dup.instance_eval` pattern used throughout this
-      # class.
-      def alter(&blk)
-        dup.tap { |o| o.instance_eval(&blk) }
-      end
+
+    # An abstraction of the `dup.instance_eval` pattern used throughout this
+    # class.
+    def alter(&blk)
+      dup.tap { |o| o.instance_eval(&blk) }
+    end
   end
 end
