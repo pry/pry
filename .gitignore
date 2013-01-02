@@ -14,3 +14,4 @@ coverage/
 Gemfile.lock
 *.swp
 **/*~
+man/generate_pry_man/templates/pry.1.(roff|ronn|html)
