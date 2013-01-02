@@ -35,21 +35,11 @@ class Pry
       # @param [String] fn The name of a file, or "(pry)".
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type=type_from_filename(fn))
+      def from_file(fn, code_type = type_from_filename(fn))
         if fn == Pry.eval_path
           new(Pry.line_buffer.drop(1), 1, code_type)
         else
-          abs_path = [File.expand_path(fn, Dir.pwd),
-                      File.expand_path(fn, Pry::INITIAL_PWD)
-                     ].detect{ |abs_path| File.readable?(abs_path) }
-
-          unless abs_path
-            raise MethodSource::SourceNotFoundError, "Cannot open #{fn.inspect} for reading."
-          end
-
-          File.open(abs_path, 'r') do |f|
-            new(f, 1, code_type)
-          end
+          File.open(get_abs_path(fn), 'r') { |f| new(f, 1, code_type) }
         end
       end
 
@@ -83,36 +73,48 @@ class Pry
       end
 
       protected
-        # Guess the CodeRay type of a file from its extension, or nil if
-        # unknown.
-        #
-        # @param [String] filename
-        # @param [Symbol] default (:ruby) the file type to assume if none could be detected
-        # @return [Symbol, nil]
-        def type_from_filename(filename, default=:ruby)
-          map = {
-            %w(.c .h) => :c,
-            %w(.cpp .hpp .cc .h cxx) => :cpp,
-            %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
-            %w(.py) => :python,
-            %w(.diff) => :diff,
-            %w(.css) => :css,
-            %w(.html) => :html,
-            %w(.yaml .yml) => :yaml,
-            %w(.xml) => :xml,
-            %w(.php) => :php,
-            %w(.js) => :javascript,
-            %w(.java) => :java,
-            %w(.rhtml) => :rhtml,
-            %w(.json) => :json
-          }
 
-          _, type = map.find do |k, _|
-            k.any? { |ext| ext == File.extname(filename) }
-          end
+      # Guess the CodeRay type of a file from its extension, or nil if
+      # unknown.
+      #
+      # @param [String] filename
+      # @param [Symbol] default (:ruby) the file type to assume if none could be detected
+      # @return [Symbol, nil]
+      def type_from_filename(filename, default=:ruby)
+        map = {
+          %w(.c .h) => :c,
+          %w(.cpp .hpp .cc .h cxx) => :cpp,
+          %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
+          %w(.py) => :python,
+          %w(.diff) => :diff,
+          %w(.css) => :css,
+          %w(.html) => :html,
+          %w(.yaml .yml) => :yaml,
+          %w(.xml) => :xml,
+          %w(.php) => :php,
+          %w(.js) => :javascript,
+          %w(.java) => :java,
+          %w(.rhtml) => :rhtml,
+          %w(.json) => :json
+        }
 
-          type || default
+        _, type = map.find do |k, _|
+          k.any? { |ext| ext == File.extname(filename) }
         end
+
+        type || default
+      end
+
+      # @param [String] fn
+      # @raise [MethodSource::SourceNotFoundError] if the +fn+ is not readable.
+      # @return [String] absolute path for the given +fn+.
+      def get_abs_path(fn)
+        abs_path = [File.expand_path(fn, Dir.pwd),
+                    File.expand_path(fn, Pry::INITIAL_PWD)
+                   ].detect { |abs_path| File.readable?(abs_path) }
+        abs_path or raise MethodSource::SourceNotFoundError,
+                          "Cannot open #{fn.inspect} for reading."
+      end
     end
 
     # @return [Symbol] The type of code stored in this wrapper.
