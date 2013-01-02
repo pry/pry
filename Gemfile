@@ -8,4 +8,4 @@ group :development do
   gem 'rb-fsevent', :require => 'false'
 end
 
-gem 'ronn', :require => 'false', :group => :development, :platform => :ruby
+gem 'ronn', '~> 0.7.3', :require => 'false', :group => :development, :platform => :ruby
