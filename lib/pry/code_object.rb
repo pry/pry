@@ -67,12 +67,12 @@ class Pry
 
     # lookup variables and constants that are not modules
     def default_lookup
-      if str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
+      if variable_or_constant?(str)
         obj = target.eval(str)
 
         # restrict to only objects we KNOW for sure support the full API
         # Do NOT support just any object that responds to source_location
-        if [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
+        if sourcable_object?(obj)
           Pry::Method(obj)
         elsif !obj.is_a?(Module)
           Pry::WrappedModule(obj.class)
@@ -98,17 +98,39 @@ class Pry
         Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
       end
 
-      sup = obj.super(super_level) if obj
-      if obj && !sup
+      lookup_super(obj, super_level)
+    end
+
+    private
+
+    def sourcable_object?(obj)
+      [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
+    end
+
+    # Whether `str` represents a variable (or constant) when looked up
+    # in the context of the `target` binding. This is used to
+    # distinguish it from methods or expressions.
+    # @param [String] str The string to lookup
+    def variable_or_constant?(str)
+      str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
+    end
+
+    def target_self
+      target.eval('self')
+    end
+
+    # grab the nth (`super_level`) super of `obj
+    # @param [Object] obj
+    # @param [Fixnum] super_level How far up the super chain to ascend.
+    def lookup_super(obj, super_level)
+      return nil if !obj
+
+      sup = obj.super(super_level)
+      if !sup
         raise Pry::CommandError, "No superclass found for #{obj.wrapped}"
       else
         sup
       end
-    end
-
-    private
-    def target_self
-      target.eval('self')
     end
   end
 end

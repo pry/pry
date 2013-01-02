@@ -1,36 +1,37 @@
+require 'forwardable'
+
 class Pry
   class Command::Edit
     class MethodPatcher
-      attr_accessor :method_object
-      attr_accessor :target
-      attr_accessor :_pry_
+      extend Forwardable
+
+      def_delegators :@edit_context, :code_object, :target, :_pry_
 
       def initialize(edit_context)
-        @method_object = edit_context.code_object
-        @target        = edit_context.target
-        @_pry_         = edit_context._pry_
+        @edit_context = edit_context
       end
 
       # perform the patch
       def perform_patch
-        source = wrap_for_nesting(wrap_for_owner(Pry::Editor.edit_tempfile_with_content(adjusted_lines)))
-
-        if method_object.alias?
+        if code_object.alias?
           with_method_transaction do
-            _pry_.evaluate_ruby source
-            Pry.binding_for(method_object.owner).eval("alias #{method_object.name} #{method_object.original_name}")
+            _pry_.evaluate_ruby patched_code
           end
         else
-          _pry_.evaluate_ruby source
+          _pry_.evaluate_ruby patched_code
         end
       end
 
       private
 
+      def patched_code
+        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(adjusted_lines))
+      end
+
       # The method code adjusted so that the first line is rewritten
       # so that def self.foo --> def foo
       def adjusted_lines
-        lines = method_object.source.lines.to_a
+        lines = code_object.source.lines.to_a
         lines[0] = definition_line_for_owner(lines.first)
         lines
       end
@@ -45,12 +46,13 @@ class Pry
       # @param [String] meth_name  The method name before aliasing
       # @param [Module] target  The owner of the method
       def with_method_transaction
-        target = Pry.binding_for(method_object.owner)
-        temp_name = "__pry_#{method_object.original_name}__"
+        target = owner_binding
+        temp_name = "__pry_#{code_object.original_name}__"
 
-        target.eval("alias #{temp_name} #{method_object.original_name}")
+        target.eval("alias #{temp_name} #{code_object.original_name}")
         yield
-        target.eval("alias #{method_object.original_name} #{temp_name}")
+        target.eval("alias #{code_object.name} #{code_object.original_name}")
+        target.eval("alias #{code_object.original_name} #{temp_name}")
       ensure
         target.eval("undef #{temp_name}") rescue nil
       end
@@ -68,11 +70,24 @@ class Pry
       # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
       # @return String  The new definition line. e.g. def foo(bar, baz=1)
       def definition_line_for_owner(line)
-        if line =~ /^def (?:.*?\.)?#{Regexp.escape(method_object.original_name)}(?=[\(\s;]|$)/
-          "def #{method_object.original_name}#{$'}"
+        if line =~ /^def (?:.*?\.)?#{Regexp.escape(code_object.original_name)}(?=[\(\s;]|$)/
+          "def #{code_object.original_name}#{$'}"
         else
-          raise CommandError, "Could not find original `def #{method_object.original_name}` line to patch."
+          raise CommandError, "Could not find original `def #{code_object.original_name}` line to patch."
         end
+      end
+
+      # Provide a binding for the `code_object`'s owner context.
+      # @return [Binding]
+      def owner_binding
+        Pry.binding_for(code_object.owner)
+      end
+
+      # Apply wrap_for_owner and wrap_for_nesting successively to `source`
+      # @param [String] source
+      # @return [String] The wrapped source.
+      def wrap(source)
+        wrap_for_nesting(wrap_for_owner(source))
       end
 
       # Update the source code so that when it has the right owner when eval'd.
@@ -84,7 +99,7 @@ class Pry
       # @param [String] source  The source to wrap
       # @return [String]
       def wrap_for_owner(source)
-        Thread.current[:__pry_owner__] = method_object.owner
+        Thread.current[:__pry_owner__] = code_object.owner
         source = "Thread.current[:__pry_owner__].class_eval do\n#{source}\nend"
       end
 
@@ -101,7 +116,7 @@ class Pry
       # @param [String] source  The source to wrap.
       # @return [String]
       def wrap_for_nesting(source)
-        nesting = Pry::Code.from_file(method_object.source_file).nesting_at(method_object.source_line)
+        nesting = Pry::Code.from_file(code_object.source_file).nesting_at(code_object.source_line)
 
         (nesting + [source] + nesting.map{ "end" } + [""]).join("\n")
       rescue Pry::Indent::UnparseableNestingError => e
