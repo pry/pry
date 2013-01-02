@@ -9,52 +9,71 @@ class Pry
           f.puts(initial_content)
           f.flush
           f.close(false)
-          invoke_editor(f.path, line, false)
+          invoke_editor(f.path, line, true)
           File.read(f.path)
         end
       end
 
-      def invoke_editor(file, line, reloading)
+      def invoke_editor(file, line, blocking=true)
         raise CommandError, "Please set Pry.config.editor or export $VISUAL or $EDITOR" unless Pry.config.editor
-        if Pry.config.editor.respond_to?(:call)
-          args = [file, line, reloading][0...(Pry.config.editor.arity)]
-          editor_invocation = Pry.config.editor.call(*args)
-        else
-          editor_invocation = "#{Pry.config.editor} #{blocking_flag_for_editor(reloading)} #{start_line_syntax_for_editor(file, line)}"
-        end
+
+        editor_invocation = build_editor_invocation_string(file, line, blocking)
         return nil unless editor_invocation
 
         if jruby?
-          begin
-            require 'spoon'
-            pid = Spoon.spawnp(*editor_invocation.split)
-            Process.waitpid(pid)
-          rescue FFI::NotFoundError
-            system(editor_invocation)
-          end
+          open_editor_on_jruby(editor_invocation)
         else
-          # Note we dont want to use Pry.config.system here as that
-          # may be invoked non-interactively (i.e via Open4), whereas we want to
-          # ensure the editor is always interactive
-          system(editor_invocation) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
+          open_editor(editor_invocation)
         end
       end
 
       private
 
+      # Generate the string that's used to start the editor. This includes
+      # all the flags we want as well as the file and line number we
+      # want to open at.
+      def build_editor_invocation_string(file, line, blocking)
+        if Pry.config.editor.respond_to?(:call)
+          args = [file, line, blocking][0...(Pry.config.editor.arity)]
+          Pry.config.editor.call(*args)
+        else
+          "#{Pry.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(file, line)}"
+        end
+      end
+
+      # Start the editor running, using the calculated invocation string
+      def open_editor(editor_invocation)
+        # Note we dont want to use Pry.config.system here as that
+        # may be invoked non-interactively (i.e via Open4), whereas we want to
+        # ensure the editor is always interactive
+        system(editor_invocation) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
+      end
+
+      # We need JRuby specific code here cos just shelling out using
+      # system() appears to be pretty broken :/
+      def open_editor_on_jruby(editor_invocation)
+        begin
+          require 'spoon'
+          pid = Spoon.spawnp(*editor_invocation.split)
+          Process.waitpid(pid)
+        rescue FFI::NotFoundError
+          system(editor_invocation)
+        end
+      end
+
       # Some editors that run outside the terminal allow you to control whether or
       # not to block the process from which they were launched (in this case, Pry).
       # For those editors, return the flag that produces the desired behavior.
-      def blocking_flag_for_editor(block)
+      def blocking_flag_for_editor(blocking)
         case editor_name
         when /^emacsclient/
-          '--no-wait' unless block
+          '--no-wait' unless blocking
         when /^[gm]vim/
-          '--nofork' if block
+          '--nofork' if blocking
         when /^jedit/
-          '-wait' if block
+          '-wait' if blocking
         when /^mate/, /^subl/
-          '-w' if block
+          '-w' if blocking
         end
       end
 

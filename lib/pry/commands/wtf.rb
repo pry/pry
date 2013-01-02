@@ -30,13 +30,21 @@ class Pry
 
       output.puts "#{text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception}\n--"
       if opts.verbose?
-        output.puts Pry::Code.new(_pry_.last_exception.backtrace, 0, :text).with_line_numbers.to_s
+        output.puts with_line_numbers(backtrace)
       else
-        output.puts Pry::Code.new(_pry_.last_exception.backtrace.first(size_of_backtrace), 0, :text).with_line_numbers.to_s
+        output.puts with_line_numbers(backtrace.first(size_of_backtrace))
       end
     end
 
     private
+
+    def with_line_numbers(bt)
+      Pry::Code.new(bt, 0, :text).with_line_numbers.to_s
+    end
+
+    def backtrace
+      _pry_.last_exception.backtrace
+    end
 
     def size_of_backtrace
       [captures[0].size, 0.5].max * 10
