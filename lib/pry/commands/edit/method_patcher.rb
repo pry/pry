@@ -45,16 +45,19 @@ class Pry
       #
       # @param [String] meth_name  The method name before aliasing
       # @param [Module] target  The owner of the method
-      def with_method_transaction
-        target = owner_binding
-        temp_name = "__pry_#{code_object.original_name}__"
 
-        target.eval("alias #{temp_name} #{code_object.original_name}")
-        yield
-        target.eval("alias #{code_object.name} #{code_object.original_name}")
-        target.eval("alias #{code_object.original_name} #{temp_name}")
+      def with_method_transaction
+        temp_name = "__pry_#{code_object.original_name}__"
+        co = code_object
+        code_object.owner.class_eval do
+          alias_method temp_name, co.original_name
+          yield
+          alias_method co.name, co.original_name
+          alias_method co.original_name, temp_name
+        end
+
       ensure
-        target.eval("undef #{temp_name}") rescue nil
+        co.send(:remove_method, temp_name) rescue nil
       end
 
       # Update the definition line so that it can be eval'd directly on the Method's
@@ -75,12 +78,6 @@ class Pry
         else
           raise CommandError, "Could not find original `def #{code_object.original_name}` line to patch."
         end
-      end
-
-      # Provide a binding for the `code_object`'s owner context.
-      # @return [Binding]
-      def owner_binding
-        Pry.binding_for(code_object.owner)
       end
 
       # Apply wrap_for_owner and wrap_for_nesting successively to `source`
