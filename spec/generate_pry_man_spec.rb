@@ -1,3 +1,5 @@
+unless Pry::Helpers::BaseHelpers.jruby?
+
 require File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/generate_pry_man.rb")
 require 'tempfile'
 
@@ -20,7 +22,6 @@ describe GeneratePryMan do
                                 :roff_file    => @tmp_roff })
   end
 
-  unless Pry::Helpers::BaseHelpers.jruby?
     it "generates a proper man-page roff file" do
       test_roff = File.read(File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/ext/test.roff"))
       test_roff.gsub!('MONTH AND YEAR',Date.today.strftime('%B %Y'))
