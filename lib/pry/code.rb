@@ -32,14 +32,14 @@ class Pry
       # Instantiate a `Code` object containing code loaded from a file or
       # Pry's line buffer.
       #
-      # @param [String] fn The name of a file, or "(pry)".
+      # @param [String] filename The name of a file, or "(pry)".
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type = type_from_filename(fn))
-        if fn == Pry.eval_path
+      def from_file(filename, code_type = type_from_filename(filename))
+        if filename == Pry.eval_path
           new(Pry.line_buffer.drop(1), 1, code_type)
         else
-          File.open(get_abs_path(fn), 'r') { |f| new(f, 1, code_type) }
+          File.open(get_abs_path(filename), 'r') { |f| new(f, 1, code_type) }
         end
       end
 
@@ -105,15 +105,16 @@ class Pry
         type || default
       end
 
-      # @param [String] fn
-      # @raise [MethodSource::SourceNotFoundError] if the +fn+ is not readable.
-      # @return [String] absolute path for the given +fn+.
-      def get_abs_path(fn)
-        abs_path = [File.expand_path(fn, Dir.pwd),
-                    File.expand_path(fn, Pry::INITIAL_PWD)
+      # @param [String] filename
+      # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
+      #   readable for some reason.
+      # @return [String] absolute path for the given +filename+.
+      def get_abs_path(filename)
+        abs_path = [File.expand_path(filename, Dir.pwd),
+                    File.expand_path(filename, Pry::INITIAL_PWD)
                    ].detect { |abs_path| File.readable?(abs_path) }
         abs_path or raise MethodSource::SourceNotFoundError,
-                          "Cannot open #{fn.inspect} for reading."
+                          "Cannot open #{filename.inspect} for reading."
       end
     end
 
