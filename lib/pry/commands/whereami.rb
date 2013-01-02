@@ -44,8 +44,12 @@ class Pry
       "#{@file} @ line #{@line} #{@method && @method.name_with_owner}"
     end
 
+    def nothing_to_do?
+      opts.quiet? && (internal_binding?(target) || !code?)
+    end
+
     def process
-      if opts.quiet? && (internal_binding?(target) || !code?)
+      if nothing_to_do?
         return
       elsif internal_binding?(target)
         if target_self == TOPLEVEL_BINDING.eval("self")
