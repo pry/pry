@@ -1,5 +1,3 @@
-exit if RUBY_PLATFORM=="java"
-
 require File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/generate_pry_man.rb")
 require 'tempfile'
 
@@ -22,15 +20,19 @@ describe GeneratePryMan do
                                 :roff_file    => @tmp_roff })
   end
 
-  it "generates a proper man-page roff file" do
-    test_roff = File.read(File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/ext/test.roff"))
-    @gpm.ronn_to_roff
-    File.read(@tmp_roff.path).should == test_roff
-  end
+  unless Pry::Helpers::BaseHelpers.jruby?
+    it "generates a proper man-page roff file" do
+      test_roff = File.read(File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/ext/test.roff"))
+      test_roff.gsub!('MONTH AND YEAR',Date.today.strftime('%B %Y'))
+      @gpm.ronn_to_roff
+      File.read(@tmp_roff.path).should == test_roff
+    end
 
-  it "generates a proper man-page html file" do
-    test_html = File.read(File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/ext/test.html"))
-    @gpm.ronn_to_html
-    File.read(@tmp_html.path).should == test_html
+    it "generates a proper man-page html file" do
+      test_html = File.read(File.expand_path(File.dirname(__FILE__) + "../../man/generate_pry_man/ext/test.html"))
+      test_html.gsub!('MONTH AND YEAR',Date.today.strftime('%B %Y'))
+      @gpm.ronn_to_html
+      File.read(@tmp_html.path).should == test_html
+    end
   end
 end
