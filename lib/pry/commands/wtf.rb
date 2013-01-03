@@ -26,9 +26,9 @@ class Pry
     end
 
     def process
-      raise Pry::CommandError, "No most-recent exception" unless _pry_.last_exception
+      raise Pry::CommandError, "No most-recent exception" unless exception
 
-      output.puts "#{text.bold('Exception:')} #{_pry_.last_exception.class}: #{_pry_.last_exception}\n--"
+      output.puts "#{text.bold('Exception:')} #{exception.class}: #{exception}\n--"
       if opts.verbose?
         output.puts with_line_numbers(backtrace)
       else
@@ -38,12 +38,16 @@ class Pry
 
     private
 
+    def exception
+      _pry_.last_exception
+    end
+
     def with_line_numbers(bt)
       Pry::Code.new(bt, 0, :text).with_line_numbers.to_s
     end
 
     def backtrace
-      _pry_.last_exception.backtrace
+      exception.backtrace
     end
 
     def size_of_backtrace
