@@ -134,7 +134,7 @@ class Pry
         lines = lines.lines
       end
 
-      @lines = lines.each_with_index.map { |l, i| [l.chomp, i + start_line.to_i] }
+      @lines = lines.map.with_index { |l, i| [l.chomp, i + start_line.to_i] }
       @code_type = code_type
     end
 
