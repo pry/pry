@@ -393,6 +393,10 @@ class Pry
       line_tuple[0] = "#{ ' ' * @indentation_num }#{ line_tuple[0] }"
     end
 
+    # If +end_line+ is `nil`, then assign to it +start_line+.
+    # @param [Integer, Range] start_line
+    # @param [Integer] end_line
+    # @return [Array<Integer>]
     def reform_start_and_end_lines(start_line, end_line)
       if start_line.is_a?(Range)
         get_start_and_end_from_range(start_line)
@@ -402,20 +406,29 @@ class Pry
       end
     end
 
+    # @param [Integer] start_line
+    # @param [Integer] end_line
+    # @return [Array<Integer>]
     def start_and_end_indices(start_line, end_line)
       return find_start_index(start_line), find_end_index(end_line)
     end
 
+    # @param [Integer] start_line
+    # @return [Integer]
     def find_start_index(start_line)
       return start_line if start_line < 0
       @lines.index { |l| l.last >= start_line } || @lines.length
     end
 
+    # @param [Integer] end_line
+    # @return [Integer]
     def find_end_index(end_line)
       return end_line if end_line < 0
       (@lines.index { |l| l.last > end_line } || 0) - 1
     end
 
+    # @param [Range] range
+    # @return [Array<Integer>]
     def get_start_and_end_from_range(range)
       end_line = range.last
       end_line -= 1 if range.exclude_end?
