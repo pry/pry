@@ -180,17 +180,8 @@ class Pry
         end_line ||= start_line
       end
 
-      if start_line > 0
-        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
-      else
-        start_idx = start_line
-      end
-
-      if end_line > 0
-        end_idx = (@lines.index { |l| l.last > end_line } || 0) - 1
-      else
-        end_idx = end_line
-      end
+      start_idx = find_start_index(start_line)
+      end_idx = find_end_index(end_line)
 
       alter do
         @lines = @lines[start_idx..end_idx] || []
@@ -409,6 +400,16 @@ class Pry
 
     def add_indentation(line_tuple)
       line_tuple[0] = "#{ ' ' * @indentation_num }#{ line_tuple[0] }"
+    end
+
+    def find_start_index(start_line)
+      return start_line if start_line < 0
+      @lines.index { |l| l.last >= start_line } || @lines.length
+    end
+
+    def find_end_index(end_line)
+      return end_line if end_line < 0
+      (@lines.index { |l| l.last > end_line } || 0) - 1
     end
   end
 end
