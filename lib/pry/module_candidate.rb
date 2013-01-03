@@ -73,27 +73,34 @@ class Pry
       def source_location
         return @source_location if @source_location
 
-        mod_type_string = wrapped.class.to_s.downcase
         file, line = first_method_source_location
-
         return nil if !file.is_a?(String)
 
-
-        class_regexes = [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
-                         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-                         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
-
-        host_file_lines = lines_for_file(file)
-
-        search_lines = host_file_lines[0..(line - 2)]
-        idx = search_lines.rindex { |v| class_regexes.any? { |r| r =~ v } }
-
-        @source_location = [file,  idx + 1]
+        @source_location = [file,  first_line_of_module_definition(file, line)]
       rescue Pry::RescuableException
         nil
       end
 
       private
+
+      # Locate the first line of the module definition.
+      # @param [String] file The file that contains the module
+      #   definition (somewhere).
+      # @param [Fixnum] line The module definition should appear
+      #   before this line (if it exists).
+      # @return [Fixnum] The line where the module is defined. This
+      #   line number is one-indexed.
+      def first_line_of_module_definition(file, line)
+        searchable_lines = lines_for_file(file)[0..(line - 2)]
+        searchable_lines.rindex { |v| class_regexes.any? { |r| r =~ v } } + 1
+      end
+
+      def class_regexes
+        mod_type_string = wrapped.class.to_s.downcase
+        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
+         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
+         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
+      end
 
       # This method is used by `Candidate#source_location` as a
       # starting point for the search for the candidate's definition.
