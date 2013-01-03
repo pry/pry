@@ -27,17 +27,41 @@ class Pry
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
     def self.from_str(mod_name, target=TOPLEVEL_BINDING)
-      kind = target.eval("defined?(#{mod_name})")
-
-      # if we dont limit it to constants then from_str could end up
-      # executing methods which is not good, i.e `show-source pry`
-      if ((kind == "constant" || kind =~ /variable/) && target.eval(mod_name).is_a?(Module))
+      if variable_or_constant_from_binding_is_a_module?(target, mod_name)
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
       end
     rescue RescuableException
       nil
+    end
+
+    class << self
+      private
+
+      # Check whether the variable `mod_name` in binding `target` is a variable
+      # or a constant. If we dont limit to variables/constants then `from_str` could end up
+      # executing methods which is not good, i.e `show-source pry`
+      # @param [Binding] target
+      # @param [String] mod_name The string to lookup in the binding.
+      # @return [Boolean] Whether the string represents a variable or constant.
+      def variable_or_constant?(target, mod_name)
+        kind = target.eval("defined?(#{mod_name})")
+        kind == "constant" || kind =~ /variable/
+      end
+
+      # Verify that the looked up string represents 1. a variable or
+      # constant and 2. Is a module.
+      # @param [Binding] target
+      # @param [String] mod_name The string to look up in the binding.
+      # @return [Boolean] Whether the string represents a module.
+      def variable_or_constant_from_binding_is_a_module?(target, mod_name)
+        if variable_or_constant?(target, mod_name)
+          target.eval(mod_name).is_a?(Module)
+        else
+          nil
+        end
+      end
     end
 
     # @raise [ArgumentError] if the argument is not a `Module`
@@ -249,17 +273,23 @@ class Pry
     def all_source_locations_by_popularity
       return @all_source_locations_by_popularity if @all_source_locations_by_popularity
 
-      ims = all_methods_for(wrapped)
-
-      # reject __class_init__ because it's an odd rbx specific thing that causes tests to fail
-      ims = ims.select(&:source_location).reject{ |x| x.name == '__class_init__' }
-
+      ims = all_relevant_methods_for(wrapped)
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by { |k, v| -v.size }
     end
 
+    # We only want methods that have a non-nil `source_location`. We also
+    # skip some spooky internal methods.
+    # (i.e we skip `__class_init__` because it's an odd rbx specific thing that causes tests to fail.)
+    # @return [Array<Pry::Method>]
+    def all_relevant_methods_for(mod)
+      all_methods_for(mod).select(&:source_location).
+        reject{ |x| x.name == '__class_init__' }
+    end
+
     # Return all methods (instance methods and class methods) for a
     # given module.
+    # @return [Array<Pry::Method>]
     def all_methods_for(mod)
       all_from_common(mod, :instance_method) + all_from_common(mod, :method)
     end
