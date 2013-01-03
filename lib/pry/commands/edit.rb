@@ -47,22 +47,22 @@ class Pry
         raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
       end
 
-      if local_edit?
-        # edit of local code, eval'd within pry.
-        process_local_edit
+      if repl_edit?
+        # code defined in pry, eval'd within pry.
+        repl_edit
       elsif runtime_patch?
         # patch code without persisting changes
         apply_runtime_patch
       else
-        # edit of remote code, eval'd at top-level
-        process_remote_edit
+        # code stored in actual files, eval'd at top-level
+        file_edit
       end
     end
 
-    def process_local_edit
+    def repl_edit
       content = Pry::Editor.edit_tempfile_with_content(initial_temp_file_content,
                                                        initial_temp_file_content.lines.count)
-      if local_reload?
+      if repl_reload?
         silence_warnings do
           eval_string.replace content
         end
@@ -81,7 +81,7 @@ class Pry
       end
     end
 
-    def process_remote_edit
+    def file_edit
       file_name, line = ContextLocator.new(self).file_and_line
       raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
 
@@ -103,7 +103,7 @@ class Pry
         Pry::CodeObject.lookup(args.first, target, _pry_)
     end
 
-    def local_edit?
+    def repl_edit?
       !opts.present?(:ex) && !opts.present?(:current) && args.empty?
     end
 
@@ -144,8 +144,8 @@ class Pry
       opts.present?(:'no-reload') || Pry.config.disable_auto_reload
     end
 
-    # conditions much less strict than for reload? (which is for remote reloads)
-    def local_reload?
+    # conditions much less strict than for reload? (which is for file-based reloads)
+    def repl_reload?
       !never_reload?
     end
 
