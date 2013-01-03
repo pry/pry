@@ -32,28 +32,31 @@ class Pry
     def process
       return if args.size < 1
       klass = search_class
-      pattern = ::Regexp.new args[0]
 
       matches = if opts.content?
-        content_search(pattern, klass)
+        content_search(klass)
       else
-        name_search(pattern, klass)
+        name_search(klass)
       end
 
-      show_search_results(matches, pattern)
+      show_search_results(matches)
     end
 
     private
 
+    # @return [Regexp] The pattern to search for.
+    def pattern
+      @pattern ||= ::Regexp.new args[0]
+    end
+
     # Output the result of the search.
     #
     # @param [Array] matches
-    # @param [Regex] pattern
-    def show_search_results(matches, pattern)
+    def show_search_results(matches)
       if matches.empty?
         output.puts text.bold("No Methods Matched")
       else
-        print_matches(matches, pattern)
+        print_matches(matches)
       end
     end
 
@@ -74,35 +77,35 @@ class Pry
     # pretty-print a list of matching methods.
     #
     # @param Array[Method]
-    def print_matches(matches, pattern)
+    def print_matches(matches)
       grouped = matches.group_by(&:owner)
       order = grouped.keys.sort_by{ |x| x.name || x.to_s }
 
       order.each do |klass|
-        print_matches_for_class(klass, grouped, pattern)
+        print_matches_for_class(klass, grouped)
       end
     end
 
     # Print matched methods for a class
-    def print_matches_for_class(klass, grouped, pattern)
+    def print_matches_for_class(klass, grouped)
       output.puts text.bold(klass.name)
       grouped[klass].each do |method|
         header = method.name_with_owner
-        output.puts header + additional_info(header, method, pattern)
+        output.puts header + additional_info(header, method)
       end
     end
 
     # Return the matched lines of method source if `-c` is given or ""
     # if `-c` was not given
-    def additional_info(header, method, pattern)
+    def additional_info(header, method)
       if opts.content?
-        ": " + colorize_code(matched_method_lines(header, method, pattern))
+        ": " + colorize_code(matched_method_lines(header, method))
       else
         ""
       end
     end
 
-    def matched_method_lines(header, method, pattern)
+    def matched_method_lines(header, method)
       method.source.split(/\n/).select {|x| x =~ pattern }.join("\n#{' ' * header.length}")
     end
 
@@ -160,27 +163,25 @@ class Pry
     # Search for all methods with a name that matches the given regex
     # within a namespace.
     #
-    # @param Regex  The regex to search for
     # @param Module  The namespace to search
     # @return Array[Method]
     #
-    def name_search(regex, namespace)
+    def name_search(namespace)
       search_all_methods(namespace) do |meth|
-        meth.name =~ regex
+        meth.name =~ pattern
       end
     end
 
     # Search for all methods who's implementation matches the given regex
     # within a namespace.
     #
-    # @param Regex  The regex to search for
     # @param Module  The namespace to search
     # @return Array[Method]
     #
-    def content_search(regex, namespace)
+    def content_search(namespace)
       search_all_methods(namespace) do |meth|
         begin
-          meth.source =~ regex
+          meth.source =~ pattern
         rescue RescuableException
           false
         end
