@@ -393,7 +393,7 @@ class Pry
 
     def add_line_numbers(line_tuple)
       max_width = @lines.last.last.to_s.length if @lines.length > 0
-      padded_line_num = line_tuple[1].to_s.rjust(max_width)
+      padded_line_num = line_tuple[1].to_s.rjust(max_width || 0)
       line_tuple[0] =
         "#{ Pry::Helpers::BaseHelpers.colorize_code(padded_line_num.to_s) }: " \
         "#{ line_tuple[0] }"
