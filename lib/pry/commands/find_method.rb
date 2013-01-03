@@ -31,31 +31,45 @@ class Pry
 
     def process
       return if args.size < 1
+      klass = search_class
       pattern = ::Regexp.new args[0]
-      if args[1]
-        klass = target.eval(args[1])
-        if !klass.is_a?(Module)
-          klass = klass.class
-        end
-      else
-        klass = (target_self.is_a?(Module)) ? target_self : target_self.class
-      end
 
       matches = if opts.content?
-                  content_search(pattern, klass)
-                else
-                  name_search(pattern, klass)
-                end
+        content_search(pattern, klass)
+      else
+        name_search(pattern, klass)
+      end
 
+      show_search_results(matches, pattern)
+    end
+
+    private
+
+    # Output the result of the search.
+    #
+    # @param [Array] matches
+    # @param [Regex] pattern
+    def show_search_results(matches, pattern)
       if matches.empty?
         output.puts text.bold("No Methods Matched")
       else
         print_matches(matches, pattern)
       end
-
     end
 
-    private
+    # The class to search for methods.
+    # We only search classes, so if the search object is an
+    # instance, return its class. If no search object is given
+    # search `target_self`.
+    def search_class
+      klass = if args[1]
+                target.eval(args[1])
+              else
+                target_self
+              end
+
+      klass.is_a?(Module) ? klass : klass.class
+    end
 
     # pretty-print a list of matching methods.
     #
@@ -65,20 +79,31 @@ class Pry
       order = grouped.keys.sort_by{ |x| x.name || x.to_s }
 
       order.each do |klass|
-        output.puts text.bold(klass.name)
-        grouped[klass].each do |method|
-          header = method.name_with_owner
-
-          extra = if opts.content?
-                    header += ": "
-                    colorize_code((method.source.split(/\n/).select {|x| x =~ pattern }).join("\n#{' ' * header.length}"))
-                  else
-                    ""
-                  end
-
-          output.puts header + extra
-        end
+        print_matches_for_class(klass, grouped, pattern)
       end
+    end
+
+    # Print matched methods for a class
+    def print_matches_for_class(klass, grouped, pattern)
+      output.puts text.bold(klass.name)
+      grouped[klass].each do |method|
+        header = method.name_with_owner
+        output.puts header + additional_info(header, method, pattern)
+      end
+    end
+
+    # Return the matched lines of method source if `-c` is given or ""
+    # if `-c` was not given
+    def additional_info(header, method, pattern)
+      if opts.content?
+        ": " + colorize_code(matched_method_lines(header, method, pattern))
+      else
+        ""
+      end
+    end
+
+    def matched_method_lines(header, method, pattern)
+      method.source.split(/\n/).select {|x| x =~ pattern }.join("\n#{' ' * header.length}")
     end
 
     # Run the given block against every constant in the provided namespace.
