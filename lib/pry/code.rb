@@ -306,44 +306,16 @@ class Pry
       Object.instance_method(:to_s).bind(self).call
     end
 
-    # Based on the configuration of the object, return a formatted String
-    # representation.
-    #
-    # @return [String]
+    # @return [String] a formatted representation (based on the configuration of
+    #   the object).
     def to_s
-      lines = @lines.map(&:dup)
-
-      if Pry.color
-        lines.each do |l|
-          l[0] = CodeRay.scan(l[0], @code_type).term
-        end
+      lines = @lines.map(&:dup).each do |line|
+        add_color(line)        if Pry.color
+        add_line_numbers(line) if @with_line_numbers
+        add_marker(line)       if @with_marker
+        add_indentation(line)  if @with_indentation
       end
-
-      if @with_line_numbers
-        max_width = lines.last.last.to_s.length if lines.length > 0
-        lines.each do |l|
-          padded_line_num = l[1].to_s.rjust(max_width)
-          l[0] = "#{Pry::Helpers::BaseHelpers.colorize_code(padded_line_num.to_s)}: #{l[0]}"
-        end
-      end
-
-      if @with_marker
-        lines.each do |l|
-          if l[1] == @marker_line_num
-            l[0] = " => #{l[0]}"
-          else
-            l[0] = "    #{l[0]}"
-          end
-        end
-      end
-
-      if @with_indentation
-        lines.each do |l|
-          l[0] = "#{' ' * @indentation_num}#{l[0]}"
-        end
-      end
-
-      lines.map { |l| "#{l.first}\n" }.join
+      lines.map { |line| "#{ line[0] }\n" }.join
     end
 
     # Get the comment that describes the expression on the given line number.
@@ -413,6 +385,30 @@ class Pry
     # class.
     def alter(&blk)
       dup.tap { |o| o.instance_eval(&blk) }
+    end
+
+    def add_color(line_tuple)
+      line_tuple[0] = CodeRay.scan(line_tuple[0], @code_type).term
+    end
+
+    def add_line_numbers(line_tuple)
+      max_width = @lines.last.last.to_s.length if @lines.length > 0
+      padded_line_num = line_tuple[1].to_s.rjust(max_width)
+      line_tuple[0] =
+        "#{ Pry::Helpers::BaseHelpers.colorize_code(padded_line_num.to_s) }: " \
+        "#{ line_tuple[0] }"
+    end
+
+    def add_marker(line_tuple)
+      line_tuple[0] = if line_tuple[1] == @marker_line_num
+                        " => #{ line_tuple[0] }"
+                      else
+                        "    #{ line_tuple[0] }"
+                      end
+    end
+
+    def add_indentation(line_tuple)
+      line_tuple[0] = "#{ ' ' * @indentation_num }#{ line_tuple[0] }"
     end
   end
 end
