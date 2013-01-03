@@ -171,17 +171,8 @@ class Pry
     def between(start_line, end_line=nil)
       return self unless start_line
 
-      if start_line.is_a? Range
-        end_line = start_line.last
-        end_line -= 1 if start_line.exclude_end?
-
-        start_line = start_line.first
-      else
-        end_line ||= start_line
-      end
-
-      start_idx = find_start_index(start_line)
-      end_idx = find_end_index(end_line)
+      start_line, end_line = reform_start_and_end_lines(start_line, end_line)
+      start_idx,  end_idx  = start_and_end_indices(start_line, end_line)
 
       alter do
         @lines = @lines[start_idx..end_idx] || []
@@ -402,6 +393,19 @@ class Pry
       line_tuple[0] = "#{ ' ' * @indentation_num }#{ line_tuple[0] }"
     end
 
+    def reform_start_and_end_lines(start_line, end_line)
+      if start_line.is_a?(Range)
+        get_start_and_end_from_range(start_line)
+      else
+        end_line ||= start_line
+        [start_line, end_line]
+      end
+    end
+
+    def start_and_end_indices(start_line, end_line)
+      return find_start_index(start_line), find_end_index(end_line)
+    end
+
     def find_start_index(start_line)
       return start_line if start_line < 0
       @lines.index { |l| l.last >= start_line } || @lines.length
@@ -410,6 +414,12 @@ class Pry
     def find_end_index(end_line)
       return end_line if end_line < 0
       (@lines.index { |l| l.last > end_line } || 0) - 1
+    end
+
+    def get_start_and_end_from_range(range)
+      end_line = range.last
+      end_line -= 1 if range.exclude_end?
+      [range.first, end_line]
     end
   end
 end
