@@ -733,22 +733,8 @@ describe "Pry::Command" do
       Pry.commands.delete 'my-test'
     end
 
-    it "allows creation of custom sub-classes of Pry::Command" do
+    it "allows creation of custom subclasses of Pry::Command" do
       pry_eval('my---test').should =~ /my-testmy-test/
-    end
-
-    it "never loses its command options" do
-      options_hash = {
-        :requires_gem      => [],
-        :keep_retval       => false,
-        :argument_required => false,
-        :interpolate       => true,
-        :shellwords        => false,
-        :listing           => 'my-test',
-        :use_prefix        => true,
-        :takes_block       => false
-      }
-      MyTestCommand.options.should == options_hash
     end
 
     if !mri18_and_no_real_source_location?
@@ -756,6 +742,62 @@ describe "Pry::Command" do
         pry_eval('show-source my-test').should =~ /output.puts command_name/
       end
     end
+
+    describe "command options hash" do
+      it "is always present" do
+        options_hash = {
+          :requires_gem      => [],
+          :keep_retval       => false,
+          :argument_required => false,
+          :interpolate       => true,
+          :shellwords        => false,
+          :listing           => 'my-test',
+          :use_prefix        => true,
+          :takes_block       => false
+        }
+        MyTestCommand.options.should == options_hash
+      end
+
+      describe ":listing option" do
+        it "defaults to :match if not set explicitly" do
+          class HappyNewYear < Pry::ClassCommand
+            match 'happy-new-year'
+            description 'Happy New Year 2013'
+          end
+          Pry.commands.add_command HappyNewYear
+
+          HappyNewYear.options[:listing].should == 'happy-new-year'
+
+          Pry.commands.delete 'happy-new-year'
+        end
+
+        it "can be set explicitly" do
+          class MerryChristmas < Pry::ClassCommand
+            match 'merry-christmas'
+            description 'Merry Christmas!'
+            command_options :listing => 'happy-holidays'
+          end
+          Pry.commands.add_command MerryChristmas
+
+          MerryChristmas.options[:listing].should == 'happy-holidays'
+
+          Pry.commands.delete 'merry-christmas'
+        end
+
+        it "equals to :match option's inspect, if :match is Regexp" do
+          class CoolWinter < Pry::ClassCommand
+            match /.*winter/
+            description 'Is winter cool or cool?'
+          end
+          Pry.commands.add_command CoolWinter
+
+          CoolWinter.options[:listing].should == '/.*winter/'
+
+          Pry.commands.delete /.*winter/
+        end
+      end
+    end
+
   end
 
   describe "commands can save state" do
