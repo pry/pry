@@ -25,7 +25,11 @@ class Pry
       attr_writer :match
 
       def match(arg=nil)
-        @match = arg if arg
+        if arg
+          @command_options ||= default_options(arg)
+          @command_options[:listing] = arg.is_a?(String) ? arg : arg.inspect
+          @match = arg
+        end
         @match
       end
 
