@@ -108,6 +108,72 @@ class Pry
       end
     end
 
+    # Represents a range of lines in a code listing.
+    #
+    # @api private
+    class CodeRange
+
+      # @param [Integer] start_line
+      # @param [Integer?] end_line
+      def initialize(start_line, end_line = nil)
+        @start_line = start_line
+        @end_line   = end_line
+        force_set_end_line
+      end
+
+      # @param [Array<LOC>] lines
+      # @return [Range]
+      def indices_range(lines)
+        Range.new(*indices(lines))
+      end
+
+      private
+
+      attr_reader :start_line, :end_line
+
+      # If `end_line` is equal to `nil`, then calculate it from the first
+      # parameter, `start_line`. Otherwise, leave it as it is.
+      # @return [void]
+      def force_set_end_line
+        if start_line.is_a?(Range)
+          set_end_line_from_range
+        else
+          @end_line ||= start_line
+        end
+      end
+
+      # Finds indices of `start_line` and `end_line` in the given Array of
+      # +lines+.
+      #
+      # @param [Array<LOC>] lines
+      # @return [Array<Integer>]
+      def indices(lines)
+        [find_start_index(lines), find_end_index(lines)]
+      end
+
+      # @return [Integer]
+      def find_start_index(lines)
+        return start_line if start_line < 0
+        lines.index { |loc| loc.lineno >= start_line } || lines.length
+      end
+
+      # @return [Integer]
+      def find_end_index(lines)
+        return end_line if end_line < 0
+        (lines.index { |loc| loc.lineno > end_line } || 0) - 1
+      end
+
+      # For example, if the range is 4..10, then `start_line` would be equal to
+      # 4 and `end_line` to 10.
+      # @return [void]
+      def set_end_line_from_range
+        @end_line = start_line.last
+        @end_line -= 1 if start_line.exclude_end?
+        @start_line = start_line.first
+      end
+    end
+
+
     class << self
       include MethodSource::CodeHelpers
 
@@ -255,11 +321,10 @@ class Pry
     def between(start_line, end_line = nil)
       return self unless start_line
 
-      start_line, end_line = reform_start_and_end_lines(start_line, end_line)
-      start_idx,  end_idx  = start_and_end_indices(start_line, end_line)
+      code_range = CodeRange.new(start_line, end_line)
 
       alter do
-        @lines = @lines[start_idx..end_idx] || []
+        @lines = @lines[code_range.indices_range(@lines)] || []
       end
     end
 
@@ -455,48 +520,6 @@ class Pry
     # class.
     def alter(&blk)
       dup.tap { |o| o.instance_eval(&blk) }
-    end
-
-    # If +end_line+ is `nil`, then assign to it +start_line+.
-    # @param [Integer, Range] start_line
-    # @param [Integer] end_line
-    # @return [Array<Integer>]
-    def reform_start_and_end_lines(start_line, end_line)
-      if start_line.is_a?(Range)
-        get_start_and_end_from_range(start_line)
-      else
-        end_line ||= start_line
-        [start_line, end_line]
-      end
-    end
-
-    # @param [Integer] start_line
-    # @param [Integer] end_line
-    # @return [Array<Integer>]
-    def start_and_end_indices(start_line, end_line)
-      return find_start_index(start_line), find_end_index(end_line)
-    end
-
-    # @param [Integer] start_line
-    # @return [Integer]
-    def find_start_index(start_line)
-      return start_line if start_line < 0
-      @lines.index { |loc| loc.lineno >= start_line } || @lines.length
-    end
-
-    # @param [Integer] end_line
-    # @return [Integer]
-    def find_end_index(end_line)
-      return end_line if end_line < 0
-      (@lines.index { |loc| loc.lineno > end_line } || 0) - 1
-    end
-
-    # @param [Range] range
-    # @return [Array<Integer>]
-    def get_start_and_end_from_range(range)
-      end_line = range.last
-      end_line -= 1 if range.exclude_end?
-      [range.first, end_line]
     end
   end
 end
