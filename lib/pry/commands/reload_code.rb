@@ -19,7 +19,7 @@ class Pry
     end
 
     def obj_name
-      @obj_name ||= args.empty? ? nil : args.join(" ")
+      @obj_name ||= args.empty? ? "self" : args.join(" ")
     end
 
     def check_for_reloadability(code_object)

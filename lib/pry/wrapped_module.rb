@@ -27,7 +27,7 @@ class Pry
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
     def self.from_str(mod_name, target=TOPLEVEL_BINDING)
-      if variable_or_constant_from_binding_is_a_module?(target, mod_name)
+      if variable_or_constant_or_self_from_binding_is_a_module?(target, mod_name)
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
@@ -45,7 +45,9 @@ class Pry
       # @param [Binding] target
       # @param [String] mod_name The string to lookup in the binding.
       # @return [Boolean] Whether the string represents a variable or constant.
-      def variable_or_constant?(target, mod_name)
+      def variable_or_constant_or_self?(target, mod_name)
+        return true if mod_name.strip == "self"
+
         kind = target.eval("defined?(#{mod_name})")
         kind == "constant" || kind =~ /variable/
       end
@@ -55,8 +57,8 @@ class Pry
       # @param [Binding] target
       # @param [String] mod_name The string to look up in the binding.
       # @return [Boolean] Whether the string represents a module.
-      def variable_or_constant_from_binding_is_a_module?(target, mod_name)
-        if variable_or_constant?(target, mod_name)
+      def variable_or_constant_or_self_from_binding_is_a_module?(target, mod_name)
+        if variable_or_constant_or_self?(target, mod_name)
           target.eval(mod_name).is_a?(Module)
         else
           nil
