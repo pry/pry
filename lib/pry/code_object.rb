@@ -67,7 +67,9 @@ class Pry
 
     # lookup variables and constants and `self` that are not modules
     def default_lookup
-      if variable_or_constant_or_self?(str)
+
+      # we skip instance methods as we want those to fall through to method_or_class_lookup()
+      if safe_to_evaluate?(str) && !looks_like_an_instance_method?(str)
         obj = target.eval(str)
 
         # restrict to only objects we KNOW for sure support the full API
@@ -90,7 +92,7 @@ class Pry
       # Pry::Method.from_binding when str is nil.
       # Once we refactor Pry::Method.from_str() so it doesnt lookup
       # from bindings, we can get rid of this check
-      return nil if !str || str.empty?
+      return nil if str.to_s.empty?
 
       obj = if str =~ /::(?:\S+)\Z/
         Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
@@ -107,12 +109,28 @@ class Pry
       [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
     end
 
-    # Whether `str` represents `self` or a variable (or constant) when looked up
-    # in the context of the `target` binding. This is used to
-    # distinguish it from methods or expressions.
+
+    # Returns true if `str` looks like a method, i.e Klass#method
+    # We need to consider this case because method lookups should fall
+    # through to the `method_or_class_lookup()` method but a
+    # defined?() on a "Klass#method` string will see the `#` as a
+    # comment and only evaluate the `Klass` part.
+    # @param [String] str
+    # @return [Boolean] Whether the string looks like an instance method.
+    def looks_like_an_instance_method?(str)
+      str =~ /\S#\S/
+    end
+
+    # We use this method to decide whether code is safe to eval. Method's are
+    # generally not, but everything else is.
+    # TODO: is just checking != "method" enough??
+    # TODO: see duplication of this method in Pry::WrappedModule
     # @param [String] str The string to lookup
-    def variable_or_constant_or_self?(str)
-      str.strip == "self" || str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
+    # @return [Boolean]
+    def safe_to_evaluate?(str)
+      return true if str.strip == "self"
+      kind = target.eval("defined?(#{str})")
+      kind =~ /variable|constant/
     end
 
     def target_self
