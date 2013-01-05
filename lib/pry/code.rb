@@ -79,7 +79,7 @@ class Pry
       #
       # @param [Integer] max_width
       # @return [void]
-      def add_line_numbers(max_width = 0)
+      def add_line_number(max_width = 0)
         padded = lineno.to_s.rjust(max_width)
         colorized_lineno = Pry::Helpers::BaseHelpers.colorize_code(padded)
         tuple[0] = "#{ colorized_lineno }: #{ line }"
@@ -374,10 +374,10 @@ class Pry
       max_width = @lines.last.lineno.to_s.length if @lines.length > 0
 
       lines = @lines.map(&:dup).each do |loc|
-        loc.colorize(@code_type)        if Pry.color
-        loc.add_line_numbers(max_width) if @with_line_numbers
-        loc.add_marker(@marker_lineno)  if @with_marker
-        loc.indent(@indentation_num)    if @with_indentation
+        loc.colorize(@code_type)       if Pry.color
+        loc.add_line_number(max_width) if @with_line_numbers
+        loc.add_marker(@marker_lineno) if @with_marker
+        loc.indent(@indentation_num)   if @with_indentation
       end
 
       lines.map { |loc| "#{ loc.line }\n" }.join
