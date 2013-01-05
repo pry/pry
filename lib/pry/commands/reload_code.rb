@@ -15,7 +15,7 @@ class Pry
 
     def reload_code_object(code_object)
       load code_object.source_file
-      output.puts "#{code_object} was reloaded!"
+      output.puts "#{obj_name} was reloaded!"
     end
 
     def obj_name
@@ -26,7 +26,7 @@ class Pry
       if !code_object
         raise CommandError, "Cannot locate #{obj_name}!"
       elsif !File.exists?(code_object.source_file)
-        raise CommandError, "Cannot reload #{code_object} as it has no associated file on disk. File found was: #{code_object.source_file}"
+        raise CommandError, "Cannot reload #{obj_name} as it has no associated file on disk. File found was: #{code_object.source_file}"
       end
     end
   end
