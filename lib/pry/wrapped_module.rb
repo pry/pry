@@ -27,7 +27,7 @@ class Pry
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
     def self.from_str(mod_name, target=TOPLEVEL_BINDING)
-      if variable_or_constant_or_self_from_binding_is_a_module?(target, mod_name)
+      if safe_to_evaluate?(mod_name, target)
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
@@ -39,30 +39,17 @@ class Pry
     class << self
       private
 
-      # Check whether the variable `mod_name` in binding `target` is a variable
-      # or a constant. If we dont limit to variables/constants then `from_str` could end up
-      # executing methods which is not good, i.e `show-source pry`
-      # @param [Binding] target
-      # @param [String] mod_name The string to lookup in the binding.
-      # @return [Boolean] Whether the string represents a variable or constant.
-      def variable_or_constant_or_self?(target, mod_name)
-        return true if mod_name.strip == "self"
-
-        kind = target.eval("defined?(#{mod_name})")
-        kind == "constant" || kind =~ /variable/
-      end
-
-      # Verify that the looked up string represents 1. a variable or
-      # constant and 2. Is a module.
-      # @param [Binding] target
-      # @param [String] mod_name The string to look up in the binding.
-      # @return [Boolean] Whether the string represents a module.
-      def variable_or_constant_or_self_from_binding_is_a_module?(target, mod_name)
-        if variable_or_constant_or_self?(target, mod_name)
-          target.eval(mod_name).is_a?(Module)
-        else
-          nil
-        end
+      # We use this method to decide whether code is safe to eval. Method's are
+      # generally not, but everything else is.
+      # TODO: is just checking != "method" enough??
+      # TODO: see duplication of this method in Pry::CodeObject
+      # @param [String] str The string to lookup.
+      # @param [Binding] target Where the lookup takes place.
+      # @return [Boolean]
+      def safe_to_evaluate?(str, target)
+        return true if str.strip == "self"
+        kind = target.eval("defined?(#{str})")
+        kind =~ /variable|constant/
       end
     end
 
