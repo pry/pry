@@ -65,9 +65,9 @@ class Pry
       end
     end
 
-    # lookup variables and constants that are not modules
+    # lookup variables and constants and `self` that are not modules
     def default_lookup
-      if variable_or_constant?(str)
+      if variable_or_constant_or_self?(str)
         obj = target.eval(str)
 
         # restrict to only objects we KNOW for sure support the full API
@@ -107,12 +107,12 @@ class Pry
       [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
     end
 
-    # Whether `str` represents a variable (or constant) when looked up
+    # Whether `str` represents `self` or a variable (or constant) when looked up
     # in the context of the `target` binding. This is used to
     # distinguish it from methods or expressions.
     # @param [String] str The string to lookup
-    def variable_or_constant?(str)
-      str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
+    def variable_or_constant_or_self?(str)
+      str.strip == "self" || str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
     end
 
     def target_self
