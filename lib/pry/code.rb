@@ -26,6 +26,49 @@ class Pry
   # arbitrary chaining of formatting methods without mutating the original
   # object.
   class Code
+    class LOC
+      attr_accessor :tuple
+
+      def initialize(line, lineno)
+        @tuple = [line.chomp, lineno.to_i]
+      end
+
+      def dup
+        self.class.new(line, lineno)
+      end
+
+      def line
+        tuple.first
+      end
+
+      def lineno
+        tuple.last
+      end
+
+      def colorize(code_type)
+        tuple[0] = CodeRay.scan(line, code_type).term
+      end
+
+      def add_line_numbers(max_width = 0)
+        padded = lineno.to_s.rjust(max_width)
+        colorized_lineno = Pry::Helpers::BaseHelpers.colorize_code(padded)
+        tuple[0] = "#{ colorized_lineno }: #{ line }"
+      end
+
+      def add_marker(marker_lineno)
+        tuple[0] =
+          if lineno == marker_lineno
+            " => #{ line }"
+          else
+            "    #{ line }"
+          end
+      end
+
+      def indent(distance)
+        tuple[0] = "#{ ' ' * distance }#{ line }"
+      end
+    end
+
     class << self
       include MethodSource::CodeHelpers
 
@@ -129,24 +172,26 @@ class Pry
     # @param [Array<String>, String, IO] lines
     # @param [Integer?] start_line
     # @param [Symbol?] code_type
-    def initialize(lines=[], start_line=1, code_type=:ruby)
+    def initialize(lines = [], start_line = 1, code_type = :ruby)
       if lines.is_a? String
         lines = lines.lines
       end
-
-      @lines = lines.each_with_index.map { |l, i| [l.chomp, i + start_line.to_i] }
+      @lines = lines.each_with_index.map { |line, lineno|
+        LOC.new(line, lineno + start_line.to_i) }
       @code_type = code_type
     end
 
-    # Append the given line. `line_num` is one more than the last existing
+    # Append the given line. +lineno+ is one more than the last existing
     # line, unless specified otherwise.
     #
     # @param [String] line
-    # @param [Integer?] line_num
+    # @param [Integer?] lineno
     # @return [String] The inserted line.
-    def push(line, line_num=nil)
-      line_num = @lines.last.last + 1 unless line_num
-      @lines.push([line.chomp, line_num])
+    def push(line, lineno = nil)
+      if lineno.nil?
+        lineno = @lines.last.lineno + 1
+      end
+      @lines.push(LOC.new(line, lineno))
       line
     end
     alias << push
@@ -185,54 +230,55 @@ class Pry
     # @param [Integer] num_lines
     # @return [Code]
     def take_lines(start_line, num_lines)
-      if start_line >= 0
-        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
-      else
-        start_idx = @lines.length + start_line
-      end
+      start_idx =
+        if start_line >= 0
+          @lines.index { |loc| loc.lineno >= start_line } || @lines.length
+        else
+          @lines.length + start_line
+        end
 
       alter do
         @lines = @lines.slice(start_idx, num_lines)
       end
     end
 
-    # Remove all lines except for the `lines` up to and excluding `line_num`.
+    # Remove all lines except for the +lines+ up to and excluding +lineno+.
     #
-    # @param [Integer] line_num
+    # @param [Integer] lineno
     # @param [Integer] lines
     # @return [Code]
-    def before(line_num, lines=1)
-      return self unless line_num
+    def before(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln >= line_num - lines && ln < line_num
+      select do |loc|
+        loc.lineno >= lineno - lines && loc.lineno < lineno
       end
     end
 
-    # Remove all lines except for the `lines` on either side of and including
-    # `line_num`.
+    # Remove all lines except for the +lines+ on either side of and including
+    # +lineno+.
     #
-    # @param [Integer] line_num
+    # @param [Integer] lineno
     # @param [Integer] lines
     # @return [Code]
-    def around(line_num, lines=1)
-      return self unless line_num
+    def around(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln >= line_num - lines && ln <= line_num + lines
+      select do |loc|
+        loc.lineno >= lineno - lines && loc.lineno <= lineno + lines
       end
     end
 
-    # Remove all lines except for the `lines` after and excluding `line_num`.
+    # Remove all lines except for the +lines+ after and excluding +lineno+.
     #
-    # @param [Integer] line_num
+    # @param [Integer] lineno
     # @param [Integer] lines
     # @return [Code]
-    def after(line_num, lines=1)
-      return self unless line_num
+    def after(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln > line_num && ln <= line_num + lines
+      select do |loc|
+        loc.lineno > lineno && loc.lineno <= lineno + lines
       end
     end
 
@@ -244,8 +290,8 @@ class Pry
       return self unless pattern
       pattern = Regexp.new(pattern)
 
-      select do |l, ln|
-        l =~ pattern
+      select do |loc|
+        loc.line =~ pattern
       end
     end
 
@@ -259,15 +305,15 @@ class Pry
       end
     end
 
-    # Format output with a marker next to the given `line_num`, unless `line_num`
+    # Format output with a marker next to the given +lineno+, unless +line_num+
     # is falsy.
     #
-    # @param [Integer?] line_num
+    # @param [Integer?] lineno
     # @return [Code]
-    def with_marker(line_num=1)
+    def with_marker(lineno = 1)
       alter do
-        @with_marker     = !!line_num
-        @marker_line_num = line_num
+        @with_marker   = !!lineno
+        @marker_lineno = lineno
       end
     end
 
@@ -291,13 +337,16 @@ class Pry
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      lines = @lines.map(&:dup).each do |line|
-        add_color(line)        if Pry.color
-        add_line_numbers(line) if @with_line_numbers
-        add_marker(line)       if @with_marker
-        add_indentation(line)  if @with_indentation
+      max_width = @lines.last.lineno.to_s.length if @lines.length > 0
+
+      lines = @lines.map(&:dup).each do |loc|
+        loc.colorize(@code_type)        if Pry.color
+        loc.add_line_numbers(max_width) if @with_line_numbers
+        loc.add_marker(@marker_lineno)  if @with_marker
+        loc.indent(@indentation_num)    if @with_indentation
       end
-      lines.map { |line| "#{ line[0] }\n" }.join
+
+      lines.map { |loc| "#{ loc.line }\n" }.join
     end
 
     # Get the comment that describes the expression on the given line number.
@@ -329,7 +378,7 @@ class Pry
     #
     # @return [String]
     def raw
-      @lines.map(&:first).join("\n") + "\n"
+      @lines.map(&:line).join("\n") + "\n"
     end
 
     # Return the number of lines stored.
@@ -347,8 +396,8 @@ class Pry
     def ==(other)
       if other.is_a?(Code)
         @other_lines = other.instance_variable_get(:@lines)
-        @lines.each_with_index.all? do |(l, ln), i|
-          l == @other_lines[i].first && ln == @other_lines[i].last
+        @lines.each_with_index.all? do |loc, i|
+          loc.line == @other_lines[i].line && loc.lineno == @other_lines[i].lineno
         end
       else
         to_s.chomp == other.to_s.chomp
@@ -367,30 +416,6 @@ class Pry
     # class.
     def alter(&blk)
       dup.tap { |o| o.instance_eval(&blk) }
-    end
-
-    def add_color(line_tuple)
-      line_tuple[0] = CodeRay.scan(line_tuple[0], @code_type).term
-    end
-
-    def add_line_numbers(line_tuple)
-      max_width = @lines.last.last.to_s.length if @lines.length > 0
-      padded_line_num = line_tuple[1].to_s.rjust(max_width || 0)
-      line_tuple[0] =
-        "#{ Pry::Helpers::BaseHelpers.colorize_code(padded_line_num.to_s) }: " \
-        "#{ line_tuple[0] }"
-    end
-
-    def add_marker(line_tuple)
-      line_tuple[0] = if line_tuple[1] == @marker_line_num
-                        " => #{ line_tuple[0] }"
-                      else
-                        "    #{ line_tuple[0] }"
-                      end
-    end
-
-    def add_indentation(line_tuple)
-      line_tuple[0] = "#{ ' ' * @indentation_num }#{ line_tuple[0] }"
     end
 
     # If +end_line+ is `nil`, then assign to it +start_line+.
@@ -417,14 +442,14 @@ class Pry
     # @return [Integer]
     def find_start_index(start_line)
       return start_line if start_line < 0
-      @lines.index { |l| l.last >= start_line } || @lines.length
+      @lines.index { |loc| loc.lineno >= start_line } || @lines.length
     end
 
     # @param [Integer] end_line
     # @return [Integer]
     def find_end_index(end_line)
       return end_line if end_line < 0
-      (@lines.index { |l| l.last > end_line } || 0) - 1
+      (@lines.index { |loc| loc.lineno > end_line } || 0) - 1
     end
 
     # @param [Range] range
