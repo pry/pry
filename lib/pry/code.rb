@@ -237,7 +237,7 @@ class Pry
 
     # Filter the lines using the given block.
     #
-    # @yield [line]
+    # @yield [LOC]
     # @return [Code]
     def select(&blk)
       alter do
@@ -252,7 +252,7 @@ class Pry
     # @param [Range, Integer] start_line
     # @param [Integer?] end_line
     # @return [Code]
-    def between(start_line, end_line=nil)
+    def between(start_line, end_line = nil)
       return self unless start_line
 
       start_line, end_line = reform_start_and_end_lines(start_line, end_line)
@@ -338,7 +338,7 @@ class Pry
     #
     # @param [Boolean?] y_n
     # @return [Code]
-    def with_line_numbers(y_n=true)
+    def with_line_numbers(y_n = true)
       alter do
         @with_line_numbers = y_n
       end
@@ -361,7 +361,7 @@ class Pry
     #
     # @param [Integer?] spaces
     # @return [Code]
-    def with_indentation(spaces=0)
+    def with_indentation(spaces = 0)
       alter do
         @with_indentation = !!spaces
         @indentation_num  = spaces
@@ -400,7 +400,7 @@ class Pry
     #
     # @param [Integer]  line_number (1-based)
     # @return [String]  the code.
-    def expression_at(line_number, consume=0)
+    def expression_at(line_number, consume = 0)
       self.class.expression_at(raw, line_number, :consume => consume)
     end
 
@@ -409,7 +409,7 @@ class Pry
     # @param [Integer]  line_number  line number starting from 1
     # @param [Module] top_module   the module in which this code exists
     # @return [Array<Module>]  a list of open modules.
-    def nesting_at(line_number, top_module=Object)
+    def nesting_at(line_number, top_module = Object)
       Pry::Indent.nesting_at(raw, line_number)
     end
 
