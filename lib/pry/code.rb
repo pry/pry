@@ -85,6 +85,11 @@ class Pry
         tuple[0] = "#{ colorized_lineno }: #{ line }"
       end
 
+      # Prepends a marker "=>" or an empty marker to the +line+.
+      #
+      # @param [Integer] marker_lineno If it is equal to the `lineno`, then
+      #   prepend a hashrocket. Otherwise, an empty marker.
+      # @return [void]
       def add_marker(marker_lineno)
         tuple[0] =
           if lineno == marker_lineno
