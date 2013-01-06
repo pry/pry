@@ -27,17 +27,30 @@ class Pry
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
     def self.from_str(mod_name, target=TOPLEVEL_BINDING)
-      kind = target.eval("defined?(#{mod_name})")
-
-      # if we dont limit it to constants then from_str could end up
-      # executing methods which is not good, i.e `show-source pry`
-      if ((kind == "constant" || kind =~ /variable/) && target.eval(mod_name).is_a?(Module))
+      if safe_to_evaluate?(mod_name, target)
         Pry::WrappedModule.new(target.eval(mod_name))
       else
         nil
       end
     rescue RescuableException
       nil
+    end
+
+    class << self
+      private
+
+      # We use this method to decide whether code is safe to eval. Method's are
+      # generally not, but everything else is.
+      # TODO: is just checking != "method" enough??
+      # TODO: see duplication of this method in Pry::CodeObject
+      # @param [String] str The string to lookup.
+      # @param [Binding] target Where the lookup takes place.
+      # @return [Boolean]
+      def safe_to_evaluate?(str, target)
+        return true if str.strip == "self"
+        kind = target.eval("defined?(#{str})")
+        kind =~ /variable|constant/
+      end
     end
 
     # @raise [ArgumentError] if the argument is not a `Module`
@@ -249,17 +262,23 @@ class Pry
     def all_source_locations_by_popularity
       return @all_source_locations_by_popularity if @all_source_locations_by_popularity
 
-      ims = all_methods_for(wrapped)
-
-      # reject __class_init__ because it's an odd rbx specific thing that causes tests to fail
-      ims = ims.select(&:source_location).reject{ |x| x.name == '__class_init__' }
-
+      ims = all_relevant_methods_for(wrapped)
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by { |k, v| -v.size }
     end
 
+    # We only want methods that have a non-nil `source_location`. We also
+    # skip some spooky internal methods.
+    # (i.e we skip `__class_init__` because it's an odd rbx specific thing that causes tests to fail.)
+    # @return [Array<Pry::Method>]
+    def all_relevant_methods_for(mod)
+      all_methods_for(mod).select(&:source_location).
+        reject{ |x| x.name == '__class_init__' }
+    end
+
     # Return all methods (instance methods and class methods) for a
     # given module.
+    # @return [Array<Pry::Method>]
     def all_methods_for(mod)
       all_from_common(mod, :instance_method) + all_from_common(mod, :method)
     end

@@ -42,47 +42,85 @@ class Pry
     def display_index(groups)
       help_text = []
 
-      groups.keys.sort_by(&method(:group_sort_key)).each do |key|
-        commands = groups[key].sort_by{ |command| command.options[:listing].to_s }
+      sorted_group_names(groups).each do |group_name|
+        commands = sorted_commands(groups[group_name])
 
-        unless commands.empty?
-          help_text << "#{text.bold(key)}\n" + commands.map do |command|
-            "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
-          end.join("\n")
+        if commands.any?
+           help_text << help_text_for_commands(group_name, commands)
         end
       end
 
       stagger_output(help_text.join("\n\n"))
     end
 
+    # Given a group name and an array of commands,
+    # return the help string for those commands.
+    #
+    # @param [String] name The group name.
+    # @param [Array<Pry::Command>]] commands
+    # @return [String] The generated help string.
+    def help_text_for_commands(name, commands)
+      "#{text.bold(name)}\n" + commands.map do |command|
+        "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
+      end.join("\n")
+    end
+
+    # @param [Hash] groups
+    # @return [Array<String>] An array of sorted group names.
+    def sorted_group_names(groups)
+      groups.keys.sort_by(&method(:group_sort_key))
+    end
+
+    # Sort an array of commands by their `listing` name.
+    #
+    # @param [Array<Pry::Command>] commands The commands to sort
+    # @return [Array<Pry::Command>] commands sorted by listing name.
+    def sorted_commands(commands)
+      commands.sort_by{ |command| command.options[:listing].to_s }
+    end
+
     # Display help for an individual command or group.
     #
-    # @param String  The string to search for.
+    # @param [String] search  The string to search for.
     def display_search(search)
       if command = command_set.find_command_for_help(search)
         display_command(command)
       else
-        groups = search_hash(search, command_groups)
+        display_filtered_search_results(search)
+      end
+    end
 
-        if groups.size > 0
-          display_index(groups)
-          return
-        end
+    # Display help for a searched item, filtered first by group
+    # and if that fails, filtered by command name.
+    #
+    # @param [String] search The string to search for.
+    def display_filtered_search_results(search)
+      groups = search_hash(search, command_groups)
 
-        filtered = search_hash(search, visible_commands)
-        raise CommandError, "No help found for '#{args.first}'" if filtered.empty?
+      if groups.size > 0
+        display_index(groups)
+      else
+        display_filtered_commands(search)
+      end
+    end
 
-        if filtered.size == 1
-          display_command(filtered.values.first)
-        else
-          display_index({"'#{search}' commands" => filtered.values})
-        end
+    # Display help for a searched item, filtered by group
+    #
+    # @param [String] search The string to search for.
+    def display_filtered_commands(search)
+      filtered = search_hash(search, visible_commands)
+      raise CommandError, "No help found for '#{args.first}'" if filtered.empty?
+
+      if filtered.size == 1
+        display_command(filtered.values.first)
+      else
+        display_index({"'#{search}' commands" => filtered.values})
       end
     end
 
     # Display help for an individual command.
     #
-    # @param [Pry::Command]
+    # @param [Pry::Command] command
     def display_command(command)
       stagger_output command.new.help
     end

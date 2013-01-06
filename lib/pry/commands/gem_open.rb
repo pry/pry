@@ -14,7 +14,7 @@ class Pry
 
     def process(gem)
       Dir.chdir(gem_spec(gem).full_gem_path) do
-        invoke_editor(".", 0, false)
+        Pry::Editor.invoke_editor(".", 0, false)
       end
     end
 

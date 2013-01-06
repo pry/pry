@@ -48,7 +48,7 @@ class Pry
         begin
           require gem_name if !active?
         rescue LoadError => e
-          warn "Warning: The plugin '#{gem_name}' was not found! (gem found but could not be loaded)"
+          warn "Found plugin #{gem_name}, but could not require '#{gem_name}'"
           warn e
         end
 
