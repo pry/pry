@@ -293,14 +293,17 @@ class Pry
       Object.instance_method(:to_s).bind(self).call
     end
 
+    # @return [Integer] the number of digits in the last line.
+    def max_lineno_width
+      @lines.length > 0 ? @lines.last.lineno.to_s.length : 0
+    end
+
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      max_width = @lines.last.lineno.to_s.length if @lines.length > 0
-
       lines = @lines.map(&:dup).each do |loc|
         loc.colorize(@code_type)       if Pry.color
-        loc.add_line_number(max_width) if @with_line_numbers
+        loc.add_line_number(max_lineno_width) if @with_line_numbers
         loc.add_marker(@marker_lineno) if @with_marker
         loc.indent(@indentation_num)   if @with_indentation
       end
