@@ -65,14 +65,16 @@ class Pry
       end
     end
 
-    # lookup variables and constants that are not modules
+    # lookup variables and constants and `self` that are not modules
     def default_lookup
-      if str !~ /\S#\S/ && target.eval("defined? #{str} ") =~ /variable|constant/
+
+      # we skip instance methods as we want those to fall through to method_or_class_lookup()
+      if safe_to_evaluate?(str) && !looks_like_an_instance_method?(str)
         obj = target.eval(str)
 
         # restrict to only objects we KNOW for sure support the full API
         # Do NOT support just any object that responds to source_location
-        if [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
+        if sourcable_object?(obj)
           Pry::Method(obj)
         elsif !obj.is_a?(Module)
           Pry::WrappedModule(obj.class)
@@ -90,7 +92,7 @@ class Pry
       # Pry::Method.from_binding when str is nil.
       # Once we refactor Pry::Method.from_str() so it doesnt lookup
       # from bindings, we can get rid of this check
-      return nil if !str || str.empty?
+      return nil if str.to_s.empty?
 
       obj = if str =~ /::(?:\S+)\Z/
         Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
@@ -98,17 +100,55 @@ class Pry
         Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
       end
 
-      sup = obj.super(super_level) if obj
-      if obj && !sup
+      lookup_super(obj, super_level)
+    end
+
+    private
+
+    def sourcable_object?(obj)
+      [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
+    end
+
+
+    # Returns true if `str` looks like a method, i.e Klass#method
+    # We need to consider this case because method lookups should fall
+    # through to the `method_or_class_lookup()` method but a
+    # defined?() on a "Klass#method` string will see the `#` as a
+    # comment and only evaluate the `Klass` part.
+    # @param [String] str
+    # @return [Boolean] Whether the string looks like an instance method.
+    def looks_like_an_instance_method?(str)
+      str =~ /\S#\S/
+    end
+
+    # We use this method to decide whether code is safe to eval. Method's are
+    # generally not, but everything else is.
+    # TODO: is just checking != "method" enough??
+    # TODO: see duplication of this method in Pry::WrappedModule
+    # @param [String] str The string to lookup
+    # @return [Boolean]
+    def safe_to_evaluate?(str)
+      return true if str.strip == "self"
+      kind = target.eval("defined?(#{str})")
+      kind =~ /variable|constant/
+    end
+
+    def target_self
+      target.eval('self')
+    end
+
+    # grab the nth (`super_level`) super of `obj
+    # @param [Object] obj
+    # @param [Fixnum] super_level How far up the super chain to ascend.
+    def lookup_super(obj, super_level)
+      return nil if !obj
+
+      sup = obj.super(super_level)
+      if !sup
         raise Pry::CommandError, "No superclass found for #{obj.wrapped}"
       else
         sup
       end
-    end
-
-    private
-    def target_self
-      target.eval('self')
     end
   end
 end

@@ -1,3 +1,6 @@
+require 'pry/code/loc'
+require 'pry/code/code_range'
+
 class Pry
   class << self
     # Convert the given object into an instance of `Pry::Code`, if it isn't
@@ -32,24 +35,14 @@ class Pry
       # Instantiate a `Code` object containing code loaded from a file or
       # Pry's line buffer.
       #
-      # @param [String] fn The name of a file, or "(pry)".
+      # @param [String] filename The name of a file, or "(pry)".
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(fn, code_type=type_from_filename(fn))
-        if fn == Pry.eval_path
+      def from_file(filename, code_type = type_from_filename(filename))
+        if filename == Pry.eval_path
           new(Pry.line_buffer.drop(1), 1, code_type)
         else
-          abs_path = [File.expand_path(fn, Dir.pwd),
-                      File.expand_path(fn, Pry::INITIAL_PWD)
-                     ].detect{ |abs_path| File.readable?(abs_path) }
-
-          unless abs_path
-            raise MethodSource::SourceNotFoundError, "Cannot open #{fn.inspect} for reading."
-          end
-
-          File.open(abs_path, 'r') do |f|
-            new(f, 1, code_type)
-          end
+          File.open(get_abs_path(filename), 'r') { |f| new(f, 1, code_type) }
         end
       end
 
@@ -58,7 +51,7 @@ class Pry
       #
       # @param [::Method, UnboundMethod, Proc, Pry::Method] meth The method
       #   object.
-      # @param [Fixnum, nil] start_line The line number to start on, or nil to
+      # @param [Integer, nil] start_line The line number to start on, or nil to
       #   use the method's original line numbers.
       # @return [Code]
       def from_method(meth, start_line=nil)
@@ -70,9 +63,9 @@ class Pry
       # Attempt to extract the source code for module (or class) `mod`.
       #
       # @param [Module, Class] mod The module (or class) of interest.
-      # @param [Fixnum, nil] start_line The line number to start on, or nil to use the
+      # @param [Integer, nil] start_line The line number to start on, or nil to use the
       #   method's original line numbers.
-      # @param [Fixnum] candidate_rank The module candidate (by rank)
+      # @param [Integer] candidate_rank The module candidate (by rank)
       #   to use (see `Pry::WrappedModule::Candidate` for more information).
       # @return [Code]
       def from_module(mod, start_line=nil, candidate_rank=0)
@@ -83,36 +76,49 @@ class Pry
       end
 
       protected
-        # Guess the CodeRay type of a file from its extension, or nil if
-        # unknown.
-        #
-        # @param [String] filename
-        # @param [Symbol] default (:ruby) the file type to assume if none could be detected
-        # @return [Symbol, nil]
-        def type_from_filename(filename, default=:ruby)
-          map = {
-            %w(.c .h) => :c,
-            %w(.cpp .hpp .cc .h cxx) => :cpp,
-            %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
-            %w(.py) => :python,
-            %w(.diff) => :diff,
-            %w(.css) => :css,
-            %w(.html) => :html,
-            %w(.yaml .yml) => :yaml,
-            %w(.xml) => :xml,
-            %w(.php) => :php,
-            %w(.js) => :javascript,
-            %w(.java) => :java,
-            %w(.rhtml) => :rhtml,
-            %w(.json) => :json
-          }
 
-          _, type = map.find do |k, _|
-            k.any? { |ext| ext == File.extname(filename) }
-          end
+      # Guess the CodeRay type of a file from its extension, or nil if
+      # unknown.
+      #
+      # @param [String] filename
+      # @param [Symbol] default (:ruby) the file type to assume if none could be detected
+      # @return [Symbol, nil]
+      def type_from_filename(filename, default=:ruby)
+        map = {
+          %w(.c .h) => :c,
+          %w(.cpp .hpp .cc .h cxx) => :cpp,
+          %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
+          %w(.py) => :python,
+          %w(.diff) => :diff,
+          %w(.css) => :css,
+          %w(.html) => :html,
+          %w(.yaml .yml) => :yaml,
+          %w(.xml) => :xml,
+          %w(.php) => :php,
+          %w(.js) => :javascript,
+          %w(.java) => :java,
+          %w(.rhtml) => :rhtml,
+          %w(.json) => :json
+        }
 
-          type || default
+        _, type = map.find do |k, _|
+          k.any? { |ext| ext == File.extname(filename) }
         end
+
+        type || default
+      end
+
+      # @param [String] filename
+      # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
+      #   readable for some reason.
+      # @return [String] absolute path for the given +filename+.
+      def get_abs_path(filename)
+        abs_path = [File.expand_path(filename, Dir.pwd),
+                    File.expand_path(filename, Pry::INITIAL_PWD)
+                   ].detect { |abs_path| File.readable?(abs_path) }
+        abs_path or raise MethodSource::SourceNotFoundError,
+                          "Cannot open #{filename.inspect} for reading."
+      end
     end
 
     # @return [Symbol] The type of code stored in this wrapper.
@@ -124,33 +130,35 @@ class Pry
     # empty `Code` object and then use `#push` to insert the lines.
     #
     # @param [Array<String>, String, IO] lines
-    # @param [Fixnum?] start_line
+    # @param [Integer?] start_line
     # @param [Symbol?] code_type
-    def initialize(lines=[], start_line=1, code_type=:ruby)
+    def initialize(lines = [], start_line = 1, code_type = :ruby)
       if lines.is_a? String
         lines = lines.lines
       end
-
-      @lines = lines.each_with_index.map { |l, i| [l.chomp, i + start_line.to_i] }
+      @lines = lines.each_with_index.map { |line, lineno|
+        LOC.new(line, lineno + start_line.to_i) }
       @code_type = code_type
     end
 
-    # Append the given line. `line_num` is one more than the last existing
+    # Append the given line. +lineno+ is one more than the last existing
     # line, unless specified otherwise.
     #
     # @param [String] line
-    # @param [Fixnum?] line_num
+    # @param [Integer?] lineno
     # @return [String] The inserted line.
-    def push(line, line_num=nil)
-      line_num = @lines.last.last + 1 unless line_num
-      @lines.push([line.chomp, line_num])
+    def push(line, lineno = nil)
+      if lineno.nil?
+        lineno = @lines.last.lineno + 1
+      end
+      @lines.push(LOC.new(line, lineno))
       line
     end
     alias << push
 
     # Filter the lines using the given block.
     #
-    # @yield [line]
+    # @yield [LOC]
     # @return [Code]
     def select(&blk)
       alter do
@@ -162,92 +170,74 @@ class Pry
     # `Range` object or a first and last line number (inclusive). Negative
     # indices count from the end of the array of lines.
     #
-    # @param [Range, Fixnum] start_line
-    # @param [Fixnum?] end_line
+    # @param [Range, Integer] start_line
+    # @param [Integer?] end_line
     # @return [Code]
-    def between(start_line, end_line=nil)
+    def between(start_line, end_line = nil)
       return self unless start_line
 
-      if start_line.is_a? Range
-        end_line = start_line.last
-        end_line -= 1 if start_line.exclude_end?
-
-        start_line = start_line.first
-      else
-        end_line ||= start_line
-      end
-
-      if start_line > 0
-        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
-      else
-        start_idx = start_line
-      end
-
-      if end_line > 0
-        end_idx = (@lines.index { |l| l.last > end_line } || 0) - 1
-      else
-        end_idx = end_line
-      end
+      code_range = CodeRange.new(start_line, end_line)
 
       alter do
-        @lines = @lines[start_idx..end_idx] || []
+        @lines = @lines[code_range.indices_range(@lines)] || []
       end
     end
 
     # Take `num_lines` from `start_line`, forward or backwards
     #
-    # @param [Fixnum] start_line
-    # @param [Fixnum] num_lines
+    # @param [Integer] start_line
+    # @param [Integer] num_lines
     # @return [Code]
     def take_lines(start_line, num_lines)
-      if start_line >= 0
-        start_idx = @lines.index { |l| l.last >= start_line } || @lines.length
-      else
-        start_idx = @lines.length + start_line
-      end
+      start_idx =
+        if start_line >= 0
+          @lines.index { |loc| loc.lineno >= start_line } || @lines.length
+        else
+          @lines.length + start_line
+        end
 
       alter do
         @lines = @lines.slice(start_idx, num_lines)
       end
     end
 
-    # Remove all lines except for the `lines` up to and excluding `line_num`.
+    # Remove all lines except for the +lines+ up to and excluding +lineno+.
     #
-    # @param [Fixnum] line_num
-    # @param [Fixnum] lines
+    # @param [Integer] lineno
+    # @param [Integer] lines
     # @return [Code]
-    def before(line_num, lines=1)
-      return self unless line_num
+    def before(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln >= line_num - lines && ln < line_num
+      select do |loc|
+        loc.lineno >= lineno - lines && loc.lineno < lineno
       end
     end
 
-    # Remove all lines except for the `lines` on either side of and including
-    # `line_num`.
+    # Remove all lines except for the +lines+ on either side of and including
+    # +lineno+.
     #
-    # @param [Fixnum] line_num
-    # @param [Fixnum] lines
+    # @param [Integer] lineno
+    # @param [Integer] lines
     # @return [Code]
-    def around(line_num, lines=1)
-      return self unless line_num
+    def around(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln >= line_num - lines && ln <= line_num + lines
+      select do |loc|
+        loc.lineno >= lineno - lines && loc.lineno <= lineno + lines
       end
     end
 
-    # Remove all lines except for the `lines` after and excluding `line_num`.
+    # Remove all lines except for the +lines+ after and excluding +lineno+.
     #
-    # @param [Fixnum] line_num
-    # @param [Fixnum] lines
+    # @param [Integer] lineno
+    # @param [Integer] lines
     # @return [Code]
-    def after(line_num, lines=1)
-      return self unless line_num
+    def after(lineno, lines = 1)
+      return self unless lineno
 
-      select do |l, ln|
-        ln > line_num && ln <= line_num + lines
+      select do |loc|
+        loc.lineno > lineno && loc.lineno <= lineno + lines
       end
     end
 
@@ -259,8 +249,8 @@ class Pry
       return self unless pattern
       pattern = Regexp.new(pattern)
 
-      select do |l, ln|
-        l =~ pattern
+      select do |loc|
+        loc.line =~ pattern
       end
     end
 
@@ -268,30 +258,30 @@ class Pry
     #
     # @param [Boolean?] y_n
     # @return [Code]
-    def with_line_numbers(y_n=true)
+    def with_line_numbers(y_n = true)
       alter do
         @with_line_numbers = y_n
       end
     end
 
-    # Format output with a marker next to the given `line_num`, unless `line_num`
+    # Format output with a marker next to the given +lineno+, unless +line_num+
     # is falsy.
     #
-    # @param [Fixnum?] line_num
+    # @param [Integer?] lineno
     # @return [Code]
-    def with_marker(line_num=1)
+    def with_marker(lineno = 1)
       alter do
-        @with_marker     = !!line_num
-        @marker_line_num = line_num
+        @with_marker   = !!lineno
+        @marker_lineno = lineno
       end
     end
 
     # Format output with the specified number of spaces in front of every line,
     # unless `spaces` is falsy.
     #
-    # @param [Fixnum?] spaces
+    # @param [Integer?] spaces
     # @return [Code]
-    def with_indentation(spaces=0)
+    def with_indentation(spaces = 0)
       alter do
         @with_indentation = !!spaces
         @indentation_num  = spaces
@@ -303,49 +293,24 @@ class Pry
       Object.instance_method(:to_s).bind(self).call
     end
 
-    # Based on the configuration of the object, return a formatted String
-    # representation.
-    #
-    # @return [String]
+    # @return [String] a formatted representation (based on the configuration of
+    #   the object).
     def to_s
-      lines = @lines.map(&:dup)
+      max_width = @lines.last.lineno.to_s.length if @lines.length > 0
 
-      if Pry.color
-        lines.each do |l|
-          l[0] = CodeRay.scan(l[0], @code_type).term
-        end
+      lines = @lines.map(&:dup).each do |loc|
+        loc.colorize(@code_type)       if Pry.color
+        loc.add_line_number(max_width) if @with_line_numbers
+        loc.add_marker(@marker_lineno) if @with_marker
+        loc.indent(@indentation_num)   if @with_indentation
       end
 
-      if @with_line_numbers
-        max_width = lines.last.last.to_s.length if lines.length > 0
-        lines.each do |l|
-          padded_line_num = l[1].to_s.rjust(max_width)
-          l[0] = "#{Pry::Helpers::BaseHelpers.colorize_code(padded_line_num.to_s)}: #{l[0]}"
-        end
-      end
-
-      if @with_marker
-        lines.each do |l|
-          if l[1] == @marker_line_num
-            l[0] = " => #{l[0]}"
-          else
-            l[0] = "    #{l[0]}"
-          end
-        end
-      end
-
-      if @with_indentation
-        lines.each do |l|
-          l[0] = "#{' ' * @indentation_num}#{l[0]}"
-        end
-      end
-
-      lines.map { |l| "#{l.first}\n" }.join
+      lines.map { |loc| "#{ loc.line }\n" }.join
     end
 
     # Get the comment that describes the expression on the given line number.
     #
-    # @param [Fixnum]  line_number (1-based)
+    # @param [Integer]  line_number (1-based)
     # @return [String]  the code.
     def comment_describing(line_number)
       self.class.comment_describing(raw, line_number)
@@ -353,18 +318,18 @@ class Pry
 
     # Get the multiline expression that starts on the given line number.
     #
-    # @param [Fixnum]  line_number (1-based)
+    # @param [Integer]  line_number (1-based)
     # @return [String]  the code.
-    def expression_at(line_number, consume=0)
+    def expression_at(line_number, consume = 0)
       self.class.expression_at(raw, line_number, :consume => consume)
     end
 
     # Get the (approximate) Module.nesting at the give line number.
     #
-    # @param [Fixnum]  line_number  line number starting from 1
+    # @param [Integer]  line_number  line number starting from 1
     # @param [Module] top_module   the module in which this code exists
     # @return [Array<Module>]  a list of open modules.
-    def nesting_at(line_number, top_module=Object)
+    def nesting_at(line_number, top_module = Object)
       Pry::Indent.nesting_at(raw, line_number)
     end
 
@@ -372,12 +337,12 @@ class Pry
     #
     # @return [String]
     def raw
-      @lines.map(&:first).join("\n") + "\n"
+      @lines.map(&:line).join("\n") + "\n"
     end
 
     # Return the number of lines stored.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def length
       @lines ? @lines.length : 0
     end
@@ -390,8 +355,8 @@ class Pry
     def ==(other)
       if other.is_a?(Code)
         @other_lines = other.instance_variable_get(:@lines)
-        @lines.each_with_index.all? do |(l, ln), i|
-          l == @other_lines[i].first && ln == @other_lines[i].last
+        @lines.each_with_index.all? do |loc, i|
+          loc.line == @other_lines[i].line && loc.lineno == @other_lines[i].lineno
         end
       else
         to_s.chomp == other.to_s.chomp
@@ -405,10 +370,11 @@ class Pry
     undef =~
 
     protected
-      # An abstraction of the `dup.instance_eval` pattern used throughout this
-      # class.
-      def alter(&blk)
-        dup.tap { |o| o.instance_eval(&blk) }
-      end
+
+    # An abstraction of the `dup.instance_eval` pattern used throughout this
+    # class.
+    def alter(&blk)
+      dup.tap { |o| o.instance_eval(&blk) }
+    end
   end
 end

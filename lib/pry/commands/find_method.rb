@@ -31,54 +31,82 @@ class Pry
 
     def process
       return if args.size < 1
-      pattern = ::Regexp.new args[0]
-      if args[1]
-        klass = target.eval(args[1])
-        if !klass.is_a?(Module)
-          klass = klass.class
-        end
-      else
-        klass = (target_self.is_a?(Module)) ? target_self : target_self.class
-      end
+      klass = search_class
 
       matches = if opts.content?
-                  content_search(pattern, klass)
-                else
-                  name_search(pattern, klass)
-                end
-
-      if matches.empty?
-        output.puts text.bold("No Methods Matched")
+        content_search(klass)
       else
-        print_matches(matches, pattern)
+        name_search(klass)
       end
 
+      show_search_results(matches)
     end
 
     private
 
+    # @return [Regexp] The pattern to search for.
+    def pattern
+      @pattern ||= ::Regexp.new args[0]
+    end
+
+    # Output the result of the search.
+    #
+    # @param [Array] matches
+    def show_search_results(matches)
+      if matches.empty?
+        output.puts text.bold("No Methods Matched")
+      else
+        print_matches(matches)
+      end
+    end
+
+    # The class to search for methods.
+    # We only search classes, so if the search object is an
+    # instance, return its class. If no search object is given
+    # search `target_self`.
+    def search_class
+      klass = if args[1]
+                target.eval(args[1])
+              else
+                target_self
+              end
+
+      klass.is_a?(Module) ? klass : klass.class
+    end
+
     # pretty-print a list of matching methods.
     #
     # @param Array[Method]
-    def print_matches(matches, pattern)
+    def print_matches(matches)
       grouped = matches.group_by(&:owner)
       order = grouped.keys.sort_by{ |x| x.name || x.to_s }
 
       order.each do |klass|
-        output.puts text.bold(klass.name)
-        grouped[klass].each do |method|
-          header = method.name_with_owner
-
-          extra = if opts.content?
-                    header += ": "
-                    colorize_code((method.source.split(/\n/).select {|x| x =~ pattern }).join("\n#{' ' * header.length}"))
-                  else
-                    ""
-                  end
-
-          output.puts header + extra
-        end
+        print_matches_for_class(klass, grouped)
       end
+    end
+
+    # Print matched methods for a class
+    def print_matches_for_class(klass, grouped)
+      output.puts text.bold(klass.name)
+      grouped[klass].each do |method|
+        header = method.name_with_owner
+        output.puts header + additional_info(header, method)
+      end
+    end
+
+    # Return the matched lines of method source if `-c` is given or ""
+    # if `-c` was not given
+    def additional_info(header, method)
+      if opts.content?
+        ": " + colorize_code(matched_method_lines(header, method))
+      else
+        ""
+      end
+    end
+
+    def matched_method_lines(header, method)
+      method.source.split(/\n/).select {|x| x =~ pattern }.join("\n#{' ' * header.length}")
     end
 
     # Run the given block against every constant in the provided namespace.
@@ -135,27 +163,25 @@ class Pry
     # Search for all methods with a name that matches the given regex
     # within a namespace.
     #
-    # @param Regex  The regex to search for
     # @param Module  The namespace to search
     # @return Array[Method]
     #
-    def name_search(regex, namespace)
+    def name_search(namespace)
       search_all_methods(namespace) do |meth|
-        meth.name =~ regex
+        meth.name =~ pattern
       end
     end
 
     # Search for all methods who's implementation matches the given regex
     # within a namespace.
     #
-    # @param Regex  The regex to search for
     # @param Module  The namespace to search
     # @return Array[Method]
     #
-    def content_search(regex, namespace)
+    def content_search(namespace)
       search_all_methods(namespace) do |meth|
         begin
-          meth.source =~ regex
+          meth.source =~ pattern
         rescue RescuableException
           false
         end
