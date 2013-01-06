@@ -20,7 +20,7 @@ class Pry
     class LOC
 
       # @return [Array<String, Integer>]
-      attr_accessor :tuple
+      attr_reader :tuple
 
       # @param [String] line The line of code.
       # @param [Integer] lineno The position of the +line+.
