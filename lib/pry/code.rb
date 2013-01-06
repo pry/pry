@@ -264,7 +264,7 @@ class Pry
       end
     end
 
-    # Format output with a marker next to the given +lineno+, unless +line_num+
+    # Format output with a marker next to the given +lineno+, unless +lineno+
     # is falsy.
     #
     # @param [Integer?] lineno
@@ -357,10 +357,8 @@ class Pry
     # @return [Boolean]
     def ==(other)
       if other.is_a?(Code)
-        @other_lines = other.instance_variable_get(:@lines)
-        @lines.each_with_index.all? do |loc, i|
-          loc.line == @other_lines[i].line && loc.lineno == @other_lines[i].lineno
-        end
+        other_lines = other.instance_variable_get(:@lines)
+        @lines.each_with_index.all? { |loc, i| loc == other_lines[i] }
       else
         to_s.chomp == other.to_s.chomp
       end

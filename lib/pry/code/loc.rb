@@ -28,6 +28,11 @@ class Pry
         @tuple = [line.chomp, lineno.to_i]
       end
 
+      # @return [Boolean]
+      def ==(other)
+        other.tuple == tuple
+      end
+
       def dup
         self.class.new(line, lineno)
       end
