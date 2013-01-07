@@ -25,6 +25,7 @@ class Pry
       end
 
       private
+
       def selected_input_items
         input_expressions[normalized_expression_range] || []
       end
