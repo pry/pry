@@ -29,6 +29,26 @@ class Pry
   # arbitrary chaining of formatting methods without mutating the original
   # object.
   class Code
+
+    # List of all supported languages.
+    # @return [Hash]
+    EXTENSIONS = {
+      %w(.py)        => :python,
+      %w(.js)        => :javascript,
+      %w(.css)       => :css,
+      %w(.xml)       => :xml,
+      %w(.php)       => :php,
+      %w(.html)      => :html,
+      %w(.diff)      => :diff,
+      %w(.java)      => :java,
+      %w(.json)      => :json,
+      %w(.c .h)      => :c,
+      %w(.rhtml)     => :rhtml,
+      %w(.yaml .yml) => :yaml,
+      %w(.cpp .hpp .cc .h cxx) => :cpp,
+      %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
+    }
+
     class << self
       include MethodSource::CodeHelpers
 
@@ -63,8 +83,8 @@ class Pry
       # Attempt to extract the source code for module (or class) `mod`.
       #
       # @param [Module, Class] mod The module (or class) of interest.
-      # @param [Integer, nil] start_line The line number to start on, or nil to use the
-      #   method's original line numbers.
+      # @param [Integer, nil] start_line The line number to start on, or nil to
+      #   use the method's original line numbers.
       # @param [Integer] candidate_rank The module candidate (by rank)
       #   to use (see `Pry::WrappedModule::Candidate` for more information).
       # @return [Code]
@@ -81,27 +101,11 @@ class Pry
       # unknown.
       #
       # @param [String] filename
-      # @param [Symbol] default (:ruby) the file type to assume if none could be detected
+      # @param [Symbol] default (:ruby) the file type to assume if none could be
+      #   detected.
       # @return [Symbol, nil]
-      def type_from_filename(filename, default=:ruby)
-        map = {
-          %w(.c .h) => :c,
-          %w(.cpp .hpp .cc .h cxx) => :cpp,
-          %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
-          %w(.py) => :python,
-          %w(.diff) => :diff,
-          %w(.css) => :css,
-          %w(.html) => :html,
-          %w(.yaml .yml) => :yaml,
-          %w(.xml) => :xml,
-          %w(.php) => :php,
-          %w(.js) => :javascript,
-          %w(.java) => :java,
-          %w(.rhtml) => :rhtml,
-          %w(.json) => :json
-        }
-
-        _, type = map.find do |k, _|
+      def type_from_filename(filename, default = :ruby)
+        _, type = Pry::Code::EXTENSIONS.find do |k, _|
           k.any? { |ext| ext == File.extname(filename) }
         end
 
@@ -183,7 +187,7 @@ class Pry
       end
     end
 
-    # Take `num_lines` from `start_line`, forward or backwards
+    # Take `num_lines` from `start_line`, forward or backwards.
     #
     # @param [Integer] start_line
     # @param [Integer] num_lines
@@ -264,8 +268,8 @@ class Pry
       end
     end
 
-    # Format output with a marker next to the given +lineno+, unless +lineno+
-    # is falsy.
+    # Format output with a marker next to the given +lineno+, unless +lineno+ is
+    # falsy.
     #
     # @param [Integer?] lineno
     # @return [Code]
