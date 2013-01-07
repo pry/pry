@@ -312,30 +312,30 @@ class Pry
         loc.indent(@indentation_num)   if @with_indentation
       end
 
-      lines.map { |loc| "#{ loc.line }\n" }.join
+      lines.map(&:line).join("\n") + "\n"
     end
 
     # Get the comment that describes the expression on the given line number.
     #
-    # @param [Integer]  line_number (1-based)
-    # @return [String]  the code.
+    # @param [Integer] line_number (1-based)
+    # @return [String] the code.
     def comment_describing(line_number)
       self.class.comment_describing(raw, line_number)
     end
 
     # Get the multiline expression that starts on the given line number.
     #
-    # @param [Integer]  line_number (1-based)
-    # @return [String]  the code.
+    # @param [Integer] line_number (1-based)
+    # @return [String] the code.
     def expression_at(line_number, consume = 0)
       self.class.expression_at(raw, line_number, :consume => consume)
     end
 
     # Get the (approximate) Module.nesting at the give line number.
     #
-    # @param [Integer]  line_number  line number starting from 1
-    # @param [Module] top_module   the module in which this code exists
-    # @return [Array<Module>]  a list of open modules.
+    # @param [Integer] line_number line number starting from 1
+    # @param [Module] top_module the module in which this code exists
+    # @return [Array<Module>] a list of open modules.
     def nesting_at(line_number, top_module = Object)
       Pry::Indent.nesting_at(raw, line_number)
     end
