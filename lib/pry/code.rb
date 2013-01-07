@@ -62,7 +62,7 @@ class Pry
         if filename == Pry.eval_path
           new(Pry.line_buffer.drop(1), 1, code_type)
         else
-          File.open(get_abs_path(filename), 'r') { |f| new(f, 1, code_type) }
+          File.open(abs_path(filename), 'r') { |f| new(f, 1, code_type) }
         end
       end
 
@@ -74,7 +74,7 @@ class Pry
       # @param [Integer, nil] start_line The line number to start on, or nil to
       #   use the method's original line numbers.
       # @return [Code]
-      def from_method(meth, start_line=nil)
+      def from_method(meth, start_line = nil)
         meth = Pry::Method(meth)
         start_line ||= meth.source_line || 1
         new(meth.source, start_line, meth.source_type)
@@ -88,9 +88,8 @@ class Pry
       # @param [Integer] candidate_rank The module candidate (by rank)
       #   to use (see `Pry::WrappedModule::Candidate` for more information).
       # @return [Code]
-      def from_module(mod, start_line=nil, candidate_rank=0)
+      def from_module(mod, start_line = nil, candidate_rank = 0)
         candidate = Pry::WrappedModule(mod).candidate(candidate_rank)
-
         start_line ||= candidate.line
         new(candidate.source, start_line, :ruby)
       end
@@ -116,7 +115,7 @@ class Pry
       # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
       #   readable for some reason.
       # @return [String] absolute path for the given +filename+.
-      def get_abs_path(filename)
+      def abs_path(filename)
         abs_path = [File.expand_path(filename, Dir.pwd),
                     File.expand_path(filename, Pry::INITIAL_PWD)
                    ].detect { |abs_path| File.readable?(abs_path) }
@@ -164,9 +163,9 @@ class Pry
     #
     # @yield [LOC]
     # @return [Code]
-    def select(&blk)
+    def select(&block)
       alter do
-        @lines = @lines.select(&blk)
+        @lines = @lines.select(&block)
       end
     end
 
@@ -369,8 +368,8 @@ class Pry
     end
 
     # Forward any missing methods to the output of `#to_s`.
-    def method_missing(name, *args, &blk)
-      to_s.send(name, *args, &blk)
+    def method_missing(name, *args, &block)
+      to_s.send(name, *args, &block)
     end
     undef =~
 
@@ -378,8 +377,8 @@ class Pry
 
     # An abstraction of the `dup.instance_eval` pattern used throughout this
     # class.
-    def alter(&blk)
-      dup.tap { |o| o.instance_eval(&blk) }
+    def alter(&block)
+      dup.tap { |o| o.instance_eval(&block) }
     end
   end
 end
