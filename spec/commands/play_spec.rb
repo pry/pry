@@ -21,7 +21,7 @@ describe "play" do
       end
     end
 
-    describe "numbers" do
+    describe "implied _file_" do
       before do
         @tempfile = Tempfile.new(%w|pry .rb|)
         @tempfile.puts <<-EOS
@@ -40,14 +40,14 @@ describe "play" do
 
       describe "integer" do
         it "should process one line from _pry_.last_file" do
-          @t.process_command 'play 1', @eval_str
+          @t.process_command 'play --lines 1', @eval_str
           @eval_str.should =~ /bing = :bing\n/
         end
       end
 
       describe "range" do
         it "should process multiple lines at once from _pry_.last_file" do
-          @t.process_command 'play 1..3', @eval_str
+          @t.process_command 'play --lines 1..3', @eval_str
           [/bing = :bing\n/, /bang = :bang\n/, /bong = :bong\n/].each { |str|
             @eval_str.should =~ str
           }
@@ -57,7 +57,7 @@ describe "play" do
 
     describe "malformed" do
       it "should return nothing" do
-        @t.process_command 'play 69', @eval_str
+        @t.process_command 'play --lines 69', @eval_str
         @eval_str.should == ''
         lambda { @t.process_command('play zZz') }.should.raise Pry::CommandError
       end
@@ -104,17 +104,17 @@ describe "play" do
       STR
     end
 
-    it 'should play a method with the -m switch (a single line)' do
-      pry_tester(@o).process_command 'play -m test_method --lines 2', @eval_str
+    it 'should play a method (a single line)' do
+      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
       @eval_str.should == "  :test_method_content\n"
     end
 
-    it 'should APPEND to the input buffer when playing a line with play -m, not replace it' do
+    it 'should APPEND to the input buffer when playing a method line, not replace it' do
       @eval_str = unindent(<<-STR)
         def another_test_method
       STR
 
-      pry_tester(@o).process_command 'play -m test_method --lines 2', @eval_str
+      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
 
       @eval_str.should == unindent(<<-STR)
         def another_test_method
@@ -122,7 +122,7 @@ describe "play" do
       STR
     end
 
-    it 'should play a method with the -m switch (multiple line)' do
+    it 'should play a method with the (multiple lines)' do
       def @o.test_method
         @var0 = 10
         @var1 = 20
@@ -130,7 +130,7 @@ describe "play" do
         @var3 = 40
       end
 
-      pry_tester(@o).process_command 'play -m test_method --lines 3..4', @eval_str
+      pry_tester(@o).process_command 'play test_method --lines 3..4', @eval_str
 
       @eval_str.should == unindent(<<-STR, 2)
         @var1 = 20
