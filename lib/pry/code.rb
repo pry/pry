@@ -304,14 +304,14 @@ class Pry
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      lines = @lines.map(&:dup).each do |loc|
-        loc.colorize(@code_type)       if Pry.color
+      @lines.map { |loc|
+        loc = loc.dup
+        loc.colorize(@code_type)              if Pry.color
         loc.add_line_number(max_lineno_width) if @with_line_numbers
-        loc.add_marker(@marker_lineno) if @with_marker
-        loc.indent(@indentation_num)   if @with_indentation
-      end
-
-      lines.map(&:line).join("\n") + "\n"
+        loc.add_marker(@marker_lineno)        if @with_marker
+        loc.indent(@indentation_num)          if @with_indentation
+        loc.line
+      }.join("\n") + "\n"
     end
 
     # Get the comment that describes the expression on the given line number.
