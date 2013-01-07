@@ -59,11 +59,12 @@ class Pry
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
       def from_file(filename, code_type = type_from_filename(filename))
-        if filename == Pry.eval_path
-          new(Pry.line_buffer.drop(1), 1, code_type)
-        else
-          File.open(abs_path(filename), 'r') { |f| new(f, 1, code_type) }
-        end
+        code = if filename == Pry.eval_path
+                 Pry.line_buffer.drop(1)
+               else
+                 File.read(abs_path(filename))
+               end
+        new(code, 1, code_type)
       end
 
       # Instantiate a `Code` object containing code extracted from a
