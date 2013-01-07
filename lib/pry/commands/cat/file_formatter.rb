@@ -11,6 +11,15 @@ class Pry
         @_pry_ = _pry_
       end
 
+      def format
+        raise CommandError, "Must provide a filename, --in, or --ex." if !file_with_embedded_line
+
+        set_file_and_dir_locals(file_name, _pry_, _pry_.current_context)
+        decorate(Pry::Code.from_file(file_name))
+      end
+
+      private
+
       def file_and_line
         file_name, line_num = file_with_embedded_line.split(':')
 
@@ -28,15 +37,6 @@ class Pry
       def code_window_size
         Pry.config.default_window_size || 7
       end
-
-      def format
-        raise CommandError, "Must provide a filename, --in, or --ex." if !file_with_embedded_line
-
-        set_file_and_dir_locals(file_name, _pry_, _pry_.current_context)
-        decorate(Pry::Code.from_file(file_name))
-      end
-
-      private
 
       def decorate(content)
         line_number ? super.around(line_number, code_window_size) : super
