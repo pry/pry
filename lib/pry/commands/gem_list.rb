@@ -13,7 +13,7 @@ class Pry
 
     def process(pattern = nil)
       pattern = Regexp.compile(pattern || '')
-      gems    = gem_list(pattern).group_by(&:name)
+      gems    = Rubygem.list(pattern).group_by(&:name)
 
       gems.each do |gem, specs|
         specs.sort! do |a,b|

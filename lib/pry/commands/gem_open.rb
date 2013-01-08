@@ -13,13 +13,13 @@ class Pry
     BANNER
 
     def process(gem)
-      Dir.chdir(gem_spec(gem).full_gem_path) do
+      Dir.chdir(Rubygem.spec(gem).full_gem_path) do
         Pry::Editor.invoke_editor(".", 0, false)
       end
     end
 
     def complete(str)
-      gem_complete(str)
+      Rubygem.complete(str)
     end
   end
 

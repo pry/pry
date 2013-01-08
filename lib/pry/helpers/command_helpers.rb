@@ -147,43 +147,6 @@ class Pry
 
         Range.new(a, b)
       end
-
-      # Get the gem spec object for the given gem
-      # @param [String] gem name
-      # @return [Gem::Specification]
-      def gem_spec(gem)
-        specs = if Gem::Specification.respond_to?(:each)
-                  Gem::Specification.find_all_by_name(gem)
-                else
-                  Gem.source_index.find_name(gem)
-                end
-
-        spec = specs.sort_by{ |spec| Gem::Version.new(spec.version) }.first
-
-        spec or raise CommandError, "Gem `#{gem}` not found"
-      end
-
-      # List gems matching a pattern
-      # @param [Regexp] pattern
-      # @return [Array<Gem::Specification>]
-      def gem_list(pattern=/.*/)
-        if Gem::Specification.respond_to?(:each)
-          Gem::Specification.select{|spec| spec.name =~ pattern }
-        else
-          Gem.source_index.gems.values.select{|spec| spec.name =~ pattern }
-        end
-      end
-
-      # Completion function for gem-cd and gem-open
-      # @param [String] so_far what the user's typed so far
-      # @return [Array<String>] completions
-      def gem_complete(so_far)
-        if so_far =~ / ([^ ]*)\z/
-          gem_list(%r{\A#{$2}}).map(&:name)
-        else
-          gem_list.map(&:name)
-        end
-      end
     end
   end
 end
