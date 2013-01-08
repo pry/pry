@@ -16,19 +16,9 @@ class Pry
     end
 
     def process(gem)
-      begin
-        destination = File.writable?(Gem.dir) ? Gem.dir : Gem.user_dir
-        installer = Gem::DependencyInstaller.new :install_dir => destination
-        installer.install gem
-      rescue Errno::EACCES
-        raise CommandError, "Insufficient permissions to install `#{text.green gem}`."
-      rescue Gem::GemNotFoundException
-        raise CommandError, "Gem `#{text.green gem}` not found."
-      else
-        Gem.refresh
-        output.puts "Gem `#{text.green gem}` installed."
-        require gem
-      end
+      Rubygem.install(gem)
+      output.puts "Gem `#{ text.green(gem) }` installed."
+      require gem
     end
   end
 

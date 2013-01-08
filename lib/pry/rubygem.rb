@@ -1,9 +1,10 @@
+require 'rubygems'
+
 class Pry
   module Rubygem
 
     class << self
       def installed?(name)
-        require 'rubygems'
         if Gem::Specification.respond_to?(:find_all_by_name)
           Gem::Specification.find_all_by_name(name).any?
         else
@@ -49,6 +50,23 @@ class Pry
         else
           self.list.map(&:name)
         end
+      end
+
+      # Installs a gem with all its dependencies.
+      #
+      # @param [String] name
+      # @return [void]
+      def install(name)
+        destination = File.writable?(Gem.dir) ? Gem.dir : Gem.user_dir
+        installer = Gem::DependencyInstaller.new(:install_dir => destination)
+        installer.install(name)
+      rescue Errno::EACCES
+        raise CommandError,
+          "Insufficient permissions to install `#{ text.green(name) }`."
+      rescue Gem::GemNotFoundException
+        raise CommandError, "Gem `#{ text.green(name) }` not found."
+      else
+        Gem.refresh
       end
     end
 
