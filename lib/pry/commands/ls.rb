@@ -312,6 +312,10 @@ class Pry
       maximum_width = screen_width if maximum_width > screen_width
       columns = screen_width / maximum_width
 
+      columnise_things(things, columns, maximum_width)
+    end
+
+    def columnise_things(things, columns, maximum_width)
       things.each_slice(columns).map do |slice|
         slice.map do |s|
           padding_width = maximum_width - Pry::Helpers::Text.strip_color(s).length
