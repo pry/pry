@@ -12,7 +12,7 @@ module ::Guard
       paths.delete('some_lib')
       puts "Running: #{paths.join ' '}"
       if paths.size.zero?
-          warn 'Running all tests'
+        warn 'Running all tests'
         system 'rake recspec'
       else
         paths.each do |path|
