@@ -115,7 +115,7 @@ describe "whereami" do
     class Cor
       def blimey!
         out = pry_eval(binding, 'whereami -n')
-        out.should =~ /^def/
+        out.should =~ /^\s*def/
         out.should.not =~ /\=\>/
       end
     end
