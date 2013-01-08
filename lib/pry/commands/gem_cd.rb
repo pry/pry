@@ -12,12 +12,12 @@ class Pry
     BANNER
 
     def process(gem)
-      Dir.chdir(gem_spec(gem).full_gem_path)
+      Dir.chdir(Rubygem.spec(gem).full_gem_path)
       output.puts(Dir.pwd)
     end
 
     def complete(str)
-      gem_complete(str)
+      Rubygem.complete(str)
     end
   end
 

@@ -24,7 +24,7 @@ class Pry
       gems_to_install = Array(command.options[:requires_gem])
 
       gems_to_install.each do |g|
-        next if gem_installed?(g)
+        next if Rubygem.installed?(g)
         output.puts "Installing `#{g}` gem..."
 
         begin
