@@ -28,6 +28,48 @@ describe "ls" do
     end
   end
 
+  describe 'formatting - should order downward and wrap to columns' do
+    FAKE_COLUMNS = 62
+    def try_round_trip(text)
+      text.strip!
+      things = text.split(/\s+/)
+      actual = Pry::Helpers::Formatting.tablify(things, FAKE_COLUMNS)
+      if actual != text
+        actual.strip.should == text
+        puts text, 'vs.', actual
+      end
+    end
+
+    it 'should handle the basic case' do
+      try_round_trip(<<-EOT)
+aadd            ddasffssdad  sdsaadaasd      ssfasaafssd
+adassdfffaasds  f            sdsfasddasfds   ssssdaa
+assfsafsfsds    fsasa        ssdsssafsdasdf
+      EOT
+    end
+
+    it 'should handle... another basic case' do
+      try_round_trip(<<-EOT)
+aaad            dasaasffaasf    fdasfdfss       safdfdddsasd
+aaadfasassdfff  ddadadassasdf   fddsasadfssdss  sasf
+aaddaafaf       dddasaaaaaa     fdsasad         sddsa
+aas             dfsddffdddsdfd  ff              sddsfsaa
+adasadfaaffds   dsfafdsfdfssda  ffadsfafsaafa   ss
+asddaadaaadfdd  dssdss          ffssfsfafaadss  ssas
+asdsdaa         faadf           fsddfff         ssdfssff
+asfadsssaaad    fasfaafdssd     s
+      EOT
+    end
+
+    it 'should handle empty input' do
+      try_round_trip('')
+    end
+
+    it 'should handle one-token input' do
+      try_round_trip('asdf')
+    end
+  end
+
   describe "help" do
     it 'should show help with -h' do
       pry_eval("ls -h").should =~ /Usage: ls/
