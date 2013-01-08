@@ -321,7 +321,7 @@ describe "edit" do
   describe "old edit-method tests now migrated to edit" do
     describe "on a method defined in a file" do
       before do
-        @tempfile = (Tempfile.new(['pry', '*.rb']))
+        @tempfile = (Tempfile.new(['pry', '.rb']))
         @tempfile.puts <<-EOS
         module A
           def a
