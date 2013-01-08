@@ -99,7 +99,9 @@ class Pry
       raise CommandError, "Minimum value for range is 1, not 0." if convert_to_range(range).first == 0
 
       array = Array(array[range]) || []
-      array.each_with_object("") { |v, o| o << block.call(v) }
+      all = ''
+      array.each { |v| all << block.call(v) }
+      all
     end
 
     def code_object_source_or_file
