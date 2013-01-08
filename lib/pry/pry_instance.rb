@@ -303,6 +303,8 @@ class Pry
         output.puts "Error: #{e.message}"
       end
 
+      exec_hook :before_syntax_check, eval_string, self
+
       begin
         break if Pry::Code.complete_expression?(eval_string)
       rescue SyntaxError => e
