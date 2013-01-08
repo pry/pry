@@ -23,38 +23,6 @@ class Pry
         end
       end
 
-      # Given a string and a binding, return the corresponding
-      # `Pry::Method` or `Pry::WrappedModule`. Also give precedence to modules
-      # when the `::` syntax is used.
-      # @param [String] input The full name of the method or module.
-      # @param [Binding] target The binding where the object is found.
-      # @return [Pry::WrappedModule, Pry::Method] The relevant code object.
-      def retrieve_code_object_from_string(input, target)
-
-        # ensure modules have precedence when `MyClass::X` syntax is used.
-        if input =~ /::(?:\S+)\Z/
-          Pry::WrappedModule.from_str(input,target) || Pry::Method.from_str(input, target)
-        else
-          Pry::Method.from_str(input,target) || Pry::WrappedModule.from_str(input, target)
-        end
-      end
-
-      # Return the file and line for a Binding.
-      # @param [Binding] target The binding
-      # @return [Array] The file and line
-      def file_and_line_from_binding(target)
-        file = target.eval('__FILE__')
-        line_num = target.eval('__LINE__')
-        if rbx?
-          if !target.instance_variable_defined?(:@__actual_file__)
-            target.instance_variable_set(:@__actual_file__, RbxPath.convert_path_to_full(target.variables.method.file.to_s))
-          end
-          file = target.instance_variable_get(:@__actual_file__).to_s
-        end
-
-        [file, line_num]
-      end
-
       def internal_binding?(target)
         m = target.eval("::Kernel.__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753
@@ -87,18 +55,6 @@ class Pry
       def command_error(message, omit_help, klass=CommandError)
         message += " Type `#{command_name} --help` for help." unless omit_help
         raise klass, message
-      end
-
-      def make_header(meth, content=meth.source)
-        header = "\n#{Pry::Helpers::Text.bold('From:')} #{meth.source_file} "
-
-        if meth.source_type == :c
-          header << "(C Method):\n"
-        else
-          header << "@ line #{meth.source_line}:\n"
-        end
-
-        header << "#{Pry::Helpers::Text.bold("Number of lines:")} #{content.each_line.count.to_s}\n"
       end
 
       # Remove any common leading whitespace from every line in `text`.

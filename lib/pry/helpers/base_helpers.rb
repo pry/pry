@@ -56,28 +56,6 @@ class Pry
         _pry_.inject_local("_dir_", _pry_.last_dir, target)
       end
 
-      def stub_proc(name, options)
-        gems_needed = Array(options[:requires_gem])
-        gems_not_installed = gems_needed.select { |g| !gem_installed?(g) }
-        proc do
-          output.puts "\nThe command '#{name}' requires the following gems to be installed: #{(gems_needed.join(", "))}"
-          output.puts "-"
-          output.puts "Command not available due to dependency on gems: `#{gems_not_installed.join(", ")}` not being met."
-          output.puts "-"
-          output.puts "Type `install #{name}` to install the required gems and activate this command."
-        end
-      end
-
-      def create_command_stub(names, description, options, block)
-        Array(names).each do |name|
-          commands[name] = {
-            :description => "Not available. Execute #{(name)} command for more information.",
-            :action => stub_proc(name, options),
-            :stub_info => options
-          }
-        end
-      end
-
       def use_ansi_codes?
         windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
