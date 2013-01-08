@@ -214,15 +214,19 @@ class Pry
     # Format and colourise a list of methods.
     def format_methods(methods)
       methods.sort_by(&:name).map do |method|
-        if method.name == 'method_missing'
-          color(:method_missing, 'method_missing')
-        elsif method.visibility == :private
-          color(:private_method, method.name)
-        elsif method.visibility == :protected
-          color(:protected_method, method.name)
-        else
-          color(:public_method, method.name)
-        end
+        format_method(method)
+      end
+    end
+
+    def format_method method
+      if method.name == 'method_missing'
+        color(:method_missing, 'method_missing')
+      elsif method.visibility == :private
+        color(:private_method, method.name)
+      elsif method.visibility == :protected
+        color(:protected_method, method.name)
+      else
+        color(:public_method, method.name)
       end
     end
 
