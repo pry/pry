@@ -9,6 +9,7 @@ class Pry
   class Command::Edit < Pry::ClassCommand
     require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
+    require 'pry/commands/edit/file_and_line_locator'
 
     match 'edit'
     group 'Editing'
@@ -73,10 +74,11 @@ class Pry
 
     def apply_runtime_patch
       if patch_exception?
-        ExceptionPatcher.new(opts, _pry_, state).perform_patch
+        ex_file_and_line = FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
+        ExceptionPatcher.new(_pry_, state, ex_file_and_line).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          MethodPatcher.new(opts, _pry_, code_object).perform_patch
+          MethodPatcher.new(_pry_, code_object).perform_patch
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
@@ -88,42 +90,16 @@ class Pry
       raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
     end
 
-    def current_file_and_line
-      [target.eval("__FILE__"), target.eval("__LINE__")]
-    end
-
-    def code_object_file_and_line
-      if File.exists?(code_object.source_file.to_s)
-        [code_object.source_file, code_object.source_line]
-      else
-        raise CommandError, "Cannot find a file for #{args.first}!"
-      end
-    end
-
-    def exception_file_and_line
-      raise CommandError, "No exception found." if _pry_.last_exception.nil?
-
-      file_name, line = _pry_.last_exception.bt_source_location_for(opts[:ex].to_i)
-      raise CommandError, "Exception has no associated file." if file_name.nil?
-      raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-
-      file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
-
-      [file_name, line]
-    end
-
     def file_and_line
       file_name, line = if opts.present?(:current)
-                          current_file_and_line
+                          FileAndLineLocator.from_binding(target)
                         elsif opts.present?(:ex)
-                          exception_file_and_line
+                          FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
                         elsif code_object
-                          code_object_file_and_line
+                          FileAndLineLocator.from_code_object(code_object, args.first)
                         else
-                          # break up into file:line
-                          f = File.expand_path(args.first)
-                          l = f.sub!(/:(\d+)$/, "") ? $1.to_i : 1
-                          [f, l]
+                          # when file and line are passed as a single arg, e.g my_file.rb:30
+                          FileAndLineLocator.from_filename_argument(args.first)
                         end
 
       [file_name, opts.present?(:line) ? opts[:l].to_i : line]

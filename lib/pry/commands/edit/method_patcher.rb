@@ -1,12 +1,10 @@
 class Pry
   class Command::Edit
     class MethodPatcher
-      attr_accessor :opts
       attr_accessor :_pry_
       attr_accessor :code_object
 
-      def initialize(opts, _pry_, code_object)
-        @opts = opts
+      def initialize(_pry_, code_object)
         @_pry_ = _pry_
         @code_object = code_object
       end
