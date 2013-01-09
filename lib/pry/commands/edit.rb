@@ -9,7 +9,6 @@ class Pry
   class Command::Edit < Pry::ClassCommand
     require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
-    require 'pry/commands/edit/context_locator'
 
     match 'edit'
     group 'Editing'
