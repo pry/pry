@@ -1,14 +1,14 @@
-require 'forwardable'
-
 class Pry
   class Command::Edit
     class MethodPatcher
-      extend Forwardable
+      attr_accessor :opts
+      attr_accessor :_pry_
+      attr_accessor :code_object
 
-      def_delegators :@edit_context, :code_object, :target, :_pry_
-
-      def initialize(edit_context)
-        @edit_context = edit_context
+      def initialize(opts, _pry_, code_object)
+        @opts = opts
+        @_pry_ = _pry_
+        @code_object = code_object
       end
 
       # perform the patch
