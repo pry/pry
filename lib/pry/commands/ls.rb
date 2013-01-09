@@ -1,94 +1,4 @@
 class Pry
-  module Helpers
-    module Formatting
-      def self.tablify(things, line_length)
-        table = Table.new(things, :column_count => things.size)
-        table.column_count -= 1 until 0 == table.column_count or
-          table.fits_on_line?(line_length)
-        table.to_s
-      end
-
-      class Table
-        attr_reader :items, :column_count
-        def initialize items, args = {}
-          @column_count = args[:column_count]
-          self.items = items
-        end
-
-        def to_s
-          rows_to_s.join("\n")
-        end
-
-        def rows_to_s style = :color_on
-          widths = columns.map{|e| _max_width(e)}
-          @rows_without_colors.map do |r|
-            padded = []
-            r.each_with_index do |e,i|
-              next unless e
-              item = e.ljust(widths[i])
-              item.sub! e, recall_color_for(e) if :color_on == style
-              padded << item
-            end
-            padded.join(Pry.config.ls.separator)
-          end
-        end
-
-        def items= items
-          @items = items
-          _rebuild_colorless_cache
-          _recolumn
-          items
-        end
-
-        def column_count= n
-          @column_count = n
-          _recolumn
-        end
-
-        def fits_on_line? line_length
-          _max_width(rows_to_s :no_color) <= line_length
-        end
-
-        def columns
-          @rows_without_colors.transpose
-        end
-
-        def ==(other); items == other.to_a end
-        def to_a; items.to_a end
-
-        private
-        def _max_width(things)
-          things.compact.map(&:size).max || 0
-        end
-
-        def _rebuild_colorless_cache
-          @colorless_cache = {}
-          @plain_items = []
-          items.map do |e|
-            plain = Pry::Helpers::Text.strip_color(e)
-            @colorless_cache[plain] = e
-            @plain_items << plain
-          end
-        end
-
-        def _recolumn
-          @rows_without_colors = []
-          return if items.size.zero?
-          row_count = (items.size.to_f/column_count).ceil
-          row_count.times do |i|
-            row_indices = (0...column_count).map{|e| row_count*e+i}
-            @rows_without_colors << row_indices.map{|e| @plain_items[e]}
-          end
-        end
-
-        def recall_color_for thing
-          @colorless_cache[thing]
-        end
-      end
-
-    end
-  end
-
   class Command::Ls < Pry::ClassCommand
     match 'ls'
     group 'Context'
@@ -385,18 +295,8 @@ class Pry
     # Add a new section to the output. Outputs nothing if the section would be empty.
     def output_section(heading, body)
       return "" if body.compact.empty?
-      "#{text.bold(color(:heading, heading))}: \n#{tablify(body)}\n"
-    end
-
-    def tablify(things)
-      things = things.compact
-
-      if TerminalInfo.screen_size.nil?
-        return things.join(Pry.config.ls.separator)
-      end
-
-      screen_width = (TerminalInfo.screen_size || [25, 80])[1]
-      Pry::Helpers::Formatting.tablify(things, screen_width)
+      table = Pry::Helpers.tablify_to_screen_width(body)
+      "#{text.bold(color(:heading, heading))}: \n#{table}\n"
     end
 
     # Color output based on config.ls.*_color
