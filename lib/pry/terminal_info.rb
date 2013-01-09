@@ -23,7 +23,7 @@ class Pry::TerminalInfo
 
       # Otherwise try to use the environment (this may be out of date due
       # to window resizing, but it's better than nothing).
-      [ENV["ROWS"], ENV["COLUMNS"]],
+      [ENV["LINES"] || ENV["ROWS"], ENV["COLUMNS"]],
 
       # If the user is running within ansicon, then use the screen size
       # that it reports (same caveats apply as with ROWS and COLUMNS)
