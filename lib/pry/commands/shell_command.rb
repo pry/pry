@@ -6,6 +6,15 @@ class Pry
     command_options :listing => '.<shell command>', :use_prefix => false,
       :takes_block => true
 
+    banner <<-'BANNER'
+      Usage: .COMMAND_NAME
+
+      All text following a "." is forwarded to the shell.
+
+      .ls -aF
+      .uname
+    BANNER
+
     def process(cmd)
       if cmd =~ /^cd\s+(.+)/i
         dest = $1

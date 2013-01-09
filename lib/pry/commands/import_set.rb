@@ -6,6 +6,10 @@ class Pry
     # of this command.
     description 'Import a Pry command set.'
 
+    banner <<-'BANNER'
+      Import a Pry command set.
+    BANNER
+
     def process(command_set_name)
       raise CommandError, "Provide a command set name" if command_set.nil?
 

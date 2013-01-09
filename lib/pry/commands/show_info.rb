@@ -2,19 +2,19 @@ class Pry
   class Command::ShowInfo < Pry::ClassCommand
     extend Pry::Helpers::BaseHelpers
 
-    options :shellwords => false
-    options :requires_gem => "ruby18_source_location" if mri_18?
+    command_options :shellwords => false
+    command_options :requires_gem => "ruby18_source_location" if mri_18?
 
     def setup
       require 'ruby18_source_location' if mri_18?
     end
 
     def options(opt)
-      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
-      opt.on :l, "line-numbers", "Show line numbers."
-      opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)."
-      opt.on :f, :flood, "Do not use a pager to view text longer than one screen."
-      opt.on :a, :all, "Show all definitions and monkeypatches of the module/class"
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count
+      opt.on :l, "line-numbers", "Show line numbers"
+      opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)"
+      opt.on :f, :flood, "Do not use a pager to view text longer than one screen"
+      opt.on :a, :all,   "Show all definitions and monkeypatches of the module/class"
     end
 
     def process

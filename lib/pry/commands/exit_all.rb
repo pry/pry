@@ -2,8 +2,15 @@ class Pry
   class Command::ExitAll < Pry::ClassCommand
     match 'exit-all'
     group 'Navigating Pry'
-    description 'End the current Pry session (popping all bindings) and ' \
-      'returning to caller. Accepts optional return value. Aliases: !!@'
+    description 'End the current Pry session.'
+
+    banner <<-'BANNER'
+      Usage:   exit-all [--help]
+      Aliases: !!@
+
+      End the current Pry session (popping all bindings and returning to caller).
+      Accepts optional return value.
+    BANNER
 
     def process
       # calculate user-given value

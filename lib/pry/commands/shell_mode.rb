@@ -4,6 +4,10 @@ class Pry
     group 'Input and Output'
     description 'Toggle shell mode. Bring in pwd prompt and file completion.'
 
+    banner <<-'BANNER'
+      Toggle shell mode. Bring in pwd prompt and file completion.
+    BANNER
+
     def process
       case _pry_.prompt
       when Pry::SHELL_PROMPT

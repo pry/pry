@@ -2,8 +2,11 @@ class Pry
   class Command::SwitchTo < Pry::ClassCommand
     match 'switch-to'
     group 'Navigating Pry'
-    description 'Start a new subsession on a binding in the current stack ' \
-      '(numbered by nesting).'
+    description 'Start a new subsession on a binding in the current stack.'
+
+    banner <<-'BANNER'
+      Start a new subsession on a binding in the current stack (numbered by nesting).
+    BANNER
 
     def process(selection)
       selection = selection.to_i

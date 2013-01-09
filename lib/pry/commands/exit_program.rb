@@ -2,7 +2,15 @@ class Pry
   class Command::ExitProgram < Pry::ClassCommand
     match 'exit-program'
     group 'Navigating Pry'
-    description 'End the current program. Aliases: quit-program, !!!'
+    description 'End the current program.'
+
+    banner <<-'BANNER'
+      Usage:   exit-program [--help]
+      Aliases: quit-program
+               !!!
+
+      End the current program.
+    BANNER
 
     def process
       Pry.save_history if Pry.config.history.should_save

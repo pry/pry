@@ -4,6 +4,10 @@ class Pry
     group 'Context'
     description 'Reset the REPL to a clean state.'
 
+    banner <<-'BANNER'
+      Reset the REPL to a clean state.
+    BANNER
+
     def process
       output.puts 'Pry reset.'
       exec 'pry'

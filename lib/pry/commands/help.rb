@@ -2,15 +2,14 @@ class Pry
   class Command::Help < Pry::ClassCommand
     match 'help'
     group 'Help'
-    description 'Show a list of commands. Type `help <foo>` for information about <foo>.'
+    description 'Show a list of commands or information about a specific command'
 
-    banner <<-BANNER
-      Usage: help [ COMMAND ]
+    banner <<-'BANNER'
+      Usage: help [COMMAND]
 
       With no arguments, help lists all the available commands in the current
-      command-set along with their description.
-
-      When given a command name as an argument, shows the help for that command.
+      command-set along with their description. When given a command name as an
+      argument, shows the help for that command.
     BANNER
 
     # We only want to show commands that have descriptions, so that the

@@ -1,5 +1,5 @@
 class Pry
- module Helpers
+  module Helpers
     module Formatting
       def self.tablify(things, line_length)
         table = Table.new(things, :column_count => things.size)
@@ -88,41 +88,44 @@ class Pry
 
     end
   end
- 
- class Command::Ls < Pry::ClassCommand
+
+  class Command::Ls < Pry::ClassCommand
     match 'ls'
     group 'Context'
     description 'Show the list of vars and methods in the current scope.'
     command_options :shellwords => false, :interpolate => false
 
     def options(opt)
-      opt.banner unindent <<-USAGE
+      opt.banner unindent <<-'BANNER'
         Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
                ls [-g] [-l]
 
-        ls shows you which methods, constants and variables are accessible to Pry. By default it shows you the local variables defined in the current shell, and any public methods or instance variables defined on the current object.
+        ls shows you which methods, constants and variables are accessible to Pry. By
+        default it shows you the local variables defined in the current shell, and any
+        public methods or instance variables defined on the current object.
 
-        The colours used are configurable using Pry.config.ls.*_color, and the separator is Pry.config.ls.separator.
+        The colours used are configurable using Pry.config.ls.*_color, and the separator
+        is Pry.config.ls.separator.
 
-        Pry.config.ls.ceiling is used to hide methods defined higher up in the inheritance chain, this is by default set to [Object, Module, Class] so that methods defined on all Objects are omitted. The -v flag can be used to ignore this setting and show all methods, while the -q can be used to set the ceiling much lower and show only methods defined on the object or its direct class.
-      USAGE
+        Pry.config.ls.ceiling is used to hide methods defined higher up in the
+        inheritance chain, this is by default set to [Object, Module, Class] so that
+        methods defined on all Objects are omitted. The -v flag can be used to ignore
+        this setting and show all methods, while the -q can be used to set the ceiling
+        much lower and show only methods defined on the object or its direct class.
+      BANNER
 
-      opt.on :m, "methods", "Show public methods defined on the Object (default)"
+      opt.on :m, :methods,   "Show public methods defined on the Object (default)"
       opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
+      opt.on :p, :ppp,       "Show public, protected (in yellow) and private (in green) methods"
+      opt.on :q, :quiet,     "Show only methods defined on object.singleton_class and object.class"
+      opt.on :v, :verbose,   "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
+      opt.on :g, :globals,   "Show global variables, including those builtin to Ruby (in cyan)"
+      opt.on :l, :locals,    "Show hash of local vars, sorted by descending size"
+      opt.on :c, :constants, "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" +
+      " " * 32 +             "Constants that are pending autoload? are also shown (in yellow)"
+      opt.on :i, :ivars,     "Show instance variables (in blue) and class variables (in bright blue)"
+      opt.on :G, :grep,      "Filter output by regular expression", :argument => true
 
-      opt.on :p, "ppp", "Show public, protected (in yellow) and private (in green) methods"
-      opt.on :q, "quiet", "Show only methods defined on object.singleton_class and object.class"
-      opt.on :v, "verbose", "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
-
-      opt.on :g, "globals", "Show global variables, including those builtin to Ruby (in cyan)"
-      opt.on :l, "locals", "Show hash of local vars, sorted by descending size"
-
-      opt.on :c, "constants", "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" +
-      " " * 32 +              "Constants that are pending autoload? are also shown (in yellow)."
-
-      opt.on :i, "ivars", "Show instance variables (in blue) and class variables (in bright blue)"
-
-      opt.on :G, "grep", "Filter output by regular expression", :argument => true
       if jruby?
         opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)"
       end

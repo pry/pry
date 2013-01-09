@@ -4,25 +4,24 @@ class Pry
     description 'Show code surrounding the current context.'
     group 'Context'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: whereami [-qn] [N]
 
-      Describe the current location. If you use `binding.pry` inside a
-      method then whereami will print out the source for that method.
+      Describe the current location. If you use `binding.pry` inside a method then
+      whereami will print out the source for that method.
 
-      If a number is passed, then N lines before and after the current line
-      will be shown instead of the method itself.
+      If a number is passed, then N lines before and after the current line will be
+      shown instead of the method itself.
 
-      The `-q` flag can be used to suppress error messages in the case that
-      there's no code to show. This is used by pry in the default
-      before_session hook to show you when you arrive at a `binding.pry`.
+      The `-q` flag can be used to suppress error messages in the case that there's
+      no code to show. This is used by pry in the default before_session hook to show
+      you when you arrive at a `binding.pry`.
 
       The `-n` flag can be used to hide line numbers so that code can be copy/pasted
       effectively.
 
-      When pry was started on an Object and there is no associated method,
-      whereami will instead output a brief description of the current
-      object.
+      When pry was started on an Object and there is no associated method, whereami
+      will instead output a brief description of the current object.
     BANNER
 
     def setup
@@ -32,8 +31,8 @@ class Pry
     end
 
     def options(opt)
-      opt.on :q, :quiet, "Don't display anything in case of an error"
-      opt.on :n, :"no-line-numbers", "Do not display line numbers."
+      opt.on :q, :quiet,             "Don't display anything in case of an error"
+      opt.on :n, :"no-line-numbers", "Do not display line numbers"
     end
 
     def code

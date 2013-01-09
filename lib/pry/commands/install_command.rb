@@ -4,7 +4,7 @@ class Pry
     group 'Commands'
     description 'Install a disabled command.'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: install-command COMMAND
 
       Installs the gems necessary to run the given COMMAND. You will generally not

@@ -36,14 +36,15 @@ class Pry
     description Pry::Gist::DESCRIPTION
     command_options :requires_gem => 'jist', :shellwords => false
 
-    banner <<-USAGE
+    banner <<-BANNER
       Usage: gist [options]
+
       #{Pry::Gist::DESCRIPTION}
 
-      If you'd like to associate your gists with your GitHub account, run:
-          gist --login
+      If you would like to associate your gists with your GitHub account, run
+      `gist --login`.
 
-    USAGE
+    BANNER
     banner << Pry::Gist.examples_docs << "\n"
 
     attr_accessor :content, :filename
@@ -61,24 +62,24 @@ class Pry
     def options(opt)
       ext ='ruby'
       opt.on :login, "Authenticate the jist gem with GitHub"
-      opt.on :d, :doc, "Gist a method's documentation.", :argument => true do |meth_name|
+      opt.on :d, :doc, "Gist a method's documentation", :argument => true do |meth_name|
         meth = get_method_or_raise(meth_name, target, {})
         text.no_color do
           @content << process_comment_markup(meth.doc) << "\n"
         end
         @filename = meth.source_file + ".doc"
       end
-      opt.on :m, :method, "Gist a method's source.", :argument => true do |meth_name|
+      opt.on :m, :method, "Gist a method's source", :argument => true do |meth_name|
         from_pry_api get_method_or_raise(meth_name, target, {})
       end
-      opt.on :k, :command, "Gist a command's source.", :argument => true do |command_name|
+      opt.on :k, :command, "Gist a command's source", :argument => true do |command_name|
         command = find_command(command_name)
         from_pry_api Pry::Method.new(command.block)
       end
-      opt.on :c, :class, "Gist a class or module's source.", :argument => true do |class_name|
+      opt.on :c, :class, "Gist a class or module's source", :argument => true do |class_name|
         from_pry_api Pry::WrappedModule.from_str(class_name, target)
       end
-      opt.on :var, "Gist a variable's content.", :argument => true do |variable_name|
+      opt.on :var, "Gist a variable's content", :argument => true do |variable_name|
         begin
           obj = target.eval(variable_name)
         rescue Pry::RescuableException
@@ -87,7 +88,7 @@ class Pry
 
         @content << Pry.config.gist.inspecter.call(obj) << "\n"
       end
-      opt.on :hist, "Gist a range of Readline history lines.",  :optional_argument => true, :as => Range, :default => -20..-1 do |range|
+      opt.on :hist, "Gist a range of Readline history lines",  :optional_argument => true, :as => Range, :default => -20..-1 do |range|
         h = Pry.history.to_a
         @content << h[one_index_range(convert_to_range(range))].join("\n") << "\n"
       end
@@ -96,7 +97,7 @@ class Pry
         @content << File.read(File.expand_path(file)) << "\n"
         @filename = file
       end
-      opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range.", :optional_argument => true,
+      opt.on :o, :out, "Gist entries from Pry's output result history. Takes an index or range", :optional_argument => true,
       :as => Range, :default => -1 do |range|
         range = convert_to_range(range)
 
@@ -106,10 +107,10 @@ class Pry
 
         @content << "\n"
       end
-      opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it.", :default => false
+      opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it", :default => false
       opt.on :p, :public, "Create a public gist (default: false)", :default => false
-      opt.on :l, :lines, "Only gist a subset of lines from the gistable content.", :optional_argument => true, :as => Range, :default => 1..-1
-      opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range.", :optional_argument => true,
+      opt.on :l, :lines, "Only gist a subset of lines from the gistable content", :optional_argument => true, :as => Range, :default => 1..-1
+      opt.on :i, :in, "Gist entries from Pry's input expression history. Takes an index or range", :optional_argument => true,
       :as => Range, :default => -1 do |range|
         range = convert_to_range(range)
         input_expressions = _pry_.input_array[range] || []

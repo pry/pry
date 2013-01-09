@@ -6,13 +6,14 @@ class Pry
     command_options :interpolate => false, :listing => 'amend-line'
 
     banner <<-'BANNER'
-      Amend a line of input in multi-line mode. `amend-line N`, where the N in `amend-line N` represents line to replace.
+      Amend a line of input in multi-line mode. `amend-line N`, where the N represents
+      line to replace. Can also specify a range of lines using `amend-line N..M`
+      syntax. Passing "!" as replacement content deletes the line(s) instead.
 
-      Can also specify a range of lines using `amend-line N..M` syntax. Passing '!' as replacement content deletes the line(s) instead.
-      e.g amend-line 1 puts 'hello world! # replace line 1'
-      e.g amend-line 1..4 !               # delete lines 1..4
-      e.g amend-line 3 >puts 'goodbye'    # insert before line 3
-      e.g amend-line puts 'hello again'   # no line number modifies immediately preceding line
+      amend-line 1 puts 'new'    # replace line 1
+      amend-line 1..4 !          # delete lines 1..4
+      amend-line 3 >puts 'bye'   # insert before line 3
+      amend-line puts 'appended' # no line number modifies immediately preceding line
     BANNER
 
     def process

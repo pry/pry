@@ -2,27 +2,25 @@ class Pry
   class Command::Wtf < Pry::ClassCommand
     match /wtf([?!]*)/
     group 'Context'
-    description 'Show the backtrace of the most recent exception'
+    description 'Show the backtrace of the most recent exception.'
     options :listing => 'wtf?'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
+      Usage: wtf[?|!]
+
       Show's a few lines of the backtrace of the most recent exception (also available
-      as _ex_.backtrace).
+      as `_ex_.backtrace`). If you want to see more lines, add more question marks or
+      exclamation marks.
 
-      If you want to see more lines, add more question marks or exclamation marks:
+      wtf?
+      wtf?!???!?!?
 
-      e.g.
-      pry(main)> wtf?
-      pry(main)> wtf?!???!?!?
-
-      To see the entire backtrace, pass the -v/--verbose flag:
-
-      e.g.
-      pry(main)> wtf -v
+      # To see the entire backtrace, pass the `-v` or `--verbose` flag.
+      wtf -v
     BANNER
 
     def options(opt)
-      opt.on(:v, :verbose, "Show the full backtrace.")
+      opt.on :v, :verbose, "Show the full backtrace"
     end
 
     def process
