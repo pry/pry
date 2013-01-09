@@ -27,7 +27,7 @@ class Pry
         co = new(str, target, _pry_, options)
 
         co.default_lookup || co.method_or_class_lookup ||
-          co.command_lookup || co.binding_lookup
+          co.command_lookup || co.empty_lookup
       end
     end
 
@@ -38,7 +38,7 @@ class Pry
 
     def initialize(str, target, _pry_, options={})
       options = {
-        :super => 0
+        :super => 0,
       }.merge!(options)
 
       @str = str
@@ -53,8 +53,7 @@ class Pry
       pry.commands.find_command_by_match_or_listing(str) rescue nil
     end
 
-    # extract the object from the binding
-    def binding_lookup
+    def empty_lookup
       return nil if str && !str.empty?
 
       if internal_binding?(target)
