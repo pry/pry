@@ -273,7 +273,7 @@ class Pry
     # @return [Array<Pry::Method>]
     def all_relevant_methods_for(mod)
       all_methods_for(mod).select(&:source_location).
-        reject{ |x| x.name == '__class_init__' }
+        reject{ |x| x.name == '__class_init__' || method_defined_by_forwardable_module?(x) }
     end
 
     # Return all methods (instance methods and class methods) for a
@@ -296,6 +296,15 @@ class Pry
           Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
         end
       end.flatten
+    end
+
+    # Detect methods that are defined with `def_delegator` from the Forwardable
+    # module. We want to reject these methods as they screw up module
+    # extraction since the `source_location` for such methods points at forwardable.rb
+    # TODO: make this more robust as valid user-defined files called
+    # forwardable.rb are also skipped.
+    def method_defined_by_forwardable_module?(method)
+      method.source_location.first =~ /forwardable\.rb/
     end
 
     # memoized lines for file
