@@ -1,14 +1,14 @@
 class Pry
   class Command::Edit
     class ExceptionPatcher
-      attr_accessor :opts
       attr_accessor :_pry_
       attr_accessor :state
+      attr_accessor :file_and_line
 
-      def initialize(opts, _pry_, state)
-        @opts = opts
+      def initialize(_pry_, state, exception_file_and_line)
         @_pry_ = _pry_
         @state = state
+        @file_and_line = exception_file_and_line
       end
 
       # perform the patch
@@ -19,18 +19,6 @@ class Pry
         source = Pry::Editor.edit_tempfile_with_content(lines)
         _pry_.evaluate_ruby source
         state.dynamical_ex_file = source.split("\n")
-      end
-
-      def file_and_line
-        raise CommandError, "No exception found." if _pry_.last_exception.nil?
-
-        file_name, line = _pry_.last_exception.bt_source_location_for(opts[:ex].to_i)
-        raise CommandError, "Exception has no associated file." if file_name.nil?
-        raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
-
-        file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
-
-        [file_name, line]
       end
     end
   end
