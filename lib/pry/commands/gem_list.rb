@@ -4,11 +4,11 @@ class Pry
     group 'Gems'
     description 'List and search installed gems.'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: gem-list [REGEX]
 
-      List all installed gems, when a regex is provided, limit the output to those that
-      match the regex.
+      List all installed gems, when a regex is provided, limit the output to those
+      that match the regex.
     BANNER
 
     def process(pattern = nil)

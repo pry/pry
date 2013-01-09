@@ -5,10 +5,12 @@ class Pry
     description 'View method information and set _file_ and _dir_ locals.'
     command_options :shellwords => false
 
-    banner <<-BANNER
+    banner <<-'BANNER'
         Usage: stat [OPTIONS] [METH]
+
         Show method information for method METH and set _file_ and _dir_ locals.
-        e.g: stat hello_method
+
+        stat hello_method
     BANNER
 
     def options(opt)

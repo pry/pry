@@ -21,7 +21,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
     end
 
     it "should output help" do
-      pry_eval('show-source -h').should =~ /Usage: show-source/
+      pry_eval('show-source -h').should =~ /Usage:\s+show-source/
     end
 
     it "should output a method's source with line numbers" do

@@ -7,15 +7,18 @@ class Pry
     command_options :listing => 'raise-up'
 
     banner <<-BANNER
-      Raise up, like exit, allows you to quit pry. Instead of returning a value however, it raises an exception.
-      If you don't provide the exception to be raised, it will use the most recent exception (in pry _ex_).
+      Raise up, like exit, allows you to quit pry. Instead of returning a value
+      however, it raises an exception. If you don't provide the exception to be
+      raised, it will use the most recent exception (in pry `_ex_`).
 
-      e.g. `raise-up "get-me-out-of-here"` is equivalent to:
-           `raise "get-me-out-of-here"
-            raise-up`
+      When called as raise-up! (with an exclamation mark), this command raises the
+      exception through any nested prys you have created by "cd"ing into objects.
 
-      When called as raise-up! (with an exclamation mark), this command raises the exception through
-      any nested prys you have created by "cd"ing into objects.
+      raise-up "get-me-out-of-here"
+
+      # This is equivalent to the command above.
+      raise "get-me-out-of-here"
+      raise-up
     BANNER
 
     def process

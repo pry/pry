@@ -5,10 +5,11 @@ class Pry
     description "Change working directory to specified gem's directory."
     command_options :argument_required => true
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: gem-cd GEM_NAME
 
-      Change the current working directory to that in which the given gem is installed.
+      Change the current working directory to that in which the given gem is
+      installed.
     BANNER
 
     def process(gem)

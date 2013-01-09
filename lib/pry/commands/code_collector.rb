@@ -14,13 +14,15 @@ class Pry
 
     # Add the `--lines`, `-o`, `-i`, `-s`, `-d` options.
     def self.inject_options(opt)
-      opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number or range.", :optional_argument => true, :as => Range, :default => 1..-1
-      opt.on :o, :out, "Select lines from Pry's output result history. Takes an index or range.", :optional_argument => true,
-      :as => Range, :default => -5..-1
-      opt.on :i, :in, "Select lines from Pry's input expression history. Takes an index or range.", :optional_argument => true,
-      :as => Range, :default => -5..-1
-      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors.", :as => :count
-      opt.on :d, :doc, "Select lines from the code object's documentation."
+      opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number or range",
+                         :optional_argument => true, :as => Range, :default => 1..-1
+      opt.on :o, :out,   "Select lines from Pry's output result history. Takes an index or range",
+                         :optional_argument => true, :as => Range, :default => -5..-1
+      opt.on :i, :in,    "Select lines from Pry's input expression history. Takes an index or range",
+                         :optional_argument => true, :as => Range, :default => -5..-1
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors",
+                         :as => :count
+      opt.on :d, :doc,   "Select lines from the code object's documentation"
     end
 
     # The content (i.e code/docs) for the selected object.

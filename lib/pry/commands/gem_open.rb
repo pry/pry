@@ -5,11 +5,13 @@ class Pry
     description 'Opens the working directory of the gem in your editor'
     command_options :argument_required => true
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: gem-open GEM_NAME
 
-      Change the current working directory to that in which the given gem is installed,
-      and then opens your text editor.
+      Change the current working directory to that in which the given gem is
+      installed, and then opens your text editor.
+
+      gem-open pry-exception_explorer
     BANNER
 
     def process(gem)

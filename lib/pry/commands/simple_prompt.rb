@@ -4,6 +4,10 @@ class Pry
     group 'Misc'
     description 'Toggle the simple prompt.'
 
+    banner <<-'BANNER'
+      Toggle the simple prompt.
+    BANNER
+
     def process
       case _pry_.prompt
       when Pry::SIMPLE_PROMPT

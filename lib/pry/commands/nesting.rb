@@ -4,6 +4,10 @@ class Pry
     group 'Navigating Pry'
     description 'Show nesting information.'
 
+    banner <<-'BANNER'
+      Show nesting information.
+    BANNER
+
     def process
       output.puts 'Nesting status:'
       output.puts '--'

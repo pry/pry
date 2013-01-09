@@ -4,6 +4,10 @@ class Pry
     group 'Editing'
     description 'Show the contents of the input buffer for the current multi-line expression.'
 
+    banner <<-'BANNER'
+      Show the contents of the input buffer for the current multi-line expression.
+    BANNER
+
     def process
       output.puts Code.new(eval_string).with_line_numbers
     end

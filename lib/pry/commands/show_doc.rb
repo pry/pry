@@ -6,16 +6,18 @@ class Pry
 
     match 'show-doc'
     group 'Introspection'
-    description 'Show the documentation for a method or class. Aliases: \?'
+    description 'Show the documentation for a method or class.'
 
     banner <<-BANNER
-      Usage: show-doc [OPTIONS] [METH]
+      Usage:   show-doc [OPTIONS] [METH]
       Aliases: ?
 
-      Show the documentation for a method or class. Tries instance methods first and then methods by default.
-      e.g show-doc hello_method    # docs for hello_method
-      e.g show-doc Pry             # docs for Pry class
-      e.g show-doc Pry -a          # docs for all definitions of Pry class (all monkey patches)
+      Show the documentation for a method or class. Tries instance methods first and
+      then methods by default.
+
+      show-doc hi_method # docs for hi_method
+      show-doc Pry       # for Pry class
+      show-doc Pry -a    # for all definitions of Pry class (all monkey patches)
     BANNER
 
     # The docs for code_object prepared for display.

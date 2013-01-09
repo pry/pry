@@ -2,24 +2,22 @@ class Pry
   class Command::Exit < Pry::ClassCommand
     match 'exit'
     group 'Navigating Pry'
-    description 'Pop the previous binding (does NOT exit program). Aliases: quit'
+    description 'Pop the previous binding.'
+    command_options :keep_retval => true
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage:   exit [OPTIONS] [--help]
       Aliases: quit
 
-      It can be useful to exit a context with a user-provided value. For
-      instance an exit value can be used to determine program flow.
+      Pop the previous binding (does NOT exit program). It can be useful to exit a
+      context with a user-provided value. For instance an exit value can be used to
+      determine program flow.
 
-      e.g: `exit "pry this"`
-      e.g: `exit`
+      exit "pry this"
+      exit
 
       https://github.com/pry/pry/wiki/State-navigation#wiki-Exit_with_value
     BANNER
-
-    command_options(
-                    :keep_retval => true
-                    )
 
     def process
       if _pry_.binding_stack.one?

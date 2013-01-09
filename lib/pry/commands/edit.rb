@@ -14,31 +14,34 @@ class Pry
     group 'Editing'
     description 'Invoke the default editor on a file.'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: edit [--no-reload|--reload|--patch] [--line LINE] [--temp|--ex|FILE[:LINE]|OBJECT|--in N]
 
-      Open a text editor. When no FILE is given, edits the pry input buffer.
-      Ensure Pry.config.editor is set to your editor of choice.
+      Open a text editor. When no FILE is given, edits the pry input buffer. Ensure
+      `Pry.config.editor` is set to your editor of choice.
 
-      e.g: `edit sample.rb`
-      e.g: `edit sample.rb --line 105`
-      e.g: `edit MyClass#my_method`
-      e.g: `edit -p MyClass#my_method`
-      e.g: `edit YourClass`
-      e.g: `edit --ex`
+      edit sample.rb
+      edit sample.rb --line 105
+      edit MyClass#my_method
+      edit -p MyClass#my_method
+      edit YourClass
+      edit --ex`
 
       https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
     BANNER
 
     def options(opt)
-      opt.on :e, :ex, "Open the file that raised the most recent exception (_ex_.file)", :optional_argument => true, :as => Integer
-      opt.on :i, :in, "Open a temporary file containing the Nth input expression. N may be a range.", :optional_argument => true, :as => Range, :default => -1..-1
-      opt.on :t, :temp, "Open an empty temporary file"
-      opt.on :l, :line, "Jump to this line in the opened file", :argument => true, :as => Integer
+      opt.on :e, :ex,      "Open the file that raised the most recent exception (_ex_.file)",
+                           :optional_argument => true, :as => Integer
+      opt.on :i, :in,      "Open a temporary file containing the Nth input expression. N may be a range",
+                           :optional_argument => true, :as => Range, :default => -1..-1
+      opt.on :t, :temp,    "Open an empty temporary file"
+      opt.on :l, :line,    "Jump to this line in the opened file",
+                           :argument => true, :as => Integer
       opt.on :n, :"no-reload", "Don't automatically reload the edited code"
-      opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)."
-      opt.on :r, :reload, "Reload the edited code immediately (default for ruby files)"
-      opt.on :p, :patch, "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch."
+      opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)"
+      opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
+      opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
     end
 
     def process

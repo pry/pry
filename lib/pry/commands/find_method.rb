@@ -4,20 +4,26 @@ class Pry
 
     match 'find-method'
     group 'Context'
-    options :requires_gem => 'ruby18_source_location' if mri_18?
-    options :shellwords => false
+    description 'Recursively search for a method within a Class/Module or the current namespace.'
+    command_options :shellwords => false
+    command_options :requires_gem => 'ruby18_source_location' if mri_18?
 
-    description 'Recursively search for a method within a Class/Module or the current namespace. find-method [-n | -c] METHOD [NAMESPACE]'
 
-    banner <<-BANNER
-      Usage: find-method  [-n | -c] METHOD [NAMESPACE]
+    banner <<-'BANNER'
+      Usage: find-method  [-n|-c] METHOD [NAMESPACE]
 
       Recursively search for a method within a Class/Module or the current namespace.
-      Use the `-n` switch (the default) to search for methods whose name matches the given regex.
-      Use the `-c` switch to search for methods that contain the given code.
+      Use the `-n` switch (the default) to search for methods whose name matches the
+      given regex. Use the `-c` switch to search for methods that contain the given
+      code.
 
-      e.g find-method re Pry                # find all methods whose name match /re/ inside the Pry namespace. Matches Pry#repl, etc.
-      e.g find-method -c 'output.puts' Pry  # find all methods that contain the code: output.puts inside the Pry namepsace.
+      # Find all methods whose name match /re/ inside
+      # the Pry namespace. Matches Pry#repl, etc.
+      find-method re Pry
+
+      # Find all methods that contain the code:
+      # output.puts inside the Pry namepsace.
+      find-method -c 'output.puts' Pry
     BANNER
 
     def setup
@@ -25,7 +31,7 @@ class Pry
     end
 
     def options(opti)
-      opti.on :n, :name, "Search for a method by name"
+      opti.on :n, :name,    "Search for a method by name"
       opti.on :c, :content, "Search for a method based on content in Regex form"
     end
 

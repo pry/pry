@@ -4,6 +4,10 @@ class Pry
     group 'Misc'
     description 'Show Pry version.'
 
+    banner <<-'BANNER'
+      Show Pry version.
+    BANNER
+
     def process
       output.puts "Pry version: #{Pry::VERSION} on Ruby #{RUBY_VERSION}."
     end

@@ -2,7 +2,11 @@ class Pry
   class Command::ReloadCode < Pry::ClassCommand
     match 'reload-code'
     group 'Misc'
-    description 'Reload the source file that contains the specified code object'
+    description 'Reload the source file that contains the specified code object.'
+
+    banner <<-'BANNER'
+      Reload the source file that contains the specified code object.
+    BANNER
 
     def process
       code_object = Pry::CodeObject.lookup(obj_name, target, _pry_)

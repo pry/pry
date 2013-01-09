@@ -2,13 +2,15 @@ class Pry
   class Command::Ri < Pry::ClassCommand
     match 'ri'
     group 'Introspection'
-    description 'View ri documentation. e.g `ri Array#each`'
+    description 'View ri documentation.'
 
-    banner <<-BANNER
+    banner <<-'BANNER'
       Usage: ri [spec]
-      e.g. ri Array#each
 
-      Relies on the rdoc gem being installed. See also: show-doc.
+      View ri documentation. Relies on the "rdoc" gem being installed.
+      See also "show-doc" command.
+
+      ri Array#each
     BANNER
 
     def process(spec)
