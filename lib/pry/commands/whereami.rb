@@ -5,7 +5,7 @@ class Pry
     group 'Context'
 
     banner <<-BANNER
-      Usage: whereami [-q] [N]
+      Usage: whereami [-qn] [N]
 
       Describe the current location. If you use `binding.pry` inside a
       method then whereami will print out the source for that method.
@@ -16,6 +16,9 @@ class Pry
       The `-q` flag can be used to suppress error messages in the case that
       there's no code to show. This is used by pry in the default
       before_session hook to show you when you arrive at a `binding.pry`.
+
+      The `-n` flag can be used to hide line numbers so that code can be copy/pasted
+      effectively.
 
       When pry was started on an Object and there is no associated method,
       whereami will instead output a brief description of the current
@@ -30,6 +33,7 @@ class Pry
 
     def options(opt)
       opt.on :q, :quiet, "Don't display anything in case of an error"
+      opt.on :n, :"no-line-numbers", "Do not display line numbers."
     end
 
     def code
@@ -55,7 +59,7 @@ class Pry
       set_file_and_dir_locals(@file)
 
       output.puts "\n#{text.bold('From:')} #{location}:\n\n"
-      output.puts code.with_line_numbers.with_marker(@line)
+      output.puts code.with_line_numbers(use_line_numbers?).with_marker(marker)
       output.puts
     end
 
@@ -63,6 +67,14 @@ class Pry
 
     def nothing_to_do?
       opts.quiet? && (internal_binding?(target) || !code?)
+    end
+
+    def use_line_numbers?
+      !opts.present?(:n)
+    end
+
+    def marker
+      !opts.present?(:n) && @line
     end
 
     def top_level?

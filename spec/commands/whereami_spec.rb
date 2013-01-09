@@ -111,6 +111,18 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
+  it 'should not show line numbers or marker when -n switch is used' do
+    class Cor
+      def blimey!
+        out = pry_eval(binding, 'whereami -n')
+        out.should =~ /^def/
+        out.should.not =~ /\=\>/
+      end
+    end
+    Cor.new.blimey!
+    Object.remove_const(:Cor)
+  end
+
   it 'should use Pry.config.default_window_size for window size when outside a method context' do
     old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
     :litella
