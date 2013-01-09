@@ -71,19 +71,65 @@ class Pry
 
     def apply_runtime_patch
       if patch_exception?
-        ExceptionPatcher.new(self).perform_patch
+        ExceptionPatcher.new(opts, _pry_, state).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          MethodPatcher.new(self).perform_patch
+          MethodPatcher.new(opts, _pry_, code_object).perform_patch
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
       end
     end
 
-    def file_edit
-      file_name, line = ContextLocator.new(self).file_and_line
+    def ensure_file_name_is_valid(file_name)
+      raise CommandError, "Cannot find a valid file for #{args.first}" if !file_name
       raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
+    end
+
+    def current_file_and_line
+      [target.eval("__FILE__"), target.eval("__LINE__")]
+    end
+
+    def code_object_file_and_line
+      if File.exists?(code_object.source_file.to_s)
+        [code_object.source_file, code_object.source_line]
+      else
+        raise CommandError, "Cannot find a file for #{args.first}!"
+      end
+    end
+
+    def exception_file_and_line
+      raise CommandError, "No exception found." if _pry_.last_exception.nil?
+
+      file_name, line = _pry_.last_exception.bt_source_location_for(opts[:ex].to_i)
+      raise CommandError, "Exception has no associated file." if file_name.nil?
+      raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
+
+      file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
+
+      [file_name, line]
+    end
+
+    def file_and_line
+      file_name, line = if opts.present?(:current)
+                          current_file_and_line
+                        elsif opts.present?(:ex)
+                          exception_file_and_line
+                        elsif code_object
+                          code_object_file_and_line
+                        else
+                          # break up into file:line
+                          f = File.expand_path(args.first)
+                          l = f.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+                          [f, l]
+                        end
+
+      [file_name, opts.present?(:line) ? opts[:l].to_i : line]
+    end
+
+    def file_edit
+      file_name, line = file_and_line
+      ensure_file_name_is_valid(file_name)
 
       # Sanitize blanks.
       sanitized_file_name = Shellwords.escape(file_name)
