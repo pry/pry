@@ -307,7 +307,7 @@ describe "edit" do
       proc {
         pry_eval 'edit ruby.rb -i'
       }.should.raise(Pry::CommandError).
-        message.should =~ /Only one of --ex, --temp, --in and FILE/
+        message.should =~ /Only one of --ex, --temp, --in, --method and FILE/
     end
 
     it "should not work with nonsense" do
@@ -621,6 +621,79 @@ describe "edit" do
           @reloading.should == false
         end
       end
+    end
+  end
+
+  describe "--method flag" do
+    before do
+      @t = pry_tester
+      class BinkyWink
+        eval %{
+          def tits_macgee
+            binding
+          end
+        }
+
+        def tots_macgee
+          :jeremy_jones
+          binding
+        end
+      end
+    end
+
+    after do
+      Object.remove_const(:BinkyWink)
+    end
+
+    it 'should edit method context' do
+      old_editor = Pry.editor
+      Pry.editor = lambda do |file, line|
+        [file, line].should == BinkyWink.instance_method(:tots_macgee).source_location
+        nil
+      end
+
+      t = pry_tester(BinkyWink.new.tots_macgee)
+      t.process_command "edit -m -n"
+      Pry.editor = old_editor
+    end
+
+    it 'errors when cannot find method context' do
+      old_editor = Pry.editor
+      Pry.editor = lambda do |file, line|
+        [file, line].should == BinkyWink.instance_method(:tits_macgee).source_location
+        nil
+      end
+
+      t = pry_tester(BinkyWink.new.tits_macgee)
+      lambda { t.process_command "edit -m -n" }.should.
+        raise(Pry::CommandError).message.should.match(/Cannot find a file for/)
+      Pry.editor = old_editor
+    end
+
+    it 'errors when a filename arg is passed with --method' do
+      lambda { @t.process_command "edit -m Pry#repl" }.should.
+        raise(Pry::CommandError).message.should.match(/Only one of/)
+    end
+  end
+
+  describe "pretty error messages" do
+    before do
+      @t = pry_tester
+      class TrinkyDink
+        eval %{
+          def claudia_linklater
+          end
+        }
+      end
+    end
+
+    after do
+      Object.remove_const(:TrinkyDink)
+    end
+
+    it 'should display a nice error message when cannot open a file' do
+      lambda { @t.process_command "edit TrinkyDink#claudia_linklater" }.should.
+        raise(Pry::CommandError).message.should.match(/Cannot find a file for/)
     end
   end
 end

@@ -1,11 +1,4 @@
 class Pry
-  # Uses the following state variables:
-  #   - dynamical_ex_file [Array<String>]
-  #       Utilised in `edit --ex --patch` operations. Contains the source code
-  #       of a monkey patched file, in which an exception was raised. We store
-  #       the entire source code because an exception may happen anywhere in the
-  #       code and there is no way to predict that. So we simply superimpose
-  #       everything (admittedly, doing extra job).
   class Command::Edit < Pry::ClassCommand
     require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
@@ -24,6 +17,7 @@ class Pry
       edit sample.rb
       edit sample.rb --line 105
       edit MyClass#my_method
+      edit --method
       edit -p MyClass#my_method
       edit YourClass
       edit --ex`
@@ -43,11 +37,12 @@ class Pry
       opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)"
       opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
       opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
+      opt.on :m, :method,  "Explicitly edit the _current_ method (when inside a method context)."
     end
 
     def process
       if bad_option_combination?
-        raise CommandError, "Only one of --ex, --temp, --in and FILE may be specified."
+        raise CommandError, "Only one of --ex, --temp, --in, --method and FILE may be specified."
       end
 
       if repl_edit?
@@ -62,6 +57,11 @@ class Pry
       end
     end
 
+    def repl_edit?
+      !opts.present?(:ex) && !opts.present?(:current) && !opts.present?(:method) &&
+        filename_argument.empty?
+    end
+
     def repl_edit
       content = Pry::Editor.edit_tempfile_with_content(initial_temp_file_content,
                                                        initial_temp_file_content.lines.count)
@@ -72,10 +72,13 @@ class Pry
       end
     end
 
+    def runtime_patch?
+      opts.present?(:patch) || pry_method?(code_object)
+    end
+
     def apply_runtime_patch
       if patch_exception?
-        ex_file_and_line = FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
-        ExceptionPatcher.new(_pry_, state, ex_file_and_line).perform_patch
+        ExceptionPatcher.new(_pry_, state, file_and_line_for_current_exception).perform_patch
       else
         if code_object.is_a?(Pry::Method)
           MethodPatcher.new(_pry_, code_object).perform_patch
@@ -86,20 +89,24 @@ class Pry
     end
 
     def ensure_file_name_is_valid(file_name)
-      raise CommandError, "Cannot find a valid file for #{args.first}" if !file_name
+      raise CommandError, "Cannot find a valid file for #{filename_argument}" if !file_name
       raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
+    end
+
+    def file_and_line_for_current_exception
+      FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
     end
 
     def file_and_line
       file_name, line = if opts.present?(:current)
                           FileAndLineLocator.from_binding(target)
                         elsif opts.present?(:ex)
-                          FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
+                          file_and_line_for_current_exception
                         elsif code_object
-                          FileAndLineLocator.from_code_object(code_object, args.first)
+                          FileAndLineLocator.from_code_object(code_object, filename_argument)
                         else
                           # when file and line are passed as a single arg, e.g my_file.rb:30
-                          FileAndLineLocator.from_filename_argument(args.first)
+                          FileAndLineLocator.from_filename_argument(filename_argument)
                         end
 
       [file_name, opts.present?(:line) ? opts[:l].to_i : line]
@@ -107,6 +114,7 @@ class Pry
 
     def file_edit
       file_name, line = file_and_line
+
       ensure_file_name_is_valid(file_name)
 
       # Sanitize blanks.
@@ -122,22 +130,18 @@ class Pry
       end
     end
 
+    def filename_argument
+      args.first || ""
+    end
+
     def code_object
-      @code_object ||= args.first && !probably_a_file?(args.first) &&
-        Pry::CodeObject.lookup(args.first, target, _pry_)
+      @code_object ||= !probably_a_file?(filename_argument) &&
+        Pry::CodeObject.lookup(filename_argument, _pry_)
     end
 
-    def repl_edit?
-      !opts.present?(:ex) && !opts.present?(:current) && args.empty?
-    end
-
-    def runtime_patch?
-      opts.present?(:patch) || dynamically_defined_method?
-    end
-
-    def dynamically_defined_method?
+    def pry_method?(code_object)
       code_object.is_a?(Pry::Method) &&
-        code_object.dynamically_defined?
+        code_object.pry_method?
     end
 
     def patch_exception?
@@ -146,7 +150,7 @@ class Pry
 
     def bad_option_combination?
       [opts.present?(:ex), opts.present?(:temp),
-       opts.present?(:in), !args.empty?].count(true) > 1
+       opts.present?(:in), opts.present?(:method), !filename_argument.empty?].count(true) > 1
     end
 
     def input_expression
