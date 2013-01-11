@@ -7,20 +7,20 @@ class Pry
     description 'Export to a file using content from the REPL.'
 
     banner <<-'BANNER'
-      Usage: save-file [OPTIONS] [FILE]
+      Usage: save-file [OPTIONS] --to [FILE]
 
       Export to a file using content from the REPL.
 
-      save-file my_method ./hello.rb
-      save-file -i 1..10 ./hello.rb --append
-      save-file show-method ./my_command.rb
-      save-file sample_file.rb --lines 2..10 ./output_file.rb
+      save-file my_method --to hello.rb
+      save-file -i 1..10 --to hello.rb --append
+      save-file show-method --to my_command.rb
+      save-file sample_file.rb --lines 2..10 --to output_file.rb
     BANNER
 
     def options(opt)
       CodeCollector.inject_options(opt)
 
-      opt.on :to=,        "Select where content is to be saved"
+      opt.on :to=,        "Specify the output file path"
       opt.on :a, :append, "Append output to file"
     end
 
