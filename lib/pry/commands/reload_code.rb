@@ -9,7 +9,7 @@ class Pry
     BANNER
 
     def process
-      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_)
+      code_object = Pry::CodeObject.lookup(obj_name, _pry_)
 
       check_for_reloadability(code_object)
       reload_code_object(code_object)

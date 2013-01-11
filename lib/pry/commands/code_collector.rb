@@ -54,7 +54,7 @@ class Pry
     #
     # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
     def code_object
-      Pry::CodeObject.lookup(obj_name, _pry_.current_context, _pry_,  :super =>  opts[:super])
+      Pry::CodeObject.lookup(obj_name, _pry_,  :super =>  opts[:super])
     end
 
     # Given a string and a range, return the `range` lines of that
