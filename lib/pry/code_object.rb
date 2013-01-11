@@ -23,8 +23,8 @@ class Pry
     include Pry::Helpers::CommandHelpers
 
     class << self
-      def lookup(str, target, _pry_, options={})
-        co = new(str, target, _pry_, options)
+      def lookup(str, _pry_, options={})
+        co = new(str, _pry_, options)
 
         co.default_lookup || co.method_or_class_lookup ||
           co.command_lookup || co.empty_lookup
@@ -36,14 +36,14 @@ class Pry
     attr_accessor :pry
     attr_accessor :super_level
 
-    def initialize(str, target, _pry_, options={})
+    def initialize(str, _pry_, options={})
       options = {
         :super => 0,
       }.merge!(options)
 
       @str = str
-      @target = target
       @pry = _pry_
+      @target = _pry_.current_context
       @super_level = options[:super]
     end
 

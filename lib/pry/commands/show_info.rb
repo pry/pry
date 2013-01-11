@@ -18,7 +18,7 @@ class Pry
     end
 
     def process
-      code_object = Pry::CodeObject.lookup(obj_name, target, _pry_, :super => opts[:super])
+      code_object = Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
       raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
 
       if show_all_modules?(code_object)
