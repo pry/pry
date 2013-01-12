@@ -6,6 +6,14 @@ class Pry
     attr_accessor :opts
     attr_accessor :_pry_
 
+    class << self
+      attr_accessor :input_expression_ranges
+      attr_accessor :output_result_ranges
+    end
+
+    @input_expression_ranges = []
+    @output_result_ranges = []
+
     def initialize(args, opts, _pry_)
       @args = args
       @opts = opts
@@ -14,12 +22,19 @@ class Pry
 
     # Add the `--lines`, `-o`, `-i`, `-s`, `-d` options.
     def self.inject_options(opt)
+      @input_expression_ranges = []
+      @output_result_ranges = []
+
       opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number or range",
                          :optional_argument => true, :as => Range, :default => 1..-1
       opt.on :o, :out,   "Select lines from Pry's output result history. Takes an index or range",
-                         :optional_argument => true, :as => Range, :default => -5..-1
+      :optional_argument => true, :as => Range, :default => -5..-1 do |r|
+        output_result_ranges << (r || (-5..-1))
+      end
       opt.on :i, :in,    "Select lines from Pry's input expression history. Takes an index or range",
-                         :optional_argument => true, :as => Range, :default => -5..-1
+      :optional_argument => true, :as => Range, :default => -5..-1 do |r|
+        input_expression_ranges << (r || (-5..-1))
+      end
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors",
                          :as => :count
       opt.on :d, :doc,   "Select lines from the code object's documentation"
@@ -42,7 +57,7 @@ class Pry
                 when opts.present?(:i)
                   pry_input_content
                 when opts.present?(:d)
-                  code_object.doc
+                  code_object_doc
                 else
                   code_object_source_or_file
                 end
@@ -72,7 +87,7 @@ class Pry
     #
     # @return [String]
     def pry_output_content
-      pry_array_content_as_string(_pry_.output_array, opts[:o]) do |v|
+      pry_array_content_as_string(_pry_.output_array, self.class.output_result_ranges) do |v|
         Pry.config.gist.inspecter.call(v)
       end
     end
@@ -82,12 +97,17 @@ class Pry
     #
     # @return [String]
     def pry_input_content
-      pry_array_content_as_string(_pry_.input_array, opts[:i]) { |v| v }
+      pry_array_content_as_string(_pry_.input_array, self.class.input_expression_ranges) { |v| v }
     end
 
     # The line range passed to `--lines`
     def line_range
       opts.present?(:lines) ? one_index_range_or_number(opts[:lines]) : 0..-1
+    end
+
+    # Name of the object argument
+    def obj_name
+      @obj_name ||= args.empty? ? no_arg : args.join(" ")
     end
 
     private
@@ -97,13 +117,20 @@ class Pry
        !args.empty?].count(true) > 1
     end
 
-    def pry_array_content_as_string(array, range, &block)
-      raise CommandError, "Minimum value for range is 1, not 0." if convert_to_range(range).first == 0
-
-      array = Array(array[range]) || []
+    def pry_array_content_as_string(array, ranges, &block)
       all = ''
-      array.each { |v| all << block.call(v) }
+      ranges.each do |range|
+        raise CommandError, "Minimum value for range is 1, not 0." if convert_to_range(range).first == 0
+
+        ranged_array = Array(array[range]) || []
+        ranged_array.compact.each { |v| all << block.call(v) }
+      end
+
       all
+    end
+
+    def code_object_doc
+      (code_object && code_object.doc) or could_not_locate(obj_name)
     end
 
     def code_object_source_or_file
@@ -128,10 +155,6 @@ class Pry
       else
         n
       end
-    end
-
-    def obj_name
-      @obj_name ||= args.empty? ? no_arg : args.join(" ")
     end
   end
 end
