@@ -296,12 +296,31 @@ class Pry
     def output_section(heading, body)
       return "" if body.compact.empty?
       table = Pry::Helpers.tablify_to_screen_width(body)
+      if heading =~ /.+methods\z/ && body.size >= 36
+        paint_heading_methods(body)
+      end
       "#{text.bold(color(:heading, heading))}: \n#{table}\n"
     end
 
     # Color output based on config.ls.*_color
     def color(type, str)
       text.send(Pry.config.ls.send(:"#{type}_color"), str)
+    end
+
+    # The true place for this method is {Pry::Helpers::Table}. Both JRuby and
+    # Rubinius don't like it when it's there, for some reason. *shrugs*
+    def paint_heading_methods(body)
+      cur = ''
+      body.each_with_index.inject([]) { |indices, (method, idx)|
+        if method[0] != cur && method[0] =~ /[a-z]/
+          indices << idx
+          cur = method[0]
+        end
+        indices
+      }.map { |i|
+        body[i][0] = "\e[1;7m#{ body[i][0] }\e[0m"
+        body[i][11..-1] = "\e[4m#{ body[i][11..-1] }\e[0m"
+      }
     end
   end
 
