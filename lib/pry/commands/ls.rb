@@ -41,27 +41,21 @@ class Pry
       end
     end
 
+    attr_reader :object_to_interrogate, :has_user_specified_any_options, :grep, :grep_regex
+
     def process
-      obj = args.empty? ? target_self : target.eval(args.join(" "))
+      @object_to_interrogate = args.empty? ? target_self : target.eval(args.join(" "))
 
       # exclude -q, -v and --grep because they don't specify what the user wants to see.
-      has_opts = (opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) ||
-                  opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
-                  opts.present?(:ivars))
+      @has_user_specified_any_options = (opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) ||
+                                          opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
+                                          opts.present?(:ivars))
 
-      grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
+      @grep_regex, @grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(@grep_regex) }]
 
-      raise_errors_if_arguments_are_weird opts, args, obj
+      raise_errors_if_arguments_are_weird
 
       all_output = ""
-
-      writer_options = {
-        :object       => obj,
-        :options      => opts,
-        :has_options? => has_opts,
-        :grep         => grep,
-        :grep_regex   => grep_regex
-      }
 
       all_output = [
         :globals,
@@ -71,7 +65,7 @@ class Pry
         :ivars,
         :local_names,
         :locals,
-      ].map {|n| send("write_out_#{n}", writer_options)}.compact.join("")
+      ].map {|n| send("write_out_#{n}")}.compact.join("")
 
       stagger_output(all_output)
     end
@@ -171,43 +165,42 @@ class Pry
       lambda { |klass| !ceiling.include?(klass) }
     end
 
-    def raise_errors_if_arguments_are_weird opts, args, obj
+    def raise_errors_if_arguments_are_weird
       raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
       raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
       raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
-      raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
-      raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
+      raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === object_to_interrogate)
+      raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === object_to_interrogate)
     end
 
-    def write_out_globals options
-      if options[:options].present?(:globals)
-        output_section("global variables", options[:grep][format_globals(target.eval("global_variables"))])
+    def write_out_globals
+      if opts.present?(:globals)
+        output_section("global variables", grep[format_globals(target.eval("global_variables"))])
       else
         nil
       end
     end
 
-    def write_out_constants options
-      if options[:options].present?(:constants) || (!options[:has_options?] && Module === options[:object])
-        mod = Module === options[:object] ? options[:object] : Object
+    def write_out_constants
+      if opts.present?(:constants) || (!has_user_specified_any_options && Module === object_to_interrogate)
+        mod = Module === object_to_interrogate ? object_to_interrogate : Object
         constants = mod.constants
-        constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless options[:options].present?(:verbose)
-        output_section("constants", options[:grep][format_constants(mod, constants)])
+        constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
+        output_section("constants", grep[format_constants(mod, constants)])
       else
         nil
       end
     end
 
-    def write_out_methods options
-      opts = options[:options]
-      if opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !options[:has_options?]
+    def write_out_methods
+      if opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_user_specified_any_options
         # methods is a hash {Module/Class => [Pry::Methods]}
-        methods = all_methods(options[:object]).group_by(&:owner)
+        methods = all_methods(object_to_interrogate).group_by(&:owner)
 
         output = ""
         # reverse the resolution order so that the most useful information appears right by the prompt
-        resolution_order(options[:object]).take_while(&below_ceiling(options[:object])).reverse.each do |klass|
-          methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ options[:grep_regex] })
+        resolution_order(object_to_interrogate).take_while(&below_ceiling(object_to_interrogate)).reverse.each do |klass|
+          methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
           output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
         end
         output
@@ -216,19 +209,19 @@ class Pry
       end
     end
 
-    def write_out_self_methods options
-      if (!options[:has_options?] && Module === options[:object])
-        methods = all_methods(options[:object], true).select{ |m| m.owner == options[:object] && m.name =~ options[:grep_regex] }
-        output_section("#{Pry::WrappedModule.new(options[:object]).method_prefix}methods", format_methods(methods))
+    def write_out_self_methods
+      if (!has_user_specified_any_options && Module === object_to_interrogate)
+        methods = all_methods(object_to_interrogate, true).select{ |m| m.owner == object_to_interrogate && m.name =~ grep_regex }
+        output_section("#{Pry::WrappedModule.new(object_to_interrogate).method_prefix}methods", format_methods(methods))
       else
         nil
       end
     end
 
-    def write_out_ivars options
-      if opts.present?(:ivars) || !options[:has_options?]
-        klass = (Module === options[:object] ? options[:object] : options[:object].class)
-        ivars = Pry::Method.safe_send(options[:object], :instance_variables)
+    def write_out_ivars
+      if opts.present?(:ivars) || !has_user_specified_any_options
+        klass = (Module === object_to_interrogate ? object_to_interrogate : object_to_interrogate.class)
+        ivars = Pry::Method.safe_send(object_to_interrogate, :instance_variables)
         kvars = Pry::Method.safe_send(klass, :class_variables)
         output_section("instance variables", format_variables(:instance_var, ivars)) +
         output_section("class variables", format_variables(:class_var, kvars))
@@ -237,15 +230,15 @@ class Pry
       end
     end
 
-    def write_out_local_names options
-      if !options[:has_options?] && args.empty?
-        output_section("locals", format_local_names(options[:grep][target.eval("local_variables")]))
+    def write_out_local_names
+      if !has_user_specified_any_options && args.empty?
+        output_section("locals", format_local_names(grep[target.eval("local_variables")]))
       else
         nil
       end
     end
 
-    def write_out_locals options
+    def write_out_locals
       if opts.present?(:locals)
         loc_names = target.eval('local_variables').reject do |e|
           _pry_.sticky_locals.keys.include? e.to_sym
