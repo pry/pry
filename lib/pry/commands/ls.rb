@@ -49,68 +49,29 @@ class Pry
                   opts.present?(:globals) || opts.present?(:locals) || opts.present?(:constants) ||
                   opts.present?(:ivars))
 
-      show_methods     = opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_opts
-      show_self_methods = (!has_opts && Module === obj)
-      show_constants   = opts.present?(:constants) || (!has_opts && Module === obj)
-      show_ivars       = opts.present?(:ivars) || !has_opts
-      show_locals      = opts.present?(:locals)
-      show_local_names = !has_opts && args.empty?
-
       grep_regex, grep = [Regexp.new(opts[:G] || "."), lambda{ |x| x.grep(grep_regex) }]
 
       raise_errors_if_arguments_are_weird opts, args, obj
 
       all_output = ""
 
-      if opts.present?(:globals)
-        all_output << output_section("global variables", grep[format_globals(target.eval("global_variables"))])
-      end
+      writer_options = {
+        :object       => obj,
+        :options      => opts,
+        :has_options? => has_opts,
+        :grep         => grep,
+        :grep_regex   => grep_regex
+      }
 
-      if show_constants
-        mod = Module === obj ? obj : Object
-        constants = mod.constants
-        constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
-        all_output << output_section("constants", grep[format_constants(mod, constants)])
-      end
-
-      if show_methods
-        # methods is a hash {Module/Class => [Pry::Methods]}
-        methods = all_methods(obj).group_by(&:owner)
-
-        # reverse the resolution order so that the most useful information appears right by the prompt
-        resolution_order(obj).take_while(&below_ceiling(obj)).reverse.each do |klass|
-          methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
-          all_output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
-        end
-      end
-
-      if show_self_methods
-        methods = all_methods(obj, true).select{ |m| m.owner == obj && m.name =~ grep_regex }
-        all_output << output_section("#{Pry::WrappedModule.new(obj).method_prefix}methods", format_methods(methods))
-      end
-
-      if show_ivars
-        klass = (Module === obj ? obj : obj.class)
-        ivars = Pry::Method.safe_send(obj, :instance_variables)
-        kvars = Pry::Method.safe_send(klass, :class_variables)
-        all_output << output_section("instance variables", format_variables(:instance_var, ivars))
-        all_output << output_section("class variables", format_variables(:class_var, kvars))
-      end
-
-      if show_local_names
-        all_output << output_section("locals", format_local_names(
-          grep[target.eval("local_variables")]))
-      end
-
-      if show_locals
-        loc_names = target.eval('local_variables').reject do |e|
-          _pry_.sticky_locals.keys.include? e.to_sym
-        end
-        name_value_pairs = loc_names.map do |name|
-          [name, (target.eval name.to_s)]
-        end
-        all_output << format_locals(name_value_pairs).join("")
-      end
+      all_output = [
+        :globals,
+        :constants,
+        :methods,
+        :self_methods,
+        :ivars,
+        :local_names,
+        :locals,
+      ].map {|n| send("write_out_#{n}", writer_options)}.compact.join("")
 
       stagger_output(all_output)
     end
@@ -216,6 +177,86 @@ class Pry
       raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
       raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === obj)
       raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === obj)
+    end
+
+    def write_out_globals options
+      if options[:options].present?(:globals)
+        output_section("global variables", options[:grep][format_globals(target.eval("global_variables"))])
+      else
+        nil
+      end
+    end
+
+    def write_out_constants options
+      if options[:options].present?(:constants) || (!options[:has_options?] && Module === options[:object])
+        mod = Module === options[:object] ? options[:object] : Object
+        constants = mod.constants
+        constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless options[:options].present?(:verbose)
+        output_section("constants", options[:grep][format_constants(mod, constants)])
+      else
+        nil
+      end
+    end
+
+    def write_out_methods options
+      opts = options[:options]
+      if opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !options[:has_options?]
+        # methods is a hash {Module/Class => [Pry::Methods]}
+        methods = all_methods(options[:object]).group_by(&:owner)
+
+        output = ""
+        # reverse the resolution order so that the most useful information appears right by the prompt
+        resolution_order(options[:object]).take_while(&below_ceiling(options[:object])).reverse.each do |klass|
+          methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ options[:grep_regex] })
+          output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
+        end
+        output
+      else
+        nil
+      end
+    end
+
+    def write_out_self_methods options
+      if (!options[:has_options?] && Module === options[:object])
+        methods = all_methods(options[:object], true).select{ |m| m.owner == options[:object] && m.name =~ options[:grep_regex] }
+        output_section("#{Pry::WrappedModule.new(options[:object]).method_prefix}methods", format_methods(methods))
+      else
+        nil
+      end
+    end
+
+    def write_out_ivars options
+      if opts.present?(:ivars) || !options[:has_options?]
+        klass = (Module === options[:object] ? options[:object] : options[:object].class)
+        ivars = Pry::Method.safe_send(options[:object], :instance_variables)
+        kvars = Pry::Method.safe_send(klass, :class_variables)
+        output_section("instance variables", format_variables(:instance_var, ivars)) +
+        output_section("class variables", format_variables(:class_var, kvars))
+      else
+        nil
+      end
+    end
+
+    def write_out_local_names options
+      if !options[:has_options?] && args.empty?
+        output_section("locals", format_local_names(options[:grep][target.eval("local_variables")]))
+      else
+        nil
+      end
+    end
+
+    def write_out_locals options
+      if opts.present?(:locals)
+        loc_names = target.eval('local_variables').reject do |e|
+          _pry_.sticky_locals.keys.include? e.to_sym
+        end
+        name_value_pairs = loc_names.map do |name|
+          [name, (target.eval name.to_s)]
+        end
+        format_locals(name_value_pairs).join("")
+      else
+        nil
+      end
     end
 
     # Format and colourise a list of methods.
