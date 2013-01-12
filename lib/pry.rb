@@ -66,8 +66,12 @@ class Pry
 
   # Will only show the first line of the backtrace
   DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, _|
-    output.puts "#{exception.class}: #{exception.message}"
-    output.puts "from #{exception.backtrace.first}"
+    if UserError === exception && SyntaxError === exception
+      output.puts "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
+    else
+      output.puts "#{exception.class}: #{exception.message}"
+      output.puts "from #{exception.backtrace.first}"
+    end
   end
 
   DEFAULT_PROMPT_NAME = 'pry'
@@ -154,6 +158,20 @@ class Pry
       end
     end
   end
+
+  # An Exception Tag (cf. Exceptional Ruby) that instructs Pry to show the error in
+  # a more user-friendly manner. This should be used when the exception happens within
+  # Pry itself as a direct consequence of the user typing something wrong.
+  #
+  # This allows us to distinguish between the user typing:
+  #
+  # pry(main)> def )
+  # SyntaxError: unexpected )
+  #
+  # pry(main)> method_that_evals("def )")
+  # SyntaxError: (eval):1: syntax error, unexpected ')'
+  # from ./a.rb:2 in `eval'
+  module UserError; end
 
   # Catches SecurityErrors if $SAFE is set
   module TooSafeException
