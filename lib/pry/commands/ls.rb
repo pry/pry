@@ -165,13 +165,13 @@ class Pry
 
     def raise_errors_if_arguments_are_weird
       [
-        ["-l does not make sense with a specified Object", opts.present?(:locals) && !args.empty?],
-        ["-g does not make sense with a specified Object", opts.present?(:globals) && !args.empty?],
-        ["-q does not make sense with -v",                 opts.present?(:quiet) && opts.present?(:verbose)],
-        ["-M only makes sense with a Module or a Class",   opts.present?(:'instance-methods') && !(Module === object_to_interrogate)],
-        ["-c only makes sense with a Module or a Class",   opts.present?(:constants) && !args.empty? && !(Module === object_to_interrogate)],
-      ].each do |message, expression|
-        raise Pry::CommandError, message if expression
+        ["-l does not make sense with a specified Object", :locals,             !args.empty?],
+        ["-g does not make sense with a specified Object", :globals,            !args.empty?],
+        ["-q does not make sense with -v",                 :quiet,              opts.present?(:verbose)],
+        ["-M only makes sense with a Module or a Class",   :'instance-methods', !(Module === object_to_interrogate)],
+        ["-c only makes sense with a Module or a Class",   :constants,          !args.empty? && !(Module === object_to_interrogate)],
+      ].each do |message, option, expression|
+        raise Pry::CommandError, message if opts.present?(option) && expression
       end
     end
 
