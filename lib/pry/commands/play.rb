@@ -8,8 +8,7 @@ class Pry
       Usage: play [OPTIONS] [--help]
 
       The play command enables you to replay code from files and methods as if they
-      were entered directly in the Pry REPL. Default action (no options) is to play
-      the provided string variable.
+      were entered directly in the Pry REPL.
 
       play --lines 149..153
       play -i 20 --lines 1..3
@@ -22,8 +21,8 @@ class Pry
     def options(opt)
       CodeCollector.inject_options(opt)
 
-      opt.on :open, 'When used with the -m switch, it plays the entire method except' \
-                    ' the last line, leaving the method definition "open". `amend-line`' \
+      opt.on :open, 'Plays the select content except except' \
+                    ' the last line. Useful for replaying methods and leaving the method definition "open". `amend-line`' \
                     ' can then be used to modify the method.'
     end
 
@@ -36,13 +35,18 @@ class Pry
 
     def perform_play
       eval_string << (opts.present?(:open) ? restrict_to_lines(content, (0..-2)) : content)
+      run "fix-indent"
+    end
+
+    def should_use_default_file?
+      !args.first && !opts.present?(:in) && !opts.present?(:out)
     end
 
     def content
-      if args.first
-        @cc.content
-      else
+      if should_use_default_file?
         file_content
+      else
+        @cc.content
       end
     end
 

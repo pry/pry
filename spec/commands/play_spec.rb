@@ -82,7 +82,16 @@ describe "play" do
 
     it 'should play a method (a single line)' do
       pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
-      @eval_str.should == "  :test_method_content\n"
+      @eval_str.should == ":test_method_content\n"
+    end
+
+    it 'should properly reindent lines' do
+      def @o.test_method
+        'hello world'
+      end
+
+      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
+      @eval_str.should == "'hello world'\n"
     end
 
     it 'should APPEND to the input buffer when playing a method line, not replace it' do
@@ -98,7 +107,7 @@ describe "play" do
       STR
     end
 
-    it 'should play a method with the (multiple lines)' do
+    it 'should play a method (multiple lines)' do
       def @o.test_method
         @var0 = 10
         @var1 = 20
@@ -108,7 +117,7 @@ describe "play" do
 
       pry_tester(@o).process_command 'play test_method --lines 3..4', @eval_str
 
-      @eval_str.should == unindent(<<-STR, 2)
+      @eval_str.should == unindent(<<-STR, 0)
         @var1 = 20
         @var2 = 30
       STR
