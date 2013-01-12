@@ -55,17 +55,15 @@ class Pry
 
       raise_errors_if_arguments_are_weird
 
-      all_output = ""
-
       all_output = [
-        :globals,
-        :constants,
-        :methods,
-        :self_methods,
-        :ivars,
-        :local_names,
-        :locals,
-      ].map {|n| send("write_out_#{n}")}.compact.join("")
+        write_out_globals,
+        write_out_constants,
+        write_out_methods,
+        write_out_self_methods,
+        write_out_ivars,
+        write_out_local_names,
+        write_out_locals,
+      ].compact.join("")
 
       stagger_output(all_output)
     end
