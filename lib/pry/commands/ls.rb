@@ -164,11 +164,15 @@ class Pry
     end
 
     def raise_errors_if_arguments_are_weird
-      raise Pry::CommandError, "-l does not make sense with a specified Object" if opts.present?(:locals) && !args.empty?
-      raise Pry::CommandError, "-g does not make sense with a specified Object" if opts.present?(:globals) && !args.empty?
-      raise Pry::CommandError, "-q does not make sense with -v" if opts.present?(:quiet) && opts.present?(:verbose)
-      raise Pry::CommandError, "-M only makes sense with a Module or a Class" if opts.present?(:'instance-methods') && !(Module === object_to_interrogate)
-      raise Pry::CommandError, "-c only makes sense with a Module or a Class" if opts.present?(:constants) && !args.empty? && !(Module === object_to_interrogate)
+      [
+        ["-l does not make sense with a specified Object", opts.present?(:locals) && !args.empty?],
+        ["-g does not make sense with a specified Object", opts.present?(:globals) && !args.empty?],
+        ["-q does not make sense with -v",                 opts.present?(:quiet) && opts.present?(:verbose)],
+        ["-M only makes sense with a Module or a Class",   opts.present?(:'instance-methods') && !(Module === object_to_interrogate)],
+        ["-c only makes sense with a Module or a Class",   opts.present?(:constants) && !args.empty? && !(Module === object_to_interrogate)],
+      ].each do |message, expression|
+        raise Pry::CommandError, message if expression
+      end
     end
 
     def write_out_globals
