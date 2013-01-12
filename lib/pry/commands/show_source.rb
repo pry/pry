@@ -25,6 +25,7 @@ class Pry
 
     # The source for code_object prepared for display.
     def content_for(code_object)
+      raise CommandError, "Cannot locate source!" if !code_object.source
       Code.new(code_object.source, start_line_for(code_object)).
         with_line_numbers(use_line_numbers?).to_s
     end
