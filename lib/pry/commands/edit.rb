@@ -14,13 +14,10 @@ class Pry
       Open a text editor. When no FILE is given, edits the pry input buffer. Ensure
       `Pry.config.editor` is set to your editor of choice.
 
-      edit sample.rb
-      edit sample.rb --line 105
-      edit MyClass#my_method
-      edit --method
-      edit -p MyClass#my_method
-      edit YourClass
-      edit --ex`
+      edit sample.rb                edit -p MyClass#my_method
+      edit sample.rb --line 105     edit YourClass
+      edit MyClass#my_method        edit --ex
+      edit --method                 edit --ex -p
 
       https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
     BANNER
