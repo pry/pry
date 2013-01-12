@@ -1,3 +1,7 @@
+# This command needs a TONNE more tests for it, but i can't figure out
+# how to do them yet, and i really want to release. Sorry. Someone
+# come along and do a better job.
+
 require 'helper'
 
 describe "play" do
@@ -32,7 +36,7 @@ describe "play" do
     end
   end
 
-  describe "without argument (switches only)" do
+  describe "whatever" do
     before do
       @o = Object.new
       def @o.test_method
@@ -72,6 +76,10 @@ describe "play" do
       STR
     end
 
+    it 'has pretty error messages when -d cant find object' do
+      lambda { @t.process_command "play -d sdfsdf" }.should.raise(Pry::CommandError).message.should.match(/Cannot locate/)
+    end
+
     it 'should play a method (a single line)' do
       pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
       @eval_str.should == "  :test_method_content\n"
@@ -105,5 +113,17 @@ describe "play" do
         @var2 = 30
       STR
     end
+
+    # WHY THE FUCK DOESN'T THIS WORK???????????????????????????
+    # describe "play -i" do
+    #   it 'should play multi-ranged input expressions' do
+    #     a = b = c = d = e = 0
+    #     t = pry_tester(binding)
+    #     t.eval 'a += 1', 'b += 1', 'c += 1', 'd += 1', 'e += 1'
+    #     t.eval "play -i 1..3"
+    #     [a, b, c].all? { |v| v.should == 2 }
+    #     d.should == 1
+    #   end
+    # end
   end
 end
