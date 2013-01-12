@@ -42,6 +42,13 @@ describe "save-file" do
       @t.eval "save-file -i 1..2 --to #{@path}"
       File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n"
     end
+
+    it 'should save multi-ranged input expressions' do
+      @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever',
+      ':baby_ducks', ':cannot_escape'
+      @t.eval "save-file -i 1..2 -i 4..5 --to #{@path}"
+      File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n:baby_ducks\n:cannot_escape\n"
+    end
   end
 
   describe "saving methods" do
