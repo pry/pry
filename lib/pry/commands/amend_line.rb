@@ -20,6 +20,7 @@ class Pry
       raise CommandError, "No input to amend." if eval_string.empty?
 
       eval_string.replace amended_input(eval_string)
+      run "fix-indent"
       run "show-input"
     end
 
