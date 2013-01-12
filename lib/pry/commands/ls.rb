@@ -172,82 +172,68 @@ class Pry
     end
 
     def write_out_globals
-      if opts.present?(:globals)
-        output_section("global variables", grep[format_globals(target.eval("global_variables"))])
-      else
-        nil
-      end
+      return unless opts.present?(:globals)
+
+      output_section("global variables", grep[format_globals(target.eval("global_variables"))])
     end
 
     def write_out_constants
-      if opts.present?(:constants) || (!has_user_specified_any_options && Module === object_to_interrogate)
-        mod = Module === object_to_interrogate ? object_to_interrogate : Object
-        constants = mod.constants
-        constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
-        output_section("constants", grep[format_constants(mod, constants)])
-      else
-        nil
-      end
+      return unless opts.present?(:constants) || (!has_user_specified_any_options && Module === object_to_interrogate)
+
+      mod = Module === object_to_interrogate ? object_to_interrogate : Object
+      constants = mod.constants
+      constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
+      output_section("constants", grep[format_constants(mod, constants)])
     end
 
     def write_out_methods
-      if opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_user_specified_any_options
-        # methods is a hash {Module/Class => [Pry::Methods]}
-        methods = all_methods(object_to_interrogate).group_by(&:owner)
+      return unless opts.present?(:methods) || opts.present?(:'instance-methods') || opts.present?(:ppp) || !has_user_specified_any_options
 
-        output = ""
-        # reverse the resolution order so that the most useful information appears right by the prompt
-        resolution_order(object_to_interrogate).take_while(&below_ceiling(object_to_interrogate)).reverse.each do |klass|
-          methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
-          output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
-        end
-        output
-      else
-        nil
+      # methods is a hash {Module/Class => [Pry::Methods]}
+      methods = all_methods(object_to_interrogate).group_by(&:owner)
+
+      output = ""
+      # reverse the resolution order so that the most useful information appears right by the prompt
+      resolution_order(object_to_interrogate).take_while(&below_ceiling(object_to_interrogate)).reverse.each do |klass|
+        methods_here = format_methods((methods[klass] || []).select{ |m| m.name =~ grep_regex })
+        output << output_section("#{Pry::WrappedModule.new(klass).method_prefix}methods", methods_here)
       end
+      output
     end
 
     def write_out_self_methods
-      if (!has_user_specified_any_options && Module === object_to_interrogate)
-        methods = all_methods(object_to_interrogate, true).select{ |m| m.owner == object_to_interrogate && m.name =~ grep_regex }
-        output_section("#{Pry::WrappedModule.new(object_to_interrogate).method_prefix}methods", format_methods(methods))
-      else
-        nil
-      end
+      return unless (!has_user_specified_any_options && Module === object_to_interrogate)
+
+      methods = all_methods(object_to_interrogate, true).select{ |m| m.owner == object_to_interrogate && m.name =~ grep_regex }
+      output_section("#{Pry::WrappedModule.new(object_to_interrogate).method_prefix}methods", format_methods(methods))
     end
 
     def write_out_ivars
-      if opts.present?(:ivars) || !has_user_specified_any_options
-        klass = (Module === object_to_interrogate ? object_to_interrogate : object_to_interrogate.class)
-        ivars = Pry::Method.safe_send(object_to_interrogate, :instance_variables)
-        kvars = Pry::Method.safe_send(klass, :class_variables)
-        output_section("instance variables", format_variables(:instance_var, ivars)) +
-        output_section("class variables", format_variables(:class_var, kvars))
-      else
-        nil
-      end
+      return unless opts.present?(:ivars) || !has_user_specified_any_options
+
+      klass = (Module === object_to_interrogate ? object_to_interrogate : object_to_interrogate.class)
+      ivars = Pry::Method.safe_send(object_to_interrogate, :instance_variables)
+      kvars = Pry::Method.safe_send(klass, :class_variables)
+      output_section("instance variables", format_variables(:instance_var, ivars)) +
+      output_section("class variables", format_variables(:class_var, kvars))
     end
 
     def write_out_local_names
-      if !has_user_specified_any_options && args.empty?
-        output_section("locals", format_local_names(grep[target.eval("local_variables")]))
-      else
-        nil
-      end
+      return unless !has_user_specified_any_options && args.empty?
+
+      output_section("locals", format_local_names(grep[target.eval("local_variables")]))
     end
 
     def write_out_locals
-      if opts.present?(:locals)
-        loc_names = target.eval('local_variables').reject do |e|
-          _pry_.sticky_locals.keys.include? e.to_sym
-        end
-        name_value_pairs = loc_names.map do |name|
-          [name, (target.eval name.to_s)]
-        end
-        format_locals(name_value_pairs).join("")
-      else
-        nil
+      return unless opts.present?(:locals)
+
+      loc_names = target.eval('local_variables').reject do |e|
+        _pry_.sticky_locals.keys.include? e.to_sym
       end
+      name_value_pairs = loc_names.map do |name|
+        [name, (target.eval name.to_s)]
+      end
+      format_locals(name_value_pairs).join("")
     end
 
     # Format and colourise a list of methods.
