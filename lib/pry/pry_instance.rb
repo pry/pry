@@ -306,7 +306,7 @@ class Pry
       begin
         break if Pry::Code.complete_expression?(eval_string)
       rescue SyntaxError => e
-        output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
+        exception_handler.call(output, e.extend(UserError), self)
         eval_string = ""
       end
     end
