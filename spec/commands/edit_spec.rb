@@ -39,6 +39,12 @@ describe "edit" do
       File.exist?(@file).should == true
     end
 
+    it "works with files that contain blanks in their names" do
+      FileUtils.touch '/tmp/hello world.rb'
+      pry_eval 'edit /tmp/hello world.rb'
+      @file.should == '/tmp/hello world.rb'
+    end
+
     describe do
       before do
         Pad.counter = 0

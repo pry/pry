@@ -33,6 +33,9 @@ class Pry
       # all the flags we want as well as the file and line number we
       # want to open at.
       def build_editor_invocation_string(file, line, blocking)
+        # Sanitize blanks.
+        file = Shellwords.escape(file)
+
         if Pry.config.editor.respond_to?(:call)
           args = [file, line, blocking][0...(Pry.config.editor.arity)]
           Pry.config.editor.call(*args)

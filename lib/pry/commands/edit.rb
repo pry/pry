@@ -114,11 +114,8 @@ class Pry
 
       ensure_file_name_is_valid(file_name)
 
-      # Sanitize blanks.
-      sanitized_file_name = Shellwords.escape(file_name)
-
-      Pry::Editor.invoke_editor(sanitized_file_name, line, reload?(file_name))
-      set_file_and_dir_locals(sanitized_file_name)
+      Pry::Editor.invoke_editor(file_name, line, reload?(file_name))
+      set_file_and_dir_locals(file_name)
 
       if reload?(file_name)
         silence_warnings do
@@ -128,7 +125,7 @@ class Pry
     end
 
     def filename_argument
-      args.first || ""
+      args.join(' ')
     end
 
     def code_object
