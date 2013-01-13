@@ -39,10 +39,10 @@ class Pry
           Pry.config.editor.call(*args)
         else
           sanitized_file = if windows?
-                              file.gsub(/\//, '\\')
-                            else
-                              Shellwords.escape(file)
-                            end
+                             file.gsub(/\//, '\\')
+                           else
+                             Shellwords.escape(file)
+                           end
 
           "#{Pry.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(sanitized_file, line)}"
         end
