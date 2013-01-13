@@ -542,140 +542,6 @@ class Pry
       alias_method :line, :source_line
     end
 
-    # The class that couples together subcommands and top-level options (that
-    # are known as "default" options). The explicitly defined instance methods
-    # of this class provide the coupling with default options of a
-    # Slop::Commands instance. An instance of this class delegates all remaining
-    # methods to an instance of Slop::Commands class.
-    #
-    # @example
-    #   # Define Slop commands.
-    #   commands = Slop::Commands.new do |cmd|
-    #     cmd.on :action do
-    #       on :f, :force, "Use force"
-    #     end
-    #
-    #     cmd.default do
-    #       on :v, :verbose, "Verbose mode"
-    #     end
-    #   end
-    #
-    #   # Pass Slop commands as an argument to Options class.
-    #   opts = Options.new(Slop::Commands.new)
-    #   opts.default
-    #   # => #<Slop ...>
-    #
-    #   # Parse subcommands.
-    #   opts.parse %'action --force'
-    #   opts[:action].present?(:force)
-    #   # => true
-    #   opts.present?(:force)
-    #   # => false
-    #
-    #   # Parse default options.
-    #   opts.parse %'--verbose'
-    #   opts.verbose?
-    #   # => true
-    #   opts[:action].present?(:verbose)
-    #   # => false
-    #   opts.verbose
-    #   # => NoMethodError
-    class Options < SimpleDelegator
-
-      # @param [Slop::Commands] opts The subcommands and options.
-      # @raise [ArgumentError] if the +opts+ isn't a kind of Slop::Commands.
-      #   instance.
-      def initialize(opts)
-        unless opts.kind_of?(Slop::Commands)
-          raise ArgumentError, "Expected an instance of Slop::Command, not #{opts.class} one"
-        end
-        super
-      end
-
-      # Fetch the instance of Slop tied to a command or fetch an options
-      # argument value.
-      #
-      # If the +key+ doesn't correspond to any of the subcommands, the method
-      # tries to find the same +key+ in the list of default options.
-      #
-      # @example
-      #   # A subcommand example.
-      #   opts = Options.new(commands)
-      #   opts.parse %w'download video.ogv'
-      #
-      #   opts[:download]
-      #   # => #<Slop ...>
-      #
-      #   # A default option example.
-      #   opts = Options.new(commands)
-      #   opts.parse %w'--host=localhost download video.ogv'
-      #   opts[:host]
-      #   # => true
-      #
-      # @param [String, Symbol] key The subcommand name or the default option.
-      # @return [Slop, Boolean, nil] Either instance of Slop tied to the
-      #   command, if any; or `true`, if the default option has the given +key+;
-      #   or nil, if can't find the +key+.
-      # @note The method never returns `false`.
-      def [](key)
-        self.get(key) || default.get(key)
-      end
-
-      # Check for default options presence.
-      #
-      # @param [String, Symbol] keys The list of keys to check.
-      # @return [Boolean] Whether all of the +keys+ are present in the parsed
-      #   arguments.
-      def present?(*keys)
-        default.present?(*keys)
-      end
-
-      # Check for a command presence.
-      #
-      # @example
-      #   opts.parse %w'install'
-      #   opts.command?(:install)
-      #   # => true
-      #   opts.command?(:list)
-      #   # => false
-      #
-      # @param [Symbol, String] name The name of the command to be checked
-      # @return [Boolean] `true` if the given +name+ is present in the parsed
-      #   arguments
-      def command?(name)
-        __getobj__.present?(name)
-      end
-
-      # Convenience method for {#present?}.
-      #
-      # @example
-      #   opts.parse %w'--verbose'
-      #   opts.verbose?
-      #   # => true
-      #   opts.terse?
-      #   # => false
-      #
-      # @return [Boolean, void] On condition of +method_name+ ends with a
-      #   question mark returns `true`, if the _default option_ is present (and
-      #   `false`, if not). Otherwise, calls `super`.
-      def method_missing(method_name, *args, &block)
-        name = method_name.to_s
-        if name.end_with?("?")
-          present?(name.chop)
-        else
-          super
-        end
-      end
-
-      private
-
-      # @return [Slop] The instance of Slop representing default options.
-      def default
-        __getobj__[:default]
-      end
-
-    end
-
     attr_accessor :opts
     attr_accessor :args
 
@@ -688,7 +554,7 @@ class Pry
     def call(*args)
       setup
 
-      self.opts = Options.new(slop)
+      self.opts = slop
       self.args = self.opts.parse!(args)
 
       if opts.present?(:help)
@@ -707,14 +573,11 @@ class Pry
     # Return an instance of Slop::Commands that can parse either subcommands
     # or the options that this command accepts.
     def slop
-      Slop::Commands.new do |cmd|
-        subcommands(cmd)
-
-        cmd.default do |opt|
-          opt.banner(unindent(self.class.banner))
-          options(opt)
-          opt.on(:h, :help, "Show this message.")
-        end
+      Slop.parse do |opt|
+        opt.banner(unindent(self.class.banner))
+        subcommands(opt)
+        options(opt)
+        opt.on :h, :help, 'Show this message.'
       end
     end
 
@@ -722,7 +585,7 @@ class Pry
     # @param [String] search  The line typed so far
     # @return [Array<String>]  the words to complete
     def complete(search)
-      slop[:default].map do |opt|
+      slop.map do |opt|
         [opt.long && "--#{opt.long} " || opt.short && "-#{opt.short}"]
       end.flatten(1).compact + super
     end
