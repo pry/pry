@@ -381,15 +381,11 @@ describe "edit" do
 
       describe 'without -p' do
         before do
-          @old_editor = Pry.config.editor
           @file = @line = @contents = nil
           Pry.config.editor = lambda do |file, line|
             @file = file; @line = line
             nil
           end
-        end
-        after do
-          Pry.config.editor = @old_editor
         end
 
         it "should correctly find a class method" do
@@ -427,7 +423,6 @@ describe "edit" do
 
       describe 'with -p' do
         before do
-          @old_editor = Pry.config.editor
           Pry.config.editor = lambda do |file, line|
             lines = File.read(file).lines.to_a
             lines[1] = ":maybe\n"
@@ -437,10 +432,6 @@ describe "edit" do
             @patched_def = String(lines[1]).chomp
             nil
           end
-        end
-
-        after do
-          Pry.config.editor = @old_editor
         end
 
         it "should successfully replace a class method" do
@@ -579,7 +570,6 @@ describe "edit" do
 
       describe 'on an aliased method' do
         before do
-          @old_editor = Pry.config.editor
           Pry.config.editor = lambda do |file, line|
             lines = File.read(file).lines.to_a
             lines[1] = '"#{super}aa".to_sym' + "\n"
@@ -588,9 +578,6 @@ describe "edit" do
             end
             nil
           end
-        end
-        after do
-          Pry.config.editor = @old_editor
         end
 
         it "should change the alias, but not the original, without breaking super" do
@@ -609,15 +596,11 @@ describe "edit" do
 
       describe 'with three-arg editor' do
         before do
-          @old_editor = Pry.config.editor
           @file = @line = @reloading = nil
           Pry.config.editor = lambda do |file, line, reloading|
             @file = file; @line = line; @reloading = reloading
             nil
           end
-        end
-        after do
-          Pry.config.editor = @old_editor
         end
 
         it "should pass the editor a reloading arg" do
@@ -652,7 +635,6 @@ describe "edit" do
     end
 
     it 'should edit method context' do
-      old_editor = Pry.editor
       Pry.editor = lambda do |file, line|
         [file, line].should == BinkyWink.instance_method(:tots_macgee).source_location
         nil
@@ -660,11 +642,9 @@ describe "edit" do
 
       t = pry_tester(BinkyWink.new.tots_macgee)
       t.process_command "edit -m -n"
-      Pry.editor = old_editor
     end
 
     it 'errors when cannot find method context' do
-      old_editor = Pry.editor
       Pry.editor = lambda do |file, line|
         [file, line].should == BinkyWink.instance_method(:tits_macgee).source_location
         nil
@@ -673,7 +653,6 @@ describe "edit" do
       t = pry_tester(BinkyWink.new.tits_macgee)
       lambda { t.process_command "edit -m -n" }.should.
         raise(Pry::CommandError).message.should.match(/Cannot find a file for/)
-      Pry.editor = old_editor
     end
 
     it 'errors when a filename arg is passed with --method' do
