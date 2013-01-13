@@ -33,14 +33,18 @@ class Pry
       # all the flags we want as well as the file and line number we
       # want to open at.
       def build_editor_invocation_string(file, line, blocking)
-        # Sanitize blanks.
-        file = Shellwords.escape(file)
 
         if Pry.config.editor.respond_to?(:call)
           args = [file, line, blocking][0...(Pry.config.editor.arity)]
           Pry.config.editor.call(*args)
         else
-          "#{Pry.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(file, line)}"
+          sanitized_file = if windows?
+                              file.gsub(/\//, '\\')
+                            else
+                              Shellwords.escape(file)
+                            end
+
+          "#{Pry.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(sanitized_file, line)}"
         end
       end
 
@@ -83,10 +87,6 @@ class Pry
       # Return the syntax for a given editor for starting the editor
       # and moving to a particular line within that file
       def start_line_syntax_for_editor(file_name, line_number)
-        if windows?
-          file_name = file_name.gsub(/\//, '\\')
-        end
-
         # special case for 1st line
         return file_name if line_number <= 1
 
