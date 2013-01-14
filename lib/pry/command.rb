@@ -602,15 +602,38 @@ class Pry
     #   end
     def setup; end
 
-    # A method to setup Slop::Commands so it can parse the subcommands your
+    # A method to setup Slop commands so it can parse the subcommands your
     # command expects. If you need to set up default values, use `setup`
     # instead.
     #
-    # @example
+    # @example A minimal example
     #   def subcommands(cmd)
-    #     cmd.on(:d, :download, "Download a content from a server.") do
-    #       @action = :download
+    #     cmd.command :download do |opt|
+    #       description 'Downloads a content from a server'
+    #
+    #       opt.on :verbose, 'Use verbose output'
+    #
+    #       run do |options, arguments|
+    #         ContentDownloader.download(options, arguments)
+    #       end
     #     end
+    #   end
+    #
+    # @example Define the invokation block anywhere you want
+    #   def subcommands(cmd)
+    #     cmd.command :download do |opt|
+    #       description 'Downloads a content from a server'
+    #
+    #       opt.on :verbose, 'Use verbose output'
+    #     end
+    #   end
+    #
+    #   def process
+    #     # Perform calculations...
+    #     opts.fetch_command(:download).run do |options, arguments|
+    #       ContentDownloader.download(options, arguments)
+    #     end
+    #     # More calculations...
     #   end
     def subcommands(cmd); end
 
