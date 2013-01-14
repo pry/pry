@@ -18,8 +18,9 @@ describe "save-file" do
         f.puts ":cute_horse"
         f.flush
 
-        @t.eval("save-file #{path} --to #{@path}")
+        @t.eval("save-file '#{path}' --to '#{@path}'")
 
+       
         File.read(@path).should == File.read(path)
       end
     end
@@ -28,25 +29,25 @@ describe "save-file" do
   describe "-i" do
     it 'should save input expressions to a file (single expression)' do
       @t.eval ':horse_nostrils'
-      @t.eval "save-file -i 1 --to #{@path}"
+      @t.eval "save-file -i 1 --to '#{@path}'"
       File.read(@path).should == ":horse_nostrils\n"
     end
 
     it "should display a success message on save" do
       @t.eval ':horse_nostrils'
-      @t.eval("save-file -i 1 --to #{@path}").should =~ /successfully saved/
+      @t.eval("save-file -i 1 --to '#{@path}'").should =~ /successfully saved/
     end
 
     it 'should save input expressions to a file (range)' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever'
-      @t.eval "save-file -i 1..2 --to #{@path}"
+      @t.eval "save-file -i 1..2 --to '#{@path}'"
       File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n"
     end
 
     it 'should save multi-ranged input expressions' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever',
       ':baby_ducks', ':cannot_escape'
-      @t.eval "save-file -i 1..2 -i 4..5 --to #{@path}"
+      @t.eval "save-file -i 1..2 -i 4..5 --to '#{@path}'"
       File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n:baby_ducks\n:cannot_escape\n"
     end
   end
@@ -66,16 +67,16 @@ describe "save-file" do
 
     describe "single method" do
       it 'should save a method to a file' do
-        @t.eval "save-file --to #{@path} baby"
+        @t.eval "save-file --to '#{@path}' baby"
         File.read(@path).should == Pry::Method.from_obj(@o, :baby).source
       end
 
       it "should display a success message on save" do
-        @t.eval("save-file --to #{@path} baby").should =~ /successfully saved/
+        @t.eval("save-file --to '#{@path}' baby").should =~ /successfully saved/
       end
 
       it 'should save a method to a file truncated by --lines' do
-        @t.eval "save-file --to #{@path} baby --lines 2..4"
+        @t.eval "save-file --to '#{@path}' baby --lines 2..4"
 
         # must add 1 as first line of method is 1
         File.read(@path).should ==
@@ -115,10 +116,10 @@ describe "save-file" do
   describe "overwrite by default (no --append)" do
     it 'should overwrite specified file with new input' do
       @t.eval ':horse_nostrils'
-      @t.eval "save-file -i 1 --to #{@path}"
+      @t.eval "save-file -i 1 --to '#{@path}'"
 
       @t.eval ':sucking_up_all_the_oxygen'
-      @t.eval "save-file -i 2 --to #{@path}"
+      @t.eval "save-file -i 2 --to '#{@path}'"
 
       File.read(@path).should == ":sucking_up_all_the_oxygen\n"
     end
@@ -127,10 +128,10 @@ describe "save-file" do
   describe "--append" do
     it 'should append to end of specified file' do
       @t.eval ':horse_nostrils'
-      @t.eval "save-file -i 1 --to #{@path}"
+      @t.eval "save-file -i 1 --to '#{@path}'"
 
       @t.eval ':sucking_up_all_the_oxygen'
-      @t.eval "save-file -i 2 --to #{@path} -a"
+      @t.eval "save-file -i 2 --to '#{@path}' -a"
 
       File.read(@path).should ==
         ":horse_nostrils\n:sucking_up_all_the_oxygen\n"
@@ -139,7 +140,7 @@ describe "save-file" do
 
   describe "saving commands" do
     it 'should save a command to a file' do
-      @t.eval "save-file --to #{@path} show-source"
+      @t.eval "save-file --to '#{@path}' show-source"
       cmd_source = Pry.commands["show-source"].source
       File.read(@path).should == cmd_source
     end
