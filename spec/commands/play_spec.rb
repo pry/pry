@@ -123,16 +123,18 @@ describe "play" do
       STR
     end
 
-    # WHY THE FUCK DOESN'T THIS WORK???????????????????????????
-    # describe "play -i" do
-    #   it 'should play multi-ranged input expressions' do
-    #     a = b = c = d = e = 0
-    #     t = pry_tester(binding)
-    #     t.eval 'a += 1', 'b += 1', 'c += 1', 'd += 1', 'e += 1'
-    #     t.eval "play -i 1..3"
-    #     [a, b, c].all? { |v| v.should == 2 }
-    #     d.should == 1
-    #   end
-    # end
+    describe "play -i" do
+      it 'should play multi-ranged input expressions' do
+        a = b = c = d = e = 0
+        redirect_pry_io(InputTester.new('a += 1', 'b += 1',
+                                        'c += 1', 'd += 1', 'e += 1',
+                                        "play -i 1..3"), StringIO.new) do
+          binding.pry
+        end
+
+        [a, b, c].all? { |v| v.should == 2 }
+        d.should == 1
+      end
+    end
   end
 end
