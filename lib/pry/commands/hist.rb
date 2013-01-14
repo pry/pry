@@ -140,7 +140,7 @@ class Pry
     def check_for_juxtaposed_replay(replay_sequence)
       if replay_sequence =~ /\Ahist(?:ory)?\b/
         # Create *fresh* instance of Options for parsing of "hist" command.
-        _slop = ClassCommand::Options.new(self.slop)
+        _slop = self.slop
         _slop.parse replay_sequence.split(' ')[1..-1]
 
         if _slop.present?(:r)
