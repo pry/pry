@@ -34,10 +34,10 @@ describe Pry do
       mock_pry("[1]").should =~ /^=> \[1\]/
     end
 
-    it "should not include the =>" do
+    it "should include the =>" do
       accumulator = StringIO.new
       Pry.config.print.call(accumulator, [1])
-      accumulator.string.should == "\[1\]\n"
+      accumulator.string.should == "=> \[1\]\n"
     end
 
     it "should not be phased by un-inspectable things" do
@@ -57,7 +57,7 @@ describe Pry do
     it "should colorize strings as though they were ruby" do
       accumulator = StringIO.new
       Pry.config.print.call(accumulator, [1])
-      accumulator.string.should == "[\e[1;34m1\e[0m]\e[0m\n"
+      accumulator.string.should == "=> [\e[1;34m1\e[0m]\e[0m\n"
     end
 
     it "should not colorize strings that already include color" do
@@ -68,7 +68,7 @@ describe Pry do
       accumulator = StringIO.new
       Pry.config.print.call(accumulator, f)
       # We add an extra \e[0m to prevent color leak
-      accumulator.string.should == "\e[1;31mFoo\e[0m\e[0m\n"
+      accumulator.string.should == "=> \e[1;31mFoo\e[0m\e[0m\n"
     end
   end
 
