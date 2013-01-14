@@ -9,7 +9,12 @@ describe Pry::Editor do
   before do
     # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
     # something "Temp".
-    @tf_dir = Pathname.new(Dir::Tmpname.tmpdir)
+    @tf_dir =
+      if Pry::Helpers::BaseHelpers.rbx? || Pry::Helpers::BaseHelpers.jruby?
+        Pathname.new(Dir.tmpdir)
+      else
+        Pathname.new(Dir::Tmpname.tmpdir)
+      end
 
     @tf_path = File.join(@tf_dir.to_s, 'hello world.rb')
   end
