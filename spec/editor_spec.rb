@@ -1,14 +1,31 @@
+require 'pathname'
 require 'helper'
-describe Pry::Editor do
-  describe "build_editor_invocation_string" do
-    before do
-      class << Pry::Editor
-        public :build_editor_invocation_string
-      end
-    end
 
-    it 'should shell-escape files' do
-      Pry::Editor.build_editor_invocation_string("/tmp/hello world.rb", 5, true).should =~ %r(/tmp/hello\\ world.rb)
+describe Pry::Editor do
+  class << Pry::Editor
+    public :build_editor_invocation_string
+  end
+
+  before do
+    # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
+    # something "Temp".
+    @tf_dir = Pathname.new(Dir::Tmpname.tmpdir)
+
+    @tf_path = @tf_dir.to_s + File::SEPARATOR + 'hello world.rb'
+  end
+
+  unless Pry::Helpers::BaseHelpers.windows?
+    describe "build_editor_invocation_string" do
+      before do
+        class << Pry::Editor
+          public :build_editor_invocation_string
+        end
+      end
+
+      it 'should shell-escape files' do
+        invocation_str = Pry::Editor.build_editor_invocation_string(@tf_path, 5, true)
+        invocation_str.should =~ /#@tf_dir.+hello\\ world\.rb/
+      end
     end
   end
 
@@ -26,11 +43,13 @@ describe Pry::Editor do
     end
 
     it "should replace / by \\" do
-      Pry::Editor.build_editor_invocation_string("/tmp/hello world.rb", 5, true).should =~ %r(\\tmp\\)
+      invocation_str = Pry::Editor.build_editor_invocation_string(@tf_path, 5, true)
+      invocation_str.should =~ %r(\\#{@tf_dir.basename}\\)
     end
 
     it "should not shell-escape files" do
-      Pry::Editor.build_editor_invocation_string("/tmp/hello world.rb", 5, true).should =~ %r(hello world.rb)
+      invocation_str = Pry::Editor.build_editor_invocation_string(@tf_path, 5, true)
+      invocation_str.should =~ /hello world\.rb/
     end
   end
 
@@ -48,8 +67,8 @@ describe Pry::Editor do
     end
 
     it 'should not shell-escape files' do
-      Pry::Editor.invoke_editor('/tmp/hello world.rb', 10, true)
-      @file.should == "/tmp/hello world.rb"
+      Pry::Editor.invoke_editor(@tf_path, 10, true)
+      @file.should == "#@tf_path"
     end
   end
 end
