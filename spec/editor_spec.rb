@@ -11,7 +11,7 @@ describe Pry::Editor do
     # something "Temp".
     @tf_dir = Pathname.new(Dir::Tmpname.tmpdir)
 
-    @tf_path = @tf_dir.to_s + File::SEPARATOR + 'hello world.rb'
+    @tf_path = File.join(@tf_dir.to_s, 'hello world.rb')
   end
 
   unless Pry::Helpers::BaseHelpers.windows?
@@ -68,7 +68,7 @@ describe Pry::Editor do
 
     it 'should not shell-escape files' do
       Pry::Editor.invoke_editor(@tf_path, 10, true)
-      @file.should == "#@tf_path"
+      @file.should == @tf_path
     end
   end
 end
