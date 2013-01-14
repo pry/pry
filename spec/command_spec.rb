@@ -241,12 +241,12 @@ describe "Pry::Command" do
     it "should create subcommands" do
       cmd = @set.create_command 'mum', 'Your mum' do
         def subcommands(cmd)
-          cmd.on :yell
+          cmd.command :yell
         end
 
         def process
-          opts.command?(:blahblah).should == false
-          opts.command?(:yell).should == true
+          opts.fetch_command(:blahblah).should == nil
+          opts.fetch_command(:yell).present?.should == true
         end
       end
 
@@ -256,15 +256,15 @@ describe "Pry::Command" do
     it "should create subcommand options" do
       cmd = @set.create_command 'mum', 'Your mum' do
         def subcommands(cmd)
-          cmd.on :yell do |opt|
-            opt.on :p, :person
+          cmd.command :yell do
+            on :p, :person
           end
         end
 
         def process
           args.should == ['papa']
-          opts[:yell][:person].should == true
-          opts[:yell].present? :person
+          opts.fetch_command(:yell).present?.should == true
+          opts.fetch_command(:yell).person?.should == true
         end
       end
 
@@ -278,7 +278,7 @@ describe "Pry::Command" do
         end
 
         def process
-          opts.arguments.should == ['papa', 'sonny', 'daughter']
+          args.should == ['yell', 'papa', 'sonny', 'daughter']
         end
       end
 
