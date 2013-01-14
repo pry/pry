@@ -72,10 +72,10 @@ class Pry
         path, input = build_path(input)
 
         unless path.call.empty?
-          target, _ = Pry::Helpers::BaseHelpers.context_from_object_path(path.call, pry) 
+          target, _ = Pry::Helpers::BaseHelpers.context_from_object_path(path.call, pry)
           target = target.last
         end
-        
+
         begin
           bind = target
 
@@ -126,7 +126,7 @@ class Pry
             candidates = Object.constants.collect(&:to_s)
             candidates.grep(/^#{receiver}/).collect{|e| "::" + e}
 
-          
+
           # Complete target symbols
 
           when /^([A-Z][A-Za-z0-9]*)$/
@@ -142,7 +142,7 @@ class Pry
             end
             candidates = candidates.grep(/^#{message}/).collect(&path)
 
-          when /^([A-Z].*)::([^:.]*)$/  
+          when /^([A-Z].*)::([^:.]*)$/
             # Constant or class methods
             receiver = $1
             message = Regexp.quote($2)
@@ -191,7 +191,7 @@ class Pry
             regmessage = Regexp.new(Regexp.quote($1))
             candidates = global_variables.collect(&:to_s).grep(regmessage)
 
-          when /^([^."].*)\.([^.]*)$/  
+          when /^([^."].*)\.([^.]*)$/
             # Variable
             receiver = $1
             message = Regexp.quote($2)
@@ -260,7 +260,7 @@ class Pry
     end
 
     def self.select_message(path, receiver, message, candidates)
-      candidates.grep(/^#{message}/).collect do |e|
+      candidates.grep(/^#{message}/).collect { |e|
         case e
         when /^[a-zA-Z_]/
           path.call(receiver + "." + e)
@@ -268,12 +268,12 @@ class Pry
         when *Operators
           #receiver + " " + e
         end
-      end
+      }.compact
     end
 
     # build_path seperates the input into two parts: path and input.
     # input is the partial string that should be completed
-    # path is a proc that takes an input and builds a full path. 
+    # path is a proc that takes an input and builds a full path.
     def self.build_path(input)
 
       # check to see if the input is a regex
@@ -293,4 +293,3 @@ class Pry
     end
   end
 end
-
