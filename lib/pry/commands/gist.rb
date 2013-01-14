@@ -36,16 +36,15 @@ class Pry
     description Pry::Gist::DESCRIPTION
     command_options :requires_gem => 'jist', :shellwords => false
 
-    banner <<-BANNER
-      Usage: gist [options]
+banner <<BANNER
+Usage: gist [options]
 
-      #{Pry::Gist::DESCRIPTION}
+#{Pry::Gist::DESCRIPTION}
 
-      If you would like to associate your gists with your GitHub account, run
-      `gist --login`.
+If you would like to associate your gists with your GitHub account, run `gist --login`.
 
-    BANNER
-    banner << Pry::Gist.examples_docs << "\n"
+#{Pry::Gist.examples_docs}
+BANNER
 
     attr_accessor :content, :filename
 
