@@ -318,7 +318,7 @@ class Pry
 
     def format_value(value)
       accumulator = StringIO.new
-      Pry.print.call(accumulator, value)
+      Pry.output_with_default_format(accumulator, value, :hashrocket => false)
       accumulator.string
     end
 

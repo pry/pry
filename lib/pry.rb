@@ -46,6 +46,7 @@ class Pry
     colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
 
     result = colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')
+    result = "=> #{result}"if options[:hashrocket]
     Helpers::BaseHelpers.stagger_output(result, output)
   end
 

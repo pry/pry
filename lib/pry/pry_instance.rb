@@ -336,7 +336,6 @@ class Pry
     if last_result_is_exception?
       exception_handler.call(output, result, self)
     elsif should_print?
-      output.write(Pry.config.output_prefix)
       print.call(output, result)
     else
       # nothin'
