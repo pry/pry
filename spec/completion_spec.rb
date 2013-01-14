@@ -87,10 +87,10 @@ describe Pry::InputCompleter do
 
     # Array
     completer_test(o).call('[1].push')
-  
+
     # Hash
     completer_test(o).call('{"a" => "b"}.keys')
-    
+
     # Proc
     completer_test(o).call('{2}.call')
 
@@ -160,10 +160,10 @@ describe Pry::InputCompleter do
 
     # Array
     completer_test(o).call('[1].push')
-  
+
     # Hash
     completer_test(o).call('{"a" => "b"}.keys')
-    
+
     # Proc
     completer_test(o).call('{2}.call')
 
@@ -226,4 +226,8 @@ describe Pry::InputCompleter do
     completer_test(b, pry).call('/Con')
   end
 
+  it 'should not return nil in its output' do
+    pry = Pry.new
+    new_completer(binding, pry).call("pry.").should.not.include nil
+  end
 end
