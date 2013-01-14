@@ -387,7 +387,7 @@ describe "edit" do
         @tempfile.flush
         load @tempfile.path
 
-        @tempfile_path = Shellwords.escape(@tempfile.path)
+        @tempfile_path = @tempfile.path
       end
 
       after do
