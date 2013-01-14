@@ -1,7 +1,9 @@
 require 'helper'
 
 describe 'gist' do
-  Pad.jist_calls = {}
+  before do
+    Pad.jist_calls = {}
+  end
 
   # In absence of normal mocking, just monkeysmash these with no undoing after.
   module Jist
@@ -24,7 +26,6 @@ describe 'gist' do
   it 'nominally logs in' do
     pry_eval 'gist --login'
     Pad.jist_calls[:login!].should.not.be.nil
-    Pad.jist_calls = {}
   end
 
   EXAMPLE_REPL_METHOD = <<-EOT
@@ -51,7 +52,6 @@ describe 'gist' do
         args[:filename].should.not == '(pry)'
       end
       Pad.jist_calls[:copy_args].should.not.be.nil
-      Pad.jist_calls = {}
     end
   end
 
