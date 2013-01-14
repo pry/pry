@@ -21,10 +21,10 @@ describe "edit" do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
       @tf_dir =
-        if Pry::Helpers::BaseHelpers.rbx? || Pry::Helpers::BaseHelpers.jruby?
-          Pathname.new(Dir.tmpdir)
-        else
+        if Pry::Helpers::BaseHelpers.mri_19?
           Pathname.new(Dir::Tmpname.tmpdir)
+        else
+          Pathname.new(Dir.tmpdir)
         end
 
       @tf_path = File.expand_path(File.join(@tf_dir.to_s, 'bar.rb'))
