@@ -1,3 +1,4 @@
+require 'pathname'
 require 'helper'
 
 describe "edit" do
@@ -15,13 +16,25 @@ describe "edit" do
   end
 
   describe "with FILE" do
+    before do
+      # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
+      # something "Temp".
+      @tf_dir = Pathname.new(Dir::Tmpname.tmpdir)
+
+      @tf_path = File.expand_path(File.join(@tf_dir.to_s, 'bar.rb'))
+      FileUtils.touch(@tf_path)
+    end
+
+    after do
+      FileUtils.rm(@tf_path) if File.exists?(@tf_path)
+    end
+
     it "should invoke Pry.config.editor with absolutified filenames" do
       pry_eval 'edit lib/pry.rb'
       @file.should == File.expand_path('lib/pry.rb')
 
-      FileUtils.touch '/tmp/bar.rb'
-      pry_eval 'edit /tmp/bar.rb'
-      @file.should == '/tmp/bar.rb'
+      pry_eval "edit #@tf_path"
+      @file.should == @tf_path
     end
 
     it "should guess the line number from a colon" do
@@ -40,9 +53,11 @@ describe "edit" do
     end
 
     it "works with files that contain blanks in their names" do
-      FileUtils.touch '/tmp/hello world.rb'
-      pry_eval 'edit /tmp/hello world.rb'
-      @file.should == '/tmp/hello world.rb'
+      tf_path = File.join(File.dirname(@tf_path), 'swoop and doop.rb')
+      FileUtils.touch(tf_path)
+      pry_eval "edit #{ tf_path }"
+      @file.should == tf_path
+      FileUtils.rm(tf_path)
     end
 
     describe do
