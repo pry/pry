@@ -124,12 +124,12 @@ class Pry
       # @param [Binding] target The binding where the method is looked up.
       # @return [Method, UnboundMethod] The 'refined' method object.
       def lookup_method_via_binding(obj, method_name, method_type, target=TOPLEVEL_BINDING)
-        Pry.th[:obj] = obj
-        Pry.th[:name] = method_name
+        Pry.current[:obj] = obj
+        Pry.current[:name] = method_name
         receiver = obj.is_a?(Module) ? "Module" : "Kernel"
-        target.eval("::#{receiver}.instance_method(:#{method_type}).bind(Pry.th[:obj]).call(Pry.th[:name])")
+        target.eval("::#{receiver}.instance_method(:#{method_type}).bind(Pry.current[:obj]).call(Pry.current[:name])")
       ensure
-        Pry.th[:obj] = Pry.th[:name] = nil
+        Pry.current[:obj] = Pry.current[:name] = nil
       end
 
       # Given a `Class` or `Module` and the name of a method, try to

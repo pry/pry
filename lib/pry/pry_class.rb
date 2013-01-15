@@ -9,7 +9,7 @@ class Pry
   LOCAL_RC_FILE = "./.pryrc"
 
   # @return [Hash] Pry's `Thread.current` hash
-  def self.th
+  def self.current
     Thread.current[:__pry__] ||= {}
   end
 

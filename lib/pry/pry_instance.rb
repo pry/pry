@@ -145,10 +145,10 @@ class Pry
   # @param [Binding] b The binding to set the local on.
   # @return [Object] The value the local was set to.
   def inject_local(name, value, b)
-    Thread.current[:__pry_local__] = value.is_a?(Proc) ? value.call : value
-    b.eval("#{name} = ::Thread.current[:__pry_local__]")
+    Pry.current[:pry_local] = value.is_a?(Proc) ? value.call : value
+    b.eval("#{name} = ::Pry.current[:pry_local]")
   ensure
-    Thread.current[:__pry_local__] = nil
+    Pry.current[:pry_local] = nil
   end
 
   # @return [Integer] The maximum amount of objects remembered by the inp and
@@ -447,7 +447,7 @@ class Pry
     })
 
     # set a temporary (just so we can inject the value we want into eval_string)
-    Thread.current[:__pry_cmd_result__] = result
+    Pry.current[:pry_cmd_result] = result
 
     # note that `result` wraps the result of command processing; if a
     # command was matched and invoked then `result.command?` returns true,
@@ -457,7 +457,7 @@ class Pry
         # the command that was invoked was non-void (had a return value) and so we make
         # the value of the current expression equal to the return value
         # of the command.
-        eval_string.replace "Thread.current[:__pry_cmd_result__].retval\n"
+        eval_string.replace "::Pry.current[:pry_cmd_result].retval\n"
       end
       true
     else
