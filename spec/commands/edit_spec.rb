@@ -142,6 +142,7 @@ describe "edit" do
         def last_exception=(exception)
           @pry.last_exception = exception
         end
+        def last_exception; @pry.last_exception; end
       end
     end
 
@@ -175,6 +176,27 @@ describe "edit" do
         @t.eval 'edit --ex'
 
         FOO.should == 'BAR'
+      end
+
+      # regression test (this used to edit the current method instead
+      # of the exception)
+      it 'edits the exception even when in a patched method context' do
+        source_location = nil
+        Pry.config.editor = lambda {|file, line|
+          source_location = [file, line]
+          nil
+        }
+
+        Pad.le = @t.last_exception
+        redirect_pry_io(InputTester.new("def broken_method", "binding.pry", "end",
+                                        "broken_method",
+                                        "_pry_.last_exception = Pad.le",
+                                        "edit --ex -n", "exit-all", "exit-all")) do
+          Object.new.pry
+        end
+
+        source_location.should == [@path, 3]
+        Pad.clear
       end
 
       it "should not reload the file if -n is passed" do
