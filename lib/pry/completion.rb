@@ -10,17 +10,17 @@ class Pry
         start
       end
 
-      Pry.th[:pry] = pry
+      Pry.current[:pry] = pry
       proc{ |*a| Bond.agent.call(*a) }
     end
 
     def self.start
-      Bond.start(:eval_binding => lambda{ Pry.th[:pry].current_context })
+      Bond.start(:eval_binding => lambda{ Pry.current[:pry].current_context })
       Bond.complete(:on => /\A/) do |input|
         Pry.commands.complete(input.line,
-                             :pry_instance => Pry.th[:pry],
-                             :target       => Pry.th[:pry].current_context,
-                             :command_set  => Pry.th[:pry].commands)
+                             :pry_instance => Pry.current[:pry],
+                             :target       => Pry.current[:pry].current_context,
+                             :command_set  => Pry.current[:pry].commands)
       end
     end
 

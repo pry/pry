@@ -29,10 +29,10 @@ module PryTestHelpers
 
   # inject a variable into a binding
   def inject_var(name, value, b)
-    Thread.current[:__pry_local__] = value
-    b.eval("#{name} = Thread.current[:__pry_local__]")
+    Pry.current[:pry_local] = value
+    b.eval("#{name} = ::Pry.current[:pry_local]")
   ensure
-    Thread.current[:__pry_local__] = nil
+    Pry.current[:pry_local] = nil
   end
 
   def constant_scope(*names)
@@ -165,7 +165,7 @@ class PryTester
   protected
 
   def last_command_result
-    result = Thread.current[:__pry_cmd_result__]
+    result = Pry.current[:pry_cmd_result]
     result.retval if result
   end
 

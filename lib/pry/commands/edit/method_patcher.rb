@@ -94,8 +94,8 @@ class Pry
       # @param [String] source  The source to wrap
       # @return [String]
       def wrap_for_owner(source)
-        Thread.current[:__pry_owner__] = code_object.owner
-        source = "Thread.current[:__pry_owner__].class_eval do\n#{source}\nend"
+        Pry.current[:pry_owner] = code_object.owner
+        source = "Pry.current[:pry_owner].class_eval do\n#{source}\nend"
       end
 
       # Update the new source code to have the correct Module.nesting.
