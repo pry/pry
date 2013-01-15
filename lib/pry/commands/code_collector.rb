@@ -103,7 +103,7 @@ class Pry
       pry_array_content_as_string(_pry_.input_array, self.class.input_expression_ranges) { |v| v }
     end
 
-    # The line range passed to `--lines`
+    # The line range passed to `--lines`, converted to a 0-indexed range.
     def line_range
       opts.present?(:lines) ? one_index_range_or_number(opts[:lines]) : 0..-1
     end
@@ -144,7 +144,6 @@ class Pry
       if File.exists?(obj_name)
         # Set the file accessor.
         self.file = obj_name
-
         File.read(obj_name)
       else
         could_not_locate(obj_name)

@@ -263,6 +263,17 @@ class Pry
       commands.delete(cmd.match)
     end
 
+    def deprecated_command(name_of_deprecated_command, deprecation_message, matcher=name_of_deprecated_command)
+      create_command name_of_deprecated_command do
+        match matcher
+        description ""
+
+        define_method(:process) do
+          output.puts "DEPRECATED: #{deprecation_message}"
+        end
+      end
+    end
+
     # Sets or gets the description for a command (replacing the old
     # description). Returns current description if no description
     # parameter provided.
