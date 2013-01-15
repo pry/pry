@@ -6,6 +6,9 @@ class Pry
     attr_accessor :opts
     attr_accessor :_pry_
 
+    # The name of the explicitly given file (if any).
+    attr_accessor :file
+
     class << self
       attr_accessor :input_expression_ranges
       attr_accessor :output_result_ranges
@@ -139,6 +142,9 @@ class Pry
 
     def file_content
       if File.exists?(obj_name)
+        # Set the file accessor.
+        self.file = obj_name
+
         File.read(obj_name)
       else
         could_not_locate(obj_name)
