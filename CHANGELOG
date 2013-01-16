@@ -1,3 +1,8 @@
+16/01/2012 version 0.9.11.2
+* minor bug fix for gist on windows, rescuing Jist::ClipboardError
+rather than letting the scary error spill out to users and potentially
+have them think the gist didnt post.
+
 16/01/2012 version 0.9.11.1
 * fixed minor bug in 'gist' command where i neglected to remove
   a call to a non-existent method (no_arg) which was called when
