@@ -110,7 +110,7 @@ class Pry
 
     # Name of the object argument
     def obj_name
-      @obj_name ||= args.empty? ? no_arg : args.join(" ")
+      @obj_name ||= args.empty? ? "" : args.join(" ")
     end
 
     private
