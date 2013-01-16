@@ -1,3 +1,7 @@
+16/01/2012 version 0.9.11.1
+* fixed minor bug in 'gist' command where i neglected to remove
+  a call to a non-existent method (no_arg) which was called when
+  `gist` is invoked with no parameters
 16/01/2013 version 0.9.11
 dependency changes:
 * upgrade the slop gem to version ~> 3.4
