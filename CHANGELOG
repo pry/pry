@@ -6,19 +6,28 @@ dependency changes:
 new features:
 * #738 basic Ruby 2.0 support
 * #732 JRuby 1.7.0+ support
-* #660 "show-source" supports `--super` switch
-* #678 added tabcomplection for previous scope
+* added bond tabcompletion, much more powerful than standard tab
+	completion. However, it requires a real 'readline' to work,
+	so will not work on standard osx setup (since it uses Editline)
+* show-source can now extract source for classes, methods, procs,
+	pry commands, and arbitrary objects (it shows the source for the class of
+	the object). As a result, show-command is now deprecated
+* gist/play/save-file now infer object type without requiring flags,
+	e.g play MyClass, play my_file.rb, play my_method
+* edit command can now edit most things, including: files, methods,
+	classes, commands. As a result the 'edit-method' command is now
+	deprecatd.
+	e.g edit my_file.rb, edit my_method, edit MyClass
+* removed "edit-method", now merged with 'edit'
+* amend-line and play now properly indent code added to input buffer.
 * #674 added support for require switches chaining (`pry -rubygems -r./a.rb`)
 * #695 added ability to customize the name displayed in the prompt
 * #716 added `--patch` switch for `edit --ex` command
 * #736 respect the `$PAGER` environment variable
 * #497 added `disable-pry` command
-* removed "edit-method" command; added `--method` switch to "edit" command
 * removed "show-command" command; use "show-source" command instead
-* show-source it works on everything (lambdas, procs, commands)
 * exec switch chaining (`pry -e ':one' -e ':two'`)
 * added two new hooks: "before_eval" and "after_eval"
-* added bond tabcompletion for commands, filenames, "cat" and "shell" commands
 * added tabcompletion for "show-source", "show-doc" commands and "Array#<tab>" cases
 * immediately require gems after gem-install
 * added `-l` switch for `ls` command (displays local variables)
@@ -29,7 +38,6 @@ new features:
 * tablifed ls output
 * added `--no-line-numbers` switch for "whereami" command
 * added `--lines` switch for "play" command
-* "gist", "play", "save-file" commands no longer need switches to select object types
 
 bug fixes:
 * #652 find-method uses single escape instead of double
