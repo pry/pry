@@ -1,3 +1,55 @@
+16/01/2013 version 0.9.11
+dependency changes:
+* upgrade the slop gem to version ~> 3.4
+* new optional dependency: Bond (you'll need to perform `gem install bond`). It enables autocompletion if you use Readline. Does not support work for Editline (more info: https://github.com/pry/pry/wiki/FAQ#wiki-readline). Big thanks to cldwalker.
+
+new features:
+* #738 basic Ruby 2.0 support
+* #732 JRuby 1.7.0+ support
+* #660 "show-source" supports `--super` switch
+* #678 added tabcomplection for previous scope
+* #674 added support for require switches chaining (`pry -rubygems -r./a.rb`)
+* #695 added ability to customize the name displayed in the prompt
+* #716 added `--patch` switch for `edit --ex` command
+* #736 respect the `$PAGER` environment variable
+* #497 added `disable-pry` command
+* removed "edit-method" command; added `--method` switch to "edit" command
+* removed "show-command" command; use "show-source" command instead
+* show-source it works on everything (lambdas, procs, commands)
+* exec switch chaining (`pry -e ':one' -e ':two'`)
+* added two new hooks: "before_eval" and "after_eval"
+* added bond tabcompletion for commands, filenames, "cat" and "shell" commands
+* added tabcompletion for "show-source", "show-doc" commands and "Array#<tab>" cases
+* immediately require gems after gem-install
+* added `-l` switch for `ls` command (displays local variables)
+* added "gem-open" command
+* added "fix-indent" command
+* added subcommands API
+* exposed the test API for plugin writers (d1489a)
+* tablifed ls output
+* added `--no-line-numbers` switch for "whereami" command
+* added `--lines` switch for "play" command
+* "gist", "play", "save-file" commands no longer need switches to select object types
+
+bug fixes:
+* #652 find-method uses single escape instead of double
+* #657 fixed blank string delimiters
+* #622 fixed "unwanted 'binding_impl_method' local now exists in scratch bindings"
+* #645 fixed "edit-method -p changes constant lookup"
+* #682 fixed ".pryrc" loading twice when invoked from `$HOME` directory
+* #675 fixed pry not remembering initial "pwd"
+* #717 fixed multiline object coloring
+* #719 fixed "show-method" not supporting `String::new` notation
+* #754 fixed "whereami" command not showing correct line numbers
+* #751 fixed buggy Cucumber AST output
+* #787 fixed `while/until do` loops indentation
+* #526 fixed buggy `--no-plugins` switch of pry
+* #774 ensure all errors go to the error handler
+* fixed ".pryrc" loading with wrong `__FILE__`
+* fixed bug when pager doesn't work if "less" is not available on system
+* fixed "Control-D" press in nested REPL
+* many small improvements of unclear error messages and formatting of documentation
+
 14/07/2012 version 0.9.10
 dependency changes:
 * #561 upgrade the slop gem to version 3
@@ -421,4 +473,3 @@ complete CHANGELOG:
 * now rescuing SyntaxError as well as Racc::Parser error in valid_expression?
 8/12/2010 version 0.1.0
 * release!
-
