@@ -83,8 +83,14 @@ class Pry
       response = Jist.gist(content, :filename => filename || "pry_gist.rb", :public => !!opts[:p])
       if response
         url = response['html_url']
-        Jist.copy(url)
-        output.puts 'Gist created at URL, which is now in the clipboard: ', url
+        message = "Gist created at URL #{url}"
+        begin
+          Jist.copy(url)
+          message << ", which is now in the clipboard."
+        rescue Jist::ClipboardError
+        end
+
+        output.puts message
       end
     end
   end
