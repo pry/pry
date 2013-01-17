@@ -7,6 +7,7 @@ have them think the gist didnt post.
 * fixed minor bug in 'gist' command where i neglected to remove
   a call to a non-existent method (no_arg) which was called when
   `gist` is invoked with no parameters
+
 16/01/2013 version 0.9.11
 dependency changes:
 * upgrade the slop gem to version ~> 3.4
@@ -15,6 +16,9 @@ dependency changes:
 new features:
 * #738 basic Ruby 2.0 support
 * #732 JRuby 1.7.0+ support
+* new reload-code command, using it you can reload code for methods,
+	classes, commands, objects and so on. e.g reload-code MyCLass,
+	reload-code my_method, reload-code my_obj
 * added bond tabcompletion, much more powerful than standard tab
 	completion. However, it requires a real 'readline' to work,
 	so will not work on standard osx setup (since it uses Editline)
@@ -106,7 +110,7 @@ bug fixes &c.
 
 09/05/2012 version 0.9.9.6 fixes #558
 * #558 has been a thorn in our side for long enough, hopefully this properly fixes it
-(though im not to confident :P)
+(though im not too confident :P)
 
 09/05/2012 version 0.9.9.5 minor bugfix
 * fixed ZeroDivisionError in correct_indentation, bug #558
