@@ -11,6 +11,11 @@ class Pry::TerminalInfo
     end
   end
 
+  # Return a screen width or a default if it fails.
+  def self.width! default = 80
+    (screen_size || [nil, default])[1]
+  end
+
   def self.actual_screen_size
     [
       # Some readlines also provides get_screen_size.
