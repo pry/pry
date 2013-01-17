@@ -3,6 +3,7 @@ class Pry
     match 'gist'
     group 'Misc'
     description 'Playback a string variable or a method or a file as input.'
+    command_options :requires_gem => "jist"
 
     banner <<-'BANNER'
       Usage: gist [OPTIONS] [--help]
