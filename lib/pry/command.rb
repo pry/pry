@@ -570,8 +570,8 @@ class Pry
       slop.help
     end
 
-    # Return an instance of Slop::Commands that can parse either subcommands
-    # or the options that this command accepts.
+    # Return an instance of Slop that can parse either subcommands or the
+    # options that this command accepts.
     def slop
       Slop.parse do |opt|
         opt.banner(unindent(self.class.banner))
