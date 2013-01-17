@@ -15,9 +15,11 @@ describe "Pry.run_command" do
     out.string.should =~ /hokey_pokey/
   end
 
-  # This is a regression test as 0.9.11 broke this behaviour
-  it 'can perform a show-source' do
-    Pry.run_command "show-source drum", :context => @context, :output => out = StringIO.new
-    out.string.should =~ /roken is dodelijk/
+  if !PryTestHelpers.mri18_and_no_real_source_location?
+    # This is a regression test as 0.9.11 broke this behaviour
+    it 'can perform a show-source' do
+      Pry.run_command "show-source drum", :context => @context, :output => out = StringIO.new
+      out.string.should =~ /roken is dodelijk/
+    end
   end
 end
