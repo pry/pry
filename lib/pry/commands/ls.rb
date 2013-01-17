@@ -325,8 +325,8 @@ class Pry
     # Add a new section to the output. Outputs nothing if the section would be empty.
     def output_section(heading, body)
       return "" if body.compact.empty?
-      table = Pry::Helpers.tablify_to_screen_width(body)
-      "#{text.bold(color(:heading, heading))}: \n#{table}\n"
+      fancy_heading = text.bold(color(:heading, heading))
+      Pry::Helpers.tablify_or_one_line(fancy_heading, body)
     end
 
     # Color output based on config.ls.*_color

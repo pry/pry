@@ -37,7 +37,7 @@ describe "ls" do
   describe "methods" do
     it "should show public methods by default" do
       output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")
-      output.should =~ /methods: \ngoo/
+      output.should =~ /methods: goo/
     end
 
     it "should not show protected/private by default" do
@@ -46,12 +46,12 @@ describe "ls" do
     end
 
     it "should show public methods with -p" do
-      pry_eval("ls -p Class.new{ def goo; end }.new").should =~ /methods: \ngoo/
+      pry_eval("ls -p Class.new{ def goo; end }.new").should =~ /methods: goo/
     end
 
     it "should show protected/private methods with -p" do
-      pry_eval("ls -pM Class.new{ def goo; end; protected :goo }").should =~ /methods: \ngoo/
-      pry_eval("ls -p Class.new{ def goo; end; private :goo }.new").should =~ /methods: \ngoo/
+      pry_eval("ls -pM Class.new{ def goo; end; protected :goo }").should =~ /methods: goo/
+      pry_eval("ls -p Class.new{ def goo; end; private :goo }.new").should =~ /methods: goo/
     end
 
     it "should work for objects with an overridden method method" do
