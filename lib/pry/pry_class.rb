@@ -239,7 +239,9 @@ class Pry
 
     output = options[:show_output] ? options[:output] : StringIO.new
 
-    Pry.new(:output => output, :input => StringIO.new(command_string), :commands => options[:commands], :prompt => proc {""}, :hooks => Pry::Hooks.new).rep(options[:context])
+    Pry.new(:output => output, :input => StringIO.new("#{command_string}\nexit-all\n"),
+            :commands => options[:commands],
+            :prompt => proc {""}, :hooks => Pry::Hooks.new).repl(options[:context])
   end
 
   def self.default_editor_for_platform
