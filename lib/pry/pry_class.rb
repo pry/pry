@@ -313,7 +313,7 @@ class Pry
     config.extra_sticky_locals = {}
 
     config.ls ||= OpenStruct.new({
-      :heading_color            => :default,
+      :heading_color            => :bright_cyan,
 
       :public_method_color      => :default,
       :private_method_color     => :green,

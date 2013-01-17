@@ -1,14 +1,23 @@
 class Pry
   module Helpers
-    def self.tablify_to_screen_width(things)
-      things = things.compact
-
-      if TerminalInfo.screen_size.nil?
-        return things.join(Pry.config.ls.separator)
+    def self.tablify_or_one_line(heading, things)
+      plain_heading = Pry::Helpers::Text.strip_color(heading)
+      attempt = Table.new(things, :column_count => things.size)
+      if attempt.fits_on_line?(TerminalInfo.width! - plain_heading.size - 2)
+        "#{heading}: #{attempt}\n"
+      else
+        "#{heading}: \n#{tablify_to_screen_width(things, :indent => '  ')}\n"
       end
+    end
 
-      screen_width = (TerminalInfo.screen_size || [25, 80])[1]
-      tablify(things, screen_width)
+    def self.tablify_to_screen_width(things, options = {})
+      things = things.compact
+      if indent = options[:indent]
+        usable_width = TerminalInfo.width! - indent.size
+        tablify(things, usable_width).to_s.gsub(/^/, indent)
+      else
+        tablify(things, TerminalInfo.width!).to_s
+      end
     end
 
     def self.tablify(things, line_length)
