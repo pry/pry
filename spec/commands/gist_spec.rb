@@ -2,10 +2,14 @@
 # THey need to be updated for the new 'gist' API, but im too sleepy to
 # do that now.
 
+require 'helper'
 
-# require 'helper'
+describe 'gist' do
+  it 'has a dependency on the jist gem' do
+    Pry::Command::Gist.command_options[:requires_gem].should == "jist"
+  end
+end
 
-# describe 'gist' do
 #   before do
 #     Pad.jist_calls = {}
 #   end
