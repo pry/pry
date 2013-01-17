@@ -316,7 +316,7 @@ class Pry
       :heading_color            => :bright_cyan,
 
       :public_method_color      => :default,
-      :private_method_color     => :green,
+      :private_method_color     => :blue,
       :protected_method_color   => :yellow,
       :method_missing_color     => :bright_red,
 
