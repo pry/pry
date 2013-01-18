@@ -6,12 +6,12 @@ describe "show-input" do
   end
 
   it 'should correctly show the current lines in the input buffer' do
-    eval_str = unindent(<<-STR)
+    @t.push *unindent(<<-STR).split("\n")
       def hello
         puts :bing
     STR
 
-    @t.process_command 'show-input', eval_str
+    @t.process_command 'show-input'
     @t.last_output.should =~ /\A\d+: def hello\n\d+:   puts :bing/
   end
 end

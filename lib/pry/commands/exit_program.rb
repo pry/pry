@@ -13,7 +13,6 @@ class Pry
     BANNER
 
     def process
-      Pry.save_history if Pry.config.history.should_save
       Kernel.exit target.eval(arg_string).to_i
     end
   end

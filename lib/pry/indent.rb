@@ -407,5 +407,10 @@ class Pry
 
       "#{move_up}#{prompt}#{colorize_code(code)}#{whitespace}#{move_down}"
     end
+
+    # Given the current Pry environment, should we try to correct indentation?
+    def should_correct_indentation?
+      Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
+    end
   end
 end

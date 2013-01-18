@@ -10,7 +10,7 @@ class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
     next if _pry_.quiet?
-    _pry_.run_command("whereami --quiet", "", target)
+    _pry_.run_command("whereami --quiet")
   end
 
   # The default print
@@ -120,10 +120,9 @@ class Pry
       _pry_.binding_stack.clear
       throw(:breakout)
     else
-      # Store the entire binding stack before popping. Useful for `cd -`.
-      if _pry_.command_state['cd'].nil?
-        _pry_.command_state['cd'] = OpenStruct.new
-      end
+      # Otherwise, saves current binding stack as old stack and pops last
+      # binding out of binding stack (the old stack still has that binding).
+      _pry_.command_state["cd"] ||= OpenStruct.new # FIXME
       _pry_.command_state['cd'].old_stack = _pry_.binding_stack.dup
       _pry_.binding_stack.pop
     end
@@ -246,6 +245,7 @@ rescue LoadError
 end
 
 require 'pry/version'
+require 'pry/repl'
 require 'pry/rbx_method'
 require 'pry/rbx_path'
 require 'pry/code'

@@ -59,7 +59,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :input_stack, :extra_sticky_locals
+      :hooks, :color, :pager, :editor, :memory_size, :extra_sticky_locals
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
@@ -119,7 +119,7 @@ class Pry
   end
 
   # Start a Pry REPL.
-  # This method also loads the ~/.pryrc and ./.pryrc as necessary
+  # This method also loads `~/.pryrc` and `./.pryrc` as necessary the
   # first time it is invoked.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
@@ -135,35 +135,24 @@ class Pry
       return
     end
 
-    target = Pry.binding_for(target || toplevel_binding)
+    options[:target] = Pry.binding_for(target || toplevel_binding)
+
     initial_session_setup
 
-    # create the Pry instance to manage the session
-    pry_instance = new(options)
+    # Unless we were given a backtrace, save the current one
+    if options[:backtrace].nil?
+      options[:backtrace] = caller
 
-    # save backtrace
-    pry_instance.backtrace = caller
-
-    # if Pry was started via binding.pry, elide that from the backtrace.
-    pry_instance.backtrace.shift if pry_instance.backtrace.first =~ /pry.*core_extensions.*pry/
-
-    # yield the binding_stack to the hook for modification
-    pry_instance.exec_hook(:when_started, target, options, pry_instance)
-
-    if !pry_instance.binding_stack.empty?
-      head = pry_instance.binding_stack.pop
-    else
-      head = target
+      # If Pry was started via `binding.pry`, elide that from the backtrace
+      if options[:backtrace].first =~ /pry.*core_extensions.*pry/
+        options[:backtrace].shift
+      end
     end
 
-    # Clear the line before starting Pry. This fixes the issue discussed here:
-    # https://github.com/pry/pry/issues/566
-    if Pry.config.auto_indent
-      Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
-    end
+    driver = options[:driver] || Pry::REPL
 
     # Enter the matrix
-    pry_instance.repl(head)
+    driver.start(options)
   rescue Pry::TooSafeException
     puts "ERROR: Pry cannot work with $SAFE > 0"
     raise
@@ -200,11 +189,6 @@ class Pry
   # Load Readline history if required.
   def self.load_history
     Pry.history.load
-  end
-
-  # Save new lines of Readline history if required.
-  def self.save_history
-    Pry.history.save
   end
 
   # @return [Boolean] Whether this is the first time a Pry session has
@@ -276,7 +260,6 @@ class Pry
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
     config.default_window_size = 5
     config.hooks = DEFAULT_HOOKS
-    config.input_stack = []
     config.color = Helpers::BaseHelpers.use_ansi_codes?
     config.pager = true
     config.system = DEFAULT_SYSTEM
@@ -292,9 +275,9 @@ class Pry
     config.output_prefix = "=> "
 
     if defined?(Bond) && Readline::VERSION !~ /editline/i
-      config.completer = Pry::BondCompleter
+      config.completer = Pry::BondCompleter.start
     else
-      config.completer = Pry::InputCompleter
+      config.completer = Pry::InputCompleter.start
     end
 
     config.gist ||= OpenStruct.new

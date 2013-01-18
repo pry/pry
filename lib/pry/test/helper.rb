@@ -14,7 +14,7 @@ class << Pry
     Pry.config.should_load_plugins = false
     Pry.config.history.should_load = false
     Pry.config.history.should_save = false
-    Pry.config.auto_indent         = false
+    Pry.config.correct_indent      = false
     Pry.config.hooks               = Pry::Hooks.new
     Pry.config.collision_warning   = false
   end
@@ -101,18 +101,17 @@ def pry_eval(*eval_strs)
 end
 
 class PryTester
+  extend Forwardable
+
   attr_reader :pry, :out
 
-  def initialize(context = TOPLEVEL_BINDING, options = {})
-    @pry = Pry.new(options)
+  def_delegators :@pry, :eval_string, :eval_string=
 
-    if context
-      target = Pry.binding_for(context)
-      @pry.binding_stack << target
-      @pry.inject_sticky_locals(target)
-    end
+  def initialize(target = TOPLEVEL_BINDING, options = {})
+    @pry = Pry.new(options.merge(:target => target))
+    @history = options[:history]
 
-    @pry.input_array << nil # TODO: shouldn't need this
+    @pry.inject_sticky_locals!
     reset_output
   end
 
@@ -122,6 +121,8 @@ class PryTester
 
     strs.flatten.each do |str|
       str = "#{str.strip}\n"
+      @history.push str if @history
+
       if @pry.process_command(str)
         result = last_command_result_or_output
       else
@@ -132,42 +133,31 @@ class PryTester
     result
   end
 
-  def context=(context)
-    @pry.binding_stack << Pry.binding_for(context)
+  def push(*lines)
+    Array(lines).flatten.each do |line|
+      @pry.eval(line)
+    end
   end
 
-  # TODO: eliminate duplication with Pry#repl
-  def simulate_repl
-    didnt_exit = nil
-    break_data = nil
-
-    didnt_exit = catch(:didnt_exit) do
-      break_data = catch(:breakout) do
-        yield self
-        throw(:didnt_exit, true)
-      end
-      nil
-    end
-
-    raise "Failed to exit REPL" if didnt_exit
-    break_data
+  def push_binding(context)
+    @pry.push_binding context
   end
 
   def last_output
     @out.string if @out
   end
 
-  def process_command(command_str, eval_str = '')
-    @pry.process_command(command_str, eval_str) or raise "Not a valid command"
+  def process_command(command_str)
+    @pry.process_command(command_str) or raise "Not a valid command"
     last_command_result_or_output
   end
-
-  protected
 
   def last_command_result
     result = Pry.current[:pry_cmd_result]
     result.retval if result
   end
+
+  protected
 
   def last_command_result_or_output
     result = last_command_result

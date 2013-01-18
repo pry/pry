@@ -6,7 +6,7 @@ describe "hist" do
     @hist = Pry.history
 
     @str_output = StringIO.new
-    @t = pry_tester do
+    @t = pry_tester :history => @hist do
       # For looking at what hist pushes into the input stack. The
       # implementation of this helper will definitely have to change at some
       # point.
@@ -29,10 +29,10 @@ describe "hist" do
     @hist.push "@y = 20"
     @hist.push "@z = 30"
 
-    @t.context = o
+    @t.push_binding o
     @t.eval 'hist --replay -1'
 
-    @t.next_input.should == "@z = 30\n"
+    o.instance_variable_get(:@z).should == 30
   end
 
   it 'should replay a range of history correctly (range of items)' do
@@ -40,10 +40,9 @@ describe "hist" do
     @hist.push "@x = 10"
     @hist.push "@y = 20"
 
-    @t.context = o
+    @t.push_binding o
     @t.eval 'hist --replay 0..2'
-
-    @t.next_input.should == "@x = 10\n@y = 20\n"
+    @t.eval('[@x, @y]').should == [10, 20]
   end
 
   # this is to prevent a regression where input redirection is
@@ -52,12 +51,10 @@ describe "hist" do
     o = Object.new
     @hist.push "cd 1"
     @hist.push "cd 2"
-    redirect_pry_io(InputTester.new("hist --replay 0..2", "Pad.stack = _pry_.binding_stack.dup", "exit-all")) do
-      o.pry
-    end
-    o = Pad.stack[-2..-1].map { |v| v.eval('self') }
-    o.should == [1, 2]
-    Pad.clear
+
+    @t.eval("hist --replay 0..2")
+    stack = @t.eval("Pad.stack = _pry_.binding_stack.dup")
+    stack.map{ |b| b.eval("self") }.should == [TOPLEVEL_BINDING.eval("self"), 1, 2]
   end
 
   it 'should grep for correct lines in history' do
@@ -139,43 +136,37 @@ describe "hist" do
   end
 
   it "should store a call with `--replay` flag" do
-    redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
-                                    "hist", "exit-all"), @str_output) do
-      Pry.start
-    end
-
-    @str_output.string.should =~ /hist --replay 1/
+    @t.eval ":banzai"
+    @t.eval "hist --replay 1"
+    @t.eval("hist").should =~ /hist --replay 1/
   end
 
   it "should not contain lines produced by `--replay` flag" do
-    redirect_pry_io(InputTester.new(":banzai", ":geronimo", ":huzzah",
-                                    "hist --replay 1..3", "hist",
-                                    "exit-all"), @str_output) do
-      Pry.start
-    end
+    @t.eval ":banzai"
+    @t.eval ":geronimo"
+    @t.eval ":huzzah"
+    @t.eval("hist --replay 1..3")
 
-    @str_output.string.each_line.to_a.reject { |line| line.start_with?("=>") }.size.should == 4
-    @str_output.string.each_line.to_a.last.should =~ /hist --replay 1\.\.3/
-    @str_output.string.each_line.to_a[-2].should =~ /:huzzah/
+    output = @t.eval("hist")
+    output.should == "1: :banzai\n2: :geronimo\n3: :huzzah\n4: hist --replay 1..3\n"
   end
 
   it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
-    redirect_pry_io(InputTester.new(":banzai", "hist --replay 1",
-                                    "hist --replay 2", "exit-all"), @str_output) do
-      Pry.start
-    end
-
-    @str_output.string.should =~ /Replay index 2 points out to another replay call: `hist --replay 1`/
+    @t.eval ":banzai"
+    @t.eval "hist --replay 1"
+    lambda do
+      @t.eval "hist --replay 2"
+    end.should.raise(Pry::CommandError, /Replay index 4 points out to another replay call: `hist --replay 1`/)
   end
 
   it "should disallow execution of `--replay <i>` when CommandError raised" do
-    redirect_pry_io(InputTester.new("a = 0", "a += 1", "hist --replay 2",
-                                    "hist --replay 3", "'a is ' + a.to_s",
-                                    "hist", "exit-all"), @str_output) do
-      Pry.start
-    end
-
-    @str_output.string.each_line.to_a.reject { |line| line !~ /\A\d/ }.size.should == 5
-    @str_output.string.should =~ /a is 2/
+    @t.eval "a = 0"
+    @t.eval "a += 1"
+    @t.eval "hist --replay 2"
+    lambda{
+      @t.eval "hist --replay 3"
+    }.should.raise(Pry::CommandError)
+    @t.eval("a").should == 2
+    @t.eval("hist").lines.to_a.size.should == 5
   end
 end

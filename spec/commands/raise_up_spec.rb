@@ -13,13 +13,13 @@ describe "raise-up" do
 
   it "should raise the exception with raise-up" do
     redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError")) do
-      lambda { Pry.new.repl(0) }.should.raise NoMethodError
+      lambda { Object.new.pry }.should.raise NoMethodError
     end
   end
 
   it "should raise an unamed exception with raise-up" do
     redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
-      lambda { Pry.new.repl(0) }.should.raise RuntimeError, "noreally"
+      lambda { Object.new.pry }.should.raise RuntimeError, "noreally"
     end
   end
 

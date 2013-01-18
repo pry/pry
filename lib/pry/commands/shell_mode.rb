@@ -16,8 +16,6 @@ class Pry
       else
         _pry_.push_prompt Pry::SHELL_PROMPT
         _pry_.custom_completions = Pry::FILE_COMPLETIONS
-        Readline.completion_proc = Pry::InputCompleter.build_completion_proc target,
-        _pry_.instance_eval(&Pry::FILE_COMPLETIONS)
       end
     end
   end

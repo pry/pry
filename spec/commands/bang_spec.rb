@@ -6,14 +6,13 @@ describe "!" do
   end
 
   it 'should correctly clear the input buffer ' do
-    eval_str = unindent(<<-STR)
+    @t.push unindent(<<-STR)
       def hello
         puts :bing
     STR
 
-    @t.process_command '!', eval_str
+    @t.process_command '!'
     @t.last_output.should =~ /Input buffer cleared!/
-
-    eval_str.should == ''
+    @t.eval_string.should == ''
   end
 end
