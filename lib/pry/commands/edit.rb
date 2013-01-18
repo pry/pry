@@ -11,11 +11,12 @@ class Pry
     banner <<-'BANNER'
       Usage: edit [--no-reload|--reload|--patch] [--line LINE] [--temp|--ex|FILE[:LINE]|OBJECT|--in N]
 
-      Open a text editor. When no FILE is given, edits the pry input buffer. Ensure
-      `Pry.config.editor` is set to your editor of choice.
+      Open a text editor. When no FILE is given, edits the pry input buffer.
+      When a method/module/command is given, the code is opened in an editor.
+      Ensure `Pry.config.editor` is set to your editor of choice.
 
       edit sample.rb                edit -p MyClass#my_method
-      edit sample.rb --line 105     edit YourClass
+      edit sample.rb --line 105     edit MyClass
       edit MyClass#my_method        edit --ex
       edit --method                 edit --ex -p
 
