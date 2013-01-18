@@ -92,20 +92,10 @@ class Pry
     # @return [:no_more_input] On EOF.
     def read
       @indent.reset if pry.eval_string.empty?
-
       current_prompt = pry.select_prompt
-
       indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
 
-      begin
-        val = read_line("#{current_prompt}#{indentation}")
-
-      # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
-      # quit.  This is only for MRI 1.9; other versions of Ruby don't let you
-      # send Interrupt from within Readline.
-      rescue Interrupt
-        val = :control_c
-      end
+      val = read_line("#{current_prompt}#{indentation}")
 
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless String === val
@@ -147,8 +137,11 @@ class Pry
         should_retry = false
         retry
 
+      # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
+      # quit.  This is only for MRI 1.9; other versions of Ruby don't let you
+      # send Interrupt from within Readline.
       rescue Interrupt
-        raise
+        return :control_c
 
       # If we get a random error when trying to read a line we don't want to
       # automatically retry, as the user will see a lot of error messages
