@@ -10,11 +10,9 @@ describe Pry do
       # regression test for exotic object support
       it "Should not error when return value is a BasicObject instance" do
 
-        lambda do
-          redirect_pry_io(InputTester.new("BasicObject.new", "exit-all"), StringIO.new) do
-            Pry.start
-          end
-        end.should.not.raise NoMethodError
+        ReplTester.start do
+          input('BasicObject.new').should =~ /^=> #<BasicObject:/
+        end
 
       end
     end
@@ -81,111 +79,66 @@ describe Pry do
 
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        input_string = "Command"
-        o = Object.new
-        pry_tester = Pry.new(:input => StringIO.new(input_string),
-                             :output => @str_output,
-                             :exception_handler => proc { |_, exception, _pry_| @excep = exception },
-                             :print => proc {}
-                             ).rep(o)
-
-        @excep.is_a?(NameError).should == true
+        lambda{
+          pry_eval(Object.new, "Command")
+        }.should.raise(NameError)
       end
 
       if defined?(BasicObject)
         it 'should be able to operate inside the BasicObject class' do
-          redirect_pry_io(InputTester.new(":foo", "Pad.obj = _", "exit-all")) do
-            BasicObject.pry
-          end
-
+          pry_eval(BasicObject, ":foo", "Pad.obj = _")
           Pad.obj.should == :foo
         end
       end
 
       it 'should set an ivar on an object' do
-        input_string = "@x = 10"
-        input = InputTester.new(input_string)
         o = Object.new
-
-        pry_tester = Pry.new(:input => input, :output => StringIO.new)
-        pry_tester.rep(o)
+        pry_eval(o, "@x = 10")
         o.instance_variable_get(:@x).should == 10
       end
 
       it 'should display error if Pry instance runs out of input' do
         redirect_pry_io(StringIO.new, @str_output) do
-          Pry.new.repl
+          Pry.start
         end
         @str_output.string.should =~ /Error: Pry ran out of things to read/
       end
 
       it 'should make self evaluate to the receiver of the rep session' do
         o = :john
-
-        pry_tester = Pry.new(:input => InputTester.new("self"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should =~ /:john/
+        pry_eval(o, "self").should == o
       end
 
       it 'should work with multi-line input' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("x = ", "1 + 4"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should =~ /5/
+        mock_pry("x = ", "1 + 4").should =~ /5/
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
-        pry_tester = Pry.new(:input => InputTester.new("class Nested", "end"), :output => StringIO.new)
-        pry_tester.rep(Hello)
+        mock_pry(Pry.binding_for(Hello), "class Nested", "end")
         Hello.const_defined?(:Nested).should == true
       end
 
       it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("Exception.new;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("Exception.new;").should == ""
       end
 
       it 'should suppress output if input ends in a ";" (single line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("x = 5;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("x = 5;").should == ""
       end
 
       it 'should suppress output if input ends in a ";" (multi-line)' do
-        o = Object.new
-
-        pry_tester = Pry.new(:input => InputTester.new("def self.blah", ":test", "end;"), :output => @str_output)
-        pry_tester.rep(o)
-        @str_output.string.should == ""
+        mock_pry("def self.blah", ":test", "end;").should == ""
       end
 
       it 'should be able to evaluate exceptions normally' do
-        o = Exception.new
-
         was_called = false
-        pry_tester = Pry.new(:input => InputTester.new("self"),
-                             :output => @str_output,
-                             :exception_handler => proc { was_called = true })
-
-        pry_tester.rep(o)
+        mock_pry("RuntimeError.new", :exception_handler => proc{ was_called = true })
         was_called.should == false
       end
 
       it 'should notice when exceptions are raised' do
-        o = Exception.new
-
         was_called = false
-        pry_tester = Pry.new(:input => InputTester.new("raise self"),
-                             :output => @str_output,
-                             :exception_handler => proc { was_called = true })
-
-        pry_tester.rep(o)
+        mock_pry("raise RuntimeError", :exception_handler => proc{ was_called = true })
         was_called.should == true
       end
 
@@ -221,62 +174,46 @@ describe Pry do
 
       describe "history arrays" do
         it 'sets _ to the last result' do
-          res   = []
-          input = InputTester.new *[":foo", "self << _", "42", "self << _"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
-
-          res.should == [:foo, 42]
+          t = pry_tester
+          t.eval ":foo"
+          t.eval("_").should == :foo
+          t.eval "42"
+          t.eval("_").should == 42
         end
 
         it 'sets out to an array with the result' do
-          res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = _out_"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          t = pry_tester
+          t.eval ":foo"
+          t.eval "42"
+          res = t.eval "_out_"
 
-          res[:res].should.be.kind_of Pry::HistoryArray
-          res[:res][1..2].should == [:foo, 42]
+          res.should.be.kind_of Pry::HistoryArray
+          res[1..2].should == [:foo, 42]
         end
 
         it 'sets _in_ to an array with the entered lines' do
-          res   = {}
-          input = InputTester.new *[":foo", "42", "self[:res] = _in_"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
+          t = pry_tester
+          t.eval ":foo"
+          t.eval "42"
+          res = t.eval "_in_"
 
-          res[:res].should.be.kind_of Pry::HistoryArray
-          res[:res][1..2].should == [":foo\n", "42\n"]
+          res.should.be.kind_of Pry::HistoryArray
+          res[1..2].should == [":foo\n", "42\n"]
         end
 
         it 'uses 100 as the size of _in_ and _out_' do
-          res   = []
-          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => StringIO.new)
-          pry.repl(res)
-
-          res.should == [100, 100]
+          pry_tester.eval("[_in_.max_size, _out_.max_size]").should == [100, 100]
         end
 
         it 'can change the size of the history arrays' do
-          res   = []
-          input = InputTester.new *["self << _out_.max_size << _in_.max_size"]
-          pry   = Pry.new(:input => input, :output => StringIO.new,
-                          :memory_size => 1000)
-          pry.repl(res)
-
-          res.should == [1000, 1000]
+          pry_tester(:memory_size => 1000).eval("[_out_, _in_].map(&:max_size)").should == [1000, 1000]
         end
 
         it 'store exceptions' do
-          res   = []
-          input = InputTester.new *["foo!","self << _in_[-1] << _out_[-1]"]
-          pry   = Pry.new(:input => input, :output => StringIO.new,
-                          :memory_size => 1000)
-          pry.repl(res)
+          mock_pry("foo!", "Pad.in = _in_[-1]; Pad.out = _out_[-1]")
 
-          res.first.should == "foo!\n"
-          res.last.should.be.kind_of NoMethodError
+          Pad.in.should == "foo!\n"
+          Pad.out.should.be.kind_of NoMethodError
         end
       end
 
@@ -346,13 +283,6 @@ describe Pry do
           Object.const_defined?(:TEST_RC).should == false
         end
 
-        it "should not load the rc file if #repl method invoked" do
-          Pry.config.should_load_rc = true
-          Pry.new(:input => StringIO.new("exit-all\n"), :output => StringIO.new).repl(self)
-          Object.const_defined?(:TEST_RC).should == false
-          Pry.config.should_load_rc = false
-        end
-
         describe "that raise exceptions" do
           before do
             Pry::HOME_RC_FILE = "spec/fixtures/testrcbad"
@@ -417,24 +347,20 @@ describe Pry do
       describe "defining methods" do
         it 'should define a method on the singleton class of an object when performing "def meth;end" inside the object' do
           [Object.new, {}, []].each do |val|
-            str_input = StringIO.new("def hello;end")
-            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
-
+            pry_eval(val, 'def hello; end')
             val.methods(false).map(&:to_sym).include?(:hello).should == true
           end
         end
 
         it 'should define an instance method on the module when performing "def meth;end" inside the module' do
-          str_input = StringIO.new("def hello;end")
           hello = Module.new
-          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          pry_eval(hello, "def hello; end")
           hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
         end
 
         it 'should define an instance method on the class when performing "def meth;end" inside the class' do
-          str_input = StringIO.new("def hello;end")
           hello = Class.new
-          Pry.new(:input => str_input, :output => StringIO.new).rep(hello)
+          pry_eval(hello, "def hello; end")
           hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
         end
 
@@ -442,8 +368,7 @@ describe Pry do
           # should include  float in here, but test fails for some reason
           # on 1.8.7, no idea why!
           [:test, 0, true, false, nil].each do |val|
-            str_input = StringIO.new("def hello;end")
-            Pry.new(:input => str_input, :output => StringIO.new).rep(val)
+            pry_eval(val, "def hello; end");
             val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
           end
         end
@@ -499,6 +424,16 @@ describe Pry do
       should.not.raise?(NoMethodError) {
         instance = Pry.new(:custom_option => 'custom value')
       }
+    end
+  end
+
+  describe "a fresh instance" do
+    it "should use `caller` as its backtrace" do
+      location  = "#{__FILE__}:#{__LINE__ + 1}"
+      backtrace = Pry.new.backtrace
+
+      backtrace.should.not.be.nil
+      backtrace.any? { |l| l.include?(location) }.should.be.true
     end
   end
 end

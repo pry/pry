@@ -6,8 +6,8 @@ require 'helper'
 
 describe "play" do
   before do
-    @t = pry_tester
-    @eval_str = ''
+    @o = Object.new
+    @t = pry_tester(@o)
   end
 
   describe "with an argument" do
@@ -38,7 +38,6 @@ describe "play" do
 
   describe "whatever" do
     before do
-      @o = Object.new
       def @o.test_method
         :test_method_content
       end
@@ -51,9 +50,8 @@ describe "play" do
         :test_method_content
       end
 
-      pry_tester(@o).process_command 'play -d test_method', @eval_str
-
-      @eval_str.should == unindent(<<-STR)
+      @t.process_command 'play -d test_method'
+      @t.eval_string.should == unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -68,9 +66,8 @@ describe "play" do
         :test_method_content
       end
 
-      pry_tester(@o).process_command 'play -d test_method --lines 2..3', @eval_str
-
-      @eval_str.should == unindent(<<-STR)
+      @t.process_command 'play -d test_method --lines 2..3'
+      @t.eval_string.should == unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -81,8 +78,8 @@ describe "play" do
     end
 
     it 'should play a method (a single line)' do
-      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
-      @eval_str.should == ":test_method_content\n"
+      @t.process_command 'play test_method --lines 2'
+      @t.eval_string.should == ":test_method_content\n"
     end
 
     it 'should properly reindent lines' do
@@ -90,18 +87,18 @@ describe "play" do
         'hello world'
       end
 
-      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
-      @eval_str.should == "'hello world'\n"
+      @t.process_command 'play test_method --lines 2'
+      @t.eval_string.should == "'hello world'\n"
     end
 
     it 'should APPEND to the input buffer when playing a method line, not replace it' do
-      @eval_str = unindent(<<-STR)
+      @t.eval_string = unindent(<<-STR)
         def another_test_method
       STR
 
-      pry_tester(@o).process_command 'play test_method --lines 2', @eval_str
+      @t.process_command 'play test_method --lines 2'
 
-      @eval_str.should == unindent(<<-STR)
+      @t.eval_string.should == unindent(<<-STR)
         def another_test_method
           :test_method_content
       STR
@@ -115,9 +112,8 @@ describe "play" do
         @var3 = 40
       end
 
-      pry_tester(@o).process_command 'play test_method --lines 3..4', @eval_str
-
-      @eval_str.should == unindent(<<-STR, 0)
+      @t.process_command 'play test_method --lines 3..4'
+      @t.eval_string.should == unindent(<<-STR, 0)
         @var1 = 20
         @var2 = 30
       STR

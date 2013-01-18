@@ -22,19 +22,18 @@ require "pry/indent"
 # * the IRC channel, which is #pry on the Freenode network
 #
 class Pry
-
   attr_accessor :input
   attr_accessor :output
   attr_accessor :commands
   attr_accessor :print
   attr_accessor :exception_handler
-  attr_accessor :input_stack
   attr_accessor :quiet
   alias :quiet? :quiet
 
   attr_accessor :custom_completions
 
   attr_accessor :binding_stack
+  attr_accessor :eval_string
 
   attr_accessor :last_result
   attr_accessor :last_file
@@ -54,45 +53,66 @@ class Pry
   # This is exposed via Pry::Command#state.
   attr_reader :command_state
 
-  # Special treatment for hooks as we want to alert people of the
-  # changed API
-  attr_reader :hooks
+  attr_reader :exit_value
 
-  # FIXME:
-  # This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] v Only accept `Pry::Hooks` now!
-  def hooks=(v)
-    if v.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(v)
+  attr_reader :hooks # Special treatment as we want to alert people of the
+                     # changed API.
+
+  # FIXME: This is a hack to alert people of the new API.
+  # @param [Pry::Hooks] hooks
+  def hooks=(hooks)
+    if hooks.is_a?(Hash)
+      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
+           "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      @hooks = Pry::Hooks.from_hash(hooks)
     else
-      @hooks = v
+      @hooks = hooks
     end
   end
 
-  # Create a new `Pry` object.
-  # @param [Hash] options The optional configuration parameters.
-  # @option options [#readline] :input The object to use for input.
-  # @option options [#puts] :output The object to use for output.
-  # @option options [Pry::CommandBase] :commands The object to use for commands.
-  # @option options [Hash] :hooks The defined hook Procs
-  # @option options [Array<Proc>] :prompt The array of Procs to use for the prompts.
-  # @option options [Proc] :print The Proc to use for the 'print'
-  # @option options [Boolean] :quiet If true, omit the whereami banner when starting.
-  #   component of the REPL. (see print.rb)
+  # Create a new {Pry} instance.
+  # @param [Hash] options
+  # @option options [#readline] :input
+  #   The object to use for input.
+  # @option options [#puts] :output
+  #   The object to use for output.
+  # @option options [Pry::CommandBase] :commands
+  #   The object to use for commands.
+  # @option options [Hash] :hooks
+  #   The defined hook Procs.
+  # @option options [Array<Proc>] :prompt
+  #   The array of Procs to use for prompts.
+  # @option options [Proc] :print
+  #   The Proc to use for printing return values.
+  # @option options [Boolean] :quiet
+  #   Omit the `whereami` banner when starting.
+  # @option options [Array<String>] :backtrace
+  #   The backtrace of the session's `binding.pry` line, if applicable.
+  # @option options [Object] :target
+  #   The initial context for this session.
   def initialize(options={})
-    refresh(options)
-
     @binding_stack = []
     @indent        = Pry::Indent.new
     @command_state = {}
+    @eval_string   = ""
+    @backtrace     = options[:backtrace] || caller
+
+    refresh_config(options)
+
+    push_initial_binding(options[:target])
+
+    set_last_result nil
+    @input_array << nil # add empty input so _in_ and _out_ match
+
+    # yield the binding_stack to the hook for modification
+    exec_hook(:when_started, options[:target], options, self)
   end
 
   # Refresh the Pry instance settings from the Pry class.
   # Allows options to be specified to override settings from Pry class.
   # @param [Hash] options The options to override Pry class settings
   #   for this instance.
-  def refresh(options={})
+  def refresh_config(options={})
     defaults   = {}
     attributes = [
                    :input, :output, :commands, :print, :quiet,
@@ -104,8 +124,6 @@ class Pry
       defaults[attribute] = Pry.send attribute
     end
 
-    defaults[:input_stack] = Pry.input_stack.dup
-
     defaults.merge!(options).each do |key, value|
       send("#{key}=", value) if respond_to?("#{key}=")
     end
@@ -113,10 +131,24 @@ class Pry
     true
   end
 
+  # Initialize this instance by pushing its initial context into the binding
+  # stack. If no target is given, start at the top level.
+  def push_initial_binding(target=nil)
+    push_binding(target || Pry.toplevel_binding)
+  end
+
   # The currently active `Binding`.
   # @return [Binding] The currently active `Binding` for the session.
-  def current_context
+  def current_binding
     binding_stack.last
+  end
+  alias current_context current_binding # support previous API
+
+  # Push a binding for the given object onto the stack. If this instance is
+  # currently stopped, mark it as usable again.
+  def push_binding(object)
+    @stopped = false
+    binding_stack << Pry.binding_for(object)
   end
 
   # The current prompt.
@@ -136,6 +168,17 @@ class Pry
       push_prompt new_prompt
     else
       prompt_stack[-1] = new_prompt
+    end
+  end
+
+  # Generate completions.
+  # @param [String] input What the user has typed so far
+  # @return [Array<String>] Possible completions
+  def complete(input)
+    Pry.critical_section do
+      Pry.config.completer.call(input, :target => current_binding,
+                                       :pry  => self,
+                                       :custom_completions => instance_eval(&custom_completions))
     end
   end
 
@@ -162,11 +205,10 @@ class Pry
     @output_array = Pry::HistoryArray.new(size)
   end
 
-  # Inject all the sticky locals into the `target` binding.
-  # @param [Binding] target
-  def inject_sticky_locals(target)
+  # Inject all the sticky locals into the current binding.
+  def inject_sticky_locals!
     sticky_locals.each_pair do |name, value|
-      inject_local(name, value, target)
+      inject_local(name, value, current_binding)
     end
   end
 
@@ -193,139 +235,139 @@ class Pry
     }.merge(extra_sticky_locals)
   end
 
-  # Initialize the repl session.
-  # @param [Binding] target The target binding for the session.
-  def repl_prologue(target)
-    exec_hook :before_session, output, target, self
-    set_last_result(nil, target)
-
-    @input_array << nil # add empty input so _in_ and _out_ match
-
-    binding_stack.push target
+  # Reset the current eval string. If the user has entered part of a multiline
+  # expression, this discards that input.
+  def reset_eval_string
+    @eval_string = ""
   end
 
-  # Clean-up after the repl session.
-  # @param [Binding] target The target binding for the session.
-  def repl_epilogue(target)
-    exec_hook :after_session, output, target, self
+  # Pass a line of input to Pry.
+  #
+  # This is the equivalent of `Binding#eval` but with extra Pry!
+  #
+  # In particular:
+  # 1. Pry commands will be executed immediately if the line matches.
+  # 2. Partial lines of input will be queued up until a complete expression has
+  #    been accepted.
+  # 3. Output is written to {#output} in pretty colours, not returned.
+  #
+  # Once this method has raised an exception or returned false, this instance
+  # is no longer usable. {#exit_value} will return the session's breakout
+  # value if applicable.
+  #
+  # @param [String?] line The line of input; `nil` if the user types `<Ctrl-D>`
+  # @option options [Boolean] :generated Whether this line was generated automatically.
+  #   Generated lines are not stored in history.
+  # @return [Boolean] Is Pry ready to accept more input?
+  # @raise [Exception] If the user uses the `raise-up` command, this method
+  #   will raise that exception.
+  def eval(line, options={})
+    return false if @stopped
 
-    binding_stack.pop
-    Pry.save_history if Pry.config.history.should_save
-  end
-
-  # Start a read-eval-print-loop.
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the Pry session
-  # @return [Object] The target of the Pry session or an explictly given
-  #   return value. If given return value is `nil` or no return value
-  #   is specified then `target` will be returned.
-  # @example
-  #   Pry.new.repl(Object.new)
-  def repl(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
-
-    repl_prologue(target)
-
-    break_data = nil
+    exit_value = nil
     exception = catch(:raise_up) do
-      break_data = catch(:breakout) do
-        loop do
-          throw(:breakout) if binding_stack.empty?
-          rep(binding_stack.last)
-        end
+      exit_value = catch(:breakout) do
+        handle_line(line, options)
+        # We use 'return !@stopped' here instead of 'return true' so that if
+        # handle_line has stopped this pry instance (e.g. by opening _pry_.repl and
+        # then popping all the bindings) we still exit immediately.
+        return !@stopped
       end
       exception = false
     end
 
+    @stopped = true
+    @exit_value = exit_value
+
+    # TODO: make this configurable?
     raise exception if exception
-
-    break_data
-  ensure
-    repl_epilogue(target)
+    return false
   end
 
-  # Perform a read-eval-print.
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the read-eval-print
-  # @example
-  #   Pry.new.rep(Object.new)
-  def rep(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
-    result = re(target)
-
-    Pry.critical_section do
-      show_result(result)
+  def handle_line(line, options)
+    if line.nil?
+      Pry.config.control_d_handler.call(@eval_string, self)
+      return
     end
-  end
 
-  # Perform a read-eval
-  # If no parameter is given, default to top-level (main).
-  # @param [Object, Binding] target The receiver of the read-eval-print
-  # @return [Object] The result of the eval or an `Exception` object in case of
-  #   error. In the latter case, you can check whether the exception was raised
-  #   or is just the result of the expression using #last_result_is_exception?
-  # @example
-  #   Pry.new.re(Object.new)
-  def re(target=TOPLEVEL_BINDING)
-    target = Pry.binding_for(target)
+    ensure_correct_encoding!(line)
+    Pry.history << line unless options[:generated]
 
-    # It's not actually redundant to inject them continually as we may have
-    # moved into the scope of a new Binding (e.g the user typed `cd`).
-    inject_sticky_locals(target)
-
-    code = r(target)
-
-    evaluate_ruby(code, target)
-  rescue RescuableException => e
-    self.last_exception = e
-    e
-  end
-
-  # Perform a read.
-  # If no parameter is given, default to top-level (main).
-  # This is a multi-line read; so the read continues until a valid
-  # Ruby expression is received.
-  # Pry commands are also accepted here and operate on the target.
-  # @param [Object, Binding] target The receiver of the read.
-  # @param [String] eval_string Optionally Prime `eval_string` with a start value.
-  # @return [String] The Ruby expression.
-  # @example
-  #   Pry.new.r(Object.new)
-  def r(target=TOPLEVEL_BINDING, eval_string="")
-    target = Pry.binding_for(target)
     @suppress_output = false
-
-    loop do
-      begin
-        # eval_string will probably be mutated by this method
-        retrieve_line(eval_string, target)
-      rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
-        output.puts "Error: #{e.message}"
+    inject_sticky_locals!
+    begin
+      if !process_command_safely(line.lstrip)
+        @eval_string << "#{line.chomp}\n" unless line.empty?
       end
+    rescue RescuableException => e
+      self.last_exception = e
+      result = e
 
-      begin
-        break if Pry::Code.complete_expression?(eval_string)
-      rescue SyntaxError => e
-        exception_handler.call(output, e.extend(UserError), self)
-        eval_string = ""
+      Pry.critical_section do
+        show_result(result)
       end
+      return
     end
 
-    if eval_string =~ /;\Z/ || eval_string.empty? || eval_string =~ /\A *#.*\n\z/
-      @suppress_output = true
-    end
-
+    # This hook is supposed to be executed after each line of ruby code
+    # has been read (regardless of whether eval_string is yet a complete expression)
     exec_hook :after_read, eval_string, self
-    eval_string
+
+    begin
+      complete_expr = Pry::Code.complete_expression?(@eval_string)
+    rescue SyntaxError => e
+      output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
+      reset_eval_string
+    end
+
+    if complete_expr
+      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
+        @suppress_output = true
+      end
+
+      begin
+        # Reset eval string, in case we're evaluating Ruby that does something
+        # like open a nested REPL on this instance.
+        eval_string = @eval_string
+        reset_eval_string
+
+        result = evaluate_ruby(eval_string)
+      rescue RescuableException => e
+        self.last_exception = e
+        result = e
+      end
+
+      Pry.critical_section do
+        show_result(result)
+      end
+    end
+
+    throw(:breakout) if current_binding.nil?
+  end
+  private :handle_line
+
+  # @deprecated Use `Pry::REPL.new(pry, :target => target).start` instead.
+  def repl(target = nil)
+    @@repl_warning ||= (warn Pry::Helpers::CommandHelpers.unindent(<<-S); true)
+      DEPRECATION: Pry#repl is deprecated. Instead, use
+
+        Pry::REPL.new(pry, :target => target).start
+
+      where pry is the Pry instance you called #repl on and target is the
+      optional target parameter of #repl.
+
+      Call stack:
+        #{caller.join("\n" + (' ' * 8))}
+    S
+    Pry::REPL.new(self, :target => target).start
   end
 
-  def evaluate_ruby(code, target = binding_stack.last)
-    target = Pry.binding_for(target)
-    inject_sticky_locals(target)
+  def evaluate_ruby(code)
+    inject_sticky_locals!
     exec_hook :before_eval, code, self
 
-    result = target.eval(code, Pry.eval_path, Pry.current_line)
-    set_last_result(result, target, code)
+    result = current_binding.eval(code, Pry.eval_path, Pry.current_line)
+    set_last_result(result, code)
   ensure
     update_input_history(code)
     exec_hook :after_eval, result, self
@@ -355,96 +397,28 @@ class Pry
     end
   end
 
-  def should_force_encoding?(eval_string, val)
-    eval_string.empty? && val.respond_to?(:encoding) && val.encoding != eval_string.encoding
-  end
-  private :should_force_encoding?
-
-  # Read and process a line of input -- check for ^D, determine which prompt to
-  # use, rewrite the indentation if `Pry.config.auto_indent` is enabled, and,
-  # if the line is a command, process it and alter the eval_string accordingly.
-  # This method should not need to be invoked directly.
-  #
-  # @param [String] eval_string The cumulative lines of input.
-  # @param [Binding] target The target of the session.
-  # @return [String] The line received.
-  def retrieve_line(eval_string, target)
-    @indent.reset if eval_string.empty?
-
-    current_prompt = select_prompt(eval_string, target)
-    completion_proc = Pry.config.completer.build_completion_proc(target, self,
-                                                        instance_eval(&custom_completions))
-
-    safe_completion_proc = proc{ |*a| Pry.critical_section{ completion_proc.call(*a) } }
-
-    indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
-
-    begin
-      val = readline("#{current_prompt}#{indentation}", safe_completion_proc)
-
-    # Handle <Ctrl+C> like Bash, empty the current input buffer but do not quit.
-    # This is only for ruby-1.9; other versions of ruby do not let you send Interrupt
-    # from within Readline.
-    rescue Interrupt
-      output.puts ""
-      eval_string.replace("")
-      return
-    end
-
-    # invoke handler if we receive EOF character (^D)
-    if !val
-      output.puts ""
-      Pry.config.control_d_handler.call(eval_string, self)
-      return
-    end
-
-    # Change the eval_string into the input encoding (Issue 284)
-    # TODO: This wouldn't be necessary if the eval_string was constructed from
-    # input strings only.
-    if should_force_encoding?(eval_string, val)
-      eval_string.force_encoding(val.encoding)
-    end
-
-    if Pry.config.auto_indent && !input.is_a?(StringIO)
-      original_val = "#{indentation}#{val}"
-      indented_val = @indent.indent(val)
-
-      if output.tty? && Pry::Helpers::BaseHelpers.use_ansi_codes? && Pry.config.correct_indent
-        output.print @indent.correct_indentation(current_prompt, indented_val, original_val.length - indented_val.length)
-        output.flush
-      end
-    else
-      indented_val = val
-    end
-
-    # Check this before processing the line, because a command might change
-    # Pry's input.
-    interactive = !input.is_a?(StringIO)
-
-    begin
-      if !process_command(val, eval_string, target)
-        eval_string << "#{indented_val.chomp}\n" unless val.empty?
-      end
-    ensure
-      Pry.history << indented_val if interactive
+  # Force `eval_string` into the encoding of `val`. [Issue #284]
+  def ensure_correct_encoding!(val)
+    if @eval_string.empty? &&
+        val.respond_to?(:encoding) &&
+        val.encoding != @eval_string.encoding
+      @eval_string.force_encoding(val.encoding)
     end
   end
+  private :ensure_correct_encoding!
 
   # If the given line is a valid command, process it in the context of the
-  # current `eval_string` and context.
-  # This method should not need to be invoked directly.
+  # current `eval_string` and binding.
   # @param [String] val The line to process.
-  # @param [String] eval_string The cumulative lines of input.
-  # @param [Binding] target The target of the Pry session.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
-  def process_command(val, eval_string = '', target = binding_stack.last)
+  def process_command(val)
     val = val.chomp
-    result = commands.process_line(val, {
-      :target => target,
+    result = commands.process_line(val,
+      :target => current_binding,
       :output => output,
-      :eval_string => eval_string,
+      :eval_string => @eval_string,
       :pry_instance => self
-    })
+    )
 
     # set a temporary (just so we can inject the value we want into eval_string)
     Pry.current[:pry_cmd_result] = result
@@ -457,7 +431,7 @@ class Pry
         # the command that was invoked was non-void (had a return value) and so we make
         # the value of the current expression equal to the return value
         # of the command.
-        eval_string.replace "::Pry.current[:pry_cmd_result].retval\n"
+        @eval_string.replace "::Pry.current[:pry_cmd_result].retval\n"
       end
       true
     else
@@ -465,17 +439,26 @@ class Pry
     end
   end
 
+  # Same as process_command, but outputs exceptions to {#output} instead of
+  # raising.
+  # @param [String] val  The line to process.
+  # @return [Boolean] `true` if `val` is a command, `false` otherwise
+  def process_command_safely(val)
+    process_command(val)
+  rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
+    output.puts "Error: #{e.message}"
+    true
+  end
+
   # Run the specified command.
   # @param [String] val The command (and its params) to execute.
-  # @param [String] eval_string The current input buffer.
-  # @param [Binding] target The binding to use..
   # @return [Pry::Command::VOID_VALUE]
   # @example
   #   pry_instance.run_command("ls -m")
-  def run_command(val, eval_string = "", target = binding_stack.last)
+  def run_command(val)
     commands.process_line(val,
-      :eval_string => eval_string,
-      :target => target,
+      :eval_string => @eval_string,
+      :target => current_binding,
       :pry_instance => self,
       :output => output
     )
@@ -504,9 +487,8 @@ class Pry
   # Set the last result of an eval.
   # This method should not need to be invoked directly.
   # @param [Object] result The result.
-  # @param [Binding] target The binding to set `_` on.
   # @param [String] code The code that was run.
-  def set_last_result(result, target, code="")
+  def set_last_result(result, code="")
     @last_result_is_exception = false
     @output_array << result
 
@@ -555,81 +537,6 @@ class Pry
     @last_result_is_exception
   end
 
-  # Manage switching of input objects on encountering EOFErrors
-  def handle_read_errors
-    should_retry = true
-    exception_count = 0
-    begin
-      yield
-    rescue EOFError
-      if input_stack.empty?
-        self.input = Pry.config.input
-        if !should_retry
-          output.puts "Error: Pry ran out of things to read from! Attempting to break out of REPL."
-          throw(:breakout)
-        end
-        should_retry = false
-      else
-        self.input = input_stack.pop
-      end
-
-      retry
-
-    # Interrupts are handled in r() because they need to tweak eval_string
-    # TODO: Refactor this baby.
-    rescue Interrupt
-      raise
-
-    # If we get a random error when trying to read a line we don't want to automatically
-    # retry, as the user will see a lot of error messages scroll past and be unable to do
-    # anything about it.
-    rescue RescuableException => e
-      puts "Error: #{e.message}"
-      output.puts e.backtrace
-      exception_count += 1
-      if exception_count < 5
-        retry
-      end
-      puts "FATAL: Pry failed to get user input using `#{input}`."
-      puts "To fix this you may be able to pass input and output file descriptors to pry directly. e.g."
-      puts "  Pry.config.input = STDIN"
-      puts "  Pry.config.output = STDOUT"
-      puts "  binding.pry"
-      throw(:breakout)
-    end
-  end
-  private :handle_read_errors
-
-  # Returns the next line of input to be used by the pry instance.
-  # This method should not need to be invoked directly.
-  # @param [String] current_prompt The prompt to use for input.
-  # @return [String] The next line of input.
-  def readline(current_prompt="> ", completion_proc=nil)
-    handle_read_errors do
-
-      if defined? Coolline and input.is_a? Coolline
-        input.completion_proc = proc do |cool|
-          completions = completion_proc.call cool.completed_word
-          completions.compact
-        end
-      elsif input.respond_to? :completion_proc=
-        input.completion_proc = completion_proc
-      end
-
-      if input == Readline
-        input.readline(current_prompt, false) # false since we'll add it manually
-      elsif defined? Coolline and input.is_a? Coolline
-        input.readline(current_prompt)
-      else
-        if input.method(:readline).arity == 1
-          input.readline(current_prompt)
-        else
-          input.readline
-        end
-      end
-    end
-  end
-
   # Whether the print proc should be invoked.
   # Currently only invoked if the output is not suppressed.
   # @return [Boolean] Whether the print proc should be invoked.
@@ -638,18 +545,15 @@ class Pry
   end
 
   # Returns the appropriate prompt to use.
-  # This method should not need to be invoked directly.
-  # @param [String] eval_string The current input buffer.
-  # @param [Binding] target The target Binding of the Pry session.
   # @return [String] The prompt.
-  def select_prompt(eval_string, target)
-    target_self = target.eval('self')
+  def select_prompt
+    object = current_binding.eval('self')
 
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
     c = OpenStruct.new(
-                       :object         => target_self,
+                       :object         => object,
                        :nesting_level  => binding_stack.size - 1,
                        :open_token     => open_token,
                        :session_line   => Pry.history.session_line_count + 1,
@@ -658,8 +562,8 @@ class Pry
                        :_pry_          => self,
                        :binding_stack  => binding_stack,
                        :input_array    => input_array,
-                       :eval_string    => eval_string,
-                       :cont           => !eval_string.empty?)
+                       :eval_string    => @eval_string,
+                       :cont           => !@eval_string.empty?)
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt

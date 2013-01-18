@@ -20,12 +20,12 @@ describe "test Pry defaults" do
 
     it 'should set the input default, and the default should be overridable' do
       Pry.input = InputTester.new("5")
-
       Pry.output = @str_output
-      Pry.new.rep
+      Object.new.pry
       @str_output.string.should =~ /5/
 
-      Pry.new(:input => InputTester.new("6")).rep
+      Pry.output = @str_output
+      Object.new.pry :input => InputTester.new("6")
       @str_output.string.should =~ /6/
     end
 
@@ -75,18 +75,19 @@ describe "test Pry defaults" do
   end
 
   it 'should set the output default, and the default should be overridable' do
-    Pry.input = InputTester.new("5", "6", "7")
-
     Pry.output = @str_output
 
-    Pry.new.rep
+    Pry.input  = InputTester.new("5")
+    Object.new.pry
     @str_output.string.should =~ /5/
 
-    Pry.new.rep
+    Pry.input  = InputTester.new("6")
+    Object.new.pry
     @str_output.string.should =~ /5\n.*6/
 
+    Pry.input  = InputTester.new("7")
     @str_output = StringIO.new
-    Pry.new(:output => @str_output).rep
+    Object.new.pry :output => @str_output
     @str_output.string.should.not =~ /5\n.*6/
     @str_output.string.should =~ /7/
   end
@@ -96,17 +97,17 @@ describe "test Pry defaults" do
     Pry.print =  new_print
 
     Pry.new.print.should == Pry.print
-    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
+    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output 
     @str_output.string.should == "=> LOL\n"
 
     @str_output = StringIO.new
-    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output,
-            :print => proc { |out, value| out.puts value.reverse }).rep
+    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output,
+                   :print => proc { |out, value| out.puts value.reverse }
     @str_output.string.should == "tset\n"
 
     Pry.new.print.should == Pry.print
     @str_output = StringIO.new
-    Pry.new(:input => InputTester.new("\"test\""), :output => @str_output).rep
+    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
     @str_output.string.should == "=> LOL\n"
   end
 
@@ -134,47 +135,51 @@ describe "test Pry defaults" do
 
   describe "prompts" do
     before do
-      @empty_input_buffer = ""
-      @non_empty_input_buffer = "def hello"
-      @context = Pry.binding_for(0)
+      Pry.output = StringIO.new
+    end
+
+    def get_prompts(pry)
+      a = pry.select_prompt
+      pry.eval "["
+      b = pry.select_prompt
+      pry.eval "]"
+      [a, b]
     end
 
     it 'should set the prompt default, and the default should be overridable (single prompt)' do
-      new_prompt = proc { "test prompt> " }
-      Pry.prompt =  new_prompt
-
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
-
+      Pry.prompt = proc { "test prompt> " }
       new_prompt = proc { "A" }
-      pry_tester = Pry.new(:prompt => new_prompt)
-      pry_tester.prompt.should == new_prompt
-      pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
-      pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "A"
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt> "
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
+
+
+      pry = Pry.new(:prompt => new_prompt)
+      pry.prompt.should == new_prompt
+      get_prompts(pry).should == ["A",  "A"]
+
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
-      new_prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
-      Pry.prompt =  new_prompt
-
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
-
+      Pry.prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
       new_prompt = [proc { "A" }, proc { "B" }]
-      pry_tester = Pry.new(:prompt => new_prompt)
-      pry_tester.prompt.should == new_prompt
-      pry_tester.select_prompt(@empty_input_buffer, @context).should == "A"
-      pry_tester.select_prompt(@non_empty_input_buffer, @context).should == "B"
 
-      Pry.new.prompt.should == Pry.prompt
-      Pry.new.select_prompt(@empty_input_buffer, @context).should == "test prompt> "
-      Pry.new.select_prompt(@non_empty_input_buffer, @context).should == "test prompt* "
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
+
+
+      pry = Pry.new(:prompt => new_prompt)
+      pry.prompt.should == new_prompt
+      get_prompts(pry).should == ["A",  "B"]
+
+      pry = Pry.new
+      pry.prompt.should == Pry.prompt
+      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
     end
 
     describe 'storing and restoring the prompt' do
@@ -198,13 +203,12 @@ describe "test Pry defaults" do
       end
 
       it 'should restore overridden prompts when returning from file-mode' do
-        pry = Pry.new :input => InputTester.new('shell-mode', 'shell-mode'),
-        :prompt => [ proc { 'P>' } ] * 2
-        pry.select_prompt(@empty_input_buffer, @context).should == "P>"
-        pry.re
-        pry.select_prompt(@empty_input_buffer, @context).should =~ /\Apry .* \$ \z/
-        pry.re
-        pry.select_prompt(@empty_input_buffer, @context).should == "P>"
+        pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
+        pry.select_prompt.should == "P>"
+        pry.process_command('shell-mode')
+        pry.select_prompt.should =~ /\Apry .* \$ \z/
+        pry.process_command('shell-mode')
+        pry.select_prompt.should == "P>"
       end
 
       it '#pop_prompt should return the popped prompt' do
@@ -378,18 +382,17 @@ describe "test Pry defaults" do
       add_hook(:before_session, :my_name) { |out,_,_|  out.puts "HELLO" }.
       add_hook(:after_session, :my_name) { |out,_,_| out.puts "BYE" }
 
-    Pry.new(:output => @str_output).repl
+    Object.new.pry :output => @str_output
     @str_output.string.should =~ /HELLO/
     @str_output.string.should =~ /BYE/
 
     Pry.input.rewind
 
     @str_output = StringIO.new
-    Pry.new(:output => @str_output,
-            :hooks => Pry::Hooks.new.
-            add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }.
-            add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
-            ).repl
+    Object.new.pry :output => @str_output,
+                   :hooks => Pry::Hooks.new.
+                   add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }.
+                   add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
 
     @str_output.string.should =~ /MORNING/
     @str_output.string.should =~ /EVENING/
@@ -397,19 +400,17 @@ describe "test Pry defaults" do
     # try below with just defining one hook
     Pry.input.rewind
     @str_output = StringIO.new
-    Pry.new(:output => @str_output,
-            :hooks => Pry::Hooks.new.
-            add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
-            ).repl
+    Object.new.pry :output => @str_output,
+                   :hooks => Pry::Hooks.new.
+                   add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
 
     @str_output.string.should =~ /OPEN/
 
     Pry.input.rewind
     @str_output = StringIO.new
-    Pry.new(:output => @str_output,
-            :hooks => Pry::Hooks.new.
-            add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
-            ).repl
+    Object.new.pry :output => @str_output,
+                   :hooks => Pry::Hooks.new.
+                   add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
 
     @str_output.string.should =~ /CLOSE/
 

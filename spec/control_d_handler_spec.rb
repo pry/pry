@@ -17,38 +17,42 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       end
     end
 
-
-    describe "at top-level session" do
-      it "breaks out of a REPL" do
-        pry_tester(0).simulate_repl do |t|
-          t.eval @control_d
-        end.should == nil
+    describe 'at top-level session' do
+      it 'should break out of a REPL loop' do
+        instance = Pry.new
+        instance.binding_stack.should.not.be.empty
+        instance.eval(nil).should.be.false
+        instance.binding_stack.should.be.empty
       end
     end
 
-    describe "in a nested session" do
-      it "pops last binding from the binding stack" do
-        pry_tester(0).simulate_repl { |t|
-          t.eval 'cd :foo'
-          t.eval('_pry_.binding_stack.size').should == 2
-          t.eval(@control_d)
-          t.eval('_pry_.binding_stack.size').should == 1
-          t.eval 'exit-all'
-        }
+    describe 'in a nested session' do
+      it 'should pop last binding from the binding stack' do
+        t = pry_tester
+        t.eval "cd Object.new"
+        t.eval("_pry_.binding_stack.size").should == 2
+        t.eval("_pry_.eval(nil)").should.be.true
+        t.eval("_pry_.binding_stack.size").should == 1
       end
 
       it "breaks out of the parent session" do
-        pry_tester(:outer).simulate_repl do |o|
-          o.context = :inner
-          o.simulate_repl { |i|
-            i.eval('_pry_.current_context.eval("self")').should == :inner
-            i.eval('_pry_.binding_stack.size').should == 2
-            i.eval @control_d
-            i.eval('_pry_.binding_stack.size').should == 1
-            i.eval('_pry_.current_context.eval("self")').should == :outer
-            i.eval 'throw :breakout'
-          }
-          o.eval 'exit-all'
+        ReplTester.start do
+          input  'Pry::REPL.new(_pry_, :target => 10).start'
+          output ''
+          prompt(/10.*> $/)
+
+          input  'self'
+          output '=> 10'
+
+          input  nil # Ctrl-D
+          output ''
+
+          input  'self'
+          output '=> main'
+
+          input  nil # Ctrl-D
+          output '=> nil' # Exit value of nested REPL.
+          assert_exited
         end
       end
     end

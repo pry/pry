@@ -122,31 +122,21 @@ describe "Sticky locals (_file_ and friends)" do
     end
 
     it 'should create a new sticky local' do
-      o = Object.new
-      pi = Pry.new
-      pi.add_sticky_local(:test_local) { :test_value }
-      pi.input, pi.output = InputTester.new("@value = test_local", "exit-all"), StringIO.new
-      pi.repl(o)
-
-      o.instance_variable_get(:@value).should == :test_value
+      t = pry_tester
+      t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
+      t.eval("test_local").should == :test_value
     end
 
     it 'should still exist after cd-ing into new binding' do
-      o = Object.new
-      o2 = Object.new
-      o.instance_variable_set(:@o2, o2)
-      pi = Pry.new
-      pi.add_sticky_local(:test_local) { :test_value }
-      pi.input = InputTester.new("cd @o2\n",
-                                 "@value = test_local", "exit-all")
-      pi.output = StringIO.new
-      pi.repl(o)
-
-      o2.instance_variable_get(:@value).should == :test_value
+      t = pry_tester
+      t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
+      t.eval "cd Object.new"
+      t.eval("test_local").should == :test_value
     end
 
     it 'should provide different values for successive block invocations' do
       pry = Pry.new
+      pry.push_binding binding
       pry.add_sticky_local(:test_local) { rand }
       value1 = pry.evaluate_ruby 'test_local'
       value2 = pry.evaluate_ruby 'test_local'
