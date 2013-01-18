@@ -1,3 +1,10 @@
+17/01/2012 version 0.9.11.3
+* fix Pry.run_command
+* improve `ls` output
+* add :requires_gem => "jist" to 'gist' command (so deps can be installed
+	via install-command)
+* improve help for 'edit' command
+
 16/01/2012 version 0.9.11.2
 * minor bug fix for gist on windows, rescuing Jist::ClipboardError
 rather than letting the scary error spill out to users and potentially
