@@ -27,7 +27,7 @@ class Pry::Pager
     @page_size ||= begin
       require 'io/console'
       $stdout.winsize.first
-    rescue
+    rescue LoadError
       27
     end
   end
