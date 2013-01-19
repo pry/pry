@@ -24,7 +24,12 @@ class Pry::Pager
   end
 
   def self.page_size
-    27
+    @page_size ||= begin
+      require 'io/console'
+      $stdout.winsize.first
+    rescue
+      27
+    end
   end
 
   def initialize(text)
@@ -47,13 +52,27 @@ class Pry::Pager
 
   class SystemPager < Pry::Pager
     def self.default_pager
-      ENV["PAGER"] || "less -R -S -F -X"
+      pager = ENV["PAGER"] || ""
+
+      # Default to less, and make sure less is being passed the correct options
+      if pager.strip.empty? or pager =~ /^less\s*/
+        pager = "less -R -S -F -X"
+      end
+
+      pager
     end
 
     def self.available?
-      pager_executable = default_pager.split(' ').first
-      `which #{ pager_executable }`
-    rescue
+      if @system_pager.nil?
+        @system_pager = begin
+          pager_executable = default_pager.split(' ').first
+          `which #{ pager_executable }`
+        rescue
+          false
+        end
+      else
+        @system_pager
+      end
     end
 
     def initialize(*)
