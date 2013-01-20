@@ -1,3 +1,7 @@
+20/01/2012 version 0.9.11.4
+* fixed pager bug (wouldn't render color codes in some circumstances)
+* added Pry.last_internal_error, useful for devs debugging commands
+
 17/01/2012 version 0.9.11.3
 * fix Pry.run_command
 * improve `ls` output
