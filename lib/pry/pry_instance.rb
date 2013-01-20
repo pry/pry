@@ -446,6 +446,7 @@ class Pry
   def process_command_safely(val)
     process_command(val)
   rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
+    Pry.last_internal_error = e
     output.puts "Error: #{e.message}"
     true
   end

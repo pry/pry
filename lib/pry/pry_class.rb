@@ -55,6 +55,10 @@ class Pry
     # @return [Binding] A top level binding with no local variables
     attr_accessor :toplevel_binding
 
+    # @return [Exception, nil] The last pry internal error.
+    #   (a CommandError in most cases)
+    attr_accessor :last_internal_error
+
     # plugin forwardables
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
