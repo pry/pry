@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.summary = "An IRB alternative and runtime developer console"
   s.description = s.summary
   s.homepage = "http://pry.github.com"
+  s.license = 'MIT'
 
   s.executables   = ["pry"]
   s.require_paths = ["lib"]
