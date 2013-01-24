@@ -38,11 +38,14 @@ class Pry::Pager
 
   class SimplePager < Pry::Pager
     def page
+	  # The pager size minus the number of lines used by the simple pager info bar.
+	  page_size = Pry::Pager.page_size - 3
       text_array = @text.lines.to_a
-      text_array.each_slice(Pry::Pager.page_size) do |chunk|
+	  
+      text_array.each_slice(page_size) do |chunk|
         puts chunk.join
-        break if chunk.size < Pry::Pager.page_size
-        if text_array.size > Pry::Pager.page_size
+        break if chunk.size < page_size
+        if text_array.size > page_size
           puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>"
           break if $stdin.gets.chomp == "q"
         end
