@@ -573,7 +573,7 @@ class Pry
     # Return an instance of Slop that can parse either subcommands or the
     # options that this command accepts.
     def slop
-      Slop.parse do |opt|
+      Slop.new do |opt|
         opt.banner(unindent(self.class.banner))
         subcommands(opt)
         options(opt)
