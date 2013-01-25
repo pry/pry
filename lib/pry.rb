@@ -29,7 +29,8 @@ class Pry
       # Read the class name off of the singleton class to provide a default
       # inspect.
       klass = (class << value; self; end).ancestors.first
-      stringified = "#<#{klass}:0x#{value.__id__.to_s(16)}>"
+      id = value.__id__.to_s(16) rescue 0
+      stringified = "#<#{klass}:0x#{id}>"
     end
 
     nonce = rand(0x100000000).to_s(16) # whatever
