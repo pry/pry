@@ -24,12 +24,8 @@ class Pry::Pager
   end
 
   def self.page_size
-    @page_size ||= begin
-      require 'io/console'
-      $stdout.winsize.first
-    rescue LoadError
-      27
-    end
+    rows = Pry::TerminalInfo.screen_size
+    @page_size ||= (rows && rows.first || 27)
   end
 
   def initialize(text)
