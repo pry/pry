@@ -80,6 +80,25 @@ asfadsssaaad    fasfaafdssd     s
     end
   end
 
+  describe 'line length is smaller than the length of the longest word' do
+    before do
+      element = 'swizzle'
+      @elem_len = element.length
+      @out = [element, 'crime', 'fun']
+    end
+
+    it 'should not raise error' do
+      should.not.raise(FloatDomainError) {
+        Pry::Helpers.tablify(@out, @elem_len - 1)
+      }
+    end
+
+    it 'should format output as one column' do
+      table = Pry::Helpers.tablify(@out, @elem_len - 1).to_s
+      table.should == "swizzle\ncrime  \nfun    "
+    end
+  end
+
   describe 'decide between one-line or indented output' do
     Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == 'head:  ing'
   end
