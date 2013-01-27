@@ -54,9 +54,13 @@ task :recspec do
   run_specs all
 end
 
-desc "Run pry"
+desc "Run pry (you can pass arguments using _ in place of -)"
 task :pry do
   check_dependencies unless ENV['SKIP_DEP_CHECK']
+  ARGV.shift if ARGV.first == "pry"
+  ARGV.map! do |arg|
+    arg.sub(/^_*/) { |m| "-" * m.size }
+  end
   load 'bin/pry'
 end
 
