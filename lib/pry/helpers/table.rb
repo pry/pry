@@ -22,7 +22,7 @@ class Pry
 
     def self.tablify(things, line_length)
       table = Table.new(things, :column_count => things.size)
-      table.column_count -= 1 until 0 == table.column_count or
+      table.column_count -= 1 until 1 == table.column_count or
         table.fits_on_line?(line_length)
       table
     end
