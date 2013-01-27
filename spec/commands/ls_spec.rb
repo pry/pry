@@ -93,6 +93,10 @@ describe "ls" do
         "ls Module.new{ def shinanagarns; 4; end; public :shinanagarns }")
       output.should =~ /shinanagarns/
     end
+
+    it "should behave normally when invoked on Module itself" do
+      pry_eval("ls Module").should.not =~ /Pry/
+    end
   end
 
   describe "constants" do
