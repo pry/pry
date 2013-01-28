@@ -259,6 +259,10 @@ class Pry
       Pry::WrappedModule(sup) if sup
     end
 
+    def first_module_candidate_with_source
+
+    end
+
     private
 
     # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
