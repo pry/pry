@@ -69,8 +69,8 @@ class Pry
     # module. This provides a consistent interface between 1.8 and 1.9 and also
     # avoids the problem of accidentally calling the singleton method
     # `Module.constants`.
-    # @param [Boolean] inherit (true) Include the names of constants from
-    #   included modules?
+    # @param [Boolean] inherit Include the names of constants from included
+    #   modules?
     def constants(inherit = true)
       method = Module.instance_method(:constants).bind(@wrapped)
 
