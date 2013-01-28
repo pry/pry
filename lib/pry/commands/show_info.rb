@@ -23,9 +23,13 @@ class Pry
 
       if show_all_modules?(code_object)
         # show all monkey patches for a module
+
+        @all_modules = true
         result = content_and_headers_for_all_module_candidates(code_object)
       else
         # show a specific code object
+
+        @all_modules = false
         result = content_and_header_for_code_object(code_object)
       end
 
@@ -34,7 +38,7 @@ class Pry
     end
 
     def content_and_header_for_code_object(code_object)
-      header(code_object) << content_for(code_object)
+      header(code_object) + content_for(code_object)
     end
 
     def content_and_headers_for_all_module_candidates(mod)
@@ -118,6 +122,10 @@ class Pry
       else
         [code_object.source_file, start_line_for(code_object)]
       end
+    end
+
+    def all_modules?
+      @all_modules
     end
 
     def complete(input)

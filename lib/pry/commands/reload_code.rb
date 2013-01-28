@@ -36,4 +36,5 @@ class Pry
   end
 
   Pry::Commands.add_command(Pry::Command::ReloadCode)
+  Pry::Commands.alias_command 'reload-method', 'reload-code'
 end
