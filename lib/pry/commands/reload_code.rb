@@ -27,7 +27,7 @@ class Pry
     end
 
     def check_for_reloadability(code_object)
-      if !code_object
+      if !code_object || !code_object.source_file
         raise CommandError, "Cannot locate #{obj_name}!"
       elsif !File.exists?(code_object.source_file)
         raise CommandError, "Cannot reload #{obj_name} as it has no associated file on disk. File found was: #{code_object.source_file}"
