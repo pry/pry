@@ -560,28 +560,79 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         Pry.config.commands = @oldset
       end
 
-      it 'should show source for an ordinary command' do
-        @set.command "foo", :body_of_foo do; end
+      describe "block commands" do
+        it 'should show source for an ordinary command' do
+          @set.command "foo", :body_of_foo do; end
 
-        pry_eval('show-source foo').should =~ /:body_of_foo/
+          pry_eval('show-source foo').should =~ /:body_of_foo/
+        end
+
+        it "should output source of commands using special characters" do
+          @set.command "!%$", "I gots the yellow fever" do; end
+
+          pry_eval('show-source !%$').should =~ /yellow fever/
+        end
+
+        it 'should show source for a command with spaces in its name' do
+          @set.command "foo bar", :body_of_foo_bar do; end
+
+          pry_eval('show-source foo bar').should =~ /:body_of_foo_bar/
+        end
+
+        it 'should show source for a command by listing name' do
+          @set.command /foo(.*)/, :body_of_foo_bar_regex, :listing => "bar" do; end
+
+          pry_eval('show-source bar').should =~ /:body_of_foo_bar_regex/
+        end
       end
 
-      it "should output source of commands using special characters" do
-        @set.command "!%$", "I gots the yellow fever" do; end
+      describe "create_command commands" do
+        it 'should show source for a command' do
+          @set.create_command "foo", "babble" do
+            def process() :body_of_foo end
+          end
+          pry_eval('show-source foo').should =~ /:body_of_foo/
+        end
 
-        pry_eval('show-source !%$').should =~ /yellow fever/
+        it 'should show source for a command defined inside pry' do
+          pry_eval %{
+            _pry_.commands.create_command "foo", "babble" do
+              def process() :body_of_foo end
+            end
+          }
+          pry_eval('show-source foo').should =~ /:body_of_foo/
+        end
       end
 
-      it 'should show source for a command with spaces in its name' do
-        @set.command "foo bar", :body_of_foo_bar do; end
+      describe "real class-based commands" do
+        before do
+          class ::TemporaryCommand < Pry::ClassCommand
+            match 'temp-command'
+            def process() :body_of_temp end
+          end
 
-        pry_eval('show-source foo bar').should =~ /:body_of_foo_bar/
-      end
+          Pry.commands.add_command(::TemporaryCommand)
+        end
 
-      it 'should show source for a command by listing name' do
-        @set.command /foo(.*)/, :body_of_foo_bar_regex, :listing => "bar" do; end
+        after do
+          Object.remove_const(:TemporaryCommand)
+        end
 
-        pry_eval('show-source bar').should =~ /:body_of_foo_bar_regex/
+        it 'should show source for a command' do
+          pry_eval('show-source temp-command').should =~ /:body_of_temp/
+        end
+
+        it 'should show source for a command defined inside pry' do
+          pry_eval %{
+            class ::TemporaryCommandInPry < Pry::ClassCommand
+              match 'temp-command-in-pry'
+              def process() :body_of_temp end
+            end
+          }
+          Pry.commands.add_command(::TemporaryCommandInPry)
+          pry_eval('show-source temp-command-in-pry').should =~ /:body_of_temp/
+          Object.remove_const(:TemporaryCommandInPry)
+        end
       end
     end
 

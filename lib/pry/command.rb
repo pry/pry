@@ -520,7 +520,7 @@ class Pry
       end
 
       def source
-        Pry::WrappedModule(self).source
+        source_object.source
       end
 
       def doc
@@ -528,18 +528,33 @@ class Pry
       end
 
       def source_location
-        Pry::WrappedModule(self).source_location
+        source_object.source_location
       end
 
       def source_file
-        Pry::WrappedModule(self).source_file
+        source_object.source_file
       end
       alias_method :file, :source_file
 
       def source_line
-        Pry::WrappedModule(self).source_line
+        source_object.source_line
       end
       alias_method :line, :source_line
+
+      private
+
+      # The object used to extract the source for the command.
+      #
+      # This should be a `Pry::Method(block)` for a command made with `create_command`
+      # and a `Pry::WrappedModule(self)` for a command that's a standard class.
+      # @return [Pry::WrappedModule, Pry::Method]
+      def source_object
+        @source_object ||= if name =~ /^[A-Z]/
+                             Pry::WrappedModule(self)
+                           else
+                             Pry::Method(block)
+                           end
+      end
     end
 
     attr_accessor :opts
