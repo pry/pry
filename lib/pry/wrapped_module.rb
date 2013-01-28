@@ -229,11 +229,19 @@ class Pry
       @memoized_candidates[rank] ||= Candidate.new(self, rank)
     end
 
-
     # @return [Fixnum] The number of candidate definitions for the
     #   current module.
     def number_of_candidates
       method_candidates.count
+    end
+
+    # @return [Enumerator]
+    def candidates
+      Enumerator.new do |y|
+        (0...number_of_candidates).each do |num|
+          y << candidate(num)
+        end
+      end
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.
