@@ -65,6 +65,30 @@ class Pry
       @doc = nil
     end
 
+    # Returns an array of the names of the constants accessible in the wrapped
+    # module. This provides a consistent interface between 1.8 and 1.9 and also
+    # avoids the problem of accidentally calling the singleton method
+    # `Module.constants`.
+    # @param [Boolean] inherit (true) Include the names of constants from
+    #   included modules?
+    def constants(inherit = true)
+      method = Module.instance_method(:constants).bind(@wrapped)
+
+      # If we're on 1.8, we have to manually remove ancestors' constants. If
+      # we're on 1.9, though, it's better to use the built-in `inherit` param,
+      # since it doesn't do things like incorrectly remove Pry::Config.
+      if method.arity == 0
+        consts = method.call
+        if !inherit
+          consts -= (@wrapped.ancestors - [@wrapped]).map(&:constants).flatten
+        end
+      else
+        consts = method.call(inherit)
+      end
+
+      consts
+    end
+
     # The prefix that would appear before methods defined on this class.
     #
     # i.e. the "String." or "String#" in String.new and String#initialize.

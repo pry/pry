@@ -189,8 +189,7 @@ class Pry
       return unless opts.present?(:constants) || (!has_user_specified_any_options && interrogating_a_module?)
 
       mod = interrogating_a_module? ? object_to_interrogate : Object
-      constants = mod.constants(true)
-      constants -= (mod.ancestors - [mod]).map(&:constants).flatten unless opts.present?(:verbose)
+      constants = WrappedModule.new(mod).constants(opts.present?(:verbose))
       output_section("constants", grep[format_constants(mod, constants)])
     end
 
