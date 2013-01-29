@@ -6,6 +6,12 @@ class Pry
 
     banner <<-'BANNER'
       Reload the source file that contains the specified code object.
+
+      e.g reload-code MyClass#my_method    #=> reload a method
+          reload-code MyClass              #=> reload a class
+          reload-code my-command           #=> reload a pry command
+          reload-code self                 #=> reload the 'current' object
+          reload-code                      #=> identical to reload-code self
     BANNER
 
     def process
