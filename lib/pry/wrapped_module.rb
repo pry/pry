@@ -244,18 +244,6 @@ class Pry
       end
     end
 
-    # Ruby 1.8 doesn't support `Enumerator` (it's called Generator instead)
-    #
-    # @return [Object] Return the appropriate generator class.
-    def generator
-      @generator ||= if defined?(Enumerator)
-                       Enumerator
-                     else
-                       require 'generator'
-                       Generator
-                     end
-    end
-
     # @return [Boolean] Whether YARD docs are available for this module.
     def yard_docs?
       !!(defined?(YARD) && YARD::Registry.at(name))
@@ -284,6 +272,18 @@ class Pry
     end
 
     private
+
+    # Ruby 1.8 doesn't support `Enumerator` (it's called Generator instead)
+    #
+    # @return [Object] Return the appropriate generator class.
+    def generator
+      @generator ||= if defined?(Enumerator)
+                       Enumerator
+                     else
+                       require 'generator'
+                       Generator
+                     end
+    end
 
     # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
     #   that is the 'monkey patch' of this module with the highest
