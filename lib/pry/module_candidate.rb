@@ -52,8 +52,8 @@ class Pry
       # @return [String] The source for the candidate, i.e the
       #   complete module/class definition.
       def source
+        return nil if file.nil?
         return @source if @source
-        raise CommandError, "Could not locate source for #{wrapped}!" if file.nil?
 
         @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk))
       end
@@ -61,8 +61,8 @@ class Pry
       # @raise [Pry::CommandError] If documentation cannot be found.
       # @return [String] The documentation for the candidate.
       def doc
+        return nil if file.nil?
         return @doc if @doc
-        raise CommandError, "Could not locate doc for #{wrapped}!" if file.nil?
 
         @doc = strip_leading_hash_and_whitespace_from_ruby_comments(Pry::Code.from_file(file).comment_describing(line))
       end
