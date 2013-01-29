@@ -19,22 +19,38 @@ class Pry
 
     def process
       code_object = Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
-      raise Pry::CommandError, "Couldn't locate #{obj_name}!" if !code_object
+      cannot_locate_source_error if !code_object
 
       if show_all_modules?(code_object)
         # show all monkey patches for a module
 
-        @all_modules = true
         result = content_and_headers_for_all_module_candidates(code_object)
       else
         # show a specific code object
 
-        @all_modules = false
-        result = content_and_header_for_code_object(code_object)
+        co = code_object_with_accessible_source(code_object)
+        result = content_and_header_for_code_object(co)
       end
 
       set_file_and_dir_locals(code_object.source_file)
       stagger_output result
+    end
+
+    # This method checks whether the `code_object` is a WrappedModule,
+    # if it is, then it returns the first candidate (monkeypatch) with
+    # accessible source (or docs). If `code_object` is not a WrappedModule (i.e a
+    # method or a command) then the `code_object` itself is just
+    # returned.
+    #
+    # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
+    def code_object_with_accessible_source(code_object)
+      if code_object.is_a?(WrappedModule)
+        code_object.candidates.find(&:source).tap do |candidate|
+          cannot_locate_source_error if !candidate
+        end
+      else
+        code_object
+      end
     end
 
     def content_and_header_for_code_object(code_object)
@@ -56,6 +72,10 @@ class Pry
         end
       end
       result
+    end
+
+    def cannot_locate_source_error
+      raise CommandError, "Couldn't locate a definition for #{obj_name}!"
     end
 
     # Generate a header (meta-data information) for all the code
@@ -122,10 +142,6 @@ class Pry
       else
         [code_object.source_file, start_line_for(code_object)]
       end
-    end
-
-    def all_modules?
-      @all_modules
     end
 
     def complete(input)

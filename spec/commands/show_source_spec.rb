@@ -491,7 +491,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
             proc {
               pry_eval(TestHost::C, 'show-source')
             }.should.raise(Pry::CommandError).
-              message.should =~ /Cannot find a definition for/
+              message.should =~ /Couldn't locate/
           end
 
           it 'should display method code (rather than class) if Pry started inside method binding' do
@@ -535,14 +535,11 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
               Object.remove_const(:BabyDuck)
             end
 
-            # TODO: !!! This is a bad spec, should not be expected behaviour?!?!
-            #
-            # it 'should return source for first valid module' do
-            #   out = pry_eval('show-source BabyDuck::Muesli')
-            #   out.should =~ /def d; end/
-            #   out.should.not =~ /def a; end/
-            # end
-
+            it 'should return source for first valid module' do
+              out = pry_eval('show-source BabyDuck::Muesli')
+              out.should =~ /def d; end/
+              out.should.not =~ /def a; end/
+            end
           end
         end
       end
