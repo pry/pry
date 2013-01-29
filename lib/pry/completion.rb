@@ -71,9 +71,12 @@ class Pry
         # get new target for 1/2 and find candidates for 3
         path, input = build_path(input)
 
-        unless path.call.empty?
-          target, _ = Pry::Helpers::BaseHelpers.context_from_object_path(path.call, pry)
-          target = target.last
+        # we silence warnings here or ruby 1.8 cries about "multiple values for block 0 for 1"
+        Helpers::BaseHelpers.silence_warnings do
+          unless path.call.empty?
+            target, _ = Pry::Helpers::BaseHelpers.context_from_object_path(path.call, pry)
+            target = target.last
+          end
         end
 
         begin
@@ -283,7 +286,7 @@ class Pry
       contexts = input.chomp('/').split(/\//)
       input = contexts[-1]
 
-      path = proc do |input|
+      path = Proc.new do |input|
         p = contexts[0..-2].push(input).join('/')
         p += '/' if trailing_slash && !input.nil?
         p
