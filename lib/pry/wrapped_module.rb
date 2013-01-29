@@ -237,11 +237,23 @@ class Pry
 
     # @return [Enumerator]
     def candidates
-      Enumerator.new do |y|
+      generator.new do |y|
         (0...number_of_candidates).each do |num|
-          y << candidate(num)
+          y.yield candidate(num)
         end
       end
+    end
+
+    # Ruby 1.8 doesn't support `Enumerator` (it's called Generator instead)
+    #
+    # @return [Object] Return the appropriate generator class.
+    def generator
+      @generator ||= if defined?(Enumerator)
+                       Enumerator
+                     else
+                       require 'generator'
+                       Generator
+                     end
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.
