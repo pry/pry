@@ -2,7 +2,7 @@ class Pry
   class Command::ShowInfo < Pry::ClassCommand
     extend Pry::Helpers::BaseHelpers
 
-    command_options :shellwords => false
+    command_options :shellwords => false, :interpolate => false
     command_options :requires_gem => "ruby18_source_location" if mri_18?
 
     def setup
