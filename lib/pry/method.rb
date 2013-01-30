@@ -481,12 +481,16 @@ class Pry
     private
 
     # @return [YARD::CodeObjects::MethodObject]
-    # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
+    # @raise [CommandError] when the method can't be found or `pry-doc` isn't installed.
     def pry_doc_info
       if Pry.config.has_pry_doc
         Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
       else
-        raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+        fail_msg = "Cannot locate this method: #{name}."
+        if mri_18? || mri_19?
+          fail_msg += ' Try `gem-install pry-doc` to get access to Ruby Core documentation.'
+        end
+        raise CommandError, fail_msg
       end
     end
 
