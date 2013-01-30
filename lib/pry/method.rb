@@ -479,64 +479,65 @@ class Pry
     end
 
     private
-      # @return [YARD::CodeObjects::MethodObject]
-      # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
-      def pry_doc_info
-        if Pry.config.has_pry_doc
-          Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
+
+    # @return [YARD::CodeObjects::MethodObject]
+    # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
+    def pry_doc_info
+      if Pry.config.has_pry_doc
+        Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
+      else
+        raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+      end
+    end
+
+    # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
+    def doc_for_pry_method
+      _, line_num = source_location
+
+      buffer = ""
+      Pry.line_buffer[0..(line_num - 1)].each do |line|
+        # Add any line that is a valid ruby comment,
+        # but clear as soon as we hit a non comment line.
+        if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+          buffer << line.lstrip
         else
-          raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+          buffer.replace("")
         end
       end
 
-      # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
-      def doc_for_pry_method
-        _, line_num = source_location
+      buffer
+    end
 
-        buffer = ""
-        Pry.line_buffer[0..(line_num - 1)].each do |line|
-          # Add any line that is a valid ruby comment,
-          # but clear as soon as we hit a non comment line.
-          if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-            buffer << line.lstrip
-          else
-            buffer.replace("")
-          end
+    # @param [Class, Module] ancestors The ancestors to investigate
+    # @return [Method] The unwrapped super-method
+    def super_using_ancestors(ancestors, times=1)
+      next_owner = self.owner
+      times.times do
+        i = ancestors.index(next_owner) + 1
+        while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
+          i += 1
         end
-
-        buffer
+        next_owner = ancestors[i] or return nil
       end
 
-      # @param [Class, Module] ancestors The ancestors to investigate
-      # @return [Method] The unwrapped super-method
-      def super_using_ancestors(ancestors, times=1)
-        next_owner = self.owner
-        times.times do
-          i = ancestors.index(next_owner) + 1
-          while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
-            i += 1
-          end
-          next_owner = ancestors[i] or return nil
-        end
+      safe_send(next_owner, :instance_method, name) rescue nil
+    end
 
-        safe_send(next_owner, :instance_method, name) rescue nil
+    # @param [String] first_ln The first line of a method definition.
+    # @return [String, nil]
+    def method_name_from_first_line(first_ln)
+      return nil if first_ln.strip !~ /^def /
+
+      tokens = CodeRay.scan(first_ln, :ruby)
+      tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
+      tokens.each_cons(2) do |t1, t2|
+        if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
+          return t2.first
+        end
       end
 
-      # @param [String] first_ln The first line of a method definition.
-      # @return [String, nil]
-      def method_name_from_first_line(first_ln)
-        return nil if first_ln.strip !~ /^def /
-
-        tokens = CodeRay.scan(first_ln, :ruby)
-        tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
-        tokens.each_cons(2) do |t1, t2|
-          if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
-            return t2.first
-          end
-        end
-
-        nil
-      end
+      nil
+    end
 
     # A Disowned Method is one that's been removed from the class on which it was defined.
     #
