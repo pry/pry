@@ -99,10 +99,10 @@ Pry::CLI.add_options do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See: `https://github.com/pry` for more information.
-Copyright (c) 2011 John Mair (banisterfiend)
+Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
-  on :e, :exec, "A line of code to execute in context before the session starts", :argument => true do |input|
+  on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
     exec_string << input + "\n"
   end
 
@@ -123,12 +123,12 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.config.should_load_local_rc = false
   end
 
-  on :s, "select-plugin", "Only load specified plugin (and no others).", :argument => true do |plugin_name|
+  on :s, "select-plugin=", "Only load specified plugin (and no others)." do |plugin_name|
     Pry.config.should_load_plugins = false
     Pry.plugins[plugin_name].activate!
   end
 
-  on :d, "disable-plugin", "Disable a specific plugin.", :argument => true do |plugin_name|
+  on :d, "disable-plugin=", "Disable a specific plugin." do |plugin_name|
     Pry.plugins[plugin_name].disable!
   end
 
@@ -149,11 +149,11 @@ Copyright (c) 2011 John Mair (banisterfiend)
     Pry.config.prompt = Pry::SIMPLE_PROMPT
   end
 
-  on :r, :require, "`require` a Ruby script at startup", :argument => true do |file|
+  on :r, :require=, "`require` a Ruby script at startup" do |file|
     Pry.config.requires << file
   end
 
-  on :I, "Add a path to the $LOAD_PATH", :argument => true, :as => Array, :delimiter => ":" do |load_path|
+  on :I=, "Add a path to the $LOAD_PATH", :as => Array, :delimiter => ":" do |load_path|
     load_path.map! do |path|
       /\A\.\// =~ path ? path : File.expand_path(path)
     end
@@ -166,9 +166,8 @@ Copyright (c) 2011 John Mair (banisterfiend)
     exit
   end
 
-  on(:c, :context,
+  on(:c, :context=,
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
-     :argument => true,
      :default => "Pry.toplevel_binding"
      )
 end.process_options do |opts|
