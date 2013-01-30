@@ -19,7 +19,7 @@ class Pry
   class Method
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
-    include RbxMethod if Helpers::BaseHelpers.rbx?
+    include RbxMethod if rbx?
     include Helpers::DocumentationHelpers
     include CodeObject::Helpers
 
@@ -310,7 +310,7 @@ class Pry
           info = pry_doc_info
           info.docstring if info
         when :ruby
-          if Helpers::BaseHelpers.rbx? && !pry_method?
+          if rbx? && !pry_method?
             strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
           elsif pry_method?
             strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
@@ -327,7 +327,7 @@ class Pry
     end
 
     def source_location
-      if @method.source_location && Helpers::BaseHelpers.rbx?
+      if @method.source_location && rbx?
         file, line = @method.source_location
         [RbxPath.convert_path_to_full(file), line]
       else
@@ -339,7 +339,7 @@ class Pry
     #   `nil` if the filename is unavailable.
     def source_file
       if source_location.nil?
-        if !Helpers::BaseHelpers.rbx? and source_type == :c
+        if !rbx? and source_type == :c
           info = pry_doc_info
           info.file if info
         end
