@@ -12,8 +12,11 @@ class Pry::Pager
     case pager
     when nil
       no_pager = !SystemPager.available?
-      is_jruby = defined?(RUBY_ENGINE) && RUBY_ENGINE == "jruby"
-      (is_jruby || no_pager) ? SimplePager.new(text).page : SystemPager.new(text).page
+      if no_pager || Pry::Helpers::BaseHelpers.jruby?
+        SimplePager.new(text).page
+      else
+        SystemPager.new(text).page
+      end
     when :simple
       SimplePager.new(text).page
     when :system
@@ -37,7 +40,7 @@ class Pry::Pager
       # The pager size minus the number of lines used by the simple pager info bar.
       page_size = Pry::Pager.page_size - 3
       text_array = @text.lines.to_a
-	  
+
       text_array.each_slice(page_size) do |chunk|
         puts chunk.join
         break if chunk.size < page_size
