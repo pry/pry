@@ -247,9 +247,16 @@ class Pry
 
   def self.auto_resize!
     trap :WINCH do
-      size = `stty size`.split(/\s+/).map &:to_i
-      Readline.set_screen_size *size
-      Readline.refresh_line
+      begin
+        Readline.set_screen_size *Terminal.size!
+      rescue => e
+        warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
+      end
+      begin
+        Readline.refresh_line
+      rescue => e
+        warn "\nPry.auto_resize!'s Readline.refresh_line failed: #{e}"
+      end
     end
   end
 

@@ -1,0 +1,64 @@
+class Pry::Terminal
+  class << self
+    # Return a pair of [rows, columns] which gives the size of the window.
+    #
+    # If the window size cannot be determined, return nil.
+    def screen_size
+      rows, cols = actual_screen_size
+      if rows && cols
+        [rows.to_i, cols.to_i]
+      else
+        nil
+      end
+    end
+
+    # Return a screen size or a default if that fails.
+    def size! default = [25, 80]
+      screen_size || default
+    end
+
+    # Return a screen width or the default if that fails.
+    def width! default = 80
+      size![1]
+    end
+
+    def actual_screen_size
+      # The best way, if possible (requires non-jruby ≥1.9 or io-console gem)
+      screen_size_according_to_io_console or
+        # Fall back to the old standby, though it might be stale:
+        screen_size_according_to_env or
+        # Fall further back, though this one is also out of date without something
+        # calling Readline.set_screen_size
+        screen_size_according_to_readline or
+        # Windows users can otherwise run ansicon and get a decent answer:
+        screen_size_according_to_ansicon_env
+    end
+
+    def screen_size_according_to_io_console
+      return if Pry::Helpers::BaseHelpers.jruby?
+      require 'io/console'
+      $stdout.winsize if $stdout.tty? and $stdout.respond_to?(:winsize)
+    rescue LoadError
+      # They're probably on 1.8 without the io-console gem. We'll keep trying.
+    end
+
+    def screen_size_according_to_env
+      size = [ENV['LINES'] || ENV['ROWS'], ENV['COLUMNS']]
+      size if size[1].to_i > 0
+    end
+
+    def screen_size_according_to_readline
+      Readline.get_screen_size if Readline.respond_to?(:get_screen_size)
+    rescue Java::JavaLang::NullPointerException
+      # This rescue won't happen on jrubies later than:
+      #     https://github.com/jruby/jruby/pull/436
+      nil
+    end
+
+    def screen_size_according_to_ansicon_env
+      return unless ENV['ANSICON'] =~ /\((.*)x(.*)\)/
+      size = [$2, $1]
+      size if size[1].to_i > 0
+    end
+  end
+end

@@ -1,12 +1,6 @@
 require 'coderay'
 
 class Pry
-  # Load io-console if possible, so that we can use $stdout.winsize.
-  begin
-    require 'io/console'
-  rescue LoadError
-  end
-
   ##
   # Pry::Indent is a class that can be used to indent a number of lines
   # containing Ruby code similar as to how IRB does it (but better). The class
@@ -392,7 +386,7 @@ class Pry
       full_line = prompt + code
       whitespace = ' ' * overhang
 
-      _, cols = TerminalInfo.screen_size
+      _, cols = Terminal.screen_size
 
       cols = cols.to_i
       lines = cols != 0 ? (full_line.length / cols + 1) : 1
