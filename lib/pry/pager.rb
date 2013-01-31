@@ -27,7 +27,7 @@ class Pry::Pager
   end
 
   def self.page_size
-    rows = Pry::TerminalInfo.screen_size
+    rows = Pry::Terminal.screen_size
     @page_size ||= (rows && rows.first || 27)
   end
 
