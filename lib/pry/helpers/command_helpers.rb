@@ -84,7 +84,9 @@ class Pry
         text = text.sub(/^[ \t]+$/, '')
 
         # Find the longest common whitespace to all indented lines
-        margin = text.scan(/^[ \t]*(?=[^ \t\n])/).inject do |current_margin, next_indent|
+        # Ignore lines containing just -- or ++ as these seem to be used by
+        # comment authors as delimeters.
+        margin = text.scan(/^[ \t]*(?!--\n|\+\+\n)(?=[^ \t\n])/).inject do |current_margin, next_indent|
           if next_indent.start_with?(current_margin)
             current_margin
           elsif current_margin.start_with?(next_indent)

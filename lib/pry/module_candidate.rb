@@ -64,7 +64,7 @@ class Pry
         return nil if file.nil?
         return @doc if @doc
 
-        @doc = strip_leading_hash_and_whitespace_from_ruby_comments(Pry::Code.from_file(file).comment_describing(line))
+        @doc = get_comment_content(Pry::Code.from_file(file).comment_describing(line))
       end
 
       # @return [Array, nil] A `[String, Fixnum]` pair representing the
