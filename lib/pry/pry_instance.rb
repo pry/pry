@@ -297,7 +297,7 @@ class Pry
     inject_sticky_locals!
     begin
       if !process_command_safely(line.lstrip)
-        @eval_string << "#{line.chomp}\n" unless line.empty?
+        @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
     rescue RescuableException => e
       self.last_exception = e
