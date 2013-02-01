@@ -311,11 +311,11 @@ class Pry
           info.docstring if info
         when :ruby
           if rbx? && !pry_method?
-            strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
+            get_comment_content(core_doc)
           elsif pry_method?
-            strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
+            get_comment_content(doc_for_pry_method)
           else
-            strip_leading_hash_and_whitespace_from_ruby_comments(@method.comment)
+            get_comment_content(@method.comment)
           end
         end
     end

@@ -4,14 +4,18 @@ class Pry
     # This class contains methods useful for extracting
     # documentation from methods and classes.
     module DocumentationHelpers
+
+      module_function
+
       def process_rdoc(comment)
+        return comment unless Pry.color
         comment = comment.dup
-        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { Pry.color ? CodeRay.scan($1, :ruby).term : $1 }.
-          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { Pry.color ? "\e[1m#{$1}\e[0m": $1 }.
-          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { Pry.color ? "\e[1m#{$1}\e[0m" : $1 }.
-          gsub(/\B\+(\w*?)\+\B/)  { Pry.color ? "\e[32m#{$1}\e[0m": $1 }.
-          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { Pry.color ? CodeRay.scan($1, :ruby).term : $1 }.
-          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{Pry.color ? CodeRay.scan($1, :ruby).term : $1}`" }
+        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan($1, :ruby).term }.
+          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{$1}\e[0m" }.
+          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { "\e[1m#{$1}\e[0m" }.
+          gsub(/\B\+(\w+?)\+\B/)  { "\e[32m#{$1}\e[0m" }.
+          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { CodeRay.scan($1, :ruby).term }.
+          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{CodeRay.scan($1, :ruby).term}`" }
       end
 
       def process_yardoc_tag(comment, tag)
@@ -46,10 +50,17 @@ class Pry
         code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
       end
 
+      # Given a string that makes up a comment in a source-code file parse out the content
+      # that the user is intended to read. (i.e. without leading indentation, #-characters
+      # or shebangs)
+      #
       # @param [String] comment
       # @return [String]
-      def strip_leading_hash_and_whitespace_from_ruby_comments(comment)
+      def get_comment_content(comment)
         comment = comment.dup
+        # Remove #!/usr/bin/ruby
+        comment.gsub!(/\A\#!.*$/, '')
+        # Remove leading empty comment lines
         comment.gsub!(/\A\#+?$/, '')
         comment.gsub!(/^\s*#/, '')
         strip_leading_whitespace(comment)
