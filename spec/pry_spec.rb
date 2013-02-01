@@ -109,10 +109,6 @@ describe Pry do
         pry_eval(o, "self").should == o
       end
 
-      it 'should work with multi-line input' do
-        mock_pry("x = ", "1 + 4").should =~ /5/
-      end
-
       it 'should define a nested class under Hello and not on top-level or Pry' do
         mock_pry(Pry.binding_for(Hello), "class Nested", "end")
         Hello.const_defined?(:Nested).should == true
@@ -124,10 +120,6 @@ describe Pry do
 
       it 'should suppress output if input ends in a ";" (single line)' do
         mock_pry("x = 5;").should == ""
-      end
-
-      it 'should suppress output if input ends in a ";" (multi-line)' do
-        mock_pry("def self.blah", ":test", "end;").should == ""
       end
 
       it 'should be able to evaluate exceptions normally' do
@@ -146,6 +138,53 @@ describe Pry do
         lambda { mock_pry("raise SystemExit") }.should.raise SystemExit
         # SIGTERM
         lambda { mock_pry("raise SignalException.new(15)") }.should.raise SignalException
+      end
+
+      describe "multi-line input" do
+        it "works" do
+          mock_pry('x = ', '1 + 4').should =~ /5/
+        end
+
+        it 'should suppress output if input ends in a ";" (multi-line)' do
+          mock_pry('def self.blah', ':test', 'end;').should == ''
+        end
+
+        describe "newline stripping from an empty string" do
+          it "with double quotes" do
+            mock_pry('"', '"').should =~ %r|"\\n"|
+            mock_pry('"', "\n", "\n", "\n", '"').should =~ %r|"\\n\\n\\n\\n"|
+          end
+
+          it "with single quotes" do
+            mock_pry("'", "'").should =~ %r|"\\n"|
+            mock_pry("'", "\n", "\n", "\n", "'").should =~ %r|"\\n\\n\\n\\n"|
+          end
+
+          it "with fancy delimiters" do
+            mock_pry('%(', ')').should =~ %r|"\\n"|
+            mock_pry('%|', "\n", "\n", '|').should =~ %r|"\\n\\n\\n"|
+            mock_pry('%q[', "\n", "\n", ']').should =~ %r|"\\n\\n\\n"|
+          end
+        end
+
+        describe "newline stripping from an empty regexp" do
+          it "with regular regexp delimiters" do
+            mock_pry('/', '/').should =~ %r{/\n/}
+          end
+
+          it "with fancy delimiters" do
+            mock_pry('%r{', "\n", "\n", '}').should =~ %r{/\n\n\n/}
+            mock_pry('%r<', "\n", '>').should =~ %r{/\n\n/}
+          end
+        end
+
+        describe "newline from an empty heredoc" do
+          it "works" do
+            mock_pry('<<HERE', 'HERE').should =~ %r|""|
+            mock_pry("<<'HERE'", "\n", 'HERE').should =~ %r|"\\n"|
+            mock_pry("<<-'HERE'", "\n", "\n", 'HERE').should =~ %r|"\\n\\n"|
+          end
+        end
       end
     end
 
