@@ -17,6 +17,9 @@ class Pry
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
   class Method
+    require 'pry/method/weird_method_locator'
+    require 'pry/method/disowned'
+
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
     include RbxMethod if Helpers::BaseHelpers.rbx?
@@ -82,37 +85,11 @@ class Pry
                      Disowned.new(b.eval('self'), meth_name.to_s)
                    end
 
-          # it's possible in some cases that the method we find by this approach is a sub-method of
-          # the one we're currently in, consider:
-          #
-          # class A; def b; binding.pry; end; end
-          # class B < A; def b; super; end; end
-          #
-          # Given that we can normally find the source_range of methods, and that we know which
-          # __FILE__ and __LINE__ the binding is at, we can hope to disambiguate these cases.
-          #
-          # This obviously won't work if the source is unavaiable for some reason, or if both
-          # methods have the same __FILE__ and __LINE__, or if we're in rbx where b.eval('__LINE__')
-          # is broken.
-          #
-          guess = method
-
-          while guess
-            # needs rescue if this is a Disowned method or a C method or something...
-            # TODO: Fix up the exception handling so we don't need a bare rescue
-            if (guess.source_file && guess.source_range rescue false) &&
-                File.expand_path(guess.source_file) == File.expand_path(b.eval('__FILE__')) &&
-                guess.source_range.include?(b.eval('__LINE__'))
-              return guess
-            else
-              guess = guess.super
-            end
+          if WeirdMethodLocator.weird_method?(method, b)
+            WeirdMethodLocator.new(method, b).get_method || method
+          else
+            method
           end
-
-          # Uhoh... none of the methods in the chain had the right __FILE__ and __LINE__
-          # This may be caused by rbx https://github.com/rubinius/rubinius/issues/953,
-          # or other unknown circumstances (TODO: we should warn the user when this happens)
-          method
         end
       end
 
@@ -194,6 +171,19 @@ class Pry
       def instance_resolution_order(klass)
         # include klass in case it is a singleton class,
         ([klass] + klass.ancestors).uniq
+      end
+
+      def method_definition?(name, definition_line)
+        singleton_method_definition?(name, definition_line) ||
+          instance_method_definition?(name, definition_line)
+      end
+
+      def singleton_method_definition?(name, definition_line)
+        /^define_singleton_method\(?\s*[:\"\']#{name}|^def\s*self\.#{name}/ =~ definition_line.strip
+      end
+
+      def instance_method_definition?(name, definition_line)
+        /^define_method\(?\s*[:\"\']#{name}|^def\s*#{name}/ =~ definition_line.strip
       end
 
       private
@@ -423,6 +413,21 @@ class Pry
       !!(source_file and source_file =~ /(\(.*\))|<.*>/)
     end
 
+    # @return [Boolean] Whether the method is unbound.
+    def unbound_method?
+      is_a?(::UnboundMethod)
+    end
+
+    # @return [Boolean] Whether the method is bound.
+    def bound_method?
+      is_a?(::Method)
+    end
+
+    # @return [Boolean] Whether the method is a singleton method.
+    def singleton_method?
+      wrapped_owner.singleton_class?
+    end
+
     # @return [Boolean] Was the method defined within the Pry REPL?
     def pry_method?
       source_file == Pry.eval_path
@@ -537,55 +542,5 @@ class Pry
 
         nil
       end
-
-    # A Disowned Method is one that's been removed from the class on which it was defined.
-    #
-    # e.g.
-    # class C
-    #   def foo
-    #     C.send(:undefine_method, :foo)
-    #     Pry::Method.from_binding(binding)
-    #   end
-    # end
-    #
-    # In this case we assume that the "owner" is the singleton class of the receiver.
-    #
-    # This occurs mainly in Sinatra applications.
-    class Disowned < Method
-      attr_reader :receiver, :name
-
-      # Create a new Disowned method.
-      #
-      # @param [Object] receiver
-      # @param [String] method_name
-      def initialize(receiver, method_name)
-        @receiver, @name = receiver, method_name
-      end
-
-      # Is the method undefined? (aka `Disowned`)
-      # @return [Boolean] true
-      def undefined?
-        true
-      end
-
-      # Can we get the source for this method?
-      # @return [Boolean] false
-      def source?
-        false
-      end
-
-      # Get the hypothesized owner of the method.
-      #
-      # @return [Object]
-      def owner
-        class << receiver; self; end
-      end
-
-      # Raise a more useful error message instead of trying to forward to nil.
-      def method_missing(meth_name, *args, &block)
-        raise "Cannot call '#{meth_name}' on an undef'd method." if method(:name).respond_to?(meth_name)
-        Object.instance_method(:method_missing).bind(self).call(meth_name, *args, &block)
-      end
     end
-  end
 end
