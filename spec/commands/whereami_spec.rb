@@ -63,7 +63,6 @@ describe "whereami" do
     end
 
     Cor.instance_method(:blimey!).source.should =~ /pry_eval/
-
     Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
     Object.remove_const(:Cor)
   end
@@ -85,26 +84,76 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
-  it 'should display a description and and error if reading the file goes wrong' do
-    class Cor
-      def blimey!
-        eval <<-END, binding, "not.found.file.erb", 7
-          Pad.tester = pry_tester(binding)
-          Pad.tester.eval('whereami')
-        END
-      end
-    end
+  # Now that we use stagger_output (paging output) we no longer get
+  # the "From: " line, as we output everything in one go (not separate output.puts)
+  # and so the user just gets a single `Error: Cannot open
+  # "not.found.file.erb" for reading.`
+  # which is good enough IMO. Unfortunately we can't test for it
+  # though, as we don't hook stdout.
+  #
+  # it 'should display a description and error if reading the file goes wrong' do
+  #   class Cor
+  #     def blimey!
+  #       eval <<-END, binding, "not.found.file.erb", 7
+  #         Pad.tester = pry_tester(binding)
+  #         Pad.tester.eval('whereami')
+  #       END
+  #     end
+  #   end
 
-    proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
-    Pad.tester.last_output.should =~
-      /From: not.found.file.erb @ line 7 Cor#blimey!:/
-    Object.remove_const(:Cor)
-  end
+  #   proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
+
+  #   Pad.tester.last_output.should =~
+  #     /From: not.found.file.erb @ line 7 Cor#blimey!:/
+  #   Object.remove_const(:Cor)
+  # end
 
   it 'should show code window (not just method source) if parameter passed to whereami' do
     class Cor
       def blimey!
         pry_eval(binding, 'whereami 3').should =~ /class Cor/
+      end
+    end
+    Cor.new.blimey!
+    Object.remove_const(:Cor)
+  end
+
+  it 'should show entire method when -m option used' do
+    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
+    old_cutoff, Pry::Command::Whereami.method_size_cutoff = Pry::Command::Whereami.method_size_cutoff, 1
+    class Cor
+      def blimey!
+        1
+        2
+        pry_eval(binding, 'whereami -m').should =~ /def blimey/
+      end
+    end
+    Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
+    Cor.new.blimey!
+    Object.remove_const(:Cor)
+  end
+
+  it 'should show entire file when -f option used' do
+    class Cor
+      def blimey!
+        1
+        2
+        pry_eval(binding, 'whereami -f').should =~ /show entire file when -f option used/
+      end
+    end
+    Cor.new.blimey!
+    Object.remove_const(:Cor)
+  end
+
+  it 'should show class when -c option used, and locate correct candidate' do
+    require 'fixtures/whereami_helper'
+    class Cor
+      def blimey!
+        1
+        2
+        out = pry_eval(binding, 'whereami -c')
+        out.should =~ /class Cor/
+        out.should =~ /blimey/
       end
     end
     Cor.new.blimey!
