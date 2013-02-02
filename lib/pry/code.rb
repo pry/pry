@@ -84,12 +84,12 @@ class Pry
       # Attempt to extract the source code for module (or class) `mod`.
       #
       # @param [Module, Class] mod The module (or class) of interest.
-      # @param [Integer, nil] start_line The line number to start on, or nil to
-      #   use the method's original line numbers.
       # @param [Integer] candidate_rank The module candidate (by rank)
       #   to use (see `Pry::WrappedModule::Candidate` for more information).
+      # @param [Integer, nil] start_line The line number to start on, or nil to
+      #   use the method's original line numbers.
       # @return [Code]
-      def from_module(mod, start_line = nil, candidate_rank = 0)
+      def from_module(mod, candidate_rank = 0, start_line=nil)
         candidate = Pry::WrappedModule(mod).candidate(candidate_rank)
         start_line ||= candidate.line
         new(candidate.source, start_line, :ruby)
