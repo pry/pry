@@ -22,7 +22,7 @@ class Pry
 
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
-    include RbxMethod if Helpers::BaseHelpers.rbx?
+    include RbxMethod if rbx?
     include Helpers::DocumentationHelpers
     include CodeObject::Helpers
 
@@ -300,7 +300,7 @@ class Pry
           info = pry_doc_info
           info.docstring if info
         when :ruby
-          if Helpers::BaseHelpers.rbx? && !pry_method?
+          if rbx? && !pry_method?
             strip_leading_hash_and_whitespace_from_ruby_comments(core_doc)
           elsif pry_method?
             strip_leading_hash_and_whitespace_from_ruby_comments(doc_for_pry_method)
@@ -317,7 +317,7 @@ class Pry
     end
 
     def source_location
-      if @method.source_location && Helpers::BaseHelpers.rbx?
+      if @method.source_location && rbx?
         file, line = @method.source_location
         [RbxPath.convert_path_to_full(file), line]
       else
@@ -329,7 +329,7 @@ class Pry
     #   `nil` if the filename is unavailable.
     def source_file
       if source_location.nil?
-        if !Helpers::BaseHelpers.rbx? and source_type == :c
+        if !rbx? and source_type == :c
           info = pry_doc_info
           info.file if info
         end
@@ -484,63 +484,68 @@ class Pry
     end
 
     private
-      # @return [YARD::CodeObjects::MethodObject]
-      # @raise [CommandError] Raises when the method can't be found or `pry-doc` isn't installed.
-      def pry_doc_info
-        if Pry.config.has_pry_doc
-          Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
-        else
-          raise CommandError, "Cannot locate this method: #{name}. Try `gem install pry-doc` to get access to Ruby Core documentation."
+
+    # @return [YARD::CodeObjects::MethodObject]
+    # @raise [CommandError] when the method can't be found or `pry-doc` isn't installed.
+    def pry_doc_info
+      if Pry.config.has_pry_doc
+        Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
+      else
+        fail_msg = "Cannot locate this method: #{name}."
+        if mri_18? || mri_19?
+          fail_msg += ' Try `gem-install pry-doc` to get access to Ruby Core documentation.'
         end
-      end
-
-      # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
-      def doc_for_pry_method
-        _, line_num = source_location
-
-        buffer = ""
-        Pry.line_buffer[0..(line_num - 1)].each do |line|
-          # Add any line that is a valid ruby comment,
-          # but clear as soon as we hit a non comment line.
-          if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-            buffer << line.lstrip
-          else
-            buffer.replace("")
-          end
-        end
-
-        buffer
-      end
-
-      # @param [Class, Module] ancestors The ancestors to investigate
-      # @return [Method] The unwrapped super-method
-      def super_using_ancestors(ancestors, times=1)
-        next_owner = self.owner
-        times.times do
-          i = ancestors.index(next_owner) + 1
-          while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
-            i += 1
-          end
-          next_owner = ancestors[i] or return nil
-        end
-
-        safe_send(next_owner, :instance_method, name) rescue nil
-      end
-
-      # @param [String] first_ln The first line of a method definition.
-      # @return [String, nil]
-      def method_name_from_first_line(first_ln)
-        return nil if first_ln.strip !~ /^def /
-
-        tokens = CodeRay.scan(first_ln, :ruby)
-        tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
-        tokens.each_cons(2) do |t1, t2|
-          if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
-            return t2.first
-          end
-        end
-
-        nil
+        raise CommandError, fail_msg
       end
     end
+
+    # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
+    def doc_for_pry_method
+      _, line_num = source_location
+
+      buffer = ""
+      Pry.line_buffer[0..(line_num - 1)].each do |line|
+        # Add any line that is a valid ruby comment,
+        # but clear as soon as we hit a non comment line.
+        if (line =~ /^\s*#/) || (line =~ /^\s*$/)
+          buffer << line.lstrip
+        else
+          buffer.replace("")
+        end
+      end
+
+      buffer
+    end
+
+    # @param [Class, Module] ancestors The ancestors to investigate
+    # @return [Method] The unwrapped super-method
+    def super_using_ancestors(ancestors, times=1)
+      next_owner = self.owner
+      times.times do
+        i = ancestors.index(next_owner) + 1
+        while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
+          i += 1
+        end
+        next_owner = ancestors[i] or return nil
+      end
+
+      safe_send(next_owner, :instance_method, name) rescue nil
+    end
+
+    # @param [String] first_ln The first line of a method definition.
+    # @return [String, nil]
+    def method_name_from_first_line(first_ln)
+      return nil if first_ln.strip !~ /^def /
+
+      tokens = CodeRay.scan(first_ln, :ruby)
+      tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
+      tokens.each_cons(2) do |t1, t2|
+        if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
+          return t2.first
+        end
+      end
+
+      nil
+    end
+  end
 end
