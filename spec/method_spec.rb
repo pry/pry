@@ -95,27 +95,29 @@ describe Pry::Method do
     end
 
     it "should find methods that have been undef'd" do
-      m = Pry::Method.from_binding(Class.new do
+      c = Class.new do
         def self.bar
           class << self; undef bar; end
           binding
         end
-      end.bar)
+      end
+
+      m = Pry::Method.from_binding(c.bar)
       m.name.should == "bar"
     end
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
     unless Pry::Helpers::BaseHelpers.rbx?
-      it 'should find the super method correctly' do
-        a = Class.new{ def gag; binding; end; def self.line; __LINE__; end }
-        b = Class.new(a){ def gag; super; end }
+       it 'should find the super method correctly' do
+        a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
+        b = Class.new(a){ def gag33; super; end }
 
-        g = b.new.gag
+        g = b.new.gag33
         m = Pry::Method.from_binding(g)
 
         m.owner.should == a
         m.source_line.should == a.line
-        m.name.should == "gag"
+        m.name.should == "gag33"
       end
     end
 
@@ -139,6 +141,21 @@ describe Pry::Method do
         m.source_file.should == __FILE__
         m.source_line.should == a.line
       end
+    end
+
+    it 'should find the right method even if it was renamed and replaced' do
+      o = Object.new
+      class << o
+        def borscht
+          "nips"
+          binding
+        end
+        alias paella borscht
+        def borscht() paella end
+      end
+
+      m = Pry::Method.from_binding(o.borscht)
+      m.source.should == Pry::Method(o.method(:paella)).source
     end
   end
 
