@@ -161,6 +161,13 @@ Copyright (c) 2013 John Mair (banisterfiend)
     $LOAD_PATH.unshift(*load_path)
   end
 
+  on "gem", "Shorthand for -I./lib -rgemname" do |load_path|
+    $LOAD_PATH.unshift("./lib")
+    Dir["./lib/*.rb"].each do |file|
+      Pry.config.requires << file
+    end
+  end
+
   on :v, :version, "Display the Pry version" do
     puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
     exit
