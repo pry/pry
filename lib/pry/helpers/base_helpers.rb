@@ -83,12 +83,15 @@ class Pry
         defined?(Win32::Console) || ENV['ANSICON']
       end
 
-      # are we on Jruby platform?
       def jruby?
         RbConfig::CONFIG['ruby_install_name'] == 'jruby'
       end
 
-      # are we on rbx platform?
+      def jruby_19?
+        RbConfig::CONFIG['ruby_install_name'] == 'jruby' &&
+          RbConfig::CONFIG['ruby_version'] == '1.9'
+      end
+
       def rbx?
         RbConfig::CONFIG['ruby_install_name'] == 'rbx'
       end
