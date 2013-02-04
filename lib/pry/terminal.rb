@@ -44,11 +44,14 @@ class Pry::Terminal
 
     def screen_size_according_to_env
       size = [ENV['LINES'] || ENV['ROWS'], ENV['COLUMNS']]
-      size if size[1].to_i > 0
+      size if nonzero_column?(size)
     end
 
     def screen_size_according_to_readline
-      Readline.get_screen_size if Readline.respond_to?(:get_screen_size)
+      if Readline.respond_to?(:get_screen_size)
+        size = Readline.get_screen_size
+        size if nonzero_column?(size)
+      end
     rescue Java::JavaLang::NullPointerException
       # This rescue won't happen on jrubies later than:
       #     https://github.com/jruby/jruby/pull/436
@@ -58,7 +61,13 @@ class Pry::Terminal
     def screen_size_according_to_ansicon_env
       return unless ENV['ANSICON'] =~ /\((.*)x(.*)\)/
       size = [$2, $1]
-      size if size[1].to_i > 0
+      size if nonzero_column?(size)
+    end
+
+    private
+
+    def nonzero_column?(size)
+      size[1].to_i > 0
     end
   end
 end
