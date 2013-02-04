@@ -383,6 +383,7 @@ class Pry
     #   the difference in length between the old line and the new one).
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
+      prompt = prompt.delete("\001\002")
       full_line = prompt + code
       whitespace = ' ' * overhang
 
