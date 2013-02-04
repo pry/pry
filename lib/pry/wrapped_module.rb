@@ -235,13 +235,19 @@ class Pry
       method_candidates.count
     end
 
-    # @return [Enumerator]
+    # @note On JRuby 1.9 and higher, in certain conditions, this method chucks
+    #   away its ability to be quick (when there are lots of monkey patches,
+    #   like in Rails). However, it should be efficient enough on other rubies.
+    # @see https://github.com/jruby/jruby/issues/525
+    # @return [Enumerator, Array] on JRuby 1.9 and higher returns Array, on
+    #  other rubies returns Enumerator
     def candidates
-      generator.new do |y|
-        (0...number_of_candidates).each do |num|
-          y.yield candidate(num)
-        end
-      end
+      enum = generator.new do |y|
+               (0...number_of_candidates).each do |num|
+                 y.yield candidate(num)
+               end
+             end
+      Pry::Helpers::BaseHelpers.jruby_19? ? enum.to_a : enum
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.
@@ -265,10 +271,6 @@ class Pry
       end
 
       Pry::WrappedModule(sup) if sup
-    end
-
-    def first_module_candidate_with_source
-
     end
 
     private
