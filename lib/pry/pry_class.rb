@@ -207,29 +207,30 @@ class Pry
   #   if any).
   # @param [Hash] options Optional named parameters.
   # @return [Object] The return value of the Pry command.
-  # @option options [Object, Binding] :context The object context to run the
+  # @option options [Object, Binding] :target The object to run the
   #   command under. Defaults to `TOPLEVEL_BINDING` (main).
   # @option options [Boolean] :show_output Whether to show command
   #   output. Defaults to true.
   # @example Run at top-level with no output.
   #   Pry.run_command "ls"
   # @example Run under Pry class, returning only public methods.
-  #   Pry.run_command "ls -m", :context => Pry
+  #   Pry.run_command "ls -m", :target => Pry
   # @example Display command output.
   #   Pry.run_command "ls -av", :show_output => true
   def self.run_command(command_string, options={})
     options = {
-      :context => TOPLEVEL_BINDING,
+      :target => TOPLEVEL_BINDING,
       :show_output => true,
       :output => Pry.output,
       :commands => Pry.commands
     }.merge!(options)
 
+    # :context for compatibility with <= 0.9.11.4
+    target = options[:context] || options[:target]
     output = options[:show_output] ? options[:output] : StringIO.new
 
-    Pry.new(:output   => output,
-            :commands => options[:commands],
-            :target   => options[:context]).eval command_string
+    pry = Pry.new(:output   => output, :target   => target, :commands => options[:commands])
+    pry.eval command_string
   end
 
   def self.default_editor_for_platform
