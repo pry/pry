@@ -20,12 +20,16 @@ class Pry
       attr_reader :line
       alias_method :source_line, :line
 
-      # Methods to delegate to associated `Pry::WrappedModule instance`.
-      to_delegate = [:lines_for_file, :method_candidates, :name, :wrapped,
-                     :yard_docs?, :number_of_candidates]
+      # Methods to delegate to associated `Pry::WrappedModule
+      # instance`.
+      private_delegates = [:lines_for_file, :method_candidates,
+                           :yard_docs?, :number_of_candidates]
 
-      def_delegators :@wrapper, *to_delegate
-      private(*to_delegate)
+      public_delegates = [:wrapped, :module?, :class?, :name, :nonblank_name]
+
+      def_delegators :@wrapper, *(private_delegates + public_delegates)
+      private *private_delegates
+      public *public_delegates
 
       # @raise [Pry::CommandError] If `rank` is out of bounds.
       # @param [Pry::WrappedModule] wrapper The associated
