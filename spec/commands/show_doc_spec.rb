@@ -374,5 +374,112 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         t.pry.last_dir.should =~ /fixtures/
       end
     end
+
+    describe "can't find class docs" do
+      describe "for classes" do
+        before do
+          module Jesus
+            class Brian; end
+
+            # doink-doc
+            class Jingle
+              def a; :doink; end
+            end
+
+            class Jangle < Jingle; end
+            class Bangle < Jangle; end
+          end
+        end
+
+        after do
+          Object.remove_const(:Jesus)
+        end
+
+        it 'shows superclass doc' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Jangle"
+          t.last_output.should =~ /doink-doc/
+        end
+
+        it 'errors when class has no superclass to show' do
+          t = pry_tester
+          lambda { t.process_command "show-doc Jesus::Brian" }.should.raise(Pry::CommandError).message.
+            should =~ /Couldn't locate/
+        end
+
+        it 'shows warning when reverting to superclass docs' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Jangle"
+          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/
+        end
+
+        it 'shows nth level superclass docs (when no intermediary superclasses have code either)' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Bangle"
+          t.last_output.should =~ /doink-doc/
+        end
+
+        it 'shows correct warning when reverting to nth level superclass' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Bangle"
+          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/
+        end
+      end
+describe "for modules" do
+        before do
+          module Jesus
+
+            # alpha-doc
+            module Alpha
+              def alpha; :alpha; end
+            end
+
+            module Zeta; end
+
+            module Beta
+              include Alpha
+            end
+
+            module Gamma
+              include Beta
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:Jesus)
+        end
+
+        it 'shows included module doc' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Beta"
+          t.last_output.should =~ /alpha-doc/
+        end
+
+        it 'shows warning when reverting to included module doc' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Beta"
+          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/
+        end
+
+        it 'errors when module has no included module to show' do
+          t = pry_tester
+          lambda { t.process_command "show-source Jesus::Zeta" }.should.raise(Pry::CommandError).message.
+            should =~ /Couldn't locate/
+        end
+
+        it 'shows nth level included module doc (when no intermediary modules have code either)' do
+          t = pry_tester
+          t.process_command "show-doc Jesus::Gamma"
+          t.last_output.should =~ /alpha-doc/
+        end
+
+        it 'shows correct warning when reverting to nth level included module' do
+          t = pry_tester
+          t.process_command "show-source Jesus::Gamma"
+          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/
+        end
+      end
+    end
   end
 end
