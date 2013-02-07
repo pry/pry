@@ -123,6 +123,18 @@ class Pry
       wrapped != wrapped.ancestors.first
     end
 
+    # Is this strictly a module? (does not match classes)
+    # @return [Boolean]
+    def module?
+      wrapped.instance_of?(Module)
+    end
+
+    # Is this strictly a class?
+    # @return [Boolean]
+    def class?
+      wrapped.instance_of?(Class)
+    end
+
     # Get the instance associated with this singleton class.
     #
     # @raise ArgumentError: tried to get instance of non singleton class
