@@ -18,7 +18,8 @@ class Pry
 
     def process
       code_object = Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
-      cannot_locate_source_error if !code_object
+      raise CommandError, no_definition_message if !code_object
+      @original_code_object = code_object
 
       if show_all_modules?(code_object)
         # show all monkey patches for a module
@@ -26,7 +27,6 @@ class Pry
         result = content_and_headers_for_all_module_candidates(code_object)
       else
         # show a specific code object
-
         co = code_object_with_accessible_source(code_object)
         result = content_and_header_for_code_object(co)
       end
@@ -44,12 +44,22 @@ class Pry
     # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
     def code_object_with_accessible_source(code_object)
       if code_object.is_a?(WrappedModule)
-        code_object.candidates.find(&:source).tap do |candidate|
-          cannot_locate_source_error if !candidate
+        candidate = code_object.candidates.find(&:source)
+        if candidate
+          return candidate
+        else
+          raise CommandError, no_definition_message if !valid_superclass?(code_object)
+
+          @used_super = true
+          code_object_with_accessible_source(code_object.super)
         end
       else
         code_object
       end
+    end
+
+    def valid_superclass?(code_object)
+      code_object.super && code_object.super.wrapped != Object
     end
 
     def content_and_header_for_code_object(code_object)
@@ -73,8 +83,8 @@ class Pry
       result
     end
 
-    def cannot_locate_source_error
-      raise CommandError, "Couldn't locate a definition for #{obj_name}!"
+    def no_definition_message
+      "Couldn't locate a definition for #{obj_name}!"
     end
 
     # Generate a header (meta-data information) for all the code
@@ -82,9 +92,24 @@ class Pry
     def header(code_object)
       file_name, line_num = file_and_line_for(code_object)
       h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
-      h << method_header(code_object, line_num) if code_object.real_method_object?
+      h << code_object_header(code_object, line_num)
       h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
         "#{content_for(code_object).lines.count}\n\n"
+      h << Helpers::Text.bold('** Warning:') + " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
+      h
+    end
+
+    def code_object_header(code_object, line_num)
+      if code_object.real_method_object?
+        method_header(code_object, line_num)
+
+        # It sucks we have to test for both Pry::WrappedModule and WrappedModule::Candidate,
+        # probably indicates a deep refactor needs to happen in those classes.
+      elsif code_object.is_a?(Pry::WrappedModule) || code_object.is_a?(Pry::WrappedModule::Candidate)
+        module_header(code_object, line_num)
+      else
+        ""
+      end
     end
 
     def method_header(code_object, line_num)
@@ -94,6 +119,13 @@ class Pry
       h << method_sections(code_object)[:visibility]
       h << method_sections(code_object)[:signature]
       h
+    end
+
+    def module_header(code_object, line_num)
+      h = ""
+      h << "@ line #{line_num}:\n"
+      h << text.bold(code_object.module? ? "Module" : "Class")
+      h << " #{text.bold('name:')} #{code_object.nonblank_name}"
     end
 
     def method_sections(code_object)
