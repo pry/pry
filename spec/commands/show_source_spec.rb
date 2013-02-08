@@ -641,116 +641,118 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       end
     end
 
-    describe "can't find class/module code" do
-      describe "for classes" do
-        before do
-          module Jesus
-            module Pig
-              def lillybing; :lillybing; end
-            end
+    unless Pry::Helpers::BaseHelpers.rbx?
+      describe "can't find class/module code" do
+        describe "for classes" do
+          before do
+            module Jesus
+              module Pig
+                def lillybing; :lillybing; end
+              end
 
-            class Brian; end
-            class Jingle
-              def a; :doink; end
-            end
+              class Brian; end
+              class Jingle
+                def a; :doink; end
+              end
 
-            class Jangle < Jingle; include Pig; end
-            class Bangle < Jangle; end
+              class Jangle < Jingle; include Pig; end
+              class Bangle < Jangle; end
+            end
+          end
+
+          after do
+            Object.remove_const(:Jesus)
+          end
+
+          it 'shows superclass code' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Jangle"
+            t.last_output.should =~ /doink/
+          end
+
+          it 'ignores included modules' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Jangle"
+            t.last_output.should.not =~ /lillybing/
+          end
+
+          it 'errors when class has no superclass to show' do
+            t = pry_tester
+            lambda { t.process_command "show-source Jesus::Brian" }.should.raise(Pry::CommandError).message.
+              should =~ /Couldn't locate/
+          end
+
+          it 'shows warning when reverting to superclass code' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Jangle"
+            t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/
+          end
+
+          it 'shows nth level superclass code (when no intermediary superclasses have code either)' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Bangle"
+            t.last_output.should =~ /doink/
+          end
+
+          it 'shows correct warning when reverting to nth level superclass' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Bangle"
+            t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/
           end
         end
 
-        after do
-          Object.remove_const(:Jesus)
-        end
+        describe "for modules" do
+          before do
+            module Jesus
+              module Alpha
+                def alpha; :alpha; end
+              end
 
-        it 'shows superclass code' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Jangle"
-          t.last_output.should =~ /doink/
-        end
+              module Zeta; end
 
-        it 'ignores included modules' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Jangle"
-          t.last_output.should.not =~ /lillybing/
-        end
+              module Beta
+                include Alpha
+              end
 
-        it 'errors when class has no superclass to show' do
-          t = pry_tester
-          lambda { t.process_command "show-source Jesus::Brian" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
-        end
-
-        it 'shows warning when reverting to superclass code' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Jangle"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/
-        end
-
-        it 'shows nth level superclass code (when no intermediary superclasses have code either)' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Bangle"
-          t.last_output.should =~ /doink/
-        end
-
-        it 'shows correct warning when reverting to nth level superclass' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Bangle"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/
-        end
-      end
-
-      describe "for modules" do
-        before do
-          module Jesus
-            module Alpha
-              def alpha; :alpha; end
-            end
-
-            module Zeta; end
-
-            module Beta
-              include Alpha
-            end
-
-            module Gamma
-              include Beta
+              module Gamma
+                include Beta
+              end
             end
           end
-        end
 
-        after do
-          Object.remove_const(:Jesus)
-        end
+          after do
+            Object.remove_const(:Jesus)
+          end
 
-        it 'shows included module code' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Beta"
-          t.last_output.should =~ /alpha/
-        end
+          it 'shows included module code' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Beta"
+            t.last_output.should =~ /alpha/
+          end
 
-        it 'shows warning when reverting to included module code' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Beta"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/
-        end
+          it 'shows warning when reverting to included module code' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Beta"
+            t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/
+          end
 
-        it 'errors when module has no included module to show' do
-          t = pry_tester
-          lambda { t.process_command "show-source Jesus::Zeta" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
-        end
+          it 'errors when module has no included module to show' do
+            t = pry_tester
+            lambda { t.process_command "show-source Jesus::Zeta" }.should.raise(Pry::CommandError).message.
+              should =~ /Couldn't locate/
+          end
 
-        it 'shows nth level included module code (when no intermediary modules have code either)' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Gamma"
-          t.last_output.should =~ /alpha/
-        end
+          it 'shows nth level included module code (when no intermediary modules have code either)' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Gamma"
+            t.last_output.should =~ /alpha/
+          end
 
-        it 'shows correct warning when reverting to nth level included module' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Gamma"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/
+          it 'shows correct warning when reverting to nth level included module' do
+            t = pry_tester
+            t.process_command "show-source Jesus::Gamma"
+            t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/
+          end
         end
       end
     end
