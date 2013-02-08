@@ -50,6 +50,8 @@ class Pry
         rescue LoadError => e
           warn "Found plugin #{gem_name}, but could not require '#{gem_name}'"
           warn e
+        rescue => e
+          warn "require '#{gem_name}' # Failed, saying: #{e}"
         end
 
         self.active = true
