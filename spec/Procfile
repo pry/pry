@@ -1,0 +1,3 @@
+# Run this with:
+# gem install foreman && cd spec && foreman start
+pryhere: sh -c '(cd ..; rake pry)'
