@@ -262,6 +262,15 @@ class Pry
   end
 
   def self.auto_resize!
+    ver = Readline::VERSION
+    if ver[/edit/i]
+      warn <<-EOT
+Readline version #{ver} detected - will not auto_resize! correctly.
+  For the fix, use GNU Readline instead:
+  https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X
+      EOT
+      return
+    end
     trap :WINCH do
       begin
         Readline.set_screen_size *Terminal.size!
