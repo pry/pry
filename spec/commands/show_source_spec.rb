@@ -453,6 +453,28 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
             result = pry_eval('show-source TestClassForShowSourceInstanceEval -a')
             result.should =~ /def instance_eval_method/
           end
+
+          describe "messages relating to -a" do
+            it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
+              class TestClassForShowSource
+                def beta
+                end
+              end
+
+              result = pry_eval('show-source TestClassForShowSource')
+              result.should =~ /available monkeypatches/
+            end
+
+            it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
+              class Aarrrrrghh
+                def o;end
+              end
+
+              result = pry_eval('show-source Aarrrrrghh')
+              result.should.not =~ /available monkeypatches/
+              Object.remove_const(:Aarrrrrghh)
+            end
+          end
         end
 
         describe "when show-source is invoked without a method or class argument" do
