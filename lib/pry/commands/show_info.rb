@@ -126,6 +126,12 @@ class Pry
       h << "@ line #{line_num}:\n"
       h << text.bold(code_object.module? ? "Module" : "Class")
       h << " #{text.bold('name:')} #{code_object.nonblank_name}"
+
+      if code_object.number_of_candidates > 1
+        h << (text.bold("\nNumber of monkeypatches: ") + code_object.number_of_candidates.to_s)
+        h << ". Use the `-a` option to display all available monkeypatches"
+      end
+      h
     end
 
     def method_sections(code_object)
