@@ -254,6 +254,28 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
             result.should =~ /used by/
             result.should =~ /local monkeypatch/
           end
+
+          describe "messages relating to -a" do
+            it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
+              class TestClassForShowSource
+                def beta
+                end
+              end
+
+              result = pry_eval('show-doc TestClassForShowSource')
+              result.should =~ /available monkeypatches/
+            end
+
+            it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
+              class Aarrrrrghh
+                def o;end
+              end
+
+              result = pry_eval('show-doc Aarrrrrghh')
+              result.should.not =~ /available monkeypatches/
+              Object.remove_const(:Aarrrrrghh)
+            end
+          end
         end
 
         describe "when no class/module arg is given" do
