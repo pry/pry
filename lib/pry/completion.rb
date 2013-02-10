@@ -71,10 +71,16 @@ class Pry
         # get new target for 1/2 and find candidates for 3
         path, input = build_path(input)
 
-        # we silence warnings here or ruby 1.8 cries about "multiple values for block 0 for 1"
+        # We silence warnings here or Ruby 1.8 cries about "multiple values for
+        # block 0 for 1".
         Helpers::BaseHelpers.silence_warnings do
           unless path.call.empty?
-            target, _ = Pry::Helpers::BaseHelpers.context_from_object_path(path.call, pry)
+            target = begin
+              ctx = Helpers::BaseHelpers.context_from_object_path(path.call, pry)
+              ctx.first
+            rescue Pry::CommandError
+              []
+            end
             target = target.last
           end
         end

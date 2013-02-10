@@ -230,4 +230,10 @@ describe Pry::InputCompleter do
     pry = Pry.new
     new_completer(binding, pry).call("pry.").should.not.include nil
   end
+
+  it "does not raise when complete file paths" do
+    should.not.raise(Pry::CommandError) {
+      new_completer(binding, Pry.new).call("cat lib/p")
+    }
+  end
 end
