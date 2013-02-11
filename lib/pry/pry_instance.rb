@@ -395,6 +395,8 @@ class Pry
         output.puts "(pry) output error: failed to show result"
       end
     end
+  ensure
+    output.flush if output.respond_to?(:flush)
   end
 
   # Force `eval_string` into the encoding of `val`. [Issue #284]
