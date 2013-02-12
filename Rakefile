@@ -64,7 +64,7 @@ task :pry do
   load 'bin/pry'
 end
 
-desc "Show pry version"
+desc "Show pry version."
 task :version do
   puts "Pry version: #{Pry::VERSION}"
 end
