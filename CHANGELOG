@@ -1,3 +1,22 @@
+12/02/2012 version 0.9.12
+Bug fixes:
+* Fix major bug where commands broke due to slop looking at ARGV
+	instead of command parameters (#828)
+* Fix bug where pager broke in some situations (#845)
+* Fix broken rendering of some docs (#795)
+* silence warnings during failed tab-completion attempts
+* fix broken prompt when prompt is colored (#822 / #823)
+* added reload-method alias for reload-code (for backwards compat)
+* Reopen Readline.output if it is not a tty (see 1538bc0990)
+
+Features:
+* added pry --gem (see 19bfc13aa)
+* show-source now works on commands created with create_command
+* add -m (method) -c (class) and -f (file) switches to 'whereami' command
+* show-source now falls back to superclass if can't find class code
+	(displays warning)
+* show-source/show-doc now indicate when -a option is available.
+
 20/01/2012 version 0.9.11.4
 * fixed pager bug (wouldn't render color codes in some circumstances)
 * added Pry.last_internal_error, useful for devs debugging commands
