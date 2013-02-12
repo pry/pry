@@ -1,3 +1,4 @@
+require 'pry/terminal'
 class Pry::Pager
   # @param [String] text
   #   A piece of text to run through a pager.
