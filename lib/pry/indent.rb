@@ -384,13 +384,13 @@ class Pry
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
       prompt = prompt.delete("\001\002")
-      full_line = prompt + code
+      line_to_measure = Pry::Helpers::Text.strip_color(prompt) + code
       whitespace = ' ' * overhang
 
       _, cols = Terminal.screen_size
 
       cols = cols.to_i
-      lines = cols != 0 ? (full_line.length / cols + 1) : 1
+      lines = cols != 0 ? (line_to_measure.length / cols + 1) : 1
 
       if Pry::Helpers::BaseHelpers.windows_ansi?
         move_up   = "\e[#{lines}F"
