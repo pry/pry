@@ -5,25 +5,26 @@ class Pry
     description 'Show the list of vars and methods in the current scope.'
     command_options :shellwords => false, :interpolate => false
 
+    banner <<-'BANNER'
+      Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
+             ls [-g] [-l]
+
+      ls shows you which methods, constants and variables are accessible to Pry. By
+      default it shows you the local variables defined in the current shell, and any
+      public methods or instance variables defined on the current object.
+
+      The colours used are configurable using Pry.config.ls.*_color, and the separator
+      is Pry.config.ls.separator.
+
+      Pry.config.ls.ceiling is used to hide methods defined higher up in the
+      inheritance chain, this is by default set to [Object, Module, Class] so that
+      methods defined on all Objects are omitted. The -v flag can be used to ignore
+      this setting and show all methods, while the -q can be used to set the ceiling
+      much lower and show only methods defined on the object or its direct class.
+    BANNER
+
+
     def options(opt)
-      opt.banner unindent(<<-'BANNER')
-        Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
-               ls [-g] [-l]
-
-        ls shows you which methods, constants and variables are accessible to Pry. By
-        default it shows you the local variables defined in the current shell, and any
-        public methods or instance variables defined on the current object.
-
-        The colours used are configurable using Pry.config.ls.*_color, and the separator
-        is Pry.config.ls.separator.
-
-        Pry.config.ls.ceiling is used to hide methods defined higher up in the
-        inheritance chain, this is by default set to [Object, Module, Class] so that
-        methods defined on all Objects are omitted. The -v flag can be used to ignore
-        this setting and show all methods, while the -q can be used to set the ceiling
-        much lower and show only methods defined on the object or its direct class.
-      BANNER
-
       opt.on :m, :methods,   "Show public methods defined on the Object (default)"
       opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
       opt.on :p, :ppp,       "Show public, protected (in yellow) and private (in green) methods"
