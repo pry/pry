@@ -6,7 +6,7 @@ class Pry
     command_options :shellwords => false, :interpolate => false
 
     def options(opt)
-      opt.banner unindent <<-'BANNER'
+      opt.banner unindent(<<-'BANNER')
         Usage: ls [-m|-M|-p|-pM] [-q|-v] [-c|-i] [Object]
                ls [-g] [-l]
 
