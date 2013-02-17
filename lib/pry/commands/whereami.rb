@@ -144,14 +144,21 @@ class Pry
       end
     end
 
+    # This either returns the `target_self`
+    # or it returns the class of `target_self` if `target_self` is not a class.
+    # @return [Pry::WrappedModule]
+    def target_class
+      target_self.is_a?(Module) ? Pry::WrappedModule(target_self) :
+        Pry::WrappedModule(target_self.class)
+    end
+
     def class_code
       return @class_code if @class_code
 
-      if valid_method?
-        mod = Pry::WrappedModule(@method.owner)
-        idx = mod.candidates.find_index { |v| expand_path(v.source_file) == @file }
-        @class_code = idx && Pry::Code.from_module(mod, idx)
-      end
+      mod = @method ? Pry::WrappedModule(@method.owner) : target_class
+
+      idx = mod.candidates.find_index { |v| expand_path(v.source_file) == @file }
+      @class_code = idx && Pry::Code.from_module(mod, idx)
     end
 
     def valid_method?
