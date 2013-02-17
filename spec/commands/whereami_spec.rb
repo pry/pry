@@ -161,8 +161,27 @@ describe "whereami" do
         Object.remove_const(:Cor)
       end
 
+      it 'should show class when -c option used, and locate correct superclass' do
+        class Cor
+          def blimey!
+            1
+            2
+            out = pry_eval(binding, 'whereami -c')
+            out.should =~ /class Cor/
+            out.should =~ /blimey/
+          end
+        end
+
+        class Horse < Cor
+          def pig;end
+        end
+
+        Horse.new.blimey!
+        Object.remove_const(:Cor)
+        Object.remove_const(:Horse)
+      end
+
       it 'should show class when -c option used, and binding is outside a method' do
-        require 'fixtures/whereami_helper'
         class Cor
           def blimey;end
 
