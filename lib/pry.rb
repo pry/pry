@@ -212,6 +212,7 @@ require 'coderay'
 require 'slop'
 require 'rbconfig'
 require 'tempfile'
+require 'pathname'
 
 begin
   require 'readline'
