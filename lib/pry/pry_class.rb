@@ -92,7 +92,9 @@ class Pry
 
   # Expand a file to its canonical name (following symlinks as appropriate)
   def self.real_path_to(file)
-    Pathname.new(File.expand_path(file)).realpath.to_s
+    expanded = Pathname.new(File.expand_path(file)).realpath.to_s
+    # For rbx 1.9 mode [see rubinius issue #2165]
+    File.exist?(expanded) ? expanded : nil
   rescue Errno::ENOENT
     nil
   end
