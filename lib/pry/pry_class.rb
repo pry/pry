@@ -68,26 +68,33 @@ class Pry
 
   # Load the given file in the context of `Pry.toplevel_binding`
   # @param [String] file_name The unexpanded file path.
-  def self.load_file_at_toplevel(file_name)
-    full_name = File.expand_path(file_name)
-    begin
-      toplevel_binding.eval(File.read(full_name), full_name) if File.exists?(full_name)
-    rescue RescuableException => e
-      puts "Error loading #{file_name}: #{e}\n#{e.backtrace.first}"
-    end
+  def self.load_file_at_toplevel(file)
+    toplevel_binding.eval(File.read(file), file)
+  rescue RescuableException => e
+    puts "Error loading #{file}: #{e}\n#{e.backtrace.first}"
   end
 
-  # Load the rc files given in the `Pry::RC_FILES` array.
+  # Load HOME_RC_FILE and LOCAL_RC_FILE if appropriate
   # This method can also be used to reload the files if they have changed.
-  def self.load_rc
-    load_file_at_toplevel(HOME_RC_FILE)
+  def self.load_rc_files
+    rc_files_to_load.each do |file|
+      load_file_at_toplevel(file)
+    end
   end
 
   # Load the local RC file (./.pryrc)
-  def self.load_local_rc
-    unless File.expand_path(HOME_RC_FILE) == File.expand_path(LOCAL_RC_FILE)
-      load_file_at_toplevel(LOCAL_RC_FILE)
-    end
+  def self.rc_files_to_load
+    files = []
+    files << HOME_RC_FILE if Pry.config.should_load_rc
+    files << LOCAL_RC_FILE if Pry.config.should_load_local_rc
+    files.map { |file| real_path_to(file) }.compact.uniq
+  end
+
+  # Expand a file to its canonical name (following symlinks as appropriate)
+  def self.real_path_to(file)
+    Pathname.new(File.expand_path(file)).realpath.to_s
+  rescue Errno::ENOENT
+    nil
   end
 
   # Load any Ruby files specified with the -r flag on the command line.
@@ -112,8 +119,7 @@ class Pry
 
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
-    load_rc if Pry.config.should_load_rc
-    load_local_rc if Pry.config.should_load_local_rc
+    load_rc_files
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
