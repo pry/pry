@@ -25,13 +25,16 @@ describe Pry do
       TEST_RC.should == [0]
     end
 
-    it "should not load the rc file twice if it's symlinked differently" do
-      Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
-      Pry::LOCAL_RC_FILE.replace "spec/fixtures/testlinkrc"
+    # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
+    unless Pry::Helpers::BaseHelpers.jruby_19?
+      it "should not load the rc file twice if it's symlinked differently" do
+        Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
+        Pry::LOCAL_RC_FILE.replace "spec/fixtures/testlinkrc"
 
-      Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
+        Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
 
-      TEST_RC.should == [0]
+        TEST_RC.should == [0]
+      end
     end
 
     it "should not load the pryrc if it cannot expand ENV[HOME]" do
