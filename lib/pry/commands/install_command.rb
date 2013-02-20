@@ -15,6 +15,11 @@ class Pry
       require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
       command = find_command(name)
 
+      unless command
+        output.puts "Command #{ text.green(name) } is not found"
+        return
+      end
+
       if command_dependencies_met?(command.options)
         output.puts "Dependencies for #{ text.green(name) } are met. Nothing to do"
         return
