@@ -57,14 +57,22 @@ class Pry
       # @param [String] name
       # @return [void]
       def install(name)
-        destination = File.writable?(Gem.dir) ? Gem.dir : Gem.user_dir
+        gemrc_opts = Gem.configuration['gem'].split(' ')
+        destination = if gemrc_opts.include?('--user-install')
+                        Gem.user_dir
+                      elsif File.writable?(Gem.dir)
+                        Gem.dir
+                      else
+                        Gem.user_dir
+                      end
         installer = Gem::DependencyInstaller.new(:install_dir => destination)
         installer.install(name)
       rescue Errno::EACCES
         raise CommandError,
-          "Insufficient permissions to install `#{ text.green(name) }`."
+          "Insufficient permissions to install #{ text.green(name) }."
       rescue Gem::GemNotFoundException
-        raise CommandError, "Gem `#{ text.green(name) }` not found."
+        raise CommandError,
+          "Gem #{ text.green(name) } not found. Aborting installation."
       else
         Gem.refresh
       end

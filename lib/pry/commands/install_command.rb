@@ -16,34 +16,31 @@ class Pry
       command = find_command(name)
 
       if command_dependencies_met?(command.options)
-        output.puts "Dependencies for #{command.name} are met. Nothing to do."
+        output.puts "Dependencies for #{ text.green(name) } are met. Nothing to do"
         return
       end
 
-      output.puts "Attempting to install `#{name}` command..."
+      output.puts "Attempting to install #{ text.green(name) } command..."
       gems_to_install = Array(command.options[:requires_gem])
 
       gems_to_install.each do |g|
         next if Rubygem.installed?(g)
-        output.puts "Installing `#{g}` gem..."
-
-        begin
-          Gem::DependencyInstaller.new.install(g)
-        rescue Gem::GemNotFoundException
-          raise CommandError, "Required Gem: `#{g}` not found. Aborting command installation."
-        end
+        output.puts "Installing #{ text.green(g) } gem..."
+        Rubygem.install(g)
       end
 
-      Gem.refresh
       gems_to_install.each do |g|
         begin
           require g
         rescue LoadError
-          raise CommandError, "Required Gem: `#{g}` installed but not found?!. Aborting command installation."
+          fail_msg = "Required gem #{ text.green(g) } installed but not found."
+          fail_msg += " Aborting command installation\n"
+          fail_msg += 'Tips: 1. Check your PATH; 2. Run `bundle update`'
+          raise CommandError, fail_msg
         end
       end
 
-      output.puts "Installation of `#{name}` successful! Type `help #{name}` for information"
+      output.puts "Installation of #{ text.green(name) } successful! Type `help #{name}` for information"
     end
   end
 
