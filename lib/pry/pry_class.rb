@@ -340,7 +340,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
       :method_missing_color     => :bright_red,
 
       :local_var_color          => :yellow,
-      :pry_var_color            => :default,         # e.g. _, _pry_, _file_
+      :pry_var_color            => :default,     # e.g. _, _pry_, _file_
 
       :instance_var_color       => :blue,        # e.g. @foo
       :class_var_color          => :bright_blue, # e.g. @@foo
@@ -354,7 +354,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
       :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
       :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state
 
-      # What should separate items listed by ls? (TODO: we should allow a columnar layout)
+      # What should separate items listed by ls?
       :separator                => "  ",
 
       # Any methods defined on these classes, or modules included into these classes, will not
