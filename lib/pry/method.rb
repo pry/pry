@@ -170,7 +170,7 @@ class Pry
       # @return [Array[Class, Module]]
       def instance_resolution_order(klass)
         # include klass in case it is a singleton class,
-        ([klass] + klass.ancestors).uniq
+        ([klass] + Pry::Method.safe_send(klass, :ancestors)).uniq
       end
 
       def method_definition?(name, definition_line)
@@ -206,7 +206,7 @@ class Pry
       # If a module is included at multiple points in the ancestry, only
       # the lowest copy will be returned.
       def singleton_class_resolution_order(klass)
-        resolution_order = klass.ancestors.map do |anc|
+        resolution_order = Pry::Method.safe_send(klass, :ancestors).map do |anc|
           [singleton_class(anc)] + singleton_class(anc).included_modules if anc.is_a?(Class)
         end.compact.flatten(1)
 

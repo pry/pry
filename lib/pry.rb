@@ -28,7 +28,8 @@ class Pry
     unless String === stringified
       # Read the class name off of the singleton class to provide a default
       # inspect.
-      klass = (class << value; self; end).ancestors.first
+      eig = class << value; self; end
+      klass = Pry::Method.safe_send(eig, :ancestors).first
       id = value.__id__.to_s(16) rescue 0
       stringified = "#<#{klass}:0x#{id}>"
     end
