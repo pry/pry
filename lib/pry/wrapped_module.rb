@@ -80,7 +80,8 @@ class Pry
       if method.arity == 0
         consts = method.call
         if !inherit
-          consts -= (@wrapped.ancestors - [@wrapped]).map(&:constants).flatten
+          ancestors_ = Pry::Method.safe_send(@wrapped, :ancestors)
+          consts -= (ancestors_ - [@wrapped]).map(&:constants).flatten
         end
       else
         consts = method.call(inherit)
@@ -120,7 +121,7 @@ class Pry
     # Is this a singleton class?
     # @return [Boolean]
     def singleton_class?
-      wrapped != wrapped.ancestors.first
+      wrapped != Pry::Method.safe_send(wrapped, :ancestors).first
     end
 
     # Is this strictly a module? (does not match classes)

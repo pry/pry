@@ -154,7 +154,13 @@ class Pry
     # traversal of the Object's ancestry graph.
     def below_ceiling(obj)
       ceiling = if opts.present?(:quiet)
-                   [opts.present?(:'instance-methods') ? obj.ancestors[1] : obj.class.ancestors[1]] + Pry.config.ls.ceiling
+                   [
+                     if opts.present?(:'instance-methods')
+                       Pry::Method.safe_send(obj, :ancestors)[1]
+                     else
+                       Pry::Method.safe_send(obj.class, :ancestors)[1]
+                     end
+                   ] + Pry.config.ls.ceiling
                  elsif opts.present?(:verbose)
                    []
                  else

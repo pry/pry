@@ -59,6 +59,11 @@ describe "ls" do
       # This doesn't actually touch the network, promise!
       pry_eval("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest#methods/
     end
+
+    it "should handle classes that (pathologically) define .ancestors" do
+      output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
+      output.should =~ /hihi/
+    end
   end
 
   describe 'with -l' do
