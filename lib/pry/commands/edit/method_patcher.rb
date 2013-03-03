@@ -114,7 +114,7 @@ class Pry
         nesting = Pry::Code.from_file(code_object.source_file).nesting_at(code_object.source_line)
 
         (nesting + [source] + nesting.map{ "end" } + [""]).join("\n")
-      rescue Pry::Indent::UnparseableNestingError => e
+      rescue Pry::Indent::UnparseableNestingError
         source
       end
     end

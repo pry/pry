@@ -193,10 +193,6 @@ end.process_options do |opts|
     exit
   end
 
-  if Pry.config.should_load_plugins
-    parser = Slop.new
-  end
-
   # Start the session (running any code passed with -e, if there is any)
   Pry.start(context, :input => StringIO.new(exec_string))
 end

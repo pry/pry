@@ -1,6 +1,6 @@
 class Pry
   class Command::Wtf < Pry::ClassCommand
-    match /wtf([?!]*)/
+    match(/wtf([?!]*)/)
     group 'Context'
     description 'Show the backtrace of the most recent exception.'
     options :listing => 'wtf?'
@@ -50,8 +50,8 @@ class Pry
 
     def size_of_backtrace
       [captures[0].size, 0.5].max * 10
+    end
   end
-end
 
-Pry::Commands.add_command(Pry::Command::Wtf)
+  Pry::Commands.add_command(Pry::Command::Wtf)
 end

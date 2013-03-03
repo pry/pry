@@ -30,13 +30,13 @@ class Pry
           @command_options[:listing] = arg.is_a?(String) ? arg : arg.inspect
           @match = arg
         end
-        @match
+        @match ||= nil
       end
 
       # Define or get the command's description
       def description(arg=nil)
         @description = arg if arg
-        @description
+        @description ||= nil
       end
 
       # Define or get the command's options
@@ -201,7 +201,7 @@ class Pry
                      case Pry::Method(block).source_file
                      when %r{/pry/.*_commands/(.*).rb}
                        $1.capitalize.gsub(/_/, " ")
-                     when %r{(pry-\w+)-([\d\.]+([\w\d\.]+)?)}
+                     when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
                        name, version = $1, $2
                        "#{name.to_s} (v#{version.to_s})"
                      when /pryrc/

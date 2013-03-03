@@ -28,8 +28,8 @@ class Pry
       public_delegates = [:wrapped, :module?, :class?, :name, :nonblank_name]
 
       def_delegators :@wrapper, *(private_delegates + public_delegates)
-      private *private_delegates
-      public *public_delegates
+      private(*private_delegates)
+      public(*public_delegates)
 
       # @raise [Pry::CommandError] If `rank` is out of bounds.
       # @param [Pry::WrappedModule] wrapper The associated

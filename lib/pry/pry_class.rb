@@ -52,9 +52,6 @@ class Pry
     # @return [Boolean] Whether Pry sessions are quiet by default.
     attr_accessor :quiet
 
-    # @return [Binding] A top level binding with no local variables
-    attr_accessor :toplevel_binding
-
     # @return [Exception, nil] The last pry internal error.
     #   (a CommandError in most cases)
     attr_accessor :last_internal_error
@@ -266,7 +263,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     end
     trap :WINCH do
       begin
-        Readline.set_screen_size *Terminal.size!
+        Readline.set_screen_size(*Terminal.size!)
       rescue => e
         warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
       end
@@ -430,7 +427,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   end
 
   def self.toplevel_binding
-    unless @toplevel_binding
+    unless defined?(@toplevel_binding) && @toplevel_binding
       # Grab a copy of the TOPLEVEL_BINDING without any local variables.
       # This binding has a default definee of Object, and new methods are
       # private (just as in TOPLEVEL_BINDING).
@@ -446,12 +443,18 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     @toplevel_binding
   end
 
+  def self.toplevel_binding=(binding)
+    @toplevel_binding = binding
+  end
+
   def self.in_critical_section?
-    @critical_section.to_i > 0
+    @critical_section ||= 0
+    @critical_section > 0
   end
 
   def self.critical_section(&block)
-    @critical_section = @critical_section.to_i + 1
+    @critical_section ||= 0
+    @critical_section += 1
     yield
   ensure
     @critical_section -= 1
