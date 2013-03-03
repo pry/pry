@@ -1,6 +1,6 @@
 class Pry
   class Command::AmendLine < Pry::ClassCommand
-    match /amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/
+    match(/amend-line(?: (-?\d+)(?:\.\.(-?\d+))?)?/)
     group 'Editing'
     description 'Amend a line of input in multi-line mode.'
     command_options :interpolate => false, :listing => 'amend-line'

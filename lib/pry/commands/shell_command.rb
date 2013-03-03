@@ -1,6 +1,6 @@
 class Pry
   class Command::ShellCommand < Pry::ClassCommand
-    match /\.(.*)/
+    match(/\.(.*)/)
     group 'Input and Output'
     description "All text following a '.' is forwarded to the shell."
     command_options :listing => '.<shell command>', :use_prefix => false,

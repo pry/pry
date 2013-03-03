@@ -119,7 +119,7 @@ class Pry
       def abs_path(filename)
         abs_path = [File.expand_path(filename, Dir.pwd),
                     File.expand_path(filename, Pry::INITIAL_PWD)
-                   ].detect { |abs_path| File.readable?(abs_path) }
+                   ].detect { |path| File.readable?(path) }
         abs_path or raise MethodSource::SourceNotFoundError,
                           "Cannot open #{filename.inspect} for reading."
       end

@@ -1,7 +1,7 @@
 class Pry
   # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
   class Command::RaiseUp < Pry::ClassCommand
-    match /raise-up(!?\b.*)/
+    match(/raise-up(!?\b.*)/)
     group 'Context'
     description 'Raise an exception out of the current pry instance.'
     command_options :listing => 'raise-up'

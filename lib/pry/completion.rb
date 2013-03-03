@@ -23,10 +23,6 @@ class Pry
   # Implements tab completion for Readline in Pry
   module InputCompleter
 
-    def self.call(input, options)
-      build_completion_proc(options[:target], options[:pry], options[:custom_completions]).call input
-    end
-
     def self.start
       if Readline.respond_to?("basic_word_break_characters=")
         Readline.basic_word_break_characters = " \t\n\"\\'`><=;|&{("
@@ -279,15 +275,15 @@ class Pry
     def self.build_path(input)
 
       # check to see if the input is a regex
-      return proc {|input| input.to_s }, input if input[/\/\./]
+      return proc {|i| i.to_s }, input if input[/\/\./]
 
       trailing_slash = input.end_with?('/')
       contexts = input.chomp('/').split(/\//)
       input = contexts[-1]
 
-      path = proc do |input|
-        p = contexts[0..-2].push(input).join('/')
-        p += '/' if trailing_slash && !input.nil?
+      path = proc do |i|
+        p = contexts[0..-2].push(i).join('/')
+        p += '/' if trailing_slash && !i.nil?
         p
       end
 
