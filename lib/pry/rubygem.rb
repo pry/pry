@@ -69,10 +69,10 @@ class Pry
         installer.install(name)
       rescue Errno::EACCES
         raise CommandError,
-          "Insufficient permissions to install #{ text.green(name) }."
+          "Insufficient permissions to install #{ Pry::Helpers::Text.green(name) }."
       rescue Gem::GemNotFoundException
         raise CommandError,
-          "Gem #{ text.green(name) } not found. Aborting installation."
+          "Gem #{ Pry::Helpers::Text.green(name) } not found. Aborting installation."
       else
         Gem.refresh
       end
