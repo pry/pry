@@ -1,6 +1,6 @@
 class Pry
   # A history array is an array to which you can only add elements. Older
-  # entries are removed progressively, so that the aray never contains more than
+  # entries are removed progressively, so that the array never contains more than
   # N elements.
   #
   # History arrays are used by Pry to store the output of the last commands.
