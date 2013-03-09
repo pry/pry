@@ -1,5 +1,6 @@
 # used by test_show_source.rb and test_documentation.rb
 class TestClassForShowSource
+  #doc
   def alpha
   end
 end
