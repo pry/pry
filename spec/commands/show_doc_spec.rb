@@ -10,10 +10,17 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       def @o.sample_method
         :sample
       end
+
+      def @o.no_docs;end
+
     end
 
     it 'should output a method\'s documentation' do
       pry_eval(binding, "show-doc @o.sample_method").should =~ /sample doc/
+    end
+
+    it 'should raise exception when cannot find docs' do
+      lambda { pry_eval(binding, "show-doc @o.no_docs") }.should.raise(Pry::CommandError)
     end
 
     it 'should output a method\'s documentation with line numbers' do
