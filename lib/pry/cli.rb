@@ -1,4 +1,3 @@
-
 class Pry
 
   # Manage the processing of command line options
@@ -91,14 +90,14 @@ Slop.new do
 end.parse(ARGV.dup)
 
 if Pry.config.should_load_plugins
-  Pry::CLI.add_plugin_options 
+  Pry::CLI.add_plugin_options
 end
 
 # The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
-See: `https://github.com/pry` for more information.
+See http://pryrepl.org/ for more information.
 Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
