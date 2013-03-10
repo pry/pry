@@ -169,4 +169,10 @@ describe "hist" do
     @t.eval("a").should == 2
     @t.eval("hist").lines.to_a.size.should == 5
   end
+
+  it "excludes Pry commands from the history with `-e` switch" do
+    @hist.push('a = 20')
+    @hist.push('ls')
+    pry_eval('hist -e').should == "1: a = 20\n"
+  end
 end
