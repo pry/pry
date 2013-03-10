@@ -62,7 +62,19 @@ class Pry
 
         self.input_args = args
 
-        opts = Slop.parse!(args, :help => true, :multiple_switches => false, &options)
+        begin
+          opts = Slop.parse!(
+            args,
+            :help => true,
+            :multiple_switches => false,
+            :strict => true,
+            &options
+          )
+        rescue Slop::InvalidOptionError
+          # Display help message on unknown switches and exit.
+          puts Slop.new(&options)
+          exit
+        end
 
         # Option processors are optional.
         if option_processors
