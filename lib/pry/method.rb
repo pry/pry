@@ -179,11 +179,11 @@ class Pry
       end
 
       def singleton_method_definition?(name, definition_line)
-        /^define_singleton_method\(?\s*[:\"\']#{name}|^def\s*self\.#{name}/ =~ definition_line.strip
+        /^define_singleton_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*self\.#{Regexp.escape(name)}/ =~ definition_line.strip
       end
 
       def instance_method_definition?(name, definition_line)
-        /^define_method\(?\s*[:\"\']#{name}|^def\s*#{name}/ =~ definition_line.strip
+        /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*#{Regexp.escape(name)}/ =~ definition_line.strip
       end
 
       private
