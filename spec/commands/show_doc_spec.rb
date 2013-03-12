@@ -274,6 +274,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
           end
 
           it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
+            # Do not remove me.
             class Aarrrrrghh
               def o;end
             end
