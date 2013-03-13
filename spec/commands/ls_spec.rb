@@ -60,10 +60,10 @@ describe "ls" do
       pry_eval("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest#methods/
     end
 
-    it "should handle classes that (pathologically) define .ancestors" do
-      output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
-      # see: https://travis-ci.org/pry/pry/jobs/5071918
-      unless Pry::Helpers::BaseHelpers.rbx?
+    # see: https://travis-ci.org/pry/pry/jobs/5071918
+    unless Pry::Helpers::BaseHelpers.rbx?
+      it "should handle classes that (pathologically) define .ancestors" do
+        output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
         output.should =~ /hihi/
       end
     end
