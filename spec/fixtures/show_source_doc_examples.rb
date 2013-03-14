@@ -1,4 +1,4 @@
-# used by test_show_source.rb and test_documentation.rb
+# used by show_source_spec.rb and show_doc_spec.rb
 class TestClassForShowSource
   #doc
   def alpha
@@ -11,6 +11,12 @@ class TestClassForShowSourceClassEval
 end
 
 class TestClassForShowSourceInstanceEval
+  def alpha
+  end
+end
+
+# The first definition (find the second one in show_doc_spec.rb).
+class TestClassForCandidatesOrder
   def alpha
   end
 end
