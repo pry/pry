@@ -263,7 +263,9 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         end
 
         describe "messages relating to -a" do
-          it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
+          it 'indicates all available monkeypatches can be shown with -a when' \
+            '(when -a not used and more than one candidate exists for class)' do
+            # Still reading boring tests, eh?
             class TestClassForShowSource
               def beta
               end
