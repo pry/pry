@@ -263,7 +263,18 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         end
 
         describe "messages relating to -a" do
-          it 'indicates all available monkeypatches can be shown with -a when' \
+          it "displays the original definition by default (not a doc of a monkeypatch)" do
+            class TestClassForCandidatesOrder
+              def beta
+              end
+            end
+
+            result = pry_eval("show-doc TestClassForCandidatesOrder")
+            result.should =~ /Number of monkeypatches: 2/
+            result.should =~ /The first definition/
+          end
+
+          it 'indicates all available monkeypatches can be shown with -a ' \
             '(when -a not used and more than one candidate exists for class)' do
             # Still reading boring tests, eh?
             class TestClassForShowSource
