@@ -21,6 +21,8 @@ class Pry
       methods defined on all Objects are omitted. The -v flag can be used to ignore
       this setting and show all methods, while the -q can be used to set the ceiling
       much lower and show only methods defined on the object or its direct class.
+
+      Also check out `find-method` command (run `help find-method`).
     BANNER
 
 
