@@ -7,20 +7,12 @@ describe "hist" do
 
     @str_output = StringIO.new
     @t = pry_tester :history => @hist do
-      # For looking at what hist pushes into the input stack. The
-      # implementation of this helper will definitely have to change at some
-      # point.
+      # For looking at what hist pushes into the input stack. The implementation
+      # of this helper will definitely have to change at some point.
       def next_input
         @pry.input.string
       end
     end
-  end
-
-  it 'should display the correct history' do
-    @hist.push "hello"
-    @hist.push "world"
-
-    @t.eval('hist').should =~ /hello\n.*world/
   end
 
   it 'should replay history correctly (single item)' do
@@ -174,5 +166,33 @@ describe "hist" do
     @hist.push('a = 20')
     @hist.push('ls')
     pry_eval('hist -e').should == "1: a = 20\n"
+  end
+
+  describe "sessions" do
+    before do
+      @old_file = Pry.config.history.file
+      Pry.config.history.file = File.expand_path('spec/fixtures/pry_history')
+      @hist.load
+    end
+
+    after do
+      Pry.config.history.file = @old_file
+    end
+
+    it "displays history only for current session" do
+      @hist.push('hello')
+      @hist.push('world')
+
+      @t.eval('hist').should =~ /1:\shello\n2:\sworld/
+    end
+
+    it "displays all history (including the current sesion) with `--all` switch" do
+      @hist.push('goodbye')
+      @hist.push('world')
+
+      output = @t.eval('hist --all')
+      output.should =~ /1:\s:athos\n2:\s:porthos\n3:\s:aramis\n/
+      output.should =~ /4:\sgoodbye\n5:\sworld/
+    end
   end
 end

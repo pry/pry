@@ -6,6 +6,7 @@ class Pry
 
     banner <<-'BANNER'
       Usage:   hist [--head|--tail]
+               hist --all
                hist --head N
                hist --tail N
                hist --show START..END
@@ -19,6 +20,7 @@ class Pry
     BANNER
 
     def options(opt)
+      opt.on :a, :all,    "Display all history"
       opt.on :H, :head,   "Display the first N items", :optional_argument => true, :as => Integer
       opt.on :T, :tail,   "Display the last N items", :optional_argument => true, :as => Integer
       opt.on :s, :show,   "Show the given range of lines", :optional_argument => true, :as => Range
@@ -32,8 +34,7 @@ class Pry
     end
 
     def process
-      # The last value in history will be the 'hist' command itself
-      @history = Pry::Code(Pry.history.to_a[0..-2])
+      @history = find_history
 
       if opts.present?(:show)
         @history = @history.between(opts[:show])
@@ -155,6 +156,21 @@ class Pry
       else
         false
       end
+    end
+
+    # Finds history depending on the given switch.
+    #
+    # @return [Pry::Code] if it finds `--all` (or `-a`) switch, returns all
+    #   entries in history. Without the switch returns only the entries from the
+    #   current Pry session.
+    def find_history
+      h = if opts.present?(:all)
+            Pry.history.to_a
+          else
+            Pry.history.to_a.last(Pry.history.session_line_count)
+          end
+      # The last value in history will be the 'hist' command itself.
+      Pry::Code(h[0..-2])
     end
   end
 
