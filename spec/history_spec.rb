@@ -17,6 +17,7 @@ describe Pry do
   after do
     Pry.history.clear
     Pry.history.restore_default_behavior
+    Pry.history.instance_variable_set(:@original_lines, 0)
   end
 
   describe '#push' do
@@ -31,6 +32,14 @@ describe Pry do
       c = Pry.history.to_a.count
       Pry.history << ''
       Pry.history.to_a.count.should == c
+    end
+  end
+
+  describe "#session_line_count" do
+    it "returns the number of lines in history from just this session" do
+      Pry.history << 'you?'
+      Pry.history << 'you are so precious'
+      Pry.history.session_line_count.should == 2
     end
   end
 

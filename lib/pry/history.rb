@@ -28,6 +28,7 @@ class Pry
       @loader.call do |line|
         @pusher.call(line.chomp)
         @history << line.chomp
+        @original_lines += 1
       end
     end
 
