@@ -35,6 +35,82 @@ describe Pry do
     end
   end
 
+  describe "#clear" do
+    before do
+      @old_file = Pry.config.history.file
+      @hist_file_path = File.expand_path('spec/fixtures/pry_history')
+      Pry.config.history.file = @hist_file_path
+      Pry.history.clear
+      Pry.history.restore_default_behavior
+      Pry.load_history
+    end
+
+    after do
+      Pry.config.history.file = @old_file
+    end
+
+    it "clears this session's history" do
+      Pry.history.to_a.size.should > 0
+      Pry.history.clear
+      Pry.history.to_a.size.should == 0
+    end
+
+    it "doesn't affect the contents of the history file" do
+      Pry.history.to_a.size.should == 3
+      Pry.history.clear
+
+      File.open(@hist_file_path, 'r') { |fh|
+        file = fh.to_a
+
+        file.length.should == 3
+        file.any? { |a| a =~ /athos/ }.should == true
+      }
+    end
+  end
+
+  describe "#history_line_count" do
+    it "counts entries in history" do
+      Pry.history.clear
+      saved_history = "olgierd\ngustlik\njanek\ngrzes\ntomek\n"
+      Pry.history.loader = proc do |&blk|
+        saved_history.lines.each { |l| blk.call(l) }
+      end
+      Pry.load_history
+
+      Pry.history.history_line_count.should == 5
+    end
+  end
+
+  describe "#restore_default_behavior" do
+    it "restores loader" do
+      Pry.history.loader = proc {}
+      Pry.history.restore_default_behavior
+      Pry.history.loader.class.should == Method
+      Pry.history.loader.name.to_sym.should == :read_from_file
+    end
+
+    it "restores saver" do
+      Pry.history.saver = proc {}
+      Pry.history.restore_default_behavior
+      Pry.history.saver.class.should == Method
+      Pry.history.saver.name.to_sym.should == :save_to_file
+    end
+
+    it "restores pusher" do
+      Pry.history.pusher = proc {}
+      Pry.history.restore_default_behavior
+      Pry.history.pusher.class.should == Method
+      Pry.history.pusher.name.to_sym.should == :push_to_readline
+    end
+
+    it "restores clearer" do
+      Pry.history.clearer = proc {}
+      Pry.history.restore_default_behavior
+      Pry.history.clearer.class.should == Method
+      Pry.history.clearer.name.to_sym.should == :clear_readline
+    end
+  end
+
   describe "#session_line_count" do
     it "returns the number of lines in history from just this session" do
       Pry.history << 'you?'
