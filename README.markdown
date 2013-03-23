@@ -10,7 +10,7 @@
 **Sponsors**
 
 [Atomic Object](http://www.atomicobject.com/)<br/>
-[Bendyworks](http://bendyworks.com/)<br/>
+[Hash Rocket](http://hashrocket.com/)<br/>
 [Intridea](http://intridea.com/)<br/>
 [Gaslight](http://gaslight.co/home)<br/>
 
