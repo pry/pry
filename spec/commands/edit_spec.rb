@@ -66,6 +66,16 @@ describe "edit" do
       FileUtils.rm(tf_path)
     end
 
+    it "should work with require relative" do
+      Pry.config.editor = lambda { |file, line|
+        File.open(file, 'w'){ |f| f << 'require_relative "baz.rb"' }
+        File.open(file.gsub('bar.rb', 'baz.rb'), 'w'){ |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
+        nil
+      }
+      pry_eval "edit #@tf_path"
+      Pad.required.should == true
+    end
+
     describe do
       before do
         Pad.counter = 0

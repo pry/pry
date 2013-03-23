@@ -124,7 +124,7 @@ class Pry
 
       if reload?(file_name)
         silence_warnings do
-          TOPLEVEL_BINDING.eval(File.read(file_name), file_name)
+          load file_name
         end
       end
     end
