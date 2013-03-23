@@ -327,7 +327,7 @@ class Pry
 
       ims = all_relevant_methods_for(wrapped)
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
-        sort_by { |k, v| -v.size }
+        sort_by { |k, v| [-v.size, k] }
     end
 
     # We only want methods that have a non-nil `source_location`. We also
