@@ -327,7 +327,12 @@ class Pry
 
       ims = all_relevant_methods_for(wrapped)
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
-        sort_by { |k, v| [-v.size, k] }
+        sort_by do |path, methods|
+          expanded = File.expand_path(path)
+          load_order = $LOADED_FEATURES.index{ |file| expanded.end_with?(file) }
+
+          [-methods.size, load_order || (1.0 / 0.0)]
+        end
     end
 
     # We only want methods that have a non-nil `source_location`. We also
