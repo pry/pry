@@ -197,7 +197,7 @@ class Pry
         if start_line >= 0
           @lines.index { |loc| loc.lineno >= start_line } || @lines.length
         else
-          @lines.length + start_line
+          [@lines.length + start_line, 0].max
         end
 
       alter do
