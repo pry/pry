@@ -216,7 +216,11 @@ require 'tempfile'
 require 'pathname'
 
 begin
-  require 'readline'
+  begin
+    require 'readline'
+  rescue LoadError => e
+    require 'rb-readline'
+  end
 rescue LoadError
   warn "You're running a version of ruby with no Readline support"
   warn "Please `gem install rb-readline` or recompile ruby --with-readline."
