@@ -114,7 +114,8 @@ class Pry
   # loading history.
   def self.initial_session_setup
 
-    return if !initial_session?
+    return unless initial_session?
+    @initial_session = false
 
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
@@ -123,8 +124,6 @@ class Pry
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
     load_traps if Pry.config.should_trap_interrupts
-
-    @initial_session = false
   end
 
   # Start a Pry REPL.
