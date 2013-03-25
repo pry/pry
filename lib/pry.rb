@@ -218,7 +218,7 @@ require 'pathname'
 begin
   begin
     require 'readline'
-  rescue LoadError => e
+  rescue LoadError
     require 'rb-readline'
   end
 rescue LoadError
