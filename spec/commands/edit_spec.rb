@@ -180,6 +180,9 @@ describe "edit" do
       it "should reload the file" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
+          if defined?(Rubinius::Compiler)
+            File.unlink Rubinius::Compiler.compiled_name file
+          end
           nil
         }
 
