@@ -53,7 +53,7 @@ class Pry
         # Note we dont want to use Pry.config.system here as that
         # may be invoked non-interactively (i.e via Open4), whereas we want to
         # ensure the editor is always interactive
-        system(editor_invocation) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
+        system(*Shellwords.split(editor_invocation)) or raise CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}"
       end
 
       # We need JRuby specific code here cos just shelling out using
@@ -61,7 +61,7 @@ class Pry
       def open_editor_on_jruby(editor_invocation)
         begin
           require 'spoon'
-          pid = Spoon.spawnp(*editor_invocation.split)
+          pid = Spoon.spawnp(*Shellwords.split(editor_invocation))
           Process.waitpid(pid)
         rescue FFI::NotFoundError
           system(editor_invocation)
