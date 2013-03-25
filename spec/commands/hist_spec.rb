@@ -79,6 +79,12 @@ describe "hist" do
     out.should =~ /x\n\d+:.*y\n\d+:.*z/
   end
 
+  it "should start from beginning if tail number is longer than history" do
+    @hist.push 'Hyacinth'
+    out = @t.eval 'hist --tail'
+    out.should =~ /Hyacinth/
+  end
+
   it 'should apply --tail after --grep' do
     @hist.push "print 1"
     @hist.push "print 2"
