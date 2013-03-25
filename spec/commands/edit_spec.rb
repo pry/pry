@@ -71,6 +71,10 @@ describe "edit" do
         Pry.config.editor = lambda { |file, line|
           File.open(file, 'w'){ |f| f << 'require_relative "baz.rb"' }
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w'){ |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
+
+          if defined?(Rubinius::Compiler)
+            File.unlink Rubinius::Compiler.compiled_name file
+          end
           nil
         }
         pry_eval "edit #@tf_path"
