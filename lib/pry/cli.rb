@@ -196,7 +196,12 @@ end.process_options do |opts|
   Pry.cli = true
 
   # create the actual context
-  context = Pry.binding_for(eval(opts[:context]))
+  if opts[:context]
+    Pry.initial_session_setup
+    context = Pry.binding_for(eval(opts[:context]))
+  else
+    context = Pry.top_level_binding
+  end
 
   if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
     full_name = File.expand_path(Pry::CLI.input_args.first)
