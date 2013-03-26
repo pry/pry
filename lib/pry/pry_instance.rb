@@ -325,6 +325,22 @@ class Pry
         @suppress_output = true
       end
 
+      # A bug in jruby makes java.lang.Exception not rescued by
+      # `rescue Pry::RescuableException` clause.
+      #
+      # * https://github.com/pry/pry/issues/854
+      # * https://jira.codehaus.org/browse/JRUBY-7100
+      #
+      # Until that gets fixed upstream, treat java.lang.Exception
+      # as an additional exception to be rescued explicitly.
+      #
+      # This workaround has a side effect: java exceptions specified
+      # in `Pry.config.exception_whitelist` are ignored.
+      jruby_exceptions = []
+      if Pry::Helpers::BaseHelpers.jruby?
+        jruby_exceptions << Java::JavaLang::Exception
+      end
+
       begin
         # Reset eval string, in case we're evaluating Ruby that does something
         # like open a nested REPL on this instance.
@@ -332,7 +348,7 @@ class Pry
         reset_eval_string
 
         result = evaluate_ruby(eval_string)
-      rescue RescuableException => e
+      rescue RescuableException, *jruby_exceptions => e
         self.last_exception = e
         result = e
       end
