@@ -349,6 +349,12 @@ class Pry
 
         result = evaluate_ruby(eval_string)
       rescue RescuableException, *jruby_exceptions => e
+        # Eliminate following warning:
+        # warning: singleton on non-persistent Java type X
+        # (http://wiki.jruby.org/Persistence)
+        if Pry::Helpers::BaseHelpers.jruby? && e.class.respond_to?('__persistent__')
+          e.class.__persistent__ = true
+        end
         self.last_exception = e
         result = e
       end
