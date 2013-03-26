@@ -12,6 +12,21 @@ describe "The whole thing" do
     end
   end
 
+  it "should rescue exceptions" do
+    ReplTester.start do
+      input  'raise "lorum"'
+      output /^RuntimeError: lorum/
+
+      input  'raise java.lang.Exception.new("foo")'
+      expected = defined?(java.lang.Exception) ? /Exception: foo/ : /^NameError: /
+      output expected
+
+      input  'raise java.io.IOException.new("bar")'
+      expected = defined?(java.io.IOException) ? /IOException: bar/ : /^NameError: /
+      output expected
+    end
+  end
+
   describe "eval_string and binding_stack" do
     it "shouldn't break if we start a nested REPL" do
       ReplTester.start do
@@ -83,4 +98,5 @@ describe "The whole thing" do
       end
     end
   end
+
 end
