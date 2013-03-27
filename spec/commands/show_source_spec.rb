@@ -123,22 +123,6 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
     end
 
-    it "should find super methods" do
-      class Foo
-        def foo(*bars)
-          :super_wibble
-        end
-      end
-      o = Foo.new
-      Object.remove_const(:Foo)
-      def o.foo(*bars)
-        :wibble
-      end
-
-      pry_eval(binding, "show-source --super o.foo").
-        should =~ /:super_wibble/
-    end
-
     it "should raise a CommandError when super method doesn't exist" do
       def @o.foo(*bars); end
 
@@ -179,6 +163,40 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         out = pry_eval(command_definition, 'show-source hubba-hubba')
         out.should =~ /what she said/
         Pry.commands.delete "hubba-hubba"
+      end
+    end
+
+    describe "finding super methods with help of `--super` switch" do
+      before do
+        class Foo
+          def foo(*bars)
+            :super_wibble
+          end
+        end
+      end
+
+      after do
+        Object.remove_const(:Foo)
+      end
+
+      it "finds super methods with explicit method argument" do
+
+        o = Foo.new
+        def o.foo(*bars)
+          :wibble
+        end
+
+        pry_eval(binding, "show-source --super o.foo").should =~ /:super_wibble/
+      end
+
+      it "finds super methods without explicit method argument" do
+        o = Foo.new
+        def o.foo(*bars)
+          :wibble
+          pry_eval(binding, 'show-source --super')
+        end
+
+        o.foo.should =~ /:super_wibble/
       end
     end
 
@@ -370,6 +388,7 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
             it 'should find class defined in repl' do
               pry_eval('show-source TobinaMyDog').should =~ /class TobinaMyDog/
             end
+
             it 'should find superclass defined in repl' do
               pry_eval('show-source -s TobinaMyDog').should =~ /class Dog/
             end

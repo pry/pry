@@ -39,33 +39,61 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       @o.sample
     end
 
-    it "should be able to find super methods" do
-      b = Class.new{
-        # daddy initialize!
-        def initialize(*args) ;end
-      }
+    describe "finding find super method docs with help of `--super` switch" do
+      before do
+        class Daddy
+          # daddy initialize!
+          def initialize(*args); end
+        end
 
-      c = Class.new(b){
-        # classy initialize!
-        def initialize(*args); end
-      }
+        class Classy < Daddy
+          # classy initialize!
+          def initialize(*args); end
+        end
 
-      d = Class.new(c){
-        # grungy initialize??
-        def initialize(*args, &block); end
-      }
+        class Grungy < Classy
+          # grungy initialize??
+          def initialize(*args); end
+        end
 
-      o = d.new
+        @o = Grungy.new
 
-      # instancey initialize!
-      def o.initialize; end
+        # instancey initialize!
+        def @o.initialize; end
+      end
 
-      t = pry_tester(binding)
+      after do
+        Object.remove_const(:Grungy)
+        Object.remove_const(:Classy)
+        Object.remove_const(:Daddy)
+      end
 
-      t.eval("show-doc o.initialize").should =~ /instancey initialize/
-      t.eval("show-doc --super o.initialize").should =~ /grungy initialize/
-      t.eval("show-doc o.initialize -ss").should =~ /classy initialize/
-      t.eval("show-doc o.initialize -sss").should =~ /daddy initialize/
+      it "finds super method docs" do
+        output = pry_eval(binding, 'show-doc --super @o.initialize')
+        output.should =~ /grungy initialize/
+      end
+
+      it "traverses ancestor chain and finds super method docs" do
+        output = pry_eval(binding, 'show-doc -ss @o.initialize')
+        output.should =~ /classy initialize/
+      end
+
+      it "traverses ancestor chain even higher and finds super method doc" do
+        output = pry_eval(binding, 'show-doc @o.initialize -sss')
+        output.should =~ /daddy initialize/
+      end
+
+      it "finds super method docs without explicit method argument" do
+        fatty = Grungy.new
+
+        # fatty initialize!
+        def fatty.initialize
+          pry_eval(binding, 'show-doc --super')
+        end
+
+        output = fatty.initialize
+        output.should =~ /grungy initialize/
+      end
     end
 
     describe "rdoc highlighting" do
