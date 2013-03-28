@@ -9,8 +9,8 @@ class Pry
         @method = method
       end
 
-      def cached_source
-        @@source_cache[method.source_file]
+      def self.code_for(filename)
+        @@source_cache[filename]
       end
 
       # perform the patch
@@ -97,7 +97,7 @@ class Pry
       def wrap_for_owner(source)
         Pry.current[:pry_owner] = method.owner
         owner_source = definition_for_owner(source)
-        "Pry.current[:pry_owner].class_eval do\n#{owner_source}\nend"
+        "Pry.current[:pry_owner].class_eval do; #{owner_source}\nend"
       end
 
       # Update the new source code to have the correct Module.nesting.
@@ -115,7 +115,7 @@ class Pry
       def wrap_for_nesting(source)
         nesting = Pry::Code.from_file(method.source_file).nesting_at(method.source_line)
 
-        (nesting + [source] + nesting.map{ "end" } + [""]).join("\n")
+        (nesting + [source] + nesting.map{ "end" } + [""]).join(";")
       rescue Pry::Indent::UnparseableNestingError
         source
       end

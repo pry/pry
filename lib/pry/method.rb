@@ -266,7 +266,7 @@ class Pry
                   when :c
                     c_source
                   when :ruby
-                    Patcher.new(self).cached_source || ruby_source
+                    ruby_source
                   end
     end
 
