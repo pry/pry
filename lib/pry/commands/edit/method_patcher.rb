@@ -23,15 +23,7 @@ class Pry
       private
 
       def patched_code
-        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(adjusted_lines))
-      end
-
-      # The method code adjusted so that the first line is rewritten
-      # so that def self.foo --> def foo
-      def adjusted_lines
-        lines = code_object.source.lines.to_a
-        lines[0] = definition_line_for_owner(lines.first)
-        lines
+        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(code_object.source.lines.to_a))
       end
 
       # Run some code ensuring that at the end target#meth_name will not have changed.
@@ -70,8 +62,8 @@ class Pry
       #
       # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
       # @return String  The new definition line. e.g. def foo(bar, baz=1)
-      def definition_line_for_owner(line)
-        if line =~ /^def (?:.*?\.)?#{Regexp.escape(code_object.original_name)}(?=[\(\s;]|$)/
+      def definition_for_owner(line)
+        if line =~ /\Adef (?:.*?\.)?#{Regexp.escape(code_object.original_name)}(?=[\(\s;]|$)/
           "def #{code_object.original_name}#{$'}"
         else
           raise CommandError, "Could not find original `def #{code_object.original_name}` line to patch."
@@ -87,7 +79,7 @@ class Pry
 
       # Update the source code so that when it has the right owner when eval'd.
       #
-      # This (combined with definition_line_for_owner) is backup for the case that
+      # This (combined with definition_for_owner) is backup for the case that
       # wrap_for_nesting fails, to ensure that the method will stil be defined in
       # the correct place.
       #
@@ -95,7 +87,8 @@ class Pry
       # @return [String]
       def wrap_for_owner(source)
         Pry.current[:pry_owner] = code_object.owner
-        "Pry.current[:pry_owner].class_eval do\n#{source}\nend"
+        owner_source = definition_for_owner(source)
+        "Pry.current[:pry_owner].class_eval do\n#{owner_source}\nend"
       end
 
       # Update the new source code to have the correct Module.nesting.
