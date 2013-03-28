@@ -264,23 +264,9 @@ class Pry
     def source
       @source ||= case source_type
                   when :c
-                    info = pry_doc_info
-                    if info and info.source
-                      code = strip_comments_from_c_code(info.source)
-                    end
+                    c_source
                   when :ruby
-                    # clone of MethodSource.source_helper that knows to use our
-                    # hacked version of source_location for rbx core methods, and
-                    # our input buffer for methods defined in (pry)
-                    file, line = *source_location
-                    raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!" unless file
-
-                    begin
-                      code = Pry::Code.from_file(file).expression_at(line)
-                    rescue SyntaxError => e
-                      raise MethodSource::SourceNotFoundError.new(e.message)
-                    end
-                    strip_leading_whitespace(code)
+                    ruby_source
                   end
     end
 
@@ -547,6 +533,28 @@ class Pry
       end
 
       nil
+    end
+
+    def c_source
+      info = pry_doc_info
+      if info and info.source
+        strip_comments_from_c_code(info.source)
+      end
+    end
+
+    def ruby_source
+      # clone of MethodSource.source_helper that knows to use our
+      # hacked version of source_location for rbx core methods, and
+      # our input buffer for methods defined in (pry)
+      file, line = *source_location
+      raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!" unless file
+
+      begin
+        code = Pry::Code.from_file(file).expression_at(line)
+      rescue SyntaxError => e
+        raise MethodSource::SourceNotFoundError.new(e.message)
+      end
+      strip_leading_whitespace(code)
     end
   end
 end
