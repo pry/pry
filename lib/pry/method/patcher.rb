@@ -1,22 +1,22 @@
 class Pry
   class Method
     class Patcher
-      attr_accessor :code_object
+      attr_accessor :method
 
       @@source_cache = {}
 
-      def initialize(code_object)
-        @code_object = code_object
+      def initialize(method)
+        @method = method
       end
 
       def cached_source
-        @@source_cache[code_object.source_file]
+        @@source_cache[method.source_file]
       end
 
       # perform the patch
       def perform_patch
         source = patched_code
-        if code_object.alias?
+        if method.alias?
           with_method_transaction do
             cached_eval source
           end
@@ -33,11 +33,11 @@ class Pry
       end
 
       def patched_code
-        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(code_object.source.lines.to_a))
+        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(method.source.lines.to_a))
       end
 
       def cache_key
-        "pry!#{code_object.owner.object_id}!#{code_object.name}"
+        "pry!#{method.owner.object_id}!#{method.name}"
       end
 
       # Run some code ensuring that at the end target#meth_name will not have changed.
@@ -51,17 +51,17 @@ class Pry
       # @param [Module] target  The owner of the method
 
       def with_method_transaction
-        temp_name = "__pry_#{code_object.original_name}__"
-        co = code_object
-        code_object.owner.class_eval do
-          alias_method temp_name, co.original_name
+        temp_name = "__pry_#{method.original_name}__"
+        method = self.method
+        method.owner.class_eval do
+          alias_method temp_name, method.original_name
           yield
-          alias_method co.name, co.original_name
-          alias_method co.original_name, temp_name
+          alias_method method.name, method.original_name
+          alias_method method.original_name, temp_name
         end
 
       ensure
-        co.send(:remove_method, temp_name) rescue nil
+        method.send(:remove_method, temp_name) rescue nil
       end
 
       # Update the definition line so that it can be eval'd directly on the Method's
@@ -77,10 +77,10 @@ class Pry
       # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
       # @return String  The new definition line. e.g. def foo(bar, baz=1)
       def definition_for_owner(line)
-        if line =~ /\Adef (?:.*?\.)?#{Regexp.escape(code_object.original_name)}(?=[\(\s;]|$)/
-          "def #{code_object.original_name}#{$'}"
+        if line =~ /\Adef (?:.*?\.)?#{Regexp.escape(method.original_name)}(?=[\(\s;]|$)/
+          "def #{method.original_name}#{$'}"
         else
-          raise CommandError, "Could not find original `def #{code_object.original_name}` line to patch."
+          raise CommandError, "Could not find original `def #{method.original_name}` line to patch."
         end
       end
 
@@ -100,7 +100,7 @@ class Pry
       # @param [String] source  The source to wrap
       # @return [String]
       def wrap_for_owner(source)
-        Pry.current[:pry_owner] = code_object.owner
+        Pry.current[:pry_owner] = method.owner
         owner_source = definition_for_owner(source)
         "Pry.current[:pry_owner].class_eval do\n#{owner_source}\nend"
       end
@@ -118,7 +118,7 @@ class Pry
       # @param [String] source  The source to wrap.
       # @return [String]
       def wrap_for_nesting(source)
-        nesting = Pry::Code.from_file(code_object.source_file).nesting_at(code_object.source_line)
+        nesting = Pry::Code.from_file(method.source_file).nesting_at(method.source_line)
 
         (nesting + [source] + nesting.map{ "end" } + [""]).join("\n")
       rescue Pry::Indent::UnparseableNestingError
