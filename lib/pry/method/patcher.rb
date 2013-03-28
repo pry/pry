@@ -1,29 +1,43 @@
 class Pry
   class Method
     class Patcher
-      attr_accessor :_pry_
       attr_accessor :code_object
 
-      def initialize(_pry_, code_object)
-        @_pry_ = _pry_
+      @@source_cache = {}
+
+      def initialize(code_object)
         @code_object = code_object
+      end
+
+      def cached_source
+        @@source_cache[code_object.source_file]
       end
 
       # perform the patch
       def perform_patch
+        source = patched_code
         if code_object.alias?
           with_method_transaction do
-            _pry_.evaluate_ruby patched_code
+            cached_eval source
           end
         else
-          _pry_.evaluate_ruby patched_code
+          cached_eval source
         end
       end
 
       private
 
+      def cached_eval(source)
+        @@source_cache[cache_key] = source
+        TOPLEVEL_BINDING.eval source, cache_key
+      end
+
       def patched_code
         @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(code_object.source.lines.to_a))
+      end
+
+      def cache_key
+        "pry!#{code_object.owner.object_id}!#{code_object.name}"
       end
 
       # Run some code ensuring that at the end target#meth_name will not have changed.
