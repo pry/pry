@@ -1,6 +1,6 @@
 class Pry
-  class Command::Edit
-    class MethodPatcher
+  class Method
+    class Patcher
       attr_accessor :_pry_
       attr_accessor :code_object
 
