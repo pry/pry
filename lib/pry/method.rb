@@ -270,6 +270,12 @@ class Pry
                   end
     end
 
+    # Update the live copy of the method's source.
+    def redefine(source)
+      Patcher.new(self).patch_in_ram source
+      Pry::Method(owner.instance_method(name))
+    end
+
     # Can we get the source code for this method?
     # @return [Boolean]
     def source?
