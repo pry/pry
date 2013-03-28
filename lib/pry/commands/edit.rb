@@ -83,7 +83,7 @@ class Pry
         ExceptionPatcher.new(_pry_, state, file_and_line_for_current_exception).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          Method::Patcher.new(_pry_, code_object).perform_patch
+          Method::Patcher.new(code_object).perform_patch
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
