@@ -14,30 +14,25 @@ class Pry
       end
 
       # perform the patch
-      def perform_patch
-        source = patched_code
+      def patch_in_ram(source)
         if method.alias?
           with_method_transaction do
-            cached_eval source
+            redefine source
           end
         else
-          cached_eval source
+          redefine source
         end
       end
 
       private
 
-      def cached_eval(source)
+      def redefine(source)
         @@source_cache[cache_key] = source
-        TOPLEVEL_BINDING.eval source, cache_key
-      end
-
-      def patched_code
-        @patched_code ||= wrap(Pry::Editor.edit_tempfile_with_content(method.source.lines.to_a))
+        TOPLEVEL_BINDING.eval wrap(source), cache_key
       end
 
       def cache_key
-        "pry!#{method.owner.object_id}!#{method.name}"
+        "pry-redefined(0x#{method.owner.object_id.to_s(16)}##{method.name})"
       end
 
       # Run some code ensuring that at the end target#meth_name will not have changed.
