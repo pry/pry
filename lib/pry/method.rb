@@ -19,6 +19,7 @@ class Pry
   class Method
     require 'pry/method/weird_method_locator'
     require 'pry/method/disowned'
+    require 'pry/method/patcher'
 
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
