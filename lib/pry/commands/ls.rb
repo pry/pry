@@ -178,7 +178,6 @@ class Pry
         ["-g does not make sense with a specified Object", :globals,            !args.empty?],
         ["-q does not make sense with -v",                 :quiet,              opts.present?(:verbose)],
         ["-M only makes sense with a Module or a Class",   :'instance-methods', !interrogating_a_module?],
-        ["-c only makes sense with a Module or a Class",   :constants,          !args.empty? && !interrogating_a_module?],
       ].each do |message, option, expression|
         raise Pry::CommandError, message if opts.present?(option) && expression
       end
@@ -197,7 +196,7 @@ class Pry
     def write_out_constants
       return unless opts.present?(:constants) || (!has_user_specified_any_options && interrogating_a_module?)
 
-      mod = interrogating_a_module? ? object_to_interrogate : Object
+      mod = interrogating_a_module? ? object_to_interrogate : object_to_interrogate.class
       constants = WrappedModule.new(mod).constants(opts.present?(:verbose))
       output_section("constants", grep[format_constants(mod, constants)])
     end
