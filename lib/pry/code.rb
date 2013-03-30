@@ -61,6 +61,8 @@ class Pry
       def from_file(filename, code_type = type_from_filename(filename))
         code = if filename == Pry.eval_path
                  Pry.line_buffer.drop(1)
+               elsif Pry::Method::Patcher.code_for(filename)
+                 Pry::Method::Patcher.code_for(filename)
                else
                  File.read(abs_path(filename))
                end

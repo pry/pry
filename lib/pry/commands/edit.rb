@@ -1,6 +1,5 @@
 class Pry
   class Command::Edit < Pry::ClassCommand
-    require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
     require 'pry/commands/edit/file_and_line_locator'
 
@@ -83,7 +82,7 @@ class Pry
         ExceptionPatcher.new(_pry_, state, file_and_line_for_current_exception).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          MethodPatcher.new(_pry_, code_object).perform_patch
+          code_object.redefine Pry::Editor.edit_tempfile_with_content(code_object.source)
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
