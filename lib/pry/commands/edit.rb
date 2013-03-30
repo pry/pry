@@ -1,6 +1,5 @@
 class Pry
   class Command::Edit < Pry::ClassCommand
-    require 'pry/commands/edit/method_patcher'
     require 'pry/commands/edit/exception_patcher'
     require 'pry/commands/edit/file_and_line_locator'
 
