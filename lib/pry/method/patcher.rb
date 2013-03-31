@@ -97,7 +97,8 @@ class Pry
       def wrap_for_owner(source)
         Pry.current[:pry_owner] = method.owner
         owner_source = definition_for_owner(source)
-        "Pry.current[:pry_owner].class_eval do; #{owner_source}\nend"
+        visibility_fix = "#{method.visibility.to_s} #{method.name.to_sym.inspect}"
+        "Pry.current[:pry_owner].class_eval do; #{owner_source}\n#{visibility_fix}\nend"
       end
 
       # Update the new source code to have the correct Module.nesting.
