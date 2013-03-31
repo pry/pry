@@ -24,4 +24,11 @@ describe Pry::Method::Patcher do
     @method.redefine "def @x.test; :after; end\n"
     Pry::Method(@x.method(:test)).source.strip.should == "def @x.test; :after; end"
   end
+
+  it "should preserve visibility" do
+    class << @x; private :test; end
+    @method.visibility.should == :private
+    @method.redefine "def @x.test; :after; end\n"
+    Pry::Method(@x.method(:test)).visibility.should == :private
+  end
 end
