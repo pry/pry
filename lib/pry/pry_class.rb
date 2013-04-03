@@ -5,7 +5,7 @@ require 'pry/config'
 class Pry
 
   # The RC Files to load.
-  HOME_RC_FILE = "~/.pryrc"
+  HOME_RC_FILE = ENV["PRYRC"] || "~/.pryrc"
   LOCAL_RC_FILE = "./.pryrc"
 
   # @return [Hash] Pry's `Thread.current` hash
