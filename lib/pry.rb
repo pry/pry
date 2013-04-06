@@ -1,4 +1,4 @@
-# (C) John Mair (banisterfiend) 2011
+# (C) John Mair (banisterfiend) 2013
 # MIT License
 #
 
