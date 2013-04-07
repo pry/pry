@@ -348,7 +348,17 @@ class Pry
     # given module.
     # @return [Array<Pry::Method>]
     def all_methods_for(mod)
-      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
+      methods = all_from_common(mod, :instance_method) + all_from_common(mod, :method)
+
+      return methods unless methods.empty?
+
+      safe_send(mod, :constants).map do |const_name|
+        if const = nested_module?(mod, const_name)
+          all_methods_for(const)
+        else
+          []
+        end
+      end.flatten
     end
 
     # FIXME: a variant of this method is also found in Pry::Method
@@ -364,6 +374,13 @@ class Pry
           Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
         end
       end.flatten
+    end
+
+    def nested_module?(parent, name)
+      child = safe_send(parent, :const_get, name)
+      return unless Module === child
+      return unless safe_send(child, :name) == "#{safe_send(parent, :name)}::#{name}"
+      child
     end
 
     # Detect methods that are defined with `def_delegator` from the Forwardable
