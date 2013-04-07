@@ -22,6 +22,11 @@ describe Pry::WrappedModule do
           end
         end
 
+        class PitifullyBlank
+          DEFAULT_TEST = CandidateTest
+        end
+
+        FOREVER_ALONE_LINE = __LINE__ + 1
         class ForeverAlone
           class DoublyNested
             # nested docs
@@ -39,8 +44,12 @@ describe Pry::WrappedModule do
         Pry::WrappedModule(Host::CandidateTest).number_of_candidates.should == 3
       end
 
-      it 'should return 0 candidates for a class with no methods and no other definitions' do
-        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should == 0
+      it 'should return 0 candidates for a class with no nested modules or methods' do
+        Pry::WrappedModule(Host::PitifullyBlank).number_of_candidates.should == 0
+      end
+
+      it 'should return 1 candidate for a class with a nested module with methods' do
+        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should == 1
       end
     end
 
@@ -68,8 +77,13 @@ describe Pry::WrappedModule do
         wm.source_location.should == wm.candidate(0).source_location
       end
 
+      it 'should return the location of the outer module if an inner module has methods' do
+        wm = Pry::WrappedModule(Host::ForeverAlone)
+        wm.source_location.should == [__FILE__, Host::FOREVER_ALONE_LINE]
+      end
+
       it 'should return nil if no source_location can be found' do
-        Pry::WrappedModule(Host::ForeverAlone).source_location.should == nil
+        Pry::WrappedModule(Host::PitifullyBlank).source_location.should == nil
       end
     end
 
