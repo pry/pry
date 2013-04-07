@@ -377,6 +377,7 @@ class Pry
     end
 
     def nested_module?(parent, name)
+      return if safe_send(parent, :autoload?, name)
       child = safe_send(parent, :const_get, name)
       return unless Module === child
       return unless safe_send(child, :name) == "#{safe_send(parent, :name)}::#{name}"
