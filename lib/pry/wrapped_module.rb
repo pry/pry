@@ -340,25 +340,25 @@ class Pry
     # (i.e we skip `__class_init__` because it's an odd rbx specific thing that causes tests to fail.)
     # @return [Array<Pry::Method>]
     def all_relevant_methods_for(mod)
-      all_methods_for(mod).select(&:source_location).
+      methods = all_methods_for(mod).select(&:source_location).
         reject{ |x| x.name == '__class_init__' || method_defined_by_forwardable_module?(x) }
+
+      return methods unless methods.empty?
+
+      safe_send(mod, :constants).map do |const_name|
+        if const = nested_module?(mod, const_name)
+          all_relevant_methods_for(const)
+        else
+          []
+        end
+      end.flatten
     end
 
     # Return all methods (instance methods and class methods) for a
     # given module.
     # @return [Array<Pry::Method>]
     def all_methods_for(mod)
-      methods = all_from_common(mod, :instance_method) + all_from_common(mod, :method)
-
-      return methods unless methods.empty?
-
-      safe_send(mod, :constants).map do |const_name|
-        if const = nested_module?(mod, const_name)
-          all_methods_for(const)
-        else
-          []
-        end
-      end.flatten
+      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
     end
 
     # FIXME: a variant of this method is also found in Pry::Method
