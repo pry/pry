@@ -79,7 +79,8 @@ describe Pry::WrappedModule do
 
       it 'should return the location of the outer module if an inner module has methods' do
         wm = Pry::WrappedModule(Host::ForeverAlone)
-        wm.source_location.should == [File.expand_path(__FILE__), Host::FOREVER_ALONE_LINE]
+        File.expand_path(wm.source_location.first).should == File.expand_path(__FILE__)
+        wm.source_location.last.should == Host::FOREVER_ALONE_LINE
       end
 
       it 'should return nil if no source_location can be found' do
