@@ -60,6 +60,24 @@ describe "ls" do
       pry_eval("ls Net::HTTP::Get.new('localhost')").should =~ /Net::HTTPGenericRequest#methods/
     end
 
+    it "should work for objects which instance_variables returns array of symbol but there is no Symbol#downcase" do
+      test_case = "class Object; alias :fg :instance_variables; def instance_variables; fg.map(&:to_sym); end end;"
+      normalize = "class Object; def instance_variables; fg; end end;"
+
+      test = lambda do
+        begin
+          pry_eval(test_case, "class GeFromulate2; @flurb=1.3; end", "cd GeFromulate2", "ls")
+          pry_eval(normalize)
+        rescue
+          pry_eval(normalize)
+          raise
+        end
+      end
+
+      test.should.not.raise
+    end
+
+
     # see: https://travis-ci.org/pry/pry/jobs/5071918
     unless Pry::Helpers::BaseHelpers.rbx?
       it "should handle classes that (pathologically) define .ancestors" do
