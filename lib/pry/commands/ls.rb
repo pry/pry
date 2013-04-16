@@ -267,7 +267,7 @@ class Pry
     end
 
     def format_variables(type, vars)
-      vars.sort_by(&:downcase).map{ |var| color(type, var) }
+      vars.sort_by{ |var| var.to_s.downcase }.map{ |var| color(type, var) }
     end
 
     def format_constants(mod, constants)
