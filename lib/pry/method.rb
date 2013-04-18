@@ -54,7 +54,7 @@ class Pry
         elsif options[:instance]
           from_module(target.eval("self"), name, target)
         elsif options[:methods]
-          from_obj(target.eval("self"), name, target)
+          from_obj(obj_for_top_level_binding(target.eval("self")), name, target)
         else
           from_str(name, target, :instance => true) or
             from_str(name, target, :methods => true)
@@ -215,6 +215,13 @@ class Pry
       end
 
       def singleton_class(obj); class << obj; self; end end
+
+      # Checks whether obj is ruby top level main, and handle it
+      # @param [Object] obj object to check for
+      # @return [Object, Class] returns sigleton_class of main if obj is main else the obj
+      def obj_for_top_level_binding(obj)
+        obj == TOPLEVEL_BINDING.eval("self") ? obj.singleton_class : obj
+      end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.

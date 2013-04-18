@@ -83,6 +83,12 @@ describe Pry::Method do
     it 'should not raise an exception if receiver does not exist' do
       lambda { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }.should.not.raise
     end
+
+    it 'should look up singleton methods on ruby top level binding main' do
+      meth = Pry::Method.from_str('include', TOPLEVEL_BINDING)
+      meth.name.should  == 'include'
+      meth.owner.should == Module
+    end
   end
 
   describe '.from_binding' do
