@@ -370,6 +370,7 @@ class Pry
 
   # @deprecated Use `Pry::REPL.new(pry, :target => target).start` instead.
   def repl(target = nil)
+=begin
     @@repl_warning ||= (warn Pry::Helpers::CommandHelpers.unindent(<<-S); true)
       DEPRECATION: Pry#repl is deprecated. Instead, use
 
@@ -381,6 +382,7 @@ class Pry
       Call stack:
         #{caller.join("\n" + (' ' * 8))}
     S
+=end
     Pry::REPL.new(self, :target => target).start
   end
 
