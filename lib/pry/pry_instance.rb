@@ -368,19 +368,10 @@ class Pry
   end
   private :handle_line
 
-  # @deprecated Use `Pry::REPL.new(pry, :target => target).start` instead.
+  # Potentially deprecated — Use `Pry::REPL.new(pry, :target => target).start`
+  # (If nested sessions are going to exist, this method is fine, but a goal is
+  # to come up with an alternative to nested sessions altogether.)
   def repl(target = nil)
-    @@repl_warning ||= (warn Pry::Helpers::CommandHelpers.unindent(<<-S); true)
-      DEPRECATION: Pry#repl is deprecated. Instead, use
-
-        Pry::REPL.new(pry, :target => target).start
-
-      where pry is the Pry instance you called #repl on and target is the
-      optional target parameter of #repl.
-
-      Call stack:
-        #{caller.join("\n" + (' ' * 8))}
-    S
     Pry::REPL.new(self, :target => target).start
   end
 
