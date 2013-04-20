@@ -2,7 +2,7 @@ class Pry
   class Command::Gist < Pry::ClassCommand
     match 'gist'
     group 'Misc'
-    description 'Playback a string variable or a method or a file as input.'
+    description 'Upload code, docs, history to https://gist.github.com/.'
     command_options :requires_gem => "jist"
 
     banner <<-'BANNER'
