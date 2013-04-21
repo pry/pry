@@ -186,4 +186,5 @@ class Pry
   end
 
   Pry::Commands.add_command(Pry::Command::Whereami)
+  Pry::Commands.alias_command '@', 'whereami'
 end
