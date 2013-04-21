@@ -1,3 +1,8 @@
+21/04/2012 version 0.9.12.1 HOTFIX
+* Fixes #890, workaround for jruby crash related to http://jira.codehaus.org/browse/JRUBY-7114
+* note this fix is just applied to the 0.9.12 tag, not master. However, master has
+	this fix applied too.
+
 12/02/2012 version 0.9.12
 Bug fixes:
 * Fix major bug where commands broke due to slop looking at ARGV
