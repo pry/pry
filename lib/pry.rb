@@ -182,6 +182,15 @@ class Pry
     end
   end
 
+  # When we try to get a binding for an object, we try to define a method on
+  # that Object's singleton class. This doesn't work for "frozen" Object's, and
+  # the exception is just a vanilla RuntimeError.
+  module FrozenObjectException
+    def self.===(exception)
+      exception.message == (Pry::Helpers::BaseHelpers.jruby? ? "can't modify frozen class/module" : "can't modify frozen Class")
+    end
+  end
+
   # Don't catch these exceptions
   DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException, Pry::TooSafeException]
 

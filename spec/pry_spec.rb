@@ -64,6 +64,11 @@ describe Pry do
         Pry.binding_for(obj).eval("local_variables").should.be.empty
       end
     end
+
+    it "should work on frozen objects" do
+      a = "hello".freeze
+      Pry.binding_for(a).eval("self").should.equal? a
+    end
   end
 
   describe "open a Pry session on an object" do
