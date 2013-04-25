@@ -143,6 +143,10 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.plugins[plugin_name].disable!
   end
 
+  on :i, "interactive", "Go interactive after execution" do
+    Pry.config.exit_interactive = true
+  end
+
   on "no-plugins", "Suppress loading of plugins." do
     Pry.config.should_load_plugins = false
   end
@@ -206,6 +210,9 @@ end.process_options do |opts|
   if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
     full_name = File.expand_path(Pry::CLI.input_args.first)
     Pry.load_file_through_repl(full_name)
+    if Pry.config.exit_interactive
+      Pry.toplevel_binding.pry
+    end
     exit
   end
 
