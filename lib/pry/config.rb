@@ -69,6 +69,10 @@ class Pry
     #   Pry.config.exception_whitelist = [SystemExit, SignalException]
     attr_accessor :exception_whitelist
 
+    # Send Pry into interactive mode after finishing execution
+    # @return [Boolean]
+    attr_accessor :exit_interactive
+
     # @return [Fixnum] The number of lines of context to show before and after
     #   exceptions, etc.
     # @example
