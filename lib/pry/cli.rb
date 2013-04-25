@@ -200,7 +200,7 @@ end.process_options do |opts|
     Pry.initial_session_setup
     context = Pry.binding_for(eval(opts[:context]))
   else
-    context = Pry.top_level_binding
+    context = Pry.toplevel_binding
   end
 
   if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
