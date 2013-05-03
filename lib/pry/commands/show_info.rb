@@ -155,16 +155,7 @@ class Pry
     end
 
     def obj_name
-      @obj_name ||=
-        if args.empty? && (opts[:super] && opts[:super] > 0)
-          current_method_name
-        else
-          args.join(' ')
-        end
-    end
-
-    def current_method_name
-      _pry_.current_context.eval('::Kernel.__method__').to_s
+      @obj_name ||= args.empty? ? nil : args.join(' ')
     end
 
     def use_line_numbers?
