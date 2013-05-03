@@ -91,7 +91,7 @@ class Pry
       # Pry::Method.from_binding when str is nil.
       # Once we refactor Pry::Method.from_str() so it doesnt lookup
       # from bindings, we can get rid of this check
-      return nil if str.to_s.empty?
+      return nil if str.to_s.empty? && super_level.zero?
 
       obj = if str =~ /::(?:\S+)\Z/
         Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
