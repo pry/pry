@@ -98,24 +98,3 @@ class Object
     __pry__
   end
 end
-
-# There's a splat bug on jruby in 1.9 emulation mode, which breaks the
-# pp library.
-#
-# * http://jira.codehaus.org/browse/JRUBY-6687
-# * https://github.com/pry/pry/issues/568
-#
-# Until that gets fixed upstream, let's monkey-patch here:
-if [[1, 2]].pretty_inspect == "[1]\n"
-  class Array
-    def pretty_print(q)
-      q.group(1, '[', ']') {
-        i = 0
-        q.seplist(self) { |*|
-          q.pp self[i]
-          i += 1
-        }
-      }
-    end
-  end
-end
