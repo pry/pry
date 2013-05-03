@@ -93,12 +93,15 @@ class Pry
       # from bindings, we can get rid of this check
       return nil if str.to_s.empty? && super_level.zero?
 
-      obj = if str =~ /::(?:\S+)\Z/
-        Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
-      else
-        Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
-      end
-
+      obj = case str
+        when /::(?:\S+)\Z/
+          Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
+        when /\Asuper\z/
+          @super_level += 1
+          Pry::Method.from_str(nil, target)
+        else
+          Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
+        end
       lookup_super(obj, super_level)
     end
 
@@ -107,7 +110,6 @@ class Pry
     def sourcable_object?(obj)
       [::Proc, ::Method, ::UnboundMethod].any? { |o| obj.is_a?(o) }
     end
-
 
     # Returns true if `str` looks like a method, i.e Klass#method
     # We need to consider this case because method lookups should fall
