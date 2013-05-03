@@ -198,6 +198,16 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
 
         o.foo.should =~ /:super_wibble/
       end
+
+      it "finds super methods without `--super` but with the `super` keyword" do
+        o = Foo.new
+        def o.foo(*bars)
+          :wibble
+          pry_eval(binding, 'show-source super')
+        end
+
+        o.foo.should =~ /:super_wibble/
+      end
     end
 
     describe "on sourcable objects" do

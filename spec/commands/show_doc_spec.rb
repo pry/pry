@@ -94,6 +94,18 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         output = fatty.initialize
         output.should =~ /grungy initialize/
       end
+
+      it "finds super method docs without `--super` but with the `super` keyword" do
+        fatty = Grungy.new
+
+        # fatty initialize!
+        def fatty.initialize
+          pry_eval(binding, 'show-doc super')
+        end
+
+        output = fatty.initialize
+        output.should =~ /grungy initialize/
+      end
     end
 
     describe "rdoc highlighting" do
