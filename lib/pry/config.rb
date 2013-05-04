@@ -119,6 +119,20 @@ class Pry
     #   Pry.config.prompt_name = 'my_rails_project'
     attr_accessor :prompt_name
 
+    # The list of safe objects, the `#inspect` method of which can be used for
+    # the prompt. The default safe objects are defined in
+    # `DEFAULT_PROMPT_SAFE_OBJECTS` (see Pry::DEFAULT_PROMPT_SAFE_OBJECTS).
+    # @return [Array]
+    # @example
+    #   class Barbie
+    #     def inspect
+    #       'You can brush my hair, undress me everywhere!'
+    #     end
+    #   end
+    #
+    #   Pry.config.prompt_safe_objects << Barbie
+    attr_accessor :prompt_safe_objects
+
     # The default editor to use. Defaults to $VISUAL, $EDITOR, or a sensible
     # fallback for the platform. If `editor` is a String then that string is
     # used as the shell command to invoke the editor. If `editor` is callable

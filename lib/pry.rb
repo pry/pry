@@ -90,6 +90,8 @@ class Pry
                     }
                    ]
 
+  DEFAULT_PROMPT_SAFE_OBJECTS = [String, Numeric, Symbol, nil, true, false]
+
   # A simple prompt - doesn't display target or nesting level
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
