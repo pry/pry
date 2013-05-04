@@ -263,17 +263,23 @@ describe "test Pry defaults" do
       end
     end
 
-    describe "given the a Numeric, String or Symbol object" do
+    describe "the list of prompt safe objects" do
       [1, 2.0, -5, "hello", :test].each do |o|
         it "returns the #inspect of the special-cased immediate object: #{o}" do
           Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
         end
       end
 
-      # only testing with String here :)
       it "returns #<> format of the special-cased immediate object if #inspect is longer than maximum" do
         o = "o" * (VC_MAX_LENGTH + 1)
         Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<String/
+      end
+
+      it "returns the #inspect of the custom prompt safe objects" do
+        Barbie = Class.new { def inspect; "life is plastic, it's fantastic" end }
+        Pry.config.prompt_safe_objects << Barbie
+        output = Pry.view_clip(Barbie.new, VC_MAX_LENGTH)
+        output.should == "life is plastic, it's fantastic"
       end
     end
 

@@ -184,7 +184,7 @@ class Pry
     elsif TOPLEVEL_BINDING.eval('self') == obj
       # special case for 'main' object :)
       obj.to_s
-    elsif [String, Numeric, Symbol, nil, true, false].any? { |v| v === obj } && obj.inspect.length <= max_length
+    elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
     else
       "#<#{obj.class}>"#:%x>"# % (obj.object_id << 1)
@@ -280,6 +280,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     config.commands = Pry::Commands
     config.prompt_name = DEFAULT_PROMPT_NAME
     config.prompt = DEFAULT_PROMPT
+    config.prompt_safe_objects = DEFAULT_PROMPT_SAFE_OBJECTS
     config.print = DEFAULT_PRINT
     config.exception_handler = DEFAULT_EXCEPTION_HANDLER
     config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
