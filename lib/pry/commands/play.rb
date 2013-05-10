@@ -10,10 +10,14 @@ class Pry
       The play command enables you to replay code from files and methods as if they
       were entered directly in the Pry REPL.
 
-      play --lines 149..153
-      play -i 20 --lines 1..3
-      play Pry#repl --lines 1..-1
-      play Rakefile --lines 5
+      play --lines 149..153   # assumes current context
+      play -i 20 --lines 1..3 # assumes lines of the input expression at 20
+      play -o 4               # the output of of an expression at 4
+      play Pry#repl -l 1..-1  # play the contents of Pry#repl method
+      play hello.rb           # play a file
+      play Rakefile -l 5      # play line 5 of a file
+      play -d hi              # play documentation of hi method
+      play hi --open          # play hi method and leave it open
 
       https://github.com/pry/pry/wiki/User-Input#wiki-Play
     BANNER
@@ -21,9 +25,10 @@ class Pry
     def options(opt)
       CodeCollector.inject_options(opt)
 
-      opt.on :open, 'Plays the select content except except' \
-                    ' the last line. Useful for replaying methods and leaving the method definition "open". `amend-line`' \
-                    ' can then be used to modify the method.'
+      opt.on :open, 'Plays the select content except the last line. Useful' \
+                    ' for replaying methods and leaving the method definition' \
+                    ' "open". `amend-line` can then be used to' \
+                    ' modify the method.'
     end
 
     def process
