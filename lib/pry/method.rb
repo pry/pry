@@ -23,7 +23,6 @@ class Pry
 
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
-    include RbxMethod if rbx?
     include Helpers::DocumentationHelpers
     include CodeObject::Helpers
 
@@ -293,11 +292,7 @@ class Pry
           info = pry_doc_info
           info.docstring if info
         when :ruby
-          if rbx? && !pry_method?
-            get_comment_content(core_doc)
-          else
-            get_comment_content(comment)
-          end
+          get_comment_content(comment)
         end
     end
 
