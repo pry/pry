@@ -1,9 +1,12 @@
-21/04/2012 version 0.9.12.1 HOTFIX
+10/05/2013 version 0.9.12.2 minor fix
+* reload-code (with no args) should reload 'current file', issue #920
+
+21/04/2013 version 0.9.12.1 HOTFIX
 * Fixes #890, workaround for jruby crash related to http://jira.codehaus.org/browse/JRUBY-7114
 * note this fix is just applied to the 0.9.12 tag, not master. However, master has
 	this fix applied too.
 
-12/02/2012 version 0.9.12
+12/02/2013 version 0.9.12
 Bug fixes:
 * Fix major bug where commands broke due to slop looking at ARGV
 	instead of command parameters (#828)
@@ -22,23 +25,23 @@ Features:
 	(displays warning)
 * show-source/show-doc now indicate when -a option is available.
 
-20/01/2012 version 0.9.11.4
+20/01/2013 version 0.9.11.4
 * fixed pager bug (wouldn't render color codes in some circumstances)
 * added Pry.last_internal_error, useful for devs debugging commands
 
-17/01/2012 version 0.9.11.3
+17/01/2013 version 0.9.11.3
 * fix Pry.run_command
 * improve `ls` output
 * add :requires_gem => "jist" to 'gist' command (so deps can be installed
 	via install-command)
 * improve help for 'edit' command
 
-16/01/2012 version 0.9.11.2
+16/01/2013 version 0.9.11.2
 * minor bug fix for gist on windows, rescuing Jist::ClipboardError
 rather than letting the scary error spill out to users and potentially
 have them think the gist didnt post.
 
-16/01/2012 version 0.9.11.1
+16/01/2013 version 0.9.11.1
 * fixed minor bug in 'gist' command where i neglected to remove
   a call to a non-existent method (no_arg) which was called when
   `gist` is invoked with no parameters
