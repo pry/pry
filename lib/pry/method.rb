@@ -302,15 +302,6 @@ class Pry
       source_location.nil? ? :c : :ruby
     end
 
-    def source_location
-      if @method.source_location && rbx?
-        file, line = @method.source_location
-        [RbxPath.convert_path_to_full(file), line]
-      else
-        @method.source_location
-      end
-    end
-
     # @return [String, nil] The name of the file the method is defined in, or
     #   `nil` if the filename is unavailable.
     def source_file
