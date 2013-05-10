@@ -264,7 +264,6 @@ end
 
 require 'pry/version'
 require 'pry/repl'
-require 'pry/rbx_method'
 require 'pry/rbx_path'
 require 'pry/code'
 require 'pry/history_array'
