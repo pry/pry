@@ -295,10 +295,8 @@ class Pry
         when :ruby
           if rbx? && !pry_method?
             get_comment_content(core_doc)
-          elsif pry_method?
-            get_comment_content(doc_for_pry_method)
           else
-            get_comment_content(@method.comment)
+            get_comment_content(comment)
           end
         end
     end
@@ -476,6 +474,10 @@ class Pry
       @method.send(method_name, *args, &block)
     end
 
+    def comment
+      Pry::Code.from_file(source_file).comment_describing(source_line)
+    end
+
     private
 
     # @return [YARD::CodeObjects::MethodObject]
@@ -490,24 +492,6 @@ class Pry
         end
         raise CommandError, fail_msg
       end
-    end
-
-    # FIXME: a very similar method to this exists on WrappedModule: extract_doc_for_candidate
-    def doc_for_pry_method
-      _, line_num = source_location
-
-      buffer = ""
-      Pry.line_buffer[0..(line_num - 1)].each do |line|
-        # Add any line that is a valid ruby comment,
-        # but clear as soon as we hit a non comment line.
-        if (line =~ /^\s*#/) || (line =~ /^\s*$/)
-          buffer << line.lstrip
-        else
-          buffer.replace("")
-        end
-      end
-
-      buffer
     end
 
     # @param [Class, Module] ancestors The ancestors to investigate
