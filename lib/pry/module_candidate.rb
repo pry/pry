@@ -112,13 +112,13 @@ class Pry
       # @return [Array] The source location of the base method used to
       #   calculate the source location of the candidate.
       def first_method_source_location
-        @first_method_source_location ||= adjusted_source_location(method_candidates[@rank].first.source_location)
+        @first_method_source_location ||= method_candidates[@rank].first.source_location
       end
 
       # @return [Array] The source location of the last method in this
       #   candidate's module definition.
       def last_method_source_location
-        @end_method_source_location ||= adjusted_source_location(method_candidates[@rank].last.source_location)
+        @end_method_source_location ||= method_candidates[@rank].last.source_location
       end
 
       # Return the number of lines between the start of the class definition
@@ -130,16 +130,6 @@ class Pry
         end_method_line = last_method_source_location.last
 
         end_method_line - line
-      end
-
-      def adjusted_source_location(sl)
-        file, line = sl
-
-        if file && RbxPath.is_core_path?(file)
-          file = RbxPath.convert_path_to_full(file)
-        end
-
-        [file, line]
       end
     end
   end

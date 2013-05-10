@@ -21,8 +21,6 @@ class Pry
           raise CommandError, "Exception has no associated file." if file_name.nil?
           raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
 
-          file_name = RbxPath.convert_path_to_full(file_name) if RbxPath.is_core_path?(file_name)
-
           [file_name, line]
         end
 

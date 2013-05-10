@@ -44,8 +44,7 @@ class Pry
       end
 
       def backtrace_file
-        file = Array(ex.bt_source_location_for(backtrace_level)).first
-        (file && RbxPath.is_core_path?(file)) ? RbxPath.convert_path_to_full(file) : file
+        Array(ex.bt_source_location_for(backtrace_level)).first
       end
 
       def backtrace_line
