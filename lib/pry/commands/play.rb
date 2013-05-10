@@ -25,7 +25,7 @@ class Pry
     def options(opt)
       CodeCollector.inject_options(opt)
 
-      opt.on :open, 'Plays the select content except the last line. Useful' \
+      opt.on :open, 'Plays the selected content except the last line. Useful' \
                     ' for replaying methods and leaving the method definition' \
                     ' "open". `amend-line` can then be used to' \
                     ' modify the method.'
