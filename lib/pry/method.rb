@@ -286,7 +286,6 @@ class Pry
 
     # @return [String, nil] The documentation for the method, or `nil` if it's
     #   unavailable.
-    # @raise [CommandError] Raises when the method was defined in the REPL.
     def doc
       @doc ||= case source_type
         when :c
