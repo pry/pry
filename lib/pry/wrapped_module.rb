@@ -300,12 +300,13 @@ class Pry
                      end
     end
 
-    # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
-    #   that is the 'monkey patch' of this module with the highest
-    #   number of methods. It is considered the 'canonical' definition
-    #   for the module.
+    # @return [Pry::WrappedModule::Candidate] The candidate with the
+    #   highest rank, that is the 'monkey patch' of this module with the
+    #   highest number of methods, which actually contains a source code
+    #   line that declaes the module. It is considered the 'canonical'
+    #   definition for the module.
     def primary_candidate
-      @primary_candidate ||= candidate(0)
+      @primary_candidate ||= candidates.find { |c| c.file }
     end
 
     # @return [Array<Array<Pry::Method>>] The array of `Pry::Method` objects,
