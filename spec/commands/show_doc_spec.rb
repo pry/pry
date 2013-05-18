@@ -98,9 +98,15 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
       it "finds super method docs without `--super` but with the `super` keyword" do
         fatty = Grungy.new
 
+        fatty.extend Module.new {
+          def initialize
+            :nibble
+          end
+        }
+
         # fatty initialize!
         def fatty.initialize
-          pry_eval(binding, 'show-doc super')
+          pry_eval(binding, 'show-doc --super --super')
         end
 
         output = fatty.initialize

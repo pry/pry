@@ -1,4 +1,23 @@
 class Pry
+
+  # This class is responsible for taking a string (identifying a
+  # command/class/method/etc) and returning the relevant type of object.
+  # For example, if the user looks up "show-source" then  a
+  # `Pry::Command` will be returned. Alternatively, if the user passes in "Pry#repl" then
+  # a `Pry::Method` object will be returned.
+  #
+  # The `CodeObject.lookup` method is responsible for 1. figuring out what kind of
+  # object the user wants (applying precedence rules in doing so -- i.e methods
+  # get precedence over commands with the same name) and 2. Returning
+  # the appropriate object. If the user fails to provide a string
+  # identifer for the object (i.e they pass in `nil` or "") then the
+  # object looked up will be the 'current method' or 'current class'
+  # associated with the Binding.
+  #
+  # TODO: This class is a clusterfuck. We need a much more robust
+  # concept of what a "Code Object" really is. Currently
+  # commands/classes/candidates/methods and so on just share a very
+  # ill-defined interface.
   class CodeObject
     module Helpers
       # we need this helper as some Pry::Method objects can wrap Procs
@@ -53,15 +72,21 @@ class Pry
       pry.commands.find_command_by_match_or_listing(str) rescue nil
     end
 
+    # when no paramter is given (i.e CodeObject.lookup(nil)), then we
+    # lookup the 'current object' from the binding.
     def empty_lookup
       return nil if str && !str.empty?
 
-      if internal_binding?(target)
-        mod = target_self.is_a?(Module) ? target_self : target_self.class
-        Pry::WrappedModule(mod)
-      else
-        Pry::Method.from_binding(target)
-      end
+      obj = if internal_binding?(target)
+              mod = target_self.is_a?(Module) ? target_self : target_self.class
+              Pry::WrappedModule(mod)
+            else
+              Pry::Method.from_binding(target)
+            end
+
+      # respect the super level (i.e user might have specified a
+      # --super flag to show-source)
+      lookup_super(obj, super_level)
     end
 
     # lookup variables and constants and `self` that are not modules
@@ -91,17 +116,15 @@ class Pry
       # Pry::Method.from_binding when str is nil.
       # Once we refactor Pry::Method.from_str() so it doesnt lookup
       # from bindings, we can get rid of this check
-      return nil if str.to_s.empty? && super_level.zero?
+      return nil if str.to_s.empty?
 
       obj = case str
-        when /::(?:\S+)\Z/
-          Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
-        when /\Asuper\z/
-          @super_level += 1
-          Pry::Method.from_str(nil, target)
-        else
-          Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
-        end
+            when /::(?:\S+)\Z/
+              Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
+            else
+              Pry::Method.from_str(str,target) || Pry::WrappedModule.from_str(str, target)
+            end
+
       lookup_super(obj, super_level)
     end
 
