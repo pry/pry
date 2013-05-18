@@ -199,11 +199,18 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         o.foo.should =~ /:super_wibble/
       end
 
-      it "finds super methods without `--super` but with the `super` keyword" do
+      it "finds super methods with multiple --super " do
         o = Foo.new
+
+        o.extend Module.new {
+          def foo
+            :nibble
+          end
+        }
+
         def o.foo(*bars)
           :wibble
-          pry_eval(binding, 'show-source super')
+          pry_eval(binding, 'show-source --super --super')
         end
 
         o.foo.should =~ /:super_wibble/
