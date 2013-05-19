@@ -300,12 +300,17 @@ class Pry
                      end
     end
 
-    # @return [Pry::WrappedModule::Candidate] The candidate of rank 0,
-    #   that is the 'monkey patch' of this module with the highest
-    #   number of methods. It is considered the 'canonical' definition
-    #   for the module.
+    # @return [Pry::WrappedModule::Candidate] The candidate with the
+    #   highest rank, that is the 'monkey patch' of this module with the
+    #   highest number of methods, which contains a source code line that
+    #   defines the module. It is considered the 'canonical' definition
+    #   for the module. In the absense of a suitable candidate, the
+    #   candidate of rank 0 will be returned, or a CommandError raised if
+    #   there are no candidates at all.
     def primary_candidate
-      @primary_candidate ||= candidate(0)
+      @primary_candidate ||= candidates.find { |c| c.file } ||
+        # This will raise an exception if there is no candidate at all.
+        candidate(0)
     end
 
     # @return [Array<Array<Pry::Method>>] The array of `Pry::Method` objects,
