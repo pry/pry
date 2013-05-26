@@ -103,7 +103,7 @@ class Pry
       if defined?(@history_file)
         @history_file
       else
-        @history_file = File.open(file_path, 'a').tap { |f| f.sync = true }
+        @history_file = File.open(file_path, 'a', 0600).tap { |f| f.sync = true }
       end
     rescue Errno::EACCES
       warn 'History not saved; unable to open your history file for writing.'
