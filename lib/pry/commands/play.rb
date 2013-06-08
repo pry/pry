@@ -2,7 +2,7 @@ class Pry
   class Command::Play < Pry::ClassCommand
     match 'play'
     group 'Editing'
-    description 'Playback a string variable or a method or a file as input.'
+    description 'Playback a string variable, method, line, or file as input.'
 
     banner <<-'BANNER'
       Usage: play [OPTIONS] [--help]
