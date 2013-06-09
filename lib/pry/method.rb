@@ -207,11 +207,9 @@ class Pry
       # the lowest copy will be returned.
       def singleton_class_resolution_order(klass)
         ancestors = Pry::Method.safe_send(klass, :ancestors)
-        resolution_order = ancestors.map do |anc|
-          if anc.is_a?(Class)
-            [singleton_class_of(anc)] + singleton_class_of(anc).included_modules
-          end
-        end.compact.flatten(1)
+        resolution_order = ancestors.grep(Class).map do |anc|
+          [singleton_class_of(anc), *singleton_class_of(anc).included_modules]
+        end.flatten(1)
 
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end
