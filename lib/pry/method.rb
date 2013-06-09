@@ -158,7 +158,7 @@ class Pry
         if Class === obj
           singleton_class_resolution_order(obj) + instance_resolution_order(Class)
         else
-          klass = singleton_class(obj) rescue obj.class
+          klass = singleton_class_of(obj) rescue obj.class
           instance_resolution_order(klass)
         end
       end
@@ -206,14 +206,17 @@ class Pry
       # If a module is included at multiple points in the ancestry, only
       # the lowest copy will be returned.
       def singleton_class_resolution_order(klass)
-        resolution_order = Pry::Method.safe_send(klass, :ancestors).map do |anc|
-          [singleton_class(anc)] + singleton_class(anc).included_modules if anc.is_a?(Class)
+        ancestors = Pry::Method.safe_send(klass, :ancestors)
+        resolution_order = ancestors.map do |anc|
+          if anc.is_a?(Class)
+            [singleton_class_of(anc)] + singleton_class_of(anc).included_modules
+          end
         end.compact.flatten(1)
 
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end
 
-      def singleton_class(obj); class << obj; self; end end
+      def singleton_class_of(obj); class << obj; self; end end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
