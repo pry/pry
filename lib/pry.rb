@@ -4,6 +4,7 @@
 
 require 'pp'
 require 'pry/helpers/base_helpers'
+require 'pry/input_lock'
 require 'pry/hooks'
 
 class Pry
