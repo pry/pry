@@ -27,8 +27,6 @@ class Pry
       if options[:target]
         @pry.push_binding options[:target]
       end
-
-      Pry::InputLock.hook(pry.input)
     end
 
     # Start the read-eval-print loop.
@@ -40,7 +38,7 @@ class Pry
       prologue
       while should_try_next_input?
         use_next_input
-        input.pry_lock.register_ownership { repl }
+        Pry::InputLock.for(input).register_ownership { repl }
       end
     ensure
       epilogue
@@ -59,7 +57,6 @@ class Pry
     # command line one.
     def use_next_input
       pry.input = Pry.config.input
-      Pry::InputLock.hook(pry.input)
       @should_try_next_input = false
     end
 
@@ -214,7 +211,7 @@ class Pry
     end
 
     def input_readline(*args)
-      input.pry_lock.interruptible_region do
+      Pry::InputLock.for(input).interruptible_region do
         input.readline(*args)
       end
     end
