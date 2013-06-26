@@ -35,7 +35,7 @@ class Pry
 
     # Adds ourselves to the ownership list. The last one in the list may access
     # the input through interruptible_region().
-    def __register_ownership(&block)
+    def __with_ownership(&block)
       @mutex.synchronize do
         # Three cases:
         # 1) There are no owners, in this case we are good to go.
@@ -72,16 +72,16 @@ class Pry
       end
     end
 
-    def register_ownership(&block)
-      # If we already registered the thread (nested pry context), we do nothing.
+    def with_ownership(&block)
+      # If we are in a nested with_ownership() call (nested pry context), we do nothing.
       nested = @mutex.synchronize { @owners.include?(Thread.current) }
-      nested ? block.call : __register_ownership(&block)
+      nested ? block.call : __with_ownership(&block)
     end
 
     def interruptible_region(&block)
       @mutex.synchronize do
         # We patiently wait until we are the owner. This may happen as another
-        # thread calls register_ownership() because of a binding.pry happening in
+        # thread calls with_ownership() because of a binding.pry happening in
         # another thread.
         @cond.wait(@mutex) until @owners.last == Thread.current
 

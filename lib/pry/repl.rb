@@ -38,7 +38,7 @@ class Pry
       prologue
       while should_try_next_input?
         use_next_input
-        Pry::InputLock.for(input).register_ownership { repl }
+        Pry::InputLock.for(input).with_ownership { repl }
       end
     ensure
       epilogue
