@@ -448,16 +448,16 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   end
 
   def self.in_critical_section?
-    @critical_section ||= 0
-    @critical_section > 0
+    Thread.current[:pry_critical_section] ||= 0
+    Thread.current[:pry_critical_section] > 0
   end
 
   def self.critical_section(&block)
-    @critical_section ||= 0
-    @critical_section += 1
+    Thread.current[:pry_critical_section] ||= 0
+    Thread.current[:pry_critical_section] += 1
     yield
   ensure
-    @critical_section -= 1
+    Thread.current[:pry_critical_section] -= 1
   end
 end
 
