@@ -1,9 +1,10 @@
 require 'thread'
 
 class Pry
-  # There is one InputThreadOwner per input as two REPLs on the same input makes
-  # things delirious. The most likely usage is to have only one InputThreadOwner
-  # on STDIN.
+  # There is one InputLock per input (such as STDIN) as two REPLs on the same
+  # input makes things delirious. InputLock serializes accesses to the input so
+  # that threads to not conflict with each other. The latest thread to request
+  # ownership of the input wins.
   class InputLock
     class Interrupt < Exception; end
 
