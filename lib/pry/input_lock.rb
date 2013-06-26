@@ -91,6 +91,9 @@ class Pry
         @interruptible = true
       end
 
+      # XXX Note that there is a chance that we get the interrupt right after
+      # the readline call succeeded, but we'll never know, and we will retry the
+      # call, discarding that piece of input.
       block.call
 
     rescue Interrupt
@@ -99,9 +102,16 @@ class Pry
       retry
 
     ensure
-      # Once we leave, we cannot receive an Interrupt, as it might disturb code
+      # Once we leave, we cannot receive an interrupt, as it might disturb code
       # that is not tolerant to getting an exception in random places.
-      @mutex.synchronize { @interruptible = false }
+      # Note that we need to guard against a spurious interrupt delivered while
+      # we are trying to acquire the lock (the rescue block is no longer in our
+      # scope).
+      begin
+        @mutex.synchronize { @interruptible = false }
+      rescue Interrupt
+        retry
+      end
     end
   end
 end
