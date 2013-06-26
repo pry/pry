@@ -22,7 +22,6 @@ class Pry
     def initialize(pry, options = {})
       @pry    = pry
       @indent = Pry::Indent.new
-      @should_try_next_input = true
 
       if options[:target]
         @pry.push_binding options[:target]
@@ -36,29 +35,12 @@ class Pry
     #   thrown with it.
     def start
       prologue
-      while should_try_next_input?
-        use_next_input
-        Pry::InputLock.for(input).with_ownership { repl }
-      end
+      Pry::InputLock.for(:all).with_ownership { repl }
     ensure
       epilogue
     end
 
     private
-
-    # Should try next input?
-    # @return [bool]
-    def should_try_next_input?
-      @should_try_next_input
-    end
-
-    # Cycle through the inputs
-    # Currently just get the config default input, the first one being the
-    # command line one.
-    def use_next_input
-      pry.input = Pry.config.input
-      @should_try_next_input = false
-    end
 
     # Set up the repl session.
     # @return [void]
@@ -88,11 +70,7 @@ class Pry
           output.puts ""
           pry.reset_eval_string
         when :no_more_input
-          unless should_try_next_input?
-            output.puts "Error: Pry ran out of things to read from! " \
-                        "Attempting to break out of REPL."
-            output.puts "" if output.tty?
-          end
+          output.puts "" if output.tty?
           break
         else
           output.puts "" if val.nil? && output.tty?
@@ -144,12 +122,20 @@ class Pry
     # @return [Object] Whatever the given block returns.
     # @return [:no_more_input] Indicates that no more input can be read.
     def handle_read_errors
+      should_retry = true
       exception_count = 0
 
       begin
         yield
       rescue EOFError
-        return :no_more_input
+        pry.input = Pry.config.input
+        if !should_retry
+          output.puts "Error: Pry ran out of things to read from! " \
+            "Attempting to break out of REPL."
+          return :no_more_input
+        end
+        should_retry = false
+        retry
 
       # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
       # quit.  This is only for MRI 1.9; other versions of Ruby don't let you
@@ -211,7 +197,7 @@ class Pry
     end
 
     def input_readline(*args)
-      Pry::InputLock.for(input).interruptible_region do
+      Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
       end
     end
