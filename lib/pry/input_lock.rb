@@ -8,10 +8,21 @@ class Pry
   class InputLock
     class Interrupt < Exception; end
 
-    def self.hook(input)
-      input.instance_eval { @pry_lock ||= Pry::InputLock.new }
-      def input.pry_lock
-        @pry_lock
+    class << self
+      attr_accessor :input_locks
+      attr_accessor :global_lock
+    end
+
+    self.input_locks = {}
+    self.global_lock = Mutex.new
+
+    def self.for(input)
+      # XXX This method leaks memory, as we never unregister an input once we
+      # are done with it. Fortunately, the leak is tiny (or so we hope).  In
+      # usual scenarios, we would leak the StringIO that is passed to be
+      # evaluated from the command line.
+      global_lock.synchronize do
+        input_locks[input] ||= Pry::InputLock.new
       end
     end
 
