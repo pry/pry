@@ -120,7 +120,9 @@ class Pry
       # Note that there can be some inefficiency, as we could immediately
       # succeed in enter_interruptible_region(), even before the one requesting
       # the ownership has the chance to register itself as an owner.
+      # To mitigate the issue, we sleep a little bit.
       leave_interruptible_region
+      sleep 0.01
       retry
 
     ensure
