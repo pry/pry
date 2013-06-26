@@ -47,12 +47,13 @@ class Pry
         # 3) The owner of the input is in the interruptible region, reading from
         #    the input. It's safe to send an Interrupt exception to interrupt
         #    the owner. It will then proceed like in case 2).
-        #    Note that we set the @interruptible flag to false to avoid having
-        #    another thread sending an interrupt to us as we are adding
-        #    ourselves to the @owners list, making us the current owner.
-        if @interruptible
+        #    We wait until the owner sets the interruptible flag back
+        #    to false, meaning that he's out of the interruptible region.
+        #    Note that the owner may receive multiple interrupts since, but that
+        #    should be okay (and trying to avoid it is futile anyway).
+        while @interruptible
           @owners.last.raise Interrupt
-          @interruptible = false
+          @cond.wait(@mutex)
         end
         @owners << Thread.current
       end
@@ -78,7 +79,7 @@ class Pry
       nested ? block.call : __with_ownership(&block)
     end
 
-    def interruptible_region(&block)
+    def enter_interruptible_region
       @mutex.synchronize do
         # We patiently wait until we are the owner. This may happen as another
         # thread calls with_ownership() because of a binding.pry happening in
@@ -90,6 +91,23 @@ class Pry
         # while we are blocking from reading the input.
         @interruptible = true
       end
+    end
+
+    def leave_interruptible_region
+      @mutex.synchronize do
+        # We check if we are still the owner, because we could have received an
+        # Interrupt right after the following @cond.broadcast, making us retry.
+        @interruptible = false if @owners.last == Thread.current
+        @cond.broadcast
+      end
+    rescue Interrupt
+      # We need to guard against a spurious interrupt delivered while we are
+      # trying to acquire the lock (the rescue block is no longer in our scope).
+      retry
+    end
+
+    def interruptible_region(&block)
+      enter_interruptible_region
 
       # XXX Note that there is a chance that we get the interrupt right after
       # the readline call succeeded, but we'll never know, and we will retry the
@@ -97,21 +115,16 @@ class Pry
       block.call
 
     rescue Interrupt
-      # We were asked to back off as we are no longer the owner. The one sending
-      # the interrupt has already set the @interruptible flag to false.
+      # We were asked to back off. The one requesting the interrupt will be
+      # waiting on the conditional for the interruptible flag to change to false.
+      # Note that there can be some inefficiency, as we could immediately
+      # succeed in enter_interruptible_region(), even before the one requesting
+      # the ownership has the chance to register itself as an owner.
+      leave_interruptible_region
       retry
 
     ensure
-      # Once we leave, we cannot receive an interrupt, as it might disturb code
-      # that is not tolerant to getting an exception in random places.
-      # Note that we need to guard against a spurious interrupt delivered while
-      # we are trying to acquire the lock (the rescue block is no longer in our
-      # scope).
-      begin
-        @mutex.synchronize { @interruptible = false }
-      rescue Interrupt
-        retry
-      end
+      leave_interruptible_region
     end
   end
 end
