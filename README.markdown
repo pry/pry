@@ -27,7 +27,7 @@ including:
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing
 * Live help system
-* Open methods in editors (`edit-method Class#method`)
+* Open methods in editors (`edit Class#method`)
 * Syntax highlighting
 * Command shell integration (start editors, run git, and rake from within Pry)
 * Gist integration
@@ -332,7 +332,7 @@ You can see the actual gist generated here: [https://gist.github.com/5332c38afc4
 
 ### Edit methods
 
-You can use `edit-method Class#method` or `edit-method my_method`
+You can use `edit Class#method` or `edit my_method`
 (if the method is in scope) to open a method for editing directly in
 your favorite editor. Pry has knowledge of a few different editors and
 will attempt to open the file at the line the method is defined.
@@ -341,13 +341,13 @@ You can set the editor to use by assigning to the `Pry.editor`
 accessor. `Pry.editor` will default to `$EDITOR` or failing that will
 use `nano` as the backup default. The file that is edited will be
 automatically reloaded after exiting the editor - reloading can be
-suppressed by passing the `--no-reload` option to `edit-method`
+suppressed by passing the `--no-reload` option to `edit`
 
 In the example below we will set our default editor to "emacsclient"
 and open the `Pry#repl` method for editing:
 
     pry(main)> Pry.editor = "emacsclient"
-    pry(main)> edit-method Pry#repl
+    pry(main)> edit Pry#repl
 
 ### Live Help System
 
