@@ -35,7 +35,7 @@ class Pry
     #   thrown with it.
     def start
       prologue
-      repl
+      Pry::InputLock.for(:all).with_ownership { repl }
     ensure
       epilogue
     end
@@ -183,16 +183,22 @@ class Pry
           if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
             Readline.output = File.open('/dev/tty', 'w')
           end
-          input.readline(current_prompt, false) # false since we'll add it manually
+          input_readline(current_prompt, false) # false since we'll add it manually
         elsif defined? Coolline and input.is_a? Coolline
-          input.readline(current_prompt)
+          input_readline(current_prompt)
         else
           if input.method(:readline).arity == 1
-            input.readline(current_prompt)
+            input_readline(current_prompt)
           else
-            input.readline
+            input_readline
           end
         end
+      end
+    end
+
+    def input_readline(*args)
+      Pry::InputLock.for(:all).interruptible_region do
+        input.readline(*args)
       end
     end
   end
