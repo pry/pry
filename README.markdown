@@ -373,10 +373,14 @@ Also check out the [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-He
 
 ### Syntax Highlighting
 
-Syntax highlighting is on by default in Pry. You can toggle it on and
-off in a session by using the `toggle-color` command. Alternatively,
-you can turn it off permanently by putting the line `Pry.color =
-false` in your `~/.pryrc` file.
+Syntax highlighting is on by default in Pry. If you want to change
+the colors, check out the [pry-theme](https://github.com/kyrylo/pry-theme)
+gem.
+
+You can toggle the syntax highlighting on and off in a session by
+using the `toggle-color` command. Alternatively, you can turn it off
+permanently by putting the line `Pry.color = false` in your `~/.pryrc`
+file.
 
 ### Future Directions
 
