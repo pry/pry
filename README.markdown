@@ -360,11 +360,18 @@ avaiable.
 
 ### Use Pry as your Rails Console
 
+The recommended way to use Pry as your Rails console is to add the
+`pry-rails` gem to your Gemfile. This replaces the default console
+with Pry, in addition to loading the Rails console helpers and
+adding some useful Rails-specific commands.
+
+If you don't want to change your Gemfile, you can still run a Pry
+console in your app's environment using Pry's `-r` flag:
+
     pry -r ./config/environment
 
-MyArtChannel has kindly provided a hack to replace the `rails console` command in Rails 3: [https://gist.github.com/941174](https://gist.github.com/941174) This is not recommended for code bases with multiple developers, as they may not all want to use Pry.
-
-Also check out the [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry) for other strategies on integrating Pry with rails, notably the [pry-rails](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry#wiki-pry_rails) plugin.
+Also check out the [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry)
+for more information about integrating Pry with Rails.
 
 ### Limitations:
 
