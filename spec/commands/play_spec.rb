@@ -132,5 +132,24 @@ describe "play" do
         d.should == 1
       end
     end
+
+    describe "play -e" do
+      it 'should run an expression from given line number' do
+        def @o.test_method
+          @s = [
+            1,2,3,
+            4,5,6
+          ]
+        end
+
+        @t.process_command 'play test_method -e 2'
+        @t.eval_string.should == unindent(<<-STR, 0)
+          @s = [
+            1,2,3,
+            4,5,6
+          ]
+        STR
+      end
+    end
   end
 end

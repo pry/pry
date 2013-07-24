@@ -14,6 +14,7 @@ class Pry
       play -i 20 --lines 1..3 # assumes lines of the input expression at 20
       play -o 4               # the output of of an expression at 4
       play Pry#repl -l 1..-1  # play the contents of Pry#repl method
+      play -e 2               # play from specified line until end of valid expression
       play hello.rb           # play a file
       play Rakefile -l 5      # play line 5 of a file
       play -d hi              # play documentation of hi method
@@ -29,6 +30,8 @@ class Pry
                     ' for replaying methods and leaving the method definition' \
                     ' "open". `amend-line` can then be used to' \
                     ' modify the method.'
+
+      opt.on :e, :expression=, 'Executes until end of valid expression', :as => Integer
     end
 
     def process
@@ -39,8 +42,26 @@ class Pry
     end
 
     def perform_play
-      eval_string << (opts.present?(:open) ? restrict_to_lines(content, (0..-2)) : content)
+      eval_string << content_after_options
       run "fix-indent"
+    end
+
+    def content_after_options
+      if opts.present?(:open)
+        restrict_to_lines(content, (0..-2))
+      elsif opts.present?(:expression)
+        content_at_expression
+      else
+        content
+      end
+    end
+
+    def content_at_expression
+      code_object.expression_at(opts[:expression])
+    end
+
+    def code_object
+      Pry::Code.new(content)
     end
 
     def should_use_default_file?
