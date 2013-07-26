@@ -45,7 +45,7 @@ describe 'cd' do
     describe 'when an error was raised' do
       it 'should not toggle and should keep correct stacks' do
         proc {
-          @t.eval 'cd @'
+          @t.eval 'cd %'
         }.should.raise(Pry::CommandError)
 
         @t.old_stack.should == []
