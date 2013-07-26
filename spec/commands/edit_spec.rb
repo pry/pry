@@ -338,13 +338,27 @@ describe "edit" do
       @t.eval_string.should == "'FOO'\n"
     end
 
-    it "should not evaluate the expression with -n" do
+    it "should ignore -n for tempfiles" do
       Pry.config.editor = lambda {|file, line|
         File.open(file, 'w'){|f| f << "'FOO'\n" }
         nil
       }
-      @t.process_command 'edit -n'
-      @t.eval_string.should == ''
+      @t.process_command "edit -n"
+      @t.eval_string.should == "'FOO'\n"
+    end
+
+    it "should not evaluate a file with -n" do
+      Pry.config.editor = lambda {|file, line|
+        File.open(file, 'w'){|f| f << "'FOO'\n" }
+        nil
+      }
+      begin
+        @t.process_command 'edit -n spec/fixtures/foo.rb'
+        File.read("spec/fixtures/foo.rb").should == "'FOO'\n"
+        @t.eval_string.should == ''
+      ensure
+        FileUtils.rm "spec/fixtures/foo.rb"
+      end
     end
   end
 

@@ -30,7 +30,7 @@ class Pry
       opt.on :t, :temp,    "Open an empty temporary file"
       opt.on :l, :line,    "Jump to this line in the opened file",
                            :argument => true, :as => Integer
-      opt.on :n, :"no-reload", "Don't automatically reload the edited code"
+      opt.on :n, :"no-reload", "Don't automatically reload the edited file"
       opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)"
       opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
       opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
@@ -62,10 +62,8 @@ class Pry
     def repl_edit
       content = Pry::Editor.edit_tempfile_with_content(initial_temp_file_content,
                                                        initial_temp_file_content.lines.count)
-      if repl_reload?
-        silence_warnings do
-          eval_string.replace content
-        end
+      silence_warnings do
+        eval_string.replace content
       end
     end
 
@@ -168,11 +166,6 @@ class Pry
 
     def never_reload?
       opts.present?(:'no-reload') || Pry.config.disable_auto_reload
-    end
-
-    # conditions much less strict than for reload? (which is for file-based reloads)
-    def repl_reload?
-      !never_reload?
     end
 
     def reload?(file_name="")
