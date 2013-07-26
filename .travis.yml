@@ -2,6 +2,7 @@ rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
+  - 2.0.0
   - ruby-head
   - ree
   - rbx-18mode
@@ -9,6 +10,10 @@ rvm:
   - jruby-18mode
   - jruby-19mode
   - jruby-head
+
+matrix:
+  allow_failures:
+    - rvm: ruby-head
 
 notifications:
   irc: "irc.freenode.org#pry"
