@@ -12,21 +12,47 @@ class Pry
           reload-code my-command           #=> reload a pry command
           reload-code self                 #=> reload the 'current' object
           reload-code                      #=> identical to reload-code self
+          reload-code -r MyClass           #=> reload class and its descendants
     BANNER
 
-    def process
+    def options(opt)
+      opt.on :r, :recursive=, 'Reload source file of code object and descendants', :as => String
+    end
 
+    def process
       if obj_name.empty?
         # if no parameters were provided then try to reload the
         # current file (i.e target.eval("__FILE__"))
         reload_current_file
       else
         code_object = Pry::CodeObject.lookup(obj_name, _pry_)
-        reload_code_object(code_object)
+        opts.present?(:recursive) ? recursive_reload(obj_name) : reload_code_object(code_object)
       end
     end
 
     private
+
+    def recursive_reload(lookup_class)
+      nested_code_object(lookup_class).each {|co| reload_code_object(co)}
+    end
+
+    def nested_code_object(lookup_class,parent=nil)
+      args = Array(lookup_class)
+      head,tail= args.shift,args
+      lookup_class = build_lookup_class(head,parent)
+
+      return [] if head.nil? || head.empty?
+      resultant_code_obj = Pry::CodeObject.lookup(lookup_class,_pry_)
+      constants = resultant_code_obj.constants.map(&:to_s)
+
+      resultant_code_obj
+
+      [resultant_code_obj, *nested_code_object(constants,lookup_class), *nested_code_object(tail,lookup_class)]
+    end
+
+    def build_lookup_class(lc,parent)
+      parent.nil? ? lc : "#{parent}::#{lc}"
+    end
 
     def current_file
       File.expand_path target.eval("__FILE__")
