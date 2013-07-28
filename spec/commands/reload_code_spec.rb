@@ -4,7 +4,7 @@ describe "reload-code" do
   before do
     @o = Object.new
     @t = pry_tester(@o)
-    @tmp_dir ||= File.realpath(Dir.mktmpdir)
+    @tmp_dir ||= Pathname.new(Dir.mktmpdir).realpath
   end
 
   it "should reload the source of descendants and self" do
