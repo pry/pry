@@ -3,7 +3,7 @@
 <center>
 ![The Pry Logo](https://dl.dropbox.com/u/26521875/pry%20stuff/logo/pry_logo_350.png)
 
-© John Mair [banisterfiend](https://twitter.com/banisterfiend) 2013<br>
+© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2013<br>
 
 **Please** [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
 
