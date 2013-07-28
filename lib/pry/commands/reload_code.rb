@@ -46,8 +46,7 @@ class Pry
       constants = resultant_code_obj.constants.map(&:to_s)
 
       resultant_code_obj
-
-      [resultant_code_obj, *nested_code_object(constants,lookup_class), *nested_code_object(tail,lookup_class)]
+      Array(resultant_code_obj) + nested_code_object(constants,lookup_class) + nested_code_object(tail,lookup_class)
     end
 
     def build_lookup_class(lc,parent)
