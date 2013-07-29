@@ -16,7 +16,7 @@ class Pry
     BANNER
 
     def options(opt)
-      opt.on :r, :recursive=, 'Reload source file of code object and descendants', :as => String
+      opt.on :r, :recursive, 'Reload source file of code object and descendants', :as => String
     end
 
     def process
@@ -32,20 +32,29 @@ class Pry
 
     private
 
+    def lookup_history
+      @lookup_history ||= {}
+    end
+
+    def add_to_lookup_history(value)
+      @lookup_history[value] = true
+    end
+
     def recursive_reload(lookup_class)
       nested_code_object(lookup_class).each {|co| reload_code_object(co)}
     end
 
     def nested_code_object(lookup_class,parent=nil)
       args = Array(lookup_class)
-      head,tail= args.shift,args
+      head,tail = args.shift,args
       lookup_class = build_lookup_class(head,parent)
 
-      return [] if head.nil? || head.empty?
+      return [] if head.nil? || head.empty? || lookup_history[head]
+      add_to_lookup_history(head)
+
       resultant_code_obj = Pry::CodeObject.lookup(lookup_class,_pry_)
       constants = resultant_code_obj.constants.map(&:to_s)
 
-      resultant_code_obj
       Array(resultant_code_obj) + nested_code_object(constants,lookup_class) + nested_code_object(tail,lookup_class)
     end
 
@@ -69,7 +78,7 @@ class Pry
     def reload_code_object(code_object)
       check_for_reloadability(code_object)
       load code_object.source_file
-      output.puts "#{obj_name} was reloaded!"
+      output.puts "#{code_object.wrapped} was reloaded!"
     end
 
     def obj_name
