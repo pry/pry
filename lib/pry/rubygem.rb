@@ -76,6 +76,23 @@ class Pry
       else
         Gem.refresh
       end
+
+      # Uninstalls a gem.
+      #
+      # @param [String] name the name of the gem to uninstall
+      #
+      def uninstall(name)
+        uninstaller = Gem::Uninstaller.new(name)
+        uninstaller.uninstall
+      rescue Errno::EACCES
+        raise CommandError,
+          "Insufficient permissions to uninstall #{ Pry::Helpers::Text.green(name) }."
+      rescue Gem::InstallError
+        raise CommandError,
+          "Gem #{ Pry::Helpers::Text.green(name) } is not installed. Aborting uninstallation."
+      else
+        Gem.refresh
+      end
     end
 
   end
