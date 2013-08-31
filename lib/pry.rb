@@ -1,13 +1,13 @@
 # (C) John Mair (banisterfiend) 2013
 # MIT License
 #
-
 require 'pp'
-require 'pry/helpers/base_helpers'
-require 'pry/input_lock'
-require 'pry/hooks'
-
 class Pry
+  require 'pry/input_lock'
+  require 'pry/rescuable_exception'
+  require 'pry/helpers/base_helpers'
+  require 'pry/hooks'
+
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
     next if _pry_.quiet?
@@ -142,27 +142,6 @@ class Pry
   # Store the current working directory. This allows show-source etc. to work if
   # your process has changed directory since boot. [Issue #675]
   INITIAL_PWD = Dir.pwd
-
-  # As a REPL, we often want to catch any unexpected exceptions that may have
-  # been raised; however we don't want to go overboard and prevent the user
-  # from exiting Pry when they want to.
-  module RescuableException
-    def self.===(exception)
-      case exception
-        # Catch when the user hits ^C (Interrupt < SignalException), and assume
-        # that they just wanted to stop the in-progress command (just like bash etc.)
-      when Interrupt
-        true
-        # Don't catch signals (particularly not SIGTERM) as these are unlikely to be
-        # intended for pry itself. We should also make sure that Kernel#exit works.
-      when *Pry.config.exception_whitelist
-        false
-        # All other exceptions will be caught.
-      else
-        true
-      end
-    end
-  end
 
   # An Exception Tag (cf. Exceptional Ruby) that instructs Pry to show the error in
   # a more user-friendly manner. This should be used when the exception happens within
