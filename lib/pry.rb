@@ -2,11 +2,13 @@
 # MIT License
 #
 require 'pp'
+
+require 'pry/input_lock'
+require 'pry/exceptions'
+require 'pry/helpers/base_helpers'
+require 'pry/hooks'
+
 class Pry
-  require 'pry/input_lock'
-  require 'pry/rescuable_exception'
-  require 'pry/helpers/base_helpers'
-  require 'pry/hooks'
 
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
@@ -143,56 +145,15 @@ class Pry
   # your process has changed directory since boot. [Issue #675]
   INITIAL_PWD = Dir.pwd
 
-  # An Exception Tag (cf. Exceptional Ruby) that instructs Pry to show the error in
-  # a more user-friendly manner. This should be used when the exception happens within
-  # Pry itself as a direct consequence of the user typing something wrong.
-  #
-  # This allows us to distinguish between the user typing:
-  #
-  # pry(main)> def )
-  # SyntaxError: unexpected )
-  #
-  # pry(main)> method_that_evals("def )")
-  # SyntaxError: (eval):1: syntax error, unexpected ')'
-  # from ./a.rb:2 in `eval'
-  module UserError; end
-
-  # Catches SecurityErrors if $SAFE is set
-  module TooSafeException
-    def self.===(exception)
-      $SAFE > 0 && SecurityError === exception
-    end
-  end
-
-  # When we try to get a binding for an object, we try to define a method on
-  # that Object's singleton class. This doesn't work for "frozen" Object's, and
-  # the exception is just a vanilla RuntimeError.
-  module FrozenObjectException
-    def self.===(exception)
-      ["can't modify frozen class/module", "can't modify frozen Class"].include? exception.message
-    end
-  end
-
-  # Don't catch these exceptions
-  DEFAULT_EXCEPTION_WHITELIST = [SystemExit, SignalException, Pry::TooSafeException]
-
-  # CommandErrors are caught by the REPL loop and displayed to the user. They
-  # indicate an exceptional condition that's fatal to the current command.
-  class CommandError < StandardError; end
-  class MethodNotFound < CommandError; end
-
-  # indicates obsolete API
-  class ObsoleteError < StandardError; end
-
   # This is to keep from breaking under Rails 3.2 for people who are doing that
   # IRB = Pry thing.
-  module ExtendCommandBundle
-  end
+  module ExtendCommandBundle; end
+
 end
 
 if Pry::Helpers::BaseHelpers.mri_18?
   begin
-  require 'ruby18_source_location'
+    require 'ruby18_source_location'
   rescue LoadError
   end
 end
@@ -229,9 +190,9 @@ end
 if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
   begin
     require 'win32console'
-  # The mswin and mingw versions of pry require win32console, so this should
-  # only fail on jruby (where win32console doesn't work).
-  # Instead we'll recommend ansicon, which does.
+    # The mswin and mingw versions of pry require win32console, so this should
+    # only fail on jruby (where win32console doesn't work).
+    # Instead we'll recommend ansicon, which does.
   rescue LoadError
     warn "For a better pry experience, please use ansicon: http://adoxa.3eeweb.com/ansicon/"
   end
