@@ -17,7 +17,7 @@ class Pry
     end
 
     def process
-      code_object = Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
+      code_object = Pry::CodeObject.lookup(obj_name.to_s.gsub(/^::/, ''), _pry_, :super => opts[:super])
       raise CommandError, no_definition_message if !code_object
       @original_code_object = code_object
 
