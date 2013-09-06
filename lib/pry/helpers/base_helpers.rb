@@ -104,6 +104,10 @@ class Pry
         RUBY_VERSION =~ /1.9/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
       end
 
+      def mri_20?
+        RUBY_VERSION =~ /2.0/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
+      end
+
       # Try to use `less` for paging, if it fails then use
       # simple_pager. Also do not page if Pry.pager is falsey
       def stagger_output(text, out = nil)
