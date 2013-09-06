@@ -55,7 +55,7 @@ class Pry
         self.option_processors = nil
       end
 
-      def parse_options(args=ARGV.dup)
+      def parse_options(args=ARGV)
         unless options
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
