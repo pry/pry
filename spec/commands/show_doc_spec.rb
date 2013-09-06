@@ -295,6 +295,11 @@ if !PryTestHelpers.mri18_and_no_real_source_location?
         end
       end
 
+      it 'should search the YARD registry for Klass when ::Klass is entered' do
+        lambda { pry_tester.process_command "show-doc ::Array" }.should.raise(Pry::CommandError).
+          message.should =~ /Cannot locate this method: Array/
+      end
+
       describe "show-doc -a" do
         it 'should show the docs for all monkeypatches defined in different files' do
           # local monkeypatch
