@@ -9,6 +9,16 @@ describe Pry::Hooks do
     it 'should raise if no options defined' do
       lambda { Pry::CLI.parse_options(["--nothing"]) }.should.raise Pry::CLI::NoOptionsError
     end
+
+    it "should remove args from ARGV by default" do
+      ARGV << '-v'
+      Pry::CLI.add_options do
+        on :v, "Display the Pry version" do
+          # irrelevant
+        end
+      end.parse_options
+      ARGV.include?('-v').should == false
+    end
   end
 
   describe "adding options" do
