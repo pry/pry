@@ -152,12 +152,6 @@ class Pry
       @commands.each(&block)
     end
 
-    # Add a given command object to this set.
-    # @param [Command] command The subclass of Pry::Command you wish to add.
-    def add_command(command)
-      commands[command.match] = command
-    end
-
     # Removes some commands from the set
     # @param [Array<String>] searches the matches or listings of the commands to remove
     def delete(*searches)
@@ -317,10 +311,56 @@ class Pry
     # Find a command that matches the given line
     # @param [String] val The line that might be a command invocation
     # @return [Pry::Command, nil]
-    def find_command(val)
-      commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
+    def [](pattern)
+      commands.values.select do |command|
+        command.matches?(pattern)
+      end.sort_by do |command|
+        command.match_score(pattern)
+      end.last
     end
-    alias_method :[], :find_command
+    alias_method :find_command, :[]
+
+    #
+    # Re-assign the command found at _pattern_ with _command_.
+    #
+    # @param [Regexp, String] pattern
+    #   The command to add or replace(found at _pattern_).
+    #
+    # @param [Pry::Command] command
+    #   The command to add.
+    #
+    # @return [Pry::Command]
+    #   Returns the new command (matched with "pattern".)
+    #
+    # @example
+    #   Pry.commands["help"] = MyHelpCommand
+    #
+    def []=(pattern, command)
+      if command.equal?(nil)
+        return commands.delete(pattern)
+      end
+      unless command < Pry::Command
+        raise TypeError, "command is not a subclass of Pry::Command"
+      end
+      bind_command_to_pattern = pattern != command.match
+      if bind_command_to_pattern
+        command_copy = command.dup
+        command_copy.match = pattern
+        @commands[pattern] = command_copy
+      else
+        @commands[pattern] = command
+      end
+    end
+
+    #
+    # Add a command to set.
+    #
+    # @param [Command] command
+    #   a subclass of Pry::Command.
+    #
+    def add_command(command)
+      self[command.match] = command
+    end
 
     # Find the command that the user might be trying to refer to.
     # @param [String] search The user's search.
