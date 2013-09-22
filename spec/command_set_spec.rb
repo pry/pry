@@ -12,6 +12,26 @@ describe Pry::CommandSet do
     }
   end
 
+  describe "[]=" do
+    it "removes a command from the command set" do
+      @set["help"].should.not == nil
+      @set["help"] = nil
+      @set["help"].should == nil
+      lambda { @set.run_command(TOPLEVEL_BINDING, "help") }.should.raise Pry::NoCommandError
+    end
+
+    it "replaces a command" do
+      old_help = @set["help"]
+      @set["help"] = @set["pry-version"]
+      @set["help"].should.not == old_help
+    end
+
+    it "rebinds the command with key" do
+      @set["help-1"] = @set["help"]
+      @set["help-1"].match.should == "help-1"
+    end
+  end
+
   it 'should call the block used for the command when it is called' do
     run = false
     @set.command 'foo' do
