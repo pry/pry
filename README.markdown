@@ -395,7 +395,6 @@ file.
 Many new features are planned such as:
 
 * Increase modularity (rely more on plugin system)
-* Much improved tab completion (using [Bond](http://github.com/cldwalker/bond))
 * Much improved documentation system, better support for YARD
 * Better support for code and method reloading and saving code
 * Extended and more sophisticated command system, allowing piping
