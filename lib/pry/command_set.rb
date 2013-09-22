@@ -339,7 +339,7 @@ class Pry
       if command.equal?(nil)
         return commands.delete(pattern)
       end
-      unless command < Pry::Command
+      unless Class === command && command < Pry::Command
         raise TypeError, "command is not a subclass of Pry::Command"
       end
       bind_command_to_pattern = pattern != command.match

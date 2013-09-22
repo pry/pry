@@ -30,6 +30,10 @@ describe Pry::CommandSet do
       @set["help-1"] = @set["help"]
       @set["help-1"].match.should == "help-1"
     end
+
+    it "raises a TypeError when command is not a subclass of Pry::Command" do
+      lambda { @set["help"] = "hello" }.should.raise TypeError
+    end
   end
 
   it 'should call the block used for the command when it is called' do
