@@ -424,7 +424,9 @@ class Pry
 
     begin
       if !process_command(val, eval_string, target)
-        eval_string << "#{indented_val.chomp}\n" unless val.empty? && eval_string.empty?
+        unless [val, eval_string].all?(&:empty?)
+          eval_string << "#{indented_val.chomp}\n"
+        end
       end
     ensure
       Pry.history << indented_val if interactive
