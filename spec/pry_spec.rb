@@ -208,6 +208,17 @@ describe Pry do
 
           o.instance_variable_get(:@x).should == 10
         end
+
+        it 'should preserve newlines correctly with multi-line input' do
+          input_strings = ['@s = <<-END', '1', '', '', '2', 'END']
+          input = InputTester.new(*input_strings)
+
+          o = Object.new
+
+          pry_tester = Pry.start(o, :input => input, :output => StringIO.new)
+
+          o.instance_variable_get(:@s).should == "1\n\n\n2\n"
+        end
       end
 
       describe "complete_expression?" do
