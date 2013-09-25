@@ -42,15 +42,6 @@ class Pry
         end
       end
 
-      def set_file_and_dir_locals(file_name, _pry_=_pry_(), target=target())
-        return if !target or !file_name
-        _pry_.last_file = File.expand_path(file_name)
-        _pry_.inject_local("_file_", _pry_.last_file, target)
-
-        _pry_.last_dir = File.dirname(_pry_.last_file)
-        _pry_.inject_local("_dir_", _pry_.last_dir, target)
-      end
-
       def use_ansi_codes?
         windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
@@ -104,7 +95,7 @@ class Pry
       end
 
       def mri_19?
-        mri? && RUBY_VERSION =~ /1.9/ 
+        mri? && RUBY_VERSION =~ /1.9/
       end
 
 
