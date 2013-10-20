@@ -34,6 +34,19 @@ describe "ls" do
     end
   end
 
+  describe "BasicObject" do
+    it "should work on BasicObject" do
+      pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__id__.*__send__/
+    end
+
+    it "should work on subclasses of BasicObject" do
+      pry_eval(
+        "class LessBasic < BasicObject; def jaroussky; 5; end; end",
+        "ls LessBasic.new"
+      ).should =~ /LessBasic#methods:.*jaroussky/
+    end
+  end
+
   describe "methods" do
     it "should show public methods by default" do
       output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")
