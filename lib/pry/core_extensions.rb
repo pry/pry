@@ -14,7 +14,7 @@ class Pry
     #
     # @return [Binding]
     def __pry__
-      ::Kernel.binding
+      binding
     end
   METHOD
 end
@@ -114,7 +114,21 @@ if defined?(BasicObject)
       # BasicObjects don't have respond_to?, so we just define the method
       # every time. As they also don't have `.freeze`, this call won't
       # fail as it can for normal Objects.
-      (class << self; self; end).class_eval(*::Pry::BINDING_METHOD_IMPL)
+      (class << self; self; end).class_eval <<-EOF, __FILE__, __LINE__ + 1
+        # Get a binding with 'self' set to self, and no locals.
+        #
+        # The default definee is determined by the context in which the
+        # definition is eval'd.
+        #
+        # Please don't call this method directly, see {__binding__}.
+        #
+        # @return [Binding]
+        def __pry__
+          # In ruby-1.8.7 ::Kernel.binding sets self to Kernel in the returned binding.
+          # Luckily ruby-1.8.7 doesn't have BasicObject, so this is safe.
+          ::Kernel.binding
+        end
+      EOF
       self.__pry__
     end
   end
