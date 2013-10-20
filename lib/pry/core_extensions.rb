@@ -14,7 +14,7 @@ class Pry
     #
     # @return [Binding]
     def __pry__
-      binding
+      ::Kernel.binding
     end
   METHOD
 end
@@ -45,9 +45,7 @@ class Object
       Pry.start(object, hash)
     end
   end
-end
 
-class BasicObject
   # Return a binding object for the receiver.
   #
   # The `self` of the binding is set to the current object, and it contains no
@@ -98,5 +96,24 @@ class BasicObject
     end
 
     __pry__
+  end
+end
+
+class BasicObject
+  # Return a binding object for the receiver.
+  #
+  # The `self` of the binding is set to the current object, and it contains no
+  # local variables.
+  #
+  # The default definee (http://yugui.jp/articles/846) is set such that new
+  # methods defined will be added to the singleton class of the BasicObject.
+  #
+  # @return [Binding]
+  def __binding__
+    # BasicObjects don't have respond_to?, so we just define the method
+    # every time. As they also don't have `.freeze`, this call won't
+    # fail as it can for normal Objects.
+    (class << self; self; end).class_eval(*::Pry::BINDING_METHOD_IMPL)
+    self.__pry__
   end
 end
