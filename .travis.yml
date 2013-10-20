@@ -16,6 +16,7 @@ matrix:
     - rvm: ruby-head
     - rvm: rbx-18mode
     - rvm: rbx-19mode
+    - rvm: jruby-head
 
 notifications:
   irc: "irc.freenode.org#pry"
