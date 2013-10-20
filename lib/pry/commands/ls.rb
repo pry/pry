@@ -157,11 +157,7 @@ class Pry
     def below_ceiling(obj)
       ceiling = if opts.present?(:quiet)
                    [
-                     if opts.present?(:'instance-methods')
-                       Pry::Method.safe_send(obj, :ancestors)[1]
-                     else
-                       Pry::Method.safe_send(obj.class, :ancestors)[1]
-                     end
+                     Pry::Method.safe_send(module_to_interrogate, :ancestors)[1]
                    ] + Pry.config.ls.ceiling
                  elsif opts.present?(:verbose)
                    []
@@ -178,6 +174,7 @@ class Pry
         ["-g does not make sense with a specified Object", :globals,            !args.empty?],
         ["-q does not make sense with -v",                 :quiet,              opts.present?(:verbose)],
         ["-M only makes sense with a Module or a Class",   :'instance-methods', !interrogating_a_module?],
+        ["-c only makes sense with a Module or a Class",   :constants,          !args.empty? && !interrogating_a_module?],
       ].each do |message, option, expression|
         raise Pry::CommandError, message if opts.present?(option) && expression
       end
@@ -185,6 +182,10 @@ class Pry
 
     def interrogating_a_module?
       (Module === object_to_interrogate)
+    end
+
+    def module_to_interrogate
+      interrogating_a_module? ? object_to_interrogate : (class << object_to_interrogate; self.ancestors.first; end)
     end
 
     def write_out_globals
@@ -196,9 +197,8 @@ class Pry
     def write_out_constants
       return unless opts.present?(:constants) || (!has_user_specified_any_options && interrogating_a_module?)
 
-      mod = interrogating_a_module? ? object_to_interrogate : object_to_interrogate.class
-      constants = WrappedModule.new(mod).constants(opts.present?(:verbose))
-      output_section("constants", grep[format_constants(mod, constants)])
+      constants = WrappedModule.new(module_to_interrogate).constants(opts.present?(:verbose))
+      output_section("constants", grep[format_constants(module_to_interrogate, constants)])
     end
 
     def write_out_methods
@@ -226,9 +226,12 @@ class Pry
     def write_out_ivars
       return unless opts.present?(:ivars) || !has_user_specified_any_options
 
-      klass = (interrogating_a_module? ? object_to_interrogate : object_to_interrogate.class)
-      ivars = Pry::Method.safe_send(object_to_interrogate, :instance_variables)
-      kvars = Pry::Method.safe_send(klass, :class_variables)
+      if Object === object_to_interrogate
+        ivars = Pry::Method.safe_send(object_to_interrogate, :instance_variables)
+      else
+        ivars = [] #TODO: BasicObject support
+      end
+      kvars = Pry::Method.safe_send(module_to_interrogate, :class_variables)
       output_section("instance variables", format_variables(:instance_var, ivars)) +
       output_section("class variables", format_variables(:class_var, kvars))
     end

@@ -139,7 +139,11 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super=true)
-        all_from_common(klass, :instance_method, include_super)
+        %w(public protected private).map do |visibility|
+          safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
+            new(safe_send(klass, :instance_method, method_name), :visibility => visibility.to_sym)
+          end
+        end.flatten(1)
       end
 
       # Get all of the methods on an `Object`
@@ -147,7 +151,7 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_obj(obj, include_super=true)
-        all_from_common(obj, :method, include_super)
+        all_from_class(class << obj; self; end, include_super)
       end
 
       # Get every `Class` and `Module`, in order, that will be checked when looking
@@ -187,19 +191,6 @@ class Pry
       end
 
       private
-
-      # See all_from_class and all_from_obj.
-      # If method_type is :instance_method, obj must be a `Class` or a `Module`
-      # If method_type is :method, obj can be any `Object`
-      #
-      # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
-      def all_from_common(obj, method_type, include_super=true)
-        %w(public protected private).map do |visibility|
-          safe_send(obj, :"#{visibility}_#{method_type}s", include_super).map do |method_name|
-            new(safe_send(obj, method_type, method_name), :visibility => visibility.to_sym)
-          end
-        end.flatten(1)
-      end
 
       # Get the singleton classes of superclasses that could define methods on
       # the given class object, and any modules they include.
