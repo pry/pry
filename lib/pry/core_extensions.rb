@@ -45,7 +45,9 @@ class Object
       Pry.start(object, hash)
     end
   end
+end
 
+class BasicObject
   # Return a binding object for the receiver.
   #
   # The `self` of the binding is set to the current object, and it contains no
