@@ -8,6 +8,8 @@ require 'pry/exceptions'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
+require 'securerandom'
+
 class Pry
 
   # The default hooks - display messages when beginning and ending Pry sessions.
@@ -37,7 +39,7 @@ class Pry
       stringified = "#<#{klass}:0x#{id}>"
     end
 
-    nonce = rand(0x100000000).to_s(16) # whatever
+    nonce = SecureRandom.hex(4)
 
     stringified.gsub!(/#</, "%<#{nonce}")
     # Don't recolorize output with color (for cucumber, looksee, etc.) [Issue #751]
