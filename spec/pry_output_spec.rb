@@ -43,6 +43,10 @@ describe Pry do
     it "should not be phased by un-inspectable things" do
       mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<.*NastyClass:0x.*?>/
     end
+
+    it "doesn't leak colour for object literals" do
+      mock_pry("Object.new").should =~ /=> #<Object:0x[a-z0-9]+>\n/
+    end
   end
 
   describe "color" do
