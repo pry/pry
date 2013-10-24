@@ -176,13 +176,6 @@ class Pry
   end
 end
 
-if Pry::Helpers::BaseHelpers.mri_18?
-  begin
-    require 'ruby18_source_location'
-  rescue LoadError
-  end
-end
-
 require 'method_source'
 require 'shellwords'
 require 'stringio'
