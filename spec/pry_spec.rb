@@ -319,7 +319,8 @@ describe Pry do
         end
 
         it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
-          [:test, 0, true, false, nil, 0.0].each do |val|
+          [:test, 0, true, false, nil,
+              (0.0 unless Pry::Helpers::BaseHelpers.jruby?)].each do |val|
             pry_eval(val, "def hello; end");
             val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
           end
