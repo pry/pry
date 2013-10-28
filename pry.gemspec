@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- spec/*`.split("\n")
 
-  s.add_dependency 'coderay',       '>= 1.0.5'
+  s.add_dependency 'coderay',       '>= 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
   s.add_dependency 'method_source', '~> 0.8'
 
