@@ -131,7 +131,6 @@ class Pry::Pager
     def write(str)
       @pager.write str
     rescue Errno::EPIPE
-      # Don't worry about ^C.
     end
 
     def close

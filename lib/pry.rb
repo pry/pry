@@ -24,37 +24,12 @@ class Pry
   end
 
   def self.output_with_default_format(output, value, options = {})
-    stringified = begin
-                    value.pretty_inspect
-                  rescue RescuableException
-                    nil
-                  end
-
-    unless String === stringified
-      # Read the class name off of the singleton class to provide a default
-      # inspect.
-      eig = class << value; self; end
-      klass = Pry::Method.safe_send(eig, :ancestors).first
-      id = value.__id__.to_s(16) rescue 0
-      stringified = "#<#{klass}:0x#{id}>"
-    end
-
-    nonce = SecureRandom.hex(4)
-
-    stringified.gsub!(/#</, "%<#{nonce}")
-    # Don't recolorize output with color (for cucumber, looksee, etc.) [Issue #751]
-    colorized = if stringified =~ /\e\[/
-                  stringified
-                else
-                  Helpers::BaseHelpers.colorize_code(stringified)
-                end
-
-    # avoid colour-leak from CodeRay and any of the users' previous output
-    colorized = colorized.sub(/(\n*)\z/, "\e[0m\\1") if Pry.color
-
-    result = colorized.gsub(/%<(.*?)#{nonce}/, '#<\1')
-    result = "=> #{result}" if options[:hashrocket]
-    Helpers::BaseHelpers.stagger_output(result, output)
+    pager = Pry::Pager.best_available(output)
+    pager.print "=> " if options[:hashrocket]
+    Pry::ColorPrinter.pp(value, pager)
+  rescue Pry::Pager::StopPaging
+  ensure
+    pager.close if pager
   end
 
   # may be convenient when working with enormous objects and
@@ -225,6 +200,7 @@ require 'pry/core_extensions'
 require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/cli'
+require 'pry/color_printer'
 require 'pry/pager'
 require 'pry/terminal'
 require 'pry/editor'
