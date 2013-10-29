@@ -1,52 +1,98 @@
 require 'pry/terminal'
+
+# A Pry::Pager is an IO-like object that accepts text and either prints it
+# immediately, prints it one page at a time, or streams it to an external
+# program to print one page at a time.
 class Pry::Pager
+  class StopPaging < StandardError
+  end
+
   # @param [String] text
   #   A piece of text to run through a pager.
-  # @param [Symbol?] pager
+  # @param [Symbol?] pager_type
   #   `:simple` -- Use the pure ruby pager.
   #   `:system` -- Use the system pager (less) or the environment variable
   #                $PAGER if set.
   #   `nil`     -- Infer what pager to use from the environment.  What this
   #                really means is that JRuby and systems that do not have
   #                access to 'less' will run through the pure ruby pager.
-  def self.page(text, pager = nil)
-    case pager
+  def self.page(text, pager_type = nil)
+    pager = best_available($stdout, pager_type)
+    pager << text
+  ensure
+    pager.close if pager
+  end
+
+  def self.best_available(output, pager_type = nil)
+    case pager_type
     when nil
       no_pager = !SystemPager.available?
       if no_pager || Pry::Helpers::BaseHelpers.jruby?
-        SimplePager.new(text).page
+        SimplePager.new(output)
       else
-        SystemPager.new(text).page
+        SystemPager.new(output)
       end
     when :simple
-      SimplePager.new(text).page
+      SimplePager.new(output)
     when :system
-      SystemPager.new(text).page
+      SystemPager.new(output)
     else
       raise "'#{pager}' is not a recognized pager."
     end
   end
 
   def self.page_size
-    @page_size ||= Pry::Terminal.height!
+    Pry::Terminal.height!
   end
 
-  def initialize(text)
-    @text = text
+  def initialize(out)
+    @out = out
+  end
+
+  def page_size
+    @page_size ||= self.class.page_size
+  end
+
+  def puts(str)
+    print "#{str.chomp}\n"
+  end
+
+  def write(str)
+    @out.write str
+  end
+
+  def print(str)
+    write str
+  end
+  alias << print
+
+  def close
+    # no-op for base pager, but important for subclasses
   end
 
   class SimplePager < Pry::Pager
-    def page
-      # The pager size minus the number of lines used by the simple pager info bar.
-      page_size = Pry::Pager.page_size - 3
-      text_array = @text.lines.to_a
+    # Window height minus the number of lines used by the info bar.
+    def self.page_size
+      super - 3
+    end
 
-      text_array.each_slice(page_size) do |chunk|
-        puts chunk.join
-        break if chunk.size < page_size
-        if text_array.size > page_size
-          puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>"
-          break if $stdin.gets.chomp == "q"
+    def initialize(*)
+      super
+      @lines_printed = 0
+    end
+
+    def write(str)
+      page_size = self.class.page_size
+
+      str.lines.each do |line|
+        @out.write line
+        @lines_printed += 1 if line.end_with?("\n")
+
+        if @lines_printed >= page_size
+          @out.puts "\n<page break> --- Press enter to continue " \
+                    "( q<enter> to break ) --- <page break>"
+          raise StopPaging if $stdin.gets.chomp == "q"
+          @lines_printed = 0
         end
       end
     end
@@ -79,13 +125,17 @@ class Pry::Pager
 
     def initialize(*)
       super
-      @pager = SystemPager.default_pager
+      @pager = IO.popen(SystemPager.default_pager, 'w')
     end
 
-    def page
-      IO.popen(@pager, 'w') do |io|
-        io.write @text
-      end
+    def write(str)
+      @pager.write str
+    rescue Errno::EPIPE
+      # Don't worry about ^C.
+    end
+
+    def close
+      @pager.close if @pager
     end
   end
 end
