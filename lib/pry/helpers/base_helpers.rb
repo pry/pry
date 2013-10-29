@@ -114,14 +114,13 @@ class Pry
                   $stdout
                 end
 
-        if text.lines.count < Pry::Pager.page_size || !Pry.pager
-          out.puts text
-        else
+        if Pry.pager
           Pry::Pager.page(text)
+        else
+          out.puts text
         end
       rescue Errno::ENOENT
         Pry::Pager.page(text, :simple)
-      rescue Errno::EPIPE
       end
 
       # @param [String] arg_string The object path expressed as a string.
