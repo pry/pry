@@ -181,7 +181,7 @@ class Pry::Pager
           @row += ((@col + line_length(line) - 1) / @cols) + 1
           @col  = 0
         else
-          @col += line.length
+          @col += line_length(line)
         end
       end
     end
