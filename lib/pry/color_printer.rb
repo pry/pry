@@ -24,10 +24,29 @@ class Pry
       elsif str.include?("\e[")
         ["#{str}\e[0m", width]
       elsif str.start_with?('#<') || str == '=' || str == '>'
-        ["#{OBJ_COLOR}#{str}\e[0m", width]
+        [highlight_object_literal(str), width]
       else
         [CodeRay.scan(str, :ruby).term, width]
       end
+    end
+
+    def pp(obj)
+      super
+    rescue
+      # Read the class name off of the singleton class to provide a default
+      # inspect.
+      eig    = class << obj; self; end
+      klass  = Pry::Method.safe_send(eig, :ancestors).first
+      obj_id = obj.__id__.to_s(16) rescue 0
+      str    = "#<#{klass}:0x#{obj_id}>"
+
+      text(Pry.color ? highlight_object_literal(str) : str)
+    end
+
+    private
+
+    def highlight_object_literal(object_literal)
+      "#{OBJ_COLOR}#{object_literal}\e[0m"
     end
   end
 end
