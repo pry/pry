@@ -41,24 +41,12 @@ class Pry::Pager
     end
   end
 
-  def self.page_size
-    Pry::Terminal.height!
-  end
-
   def initialize(out)
     @out = out
   end
 
-  def page_size
-    @page_size ||= self.class.page_size
-  end
-
   def puts(str)
     print "#{str.chomp}\n"
-  end
-
-  def write(str)
-    @out.write str
   end
 
   def print(str)
@@ -66,44 +54,55 @@ class Pry::Pager
   end
   alias << print
 
+  def write(str)
+    @out.write str
+  end
+
   def close
     # no-op for base pager, but important for subclasses
   end
 
-  class SimplePager < Pry::Pager
-    # Window height minus the number of lines used by the info bar.
-    def self.page_size
-      super - 3
-    end
+  private
 
+  def height
+    @height ||= Pry::Terminal.height!
+  end
+
+  def width
+    @width ||= Pry::Terminal.width!
+  end
+
+  class SimplePager < Pry::Pager
     def initialize(*)
       super
-      @lines_printed = 0
+      @tracker = PageTracker.new(height - 3, width)
     end
 
     def write(str)
-      page_size = self.class.page_size
-
       str.lines.each do |line|
         @out.write line
-        @lines_printed += 1 if line.end_with?("\n")
+        @tracker.record line
 
-        if @lines_printed >= page_size
+        if @tracker.page?
           @out.puts "\n<page break> --- Press enter to continue " \
                     "( q<enter> to break ) --- <page break>"
           raise StopPaging if $stdin.gets.chomp == "q"
-          @lines_printed = 0
+          @tracker.reset
         end
       end
     end
   end
 
+  # SystemPager buffers output until we're pretty sure it's at least a
+  # page long, then invokes an external pager and starts streaming
+  # output to it. If close is called before then, it just prints out
+  # the buffered content.
   class SystemPager < Pry::Pager
     def self.default_pager
       pager = ENV["PAGER"] || ""
 
       # Default to less, and make sure less is being passed the correct options
-      if pager.strip.empty? or pager =~ /^less\s*/
+      if pager.strip.empty? or pager =~ /^less\b/
         pager = "less -R -S -F -X"
       end
 
@@ -125,16 +124,83 @@ class Pry::Pager
 
     def initialize(*)
       super
-      @pager = IO.popen(SystemPager.default_pager, 'w')
+      @tracker = PageTracker.new(height, width)
+      @buffer  = ""
     end
 
     def write(str)
-      @pager.write str
+      if invoked_pager?
+        pager.write str
+      else
+        @tracker.record str
+        @buffer << str
+
+        if @tracker.page?
+          pager.write @buffer
+        end
+      end
     rescue Errno::EPIPE
     end
 
     def close
-      @pager.close if @pager
+      if invoked_pager?
+        pager.close
+      else
+        @out.puts @buffer
+      end
+    end
+
+    private
+
+    def invoked_pager?
+      @pager
+    end
+
+    def pager
+      @pager ||= IO.popen(self.class.default_pager, 'w')
+    end
+  end
+
+  # PageTracker tracks output to determine whether it's likely to take up a
+  # whole page. This doesn't need to be super precise, but we can use it for
+  # SimplePager and to avoid invoking the system pager unnecessarily.
+  #
+  # One simplifying assumption is that we don't need page? to return true on
+  # the basis of an incomplete line. Long lines should be counted as multiple
+  # lines, but we don't have to transition from false to true until we see a
+  # newline.
+  class PageTracker
+    def initialize(rows, cols)
+      @rows, @cols = rows, cols
+      reset
+    end
+
+    def record(str)
+      str.lines.each do |line|
+        if line.end_with? "\n"
+          @row += ((@col + line_length(line) - 1) / @cols) + 1
+          @col  = 0
+        else
+          @col += line.length
+        end
+      end
+    end
+
+    def page?
+      @row >= @rows
+    end
+
+    def reset
+      @row = 0
+      @col = 0
+    end
+
+    private
+
+    # Approximation of the printable length of a given line, without the
+    # newline and without ANSI color codes.
+    def line_length(line)
+      line.chomp.gsub(/\e\[[\d;]*m/, '').length
     end
   end
 end
