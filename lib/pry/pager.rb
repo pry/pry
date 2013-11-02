@@ -140,6 +140,7 @@ class Pry::Pager
         end
       end
     rescue Errno::EPIPE
+      raise StopPaging
     end
 
     def close
