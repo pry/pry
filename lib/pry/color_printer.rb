@@ -32,7 +32,9 @@ class Pry
 
     def pp(obj)
       super
-    rescue
+    rescue => e
+      raise if e.is_a? Pry::Pager::StopPaging
+
       # Read the class name off of the singleton class to provide a default
       # inspect.
       eig    = class << obj; self; end
