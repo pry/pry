@@ -14,6 +14,7 @@ module Pry::Pager
   def self.page(text, out = $stdout)
     pager = best_available(out)
     pager << text
+  rescue StopPaging
   ensure
     pager.close if pager
   end
