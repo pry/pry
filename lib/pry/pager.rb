@@ -7,72 +7,69 @@ class Pry::Pager
   class StopPaging < StandardError
   end
 
-  # @param [String] text
-  #   A piece of text to run through a pager.
-  # @param [Symbol?] pager_type
-  #   `:simple` -- Use the pure ruby pager.
-  #   `:system` -- Use the system pager (less) or the environment variable
-  #                $PAGER if set.
-  #   `nil`     -- Infer what pager to use from the environment.  What this
-  #                really means is that JRuby and systems that do not have
-  #                access to 'less' will run through the pure ruby pager.
-  def self.page(text, pager_type = nil)
-    pager = best_available($stdout, pager_type)
+  # Send the given text through the best available pager (if Pry.pager is
+  # enabled).
+  # @param [String] text A piece of text to run through a pager.
+  # @param [#<<] output ($stdout) An object to send output to.
+  def self.page(text, out = $stdout)
+    pager = best_available(out)
     pager << text
   ensure
     pager.close if pager
   end
 
-  def self.best_available(output, pager_type = nil)
-    case pager_type
-    when nil
-      no_pager = !SystemPager.available?
-      if no_pager || Pry::Helpers::BaseHelpers.jruby?
-        SimplePager.new(output)
-      else
-        SystemPager.new(output)
-      end
-    when :simple
+  # Return an instance of the "best" available pager class -- SystemPager if
+  # possible, SimplePager if SystemPager isn't available, and NullPager if the
+  # user has disabled paging. All pagers accept output with #puts, #print,
+  # #write, and #<<. You must call #close when you're done writing output to a
+  # pager.
+  def self.best_available(output)
+    if !Pry.pager
+      NullPager.new(output)
+    elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
       SimplePager.new(output)
-    when :system
-      SystemPager.new(output)
     else
-      raise "'#{pager}' is not a recognized pager."
+      SystemPager.new(output)
     end
   end
 
-  def initialize(out)
-    @out = out
+  # A "pager" that actually just prints all output as it comes in. Used when
+  # Pry.pager is false.
+  class NullPager
+    def initialize(out)
+      @out = out
+    end
+
+    def puts(str)
+      print "#{str.chomp}\n"
+    end
+
+    def print(str)
+      write str
+    end
+    alias << print
+
+    def write(str)
+      @out.write str
+    end
+
+    def close
+    end
+
+    private
+
+    def height
+      @height ||= Pry::Terminal.height!
+    end
+
+    def width
+      @width ||= Pry::Terminal.width!
+    end
   end
 
-  def puts(str)
-    print "#{str.chomp}\n"
-  end
-
-  def print(str)
-    write str
-  end
-  alias << print
-
-  def write(str)
-    @out.write str
-  end
-
-  def close
-    # no-op for base pager, but important for subclasses
-  end
-
-  private
-
-  def height
-    @height ||= Pry::Terminal.height!
-  end
-
-  def width
-    @width ||= Pry::Terminal.width!
-  end
-
-  class SimplePager < Pry::Pager
+  # SimplePager is a very simple pure-Ruby implementation of paging. We use it
+  # on JRuby and when we can't find an external pager to use.
+  class SimplePager < NullPager
     def initialize(*)
       super
       @tracker = PageTracker.new(height - 3, width)
@@ -80,7 +77,7 @@ class Pry::Pager
 
     def write(str)
       str.lines.each do |line|
-        @out.write line
+        @out.puts line
         @tracker.record line
 
         if @tracker.page?
@@ -97,7 +94,7 @@ class Pry::Pager
   # page long, then invokes an external pager and starts streaming
   # output to it. If close is called before then, it just prints out
   # the buffered content.
-  class SystemPager < Pry::Pager
+  class SystemPager < NullPager
     def self.default_pager
       pager = ENV["PAGER"] || ""
 

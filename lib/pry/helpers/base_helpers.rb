@@ -98,9 +98,8 @@ class Pry
         mri? && RUBY_VERSION =~ /1.9/
       end
 
-
-      # Try to use `less` for paging, if it fails then use
-      # simple_pager. Also do not page if Pry.pager is falsey
+      # Send the given text through the best available pager (if Pry.pager is
+      # enabled). Infers where to send the output if used as a mixin.
       def stagger_output(text, out = nil)
         out ||= case
                 when respond_to?(:output)
@@ -114,13 +113,7 @@ class Pry
                   $stdout
                 end
 
-        if Pry.pager
-          Pry::Pager.page(text)
-        else
-          out.puts text
-        end
-      rescue Errno::ENOENT
-        Pry::Pager.page(text, :simple)
+        Pry::Pager.page(text, out)
       end
 
       # @param [String] arg_string The object path expressed as a string.
