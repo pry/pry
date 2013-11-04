@@ -89,7 +89,7 @@ module Pry::Pager
 
     def write(str)
       str.lines.each do |line|
-        @out.puts line
+        @out.print line
         @tracker.record line
 
         if @tracker.page?
