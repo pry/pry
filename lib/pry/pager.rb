@@ -1,29 +1,40 @@
 require 'pry/terminal'
 
-# A Pry::Pager is an IO-like object that accepts text and either prints it
+# A pager is an `IO`-like object that accepts text and either prints it
 # immediately, prints it one page at a time, or streams it to an external
 # program to print one page at a time.
 module Pry::Pager
   class StopPaging < StandardError
   end
 
-  # Send the given text through the best available pager (if Pry.pager is
+  # Send the given text through the best available pager (if `Pry.pager` is
   # enabled).
   # @param [String] text A piece of text to run through a pager.
-  # @param [#<<] output ($stdout) An object to send output to.
-  def self.page(text, out = $stdout)
-    pager = best_available(out)
-    pager << text
+  # @param [IO] output (`$stdout`) An object to send output to.
+  def self.page(text, output = $stdout)
+    with_pager(output) do |pager|
+      pager << text
+    end
+  end
+
+  # Yields a pager object (`NullPager`, `SimplePager`, or `SystemPager`).  All
+  # pagers accept output with `#puts`, `#print`, `#write`, and `#<<`.
+  # @param [IO] output (`$stdout`) An object to send output to.
+  def self.with_pager(output = $stdout)
+    pager = best_available(output)
+    yield pager
   rescue StopPaging
   ensure
     pager.close if pager
   end
 
-  # Return an instance of the "best" available pager class -- SystemPager if
-  # possible, SimplePager if SystemPager isn't available, and NullPager if the
-  # user has disabled paging. All pagers accept output with #puts, #print,
-  # #write, and #<<. You must call #close when you're done writing output to a
-  # pager.
+  # Return an instance of the "best" available pager class -- `SystemPager` if
+  # possible, `SimplePager` if `SystemPager` isn't available, and `NullPager`
+  # if the user has disabled paging. All pagers accept output with `#puts`,
+  # `#print`, `#write`, and `#<<`. You must call `#close` when you're done
+  # writing output to a pager, and you must rescue `Pry::Pager::StopPaging`.
+  # These requirements can be avoided by using `.with_pager` instead.
+  # @param [#<<] output ($stdout) An object to send output to.
   def self.best_available(output)
     if !Pry.pager
       NullPager.new(output)
@@ -34,8 +45,8 @@ module Pry::Pager
     end
   end
 
-  # A "pager" that actually just prints all output as it comes in. Used when
-  # Pry.pager is false.
+  # `NullPager` is a "pager" that actually just prints all output as it comes
+  # in. Used when `Pry.pager` is false.
   class NullPager
     def initialize(out)
       @out = out
@@ -68,8 +79,8 @@ module Pry::Pager
     end
   end
 
-  # SimplePager is a very simple pure-Ruby implementation of paging. We use it
-  # on JRuby and when we can't find an external pager to use.
+  # `SimplePager` is a straightforward pure-Ruby pager. We use it on JRuby and
+  # when we can't find a usable external pager.
   class SimplePager < NullPager
     def initialize(*)
       super
@@ -91,10 +102,9 @@ module Pry::Pager
     end
   end
 
-  # SystemPager buffers output until we're pretty sure it's at least a
-  # page long, then invokes an external pager and starts streaming
-  # output to it. If close is called before then, it just prints out
-  # the buffered content.
+  # `SystemPager` buffers output until we're pretty sure it's at least a page
+  # long, then invokes an external pager and starts streaming output to it. If
+  # `#close` is called before then, it just prints out the buffered content.
   class SystemPager < NullPager
     def self.default_pager
       pager = ENV["PAGER"] || ""
@@ -160,14 +170,14 @@ module Pry::Pager
     end
   end
 
-  # PageTracker tracks output to determine whether it's likely to take up a
+  # `PageTracker` tracks output to determine whether it's likely to take up a
   # whole page. This doesn't need to be super precise, but we can use it for
-  # SimplePager and to avoid invoking the system pager unnecessarily.
+  # `SimplePager` and to avoid invoking the system pager unnecessarily.
   #
-  # One simplifying assumption is that we don't need page? to return true on
-  # the basis of an incomplete line. Long lines should be counted as multiple
-  # lines, but we don't have to transition from false to true until we see a
-  # newline.
+  # One simplifying assumption is that we don't need `#page?` to return `true`
+  # on the basis of an incomplete line. Long lines should be counted as
+  # multiple lines, but we don't have to transition from `false` to `true`
+  # until we see a newline.
   class PageTracker
     def initialize(rows, cols)
       @rows, @cols = rows, cols
