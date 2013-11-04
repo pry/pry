@@ -20,16 +20,10 @@ class Pry
 
   # The default print
   DEFAULT_PRINT = proc do |output, value|
-    output_with_default_format(output, value, :hashrocket => true)
-  end
-
-  def self.output_with_default_format(output, value, options = {})
-    pager = Pry::Pager.best_available(output)
-    pager.print "=> " if options[:hashrocket]
-    Pry::ColorPrinter.pp(value, pager)
-  rescue Pry::Pager::StopPaging
-  ensure
-    pager.close if pager
+    Pry::Pager.with_pager(output) do |pager|
+      pager.print "=> "
+      Pry::ColorPrinter.pp(value, pager)
+    end
   end
 
   # may be convenient when working with enormous objects and

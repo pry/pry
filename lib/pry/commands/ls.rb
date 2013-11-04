@@ -327,9 +327,9 @@ class Pry
     end
 
     def format_value(value)
-      accumulator = StringIO.new
-      Pry.output_with_default_format(accumulator, value, :hashrocket => false)
-      accumulator.string
+      str = ""
+      Pry::ColorPrinter.pp(value, str)
+      str
     end
 
     # Add a new section to the output. Outputs nothing if the section would be empty.
