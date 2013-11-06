@@ -151,7 +151,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.config.should_load_plugins = false
   end
 
-  on "installed-plugins", "List installed plugins." do
+  on "plugins", "List installed plugins." do
     puts "Installed Plugins:"
     puts "--"
     Pry.locate_plugins.each do |plugin|
