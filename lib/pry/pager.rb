@@ -111,7 +111,7 @@ module Pry::Pager
 
       # Default to less, and make sure less is being passed the correct options
       if pager.strip.empty? or pager =~ /^less\b/
-        pager = "less -R -S -F -X"
+        pager = "less -R -F -X"
       end
 
       pager
