@@ -121,7 +121,11 @@ class Pry
     # Is this a singleton class?
     # @return [Boolean]
     def singleton_class?
-      wrapped != Pry::Method.safe_send(wrapped, :ancestors).first
+      if Pry::Method.safe_send(wrapped, :respond_to?, :singleton_class?)
+        Pry::Method.safe_send(wrapped, :singleton_class?)
+      else
+        wrapped != Pry::Method.safe_send(wrapped, :ancestors).first
+      end
     end
 
     # Is this strictly a module? (does not match classes)

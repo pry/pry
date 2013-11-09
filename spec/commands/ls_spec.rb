@@ -161,12 +161,12 @@ describe "ls" do
 
   describe "grep" do
     it "should reduce the number of outputted things" do
-      pry_eval("ls -c").should =~ /ArgumentError/
-      pry_eval("ls -c --grep Run").should.not =~ /ArgumentError/
+      pry_eval("ls -c Object").should =~ /ArgumentError/
+      pry_eval("ls -c Object --grep Run").should.not =~ /ArgumentError/
     end
 
     it "should still output matching things" do
-      pry_eval("ls -c --grep Run").should =~ /RuntimeError/
+      pry_eval("ls -c Object --grep Run").should =~ /RuntimeError/
     end
   end
 
