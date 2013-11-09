@@ -46,7 +46,7 @@ class Pry::Pager
         break if chunk.size < page_size
         if text_array.size > page_size
           puts "\n<page break> --- Press enter to continue ( q<enter> to break ) --- <page break>"
-          break if $stdin.gets.chomp == "q"
+          break if Readline.readline.chomp == "q"
         end
       end
     end
