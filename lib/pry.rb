@@ -22,7 +22,7 @@ class Pry
   DEFAULT_PRINT = proc do |output, value|
     Pry::Pager.with_pager(output) do |pager|
       pager.print "=> "
-      Pry::ColorPrinter.pp(value, pager)
+      Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
     end
   end
 
