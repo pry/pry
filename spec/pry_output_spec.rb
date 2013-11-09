@@ -60,8 +60,9 @@ describe Pry do
 
     it "should colorize strings as though they were ruby" do
       accumulator = StringIO.new
+      colorized   = CodeRay.scan("[1]", :ruby).term
       Pry.config.print.call(accumulator, [1])
-      accumulator.string.should == "=> [\e[1;34m1\e[0m]\e[0m\n"
+      accumulator.string.should == "=> #{colorized}\n"
     end
 
     it "should not colorize strings that already include color" do
