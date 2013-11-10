@@ -1,3 +1,63 @@
+### 1.0.0 (2013/??/??)
+#### Dependency changes
+* Require Coderay `>= 1.1.0`
+
+#### Features
+* Added an experimental `Pry.auto_resize!` method
+  * Makes Pry notice that your window has resized and tell Readline about it
+  * Fixes various bugs with command history after a window resize
+  * Off by default, but can be called from your `.pryrc` if you're brave
+* Added support for Ruby 2.1
+* `play` now has an `-e`/`--expression` flag
+  * Evaluates until the end of the first valid expression
+* Readline history gets appended after every input, not just when Pry quits
+* Return values render with more accurate syntax highlighting
+* Return values start rendering immediately and stream into the pager
+* User can override `.pryrc` location by setting `$PRYRC` env var (#893)
+* User can whitelist objects whose inspect output should appear in prompt (#885)
+  * See `Pry.config.prompt_safe_objects`
+* `whereami` is now aliased to `@`
+
+#### Bug fixes, etc.
+* Add support for BasicObjects to `ls` (#984)
+* Allow `ls -c <anything>` (#891)
+* Fix indentation not working if the `mathn` stdlib was loaded (#872)
+* Fix `hist`'s `--exclude-pry` switch (#874)
+* Fix `gem-install` on JRuby (#870)
+* Fix source lookup for instrumented classes (#923)
+* Improved thread safety when multiple instances are running (#944)
+* Make `edit` ignore `-n`/`--no-reload` flag and `disable_auto_reload` config
+  in cases where the user was editing a tempfile
+* Make `gem-cd` use the most recent gem, not the oldest
+* Make `install-command` honor `.gemrc` switches (#666)
+* Make `hist` with no parameters show just the current session's history (#205)
+  * `hist --all` shows older history
+* Make `-s`/`--super` flag of `show-source`/`show-doc` work when method name is
+  being inferred from context (#877)
+* Rename `--installed-plugins` flag to `--plugins`
+* Strip ANSI codes from prompt before measuring length for indentation (#493)
+
+#### Dev-facing changes
+* `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
+* Pagers now act like `IO`s and accept streaming output
+  * See `Pager.page` and `Pager.with_pager`
+* The `Pry` class has been broken up into two smaller classes
+  * `Pry` represents non-UI-specific session state, including the eval string
+  * `Pry::REPL` controls the user-facing interface
+  * This should make it easier to drive Pry from alternative interfaces
+  * `Pry.start` now has a `:driver` option that defaults to `Pry::REPL`
+  * This involved a lot of refactoring and may break plugins that depend on
+    the old layout
+* Add `ColorPrinter` subclass of `PP` for colorized object inspection
+* Add `[]` and `[]=` methods to `CommandSet`, which find and replace commands
+  * Example: `Pry.commands["help"] = MyHelpCommand`
+* The completion API has been refactored (see fdb703a8de4ef3)
+* `Pry.config.input_stack` (and the input stack concept in general) no longer
+  exists
+* There's a new `Pry::Terminal` class that implements a number of different
+  methods of determining the terminal's dimensions
+* Add `ReplTester` class for high-level simulation of Pry sessions in tests
+
 ### 0.9.12.3 (2013/09/11)
 * Bump Coderay dependency (#987)
 * Fix consecutive newlines in heredocs being collapsed (#962)
