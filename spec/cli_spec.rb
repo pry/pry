@@ -48,8 +48,8 @@ describe Pry::Hooks do
         end
       end.parse_options(["--optiontest", "--optiontest2"])
 
-      run.should == true
-      run2.should == true
+      run.should.be.true
+      run2.should.be.true
     end
 
   end
