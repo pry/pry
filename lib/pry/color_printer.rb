@@ -18,7 +18,7 @@ class Pry
     end
 
     def text(str, width = str.length)
-      super *if !Pry.color
+      super(*if !Pry.color
         [str, width]
       # Don't recolorize output with color [Issue #751]
       elsif str.include?("\e[")
@@ -27,7 +27,7 @@ class Pry
         [highlight_object_literal(str), width]
       else
         [CodeRay.scan(str, :ruby).term, width]
-      end
+      end)
     end
 
     def pp(obj)
