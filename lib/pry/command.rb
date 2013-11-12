@@ -307,8 +307,7 @@ class Pry
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
 
       if collision_type
-        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}'," +
-                                                          "which conflicts with a #{collision_type}.\n\n"
+        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}', which conflicts with a #{collision_type}.\n\n"
       end
     rescue Pry::RescuableException
     end

@@ -48,11 +48,11 @@ class Pry
 
     def insert_into_array(array, range)
       insert_slot = Array(range).first
-      array.insert(insert_slot, arg_string[1..-1] + "\n")
+      array.insert(insert_slot, arg_string[1..-1] << "\n")
     end
 
     def replace_in_array(array, range)
-      array[range] = arg_string + "\n"
+      array[range] = arg_string << "\n"
     end
 
     # @return [Fixnum] The number of lines currently in `eval_string` (the input buffer).

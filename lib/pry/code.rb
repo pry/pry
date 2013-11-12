@@ -356,7 +356,7 @@ class Pry
     #
     # @return [String]
     def raw
-      @lines.map(&:line).join("\n") + "\n"
+      @lines.map(&:line).join("\n") << "\n"
     end
 
     # Return the number of lines stored.
