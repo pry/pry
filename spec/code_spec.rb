@@ -46,6 +46,11 @@ describe Pry::Code do
         Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
       end
     end
+    
+    should 'find files that are relative to a directory in the $LOAD_PATH' do
+      $LOAD_PATH << 'spec'
+      Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
+    end
   end
 
   describe '.from_method' do

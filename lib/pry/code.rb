@@ -124,6 +124,9 @@ class Pry
         abs_path = [File.expand_path(filename, Dir.pwd),
                     File.expand_path(filename, Pry::INITIAL_PWD)
                    ].detect { |path| File.readable?(path) }
+        abs_path ||= $LOAD_PATH.map do |path|
+                       File.expand_path(File.basename(filename), path)
+                     end.detect { |path| File.readable?(path) if path }
         abs_path or raise MethodSource::SourceNotFoundError,
                           "Cannot open #{filename.inspect} for reading."
       end
