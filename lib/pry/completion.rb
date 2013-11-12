@@ -112,7 +112,7 @@ class Pry
           # Symbol
           if Symbol.respond_to?(:all_symbols)
             sym        = Regexp.quote($1)
-            candidates = Symbol.all_symbols.collect{|s| ":" + s.id2name}
+            candidates = Symbol.all_symbols.collect{|s| ":" << s.id2name}
 
             candidates.grep(/^#{sym}/)
           else
@@ -123,7 +123,7 @@ class Pry
           # Absolute Constant or class methods
           receiver = $1
           candidates = Object.constants.collect(&:to_s)
-          candidates.grep(/^#{receiver}/).collect{|e| "::" + e}
+          candidates.grep(/^#{receiver}/).collect{|e| "::" << e}
 
 
         # Complete target symbols
@@ -151,7 +151,7 @@ class Pry
           rescue RescuableException
             candidates = []
           end
-          candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
+          candidates.grep(/^#{message}/).collect{|e| receiver << "::" << e}
 
         when /^(:[^:.]+)\.([^.]*)$/
           # Symbol
@@ -261,10 +261,10 @@ class Pry
       candidates.grep(/^#{message}/).collect { |e|
         case e
         when /^[a-zA-Z_]/
-          path.call(receiver + "." + e)
+          path.call(receiver + "." << e)
         when /^[0-9]/
         when *Operators
-          #receiver + " " + e
+          #receiver + " " << e
         end
       }.compact
     end

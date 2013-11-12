@@ -97,7 +97,7 @@ class Pry
       output.puts text.bold(klass.name)
       grouped[klass].each do |method|
         header = method.name_with_owner
-        output.puts header + additional_info(header, method)
+        output.puts header << additional_info(header, method)
       end
     end
 
@@ -105,7 +105,7 @@ class Pry
     # if `-c` was not given
     def additional_info(header, method)
       if opts.content?
-        ": " + colorize_code(matched_method_lines(header, method))
+        ": " << colorize_code(matched_method_lines(header, method))
       else
         ""
       end
