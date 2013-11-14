@@ -11,21 +11,15 @@ describe Pry::Code do
       Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should == 1
     end
 
-    should 'default to Ruby' do
+    should 'default to unknown' do
       temp_file('') do |f|
-        Pry::Code.from_file(f.path).code_type.should == :ruby
+        Pry::Code.from_file(f.path).code_type.should == :unknown
       end
     end
 
     should 'check the extension' do
       temp_file('.c') do |f|
         Pry::Code.from_file(f.path).code_type.should == :c
-      end
-    end
-
-    should 'use the provided extension' do
-      temp_file('.c') do |f|
-        Pry::Code.from_file(f.path, :ruby).code_type.should == :ruby
       end
     end
 
@@ -38,6 +32,12 @@ describe Pry::Code do
     should 'check for files relative to origin pwd' do
       Dir.chdir('spec') do |f|
         Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type.should == :ruby
+      end
+    end
+
+    should 'check for Ruby files relative to origin pwd with `.rb` omitted' do
+      Dir.chdir('spec') do |f|
+        Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type.should == :ruby
       end
     end
 
@@ -60,8 +60,16 @@ describe Pry::Code do
         Pry::Code.from_file('ls_spec.rb').code_type.should == :ruby
       end
 
+      should 'find Ruby files in $LOAD_PATH with `.rb` omitted' do
+        Pry::Code.from_file('ls_spec').code_type.should == :ruby
+      end
+
       should 'find files that are relative to a directory in the $LOAD_PATH' do
         Pry::Code.from_file('../helper.rb').code_type.should == :ruby
+      end
+
+      should 'find Ruby files relative to $LOAD_PATH with `.rb` omitted' do
+        Pry::Code.from_file('../helper').code_type.should == :ruby
       end
     end
   end

@@ -9,13 +9,14 @@ class Pry
         @file_with_embedded_line = file_with_embedded_line
         @opts = opts
         @_pry_ = _pry_
+        @code_from_file = Pry::Code.from_file(file_name)
       end
 
       def format
         raise CommandError, "Must provide a filename, --in, or --ex." if !file_with_embedded_line
 
         set_file_and_dir_locals(file_name, _pry_, _pry_.current_context)
-        decorate(Pry::Code.from_file(file_name))
+        decorate(@code_from_file)
       end
 
       private
@@ -47,36 +48,18 @@ class Pry
       end
 
       def detect_code_type_from_file(file_name)
-        name, ext = File.basename(file_name).split('.', 2)
-
-        if ext
-          case ext
-          when "py"
-            :python
-          when "rb", "gemspec", "rakefile", "ru", "pryrc", "irbrc"
-            :ruby
-          when "js"
-            return :javascript
-          when "yml", "prytheme"
-            :yaml
-          when "groovy"
-            :groovy
-          when "c"
-            :c
-          when "cpp"
-            :cpp
-          when "java"
-            :java
-          else
-            :text
-          end
-        else
+        code_type = @code_from_file.code_type
+        
+        if code_type == :unknown
+          name, ext = File.basename(file_name).split('.', 2)
           case name
           when "Rakefile", "Gemfile"
             :ruby
           else
             :text
           end
+        else
+          code_type
         end
       end
     end
