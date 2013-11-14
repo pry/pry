@@ -117,18 +117,30 @@ class Pry
       end
 
       # @param [String] filename
-      # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
+      # @raise [MethodSource::SourceNotFoundError] if the `filename` is not
       #   readable for some reason.
-      # @return [String] absolute path for the given +filename+.
+      # @return [String] absolute path for the given `filename`.
       def abs_path(filename)
-        abs_path = [File.expand_path(filename, Dir.pwd),
-                    File.expand_path(filename, Pry::INITIAL_PWD)
-                   ].detect { |path| File.readable?(path) }
-        abs_path ||= $LOAD_PATH.map do |path|
-                       File.expand_path(File.basename(filename), path)
-                     end.detect { |path| File.readable?(path) if path }
+        abs_path = find_path_in_pwd(filename) ||
+                   find_path_in_load_path(filename)
         abs_path or raise MethodSource::SourceNotFoundError,
                           "Cannot open #{filename.inspect} for reading."
+      end
+
+      # @param [String] filename
+      # @return [String] absolute path for the given `filename` or nil.
+      def find_path_in_pwd(filename)
+        [File.expand_path(filename, Dir.pwd),
+         File.expand_path(filename, Pry::INITIAL_PWD)
+        ].detect { |path| File.readable?(path) if path }
+      end
+
+      # @param [String] filename
+      # @return [String] absolute path for the given `filename` or nil.
+      def find_path_in_load_path(filename)
+        $LOAD_PATH.map do |path|
+          File.expand_path(filename, path)
+        end.detect { |path| File.readable?(path) if path }
       end
     end
 

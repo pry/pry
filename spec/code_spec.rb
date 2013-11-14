@@ -46,10 +46,23 @@ describe Pry::Code do
         Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
       end
     end
-    
-    should 'find files that are relative to a directory in the $LOAD_PATH' do
-      $LOAD_PATH << 'spec'
-      Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
+
+    describe 'find files that are relative to the $LOAD_PATH' do
+      before do
+        $LOAD_PATH << 'spec/commands'
+      end
+
+      after do
+        $LOAD_PATH.delete 'spec/commands'
+      end
+
+      should 'find files that are in a directory in the $LOAD_PATH' do
+        Pry::Code.from_file('ls_spec.rb').code_type.should == :ruby
+      end
+
+      should 'find files that are relative to a directory in the $LOAD_PATH' do
+        Pry::Code.from_file('../helper.rb').code_type.should == :ruby
+      end
     end
   end
 
