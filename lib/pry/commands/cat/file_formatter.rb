@@ -23,7 +23,7 @@ class Pry
       def file_and_line
         file_name, line_num = file_with_embedded_line.split(':')
 
-        [File.expand_path(file_name), line_num ? line_num.to_i : nil]
+        [file_name, line_num ? line_num.to_i : nil]
       end
 
       def file_name
