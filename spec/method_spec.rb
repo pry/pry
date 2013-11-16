@@ -468,6 +468,18 @@ describe Pry::Method do
       meth.aliases.should.not.include "eat"
     end
 
+    it 'should find aliases for top-level methods' do
+      # top-level methods get added as private instance methods on Object
+      class Object
+        private
+        def my_top_level_method ; end
+        alias my_other_top_level_method my_top_level_method
+      end
+
+      meth = Pry::Method.new(method(:my_top_level_method))
+      meth.aliases.should.include 'my_other_top_level_method'
+    end
+
     unless Pry::Helpers::BaseHelpers.mri_18?
       # Ruby 1.8 doesn't support this feature.
       it 'should be able to find aliases for methods implemented in C' do
