@@ -410,7 +410,8 @@ class Pry
       # it won't be garbage collected.
       name = @method.name
 
-      alias_list = owner.instance_methods.combination(2).select do |pair|
+      all_methods_to_compare = owner.instance_methods | owner.private_instance_methods
+      alias_list = all_methods_to_compare.combination(2).select do |pair|
         pair.include?(name) &&
           owner.instance_method(pair.first) == owner.instance_method(pair.last)
       end.flatten
