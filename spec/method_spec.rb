@@ -478,6 +478,10 @@ describe Pry::Method do
 
       meth = Pry::Method.new(method(:my_top_level_method))
       meth.aliases.should.include 'my_other_top_level_method'
+
+      class Object
+        remove_method :my_top_level_method
+      end
     end
 
     unless Pry::Helpers::BaseHelpers.mri_18?
