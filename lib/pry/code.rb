@@ -130,18 +130,12 @@ class Pry
 
       def find_abs_path(filename)
         code_path(filename).detect { |path| readable_source?(path) }.tap do |path|
-          if path && !File.exist?(path)
-            path.sub!(/(.+)(?<!#{ known_extensions.join('|') })\z/, '\1' + DEFAULT_EXT)
-          end
+          path << DEFAULT_EXT if path && !File.exist?(path)
         end
       end
 
       def readable_source?(path)
         File.readable?(path) || File.readable?(path + DEFAULT_EXT)
-      end
-
-      def known_extensions
-        EXTENSIONS.keys.flatten.map { |ext| "\\" + ext }
       end
 
       def code_path(filename)
