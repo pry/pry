@@ -15,14 +15,6 @@ class Pry
         file.close(true) if file
       end
 
-      def render_output(str, opts={})
-        if opts[:flood]
-          output.puts str
-        else
-          stagger_output str
-        end
-      end
-
       def internal_binding?(target)
         m = target.eval("::Kernel.__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753

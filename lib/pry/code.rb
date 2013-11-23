@@ -309,14 +309,22 @@ class Pry
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      @lines.map { |loc|
+      print_to_output("")
+    end
+
+    # Writes a formatted representation (based on the configuration of the
+    # object) to the given output, which must respond to `#<<`.
+    def print_to_output(output)
+      @lines.each do |loc|
         loc = loc.dup
         loc.colorize(@code_type)              if Pry.color
         loc.add_line_number(max_lineno_width) if @with_line_numbers
         loc.add_marker(@marker_lineno)        if @with_marker
         loc.indent(@indentation_num)          if @with_indentation
-        loc.line
-      }.join("\n") + "\n"
+        output << loc.line
+        output << "\n"
+      end
+      output
     end
 
     # Get the comment that describes the expression on the given line number.
