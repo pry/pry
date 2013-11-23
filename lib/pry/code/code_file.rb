@@ -21,13 +21,17 @@ class Pry
       %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
     }
 
+    # @return [Symbol] The type of code stored in this wrapper.
     attr_reader :code_type
 
+    # @param [String] filename The name of a file with code to be detected
+    # @param [Symbol] code_type The type of code the `filename` contains
     def initialize(filename, code_type = type_from_filename(filename))
       @filename = filename
       @code_type = code_type
     end
 
+    # @return [String] The code contained in the current `@filename`.
     def code
       if @filename == Pry.eval_path
         Pry.line_buffer.drop(1)
@@ -49,8 +53,8 @@ class Pry
     #   readable for some reason.
     # @return [String] absolute path for the given `filename`.
     def abs_path(filename)
-      find_abs_path(filename) or raise MethodSource::SourceNotFoundError,
-      "Cannot open #{filename.inspect} for reading."
+      find_abs_path(filename) or
+        raise MethodSource::SourceNotFoundError, "Cannot open #{filename.inspect} for reading."
     end
 
     def find_abs_path(filename)
@@ -63,28 +67,25 @@ class Pry
       File.readable?(path) || File.readable?(path + DEFAULT_EXT)
     end
 
+    # @return [Array] All the paths that contain code that Pry can use for its
+    #   API's. Skips directories.
     def code_path(filename)
-      normalized_load_path = $LOAD_PATH.map { |path|
+      normalized_load_path = $LOAD_PATH.map do |path|
         File.expand_path(filename, path).tap do |p|
-          if File.directory?(p)
-            p << DEFAULT_EXT
-          end
+          p << DEFAULT_EXT if File.directory?(p)
         end
-      }
+      end
 
       [ File.expand_path(filename, Dir.pwd),
         File.expand_path(filename, Pry::INITIAL_PWD),
         *normalized_load_path ]
     end
 
-
-    # Guess the CodeRay type of a file from its extension, or nil if
-    # unknown.
-    #
     # @param [String] filename
     # @param [Symbol] default (:unknown) the file type to assume if none could be
     #   detected.
-    # @return [Symbol, nil]
+    # @return [Symbol, nil] The CodeRay type of a file from its extension, or
+    #   `nil` if `:unknown`.
     def type_from_filename(filename, default = :unknown)
       _, @code_type = EXTENSIONS.find do |k, _|
         k.any? { |ext| ext == File.extname(filename) }
