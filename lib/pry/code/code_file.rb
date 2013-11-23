@@ -38,7 +38,7 @@ class Pry
       elsif Pry::Method::Patcher.code_for(@filename)
         Pry::Method::Patcher.code_for(@filename)
       elsif RbxPath.is_core_path?(@filename)
-        File.read(RbxPath.convert_path_to_full(filename))
+        File.read(RbxPath.convert_path_to_full(@filename))
       else
         abs_path = abs_path(@filename)
         @code_type = type_from_filename(abs_path)
