@@ -58,13 +58,13 @@ class Pry
     end
 
     def find_abs_path(filename)
-      code_path(filename).detect { |path| readable_source?(path) }
+      code_path(filename).detect { |path| readable?(path) }
     end
 
     # @param [String] path
     # @return [Boolean] if the path, with or without the default ext,
     # is a readable file then `true`, otherwise `false`.
-    def readable_source?(path)
+    def readable?(path)
       File.readable?(path) && !File.directory?(path) or
       File.readable?(path << DEFAULT_EXT)
     end
