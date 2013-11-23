@@ -124,44 +124,38 @@ class Pry
       #   readable for some reason.
       # @return [String] absolute path for the given `filename`.
       def abs_path(filename)
-        abs_path = find_path_in_pwd(filename) ||
-                   find_path_in_load_path(filename)
-        abs_path or raise MethodSource::SourceNotFoundError,
-                          "Cannot open #{filename.inspect} for reading."
+        find_abs_path(filename) or raise MethodSource::SourceNotFoundError,
+                               "Cannot open #{filename.inspect} for reading."
       end
 
-      # @param [String] filename
-      # @return [String] absolute path for the given `filename` or nil.
-      def find_path_in_pwd(filename)
-        omitted_rb_ext = nil
-        abs_path = [File.expand_path(filename, Dir.pwd),
-         File.expand_path(filename, Pry::INITIAL_PWD)
-        ].detect do |path|
-          if File.directory?(path)
-            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
-          else
-            File.readable?(path) ||
-            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+      def find_abs_path(filename)
+        code_path(filename).detect { |path| readable_source?(path) }.tap do |path|
+          if path && !File.exist?(path)
+            path.sub!(/(.+)(?<!#{ known_extensions.join('|') })\z/, '\1' + DEFAULT_EXT)
           end
         end
-        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
       end
 
-      # @param [String] filename
-      # @return [String] absolute path for the given `filename` or nil.
-      def find_path_in_load_path(filename)
-        omitted_rb_ext = nil
-        abs_path = $LOAD_PATH.map do |path|
-          File.expand_path(filename, path)
-        end.detect do |path|
-          if File.directory?(path)
-            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
-          else
-            File.readable?(path) ||
-            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+      def readable_source?(path)
+        File.readable?(path) || File.readable?(path + DEFAULT_EXT)
+      end
+
+      def known_extensions
+        EXTENSIONS.keys.flatten.map { |ext| "\\" + ext }
+      end
+
+      def code_path(filename)
+        normalized_load_path = $LOAD_PATH.map { |path|
+          File.expand_path(filename, path).tap do |p|
+            if File.directory?(p)
+              p << DEFAULT_EXT
+            end
           end
-        end
-        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
+        }
+
+        [ File.expand_path(filename, Dir.pwd),
+          File.expand_path(filename, Pry::INITIAL_PWD),
+          *normalized_load_path ]
       end
     end
 
