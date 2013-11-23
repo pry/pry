@@ -136,10 +136,8 @@ class Pry
         abs_path = [File.expand_path(filename, Dir.pwd),
          File.expand_path(filename, Pry::INITIAL_PWD)
         ].detect do |path|
-          if path
-            File.readable?(path) ||
-            File.readable?(path << '.rb') && ommitted_rb_ext = true
-          end
+          File.readable?(path) ||
+          File.readable?(path << '.rb') && ommitted_rb_ext = true
         end
         omitted_rb_ext ? abs_path << '.rb' : abs_path
       end
@@ -151,10 +149,8 @@ class Pry
         abs_path = $LOAD_PATH.map do |path|
           File.expand_path(filename, path)
         end.detect do |path|
-          if path
-            File.readable?(path) ||
-            File.readable?(path << '.rb') && ommitted_rb_ext = true
-          end
+          File.readable?(path) ||
+          File.readable?(path << '.rb') && ommitted_rb_ext = true
         end
         omitted_rb_ext ? abs_path << '.rb' : abs_path
       end
