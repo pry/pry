@@ -71,6 +71,14 @@ describe Pry::Code do
       it 'finds files in a relative directory with `.rb` omitted' do
         Pry::Code.from_file('../helper').code_type.should == :ruby
       end
+
+      it "doesn't confuse files with the same name, but without an extension" do
+        Pry::Code.from_file('cat_load_path').code_type.should == :unknown
+      end
+
+      it "doesn't confuse files with the same name, but with an extension" do
+        Pry::Code.from_file('cat_load_path.rb').code_type.should == :ruby
+      end
     end
   end
 
