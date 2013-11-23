@@ -54,31 +54,27 @@ class Pry
     # @return [String] absolute path for the given `filename`.
     def abs_path(filename)
       find_abs_path(filename) or
-        raise MethodSource::SourceNotFoundError, "Cannot open #{filename.inspect} for reading."
+      raise MethodSource::SourceNotFoundError, "Cannot open #{filename.inspect} for reading."
     end
 
     def find_abs_path(filename)
-      code_path(filename).detect { |path| readable_source?(path) }.tap do |path|
-        path << DEFAULT_EXT if path && !File.exist?(path)
-      end
+      code_path(filename).detect { |path| readable_source?(path) }
     end
 
+    # @param [String] path
+    # @return [Boolean] if the path, with or without the default ext,
+    # is a readable file then `true`, otherwise `false`.
     def readable_source?(path)
-      File.readable?(path) || File.readable?(path + DEFAULT_EXT)
+      File.readable?(path) && !File.directory?(path) or
+      File.readable?(path << DEFAULT_EXT)
     end
 
     # @return [Array] All the paths that contain code that Pry can use for its
     #   API's. Skips directories.
     def code_path(filename)
-      normalized_load_path = $LOAD_PATH.map do |path|
-        File.expand_path(filename, path).tap do |p|
-          p << DEFAULT_EXT if File.directory?(p)
-        end
-      end
-
-      [ File.expand_path(filename, Dir.pwd),
-        File.expand_path(filename, Pry::INITIAL_PWD),
-        *normalized_load_path ]
+      [File.expand_path(filename, Dir.pwd),
+       File.expand_path(filename, Pry::INITIAL_PWD),
+       *$LOAD_PATH.map { |path| File.expand_path(filename, path) }]
     end
 
     # @param [String] filename
