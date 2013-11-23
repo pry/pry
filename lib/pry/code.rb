@@ -29,6 +29,7 @@ class Pry
   # arbitrary chaining of formatting methods without mutating the original
   # object.
   class Code
+    DEFAULT_EXT = '.rb'
 
     # List of all supported languages.
     # @return [Hash]
@@ -66,7 +67,9 @@ class Pry
                elsif RbxPath.is_core_path?(filename)
                  File.read RbxPath.convert_path_to_full(filename)
                else
-                 File.read(abs_path(filename))
+                 abs_path = abs_path(filename)
+                 code_type = type_from_filename(abs_path)
+                 File.read(abs_path)
                end
         new(code, 1, code_type)
       end
@@ -108,24 +111,57 @@ class Pry
       # @param [Symbol] default (:ruby) the file type to assume if none could be
       #   detected.
       # @return [Symbol, nil]
-      def type_from_filename(filename, default = :ruby)
-        _, type = Pry::Code::EXTENSIONS.find do |k, _|
+      def type_from_filename(filename, default = :unknown)
+        _, code_type = Pry::Code::EXTENSIONS.find do |k, _|
           k.any? { |ext| ext == File.extname(filename) }
         end
 
-        type || default
+        code_type || default
       end
 
       # @param [String] filename
-      # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
+      # @raise [MethodSource::SourceNotFoundError] if the `filename` is not
       #   readable for some reason.
-      # @return [String] absolute path for the given +filename+.
+      # @return [String] absolute path for the given `filename`.
       def abs_path(filename)
-        abs_path = [File.expand_path(filename, Dir.pwd),
-                    File.expand_path(filename, Pry::INITIAL_PWD)
-                   ].detect { |path| File.readable?(path) }
+        abs_path = find_path_in_pwd(filename) ||
+                   find_path_in_load_path(filename)
         abs_path or raise MethodSource::SourceNotFoundError,
                           "Cannot open #{filename.inspect} for reading."
+      end
+
+      # @param [String] filename
+      # @return [String] absolute path for the given `filename` or nil.
+      def find_path_in_pwd(filename)
+        omitted_rb_ext = nil
+        abs_path = [File.expand_path(filename, Dir.pwd),
+         File.expand_path(filename, Pry::INITIAL_PWD)
+        ].detect do |path|
+          if File.directory?(path)
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          else
+            File.readable?(path) ||
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          end
+        end
+        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
+      end
+
+      # @param [String] filename
+      # @return [String] absolute path for the given `filename` or nil.
+      def find_path_in_load_path(filename)
+        omitted_rb_ext = nil
+        abs_path = $LOAD_PATH.map do |path|
+          File.expand_path(filename, path)
+        end.detect do |path|
+          if File.directory?(path)
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          else
+            File.readable?(path) ||
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          end
+        end
+        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
       end
     end
 
