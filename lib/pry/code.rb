@@ -41,6 +41,7 @@ class Pry
       # @return [Code]
       def from_file(filename, code_type = nil)
         code_file = CodeFile.new(filename, code_type)
+        # binding.pry
         new(code_file.code, 1, code_file.code_type)
       end
 
