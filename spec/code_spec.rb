@@ -47,28 +47,28 @@ describe Pry::Code do
       end
     end
 
-    describe 'find files that are relative to the $LOAD_PATH' do
+    describe 'find Ruby files relative to $LOAD_PATH' do
       before do
-        $LOAD_PATH << 'spec/commands'
+        $LOAD_PATH << 'spec/fixtures'
       end
 
       after do
-        $LOAD_PATH.delete 'spec/commands'
+        $LOAD_PATH.delete 'spec/fixtures'
       end
 
-      should 'find files that are in a directory in the $LOAD_PATH' do
-        Pry::Code.from_file('ls_spec.rb').code_type.should == :ruby
+      it 'finds files with `.rb` extension' do
+        Pry::Code.from_file('slinky.rb').code_type.should == :ruby
       end
 
-      should 'find Ruby files in $LOAD_PATH with `.rb` omitted' do
-        Pry::Code.from_file('ls_spec').code_type.should == :ruby
+      it 'finds files with `.rb` omitted' do
+        Pry::Code.from_file('slinky').code_type.should == :ruby
       end
 
-      should 'find files that are relative to a directory in the $LOAD_PATH' do
+      it 'finds files in a relative directory with `.rb` extension' do
         Pry::Code.from_file('../helper.rb').code_type.should == :ruby
       end
 
-      should 'find Ruby files relative to $LOAD_PATH with `.rb` omitted' do
+      it 'finds files in a relative directory with `.rb` omitted' do
         Pry::Code.from_file('../helper').code_type.should == :ruby
       end
     end
