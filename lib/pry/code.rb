@@ -29,6 +29,7 @@ class Pry
   # arbitrary chaining of formatting methods without mutating the original
   # object.
   class Code
+    DEFAULT_EXT = '.rb'
 
     # List of all supported languages.
     # @return [Hash]
@@ -136,10 +137,14 @@ class Pry
         abs_path = [File.expand_path(filename, Dir.pwd),
          File.expand_path(filename, Pry::INITIAL_PWD)
         ].detect do |path|
-          File.readable?(path) ||
-          File.readable?(path << '.rb') && ommitted_rb_ext = true
+          if File.directory?(path)
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          else
+            File.readable?(path) ||
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          end
         end
-        omitted_rb_ext ? abs_path << '.rb' : abs_path
+        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
       end
 
       # @param [String] filename
@@ -149,10 +154,14 @@ class Pry
         abs_path = $LOAD_PATH.map do |path|
           File.expand_path(filename, path)
         end.detect do |path|
-          File.readable?(path) ||
-          File.readable?(path << '.rb') && ommitted_rb_ext = true
+          if File.directory?(path)
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          else
+            File.readable?(path) ||
+            File.readable?(path << DEFAULT_EXT) && ommitted_rb_ext = true
+          end
         end
-        omitted_rb_ext ? abs_path << '.rb' : abs_path
+        omitted_rb_ext ? abs_path << DEFAULT_EXT : abs_path
       end
     end
 
