@@ -18,4 +18,4 @@ notifications:
 branches:
   only:
     - master
-    - 0-9-11-stable
+    - 0-9-12-stable
