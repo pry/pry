@@ -10,5 +10,6 @@ end
 
 if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
   gem 'rubysl-singleton'
+  gem 'rubysl-prettyprint'
   gem 'rb-readline'
 end
