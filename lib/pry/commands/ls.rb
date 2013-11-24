@@ -34,8 +34,8 @@ class Pry
       opt.on :v, :verbose,   "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
       opt.on :g, :globals,   "Show global variables, including those builtin to Ruby (in cyan)"
       opt.on :l, :locals,    "Show hash of local vars, sorted by descending size"
-      opt.on :c, :constants, "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" +
-      " " * 32 +             "Constants that are pending autoload? are also shown (in yellow)"
+      opt.on :c, :constants, "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" <<
+      " " * 32 <<            "Constants that are pending autoload? are also shown (in yellow)"
       opt.on :i, :ivars,     "Show instance variables (in blue) and class variables (in bright blue)"
       opt.on :G, :grep,      "Filter output by regular expression", :argument => true
 
