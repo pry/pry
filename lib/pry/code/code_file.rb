@@ -54,7 +54,8 @@ class Pry
     # @return [String] absolute path for the given `filename`.
     def abs_path(filename)
       find_abs_path(filename) or
-      raise MethodSource::SourceNotFoundError, "Cannot open #{filename.inspect} for reading."
+        raise MethodSource::SourceNotFoundError,
+              "Cannot open #{filename.inspect} for reading."
     end
 
     def find_abs_path(filename)
@@ -63,10 +64,10 @@ class Pry
 
     # @param [String] path
     # @return [Boolean] if the path, with or without the default ext,
-    # is a readable file then `true`, otherwise `false`.
+    #   is a readable file then `true`, otherwise `false`.
     def readable?(path)
       File.readable?(path) && !File.directory?(path) or
-      File.readable?(path << DEFAULT_EXT)
+        File.readable?(path << DEFAULT_EXT)
     end
 
     # @return [Array] All the paths that contain code that Pry can use for its
