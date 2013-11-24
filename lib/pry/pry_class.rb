@@ -395,19 +395,11 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   # To avoid mass-confusion, we change the default colour of "white" to
   # "blue" enabling global legibility
   def self.fix_coderay_colors
-      to_fix = if (CodeRay::Encoders::Terminal::TOKEN_COLORS rescue nil)
-                 # CodeRay 1.0.0
-                 CodeRay::Encoders::Terminal::TOKEN_COLORS
-               else
-                 # CodeRay 0.9
-                 begin
-                   require 'coderay/encoders/term'
-                   CodeRay::Encoders::Term::TOKEN_COLORS
-                 rescue
-                 end
-               end
+    colors = CodeRay::Encoders::Terminal::TOKEN_COLORS
 
-      to_fix[:comment] = "0;34" if to_fix
+    if colors[:comment].is_a?(String)
+      colors[:comment] = "0;34"
+    end
   end
 
   # Basic initialization.
