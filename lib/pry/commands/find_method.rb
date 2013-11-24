@@ -97,7 +97,7 @@ class Pry
       output.puts text.bold(klass.name)
       grouped[klass].each do |method|
         header = method.name_with_owner
-        output.puts header << additional_info(header, method)
+        output.puts header + additional_info(header, method)
       end
     end
 

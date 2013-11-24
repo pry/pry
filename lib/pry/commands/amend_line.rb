@@ -52,7 +52,7 @@ class Pry
     end
 
     def replace_in_array(array, range)
-      array[range] = arg_string << "\n"
+      array[range] = arg_string + "\n"
     end
 
     # @return [Fixnum] The number of lines currently in `eval_string` (the input buffer).
