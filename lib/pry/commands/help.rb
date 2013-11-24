@@ -59,7 +59,7 @@ class Pry
     # @param [Array<Pry::Command>]] commands
     # @return [String] The generated help string.
     def help_text_for_commands(name, commands)
-      "#{text.bold(name)}\n" + commands.map do |command|
+      "#{text.bold(name)}\n" << commands.map do |command|
         "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
       end.join("\n")
     end

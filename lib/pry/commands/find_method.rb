@@ -105,7 +105,7 @@ class Pry
     # if `-c` was not given
     def additional_info(header, method)
       if opts.content?
-        ": " + colorize_code(matched_method_lines(header, method))
+        ": " << colorize_code(matched_method_lines(header, method))
       else
         ""
       end

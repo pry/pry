@@ -94,8 +94,8 @@ class Pry
       indent = new
       lines = str.split("\n")
       n = line_number - 1
-      to_indent = lines[0...n] + (lines[n] || "").split("def").first(1)
-      indent.indent(to_indent.join("\n") + "\n")
+      to_indent = lines[0...n] << (lines[n] || "").split("def").first(1)
+      indent.indent(to_indent.join("\n") << "\n")
       indent.module_nesting
     end
 
@@ -384,7 +384,7 @@ class Pry
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
       prompt = prompt.delete("\001\002")
-      line_to_measure = Pry::Helpers::Text.strip_color(prompt) + code
+      line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
       whitespace = ' ' * overhang
 
       _, cols = Terminal.screen_size

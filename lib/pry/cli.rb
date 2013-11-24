@@ -114,7 +114,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
-    exec_string << input + "\n"
+    exec_string << input << "\n"
   end
 
   on "no-pager", "Disable pager for long output" do
@@ -155,7 +155,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
     puts "Installed Plugins:"
     puts "--"
     Pry.locate_plugins.each do |plugin|
-      puts "#{plugin.name}".ljust(18) + plugin.spec.summary
+      puts "#{plugin.name}".ljust(18) << plugin.spec.summary
     end
     exit
   end
