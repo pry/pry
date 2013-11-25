@@ -45,14 +45,7 @@ class Pry
     end
 
     def complete(search)
-      search_term = search.split.last || ''
-      super +
-      Bond::Rc.files(search_term) +
-      $LOAD_PATH.flat_map do |path|
-        Bond::Rc.files(File.join(path.dup, search_term)).map do |file_path|
-          File.basename(file_path)
-        end
-      end
+      super + Bond::Rc.files(search.split(" ").last || '')
     end
   end
 
