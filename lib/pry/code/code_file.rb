@@ -68,9 +68,7 @@ class Pry
     # @return [Array] All the paths that contain code that Pry can use for its
     #   API's. Skips directories.
     def code_path
-      [File.expand_path(@filename, Dir.pwd),
-       File.expand_path(@filename, Pry::INITIAL_PWD),
-       *$LOAD_PATH.map { |path| File.expand_path(@filename, path) }]
+      [from_pwd, from_pry_init_pwd, *from_load_path]
     end
 
     # @param [String] filename
@@ -84,6 +82,21 @@ class Pry
       end
 
       code_type || default
+    end
+
+    # @return [String]
+    def from_pwd
+      File.expand_path(@filename, Dir.pwd)
+    end
+
+    # @return [String]
+    def from_pry_init_pwd
+      File.expand_path(@filename, Pry::INITIAL_PWD)
+    end
+
+    # @return [String]
+    def from_load_path
+      $LOAD_PATH.map { |path| File.expand_path(@filename, path) }
     end
 
   end
