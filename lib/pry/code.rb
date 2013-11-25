@@ -1,5 +1,6 @@
 require 'pry/code/loc'
 require 'pry/code/code_range'
+require 'pry/code/code_file'
 
 class Pry
   class << self
@@ -29,26 +30,6 @@ class Pry
   # arbitrary chaining of formatting methods without mutating the original
   # object.
   class Code
-
-    # List of all supported languages.
-    # @return [Hash]
-    EXTENSIONS = {
-      %w(.py)        => :python,
-      %w(.js)        => :javascript,
-      %w(.css)       => :css,
-      %w(.xml)       => :xml,
-      %w(.php)       => :php,
-      %w(.html)      => :html,
-      %w(.diff)      => :diff,
-      %w(.java)      => :java,
-      %w(.json)      => :json,
-      %w(.c .h)      => :c,
-      %w(.rhtml)     => :rhtml,
-      %w(.yaml .yml) => :yaml,
-      %w(.cpp .hpp .cc .h cxx) => :cpp,
-      %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
-    }
-
     class << self
       include MethodSource::CodeHelpers
 
@@ -58,17 +39,10 @@ class Pry
       # @param [String] filename The name of a file, or "(pry)".
       # @param [Symbol] code_type The type of code the file contains.
       # @return [Code]
-      def from_file(filename, code_type = type_from_filename(filename))
-        code = if filename == Pry.eval_path
-                 Pry.line_buffer.drop(1)
-               elsif Pry::Method::Patcher.code_for(filename)
-                 Pry::Method::Patcher.code_for(filename)
-               elsif RbxPath.is_core_path?(filename)
-                 File.read RbxPath.convert_path_to_full(filename)
-               else
-                 File.read(abs_path(filename))
-               end
-        new(code, 1, code_type)
+      def from_file(filename, code_type = nil)
+        code_file = CodeFile.new(filename, code_type)
+        # binding.pry
+        new(code_file.code, 1, code_file.code_type)
       end
 
       # Instantiate a `Code` object containing code extracted from a
@@ -97,35 +71,6 @@ class Pry
         candidate = Pry::WrappedModule(mod).candidate(candidate_rank)
         start_line ||= candidate.line
         new(candidate.source, start_line, :ruby)
-      end
-
-      protected
-
-      # Guess the CodeRay type of a file from its extension, or nil if
-      # unknown.
-      #
-      # @param [String] filename
-      # @param [Symbol] default (:ruby) the file type to assume if none could be
-      #   detected.
-      # @return [Symbol, nil]
-      def type_from_filename(filename, default = :ruby)
-        _, type = Pry::Code::EXTENSIONS.find do |k, _|
-          k.any? { |ext| ext == File.extname(filename) }
-        end
-
-        type || default
-      end
-
-      # @param [String] filename
-      # @raise [MethodSource::SourceNotFoundError] if the +filename+ is not
-      #   readable for some reason.
-      # @return [String] absolute path for the given +filename+.
-      def abs_path(filename)
-        abs_path = [File.expand_path(filename, Dir.pwd),
-                    File.expand_path(filename, Pry::INITIAL_PWD)
-                   ].detect { |path| File.readable?(path) }
-        abs_path or raise MethodSource::SourceNotFoundError,
-                          "Cannot open #{filename.inspect} for reading."
       end
     end
 
