@@ -40,26 +40,21 @@ class Pry
       elsif RbxPath.is_core_path?(@filename)
         File.read(RbxPath.convert_path_to_full(@filename))
       else
-        abs_path = abs_path(@filename)
-        @code_type = type_from_filename(abs_path)
-        File.read(abs_path)
+        path = abs_path
+        @code_type = type_from_filename(path)
+        File.read(path)
       end
     end
 
     private
 
-    # @param [String] filename
     # @raise [MethodSource::SourceNotFoundError] if the `filename` is not
     #   readable for some reason.
     # @return [String] absolute path for the given `filename`.
-    def abs_path(filename)
-      find_abs_path(filename) or
+    def abs_path
+      code_path.detect { |path| readable?(path) } or
         raise MethodSource::SourceNotFoundError,
-              "Cannot open #{filename.inspect} for reading."
-    end
-
-    def find_abs_path(filename)
-      code_path(filename).detect { |path| readable?(path) }
+              "Cannot open #{ @filename.inspect } for reading."
     end
 
     # @param [String] path
@@ -72,10 +67,10 @@ class Pry
 
     # @return [Array] All the paths that contain code that Pry can use for its
     #   API's. Skips directories.
-    def code_path(filename)
-      [File.expand_path(filename, Dir.pwd),
-       File.expand_path(filename, Pry::INITIAL_PWD),
-       *$LOAD_PATH.map { |path| File.expand_path(filename, path) }]
+    def code_path
+      [File.expand_path(@filename, Dir.pwd),
+       File.expand_path(@filename, Pry::INITIAL_PWD),
+       *$LOAD_PATH.map { |path| File.expand_path(@filename, path) }]
     end
 
     # @param [String] filename
