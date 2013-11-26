@@ -45,7 +45,16 @@ class Pry
     end
 
     def complete(search)
-      super + Bond::Rc.files(search.split(" ").last || '')
+      super | Bond::Rc.files(search.split(' ').last || '') | load_path_completions
+    end
+
+    def load_path_completions
+      $LOAD_PATH.flat_map do |path|
+        Dir[path + '/**/*'].map { |f|
+          next if File.directory?(f)
+          f.sub(path + '/', '')
+        }
+      end
     end
   end
 
