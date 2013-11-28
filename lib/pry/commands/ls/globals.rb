@@ -1,8 +1,8 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Globals < Pry::Command::Ls::Formatter
-      # http://ruby.runpaint.org/globals,
-      # and running "puts global_variables.inspect".
+
+      # Taken from "puts global_variables.inspect".
       BUILTIN_GLOBALS =
         %w($" $$ $* $, $-0 $-F $-I $-K $-W $-a $-d $-i $-l $-p $-v $-w $. $/ $\\
            $: $; $< $= $> $0 $ARGV $CONSOLE $DEBUG $DEFAULT_INPUT $DEFAULT_OUTPUT
@@ -11,9 +11,9 @@ class Pry
            $ORS $OUTPUT_FIELD_SEPARATOR $OUTPUT_RECORD_SEPARATOR $PID $PROCESS_ID
            $PROGRAM_NAME $RS $VERBOSE $deferr $defout $stderr $stdin $stdout)
 
-      # $SAFE and $? are thread-local, the exception stuff only works in a rescue
-      # clause, everything else is basically a local variable with a $ in its
-      # name.
+      # `$SAFE` and `$?` are thread-local, the exception stuff only works in a
+      # rescue clause, everything else is basically a local variable with a `$`
+      # in its name.
       PSEUDO_GLOBALS =
         %w($! $' $& $` $@ $? $+ $_ $~ $1 $2 $3 $4 $5 $6 $7 $8 $9
            $CHILD_STATUS $SAFE $ERROR_INFO $ERROR_POSITION $LAST_MATCH_INFO
@@ -27,7 +27,8 @@ class Pry
       end
 
       def output_self
-        output_section('global variables', grep.regexp[format(@target.eval('global_variables'))])
+        variables = format(@target.eval('global_variables'))
+        output_section('global variables', grep.regexp[variables])
       end
 
       def format(globals)
@@ -41,6 +42,7 @@ class Pry
           end
         end
       end
+
     end
   end
 end
