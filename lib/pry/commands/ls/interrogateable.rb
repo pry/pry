@@ -1,7 +1,11 @@
 module Pry::Command::Ls::Interrogateable
 
+  def interrogating_a_module?
+    Module === @interrogatee
+  end
+
   def interrogatee_mod
-    if Module === @interrogatee
+    if interrogating_a_module?
       @interrogatee
     else
       class << @interrogatee

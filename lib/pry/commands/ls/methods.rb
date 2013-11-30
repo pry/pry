@@ -29,25 +29,10 @@ class Pry
         # Reverse the resolution order so that the most useful information
         # appears right by the prompt.
         resolution_order.take_while(&below_ceiling).reverse.map do |klass|
-          methods_here = grep.regexp[format((methods[klass] || []))]
+          methods_here = (methods[klass] || []).select { |m| grep.regexp[m.name] }
           heading = "#{ Pry::WrappedModule.new(klass).method_prefix }methods"
-          output_section(heading, methods_here)
+          output_section(heading, format(methods_here))
         end.join('')
-      end
-
-      # Format and colourise a list of methods.
-      def format(methods)
-        methods.sort_by(&:name).map do |method|
-          if method.name == 'method_missing'
-            color(:method_missing, 'method_missing')
-          elsif method.visibility == :private
-            color(:private_method, method.name)
-          elsif method.visibility == :protected
-            color(:protected_method, method.name)
-          else
-            color(:public_method, method.name)
-          end
-        end
       end
 
     end
