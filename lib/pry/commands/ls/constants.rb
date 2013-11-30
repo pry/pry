@@ -1,6 +1,10 @@
+require 'pry/commands/ls/interrogateable'
+
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
+
+      include Pry::Command::Ls::Interrogateable
 
       def initialize(interrogatee, target, has_any_opts, opts)
         super(target)
@@ -12,16 +16,6 @@ class Pry
 
       def correct_opts?
         super || (!@has_any_opts && Module === @interrogatee)
-      end
-
-      def interrogatee_mod
-        if Module === @interrogatee
-          @interrogatee
-        else
-          class << @interrogatee
-            ancestors.grep(::Class).reject { |c| c == self }.first
-          end
-        end
       end
 
       def output_self
