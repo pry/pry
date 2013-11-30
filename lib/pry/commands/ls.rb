@@ -189,7 +189,7 @@ class Pry
         object_to_interrogate
       else
         class << object_to_interrogate
-          ancestors.grep(::Class).first
+          ancestors.grep(::Class).reject { |c| c == self }.first
         end
       end
     end
