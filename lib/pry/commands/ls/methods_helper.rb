@@ -37,4 +37,18 @@ module Pry::Command::Ls::MethodsHelper
     lambda { |klass| !ceiling.include?(klass) }
   end
 
+  def format(methods)
+    methods.sort_by(&:name).map do |method|
+      if method.name == 'method_missing'
+        color(:method_missing, 'method_missing')
+      elsif method.visibility == :private
+        color(:private_method, method.name)
+      elsif method.visibility == :protected
+        color(:protected_method, method.name)
+      else
+        color(:public_method, method.name)
+      end
+    end
+  end
+
 end

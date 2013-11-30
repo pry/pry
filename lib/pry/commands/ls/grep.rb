@@ -7,7 +7,13 @@ class Pry
       end
 
       def regexp
-        proc { |x| x.grep(@grep_regexp) }
+        proc { |x|
+          if x.instance_of?(Array)
+            x.grep(@grep_regexp)
+          else
+            x =~ @grep_regexp
+          end
+        }
       end
 
     end

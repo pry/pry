@@ -15,7 +15,7 @@ class Pry
       end
 
       def correct_opts?
-        super || (!@has_any_opts && Module === @interrogatee)
+        super || (!@has_any_opts && interrogating_a_module?)
       end
 
       def output_self
