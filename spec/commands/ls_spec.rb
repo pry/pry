@@ -141,6 +141,13 @@ describe "ls" do
   end
 
   describe "constants" do
+    it "works on top-level" do
+      toplevel_consts = pry_eval('ls -c')
+      [/RUBY_PLATFORM/, /ARGF/, /STDOUT/].each do |const|
+        toplevel_consts.should =~ const
+      end
+    end
+
     it "should show constants defined on the current module" do
       pry_eval("class TempFoo1; BARGHL = 1; end", "ls TempFoo1").should =~ /BARGHL/
     end
