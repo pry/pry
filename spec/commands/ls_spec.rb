@@ -164,6 +164,14 @@ describe "ls" do
       autoload :McflurgleTheThird, "/tmp/this-file-d000esnat-exist.rb"
       lambda{ pry_eval("ls -c") }.should.not.raise
     end
+
+    it "should show constants for an object's class regardless of mixins" do
+      pry_eval(
+        "cd Pry.new",
+        "extend Module.new",
+        "ls -c"
+      ).should.match(/Method/)
+    end
   end
 
   describe "grep" do
