@@ -2,6 +2,8 @@ class Pry
   class Command::Ls < Pry::ClassCommand
     class Formatter
 
+      attr_accessor :grep
+
       def initialize(target)
         @target = target
       end
@@ -23,8 +25,12 @@ class Pry
       end
 
       def write_out
-        return unless @switch
+        return false unless correct_opts?
         output_self
+      end
+
+      def correct_opts?
+        @default_switch
       end
 
       def output_self

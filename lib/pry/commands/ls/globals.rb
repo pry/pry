@@ -19,11 +19,9 @@ class Pry
            $CHILD_STATUS $SAFE $ERROR_INFO $ERROR_POSITION $LAST_MATCH_INFO
            $LAST_PAREN_MATCH $LAST_READ_LINE $MATCH $POSTMATCH $PREMATCH)
 
-      attr_accessor :grep
-
-      def initialize(target, globals_switch = false)
+      def initialize(target, opts)
         super(target)
-        @switch = globals_switch
+        @default_switch = opts[:globals]
       end
 
       def output_self
