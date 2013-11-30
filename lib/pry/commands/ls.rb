@@ -187,18 +187,11 @@ class Pry
     def module_to_interrogate
       if interrogating_a_module?
         object_to_interrogate
-      elsif instance_of_object?
-        object_to_interrogate.class
       else
-        class << object_to_interrogate; self.ancestors.first; end
+        class << object_to_interrogate
+          superclass
+        end
       end
-    end
-
-    def instance_of_object?
-      superclass = object_to_interrogate.instance_eval do
-        (class << self; self; end).superclass
-      end
-      superclass == Object
     end
 
     def write_out_globals
