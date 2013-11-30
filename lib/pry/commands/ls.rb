@@ -189,7 +189,7 @@ class Pry
         object_to_interrogate
       else
         class << object_to_interrogate
-          superclass
+          ancestors.grep(::Class).first
         end
       end
     end
