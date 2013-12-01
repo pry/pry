@@ -17,6 +17,8 @@ class Pry
         format(name_value_pairs).join('')
       end
 
+      private
+
       def format(name_value_pairs)
         name_value_pairs.sort_by { |name, value|
           value.to_s.size

@@ -24,6 +24,8 @@ class Pry
         output_section('constants', grep.regexp[format(mod, constants)])
       end
 
+      private
+
       def format(mod, constants)
         constants.sort_by(&:downcase).map do |name|
           if const = (!mod.autoload?(name) && (mod.const_get(name) || true) rescue nil)

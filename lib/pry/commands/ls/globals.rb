@@ -29,6 +29,8 @@ class Pry
         output_section('global variables', grep.regexp[variables])
       end
 
+      private
+
       def format(globals)
         globals.sort_by(&:downcase).map do |name|
           if PSEUDO_GLOBALS.include?(name)

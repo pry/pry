@@ -19,10 +19,6 @@ class Pry
         @verbose_switch = opts[:verbose]
       end
 
-      def correct_opts?
-        super || @instance_methods_switch || @ppp_switch || @no_user_opts
-      end
-
       def output_self
         methods = all_methods.group_by(&:owner)
         # Reverse the resolution order so that the most useful information
@@ -33,6 +29,13 @@ class Pry
           output_section(heading, format(methods_here))
         end.join('')
       end
+
+      private
+
+      def correct_opts?
+        super || @instance_methods_switch || @ppp_switch || @no_user_opts
+      end
+
 
       # Get a lambda that can be used with `take_while` to prevent over-eager
       # traversal of the Object's ancestry graph.

@@ -18,6 +18,8 @@ class Pry
         output_section('locals', format(local_vars))
       end
 
+      private
+
       def format(locals)
         locals.sort_by(&:downcase).map do |name|
           if @sticky_locals.include?(name.to_sym)

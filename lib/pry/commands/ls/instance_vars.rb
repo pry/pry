@@ -28,6 +28,8 @@ class Pry
         ivars_out + kvars_out
       end
 
+      private
+
       def format(type, vars)
         vars.sort_by { |var| var.to_s.downcase }.map { |var| color(type, var) }
       end

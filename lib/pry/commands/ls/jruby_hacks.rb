@@ -1,5 +1,7 @@
 module Pry::Command::Ls::JRubyHacks
 
+  private
+
   # JRuby creates lots of aliases for methods imported from java in an attempt
   # to make life easier for ruby programmers.  (e.g. getFooBar becomes
   # get_foo_bar and foo_bar, and maybe foo_bar? if it returns a Boolean). The
