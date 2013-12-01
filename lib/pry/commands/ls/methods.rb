@@ -1,4 +1,3 @@
-require 'pry/commands/ls/jruby_hacks'
 require 'pry/commands/ls/methods_helper'
 require 'pry/commands/ls/interrogateable'
 
@@ -7,7 +6,6 @@ class Pry
     class Methods < Pry::Command::Ls::Formatter
 
       include Pry::Command::Ls::Interrogateable
-      include Pry::Command::Ls::JRubyHacks
       include Pry::Command::Ls::MethodsHelper
 
       def initialize(interrogatee, no_user_opts, opts)
