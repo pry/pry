@@ -1,13 +1,4 @@
-require 'pry/commands/ls/grep'
-require 'pry/commands/ls/formatter'
-require 'pry/commands/ls/globals'
-require 'pry/commands/ls/constants'
-require 'pry/commands/ls/methods'
-require 'pry/commands/ls/self_methods'
-require 'pry/commands/ls/instance_vars'
-require 'pry/commands/ls/local_names'
-require 'pry/commands/ls/local_vars'
-
+require 'pry/commands/ls/ls_entity'
 class Pry
   class Command::Ls < Pry::ClassCommand
     match 'ls'
@@ -56,32 +47,30 @@ class Pry
 
     attr_reader :interrogatee
 
+    # Exclude -q, -v and --grep because they,
+    # don't specify what the user wants to see.
+    def no_user_opts?
+      !(opts[:methods] || opts['instance-methods'] || opts[:ppp] ||
+        opts[:globals] || opts[:locals] || opts[:constants] || opts[:ivars])
+    end
+
     def process
       @interrogatee = args.empty? ? target_self : target.eval(args.join(' '))
 
-      # Exclude -q, -v and --grep because they,
-      # don't specify what the user wants to see.
-      no_user_opts = !(
-        opts[:methods] || opts['instance-methods'] || opts[:ppp] ||
-        opts[:globals] || opts[:locals] || opts[:constants] || opts[:ivars]
-      )
-
       raise_errors_if_arguments_are_weird
 
-      grep = Grep.new(Regexp.new(opts[:G] || '.'))
-      greppable = proc { |o| o.grep = grep; o }
+      no_user_opts = no_user_opts?
 
-      entities = [
-        greppable[Globals.new(target, opts)],
-        greppable[Constants.new(interrogatee, target, no_user_opts, opts)],
-        greppable[Methods.new(interrogatee, no_user_opts, opts)],
-        greppable[SelfMethods.new(interrogatee, no_user_opts, opts)],
-        InstanceVars.new(interrogatee, no_user_opts, opts),
-        greppable[LocalNames.new(target, no_user_opts, _pry_.sticky_locals, args)],
-        LocalVars.new(target, _pry_.sticky_locals, opts)
-      ]
+      ls_entity = LsEntity.new({
+        interrogatee: interrogatee,
+        target: target,
+        no_user_opts: no_user_opts,
+        opts: opts,
+        sticky_locals: _pry_.sticky_locals,
+        args: args
+      })
 
-      stagger_output(entities.map(&:write_out).reject { |o| !o }.join(''))
+      stagger_output(ls_entity.entities_table)
     end
 
     private
