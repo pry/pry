@@ -59,8 +59,9 @@ class Pry
     def process
       @interrogatee = args.empty? ? target_self : target.eval(args.join(' '))
 
-      # exclude -q, -v and --grep because they don't specify what the user wants to see.
-      has_any_opts = (
+      # Exclude -q, -v and --grep because they,
+      # don't specify what the user wants to see.
+      no_user_opts = !(
         opts[:methods] || opts['instance-methods'] || opts[:ppp] ||
         opts[:globals] || opts[:locals] || opts[:constants] || opts[:ivars]
       )
@@ -72,11 +73,11 @@ class Pry
 
       entities = [
         greppable[Globals.new(target, opts)],
-        greppable[Constants.new(interrogatee, target, has_any_opts, opts)],
-        greppable[Methods.new(interrogatee, has_any_opts, opts)],
-        greppable[SelfMethods.new(interrogatee, has_any_opts, opts)],
-        InstanceVars.new(interrogatee, has_any_opts, opts),
-        greppable[LocalNames.new(target, has_any_opts, _pry_.sticky_locals, args)],
+        greppable[Constants.new(interrogatee, target, no_user_opts, opts)],
+        greppable[Methods.new(interrogatee, no_user_opts, opts)],
+        greppable[SelfMethods.new(interrogatee, no_user_opts, opts)],
+        InstanceVars.new(interrogatee, no_user_opts, opts),
+        greppable[LocalNames.new(target, no_user_opts, _pry_.sticky_locals, args)],
         LocalVars.new(target, _pry_.sticky_locals, opts)
       ]
 
