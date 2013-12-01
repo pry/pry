@@ -1,4 +1,8 @@
+require 'pry/commands/ls/jruby_hacks'
+
 module Pry::Command::Ls::MethodsHelper
+
+  include Pry::Command::Ls::JRubyHacks
 
   # Get all the methods that we'll want to output.
   def all_methods(instance_methods = false)
