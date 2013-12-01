@@ -18,6 +18,7 @@ class Pry
         @ppp_switch = opts[:ppp]
         @jruby_switch = opts['all-java']
         @quiet_switch = opts[:quiet]
+        @verbose_switch = opts[:verbose]
       end
 
       def correct_opts?
@@ -34,6 +35,21 @@ class Pry
           output_section(heading, format(methods_here))
         end.join('')
       end
+
+      # Get a lambda that can be used with `take_while` to prevent over-eager
+      # traversal of the Object's ancestry graph.
+      def below_ceiling
+        ceiling = if @quiet_switch
+                    [Pry::Method.safe_send(interrogatee_mod, :ancestors)[1]] +
+                      Pry.config.ls.ceiling
+                  elsif @verbose_switch
+                    []
+                  else
+                    Pry.config.ls.ceiling.dup
+                  end
+        lambda { |klass| !ceiling.include?(klass) }
+      end
+
 
     end
   end
