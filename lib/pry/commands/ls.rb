@@ -81,7 +81,7 @@ class Pry
         LocalVars.new(target, _pry_.sticky_locals, opts)
       ]
 
-      stagger_output(entities.map(&:write_out).reject(&:!).join(''))
+      stagger_output(entities.map(&:write_out).reject { |o| !o }.join(''))
     end
 
     private
