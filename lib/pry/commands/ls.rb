@@ -45,8 +45,6 @@ class Pry
       end
     end
 
-    attr_reader :interrogatee
-
     # Exclude -q, -v and --grep because they,
     # don't specify what the user wants to see.
     def no_user_opts?
@@ -59,12 +57,10 @@ class Pry
 
       raise_errors_if_arguments_are_weird
 
-      no_user_opts = no_user_opts?
-
       ls_entity = LsEntity.new({
-        interrogatee: interrogatee,
+        interrogatee: @interrogatee,
         target: target,
-        no_user_opts: no_user_opts,
+        no_user_opts: no_user_opts?,
         opts: opts,
         sticky_locals: _pry_.sticky_locals,
         args: args
@@ -77,7 +73,7 @@ class Pry
 
     def error_list
       any_args = args.any?
-      non_mod_interrogatee = !Module === interrogatee
+      non_mod_interrogatee = !Module === @interrogatee
       [
         ['-l does not make sense with a specified Object', :locals, any_args],
         ['-g does not make sense with a specified Object', :globals, any_args],
