@@ -58,12 +58,12 @@ class Pry
       raise_errors_if_arguments_are_weird
 
       ls_entity = LsEntity.new({
-        interrogatee: @interrogatee,
-        target: target,
-        no_user_opts: no_user_opts?,
-        opts: opts,
-        sticky_locals: _pry_.sticky_locals,
-        args: args
+        :interrogatee => @interrogatee,
+        :target => target,
+        :no_user_opts => no_user_opts?,
+        :opts => opts,
+        :sticky_locals => _pry_.sticky_locals,
+        :args => args
       })
 
       stagger_output(ls_entity.entities_table)
