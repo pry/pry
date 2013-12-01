@@ -86,15 +86,21 @@ class Pry
 
     private
 
-    def raise_errors_if_arguments_are_weird
+    def error_list
+      any_args = args.any?
+      non_mod_interrogatee = !Module === interrogatee
       [
-        ['-l does not make sense with a specified Object', :locals,            !args.empty?],
-        ['-g does not make sense with a specified Object', :globals,           !args.empty?],
-        ['-q does not make sense with -v',                 :quiet,             opts.present?(:verbose)],
-        ['-M only makes sense with a Module or a Class',   'instance-methods', !Module === interrogatee],
-        ['-c only makes sense with a Module or a Class',   :constants,         !args.empty? && !Module === interrogatee],
-      ].each do |message, option, expression|
-        raise Pry::CommandError, message if opts.present?(option) && expression
+        ['-l does not make sense with a specified Object', :locals, any_args],
+        ['-g does not make sense with a specified Object', :globals, any_args],
+        ['-q does not make sense with -v',                 :quiet, opts.present?(:verbose)],
+        ['-M only makes sense with a Module or a Class',   'instance-methods', non_mod_interrogatee],
+        ['-c only makes sense with a Module or a Class',   :constants, any_args && non_mod_interrogatee]
+      ]
+    end
+
+    def raise_errors_if_arguments_are_weird
+      error_list.each do |message, option, invalid_expr|
+        raise Pry::CommandError, message if opts.present?(option) && invalid_expr
       end
     end
 
