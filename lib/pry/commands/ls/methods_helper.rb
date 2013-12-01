@@ -23,20 +23,6 @@ module Pry::Command::Ls::MethodsHelper
     end
   end
 
-  # Get a lambda that can be used with `take_while` to prevent over-eager
-  # traversal of the Object's ancestry graph.
-  def below_ceiling
-    ceiling = if @quiet_switch
-                [Pry::Method.safe_send(interrogatee_mod, :ancestors)[1]] +
-                  Pry.config.ls.ceiling
-              elsif @verbose_switch
-                []
-              else
-                Pry.config.ls.ceiling.dup
-              end
-    lambda { |klass| !ceiling.include?(klass) }
-  end
-
   def format(methods)
     methods.sort_by(&:name).map do |method|
       if method.name == 'method_missing'
