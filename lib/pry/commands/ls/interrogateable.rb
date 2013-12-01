@@ -1,5 +1,7 @@
 module Pry::Command::Ls::Interrogateable
 
+  private
+
   def interrogating_a_module?
     Module === @interrogatee
   end

@@ -8,6 +8,13 @@ class Pry
         @target = target
       end
 
+      def write_out
+        return false unless correct_opts?
+        output_self
+      end
+
+      private
+
       def color(type, str)
         Pry::Helpers::Text.send(Pry.config.ls.send(:"#{type}_color"), str)
       end
@@ -22,11 +29,6 @@ class Pry
 
       def format_value(value)
         Pry::ColorPrinter.pp(value, '')
-      end
-
-      def write_out
-        return false unless correct_opts?
-        output_self
       end
 
       def correct_opts?

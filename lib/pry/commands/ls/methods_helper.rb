@@ -4,6 +4,8 @@ module Pry::Command::Ls::MethodsHelper
 
   include Pry::Command::Ls::JRubyHacks
 
+  private
+
   # Get all the methods that we'll want to output.
   def all_methods(instance_methods = false)
     methods = if instance_methods || @instance_methods_switch
