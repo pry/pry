@@ -10,9 +10,9 @@ class Pry
       include Pry::Command::Ls::JRubyHacks
       include Pry::Command::Ls::MethodsHelper
 
-      def initialize(interrogatee, has_any_opts, opts)
+      def initialize(interrogatee, no_user_opts, opts)
         @interrogatee = interrogatee
-        @has_any_opts = has_any_opts
+        @no_user_opts = no_user_opts
         @default_switch = opts[:methods]
         @instance_methods_switch = opts['instance-methods']
         @ppp_switch = opts[:ppp]
@@ -22,7 +22,7 @@ class Pry
       end
 
       def correct_opts?
-        super || @instance_methods_switch || @ppp_switch || !@has_any_opts
+        super || @instance_methods_switch || @ppp_switch || @no_user_opts
       end
 
       def output_self
@@ -49,7 +49,6 @@ class Pry
                   end
         lambda { |klass| !ceiling.include?(klass) }
       end
-
 
     end
   end

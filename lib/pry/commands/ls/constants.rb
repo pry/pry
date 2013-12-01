@@ -6,16 +6,16 @@ class Pry
 
       include Pry::Command::Ls::Interrogateable
 
-      def initialize(interrogatee, target, has_any_opts, opts)
+      def initialize(interrogatee, target, no_user_opts, opts)
         super(target)
         @interrogatee = interrogatee
-        @has_any_opts = has_any_opts
+        @no_user_opts = no_user_opts
         @default_switch = opts[:constants]
         @verbose_switch = opts[:verbose]
       end
 
       def correct_opts?
-        super || (!@has_any_opts && interrogating_a_module?)
+        super || (@no_user_opts && interrogating_a_module?)
       end
 
       def output_self

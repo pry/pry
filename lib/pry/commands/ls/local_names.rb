@@ -2,15 +2,15 @@ class Pry
   class Command::Ls < Pry::ClassCommand
     class LocalNames < Pry::Command::Ls::Formatter
 
-      def initialize(target, has_any_opts, sticky_locals, args)
+      def initialize(target, no_user_opts, sticky_locals, args)
         super(target)
-        @has_any_opts = has_any_opts
+        @no_user_opts = no_user_opts
         @sticky_locals = sticky_locals
         @args = args
       end
 
       def correct_opts?
-        super || !@has_any_opts && @args.empty?
+        super || (@no_user_opts && @args.empty?)
       end
 
       def output_self
