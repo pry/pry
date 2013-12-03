@@ -36,27 +36,27 @@ class Pry
       end
 
       def globals
-        greppable[Globals.new(@target, @opts)]
+        greppable.call(Globals.new(@target, @opts))
       end
 
       def constants
-        greppable[Constants.new(@interrogatee, @target, @no_user_opts, @opts)]
+        greppable.call(Constants.new(@interrogatee, @target, @no_user_opts, @opts))
       end
 
       def methods
-        greppable[Methods.new(@interrogatee, @no_user_opts, @opts)]
+        greppable.call(Methods.new(@interrogatee, @no_user_opts, @opts))
       end
 
       def self_methods
-        greppable[SelfMethods.new(@interrogatee, @no_user_opts, @opts)]
+        greppable.call(SelfMethods.new(@interrogatee, @no_user_opts, @opts))
       end
 
       def instance_vars
-        InstanceVars.new(@interrogatee, @no_user_opts, @opts)
+        greppable.call(InstanceVars.new(@interrogatee, @no_user_opts, @opts))
       end
 
       def local_names
-        greppable[LocalNames.new(@target, @no_user_opts, @sticky_locals, @args)]
+        greppable.call(LocalNames.new(@target, @no_user_opts, @sticky_locals, @args))
       end
 
       def local_vars
