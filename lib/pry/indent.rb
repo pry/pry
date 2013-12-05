@@ -320,7 +320,7 @@ class Pry
     # [ ["class", "Foo"], ["module", "Bar::Baz"], ["class <<", "self"] ]
     #
     # A nil value in the @module_nesting array happens in two places: either
-    # when @awaiting_token is true and we're still waiting for the string to
+    # when @awaiting_class is true and we're still waiting for the string to
     # fill that space, or when a parse was rejected.
     #
     # At the moment this function is quite restricted about what formats it will
@@ -341,7 +341,7 @@ class Pry
           @module_nesting.last[1] = token if kind == :class
           @awaiting_class = false
         else
-          # leave @nesting[-1][
+          # leave @module_nesting[-1]
           @awaiting_class = false
         end
       end
