@@ -64,4 +64,8 @@ describe Pry::HistoryArray do
     @populated.pop!
     @populated.to_a.should == [1, 2, 3]
   end
+
+  it 'should return an indexed hash' do
+    @populated.to_h[0].should == @populated[0]
+  end
 end
