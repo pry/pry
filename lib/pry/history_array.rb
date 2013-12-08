@@ -89,6 +89,11 @@ class Pry
       ((@count - size)...@count).map { |n| @hash[n] }
     end
 
+    # Returns [Hash] copy of the internal @hash history
+    def to_h
+      @hash.dup
+    end
+
     def pop!
       @hash.delete @count - 1
       @count -= 1
