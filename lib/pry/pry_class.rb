@@ -382,8 +382,8 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   # Basic initialization.
   def self.init
     @plugin_manager ||= PluginManager.new
-    self.config ||= Config.new
-    self.history ||= History.new
+    self.config = Config.new unless self.config.instance_of? Config
+    self.history = History.new unless self.history.instance_of? History
 
     reset_defaults
     locate_plugins
