@@ -17,12 +17,7 @@ class Pry
 
     def process(cmd)
       if cmd =~ /^cd\s+(.+)/i
-        dest = $1
-        begin
-          Dir.chdir File.expand_path(dest)
-        rescue Errno::ENOENT
-          raise CommandError, "No such directory: #{dest}"
-        end
+        process_cd parse_destination($1)
       else
         pass_block(cmd)
 
@@ -37,6 +32,20 @@ class Pry
     def complete(search)
       super + Bond::Rc.files(search.split(" ").last || '')
     end
+
+    private
+
+      def parse_destination(dest)
+        return dest unless dest == "-"
+        state.old_pwd || raise(CommandError, "No prior directory available")
+      end
+
+      def process_cd(dest)
+        state.old_pwd = Dir.pwd
+        Dir.chdir File.expand_path(dest)
+      rescue Errno::ENOENT
+        raise CommandError, "No such directory: #{dest}"
+      end
   end
 
   Pry::Commands.add_command(Pry::Command::ShellCommand)
