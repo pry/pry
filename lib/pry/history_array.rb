@@ -91,7 +91,7 @@ class Pry
 
     # Returns [Hash] copy of the internal @hash history
     def to_h
-      Marshal.load( Marshal.dump(@hash) )
+      @hash.dup
     end
 
     def pop!
