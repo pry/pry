@@ -31,6 +31,13 @@ describe "Command::ShellCommand" do
         end
       end
 
+      describe "given an empty string" do
+        it "sends ~ to File.expand_path" do
+          Dir.expects(:chdir).with(File.expand_path("~"))
+          @t.eval ".cd "
+        end
+      end
+
       describe "given a dash" do
         describe "given no prior directory" do
           it "raises the correct error" do

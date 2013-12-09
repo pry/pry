@@ -16,7 +16,7 @@ class Pry
     BANNER
 
     def process(cmd)
-      if cmd =~ /^cd\s+(.+)/i
+      if cmd =~ /^cd\s*(.*)/i
         process_cd parse_destination($1)
       else
         pass_block(cmd)
@@ -36,6 +36,7 @@ class Pry
     private
 
       def parse_destination(dest)
+        return "~" if dest.empty?
         return dest unless dest == "-"
         state.old_pwd || raise(CommandError, "No prior directory available")
       end
