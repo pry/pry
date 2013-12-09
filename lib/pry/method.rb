@@ -50,7 +50,7 @@ class Pry
         elsif name.to_s =~ /(.+)(\.|::)(\S+)\Z/
           context, meth_name = $1, $3
           from_obj(target.eval(context), meth_name, target)
-        elsif name.to_s =~ /(\w+)(\[\])/
+        elsif name.to_s =~ /(.+)(\[\])\Z/
           context, meth_name = $1, $2
           from_obj(target.eval(context), meth_name, target)
         elsif options[:instance]
