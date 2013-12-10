@@ -13,56 +13,6 @@ class Pry
     Thread.current[:__pry__] ||= {}
   end
 
-  # class accessors
-  class << self
-    extend Forwardable
-
-    # convenience method
-    def self.delegate_accessors(delagatee, *names)
-      def_delegators delagatee, *names
-      def_delegators delagatee, *names.map { |v| "#{v}=" }
-    end
-
-    # Get/Set the Proc that defines extra Readline completions (on top
-    # of the ones defined for IRB).
-    # @return [Proc] The Proc that defines extra Readline completions (on top
-    # @example Add file names to completion list
-    #   Pry.custom_completions = proc { Dir.entries('.') }
-    attr_accessor :custom_completions
-
-    # @return [Fixnum] The current input line.
-    attr_accessor :current_line
-
-    # @return [Array] The Array of evaluated expressions.
-    attr_accessor :line_buffer
-
-    # @return [String] The __FILE__ for the `eval()`. Should be "(pry)"
-    #   by default.
-    attr_accessor :eval_path
-
-    # @return [OpenStruct] Return Pry's config object.
-    attr_accessor :config
-
-    # @return [History] Return Pry's line history object.
-    attr_accessor :history
-
-    # @return [Boolean] Whether Pry was activated from the command line.
-    attr_accessor :cli
-
-    # @return [Boolean] Whether Pry sessions are quiet by default.
-    attr_accessor :quiet
-
-    # @return [Exception, nil] The last pry internal error.
-    #   (a CommandError in most cases)
-    attr_accessor :last_internal_error
-
-    # plugin forwardables
-    def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
-
-    delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :extra_sticky_locals
-  end
-
   # Load the given file in the context of `Pry.toplevel_binding`
   # @param [String] file_name The unexpanded file path.
   def self.load_file_at_toplevel(file)
