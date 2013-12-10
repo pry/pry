@@ -54,7 +54,7 @@ class Pry
           else 
             context, meth_name = $1, $3
           end
-        from_obj(target.eval(context), meth_name, target)
+          from_obj(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\[\])\Z/
           context, meth_name = $1, $2
           from_obj(target.eval(context), meth_name, target)
