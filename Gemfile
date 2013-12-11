@@ -6,7 +6,6 @@ group :development do
   gem 'jist'
   gem 'rb-inotify', :require => 'false'
   gem 'rb-fsevent', :require => 'false'
-  gem 'debugger'
 end
 
 if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
