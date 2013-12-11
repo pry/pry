@@ -68,6 +68,18 @@ describe Pry::Method do
       meth.name.should == "hello"
     end
 
+    it 'should take care of corner cases like mongo[] e.g Foo::Bar.new[]- issue 998' do
+      klass = Class.new { def []; :hello; end }
+      meth = Pry::Method.from_str("klass.new[]", Pry.binding_for(binding))
+      meth.name.should == "[]"
+    end
+
+    it 'should take care of cases like $ mongo[] - issue 998' do
+      f = Class.new { def []; :hello; end }.new
+      meth = Pry::Method.from_str("f[]", Pry.binding_for(binding))
+      meth.name.should == "[]"
+    end
+
     it 'should look up instance methods using klass.meth#method syntax' do
       klass = Class.new { def self.meth; Class.new; end }
       meth = Pry::Method.from_str("klass.meth#initialize", Pry.binding_for(binding))
