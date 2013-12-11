@@ -48,7 +48,15 @@ class Pry
           context, meth_name = $1, $2
           from_module(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\.|::)(\S+)\Z/
-          context, meth_name = $1, $3
+          if($3 == "new[]")
+            name.to_s =~ /(.+)(\[\])\Z/
+            context, meth_name = $1, $2
+          else 
+            context, meth_name = $1, $3
+          end
+          from_obj(target.eval(context), meth_name, target)
+        elsif name.to_s =~ /(.+)(\[\])\Z/
+          context, meth_name = $1, $2
           from_obj(target.eval(context), meth_name, target)
         elsif options[:instance]
           from_module(target.eval("self"), name, target)
@@ -56,7 +64,7 @@ class Pry
           from_obj(target.eval("self"), name, target)
         else
           from_str(name, target, :instance => true) or
-            from_str(name, target, :methods => true)
+          from_str(name, target, :methods => true)
         end
 
       rescue Pry::RescuableException
