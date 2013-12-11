@@ -62,7 +62,7 @@ describe Pry::Method do
       meth.should == nil
     end
 
-   it 'should look up methods using klass.new.method syntax' do
+    it 'should look up methods using klass.new.method syntax' do
       klass = Class.new { def hello; :hello; end }
       meth = Pry::Method.from_str("klass.new.hello", Pry.binding_for(binding))
       meth.name.should == "hello"
