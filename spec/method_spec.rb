@@ -75,8 +75,7 @@ describe Pry::Method do
     end
 
     it 'should take care of cases like $ mongo[] - issue 998' do
-      f = Class.new { def []; :hello; end }
-      binding.eval("f = {}")
+      f = Class.new { def []; :hello; end }.new
       meth = Pry::Method.from_str("f[]", Pry.binding_for(binding))
       meth.name.should == "[]"
     end
