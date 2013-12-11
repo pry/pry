@@ -59,7 +59,7 @@ class Pry
           from_obj(target.eval("self"), name, target)
         else
           from_str(name, target, :instance => true) or
-          from_str(name, target, :methods => true)
+            from_str(name, target, :methods => true)
         end
 
       rescue Pry::RescuableException
