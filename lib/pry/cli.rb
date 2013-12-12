@@ -166,6 +166,10 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.config.prompt = Pry::SIMPLE_PROMPT
   end
 
+  on "no-prompt", "No prompt mode" do
+    Pry.config.prompt = proc { '' }
+  end
+
   on :r, :require=, "`require` a Ruby script at startup" do |file|
     Pry.config.requires << file
   end
