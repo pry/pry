@@ -166,7 +166,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.config.prompt = Pry::SIMPLE_PROMPT
   end
 
-  on "no-prompt", "No prompt mode" do
+  on "noprompt", "No prompt mode" do
     Pry.config.prompt = Pry::NO_PROMPT
   end
 
