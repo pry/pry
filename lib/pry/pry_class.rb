@@ -1,5 +1,4 @@
 require 'ostruct'
-require 'forwardable'
 require 'pry/config'
 
 class Pry
