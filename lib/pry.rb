@@ -9,6 +9,7 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 require 'securerandom'
+require 'forwardable'
 
 class Pry
 
