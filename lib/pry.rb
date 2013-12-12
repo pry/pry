@@ -70,6 +70,8 @@ class Pry
   # A simple prompt - doesn't display target or nesting level
   SIMPLE_PROMPT = [proc { ">> " }, proc { " | " }]
 
+  NO_PROMPT = [proc { '' }, proc { '' }]
+
   SHELL_PROMPT = [
                   proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
                   proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
