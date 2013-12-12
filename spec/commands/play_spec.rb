@@ -36,6 +36,33 @@ describe "play" do
     end
   end
 
+  describe "playing a file" do
+    it 'should play a file' do
+      @t.process_command 'play spec/fixtures/whereami_helper.rb'
+      @t.eval_string.should == unindent(<<-STR)
+        class Cor
+          def a; end
+          def b; end
+          def c; end
+          def d; end
+        end
+      STR
+    end
+
+
+    it 'should output file contents with print option' do
+      @t.process_command 'play --print spec/fixtures/whereami_helper.rb'
+      @t.last_output.should == unindent(<<-STR)
+        1: class Cor
+        2:   def a; end
+        3:   def b; end
+        4:   def c; end
+        5:   def d; end
+        6: end
+      STR
+    end
+  end
+
   describe "whatever" do
     before do
       def @o.test_method
