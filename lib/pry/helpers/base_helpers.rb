@@ -71,7 +71,11 @@ class Pry
 
       # are we able to use ansi on windows?
       def windows_ansi?
-        defined?(Win32::Console) || ENV['ANSICON']
+        defined?(Win32::Console) || ENV['ANSICON'] || windows? && ruby_version2?
+      end
+
+      def ruby_version2?
+        RUBY_VERSION =~ /^2/
       end
 
       def jruby?
