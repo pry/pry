@@ -19,13 +19,13 @@ class Pry
         decorate(@code_from_file)
       end
 
-      private
-
       def file_and_line
         file_name, line_num = file_with_embedded_line.split(/:(?!\/|\\)/)
 
         [file_name, line_num ? line_num.to_i : nil]
       end
+
+      private
 
       def file_name
         file_and_line.first
