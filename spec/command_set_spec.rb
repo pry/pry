@@ -183,6 +183,21 @@ describe Pry::CommandSet do
       run.should == true
     end
 
+    it "should be able to alias command with command_prefix" do
+      run = false
+      @set.command('owl', 'stuff') { run = true }
+      @set.alias_command 'owlet', 'owl'
+
+      Pry.config.command_prefix = '%'
+      @set.commands['owlet'].match.should == 'owlet'
+      @set.commands['owlet'].description.should == 'Alias for `owl`'
+
+      @set.process_line '%owlet', @ctx
+      run.should == true
+
+      Pry.config.command_prefix = ''
+    end
+
     it 'should inherit options from original command' do
       run = false
       @set.command('foo', 'stuff', :shellwords => true, :interpolate => false) { run = true }
