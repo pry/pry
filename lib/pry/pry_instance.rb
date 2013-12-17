@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "pry/indent"
 
 ##
@@ -21,54 +22,26 @@ require "pry/indent"
 # * https://github.com/pry/pry
 # * the IRC channel, which is #pry on the Freenode network
 #
+
 class Pry
-  attr_accessor :input
-  attr_accessor :output
-  attr_accessor :commands
-  attr_accessor :print
-  attr_accessor :exception_handler
-  attr_accessor :quiet
-  alias :quiet? :quiet
-
-  attr_accessor :custom_completions
-
   attr_accessor :binding_stack
   attr_accessor :eval_string
-
+  attr_accessor :backtrace
+  attr_accessor :suppress_output
   attr_accessor :last_result
   attr_accessor :last_file
   attr_accessor :last_dir
 
   attr_reader :last_exception
-
+  attr_reader :command_state
+  attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
+  attr_reader :hooks
+  attr_reader :config
 
-  attr_accessor :backtrace
-
-  attr_accessor :extra_sticky_locals
-
-  attr_accessor :suppress_output
-
-  # This is exposed via Pry::Command#state.
-  attr_reader :command_state
-
-  attr_reader :exit_value
-
-  attr_reader :hooks # Special treatment as we want to alert people of the
-                     # changed API.
-
-  # FIXME: This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] hooks
-  def hooks=(hooks)
-    if hooks.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
-           "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(hooks)
-    else
-      @hooks = hooks
-    end
-  end
+  extend Pry::Config::Convenience
+  config_shortcut *Pry::Config.shortcuts
 
   # Create a new {Pry} instance.
   # @param [Hash] options
@@ -96,45 +69,38 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options[:backtrace] || caller
-
-    refresh_config(options)
+    @config        = Pry::Config.new
+    @config.merge!(options)
+    @input_array  = Pry::HistoryArray.new config.memory_size
+    @output_array = Pry::HistoryArray.new config.memory_size
 
     push_initial_binding(options[:target])
-
     set_last_result nil
     @input_array << nil # add empty input so _in_ and _out_ match
-
     # yield the binding_stack to the hook for modification
     exec_hook(:when_started, options[:target], options, self)
   end
 
-  # Refresh the Pry instance settings from the Pry class.
-  # Allows options to be specified to override settings from Pry class.
-  # @param [Hash] options The options to override Pry class settings
-  #   for this instance.
-  def refresh_config(options={})
-    defaults   = {}
-    attributes = [
-                   :input, :output, :commands, :print, :quiet,
-                   :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size, :extra_sticky_locals
-                 ]
-
-    attributes.each do |attribute|
-      defaults[attribute] = Pry.send attribute
+  # FIXME: This is a hack to alert people of the new API.
+  # @param [Pry::Hooks] hooks
+  def hooks=(hooks)
+    if hooks.is_a?(Hash)
+      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
+      "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      @hooks = Pry::Hooks.from_hash(hooks)
+    else
+      @hooks = hooks
     end
-
-    defaults.merge!(options).each do |key, value|
-      send("#{key}=", value) if respond_to?("#{key}=")
-    end
-
-    true
   end
 
   # Initialize this instance by pushing its initial context into the binding
   # stack. If no target is given, start at the top level.
   def push_initial_binding(target=nil)
     push_binding(target || Pry.toplevel_binding)
+  end
+
+  def hooks
+    config.hooks
   end
 
   # The currently active `Binding`.
@@ -149,18 +115,6 @@ class Pry
   def push_binding(object)
     @stopped = false
     binding_stack << Pry.binding_for(object)
-  end
-
-  # The current prompt.
-  # This is the prompt at the top of the prompt stack.
-  #
-  # @example
-  #    self.prompt = Pry::SIMPLE_PROMPT
-  #    self.prompt # => Pry::SIMPLE_PROMPT
-  #
-  # @return [Array<Proc>] Current prompt.
-  def prompt
-    prompt_stack.last
   end
 
   def prompt=(new_prompt)
@@ -221,18 +175,8 @@ class Pry
     sticky_locals[name] = block
   end
 
-  # @return [Hash] The currently defined sticky locals.
   def sticky_locals
-    @sticky_locals ||= {
-      :_in_   => proc { @input_array },
-      :_out_  => proc { @output_array },
-      :_pry_  => self,
-      :_ex_   => proc { last_exception },
-      :_file_ => proc { last_file },
-      :_dir_  => proc { last_dir },
-      :_      => proc { last_result },
-      :__     => proc { @output_array[-2] }
-    }.merge(extra_sticky_locals)
+    config.sticky_locals(self)
   end
 
   # Reset the current eval string. If the user has entered part of a multiline
@@ -676,4 +620,6 @@ class Pry
   end
   def raise_up(*args); raise_up_common(false, *args); end
   def raise_up!(*args); raise_up_common(true, *args); end
+
+private
 end
