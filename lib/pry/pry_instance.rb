@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "pry/indent"
 
 ##
@@ -22,53 +23,35 @@ require "pry/indent"
 # * the IRC channel, which is #pry on the Freenode network
 #
 class Pry
-  attr_accessor :input
-  attr_accessor :output
-  attr_accessor :commands
-  attr_accessor :print
-  attr_accessor :exception_handler
-  attr_accessor :quiet
+  CONFIG = {
+    :input               => proc { Pry.input },
+    :output              => proc { Pry.output },
+    :commands            => proc { Pry.commands },
+    :print               => proc { Pry.print },
+    :quiet               => proc { Pry.quiet },
+    :exception_handler   => proc { Pry.exception_handler },
+    :hooks               => proc { Pry.hooks },
+    :custom_completions  => proc { Pry.custom_completions },
+    :prompt              => proc { Pry.prompt },
+    :memory_size         => proc { Pry.memory_size },
+    :extra_sticky_locals => proc { Pry.extra_sticky_locals }
+  }.freeze
+  attr_accessor *CONFIG.keys
   alias :quiet? :quiet
-
-  attr_accessor :custom_completions
 
   attr_accessor :binding_stack
   attr_accessor :eval_string
-
+  attr_accessor :backtrace
+  attr_accessor :suppress_output
   attr_accessor :last_result
   attr_accessor :last_file
   attr_accessor :last_dir
 
   attr_reader :last_exception
-
+  attr_reader :command_state
+  attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
-
-  attr_accessor :backtrace
-
-  attr_accessor :extra_sticky_locals
-
-  attr_accessor :suppress_output
-
-  # This is exposed via Pry::Command#state.
-  attr_reader :command_state
-
-  attr_reader :exit_value
-
-  attr_reader :hooks # Special treatment as we want to alert people of the
-                     # changed API.
-
-  # FIXME: This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] hooks
-  def hooks=(hooks)
-    if hooks.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
-           "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(hooks)
-    else
-      @hooks = hooks
-    end
-  end
 
   # Create a new {Pry} instance.
   # @param [Hash] options
@@ -97,37 +80,34 @@ class Pry
     @eval_string   = ""
     @backtrace     = options[:backtrace] || caller
 
-    refresh_config(options)
+    refresh(CONFIG)
+    refresh(options)
 
     push_initial_binding(options[:target])
-
     set_last_result nil
     @input_array << nil # add empty input so _in_ and _out_ match
-
     # yield the binding_stack to the hook for modification
     exec_hook(:when_started, options[:target], options, self)
+  end
+
+  # FIXME: This is a hack to alert people of the new API.
+  # @param [Pry::Hooks] hooks
+  def hooks=(hooks)
+    if hooks.is_a?(Hash)
+      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
+      "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      @hooks = Pry::Hooks.from_hash(hooks)
+    else
+      @hooks = hooks
+    end
   end
 
   # Refresh the Pry instance settings from the Pry class.
   # Allows options to be specified to override settings from Pry class.
   # @param [Hash] options The options to override Pry class settings
   #   for this instance.
-  def refresh_config(options={})
-    defaults   = {}
-    attributes = [
-                   :input, :output, :commands, :print, :quiet,
-                   :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size, :extra_sticky_locals
-                 ]
-
-    attributes.each do |attribute|
-      defaults[attribute] = Pry.send attribute
-    end
-
-    defaults.merge!(options).each do |key, value|
-      send("#{key}=", value) if respond_to?("#{key}=")
-    end
-
+  def refresh_config
+    refresh(CONFIG)
     true
   end
 
@@ -676,4 +656,14 @@ class Pry
   end
   def raise_up(*args); raise_up_common(false, *args); end
   def raise_up!(*args); raise_up_common(true, *args); end
+
+private
+  def refresh(options)
+    options.each do |key, value|
+      setter = "#{key}="
+      if respond_to?(setter)
+        self.send setter, options == CONFIG ? value.call : value
+      end
+    end
+  end
 end
