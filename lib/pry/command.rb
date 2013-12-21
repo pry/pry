@@ -194,6 +194,7 @@ class Pry
       # The group in which the command should be displayed in "help" output.
       # This is usually auto-generated from directory naming, but it can be
       # manually overridden if necessary.
+      # Group should not be changed once it is initialized.
       def group(name=nil)
         @group ||= if name
                      name
