@@ -50,6 +50,8 @@ describe "ls" do
   end
 
   describe "methods" do
+    def singleton_class(obj); class << obj; self; end; end
+
     it "should show public methods by default" do
       output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")
       output.should =~ /methods: goo/
@@ -92,6 +94,21 @@ describe "ls" do
       test.should.not.raise
     end
 
+    it "should not show singleton methods of Object by default" do
+      def Object.this_is_singleton_method; end
+      output = pry_eval("ls String")
+      output.should.not =~ /Object.methods: this_is_singleton_method/m
+      singleton_class(Object).class_eval "remove_method :this_is_singleton_method"
+    end
+
+    if defined?(BasicObject)
+      it "should not show singleton methods of BasicObject by default" do
+        def BasicObject.this_is_singleton_method; end
+        output = pry_eval("ls String")
+        output.should.not =~ /BasicObject.methods: this_is_singleton_method/m
+        singleton_class(BasicObject).class_eval "remove_method :this_is_singleton_method"
+     end
+    end
 
     # see: https://travis-ci.org/pry/pry/jobs/5071918
     unless Pry::Helpers::BaseHelpers.rbx?

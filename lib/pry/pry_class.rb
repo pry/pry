@@ -313,7 +313,9 @@ Readline version #{ver} detected - will not auto_resize! correctly.
       # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
       :ceiling                  => [Object, Module, Class]
     })
-  end
+   config.ls.ceiling << Pry::Method.singleton_class_of(Object)
+   config.ls.ceiling << Pry::Method.singleton_class_of(BasicObject) if defined? BasicObject
+ end
 
   # Set all the configurable options back to their default values
   def self.reset_defaults
