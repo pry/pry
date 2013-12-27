@@ -186,19 +186,6 @@ class Pry
     pry.eval command_string
   end
 
-  def self.default_editor_for_platform
-    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
-    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
-
-    if Helpers::BaseHelpers.windows?
-      'notepad'
-    else
-      %w(editor nano vi).detect do |editor|
-        system("which #{editor} > /dev/null 2>&1")
-      end
-    end
-  end
-
   def self.auto_resize!
     ver = Readline::VERSION
     if ver[/edit/i]
@@ -224,95 +211,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   end
 
   def self.set_config_defaults
-    config.input = Readline
-    config.output = $stdout
-    config.commands = Pry::Commands
-    config.prompt_name = DEFAULT_PROMPT_NAME
-    config.prompt = DEFAULT_PROMPT
-    config.prompt_safe_objects = DEFAULT_PROMPT_SAFE_OBJECTS
-    config.print = DEFAULT_PRINT
-    config.exception_handler = DEFAULT_EXCEPTION_HANDLER
-    config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
-    config.default_window_size = 5
-    config.hooks = DEFAULT_HOOKS
-    config.color = Helpers::BaseHelpers.use_ansi_codes?
-    config.pager = true
-    config.system = DEFAULT_SYSTEM
-    config.editor = default_editor_for_platform
-    config.should_load_rc = true
-    config.should_load_local_rc = true
-    config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
-    config.disable_auto_reload = false
-    config.command_prefix = ""
-    config.auto_indent = Helpers::BaseHelpers.use_ansi_codes?
-    config.correct_indent = true
-    config.collision_warning = false
-    config.output_prefix = "=> "
-
-    if defined?(Bond) && Readline::VERSION !~ /editline/i
-      config.completer = Pry::BondCompleter.start
-    else
-      config.completer = Pry::InputCompleter.start
-    end
-
-    config.gist ||= OpenStruct.new
-    config.gist.inspecter = proc(&:pretty_inspect)
-
-    config.should_load_plugins = true
-
-    config.requires ||= []
-    config.should_load_requires = true
-
-    config.history ||= OpenStruct.new
-    config.history.should_save = true
-    config.history.should_load = true
-    config.history.file = File.expand_path("~/.pry_history") rescue nil
-
-    if config.history.file.nil?
-      config.should_load_rc = false
-      config.history.should_save = false
-      config.history.should_load = false
-    end
-
-    config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
-
-    config.memory_size = 100
-
-    config.extra_sticky_locals = {}
-
-    config.ls ||= OpenStruct.new({
-      :heading_color            => :bright_blue,
-
-      :public_method_color      => :default,
-      :private_method_color     => :blue,
-      :protected_method_color   => :blue,
-      :method_missing_color     => :bright_red,
-
-      :local_var_color          => :yellow,
-      :pry_var_color            => :default,     # e.g. _, _pry_, _file_
-
-      :instance_var_color       => :blue,        # e.g. @foo
-      :class_var_color          => :bright_blue, # e.g. @@foo
-
-      :global_var_color         => :default,     # e.g. $CODERAY_DEBUG, $eventmachine_library
-      :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
-      :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
-
-      :constant_color           => :default,     # e.g. VERSION, ARGF
-      :class_constant_color     => :blue,        # e.g. Object, Kernel
-      :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
-      :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state
-
-      # What should separate items listed by ls?
-      :separator                => "  ",
-
-      # Any methods defined on these classes, or modules included into these classes, will not
-      # be shown by ls unless the -v flag is used.
-      # A user of Rails may wih to add ActiveRecord::Base to the list.
-      # add the following to your .pryrc:
-      # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
-      :ceiling                  => [Object, Module, Class]
-    })
+    Pry.config.set_config_defaults
   end
 
   # Set all the configurable options back to their default values

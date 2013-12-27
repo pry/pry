@@ -255,6 +255,115 @@ class Pry
 
     # @return [#build_completion_proc] A completer to use.
     attr_accessor :completer
+
+    def initialize
+        super
+        set_config_defaults
+    end
+
+    def default_editor_for_platform
+      return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
+      return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+
+      if Helpers::BaseHelpers.windows?
+        'notepad'
+      else
+        %w(editor nano vi).detect do |editor|
+        Kernel.system("which #{editor} > /dev/null 2>&1")
+        end
+      end
+    end
+
+    def set_config_defaults
+      self.input = Readline
+      self.output = $stdout
+      self.commands = Pry::Commands
+      self.prompt_name = DEFAULT_PROMPT_NAME
+      self.prompt = DEFAULT_PROMPT
+      self.prompt_safe_objects = DEFAULT_PROMPT_SAFE_OBJECTS
+      self.print = DEFAULT_PRINT
+      self.exception_handler = DEFAULT_EXCEPTION_HANDLER
+      self.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
+      self.default_window_size = 5
+      self.hooks = DEFAULT_HOOKS
+      self.color = Helpers::BaseHelpers.use_ansi_codes?
+      self.pager = true
+      self.system = DEFAULT_SYSTEM
+      self.editor = default_editor_for_platform
+      self.should_load_rc = true
+      self.should_load_local_rc = true
+      self.should_trap_interrupts = Helpers::BaseHelpers.jruby?
+      self.disable_auto_reload = false
+      self.command_prefix = ""
+      self.auto_indent = Helpers::BaseHelpers.use_ansi_codes?
+      self.correct_indent = true
+      self.collision_warning = false
+      self.output_prefix = "=> "
+
+      if defined?(Bond) && Readline::VERSION !~ /editline/i
+        self.completer = Pry::BondCompleter.start
+      else
+        self.completer = Pry::InputCompleter.start
+      end
+
+      self.gist ||= OpenStruct.new
+      self.gist.inspecter = proc(&:pretty_inspect)
+
+      self.should_load_plugins = true
+
+      self.requires ||= []
+      self.should_load_requires = true
+
+      self.history ||= OpenStruct.new
+      self.history.should_save = true
+      self.history.should_load = true
+      self.history.file = File.expand_path("~/.pry_history") rescue nil
+
+      if self.history.file.nil?
+        self.should_load_rc = false
+        self.history.should_save = false
+        self.history.should_load = false
+      end
+
+      self.control_d_handler = DEFAULT_CONTROL_D_HANDLER
+
+      self.memory_size = 100
+
+      self.extra_sticky_locals = {}
+
+      self.ls ||= OpenStruct.new({
+        :heading_color            => :bright_blue,
+
+        :public_method_color      => :default,
+        :private_method_color     => :blue,
+        :protected_method_color   => :blue,
+        :method_missing_color     => :bright_red,
+
+        :local_var_color          => :yellow,
+        :pry_var_color            => :default,     # e.g. _, _pry_, _file_
+
+        :instance_var_color       => :blue,        # e.g. @foo
+        :class_var_color          => :bright_blue, # e.g. @@foo
+
+        :global_var_color         => :default,     # e.g. $CODERAY_DEBUG, $eventmachine_library
+        :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
+        :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
+
+        :constant_color           => :default,     # e.g. VERSION, ARGF
+        :class_constant_color     => :blue,        # e.g. Object, Kernel
+        :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
+        :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state
+
+        # What should separate items listed by ls?
+        :separator                => "  ",
+        # Any methods defined on these classes, or modules included into these classes, will not
+        # be shown by ls unless the -v flag is used.
+        # A user of Rails may wih to add ActiveRecord::Base to the list.
+        # add the following to your .pryrc:
+        # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
+       :ceiling                  => [Object, Module, Class]
+      })
+    end
   end
 end
 
