@@ -154,7 +154,7 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_obj(obj, include_super=true)
-        all_from_class(class << obj; self; end, include_super)
+        all_from_class(singleton_class_of(obj), include_super)
       end
 
       # Get every `Class` and `Module`, in order, that will be checked when looking
