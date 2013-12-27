@@ -73,7 +73,7 @@ class Pry
 
     def error_list
       any_args = args.any?
-      non_mod_interrogatee = !Module === @interrogatee
+      non_mod_interrogatee = !(Module === @interrogatee)
       [
         ['-l does not make sense with a specified Object', :locals, any_args],
         ['-g does not make sense with a specified Object', :globals, any_args],
