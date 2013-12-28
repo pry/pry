@@ -96,7 +96,7 @@ describe "ls" do
 
   describe "Module" do
     it "should work on Module with -m" do
-      pry_eval("ls -m Module").should =~ /Module.methods:.*constants/m
+      pry_eval("ls -m Module").should =~ /Module.methods:.*nesting/m
     end
 
     it "should work on Module with -m -p" do
