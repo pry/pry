@@ -195,6 +195,15 @@ class Pry
 
       def singleton_class_of(obj); class << obj; self; end end
 
+      def instance_of_basicobject?(obj)
+        begin
+          obj.class
+        rescue NoMethodError
+          return true
+        end
+      false
+      end
+
       private
 
       # Get the singleton classes of superclasses that could define methods on

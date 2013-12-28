@@ -64,6 +64,90 @@ describe "ls" do
     end
   end
 
+  describe "Object" do
+    it "should work on Object with -m" do
+      def Object.this_is_singleton_method; end
+      pry_eval("ls -m Object").should =~ /Object.methods:.*this_is_singleton_method/m
+      singleton_class_of(Object).send(:remove_method, :this_is_singleton_method)
+    end
+
+    it "should work on Object with -m -p" do
+      class << Object
+        private
+        def this_is_private_singleton_method
+        end
+      end
+      pry_eval("ls -m -p Object").should =~ /Object.methods:.*this_is_private_singleton_method/m
+      singleton_class_of(Object).send(:remove_method, :this_is_private_singleton_method)
+    end
+
+    it "should work on Object with -m -v" do
+      pry_eval("ls -m -v Object").should =~ /Kernel#methods:/
+    end
+
+    it "should work on Object with -M" do
+      pry_eval("ls -M Object").should =~ /Object#methods:.*__binding__/m
+    end
+
+    it "should work on Object.new with -m" do
+      pry_eval("ls -m Object.new").should =~ /Object#methods:.*__binding__/m
+    end
+  end
+
+  describe "Module" do
+    it "should work on Module with -m" do
+      pry_eval("ls -m Module").should =~ /Module.methods:.*constants/m
+    end
+
+    it "should work on Module with -m -p" do
+      class << Module
+        private
+        def this_is_private_singleton_method
+        end
+      end
+      pry_eval("ls -m -p Module").should =~ /Module.methods:.*this_is_private_singleton_method/m
+      singleton_class_of(Module).send(:remove_method, :this_is_private_singleton_method)
+    end
+
+    it "should work on Module with -m -v" do
+      pry_eval("ls -m -v Module").should =~ /Kernel#methods:/
+    end
+
+    it "should work on Module with -M" do
+      pry_eval("ls -M Module").should =~ /Module#methods:.*ancestors/m
+    end
+
+    it "should work on Module.new with -m" do
+      pry_eval("ls -m Module.new").should =~ /Module#methods:.*ancestors/m
+    end
+  end
+
+  describe "Class" do
+    it "should work on Class with -m" do
+      def Class.this_is_singleton_method; end
+      pry_eval("ls -m Class").should =~ /Class.methods:.*this_is_singleton_method/m
+      singleton_class_of(Class).send(:remove_method, :this_is_singleton_method)
+    end
+
+    it "should work on Class with -m -p" do
+      class << Class
+        private
+        def this_is_private_singleton_method
+        end
+      end
+      pry_eval("ls -m -p Class").should =~ /Class.methods:.*this_is_private_singleton_method/m
+      singleton_class_of(Class).send(:remove_method, :this_is_private_singleton_method)
+    end
+
+    it "should work on Class with -m -v" do
+      pry_eval("ls -m -v Class").should =~ /Kernel#methods:/
+    end
+
+    it "should work on Class with -M" do
+      pry_eval("ls -M Class").should =~ /Class#methods:.*allocate/
+    end
+  end
+
   describe "methods" do
     it "should show public methods by default" do
       output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")
