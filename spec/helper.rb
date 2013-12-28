@@ -10,7 +10,7 @@ end
 
 require 'mocha/api'
 
-require 'pry/test/helper'
+require 'spec_helpers/helper'
 require 'spec_helpers/bacon'
 require 'spec_helpers/mock_pry'
 require 'spec_helpers/repl_tester'
