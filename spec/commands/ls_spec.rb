@@ -1,6 +1,7 @@
 require 'helper'
 
 describe "ls" do
+  def singleton_class_of(obj); class << obj; self; end; end
   describe "below ceiling" do
     it "should stop before Object by default" do
       pry_eval("cd Class.new{ def goo; end }.new", "ls").should.not =~ /Object/
@@ -26,6 +27,13 @@ describe "ls" do
       pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls -q").should.not =~ /goo/
       pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M -q").should.not =~ /goo/
     end
+
+    it "should not show singleton methods of Object by default" do
+      def Object.this_is_singleton_method; end
+      output = pry_eval("ls String")
+      output.should.not =~ /Object.methods: this_is_singleton_method/m
+      singleton_class_of(Object).class_eval "remove_method :this_is_singleton_method"
+    end
   end
 
   describe "help" do
@@ -45,6 +53,13 @@ describe "ls" do
           "class LessBasic < BasicObject; def jaroussky; 5; end; end",
           "ls LessBasic.new"
         ).should =~ /LessBasic#methods:.*jaroussky/m
+      end
+
+      it "should not show singleton methods of BasicObject by default" do
+        def BasicObject.this_is_singleton_method; end
+        output = pry_eval("ls String")
+        output.should.not =~ /BasicObject.methods: this_is_singleton_method/m
+        singleton_class_of(BasicObject).class_eval "remove_method :this_is_singleton_method"
       end
     end
   end
