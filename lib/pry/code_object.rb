@@ -112,12 +112,6 @@ class Pry
     end
 
     def method_or_class_lookup
-      # we need this here because stupid Pry::Method.from_str() does a
-      # Pry::Method.from_binding when str is nil.
-      # Once we refactor Pry::Method.from_str() so it doesnt lookup
-      # from bindings, we can get rid of this check
-      return nil if str.to_s.empty?
-
       obj = case str
             when /\S+\(\)\z/
               Pry::Method.from_str(str.sub(/\(\)\z/, ''),target) || Pry::WrappedModule.from_str(str, target)
