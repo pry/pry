@@ -43,7 +43,7 @@ class Pry
       #   method, or `nil` if no method could be located matching the parameters.
       def from_str(name, target=TOPLEVEL_BINDING, options={})
         if name.nil?
-          from_binding(target)
+          nil
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
           context, meth_name = $1, $2
           from_module(target.eval(context), meth_name, target)
