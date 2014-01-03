@@ -367,22 +367,7 @@ class Pry
     # given module.
     # @return [Array<Pry::Method>]
     def all_methods_for(mod)
-      all_from_common(mod, :instance_method) + all_from_common(mod, :method)
-    end
-
-    # FIXME: a variant of this method is also found in Pry::Method
-    def all_from_common(mod, method_type)
-      %w(public protected private).map do |visibility|
-        safe_send(mod, :"#{visibility}_#{method_type}s", false).select do |method_name|
-          if method_type == :method
-            safe_send(mod, method_type, method_name).owner == class << mod; self; end
-          else
-            safe_send(mod, method_type, method_name).owner == mod
-          end
-        end.map do |method_name|
-          Pry::Method.new(safe_send(mod, method_type, method_name), :visibility => visibility.to_sym)
-        end
-      end.flatten
+      Pry::Method.all_from_obj(mod, false) + Pry::Method.all_from_class(mod, false)
     end
 
     def nested_module?(parent, name)
