@@ -37,7 +37,6 @@ including:
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
-
 * Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
 * A wide-range number of [plugins](https://github.com/pry/pry/wiki/Available-plugins) that provide remote sessions, full debugging functionality, and more.
 
