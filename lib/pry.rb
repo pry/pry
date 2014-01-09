@@ -215,7 +215,7 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
     # only fail on jruby (where win32console doesn't work).
     # Instead we'll recommend ansicon, which does.
   rescue LoadError
-    warn "For a better pry experience, please use ansicon: http://adoxa.3eeweb.com/ansicon/"
+    warn "For a better pry experience, please use ansicon: https://github.com/adoxa/ansicon"
   end
 end
 
