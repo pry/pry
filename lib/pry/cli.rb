@@ -44,7 +44,7 @@ class Pry
       end
 
       # Add a block responsible for processing parsed options.
-      def process_options(&block)
+      def add_option_processor(&block)
         self.option_processors ||= []
         option_processors << block
 
@@ -198,7 +198,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
      :default => "Pry.toplevel_binding"
      )
-end.process_options do |opts|
+end.add_option_processor do |opts|
 
   exit if opts.help?
 
