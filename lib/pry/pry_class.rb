@@ -86,6 +86,18 @@ class Pry
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
 
+    if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi? && Pry.config.ansicon
+      begin
+        require 'win32console'
+        # The mswin and mingw versions of pry require win32console, so this should
+        # only fail on jruby (where win32console doesn't work).
+        # Instead we'll recommend ansicon, which does.
+      rescue LoadError
+        warn "For a better pry experience, please use ansicon: https://github.com/adoxa/ansicon"
+        warn "If you use alternative to ansicon and want not to display this warning, you can set Pry.config.ansicon=false"
+      end
+    end
+
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
       output.puts "This can happen if you have a binding.pry inside a #to_s or #inspect function."
@@ -248,6 +260,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     config.correct_indent = true
     config.collision_warning = false
     config.output_prefix = "=> "
+    config.ansicon = true
 
     if defined?(Bond) && Readline::VERSION !~ /editline/i
       config.completer = Pry::BondCompleter.start
