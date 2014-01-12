@@ -31,8 +31,7 @@ class Pry
       # search in, find and return the requested method wrapped in a `Pry::Method`
       # instance.
       #
-      # @param [String, nil] name The name of the method to retrieve, or `nil` to
-      #   delegate to `from_binding` instead.
+      # @param [String] name The name of the method to retrieve.
       # @param [Binding] target The context in which to search for the method.
       # @param [Hash] options
       # @option options [Boolean] :instance Look for an instance method if `name` doesn't
@@ -40,7 +39,7 @@ class Pry
       # @option options [Boolean] :methods Look for a bound/singleton method if `name` doesn't
       #   contain any context.
       # @return [Pry::Method, nil] A `Pry::Method` instance containing the requested
-      #   method, or `nil` if no method could be located matching the parameters.
+      #   method, or `nil` if name is `nil` or no method could be located matching the parameters.
       def from_str(name, target=TOPLEVEL_BINDING, options={})
         if name.nil?
           nil
