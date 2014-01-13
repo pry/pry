@@ -170,10 +170,6 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.config.prompt = Pry::NO_PROMPT
   end
 
-  on "no-ansicon", "Suppress loading of win32console" do
-    Pry.config.ansicon = false
-  end
-
   on :r, :require=, "`require` a Ruby script at startup" do |file|
     Pry.config.requires << file
   end
