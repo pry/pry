@@ -40,7 +40,53 @@ class Pry
       # Get a lambda that can be used with `take_while` to prevent over-eager
       # traversal of the Object's ancestry graph.
       def below_ceiling
-        ceiling = if @quiet_switch
+        if @instance_methods_switch
+          instance_ceiling
+        else
+          ceiling
+        end
+      end
+
+      def instance_ceiling
+        ceiling = if Pry.config.ls.ceiling.include?(@interrogatee) # when BasicObject, Object, Module, Class 
+                    if @quiet_switch
+                      Pry.config.ls.ceiling.dup - [@interrogatee] + [Pry::Method.safe_send(@interrogatee, :ancestors)[1]]
+                    elsif @verbose_switch
+                      []
+                    else
+                      Pry.config.ls.ceiling.dup - [@interrogatee]
+                    end
+                  else
+                    if @quiet_switch
+                      [Pry::Method.safe_send(interrogatee_mod, :ancestors)[1]] +
+                        Pry.config.ls.ceiling
+                    elsif @verbose_switch
+                      []
+                    else
+                      Pry.config.ls.ceiling.dup                      
+                    end
+                  end
+        lambda { |klass| !ceiling.include?(klass) }
+      end
+
+      def ceiling
+        ceiling = if Pry.config.ls.ceiling.include?(@interrogatee) # when BasicObject, Object, Module, Class
+                    if @verbose_switch
+                      []
+                    else
+                      Pry.config.ls.ceiling.dup - [Pry::Method.singleton_class_of(@interrogatee)]
+                    end
+                  elsif Pry::Method.instance_of_basicobject?(@interrogatee) # when BasicObject.new
+                    Pry.config.ls.ceiling.dup - [BasicObject]
+                  elsif Pry.config.ls.ceiling.include?(@interrogatee.class) # when Object.new, Module.new, Class.new
+                    if @quiet_switch
+                      Pry.config.ls.ceiling.dup - [@interrogatee.class] + [Pry::Method.safe_send(@interrogatee.class, :ancestors)[1]]
+                    elsif @verbose_switch
+                      []
+                    else
+                      Pry.config.ls.ceiling.dup - [@interrogatee.class]
+                    end
+                  elsif @quiet_switch
                     [Pry::Method.safe_send(interrogatee_mod, :ancestors)[1]] +
                       Pry.config.ls.ceiling
                   elsif @verbose_switch

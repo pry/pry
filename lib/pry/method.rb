@@ -193,6 +193,12 @@ class Pry
         /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*#{Regexp.escape(name)}/ =~ definition_line.strip
       end
 
+      def singleton_class_of(obj); class << obj; self; end end
+
+      def instance_of_basicobject?(obj)
+        !(Object === obj)
+      end
+
       private
 
       # Get the singleton classes of superclasses that could define methods on
@@ -207,8 +213,6 @@ class Pry
 
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end
-
-      def singleton_class_of(obj); class << obj; self; end end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
