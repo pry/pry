@@ -257,8 +257,8 @@ class Pry
     attr_accessor :completer
 
     def initialize
-        super
-        set_config_defaults
+      super
+      set_config_defaults
     end
 
     def default_editor_for_platform
