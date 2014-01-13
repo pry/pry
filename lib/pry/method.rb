@@ -196,12 +196,7 @@ class Pry
       def singleton_class_of(obj); class << obj; self; end end
 
       def instance_of_basicobject?(obj)
-        begin
-          obj.class
-        rescue NoMethodError
-          return true
-        end
-      false
+        !(Object === obj)
       end
 
       private
