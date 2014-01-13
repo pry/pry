@@ -86,7 +86,7 @@ class Pry
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
 
-    load_win32console if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi? && Pry.config.load_win32console
+    load_win32console if Pry::Platform.windows? && !Pry::Platform.windows_ansi? && Pry.config.load_win32console
 
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
@@ -192,7 +192,7 @@ class Pry
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
 
-    if Pry::Helpers::BaseHelpers.windows?
+    if Pry::Platform.windows?
       'notepad'
     else
       %w(editor nano vi).detect do |editor|

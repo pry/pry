@@ -43,7 +43,7 @@ class Pry
       end
 
       def use_ansi_codes?
-        windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
+        Pry::Platform.windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
 
       def colorize_code(code)
@@ -64,16 +64,6 @@ class Pry
         Pry.color ? "\e[1m#{text}\e[0m": text
       end
 
-      # have fun on the Windows platform.
-      def windows?
-        RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
-      end
-
-      # are we able to use ansi on windows?
-      def windows_ansi?
-        defined?(Win32::Console) || ENV['ANSICON'] || (windows? && mri_20?)
-      end
-
       def jruby?
         RbConfig::CONFIG['ruby_install_name'] == 'jruby'
       end
@@ -86,20 +76,12 @@ class Pry
         RbConfig::CONFIG['ruby_install_name'] == 'rbx'
       end
 
-      def mri?
-        RbConfig::CONFIG['ruby_install_name'] == 'ruby'
-      end
-
       def mri_18?
-        mri? && RUBY_VERSION =~ /1.8/
+        Pry::Platform.mri? && RUBY_VERSION =~ /1.8/
       end
 
       def mri_19?
-        mri? && RUBY_VERSION =~ /1.9/
-      end
-
-      def mri_20?
-        mri? && RUBY_VERSION =~ /2.0/
+        Pry::Platform.mri? && RUBY_VERSION =~ /1.9/
       end
 
       # Send the given text through the best available pager (if Pry.pager is

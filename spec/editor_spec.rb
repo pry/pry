@@ -19,7 +19,7 @@ describe Pry::Editor do
     @tf_path = File.join(@tf_dir.to_s, 'hello world.rb')
   end
 
-  unless Pry::Helpers::BaseHelpers.windows?
+  unless Pry::Platform.windows?
     describe "build_editor_invocation_string" do
       before do
         class << Pry::Editor
