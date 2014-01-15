@@ -86,6 +86,8 @@ class Pry
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
 
+    load_win32console if Pry::Platform.windows? && !Pry::Platform.windows_ansi? && Pry.config.load_win32console
+
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
       output.puts "This can happen if you have a binding.pry inside a #to_s or #inspect function."
@@ -190,7 +192,7 @@ class Pry
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
 
-    if Helpers::BaseHelpers.windows?
+    if Pry::Platform.windows?
       'notepad'
     else
       %w(editor nano vi).detect do |editor|
@@ -248,6 +250,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     config.correct_indent = true
     config.collision_warning = false
     config.output_prefix = "=> "
+    config.load_win32console = true
 
     if defined?(Bond) && Readline::VERSION !~ /editline/i
       config.completer = Pry::BondCompleter.start
@@ -388,6 +391,24 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   ensure
     Thread.current[:pry_critical_section] -= 1
   end
+
+  def self.load_win32console
+    begin
+      require 'win32console'
+      # The mswin and mingw versions of pry require win32console, so this should      # only fail on jruby (where win32console doesn't work).
+      # Instead we'll recommend ansicon, which does.
+    rescue LoadErrora
+      warn <<-WARNING
+Can not require win32console.
+For a better pry experience, please use ansicon: https://github.com/adoxa/ansicon
+(win32console has been deprecated).
+If you use alternative to win32console or ansicon and want not to display this warning, you can
+add "Pry.config.load_win32console=false" to your .pryrc.
+      WARNING
+    end
+  end
+
+  private_class_method :load_win32console
 end
 
 Pry.init

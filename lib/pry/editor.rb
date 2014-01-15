@@ -2,6 +2,7 @@ class Pry
   class Editor
     extend Pry::Helpers::BaseHelpers
     extend Pry::Helpers::CommandHelpers
+    extend Pry::Platform
 
     class << self
       def edit_tempfile_with_content(initial_content, line=1)

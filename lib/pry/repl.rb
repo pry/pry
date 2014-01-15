@@ -49,7 +49,7 @@ class Pry
 
       # Clear the line before starting Pry. This fixes issue #566.
       if Pry.config.correct_indent
-        Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
+        Kernel.print Pry::Platform.windows_ansi? ? "\e[0F" : "\e[0G"
       end
     end
 
@@ -180,7 +180,7 @@ class Pry
         end
 
         if input == Readline
-          if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
+          if !$stdout.tty? && $stdin.tty? && !Pry::Platform.windows?
             Readline.output = File.open('/dev/tty', 'w')
           end
           input_readline(current_prompt, false) # false since we'll add it manually

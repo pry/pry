@@ -5,6 +5,7 @@ require 'pp'
 
 require 'pry/input_lock'
 require 'pry/exceptions'
+require 'pry/platform'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
@@ -205,17 +206,6 @@ if Pry::Helpers::BaseHelpers.jruby?
     require 'ffi'
   rescue LoadError
     warn "Need to `gem install ffi`"
-  end
-end
-
-if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
-  begin
-    require 'win32console'
-    # The mswin and mingw versions of pry require win32console, so this should
-    # only fail on jruby (where win32console doesn't work).
-    # Instead we'll recommend ansicon, which does.
-  rescue LoadError
-    warn "For a better pry experience, please use ansicon: https://github.com/adoxa/ansicon"
   end
 end
 

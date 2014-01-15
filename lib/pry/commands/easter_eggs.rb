@@ -95,7 +95,7 @@ TEXT
         \____/   \________________________|
       EOS
 
-      if windows_ansi?
+      if Pry::Platform.windows_ansi?
         move_up = proc { |n| "\e[#{n}F" }
       else
         move_up = proc { |n| "\e[#{n}A\e[0G" }
