@@ -353,7 +353,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     if Binding === target
       target
     else
-      if TOPLEVEL_BINDING.eval('self') == target
+      if Pry.main == target
         TOPLEVEL_BINDING
       else
         target.__binding__
