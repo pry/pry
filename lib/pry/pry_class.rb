@@ -7,6 +7,10 @@ class Pry
   HOME_RC_FILE = ENV["PRYRC"] || "~/.pryrc"
   LOCAL_RC_FILE = "./.pryrc"
 
+  def self.main
+    @main ||= TOPLEVEL_BINDING.eval "self"
+  end
+
   # @return [Hash] Pry's `Thread.current` hash
   def self.current
     Thread.current[:__pry__] ||= {}
@@ -130,7 +134,7 @@ class Pry
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
-    elsif TOPLEVEL_BINDING.eval('self') == obj
+    elsif Pry.main == obj
       # special-case to support jruby.
       # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
       # we can drop in the future.
