@@ -130,11 +130,15 @@ class Pry
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
+    elsif TOPLEVEL_BINDING.eval('self') == obj
+      # special case for 'main' object :)
+      obj.to_s
     elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
     else
       "#<#{obj.class}>"#:%x>"# % (obj.object_id << 1)
     end
+
   rescue RescuableException
     "unknown"
   end
