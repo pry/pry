@@ -131,7 +131,9 @@ class Pry
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
     elsif TOPLEVEL_BINDING.eval('self') == obj
-      # special case for 'main' object :)
+      # special-case to support jruby.
+      # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
+      # we can drop in the future.
       obj.to_s
     elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
