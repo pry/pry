@@ -32,7 +32,7 @@ class Pry
       private
 
       def format(globals)
-        globals.sort_by(&:downcase).map do |name|
+        globals.map(&:to_s).sort_by(&:downcase).map do |name|
           if PSEUDO_GLOBALS.include?(name)
             color(:pseudo_global, name)
           elsif BUILTIN_GLOBALS.include?(name)

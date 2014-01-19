@@ -60,7 +60,7 @@ describe Pry::Hooks do
 
       Pry::CLI.add_options do
         on :optiontest, "A test option"
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run = true if opts.present?(:optiontest)
       end.parse_options(["--optiontest"])
 
@@ -74,9 +74,9 @@ describe Pry::Hooks do
       Pry::CLI.add_options do
         on :optiontest, "A test option"
         on :optiontest2, "Another test option"
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run = true if opts.present?(:optiontest)
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run2 = true if opts.present?(:optiontest2)
       end.parse_options(["--optiontest", "--optiontest2"])
 

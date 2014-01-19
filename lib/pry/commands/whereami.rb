@@ -109,7 +109,7 @@ class Pry
     end
 
     def top_level?
-      target_self == TOPLEVEL_BINDING.eval("self")
+      target_self == Pry.main
     end
 
     def handle_internal_binding

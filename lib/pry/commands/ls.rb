@@ -29,7 +29,7 @@ class Pry
 
     def options(opt)
       opt.on :m, :methods,   "Show public methods defined on the Object"
-      opt.on :M, "instance-methods", "Show methods defined in a Module or Class"
+      opt.on :M, "instance-methods", "Show public methods defined in a Module or Class"
       opt.on :p, :ppp,       "Show public, protected (in yellow) and private (in green) methods"
       opt.on :q, :quiet,     "Show only methods defined on object.singleton_class and object.class"
       opt.on :v, :verbose,   "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
@@ -73,7 +73,7 @@ class Pry
 
     def error_list
       any_args = args.any?
-      non_mod_interrogatee = !Module === @interrogatee
+      non_mod_interrogatee = !(Module === @interrogatee)
       [
         ['-l does not make sense with a specified Object', :locals, any_args],
         ['-g does not make sense with a specified Object', :globals, any_args],

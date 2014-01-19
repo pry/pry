@@ -11,9 +11,9 @@ end
 require 'mocha/api'
 
 require 'pry/test/helper'
-require 'helpers/bacon'
-require 'helpers/mock_pry'
-require 'helpers/repl_tester'
+require 'spec_helpers/bacon'
+require 'spec_helpers/mock_pry'
+require 'spec_helpers/repl_tester'
 
 class Module
   public :remove_const

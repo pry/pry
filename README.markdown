@@ -37,7 +37,6 @@ including:
 * Exotic object support (BasicObject instances, IClasses, ...)
 * A Powerful and flexible command system
 * Ability to view and replay history
-
 * Many convenience commands inspired by IPython, Smalltalk and other advanced REPLs
 * A wide-range number of [plugins](https://github.com/pry/pry/wiki/Available-plugins) that provide remote sessions, full debugging functionality, and more.
 
@@ -103,9 +102,9 @@ an instance variable inside that class:
     pry(Hello):1> ls -i
     instance variables: @x
     pry(Hello):1> cd @x
-    pry(20:2)> self + 10
+    pry(20):2> self + 10
     => 30
-    pry(20:2)> cd ..
+    pry(20):2> cd ..
     pry(Hello):1> cd ..
     pry(main)> cd ..
 
@@ -113,7 +112,7 @@ The number after the `:` in the pry prompt indicates the nesting
 level. To display more information about nesting, use the `nesting`
 command. E.g
 
-    pry("friend":3)> nesting
+    pry("friend"):3> nesting
     Nesting status:
     0. main (Pry top level)
     1. Hello
@@ -124,7 +123,7 @@ command. E.g
 We can then jump back to any of the previous nesting levels by using
 the `jump-to` command:
 
-    pry("friend":3)> jump-to 1
+    pry("friend"):3> jump-to 1
     => 100
     pry(Hello):1>
 
@@ -225,7 +224,7 @@ In the following example we will enter the `Pry` class, list the
 instance methods beginning with 're' and display the source code for the `rep` method:
 
     pry(main)> cd Pry
-    pry(Pry)> ls -M --grep re
+    pry(Pry):1> ls -M --grep re
     Pry#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
     pry(Pry):1> show-method rep -l
 
@@ -257,9 +256,9 @@ Note that we can also view C methods (from Ruby Core) using the
         RETURN_ENUMERATOR(ary, 0, 0);
         result = rb_ary_new2(RARRAY_LEN(ary));
         for (i = 0; i < RARRAY_LEN(ary); i++) {
-        if (RTEST(rb_yield(RARRAY_PTR(ary)[i]))) {
-            rb_ary_push(result, rb_ary_elt(ary, i));
-        }
+            if (RTEST(rb_yield(RARRAY_PTR(ary)[i]))) {
+                rb_ary_push(result, rb_ary_elt(ary, i));
+            }
         }
         return result;
     }

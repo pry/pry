@@ -92,6 +92,11 @@ describe "ls" do
       test.should.not.raise
     end
 
+    it "should show error message when instance is given with -M option" do
+      error = lambda{ pry_eval("ls -M String.new") }.should.raise(Pry::CommandError)
+      error.message.should.match(/-M only makes sense with a Module or a Class/)
+    end
+
 
     # see: https://travis-ci.org/pry/pry/jobs/5071918
     unless Pry::Helpers::BaseHelpers.rbx?

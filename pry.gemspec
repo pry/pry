@@ -27,5 +27,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'mocha', '~> 0.13.1'
   s.add_development_dependency 'simplecov'
   # TODO: make this a plain dependency:
-  s.add_development_dependency 'bond',  '~> 0.4.2'
+  s.add_development_dependency 'bond',  '~> 0.5.0'
 end

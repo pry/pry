@@ -1,5 +1,9 @@
 ### 1.0.0 (2013/??/??)
 #### Dependency changes
+
+* 1.8 support discontinued from 1.0+ onwards.
+  * 0.9.12+ may continue to provide 1.8+ bug fixes.
+
 * Require Coderay `>= 1.1.0`
 
 #### Features
