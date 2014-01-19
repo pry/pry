@@ -1,5 +1,5 @@
 class Pry::Config::Default < Pry::Config
-  STATE = {
+  state = {
     :input                  => proc { Readline },
     :output                 => proc { $stdout },
     :commands               => proc { Pry::Commands },
@@ -55,6 +55,5 @@ class Pry::Config::Default < Pry::Config
     super(nil)
   end
 
-  STATE.each { |key, value| define_method(key, &value) }
-  STATE.clear
+  state.each { |key, value| define_method(key, &value) }
 end
