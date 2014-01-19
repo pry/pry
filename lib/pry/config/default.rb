@@ -49,13 +49,12 @@ class Pry::Config::Default < Pry::Config
         Pry::InputCompleter.start
       end
     }
-  }.freeze
+  }
 
   def initialize(*)
     super(nil)
   end
 
-  STATE.each do |key, value|
-    define_method(key, &value)
-  end
+  STATE.each { |key, value| define_method(key, &value) }
+  STATE.clear
 end
