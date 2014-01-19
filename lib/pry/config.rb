@@ -25,13 +25,13 @@ class Pry::Config
 
   def method_missing(name, *args, &block)
     key = name.to_s
-    if @lookup.has_key?(key)
+    if key[-1] == "="
+      short_key = key.to_s[0..-2]
+      @lookup[short_key] = args[0]
+    elsif @lookup.has_key?(key)
       @lookup[key]
     elsif @default.respond_to?(name)
       @default.public_send(name, *args, &block)
-    elsif key[-1] == "="
-      short_key = key.to_s[0..-2]
-      @lookup[short_key] = args[0]
     else
       nil
     end
