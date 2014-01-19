@@ -37,7 +37,6 @@ class Pry
   attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
-  attr_reader :hooks
   attr_reader :config
 
   extend Pry::Config::Convenience
@@ -81,26 +80,10 @@ class Pry
     exec_hook(:when_started, options[:target], options, self)
   end
 
-  # FIXME: This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] hooks
-  def hooks=(hooks)
-    if hooks.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
-      "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(hooks)
-    else
-      @hooks = hooks
-    end
-  end
-
   # Initialize this instance by pushing its initial context into the binding
   # stack. If no target is given, start at the top level.
   def push_initial_binding(target=nil)
     push_binding(target || Pry.toplevel_binding)
-  end
-
-  def hooks
-    config.hooks
   end
 
   # The currently active `Binding`.
