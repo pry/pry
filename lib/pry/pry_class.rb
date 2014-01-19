@@ -22,7 +22,7 @@ class Pry
   end
 
   def self.config
-    @config ||= Pry::Config::Default.new
+    @config ||= Pry::Config.new(Pry::Config::Default.new)
   end
 
   def self.main
