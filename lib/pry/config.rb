@@ -45,6 +45,10 @@ class Pry::Config
     @lookup.has_key?(name.to_s) or @default.respond_to?(name) or super(name, boolean)
   end
 
+  def refresh
+    @lookup = {}
+  end
+
   def to_h
     @lookup
   end
