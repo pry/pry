@@ -19,10 +19,14 @@ class Pry
 
     extend Pry::Config::Convenience
     config_shortcut *Pry::Config.shortcuts
+  end
 
-    def config
-      @config ||= Pry::Config::Default.new
-    end
+  def self.config
+    @config ||= Pry::Config::Default.new
+  end
+
+  def self.main
+    @main ||= TOPLEVEL_BINDING.eval "self"
   end
 
   # @return [Hash] Pry's `Thread.current` hash
@@ -147,8 +151,10 @@ class Pry
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
-    elsif TOPLEVEL_BINDING.eval('self') == obj
-      # special case for 'main' object :)
+    elsif Pry.main == obj
+      # special-case to support jruby.
+      # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
+      # we can drop in the future.
       obj.to_s
     elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
@@ -206,7 +212,6 @@ class Pry
   def self.default_editor_for_platform
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
-o
     if Helpers::BaseHelpers.windows?
       'notepad'
     else
@@ -267,7 +272,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     if Binding === target
       target
     else
-      if TOPLEVEL_BINDING.eval('self') == target
+      if Pry.main == target
         TOPLEVEL_BINDING
       else
         target.__binding__

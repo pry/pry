@@ -9,7 +9,7 @@ class Pry
 
       Move into new context (object or scope). As in UNIX shells use `cd ..` to go
       back, `cd /` to return to Pry top-level and `cd -` to toggle between last two
-      scopes. Complex syntax (e.g `cd ../@x/y`) also supported.
+      scopes. Complex syntax (e.g `cd ../@x/@y`) also supported.
 
       cd @x
       cd ..
