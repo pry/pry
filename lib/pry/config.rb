@@ -38,7 +38,7 @@ class Pry::Config
   end
 
   def merge!(other)
-    @lookup.merge!(other.to_h)
+    @lookup.merge!(other.to_hash)
   end
 
   def respond_to?(name, boolean=false)
@@ -49,8 +49,12 @@ class Pry::Config
     @lookup = {}
   end
 
-  def to_h
+  def to_hash
     @lookup
+  end
+
+  def to_h
+    to_hash
   end
 
   def quiet?
