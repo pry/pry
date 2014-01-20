@@ -37,8 +37,9 @@ class Pry
 
       # Read the class name off of the singleton class to provide a default
       # inspect.
-      eig    = class << obj; self; end
-      klass  = Pry::Method.safe_send(eig, :ancestors).first
+      singleton = class << obj; self; end
+      ancestors = Pry::Method.safe_send(singleton, :ancestors)
+      klass  = ancestors.reject { |k| k == singleton }.first
       obj_id = obj.__id__.to_s(16) rescue 0
       str    = "#<#{klass}:0x#{obj_id}>"
 
