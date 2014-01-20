@@ -10,9 +10,6 @@ class Pry::Config
   def initialize(default = Pry.config)
     @default = default
     @lookup = {}
-    configure_gist
-    configure_ls
-    configure_history
   end
 
   def [](key)
