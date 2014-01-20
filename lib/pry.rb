@@ -188,3 +188,4 @@ require 'pry/pager'
 require 'pry/terminal'
 require 'pry/editor'
 require 'pry/rubygem'
+require "pry/indent"
