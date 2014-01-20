@@ -42,14 +42,16 @@ class Pry::Config::Default < Pry::Config
     }
   }
 
-  def initialize(*)
+  def initialize
     super(nil)
     configure_ls
     configure_gist
     configure_history
   end
 
-  state.each { |key, value| define_method(key, &value) }
+  state.each do |key, value|
+    define_method(key, &value)
+  end
 
 private
   # TODO:
