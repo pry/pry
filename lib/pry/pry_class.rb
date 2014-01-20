@@ -248,7 +248,6 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @initial_session = true
-    self.custom_completions = DEFAULT_CUSTOM_COMPLETIONS
     self.cli = false
     self.current_line = 1
     self.line_buffer = [""]

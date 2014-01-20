@@ -31,6 +31,8 @@ class Pry::Config::Default < Pry::Config
     :control_d_handler      => proc { Pry::DEFAULT_CONTROL_D_HANDLER },
     :memory_size            => proc { 100 },
     :extra_sticky_locals    => proc { {} },
+    :command_completer      => proc { Pry.commands.commands.keys },
+    :file_completer         => proc { Dir["."] },
     :completer => proc {
       if defined?(Bond) && Readline::VERSION !~ /editline/i
         Pry::BondCompleter.start
