@@ -1,5 +1,5 @@
 class Pry::Config::Default < Pry::Config
-  state = {
+  default = {
     :input                  => proc { Readline },
     :output                 => proc { $stdout },
     :commands               => proc { Pry::Commands },
@@ -49,12 +49,12 @@ class Pry::Config::Default < Pry::Config
     configure_history
   end
 
-  state.each do |key, value|
+  default.each do |key, value|
     define_method(key) do
-      if state[key] == value
-        state[key] = value.call
+      if default[key] == value
+        default[key] = value.call
       end
-      state[key]
+      default[key]
     end
   end
 
