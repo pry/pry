@@ -16,11 +16,11 @@ class Pry::Config
   end
 
   def [](key)
-    @lookup[key]
+    @lookup[key.to_s]
   end
 
   def []=(key, value)
-    @lookup[key] = value
+    @lookup[key.to_s] = value
   end
 
   def method_missing(name, *args, &block)
