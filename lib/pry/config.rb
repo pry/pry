@@ -2,6 +2,7 @@ class Pry::Config
   require 'ostruct'
   require 'pry/config/default'
   require 'pry/config/convenience'
+  ASSIGNMENT = "=".freeze
 
   def self.shortcuts
     Convenience::SHORTCUTS
@@ -22,7 +23,7 @@ class Pry::Config
 
   def method_missing(name, *args, &block)
     key = name.to_s
-    if key[-1] == "="
+    if key[-1] == ASSIGNMENT
       short_key = key.to_s[0..-2]
       self[short_key] = args[0]
     elsif @lookup.has_key?(key)
