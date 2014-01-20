@@ -153,7 +153,7 @@ class Pry
   # @yield The block that defines the content of the local. The local
   #   will be refreshed at each tick of the repl loop.
   def add_sticky_local(name, &block)
-    sticky_locals[name] = block
+    config.extra_sticky_locals[name] = block
   end
 
   def sticky_locals
@@ -165,7 +165,7 @@ class Pry
       _dir_: last_dir,
       _: last_result,
       __: output_array[-2]
-    }
+    }.merge(config.extra_sticky_locals)
   end
 
   # Reset the current eval string. If the user has entered part of a multiline
