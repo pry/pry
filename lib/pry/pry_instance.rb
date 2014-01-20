@@ -609,6 +609,4 @@ class Pry
   end
   def raise_up(*args); raise_up_common(false, *args); end
   def raise_up!(*args); raise_up_common(true, *args); end
-
-private
 end
