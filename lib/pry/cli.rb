@@ -215,8 +215,7 @@ end.add_option_processor do |opts|
 
   if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
     full_name = File.expand_path(Pry::CLI.input_args.first)
-    Pry.load_file_through_repl(full_name)
-    if Pry.config.exit_interactive
+    if Pry.load_file_through_repl(full_name) && Pry.config.exit_interactive
       Pry.toplevel_binding.pry
     end
     exit

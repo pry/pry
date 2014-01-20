@@ -42,8 +42,10 @@ class Pry
       end
 
       content.lines.each do |line|
-        break unless _pry_.eval line, :generated => true
+        return false unless _pry_.eval line, :generated => true
       end
+
+      true
     end
 
     # Define a few extra commands useful for flipping back & forth
