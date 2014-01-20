@@ -27,9 +27,9 @@ class Pry::Config
     key = name.to_s
     if key[-1] == "="
       short_key = key.to_s[0..-2]
-      @lookup[short_key] = args[0]
+      self[short_key] = args[0]
     elsif @lookup.has_key?(key)
-      @lookup[key]
+      self[key]
     elsif @default.respond_to?(name)
       @default.public_send(name, *args, &block)
     else
@@ -62,6 +62,4 @@ class Pry::Config
   def quiet?
     quiet
   end
-
-private
 end
