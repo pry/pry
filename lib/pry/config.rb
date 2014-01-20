@@ -38,7 +38,9 @@ class Pry::Config
   end
 
   def merge!(other)
-    @lookup.merge!(other.to_hash)
+    other = other.to_hash
+    keys, values = other.keys.map(&:to_s), other.values
+    @lookup.merge! Hash[keys.zip(values)]
   end
 
   def respond_to?(name, boolean=false)
