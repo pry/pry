@@ -3,11 +3,6 @@ class Pry
     extend Pry::Helpers::BaseHelpers
 
     command_options :shellwords => false, :interpolate => false
-    command_options :requires_gem => "ruby18_source_location" if mri_18?
-
-    def setup
-      require 'ruby18_source_location' if mri_18?
-    end
 
     def options(opt)
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count

@@ -146,18 +146,14 @@ class Pry
     def exec_hook(event_name, *args, &block)
       @hooks[event_name] ||= []
 
-      # silence warnings to get rid of 1.8's "warning: multiple values
-      # for a block parameter" warnings
-      Pry::Helpers::BaseHelpers.silence_warnings do
-        @hooks[event_name].map do |hook_name, callable|
-          begin
-            callable.call(*args, &block)
-          rescue RescuableException => e
-            errors << e
-            e
-          end
-        end.last
-      end
+      @hooks[event_name].map do |hook_name, callable|
+        begin
+          callable.call(*args, &block)
+        rescue RescuableException => e
+          errors << e
+          e
+        end
+      end.last
     end
 
     # Return the number of hook functions registered for the `event_name` event.

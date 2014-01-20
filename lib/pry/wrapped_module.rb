@@ -66,28 +66,12 @@ class Pry
     end
 
     # Returns an array of the names of the constants accessible in the wrapped
-    # module. This provides a consistent interface between 1.8 and 1.9 and also
-    # avoids the problem of accidentally calling the singleton method
-    # `Module.constants`.
+    # module. This avoids the problem of accidentally calling the singleton
+    # method `Module.constants`.
     # @param [Boolean] inherit Include the names of constants from included
     #   modules?
     def constants(inherit = true)
-      method = Module.instance_method(:constants).bind(@wrapped)
-
-      # If we're on 1.8, we have to manually remove ancestors' constants. If
-      # we're on 1.9, though, it's better to use the built-in `inherit` param,
-      # since it doesn't do things like incorrectly remove Pry::Config.
-      if method.arity == 0
-        consts = method.call
-        if !inherit
-          ancestors_ = Pry::Method.safe_send(@wrapped, :ancestors)
-          consts -= (ancestors_ - [@wrapped]).map(&:constants).flatten
-        end
-      else
-        consts = method.call(inherit)
-      end
-
-      consts
+      Module.instance_method(:constants).bind(@wrapped).call(inherit)
     end
 
     # The prefix that would appear before methods defined on this class.
@@ -259,7 +243,7 @@ class Pry
     # @return [Enumerator, Array] on JRuby 1.9 and higher returns Array, on
     #  other rubies returns Enumerator
     def candidates
-      enum = generator.new do |y|
+      enum = Enumerator.new do |y|
                (0...number_of_candidates).each do |num|
                  y.yield candidate(num)
                end
@@ -291,18 +275,6 @@ class Pry
     end
 
     private
-
-    # Ruby 1.8 doesn't support `Enumerator` (it's called Generator instead)
-    #
-    # @return [Object] Return the appropriate generator class.
-    def generator
-      @generator ||= if defined?(Enumerator)
-                       Enumerator
-                     else
-                       require 'generator'
-                       Generator
-                     end
-    end
 
     # @return [Pry::WrappedModule::Candidate] The candidate with the
     #   highest rank, that is the 'monkey patch' of this module with the

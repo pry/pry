@@ -47,10 +47,6 @@ module PryTestHelpers
     end
   end
 
-  def mri18_and_no_real_source_location?
-    Pry::Helpers::BaseHelpers.mri_18? && !(Method.instance_method(:source_location).owner == Method)
-  end
-
   # Open a temp file and yield it to the block, closing it after
   # @return [String] The path of the temp file
   def temp_file(ext='.rb')
