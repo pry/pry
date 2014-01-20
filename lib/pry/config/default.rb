@@ -50,7 +50,14 @@ class Pry::Config::Default < Pry::Config
   end
 
   state.each do |key, value|
-    define_method(key, &value)
+    define_method(key) do
+      ivar = "@#{key}"
+      if instance_variable_defined?(ivar)
+        return instance_variable_get(ivar)
+      else
+        instance_variable_set(ivar, value.call)
+      end
+    end
   end
 
 private
