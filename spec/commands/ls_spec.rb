@@ -34,18 +34,16 @@ describe "ls" do
     end
   end
 
-  if defined?(BasicObject)
-    describe "BasicObject" do
-      it "should work on BasicObject" do
-        pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__send__/m
-      end
+  describe "BasicObject" do
+    it "should work on BasicObject" do
+      pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__send__/m
+    end
 
-      it "should work on subclasses of BasicObject" do
-        pry_eval(
-          "class LessBasic < BasicObject; def jaroussky; 5; end; end",
-          "ls LessBasic.new"
-        ).should =~ /LessBasic#methods:.*jaroussky/m
-      end
+    it "should work on subclasses of BasicObject" do
+      pry_eval(
+        "class LessBasic < BasicObject; def jaroussky; 5; end; end",
+        "ls LessBasic.new"
+      ).should =~ /LessBasic#methods:.*jaroussky/m
     end
   end
 

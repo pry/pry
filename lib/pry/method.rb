@@ -405,8 +405,6 @@ class Pry
     end
 
     # @return [Array<String>] All known aliases for the method.
-    # @note On Ruby 1.8 this method always returns an empty Array for methods
-    #   implemented in C.
     def aliases
       owner = @method.owner
       # Avoid using `to_sym` on {Method#name}, which returns a `String`, because
