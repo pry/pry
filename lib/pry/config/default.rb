@@ -31,17 +31,6 @@ class Pry::Config::Default < Pry::Config
     :control_d_handler      => proc { Pry::DEFAULT_CONTROL_D_HANDLER },
     :memory_size            => proc { 100 },
     :extra_sticky_locals    => proc { {} },
-    :sticky_locals          => proc { |pry|
-      { _in_: pry.input_array,
-        _out_: pry.output_array,
-        _pry_: pry,
-        _ex_: pry.last_exception,
-        _file_: pry.last_file,
-        _dir_: pry.last_dir,
-        _: pry.last_result,
-        __: pry.output_array[-2]
-      }
-    },
     :completer => proc {
       if defined?(Bond) && Readline::VERSION !~ /editline/i
         Pry::BondCompleter.start

@@ -68,7 +68,7 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options[:backtrace] || caller
-    @config        = Pry::Config.new
+    @config = Pry::Config.new
     @config.merge!(options)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
@@ -159,7 +159,15 @@ class Pry
   end
 
   def sticky_locals
-    config.sticky_locals(self)
+    { _in_: input_array,
+      _out_: output_array,
+      _pry_: self,
+      _ex_: last_exception,
+      _file_: last_file,
+      _dir_: last_dir,
+      _: last_result,
+      __: output_array[-2]
+    }
   end
 
   # Reset the current eval string. If the user has entered part of a multiline
