@@ -23,7 +23,7 @@ class Pry::Config::Default < Pry::Config
     :command_prefix         => proc { "" },
     :auto_indent            => proc { Pry::Helpers::BaseHelpers.use_ansi_codes? },
     :correct_indent         => proc { true },
-    :collision_warning      => proc { true },
+    :collision_warning      => proc { false },
     :output_prefix          => proc { "=> "},
     :requires               => proc { [] },
     :should_load_requires   => proc { true },
