@@ -8,6 +8,12 @@ class Pry::Config
     Convenience::SHORTCUTS
   end
 
+  def self.from_hash(hash)
+    new(nil).tap do |config|
+      config.merge!(hash)
+    end
+  end
+
   def initialize(default = Pry.config)
     @default = default
     @lookup = {}
