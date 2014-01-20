@@ -1,4 +1,6 @@
-class Pry::Config::Default < Pry::Config
+class Pry::Config::Default
+  include Pry::Config::Behavior
+
   default = {
     :input                  => proc { Readline },
     :output                 => proc { $stdout },
