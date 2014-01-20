@@ -113,9 +113,9 @@ class Pry
   # @return [Array<String>] Possible completions
   def complete(input)
     Pry.critical_section do
-      Pry.config.completer.call(input, :target => current_binding,
-                                       :pry  => self,
-                                       :custom_completions => instance_eval(&custom_completions))
+      config.completer.call input, :target => current_binding,
+        :pry => self,
+        :custom_completions => custom_completions
     end
   end
 
