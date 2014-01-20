@@ -25,6 +25,7 @@ require "pry/indent"
 
 class Pry
   attr_accessor :binding_stack
+  attr_accessor :custom_completions
   attr_accessor :eval_string
   attr_accessor :backtrace
   attr_accessor :suppress_output
@@ -72,11 +73,10 @@ class Pry
     @config.merge!(options)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
-
+    @custom_completions = config.command_completer
     push_initial_binding(options[:target])
     set_last_result nil
-    @input_array << nil # add empty input so _in_ and _out_ match
-    # yield the binding_stack to the hook for modification
+    @input_array << nil
     exec_hook(:when_started, options[:target], options, self)
   end
 
