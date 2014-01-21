@@ -522,7 +522,7 @@ class Pry
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
-    c = OpenStruct.new(
+    c = Pry::Config.from_hash({
                        :object         => object,
                        :nesting_level  => binding_stack.size - 1,
                        :open_token     => open_token,
@@ -533,7 +533,7 @@ class Pry
                        :binding_stack  => binding_stack,
                        :input_array    => input_array,
                        :eval_string    => @eval_string,
-                       :cont           => !@eval_string.empty?)
+                       :cont           => !@eval_string.empty?})
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt

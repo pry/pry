@@ -284,7 +284,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      _pry_.command_state[match] ||= OpenStruct.new
+      _pry_.command_state[match] ||= Pry::Config.from_hash({})
     end
 
     # Revaluate the string (str) and perform interpolation.
