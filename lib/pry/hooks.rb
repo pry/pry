@@ -18,6 +18,7 @@ class Pry
     # @param [Hash] hash The hash to convert to `Pry::Hooks`.
     # @return [Pry::Hooks] The resulting `Pry::Hooks` instance.
     def self.from_hash(hash)
+      return hash if hash.instance_of?(self)
       instance = new
       hash.each do |k, v|
         instance.add_hook(k, nil, v)
