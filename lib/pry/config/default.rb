@@ -55,7 +55,7 @@ class Pry::Config::Default
 
   default.each do |key, value|
     define_method(key) do
-      if default[key] == value
+      if default[key].equal?(value)
         default[key] = value.call
       end
       default[key]
