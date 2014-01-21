@@ -69,6 +69,7 @@ class Pry
     @backtrace     = options[:backtrace] || caller
     @config = Pry::Config.new
     @config.merge!(options)
+    push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
     @custom_completions = config.command_completer
@@ -76,6 +77,26 @@ class Pry
     set_last_result nil
     @input_array << nil
     exec_hook(:when_started, options[:target], options, self)
+  end
+
+  # The current prompt.
+  # This is the prompt at the top of the prompt stack.
+  #
+  # @example
+  #    self.prompt = Pry::SIMPLE_PROMPT
+  #    self.prompt # => Pry::SIMPLE_PROMPT
+  #
+  # @return [Array<Proc>] Current prompt.
+  def prompt
+    prompt_stack.last
+  end
+
+  def prompt=(new_prompt)
+    if prompt_stack.empty?
+      push_prompt new_prompt
+    else
+      prompt_stack[-1] = new_prompt
+    end
   end
 
   # Initialize this instance by pushing its initial context into the binding
