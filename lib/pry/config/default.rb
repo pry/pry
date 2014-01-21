@@ -36,13 +36,11 @@ class Pry::Config::Default
     :command_completer      => proc { proc { Pry.commands.commands.keys } },
     :file_completer         => proc { proc { Dir["."] } },
     :completer => proc {
-      proc {
-        if defined?(Bond) && Readline::VERSION !~ /editline/i
-          Pry::BondCompleter.start
-        else
-          Pry::InputCompleter.start
-        end
-      }
+      if defined?(Bond) && Readline::VERSION !~ /editline/i
+        Pry::BondCompleter.start
+      else
+        Pry::InputCompleter.start
+      end
     }
   }
 
