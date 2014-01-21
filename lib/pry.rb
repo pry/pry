@@ -164,6 +164,7 @@ begin
 rescue LoadError
 end
 
+require "ostruct"
 require 'pry/version'
 require 'pry/repl'
 require 'pry/rbx_path'

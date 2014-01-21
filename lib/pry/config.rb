@@ -1,5 +1,4 @@
 class Pry::Config
-  require 'ostruct'
   require 'pry/config/behavior'
   require 'pry/config/default'
   require 'pry/config/convenience'

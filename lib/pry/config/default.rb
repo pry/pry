@@ -65,7 +65,7 @@ private
   # all of this configure_* stuff is a relic of old code.
   # we should try move this code to being command-local.
   def configure_ls
-    @lookup["ls"] = OpenStruct.new({
+    @lookup["ls"] = Pry::Config.from_hash({
       :heading_color            => :bright_blue,
       :public_method_color      => :default,
       :private_method_color     => :blue,
@@ -88,14 +88,12 @@ private
   end
 
   def configure_gist
-    @lookup["gist"] = OpenStruct.new
-    gist.inspecter = proc(&:pretty_inspect)
+    @lookup["gist"] = Pry::Config.from_hash(inspecter: proc(&:pretty_inspect))
   end
 
   def configure_history
-    @lookup["history"] = OpenStruct.new
-    history.should_save = true
-    history.should_load = true
+    @lookup["history"] = Pry::Config.from_hash "should_save" => true,
+      "should_load" => true
     history.file = File.expand_path("~/.pry_history") rescue nil
     if history.file.nil?
       self.should_load_rc = false
