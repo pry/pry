@@ -68,7 +68,7 @@ class Pry
     @eval_string   = ""
     @backtrace     = options[:backtrace] || caller
     @config = Pry::Config.new
-    @config.merge!(options)
+    config.merge!(options)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size

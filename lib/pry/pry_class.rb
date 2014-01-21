@@ -119,7 +119,7 @@ class Pry
     end
 
     options[:target] = Pry.binding_for(target || toplevel_binding)
-
+    options[:hooks] = Pry::Hooks.from_hash options.delete(:hooks) if options.key?(:hooks)
     initial_session_setup
 
     # Unless we were given a backtrace, save the current one
