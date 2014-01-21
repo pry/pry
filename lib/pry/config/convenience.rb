@@ -3,7 +3,6 @@ module Pry::Config::Convenience
                :input,
                :output,
                :commands,
-               :prompt,
                :print,
                :exception_handler,
                :quiet?,

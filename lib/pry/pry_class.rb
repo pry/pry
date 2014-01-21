@@ -20,6 +20,14 @@ class Pry
 
     extend Pry::Config::Convenience
     config_shortcut *Pry::Config.shortcuts
+
+    def prompt=(value)
+      config.prompt = value
+    end
+
+    def prompt
+      config.prompt
+    end
   end
 
   def self.main
