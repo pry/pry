@@ -1,7 +1,6 @@
 class Pry
   class Command::WatchExpression < Pry::ClassCommand
     require 'pry/commands/watch_expression/expression.rb'
-    extend Pry::Helpers::BaseHelpers
 
     match 'watch'
     group 'Context'
@@ -25,22 +24,21 @@ class Pry
     end
 
     def process
-      ret = case
-            when opts.present?(:delete)
-              delete opts[:delete]
-            when opts.present?(:list) || args.empty?
-              list
-            else
-              add_hook
-              add_expression(args)
-            end
+      case
+      when opts.present?(:delete)
+        delete opts[:delete]
+      when opts.present?(:list) || args.empty?
+        list
+      else
+        add_hook
+        add_expression(args)
+      end
     end
 
     private
 
     def expressions
-       state.expressions ||= []
-       state.expressions
+      state.expressions ||= []
     end
 
     def delete(index)
@@ -85,7 +83,7 @@ class Pry
 
     def add_hook
       hook = [:after_eval, :watch_expression]
-      unless Pry.config.hooks.hook_exists? *hook
+      unless Pry.config.hooks.hook_exists?(*hook)
         _pry_.hooks.add_hook(*hook) do
           eval_and_print_changed
         end
