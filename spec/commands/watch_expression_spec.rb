@@ -38,10 +38,31 @@ describe "watch expression" do
     eval('watch').should =~ /=> :bar/
   end
 
-  #it "prints only when an expression changes" do
-  #  # TODO: This is one of the main features, but I am not sure how to test the
-  #  # output from a hook.
-  #end
+  it "prints when an expression changes" do
+    ReplTester.start do
+      input 'a = 1'
+      output '=> 1'
+
+      input 'watch a'
+      output "Watching a\nwatch: a => 1"
+
+      input "a = 2"
+      output "watch: a => 2\n=> 2"
+    end
+  end
+
+  it "doesn't print when an expresison remains the same" do
+    ReplTester.start do
+      input 'a = 1'
+      output '=> 1'
+
+      input 'watch a'
+      output "Watching a\nwatch: a => 1"
+
+      input "a = 1"
+      output "=> 1"
+    end
+  end
 
   describe "deleting expressions" do
     before do
