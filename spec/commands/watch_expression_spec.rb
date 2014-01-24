@@ -18,7 +18,7 @@ describe "watch expression" do
     eval "watch --delete"
   end
 
-  it "registers the before_session hook" do
+  it "registers the after_eval hook" do
     eval 'watch 1+1'
     @tester.pry.hooks.hook_exists?(:after_eval, :watch_expression).should == true
   end
