@@ -8,7 +8,7 @@ describe "watch expression" do
   # 3) Return the output
   def eval(expr)
     output = @tester.eval expr
-    @tester.pry.hooks.exec_hook :after_eval
+    @tester.pry.hooks.exec_hook :after_eval, nil, @tester.pry
     output
   end
 
