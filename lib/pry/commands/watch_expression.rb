@@ -38,7 +38,7 @@ class Pry
     private
 
     def expressions
-      state.expressions ||= []
+      Pry.config.watch_expressions ||= []
     end
 
     def delete(index)
@@ -66,7 +66,7 @@ class Pry
       end
     end
 
-    def eval_and_print_changed
+    def eval_and_print_changed(output)
       expressions.each do |expr|
         expr.eval!
         if expr.changed?
@@ -82,9 +82,9 @@ class Pry
 
     def add_hook
       hook = [:after_eval, :watch_expression]
-      unless Pry.config.hooks.hook_exists?(*hook)
-        _pry_.hooks.add_hook(*hook) do
-          eval_and_print_changed
+      unless Pry.hooks.hook_exists?(*hook)
+        Pry.hooks.add_hook(*hook) do |_, _pry_|
+          eval_and_print_changed _pry_.output
         end
       end
     end
