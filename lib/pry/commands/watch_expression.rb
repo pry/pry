@@ -76,8 +76,7 @@ class Pry
     end
 
     def add_expression(arguments)
-      e = expressions
-      e << Expression.new(target, arg_string)
+      expressions << Expression.new(target, arg_string)
       output.puts "Watching #{Code.new(arg_string)}"
     end
 
