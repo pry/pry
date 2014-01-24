@@ -64,6 +64,30 @@ describe "watch expression" do
     end
   end
 
+  it "continues to work if you start a second pry instance" do
+    ReplTester.start do
+      input 'a = 1'
+      output '=> 1'
+
+      input 'watch a'
+      output "Watching a\nwatch: a => 1"
+
+      input "a = 2"
+      output "watch: a => 2\n=> 2"
+    end
+
+    ReplTester.start do
+      input 'b = 1'
+      output '=> 1'
+
+      input 'watch b'
+      output "Watching b\nwatch: b => 1"
+
+      input "b = 2"
+      output "watch: b => 2\n=> 2"
+    end
+  end
+
   describe "deleting expressions" do
     before do
       eval 'watch :keeper'
