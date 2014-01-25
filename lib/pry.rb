@@ -196,6 +196,16 @@ class Pry
   # IRB = Pry thing.
   module ExtendCommandBundle
   end
+
+  def self.require_readline
+    return false if @required_readline
+    require 'readline'
+    @required_readline = true
+  rescue LoadError
+    warn "Sorry, you can't use Pry without Readline or a compatible library."
+    warn "Please `gem install rb-readline` or recompile Ruby --with-readline."
+    raise
+  end
 end
 
 if Pry::Helpers::BaseHelpers.mri_18?
@@ -213,19 +223,11 @@ require 'slop'
 require 'rbconfig'
 require 'tempfile'
 
-begin
-  require 'readline'
-rescue LoadError
-  warn "You're running a version of ruby with no Readline support"
-  warn "Please `gem install rb-readline` or recompile ruby --with-readline."
-  exit!
-end
-
 if Pry::Helpers::BaseHelpers.jruby?
   begin
     require 'ffi'
   rescue LoadError
-    warn "Need to `gem install ffi`"
+    warn "For a better Pry experience on JRuby, please `gem install ffi`."
   end
 end
 
@@ -236,7 +238,8 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
   # only fail on jruby (where win32console doesn't work).
   # Instead we'll recommend ansicon, which does.
   rescue LoadError
-    warn "For a better pry experience, please use ansicon: http://adoxa.3eeweb.com/ansicon/"
+    warn "For a better Pry experience on Windows, please use ansicon:"
+    warn "   http://adoxa.3eeweb.com/ansicon/"
   end
 end
 

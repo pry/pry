@@ -1,6 +1,6 @@
 class Pry
-  # The History class is responsible for maintaining the user's input history, both
-  # internally and within Readline.
+  # The History class is responsible for maintaining the user's input history,
+  # both internally and within Readline.
   class History
     attr_accessor :loader, :saver, :pusher, :clearer
 
@@ -111,11 +111,13 @@ class Pry
     # The default pusher. Appends the given line to Readline::HISTORY.
     # @param [String] line
     def push_to_readline(line)
+      Pry.require_readline
       Readline::HISTORY << line
     end
 
     # The default clearer. Clears Readline::HISTORY.
     def clear_readline
+      Pry.require_readline
       Readline::HISTORY.shift until Readline::HISTORY.empty?
     end
   end

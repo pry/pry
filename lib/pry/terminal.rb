@@ -53,7 +53,7 @@ class Pry::Terminal
     end
 
     def screen_size_according_to_readline
-      if Readline.respond_to?(:get_screen_size)
+      if defined?(Readline) && Readline.respond_to?(:get_screen_size)
         size = Readline.get_screen_size
         size if nonzero_column?(size)
       end
