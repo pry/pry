@@ -40,6 +40,7 @@
   being inferred from context (#877)
 * Rename `--installed-plugins` flag to `--plugins`
 * Strip ANSI codes from prompt before measuring length for indentation (#493)
+* Fix bug in `edit` regarding recognition of file names without suffix.
 
 #### Dev-facing changes
 * `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
