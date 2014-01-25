@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bacon', '~> 1.2'
   s.add_development_dependency 'open4', '~> 1.3'
   s.add_development_dependency 'rake',  '~> 0.9'
-  s.add_development_dependency 'guard', '~> 1.3.2'
   s.add_development_dependency 'mocha', '~> 0.13.1'
   # TODO: make this a plain dependency:
   s.add_development_dependency 'bond',  '~> 0.4.2'
