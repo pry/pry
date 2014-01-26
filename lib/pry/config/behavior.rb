@@ -1,6 +1,6 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric]
+  NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
   DIRTY_MAP = {nil => []}
 
   def initialize(default = Pry.config)
@@ -21,7 +21,7 @@ module Pry::Config::Behavior
     key = name.to_s
     if key[-1] == ASSIGNMENT
       short_key = key[0..-2]
-      DIRTY_MAP[self] << short_key
+      DIRTY_MAP[self].push(short_key)
       self[short_key] = args[0]
     elsif DIRTY_MAP[@default].include?(key)
       DIRTY_MAP[@default].delete(key)
