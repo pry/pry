@@ -8,6 +8,8 @@ group :development do
   gem 'rb-fsevent', :require => 'false'
 end
 
+gem 'binding.repl'
+
 if RbConfig::CONFIG['ruby_install_name'] == 'rbx'
   gem 'rubysl-singleton'
   gem 'rubysl-prettyprint'
