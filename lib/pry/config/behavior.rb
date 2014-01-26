@@ -1,9 +1,10 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
+  NODUP = [TrueClass, FalseClass, NilClass, String, Module, Proc, Numeric].freeze
 
   def initialize(default = Pry.config)
     @default = default
+    @default._register(self) if @default
     @lookup = {}
     @read_lookup = {}
   end
@@ -20,6 +21,7 @@ module Pry::Config::Behavior
     key = name.to_s
     if key[-1] == ASSIGNMENT
       short_key = key[0..-2]
+      @default._forget(short_key) if @default
       self[short_key] = args[0]
     elsif @lookup.has_key?(key)
       self[key]
