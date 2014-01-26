@@ -1,12 +1,11 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
   NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
-  DIRTY_MAP = {nil => []}
 
   def initialize(default = Pry.config)
     @default = default
     @lookup = {}
-    DIRTY_MAP[self] = []
+    @read_lookup = {}
   end
 
   def [](key)
@@ -21,17 +20,14 @@ module Pry::Config::Behavior
     key = name.to_s
     if key[-1] == ASSIGNMENT
       short_key = key[0..-2]
-      DIRTY_MAP[self].push(short_key)
       self[short_key] = args[0]
-    elsif DIRTY_MAP[@default].include?(key)
-      DIRTY_MAP[@default].delete(key)
-      value = @default.public_send(name, *args, &block)
-      self[key] = _dup(value)
     elsif @lookup.has_key?(key)
       self[key]
+    elsif @read_lookup.has_key?(key)
+      @read_lookup[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      self[key] = _dup(value)
+      @read_lookup[key] = _dup(value)
     else
       nil
     end
