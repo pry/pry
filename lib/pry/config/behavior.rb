@@ -65,12 +65,7 @@ module Pry::Config::Behavior
   end
 
   def inherited_by(other)
-    if @inherited_by
-      # TODO
-      raise
-    else
-      @inherited_by = other
-    end
+    @inherited_by ||= other
   end
 
   def to_hash
