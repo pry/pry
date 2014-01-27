@@ -1,10 +1,10 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, String, Module, Proc, Numeric].freeze
+  NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
 
   def initialize(default = Pry.config)
     @default = default
-    @default._register(self) if @default
+    @default.inherited_by(self) if @default
     @lookup = {}
     @read_lookup = {}
   end
@@ -20,8 +20,8 @@ module Pry::Config::Behavior
   def method_missing(name, *args, &block)
     key = name.to_s
     if key[-1] == ASSIGNMENT
+      @inherited_by.wipe!(short_key) if @inherited_by
       short_key = key[0..-2]
-      @default._forget(short_key) if @default
       self[short_key] = args[0]
     elsif @lookup.has_key?(key)
       self[key]
@@ -43,18 +43,35 @@ module Pry::Config::Behavior
   end
 
   def respond_to?(name, boolean=false)
-    @lookup.has_key?(name.to_s) or @default.respond_to?(name) or super(name, boolean)
+    @lookup.has_key?(name.to_s) or @read_lookup.has_key?(name.to_s) or @default.respond_to?(name) or super(name, boolean)
   end
 
-  def refresh
-    @lookup = {}
+  def wipe!(key = nil)
+    if key == nil
+      @lookup = {}
+      @read_lookup = {}
+    else
+      @lookup.delete(key)
+      @read_lookup.delete(key)
+    end
+  end
+
+  def inherited_by(other)
+    if @inherited_by
+      # TODO
+      raise
+    else
+      @inherited_by = other
+    end
   end
 
   def to_hash
+    # TODO: should merge read_lookup?
     @lookup
   end
 
   def to_h
+    # TODO: should merge read_lookup?
     @lookup
   end
 
