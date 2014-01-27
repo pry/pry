@@ -20,7 +20,7 @@ module Pry::Config::Behavior
   def method_missing(name, *args, &block)
     key = name.to_s
     if key[-1] == ASSIGNMENT
-      @inherited_by.wipe!(short_key) if @inherited_by
+      @inherited_by.forget(:read, short_key) if @inherited_by
       short_key = key[0..-2]
       self[short_key] = args[0]
     elsif @lookup.has_key?(key)
@@ -46,13 +46,20 @@ module Pry::Config::Behavior
     @lookup.has_key?(name.to_s) or @read_lookup.has_key?(name.to_s) or @default.respond_to?(name) or super(name, boolean)
   end
 
-  def wipe!(key = nil)
-    if key == nil
-      @lookup = {}
-      @read_lookup = {}
-    else
+  def refresh
+    @lookup.clear
+    @read_lookup.clear
+    true
+  end
+
+  def forget(lookup_type, key)
+    case lookup_type
+    when :write
       @lookup.delete(key)
+    when :read
       @read_lookup.delete(key)
+    else
+      raise ArgumentError, "specify a lookup type (:read or :write)"
     end
   end
 
