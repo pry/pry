@@ -2,7 +2,7 @@ module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
   NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
 
-  def initialize(default = Pry.config.dup)
+  def initialize(default = Pry.config)
     @default = default.dup if default
     @default.inherited_by(self) if default
     @lookup = {}
