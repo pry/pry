@@ -51,14 +51,6 @@ class Pry::Config::Default
     configure_history
   end
 
-  def _register(other)
-    @child = other
-  end
-
-  def _forget(key)
-    @child.instance_variable_get(:@read_lookup).delete(key.to_s)
-  end
-
   default.each do |key, value|
     define_method(key) do
       if default[key].equal?(value)
