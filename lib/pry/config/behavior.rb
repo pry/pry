@@ -34,10 +34,8 @@ module Pry::Config::Behavior
       short_key = key[0..-2]
       @inherited_by.forget(:read, short_key) if @inherited_by
       self[short_key] = args[0]
-    elsif @writes.has_key?(key)
+    elsif @writes.key?(key) or @reads.key?(key)
       self[key]
-    elsif @reads.has_key?(key)
-      @reads[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
       @reads[key] = _dup(value)
