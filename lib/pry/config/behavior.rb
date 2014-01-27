@@ -44,7 +44,12 @@ module Pry::Config::Behavior
   end
 
   def respond_to?(name, boolean=false)
-    @lookup.has_key?(name.to_s) or @read_lookup.has_key?(name.to_s) or @default.respond_to?(name) or super(name, boolean)
+    key?(name) or @default.respond_to?(name) or super(name, boolean)
+  end
+
+  def key?(key)
+    key = key.to_s
+    @lookup.key?(key) or @read_lookup.key?(key)
   end
 
   def refresh
