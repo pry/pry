@@ -11,12 +11,12 @@ module Pry::Config::Behavior
   def initialize(default = Pry.config)
     @default = default.dup if default
     @default.inherited_by(self) if default
-    @lookup = {}
-    @read_lookup = {}
+    @writes = {}
+    @reads = {}
   end
 
   def [](key)
-    lookup = @read_lookup.merge(@lookup)
+    lookup = @reads.merge(@writes)
     lookup[key.to_s]
   end
 
@@ -25,7 +25,7 @@ module Pry::Config::Behavior
     if RESERVED_KEYS.include?(key)
       raise ArgumentError, "sorry, '#{key}' is a reserved configuration option."
     end
-    @lookup[key] = value
+    @writes[key] = value
   end
 
   def method_missing(name, *args, &block)
@@ -34,13 +34,13 @@ module Pry::Config::Behavior
       short_key = key[0..-2]
       @inherited_by.forget(:read, short_key) if @inherited_by
       self[short_key] = args[0]
-    elsif @lookup.has_key?(key)
+    elsif @writes.has_key?(key)
       self[key]
-    elsif @read_lookup.has_key?(key)
-      @read_lookup[key]
+    elsif @reads.has_key?(key)
+      @reads[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      @read_lookup[key] = _dup(value)
+      @reads[key] = _dup(value)
     else
       nil
     end
@@ -50,7 +50,7 @@ module Pry::Config::Behavior
     raise TypeError, "cannot coerce argument to Hash" unless other.respond_to?(:to_hash)
     other = other.to_hash
     keys, values = other.keys.map(&:to_s), other.values
-    @lookup.merge! Hash[keys.zip(values)]
+    @writes.merge! Hash[keys.zip(values)]
   end
 
   def respond_to?(name, boolean=false)
@@ -59,21 +59,21 @@ module Pry::Config::Behavior
 
   def key?(key)
     key = key.to_s
-    @lookup.key?(key) or @read_lookup.key?(key)
+    @writes.key?(key) or @reads.key?(key)
   end
 
   def refresh
-    @lookup.clear
-    @read_lookup.clear
+    @writes.clear
+    @reads.clear
     true
   end
 
   def forget(lookup_type, key)
     case lookup_type
     when :write
-      @lookup.delete(key)
+      @writes.delete(key)
     when :read
-      @read_lookup.delete(key)
+      @reads.delete(key)
     else
       raise ArgumentError, "specify a lookup type (:read or :write)"
     end
@@ -89,12 +89,12 @@ module Pry::Config::Behavior
 
   def to_hash
     # TODO: should merge read_lookup?
-    @lookup
+    @writes
   end
 
   def to_h
     # TODO: should merge read_lookup?
-    @lookup
+    @writes
   end
 
   def quiet?
