@@ -79,7 +79,7 @@ module Pry::Config::Behavior
 
   def inherited_by(other)
     if @inherited_by
-      raise RuntimeError
+      raise RuntimeError, "instance of Pry::Config should be inherited by only one instance"
     else
       @inherited_by = other
     end
