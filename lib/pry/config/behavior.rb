@@ -10,7 +10,8 @@ module Pry::Config::Behavior
   end
 
   def [](key)
-    @lookup[key.to_s]
+    lookup = @read_lookup.merge(@lookup)
+    lookup[key.to_s]
   end
 
   def []=(key, value)
