@@ -2,9 +2,9 @@ module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
   NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
 
-  def initialize(default = Pry.config)
-    @default = default
-    @default.inherited_by(self) if @default
+  def initialize(default = Pry.config.dup)
+    @default = default.dup if default
+    @default.inherited_by(self) if default
     @lookup = {}
     @read_lookup = {}
   end
@@ -65,7 +65,11 @@ module Pry::Config::Behavior
   end
 
   def inherited_by(other)
-    @inherited_by ||= other
+    if @inherited_by
+      raise RuntimeError
+    else
+      @inherited_by = other
+    end
   end
 
   def to_hash
