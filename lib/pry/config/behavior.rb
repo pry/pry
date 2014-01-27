@@ -20,8 +20,8 @@ module Pry::Config::Behavior
   def method_missing(name, *args, &block)
     key = name.to_s
     if key[-1] == ASSIGNMENT
-      @inherited_by.forget(:read, short_key) if @inherited_by
       short_key = key[0..-2]
+      @inherited_by.forget(:read, short_key) if @inherited_by
       self[short_key] = args[0]
     elsif @lookup.has_key?(key)
       self[key]
