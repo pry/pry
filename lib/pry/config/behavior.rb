@@ -1,6 +1,12 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
   NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
+  RESERVED_KEYS = [
+                   "[]", "[]=", "merge!",
+                   "respond_to?", "key?", "refresh",
+                   "forget", "inherited_by", "to_h",
+                   "to_hash"
+                  ].freeze
 
   def initialize(default = Pry.config)
     @default = default.dup if default
@@ -15,7 +21,11 @@ module Pry::Config::Behavior
   end
 
   def []=(key, value)
-    @lookup[key.to_s] = value
+    key = key.to_s
+    if RESERVED_KEYS.include?(key)
+      raise ArgumentError, "sorry, '#{key}' is a reserved configuration option."
+    end
+    @lookup[key] = value
   end
 
   def method_missing(name, *args, &block)

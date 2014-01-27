@@ -1,6 +1,16 @@
 require 'helper'
 
 describe Pry::Config do
+  describe "reserved keys" do
+    before do
+      @config = Pry::Config.from_hash({}, nil)
+    end
+
+    it "raises an ArgumentError on assignment of a reserved key" do
+      should.raise(ArgumentError) { @config.inherited_by = "abc" }
+    end
+  end
+
   describe "local config" do
     it "should be set" do
       t = pry_tester
