@@ -23,7 +23,7 @@ module Pry::Config::Behavior
   def []=(key, value)
     key = key.to_s
     if RESERVED_KEYS.include?(key)
-      raise ArgumentError, "sorry, '#{key}' is a reserved configuration option."
+      raise ArgumentError, "sorry, '#{key}' is a reserved configuration key."
     end
     @writes[key] = value
   end
