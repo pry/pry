@@ -7,8 +7,8 @@ class Pry
     def self.build_completion_proc(target, pry=nil, commands=[""])
       Pry.require_readline
 
-      # If we're using libedit, don't use Bond.
-      if Readline::VERSION =~ /editline/i
+      # If we're using libedit or bond gem not installed, don't use Bond.
+      if Readline::VERSION =~ /editline/i || !defined?(Bond)
         Pry.config.completer = InputCompleter
         return InputCompleter.build_completion_proc(target, pry, commands)
       end
