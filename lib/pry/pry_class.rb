@@ -111,6 +111,7 @@ class Pry
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
+    options = options.to_hash
 
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
