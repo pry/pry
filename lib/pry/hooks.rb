@@ -23,7 +23,6 @@ class Pry
       hash.each do |k, v|
         instance.add_hook(k, nil, v)
       end
-
       instance
     end
 
