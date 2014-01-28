@@ -12,12 +12,10 @@ module Pry::Config::Behavior
     @default = default.dup if default
     @default.inherited_by(self) if default
     @writes = {}
-    @reads = {}
   end
 
   def [](key)
-    lookup = @reads.merge(@writes)
-    lookup[key.to_s]
+    @writes[key.to_s]
   end
 
   def []=(key, value)
@@ -32,13 +30,12 @@ module Pry::Config::Behavior
     key = name.to_s
     if key[-1] == ASSIGNMENT
       short_key = key[0..-2]
-      @inherited_by.forget(:read, short_key) if @inherited_by
       self[short_key] = args[0]
     elsif key?(key)
       self[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      @reads[key] = _dup(value)
+      self[key] = _dup(value)
     else
       nil
     end
@@ -57,24 +54,16 @@ module Pry::Config::Behavior
 
   def key?(key)
     key = key.to_s
-    @writes.key?(key) or @reads.key?(key)
+    @writes.key?(key)
   end
 
   def refresh
     @writes.clear
-    @reads.clear
     true
   end
 
-  def forget(lookup_type, key)
-    case lookup_type
-    when :write
-      @writes.delete(key)
-    when :read
-      @reads.delete(key)
-    else
-      raise ArgumentError, "specify a lookup type (:read or :write)"
-    end
+  def forget(key)
+    @writes.delete(key)
   end
 
   def inherited_by(other)
@@ -86,7 +75,7 @@ module Pry::Config::Behavior
   end
 
   def to_hash
-    @reads.merge(@writes)
+    @writes
   end
   alias_method :to_h, :to_hash
 
