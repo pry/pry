@@ -5,13 +5,27 @@ class Pry
 
     # Get/Set the object to use for input by default by all Pry instances.
     # Pry.config.input is an option determining the input object - the object from
-    # which Pry retrieves its lines of input. Pry accepts any object that implements the readline method.
-    # This includes IO objects, StringIO, Readline, File and custom objects.
+    # which Pry retrieves its lines of input. Pry accepts any object that
+    # implements the readline method.  This includes IO objects, StringIO,
+    # Readline, File and custom objects. It can also be a Proc which returns an
+    # object implementing the readline method.
     # @return [#readline] The object to use for input by default by all
     #   Pry instances.
     # @example
     #   Pry.config.input = StringIO.new("@x = 10\nexit")
-    attr_accessor :input
+    def input
+      @reified_input ||=
+        if @input.respond_to?(:call)
+          @input.call
+        else
+          @input
+        end
+    end
+
+    def input=(input)
+      @reified_input = nil
+      @input = input
+    end
 
     # Get/Set the object to use for output by default by all Pry instances.
     # Pry.config.output is an option determining the output object - the object to which

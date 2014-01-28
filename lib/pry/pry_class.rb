@@ -107,8 +107,7 @@ class Pry
   # Including: loading .pryrc, loading plugins, loading requires, and
   # loading history.
   def self.initial_session_setup
-
-    return if !initial_session?
+    return unless initial_session?
 
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
@@ -262,6 +261,7 @@ class Pry
   end
 
   def self.auto_resize!
+    Pry.require_readline
     ver = Readline::VERSION
     if ver[/edit/i]
       warn <<-EOT
@@ -286,7 +286,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   end
 
   def self.set_config_defaults
-    config.input = Readline
+    config.input = proc { Pry.require_readline; Readline }
     config.output = $stdout
     config.commands = Pry::Commands
     config.prompt_name = DEFAULT_PROMPT_NAME
@@ -310,12 +310,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     config.correct_indent = true
     config.collision_warning = false
     config.output_prefix = "=> "
-
-    if defined?(Bond) && Readline::VERSION !~ /editline/i
-      config.completer = Pry::BondCompleter
-    else
-      config.completer = Pry::InputCompleter
-    end
+    config.completer = Pry::BondCompleter
 
     config.gist ||= OpenStruct.new
     config.gist.inspecter = proc(&:pretty_inspect)

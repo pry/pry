@@ -5,6 +5,14 @@ class Pry
   module BondCompleter
 
     def self.build_completion_proc(target, pry=nil, commands=[""])
+      Pry.require_readline
+
+      # If we're using libedit, don't use Bond.
+      if Readline::VERSION =~ /editline/i
+        Pry.config.completer = InputCompleter
+        return InputCompleter.build_completion_proc(target, pry, commands)
+      end
+
       if !@started
         @started = true
         start
@@ -28,13 +36,6 @@ class Pry
 
   # Implements tab completion for Readline in Pry
   module InputCompleter
-
-    if Readline.respond_to?("basic_word_break_characters=")
-      Readline.basic_word_break_characters = " \t\n\"\\'`><=;|&{("
-    end
-
-    Readline.completion_append_character = nil
-
     ReservedWords = [
       "BEGIN", "END",
       "alias", "and",
@@ -60,10 +61,26 @@ class Pry
       "[]", "[]=", "^", "!", "!=", "!~"
     ]
 
+    # If we haven't configured Readline for completion yet, do it now.
+    # @private
+    def self.initialize_readline
+      Pry.require_readline
+      return if @initialized_readline
+
+      if Readline.respond_to?("basic_word_break_characters=")
+        Readline.basic_word_break_characters = " \t\n\"\\'`><=;|&{("
+      end
+
+      Readline.completion_append_character = nil
+
+      @initialized_readline = true
+    end
+
     # Return a new completion proc for use by Readline.
     # @param [Binding] target The current binding context.
     # @param [Array<String>] commands The array of Pry commands.
     def self.build_completion_proc(target, pry=nil, commands=[""])
+      initialize_readline
 
       proc do |input|
 

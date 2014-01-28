@@ -619,7 +619,7 @@ class Pry
         input.completion_proc = completion_proc
       end
 
-      if input == Readline
+      if defined?(Readline) && input == Readline
         if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
           Readline.output = File.open('/dev/tty', 'w')
         end
