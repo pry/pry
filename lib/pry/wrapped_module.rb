@@ -120,7 +120,11 @@ class Pry
     # Is this a singleton class?
     # @return [Boolean]
     def singleton_class?
-      wrapped != wrapped.ancestors.first
+      if wrapped.respond_to?(:singleton_class?)
+        wrapped.singleton_class?
+      else
+        wrapped != wrapped.ancestors.first
+      end
     end
 
     # Is this strictly a module? (does not match classes)
