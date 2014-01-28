@@ -86,13 +86,11 @@ module Pry::Config::Behavior
   end
 
   def to_hash
-    # TODO: should merge read_lookup?
-    @writes
+    @reads.merge(@writes)
   end
 
   def to_h
-    # TODO: should merge read_lookup?
-    @writes
+    to_hash
   end
 
   def quiet?
