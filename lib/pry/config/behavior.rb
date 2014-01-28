@@ -88,10 +88,7 @@ module Pry::Config::Behavior
   def to_hash
     @reads.merge(@writes)
   end
-
-  def to_h
-    to_hash
-  end
+  alias_method :to_h, :to_hash
 
   def quiet?
     quiet
