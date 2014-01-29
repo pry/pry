@@ -63,7 +63,7 @@ module Pry::Config::Behavior
   end
 
   def forget(key)
-    @writes.delete(key)
+    @writes.delete(key.to_s)
   end
 
   def inherited_by(other)
