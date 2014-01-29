@@ -1,5 +1,4 @@
-require "pry/indent"
-
+# -*- coding: utf-8 -*-
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
 # features syntax highlighting, a flexible plugin architecture, runtime
@@ -21,54 +20,26 @@ require "pry/indent"
 # * https://github.com/pry/pry
 # * the IRC channel, which is #pry on the Freenode network
 #
+
 class Pry
-  attr_accessor :input
-  attr_accessor :output
-  attr_accessor :commands
-  attr_accessor :print
-  attr_accessor :exception_handler
-  attr_accessor :quiet
-  alias :quiet? :quiet
-
-  attr_accessor :custom_completions
-
   attr_accessor :binding_stack
+  attr_accessor :custom_completions
   attr_accessor :eval_string
-
+  attr_accessor :backtrace
+  attr_accessor :suppress_output
   attr_accessor :last_result
   attr_accessor :last_file
   attr_accessor :last_dir
 
   attr_reader :last_exception
-
+  attr_reader :command_state
+  attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
+  attr_reader :config
 
-  attr_accessor :backtrace
-
-  attr_accessor :extra_sticky_locals
-
-  attr_accessor :suppress_output
-
-  # This is exposed via Pry::Command#state.
-  attr_reader :command_state
-
-  attr_reader :exit_value
-
-  attr_reader :hooks # Special treatment as we want to alert people of the
-                     # changed API.
-
-  # FIXME: This is a hack to alert people of the new API.
-  # @param [Pry::Hooks] hooks
-  def hooks=(hooks)
-    if hooks.is_a?(Hash)
-      warn "Hash-based hooks are now deprecated! Use a `Pry::Hooks` object " \
-           "instead! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-      @hooks = Pry::Hooks.from_hash(hooks)
-    else
-      @hooks = hooks
-    end
-  end
+  extend Pry::Config::Convenience
+  config_shortcut *Pry::Config.shortcuts
 
   # Create a new {Pry} instance.
   # @param [Hash] options
@@ -96,59 +67,16 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options[:backtrace] || caller
-
-    refresh_config(options)
-
+    @config = Pry::Config.new
+    config.merge!(options)
+    push_prompt(config.prompt)
+    @input_array  = Pry::HistoryArray.new config.memory_size
+    @output_array = Pry::HistoryArray.new config.memory_size
+    @custom_completions = config.command_completer
     push_initial_binding(options[:target])
-
     set_last_result nil
-    @input_array << nil # add empty input so _in_ and _out_ match
-
-    # yield the binding_stack to the hook for modification
+    @input_array << nil
     exec_hook(:when_started, options[:target], options, self)
-  end
-
-  # Refresh the Pry instance settings from the Pry class.
-  # Allows options to be specified to override settings from Pry class.
-  # @param [Hash] options The options to override Pry class settings
-  #   for this instance.
-  def refresh_config(options={})
-    defaults   = {}
-    attributes = [
-                   :input, :output, :commands, :print, :quiet,
-                   :exception_handler, :hooks, :custom_completions,
-                   :prompt, :memory_size, :extra_sticky_locals
-                 ]
-
-    attributes.each do |attribute|
-      defaults[attribute] = Pry.send attribute
-    end
-
-    defaults.merge!(options).each do |key, value|
-      send("#{key}=", value) if respond_to?("#{key}=")
-    end
-
-    true
-  end
-
-  # Initialize this instance by pushing its initial context into the binding
-  # stack. If no target is given, start at the top level.
-  def push_initial_binding(target=nil)
-    push_binding(target || Pry.toplevel_binding)
-  end
-
-  # The currently active `Binding`.
-  # @return [Binding] The currently active `Binding` for the session.
-  def current_binding
-    binding_stack.last
-  end
-  alias current_context current_binding # support previous API
-
-  # Push a binding for the given object onto the stack. If this instance is
-  # currently stopped, mark it as usable again.
-  def push_binding(object)
-    @stopped = false
-    binding_stack << Pry.binding_for(object)
   end
 
   # The current prompt.
@@ -171,14 +99,42 @@ class Pry
     end
   end
 
+  # Initialize this instance by pushing its initial context into the binding
+  # stack. If no target is given, start at the top level.
+  def push_initial_binding(target=nil)
+    push_binding(target || Pry.toplevel_binding)
+  end
+
+  # The currently active `Binding`.
+  # @return [Binding] The currently active `Binding` for the session.
+  def current_binding
+    binding_stack.last
+  end
+  alias current_context current_binding # support previous API
+
+  # Push a binding for the given object onto the stack. If this instance is
+  # currently stopped, mark it as usable again.
+  def push_binding(object)
+    @stopped = false
+    binding_stack << Pry.binding_for(object)
+  end
+
+  def prompt=(new_prompt)
+    if prompt_stack.empty?
+      push_prompt new_prompt
+    else
+      prompt_stack[-1] = new_prompt
+    end
+  end
+
   # Generate completions.
   # @param [String] input What the user has typed so far
   # @return [Array<String>] Possible completions
   def complete(input)
     Pry.critical_section do
-      Pry.config.completer.call(input, :target => current_binding,
-                                       :pry  => self,
-                                       :custom_completions => instance_eval(&custom_completions))
+      config.completer.call input, :target => current_binding,
+        :pry => self,
+        :custom_completions => custom_completions
     end
   end
 
@@ -218,21 +174,19 @@ class Pry
   # @yield The block that defines the content of the local. The local
   #   will be refreshed at each tick of the repl loop.
   def add_sticky_local(name, &block)
-    sticky_locals[name] = block
+    config.extra_sticky_locals[name] = block
   end
 
-  # @return [Hash] The currently defined sticky locals.
   def sticky_locals
-    @sticky_locals ||= {
-      :_in_   => proc { @input_array },
-      :_out_  => proc { @output_array },
-      :_pry_  => self,
-      :_ex_   => proc { last_exception },
-      :_file_ => proc { last_file },
-      :_dir_  => proc { last_dir },
-      :_      => proc { last_result },
-      :__     => proc { @output_array[-2] }
-    }.merge(extra_sticky_locals)
+    { _in_: input_array,
+      _out_: output_array,
+      _pry_: self,
+      _ex_: last_exception,
+      _file_: last_file,
+      _dir_: last_dir,
+      _: last_result,
+      __: output_array[-2]
+    }.merge(config.extra_sticky_locals)
   end
 
   # Reset the current eval string. If the user has entered part of a multiline
@@ -568,7 +522,7 @@ class Pry
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
-    c = OpenStruct.new(
+    c = Pry::Config.from_hash({
                        :object         => object,
                        :nesting_level  => binding_stack.size - 1,
                        :open_token     => open_token,
@@ -579,7 +533,7 @@ class Pry
                        :binding_stack  => binding_stack,
                        :input_array    => input_array,
                        :eval_string    => @eval_string,
-                       :cont           => !@eval_string.empty?)
+                       :cont           => !@eval_string.empty?})
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt

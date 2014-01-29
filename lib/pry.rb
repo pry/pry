@@ -12,7 +12,6 @@ require 'securerandom'
 require 'forwardable'
 
 class Pry
-
   # The default hooks - display messages when beginning and ending Pry sessions.
   DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
     next if _pry_.quiet?
@@ -103,7 +102,7 @@ class Pry
     else
       # Otherwise, saves current binding stack as old stack and pops last
       # binding out of binding stack (the old stack still has that binding).
-      _pry_.command_state["cd"] ||= OpenStruct.new # FIXME
+      _pry_.command_state["cd"] ||= Pry::Config.from_hash({}) # FIXME
       _pry_.command_state['cd'].old_stack = _pry_.binding_stack.dup
       _pry_.binding_stack.pop
     end
@@ -122,58 +121,6 @@ class Pry
   # This is to keep from breaking under Rails 3.2 for people who are doing that
   # IRB = Pry thing.
   module ExtendCommandBundle; end
-
-  # class accessors
-  # define class attributes before pry library is required
-  # fix initialize step of Pry (#1037)
-  class << self
-    extend Forwardable
-
-    # convenience method
-    def self.delegate_accessors(delagatee, *names)
-      def_delegators delagatee, *names
-      def_delegators delagatee, *names.map { |v| "#{v}=" }
-    end
-
-    # Get/Set the Proc that defines extra Readline completions (on top
-    # of the ones defined for IRB).
-    # @return [Proc] The Proc that defines extra Readline completions (on top
-    # @example Add file names to completion list
-    #   Pry.custom_completions = proc { Dir.entries('.') }
-    attr_accessor :custom_completions
-
-    # @return [Fixnum] The current input line.
-    attr_accessor :current_line
-
-    # @return [Array] The Array of evaluated expressions.
-    attr_accessor :line_buffer
-
-    # @return [String] The __FILE__ for the `eval()`. Should be "(pry)"
-    #   by default.
-    attr_accessor :eval_path
-
-    # @return [OpenStruct] Return Pry's config object.
-    attr_accessor :config
-
-    # @return [History] Return Pry's line history object.
-    attr_accessor :history
-
-    # @return [Boolean] Whether Pry was activated from the command line.
-    attr_accessor :cli
-
-    # @return [Boolean] Whether Pry sessions are quiet by default.
-    attr_accessor :quiet
-
-    # @return [Exception, nil] The last pry internal error.
-    #   (a CommandError in most cases)
-    attr_accessor :last_internal_error
-
-    # plugin forwardables
-    def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
-
-    delegate_accessors :@config, :input, :output, :commands, :prompt, :print, :exception_handler,
-      :hooks, :color, :pager, :editor, :memory_size, :extra_sticky_locals
-  end
 end
 
 require 'method_source'
@@ -230,7 +177,6 @@ require 'pry/history'
 require 'pry/command'
 require 'pry/command_set'
 require 'pry/commands'
-require 'pry/custom_completions'
 require 'pry/completion'
 require 'pry/plugins'
 require 'pry/core_extensions'
@@ -242,3 +188,4 @@ require 'pry/pager'
 require 'pry/terminal'
 require 'pry/editor'
 require 'pry/rubygem'
+require "pry/indent"
