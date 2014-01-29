@@ -9,7 +9,7 @@ unless Object.const_defined? 'Pry'
 end
 
 require 'mocha/api'
-
+require "ostruct"
 require 'pry/test/helper'
 require 'spec_helpers/bacon'
 require 'spec_helpers/mock_pry'

@@ -44,13 +44,11 @@ describe "Sticky locals (_file_ and friends)" do
     describe "setting as Pry.config option" do
       it 'should define a new sticky local for the session (normal value)' do
         Pry.config.extra_sticky_locals[:test_local] = :john
-
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
           Pry.start(o)
         end
-
         o.instance_variable_get(:@value).should == :john
         Pry.config.extra_sticky_locals = {}
       end

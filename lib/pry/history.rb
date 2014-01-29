@@ -2,6 +2,7 @@ class Pry
   # The History class is responsible for maintaining the user's input history,
   # both internally and within Readline.
   class History
+
     attr_accessor :loader, :saver, :pusher, :clearer
 
     # @return [Fixnum] Number of lines in history when Pry first loaded.

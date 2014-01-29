@@ -67,7 +67,7 @@ class ReplTester
     reset_output
     repl_mailbox.push input
     wait
-    Pry.output.string
+    @pry.output.string
   end
 
   # Assert that the current prompt matches the given string or regex.
@@ -78,7 +78,7 @@ class ReplTester
   # Assert that the most recent output (since the last time input was called)
   # matches the given string or regex.
   def output(match)
-    match.should === Pry.output.string.chomp
+    match.should === @pry.output.string.chomp
   end
 
   # Assert that the Pry session ended naturally after the last input.
@@ -99,7 +99,7 @@ class ReplTester
   private
 
   def reset_output
-    Pry.output.clear
+    @pry.output.clear
   end
 
   def repl_mailbox
