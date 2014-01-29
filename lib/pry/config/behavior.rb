@@ -5,7 +5,7 @@ module Pry::Config::Behavior
                    "[]", "[]=", "merge!",
                    "respond_to?", "key?", "refresh",
                    "forget", "inherited_by", "to_h",
-                   "to_hash"
+                   "to_hash", "_dup"
                   ].freeze
 
   def initialize(default = Pry.config)
