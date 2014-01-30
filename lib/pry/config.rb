@@ -8,12 +8,6 @@ class Pry::Config
     Convenience::SHORTCUTS
   end
 
-  def self.from_hash(hash, default = nil)
-    new(default).tap do |config|
-      config.merge!(hash)
-    end
-  end
-
   #
   # FIXME
   # @param [Pry::Hooks] hooks
