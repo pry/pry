@@ -7,7 +7,9 @@ describe Pry::Config do
     end
 
     it "raises an ArgumentError on assignment of a reserved key" do
-      should.raise(ArgumentError) { @config.inherited_by = "abc" }
+      Pry::Config::RESERVED_KEYS.each do |key|
+        should.raise(ArgumentError) { @config[key] = 1 }
+      end
     end
   end
 
