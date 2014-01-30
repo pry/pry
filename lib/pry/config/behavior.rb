@@ -44,8 +44,9 @@ module Pry::Config::Behavior
   def merge!(other)
     raise TypeError, "cannot coerce argument to Hash" unless other.respond_to?(:to_hash)
     other = other.to_hash
-    keys, values = other.keys.map(&:to_s), other.values
-    @writes.merge! Hash[keys.zip(values)]
+    other.each do |key, value|
+      self[key] = value
+    end
   end
 
   def respond_to?(name, boolean=false)
