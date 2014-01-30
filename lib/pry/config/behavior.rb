@@ -8,6 +8,16 @@ module Pry::Config::Behavior
                    "to_hash", "_dup"
                   ].freeze
 
+  def self.included(klass)
+    klass.extend Module.new {
+      def from_hash(hash, default = nil)
+        new(default).tap do |config|
+          config.merge!(hash)
+        end
+      end
+    }
+  end
+
   def initialize(default = Pry.config)
     @default = default.dup if default
     @default.inherited_by(self) if default
