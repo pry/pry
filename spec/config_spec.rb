@@ -13,64 +13,39 @@ describe Pry::Config do
     end
   end
 
-  describe "local config" do
-    it "should be set" do
-      t = pry_tester
-      t.eval "_pry_.config.foobar = 'hello'"
-      t.eval("_pry_.config.foobar").should == 'hello'
+  describe "traversal to parent" do
+    it "traverses back to the parent when a local key is not found" do
+      config = Pry::Config.new Pry::Config.from_hash(foo: 1)
+      config.foo.should == 1
     end
 
-    it "should be set (array)" do
-      t = pry_tester
-      t.eval "_pry_.config.foobar = []"
-      t.eval "_pry_.config.foobar << 1 << 2"
-      t.eval("_pry_.config.foobar").should == [1, 2]
+    it "stores a local key and prevents traversal to the parent" do
+      config = Pry::Config.new Pry::Config.from_hash(foo: 1)
+      config.foo = 2
+      config.foo.should == 2
     end
 
-    it "should be global config value when local config is not set" do
-      Pry.config.foobar = 'hello'
-      t = pry_tester
-      t.eval("_pry_.config.foobar").should == 'hello'
-      Pry.config.foobar = nil
+    it "duplicates a copy on read from the parent" do
+      ukraine = "i love"
+      config = Pry::Config.new Pry::Config.from_hash(home: ukraine)
+      config.home.equal?(ukraine).should == false
     end
 
-    it "should be local config value when local config is set" do
-      Pry.config.foobar = 'hello'
-      t = pry_tester
-      t.eval "_pry_.config.foobar = 'goodbye'"
-      t.eval("_pry_.config.foobar").should == 'goodbye'
-      Pry.config.foobar = nil
+    it "forgets a local copy in favor of the parent's new value" do
+      default = Pry::Config.from_hash(shoes: "and socks")
+      local = Pry::Config.new(default).tap(&:shoes)
+      default.shoes = 1
+      local.shoes.should == "and socks"
+      local.forget(:shoes)
+      local.shoes.should == 1
     end
   end
 
-  describe "global config" do
-    it "should be set" do
-      Pry.config.foobar = 'hello'
-      Pry.config.foobar.should == 'hello'
-      Pry.config.foobar = nil
-    end
-
-    it "should be set (array)" do
-      Pry.config.foobar = []
-      Pry.config.foobar << 1 << 2
-      Pry.config.foobar.should == [1, 2]
-      Pry.config.foobar = nil
-    end
-
-    it "should keep value when local config is set" do
-      Pry.config.foobar = 'hello'
-      t = pry_tester
-      t.eval "_pry_.config.foobar = 'goodbye'"
-      Pry.config.foobar.should == 'hello'
-      Pry.config.foobar = nil
-    end
-
-    it "should keep value when local config is set (array)" do
-      Pry.config.foobar = [1, 2]
-      t = pry_tester
-      t.eval "_pry_.config.foobar << 3 << 4"
-      Pry.config.foobar.should == [1, 2]
-      Pry.config.foobar = nil
+  describe "#[]=" do
+    it "stores keys as strings" do
+      local = Pry::Config.from_hash({})
+      local[:zoo] = "hello"
+      local.to_hash.should == { "zoo" => "hello" }
     end
   end
 end
