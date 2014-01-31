@@ -1,8 +1,18 @@
 class Pry::Config::Default
   include Pry::Config::Behavior
 
+  def self.lazy_readline
+    require 'readline'
+    Readline
+  rescue LoadError
+    warn "Pry says!"
+    warn "You're running a version of ruby with no Readline support"
+    warn "Please `gem install rb-readline` or recompile ruby --with-readline."
+    exit!
+  end
+
   default = {
-    :input                  => proc { Readline },
+    :input                  => method(:lazy_readline).to_proc,
     :output                 => proc { $stdout },
     :commands               => proc { Pry::Commands },
     :prompt_name            => proc { Pry::DEFAULT_PROMPT_NAME },

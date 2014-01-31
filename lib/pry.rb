@@ -132,13 +132,6 @@ require 'rbconfig'
 require 'tempfile'
 require 'pathname'
 
-begin
-  require 'readline'
-rescue LoadError
-  warn "You're running a version of ruby with no Readline support"
-  warn "Please `gem install rb-readline` or recompile ruby --with-readline."
-  exit!
-end
 
 if Pry::Helpers::BaseHelpers.jruby?
   begin
