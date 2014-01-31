@@ -28,21 +28,44 @@ describe Pry::Config do
       local.home.equal?(ukraine).should == false
     end
 
-    it "forgets a local copy in favor of the parent's new value" do
-      default = Pry::Config.from_hash(shoes: "and socks")
-      local = Pry::Config.new(default).tap(&:shoes)
-      default.shoes = 1
-      local.shoes.should == "and socks"
-      local.forget(:shoes)
-      local.shoes.should == 1
-    end
-
     it "traverses through a chain of parents" do
       root = Pry::Config.from_hash({foo: 21})
       local1 = Pry::Config.new(root)
       local2 = Pry::Config.new(local1)
       local3 = Pry::Config.new(local2)
       local3.foo.should == 21
+    end
+  end
+
+  describe "#forget" do
+    it "forgets a local key" do
+      local = Pry::Config.new Pry::Config.from_hash(foo: 1)
+      local.foo = 2
+      local.foo.should == 2
+      local.forget(:foo)
+      local.foo.should == 1
+    end
+  end
+
+  describe "#to_hash" do
+    it "provides a copy of local key & value pairs as a Hash" do
+      local = Pry::Config.new Pry::Config.from_hash(bar: true)
+      local.foo = "21"
+      local.to_hash.should == { "foo" => "21" }
+    end
+  end
+
+  describe "#merge!" do
+    it "can merge a Hash-like object" do
+      local = Pry::Config.new
+      local.merge! Pry::Config.from_hash(foo: 21)
+      local.foo.should == 21
+    end
+
+    it "can merge a Hash" do
+      local = Pry::Config.new
+      local.merge!(foo: 21)
+      local.foo.should == 21
     end
   end
 
