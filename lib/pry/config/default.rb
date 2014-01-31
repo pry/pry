@@ -6,8 +6,9 @@ class Pry::Config::Default
     Readline
   rescue LoadError
     warn "Pry says!"
-    warn "You're running a version of ruby with no Readline support"
-    warn "Please `gem install rb-readline` or recompile ruby --with-readline."
+    warn "require of 'readline' has failed."
+    warn "you can rebuild ruby with readline support from C through '--with-readline'."
+    warn "alternatively, you can use the pure-ruby version of readline through 'gem install rb-readline'"
     exit!
   end
 
