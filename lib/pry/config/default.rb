@@ -4,12 +4,12 @@ class Pry::Config::Default
   def self.lazy_readline
     require 'readline'
     Readline
-  rescue LoadError
+  rescue LoadError => e
     warn "Pry says!"
     warn "require of 'readline' has failed."
     warn "you can rebuild ruby with readline support from C through '--with-readline'."
     warn "alternatively, you can use the pure-ruby version of readline through 'gem install rb-readline'"
-    exit!
+    raise(e)
   end
 
   default = {
