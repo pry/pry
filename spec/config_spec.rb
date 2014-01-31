@@ -36,6 +36,14 @@ describe Pry::Config do
       local.forget(:shoes)
       local.shoes.should == 1
     end
+
+    it "traverses through a chain of parents" do
+      root = Pry::Config.from_hash({foo: 21})
+      local1 = Pry::Config.new(root)
+      local2 = Pry::Config.new(local1)
+      local3 = Pry::Config.new(local2)
+      local3.foo.should == 21
+    end
   end
 
   describe "#[]=" do
