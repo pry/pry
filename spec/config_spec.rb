@@ -57,13 +57,13 @@ describe Pry::Config do
 
   describe "#merge!" do
     it "can merge a Hash-like object" do
-      local = Pry::Config.new
+      local = Pry::Config.new(nil)
       local.merge! Pry::Config.from_hash(foo: 21)
       local.foo.should == 21
     end
 
     it "can merge a Hash" do
-      local = Pry::Config.new
+      local = Pry::Config.new(nil)
       local.merge!(foo: 21)
       local.foo.should == 21
     end
