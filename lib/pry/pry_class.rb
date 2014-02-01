@@ -34,9 +34,12 @@ class Pry
     @main ||= TOPLEVEL_BINDING.eval "self"
   end
 
-  # @return [Hash] Pry's `Thread.current` hash
+  #
+  # @return [Pry::Config]
+  #  Returns a value store for an instance of Pry running on the current thread.
+  #
   def self.current
-    Thread.current[:__pry__] ||= {}
+    Thread.current[:__pry__] ||= Pry::Config.from_hash({}, nil)
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
