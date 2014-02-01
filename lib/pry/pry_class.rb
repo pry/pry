@@ -51,7 +51,9 @@ class Pry
   # This method can also be used to reload the files if they have changed.
   def self.load_rc_files
     rc_files_to_load.each do |file|
-      load_file_at_toplevel(file)
+      critical_section do
+        load_file_at_toplevel(file)
+      end
     end
   end
 
