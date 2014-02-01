@@ -181,7 +181,7 @@ class Pry
 
         if defined?(Readline) and input == Readline
           if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
-            _pry_.input.output = File.open('/dev/tty', 'w')
+            input.output = File.open('/dev/tty', 'w')
           end
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif defined? Coolline and input.is_a? Coolline
