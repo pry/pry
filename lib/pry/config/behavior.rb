@@ -85,6 +85,11 @@ module Pry::Config::Behavior
     end
   end
 
+  def ==(other)
+    to_hash == other.to_hash
+  end
+  alias_method :eql?, :==
+
   def to_hash
     @writes
   end
