@@ -92,7 +92,7 @@ module Pry::Config::Behavior
   alias_method :eql?, :==
 
   def to_hash
-    @writes
+    @writes.dup
   end
   alias_method :to_h, :to_hash
 

@@ -82,6 +82,12 @@ describe Pry::Config do
       local.foo = "21"
       local.to_hash.should == { "foo" => "21" }
     end
+
+    it "returns a duplicate of the lookup table" do
+      local = Pry::Config.new
+      local.to_hash.merge!("foo" => 42)
+      local.foo.should.not == 42
+    end
   end
 
   describe "#merge!" do
