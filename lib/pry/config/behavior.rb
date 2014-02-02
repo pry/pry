@@ -91,6 +91,10 @@ module Pry::Config::Behavior
   end
   alias_method :eql?, :==
 
+  def keys
+    @writes.keys
+  end
+
   def to_hash
     @writes.dup
   end
