@@ -23,6 +23,7 @@
 * `whereami` is now aliased to `@`
 
 #### Bug fixes, etc.
+* `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
 * Allow `ls -c <anything>` (#891)
 * Fix indentation not working if the `mathn` stdlib was loaded (#872)
