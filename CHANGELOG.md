@@ -21,6 +21,7 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
+* improve configuration(Pry.config) to lazy-load default configuration values. (#1096)
 
 #### Bug fixes, etc.
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
@@ -44,6 +45,10 @@
 * Fix bug in `edit` regarding recognition of file names without suffix.
 
 #### Dev-facing changes
+* through changes to configuration, all commands should reference configuration values
+  via `_pry_.config` and not `Pry.config`. (#1096)
+* improve configuration(Pry::Config) for easier support of concurrent environments
+  through a 'pry-local' config who, at times, acts as a 'pry-local store'. (#1096)
 * `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
 * Pagers now act like `IO`s and accept streaming output
   * See `Pager.page` and `Pager.with_pager`
