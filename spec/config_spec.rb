@@ -51,6 +51,14 @@ describe Pry::Config do
   end
 
 
+  describe "#keys" do
+    it "returns an array of local keys" do
+      root = Pry::Config.from_hash({zoo: "boo"}, nil)
+      local = Pry::Config.from_hash({foo: "bar"}, root)
+      local.keys.should == ["foo"]
+    end
+  end
+
   describe "#==" do
     it "compares equality through the underlying lookup table" do
       local1 = Pry::Config.new(nil)
