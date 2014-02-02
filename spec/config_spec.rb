@@ -37,6 +37,30 @@ describe Pry::Config do
     end
   end
 
+  describe ".from_hash" do
+    it "returns an object without a default when given 1 argument" do
+      local = Pry::Config.from_hash({})
+      local.instance_variable_get(:@default).should == nil
+    end
+
+    it "returns an object with a default when given 2 arguments" do
+      default = Pry::Config.new(nil)
+      local = Pry::Config.from_hash({}, default)
+      local.instance_variable_get(:@default).should == default
+    end
+  end
+
+
+  describe "#==" do
+    it "compares equality through the underlying lookup table" do
+      local1 = Pry::Config.new(nil)
+      local2 = Pry::Config.new(nil)
+      local1.foo = "hi"
+      local2.foo = "hi"
+      local1.should == local2
+    end
+  end
+
   describe "#forget" do
     it "forgets a local key" do
       local = Pry::Config.new Pry::Config.from_hash(foo: 1)
