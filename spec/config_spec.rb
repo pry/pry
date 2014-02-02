@@ -37,6 +37,43 @@ describe Pry::Config do
     end
   end
 
+  describe ".from_hash" do
+    it "returns an object without a default when given 1 argument" do
+      local = Pry::Config.from_hash({})
+      local.instance_variable_get(:@default).should == nil
+    end
+
+    it "returns an object with a default when given 2 arguments" do
+      default = Pry::Config.new(nil)
+      local = Pry::Config.from_hash({}, default)
+      local.instance_variable_get(:@default).should == default
+    end
+  end
+
+
+  describe "#keys" do
+    it "returns an array of local keys" do
+      root = Pry::Config.from_hash({zoo: "boo"}, nil)
+      local = Pry::Config.from_hash({foo: "bar"}, root)
+      local.keys.should == ["foo"]
+    end
+  end
+
+  describe "#==" do
+    it "compares equality through the underlying lookup table" do
+      local1 = Pry::Config.new(nil)
+      local2 = Pry::Config.new(nil)
+      local1.foo = "hi"
+      local2.foo = "hi"
+      local1.should == local2
+    end
+
+    it "compares equality against an object who does not implement #to_hash" do
+      local1 = Pry::Config.new(nil)
+      local1.should.not == Object.new
+    end
+  end
+
   describe "#forget" do
     it "forgets a local key" do
       local = Pry::Config.new Pry::Config.from_hash(foo: 1)
@@ -53,17 +90,23 @@ describe Pry::Config do
       local.foo = "21"
       local.to_hash.should == { "foo" => "21" }
     end
+
+    it "returns a duplicate of the lookup table" do
+      local = Pry::Config.new(nil)
+      local.to_hash.merge!("foo" => 42)
+      local.foo.should.not == 42
+    end
   end
 
   describe "#merge!" do
     it "can merge a Hash-like object" do
-      local = Pry::Config.new
+      local = Pry::Config.new(nil)
       local.merge! Pry::Config.from_hash(foo: 21)
       local.foo.should == 21
     end
 
     it "can merge a Hash" do
-      local = Pry::Config.new
+      local = Pry::Config.new(nil)
       local.merge!(foo: 21)
       local.foo.should == 21
     end

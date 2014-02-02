@@ -1,7 +1,7 @@
 class Pry::Config
-  require 'pry/config/behavior'
-  require 'pry/config/default'
-  require 'pry/config/convenience'
+  require_relative 'config/behavior'
+  require_relative 'config/default'
+  require_relative 'config/convenience'
   include Pry::Config::Behavior
 
   def self.shortcuts

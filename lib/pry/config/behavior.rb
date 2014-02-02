@@ -79,14 +79,24 @@ module Pry::Config::Behavior
 
   def inherited_by(other)
     if @inherited_by
-      raise RuntimeError, "instance of Pry::Config should be inherited by only one instance"
+      raise RuntimeError, "instance of '#{self.class}' cannot reassign its child."
     else
       @inherited_by = other
     end
   end
 
+  def ==(other)
+    return false unless other.respond_to?(:to_hash)
+    to_hash == other.to_hash
+  end
+  alias_method :eql?, :==
+
+  def keys
+    @writes.keys
+  end
+
   def to_hash
-    @writes
+    @writes.dup
   end
   alias_method :to_h, :to_hash
 

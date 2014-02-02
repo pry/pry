@@ -34,9 +34,12 @@ class Pry
     @main ||= TOPLEVEL_BINDING.eval "self"
   end
 
-  # @return [Hash] Pry's `Thread.current` hash
+  #
+  # @return [Pry::Config]
+  #  Returns a value store for an instance of Pry running on the current thread.
+  #
   def self.current
-    Thread.current[:__pry__] ||= {}
+    Thread.current[:__pry__] ||= Pry::Config.from_hash({}, nil)
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
@@ -51,7 +54,9 @@ class Pry
   # This method can also be used to reload the files if they have changed.
   def self.load_rc_files
     rc_files_to_load.each do |file|
-      load_file_at_toplevel(file)
+      critical_section do
+        load_file_at_toplevel(file)
+      end
     end
   end
 
