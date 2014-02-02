@@ -86,6 +86,7 @@ module Pry::Config::Behavior
   end
 
   def ==(other)
+    return false unless other.respond_to?(:to_hash)
     to_hash == other.to_hash
   end
   alias_method :eql?, :==

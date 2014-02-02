@@ -59,6 +59,11 @@ describe Pry::Config do
       local2.foo = "hi"
       local1.should == local2
     end
+
+    it "compares equality against an object who does not implement #to_hash" do
+      local1 = Pry::Config.new(nil)
+      local1.should.not == Object.new
+    end
   end
 
   describe "#forget" do
