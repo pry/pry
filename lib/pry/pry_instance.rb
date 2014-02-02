@@ -66,7 +66,7 @@ class Pry
     @indent        = Pry::Indent.new
     @command_state = {}
     @eval_string   = ""
-    @backtrace     = options[:backtrace] || caller
+    @backtrace     = options.delete(:backtrace) || caller
     @config = Pry::Config.new
     config.merge!(options)
     push_prompt(config.prompt)
