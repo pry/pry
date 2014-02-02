@@ -79,7 +79,7 @@ module Pry::Config::Behavior
 
   def inherited_by(other)
     if @inherited_by
-      raise RuntimeError, "instance of Pry::Config should be inherited by only one instance"
+      raise RuntimeError, "instance of '#{self.class}' cannot reassign its parent."
     else
       @inherited_by = other
     end
