@@ -184,8 +184,8 @@ class Pry
       _ex_: last_exception,
       _file_: last_file,
       _dir_: last_dir,
-      _: last_result,
-      __: output_array[-2]
+      _: proc { last_result },
+      __: proc { output_array[-2] }
     }.merge(config.extra_sticky_locals)
   end
 
