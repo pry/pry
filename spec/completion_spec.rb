@@ -7,11 +7,16 @@ def completer_test(bind, pry=nil, assert_flag=true)
 end
 
 describe 'Bond-based completion' do
+  before do
+    @local = Pry::Config.new Pry::Config::Default.new
+    @local.completer
+  end
+
   it "should use Bond if it's available" do
     if defined?(Bond) && defined?(Readline) && Readline::VERSION !~ /editline/i
-      Pry.config.completer.should == Pry::BondCompleter
+      @local.completer.should == Pry::BondCompleter
     else
-      Pry.config.completer.should == Pry::InputCompleter
+      @local.completer.should == Pry::InputCompleter
     end
   end
 end
