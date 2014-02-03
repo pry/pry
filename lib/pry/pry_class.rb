@@ -10,11 +10,11 @@ class Pry
     attr_accessor :current_line
     attr_accessor :line_buffer
     attr_accessor :eval_path
-    attr_accessor :history
     attr_accessor :cli
     attr_accessor :quiet
     attr_accessor :last_internal_error
     attr_accessor :config
+    attr_writer :history
 
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -27,6 +27,10 @@ class Pry
 
     def prompt
       config.prompt
+    end
+
+    def history
+      @history ||= History.new
     end
   end
 
@@ -233,15 +237,22 @@ class Pry
   end
 
   def self.auto_resize!
-    ver = Readline::VERSION
-    if ver[/edit/i]
+    Pry.config.input # by default, load Readline
+
+    if !defined?(Readline) || Pry.config.input != Readline
+      warn "Sorry, you must be using Readline for Pry.auto_resize! to work."
+      return
+    end
+
+    if Readline::VERSION =~ /edit/i
       warn <<-EOT
-Readline version #{ver} detected - will not auto_resize! correctly.
+Readline version #{Readline::VERSION} detected - will not auto_resize! correctly.
   For the fix, use GNU Readline instead:
   https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X
       EOT
       return
     end
+
     trap :WINCH do
       begin
         Readline.set_screen_size(*Terminal.size!)
@@ -269,7 +280,6 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   # Basic initialization.
   def self.init
     @plugin_manager ||= PluginManager.new
-    self.history ||= History.new
     reset_defaults
     locate_plugins
   end

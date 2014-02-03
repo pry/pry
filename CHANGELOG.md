@@ -21,7 +21,8 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
-* improve configuration(Pry.config) to lazy-load default configuration values. (#1096)
+* default configuration(Pry.config) lazy loads its values. (#1096)
+* require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
 
 #### Bug fixes, etc.
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)

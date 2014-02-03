@@ -2,7 +2,7 @@ class Pry::Config::Default
   include Pry::Config::Behavior
 
   default = {
-    :input                  => proc { Readline },
+    :input                  => proc { lazy_readline },
     :output                 => proc { $stdout },
     :commands               => proc { Pry::Commands },
     :prompt_name            => proc { Pry::DEFAULT_PROMPT_NAME },
@@ -35,13 +35,7 @@ class Pry::Config::Default
     :extra_sticky_locals    => proc { {} },
     :command_completer      => proc { proc { Pry.commands.commands.keys } },
     :file_completer         => proc { proc { Dir["."] } },
-    :completer => proc {
-      if defined?(Bond) && Readline::VERSION !~ /editline/i
-        Pry::BondCompleter.start
-      else
-        Pry::InputCompleter.start
-      end
-    }
+    :completer              => proc { lazy_completer }
   }
 
   def initialize
@@ -54,13 +48,14 @@ class Pry::Config::Default
   default.each do |key, value|
     define_method(key) do
       if default[key].equal?(value)
-        default[key] = value.call
+        default[key] = instance_eval(&value)
       end
       default[key]
     end
   end
 
 private
+
   # TODO:
   # all of this configure_* stuff is a relic of old code.
   # we should try move this code to being command-local.
@@ -100,5 +95,29 @@ private
       history.should_save = false
       history.should_load = false
     end
+  end
+
+  def lazy_readline
+    require 'readline'
+    Readline
+  rescue LoadError
+    warn "Sorry, you can't use Pry without Readline or a compatible library."
+    warn "Possible solutions:"
+    warn " * Rebuild Ruby with Readline support using `--with-readline`"
+    warn " * Use the rb-readline gem, which is a pure-Ruby port of Readline"
+    warn " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
+    raise
+  end
+
+  def lazy_completer
+    if defined?(Bond) && !is_editline?(input)
+      Pry::BondCompleter.start
+    else
+      Pry::InputCompleter.start
+    end
+  end
+
+  def is_editline?(input)
+    defined?(input::VERSION) && input::VERSION =~ /editline/i
   end
 end
