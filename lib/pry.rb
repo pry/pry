@@ -137,7 +137,8 @@ if Pry::Helpers::BaseHelpers.jruby?
   begin
     require 'ffi'
   rescue LoadError
-    warn "Need to `gem install ffi`"
+    # TODO: Why do we need this?
+    warn "For a better Pry experience on JRuby, please `gem install ffi`."
   end
 end
 
@@ -148,7 +149,8 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
     # only fail on jruby (where win32console doesn't work).
     # Instead we'll recommend ansicon, which does.
   rescue LoadError
-    warn "For a better pry experience, please use ansicon: https://github.com/adoxa/ansicon"
+    warn "For a better Pry experience on Windows, please use ansicon:"
+    warn "   http://adoxa.3eeweb.com/ansicon/"
   end
 end
 
