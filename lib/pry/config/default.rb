@@ -105,6 +105,7 @@ private
     warn "Possible solutions:"
     warn " * Rebuild Ruby with Readline support using `--with-readline`"
     warn " * Use the rb-readline gem, which is a pure-Ruby port of Readline"
+    warn " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
     raise
   end
 
