@@ -65,13 +65,6 @@ methods. The additional docs are accessed through the `show-doc` and
 * Read the [YARD API documentation](http://rdoc.info/github/pry/pry/master/file/README.markdown)
 * See the [source code](http://github.com/pry/pry)
 
-Pry also has `rubygems-test` support; to participate, first install
-Pry, then:
-
-1. Install rubygems-test: `gem install rubygems-test`
-2. Run the test: `gem test pry`
-3. Finally choose 'Yes' to upload the results.
-
 ### Commands
 
 Nearly every piece of functionality in a Pry session is implemented as
