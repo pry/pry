@@ -6,16 +6,22 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
-if defined?(Bond) && Readline::VERSION !~ /editline/i
-  describe 'bond-based completion' do
-    it 'should pull in Bond by default' do
-      Pry.config.completer.should == Pry::BondCompleter
+describe 'Bond-based completion' do
+  before do
+    @local = Pry::Config.new Pry::Config::Default.new
+    @local.completer
+  end
+
+  it "should use Bond if it's available" do
+    if defined?(Bond) && defined?(Readline) && Readline::VERSION !~ /editline/i
+      @local.completer.should == Pry::BondCompleter
+    else
+      @local.completer.should == Pry::InputCompleter
     end
   end
 end
 
 describe Pry::InputCompleter do
-
   before do
     # The AMQP gem has some classes like this:
     #  pry(main)> AMQP::Protocol::Test::ContentOk.name
