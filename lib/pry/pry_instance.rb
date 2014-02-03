@@ -40,6 +40,7 @@ class Pry
 
   extend Pry::Config::Convenience
   config_shortcut *Pry::Config.shortcuts
+  EMPTY_COMPLETIONS = [].freeze
 
   # Create a new {Pry} instance.
   # @param [Hash] options
@@ -131,6 +132,7 @@ class Pry
   # @param [String] input What the user has typed so far
   # @return [Array<String>] Possible completions
   def complete(input)
+    return EMPTY_COMPLETIONS unless config.completer
     Pry.critical_section do
       config.completer.call input, :target => current_binding,
         :pry => self,
