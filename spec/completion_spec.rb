@@ -8,7 +8,7 @@ end
 
 describe 'Bond-based completion' do
   it "should use Bond if it's available" do
-    if defined?(Bond) && Readline::VERSION !~ /editline/i
+    if defined?(Bond) && defined?(Readline) && Readline::VERSION !~ /editline/i
       Pry.config.completer.should == Pry::BondCompleter
     else
       Pry.config.completer.should == Pry::InputCompleter
