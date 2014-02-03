@@ -2,7 +2,6 @@ class Pry
   # The History class is responsible for maintaining the user's input history,
   # both internally and within Readline.
   class History
-
     attr_accessor :loader, :saver, :pusher, :clearer
 
     # @return [Fixnum] Number of lines in history when Pry first loaded.
@@ -17,10 +16,18 @@ class Pry
 
     # Assign the default methods for loading, saving, pushing, and clearing.
     def restore_default_behavior
-      @loader  = method(:read_from_file)
-      @saver   = method(:save_to_file)
-      @pusher  = method(:push_to_readline)
-      @clearer = method(:clear_readline)
+      Pry.config.input # force Readline to load if applicable
+
+      @loader = method(:read_from_file)
+      @saver  = method(:save_to_file)
+
+      if defined?(Readline)
+        @pusher  = method(:push_to_readline)
+        @clearer = method(:clear_readline)
+      else
+        @pusher  = proc { }
+        @clearer = proc { }
+      end
     end
 
     # Load the input history using `History.loader`.

@@ -10,11 +10,11 @@ class Pry
     attr_accessor :current_line
     attr_accessor :line_buffer
     attr_accessor :eval_path
-    attr_accessor :history
     attr_accessor :cli
     attr_accessor :quiet
     attr_accessor :last_internal_error
     attr_accessor :config
+    attr_writer :history
 
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
@@ -27,6 +27,10 @@ class Pry
 
     def prompt
       config.prompt
+    end
+
+    def history
+      @history ||= History.new
     end
   end
 
@@ -276,7 +280,6 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # Basic initialization.
   def self.init
     @plugin_manager ||= PluginManager.new
-    self.history ||= History.new
     reset_defaults
     locate_plugins
   end
