@@ -10,7 +10,7 @@ rvm:
 
 script:
   - rake spec
-  - bundle exec bacon spec/integration/readline_spec.rb
+  - bundle exec bacon spec/isolation/readline_spec.rb
 
 matrix:
   allow_failures:
