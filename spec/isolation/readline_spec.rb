@@ -1,6 +1,5 @@
 require "bundler/setup"
 require "bacon"
-
 describe "Readline" do
   describe "on require of 'pry'" do
     it "is not made available" do
