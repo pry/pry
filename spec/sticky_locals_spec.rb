@@ -40,6 +40,21 @@ describe "Sticky locals (_file_ and friends)" do
     Pry.commands.delete "file-and-dir-test"
   end
 
+  it 'locals should return last result (_)' do
+    pry_tester.tap do |t|
+      lam = t.eval 'lambda { |foo| }'
+      t.eval('_').should == lam
+    end
+  end
+
+  it 'locals should return second last result (__)' do
+    pry_tester.tap do |t|
+      lam = t.eval 'lambda { |foo| }'
+      t.eval 'num = 1'
+      t.eval('__').should == lam
+    end
+  end
+
   describe "User defined sticky locals" do
     describe "setting as Pry.config option" do
       it 'should define a new sticky local for the session (normal value)' do
