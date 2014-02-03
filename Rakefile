@@ -21,15 +21,6 @@ end
 desc "Set up and run tests"
 task :default => [:test]
 
-unless [].respond_to? :shuffle!
-  class Array
-    def shuffle!
-      # TODO: fill this in if anyone cares
-      self
-    end
-  end
-end
-
 def run_specs paths
   quiet = ENV['VERBOSE'] ? '' : '-q'
   exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
