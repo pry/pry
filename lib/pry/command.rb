@@ -248,7 +248,7 @@ class Pry
     end
 
     def commands
-      command_set.commands
+      command_set.to_hash
     end
 
     def text
