@@ -1,7 +1,7 @@
 class Pry
   class Command::WatchExpression
     class Expression
-      NODUP = [TrueClass, FalseClass, NilClass, Numeric].freeze
+      NODUP = [TrueClass, FalseClass, NilClass, Numeric, Symbol].freeze
       attr_reader :target, :source, :value, :previous_value
 
       def initialize(target, source)
