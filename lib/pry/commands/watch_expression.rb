@@ -49,7 +49,7 @@ class Pry
     private
 
     def expressions
-      Pry.config.watch_expressions ||= []
+      _pry_.config.watch_expressions ||= []
     end
 
     def delete(index)
