@@ -4,7 +4,7 @@ class Pry
 
     match 'watch'
     group 'Context'
-    description 'Evaluate an expression after every command and display it when its value changes.'
+    description 'Watch the value of an expression and print a notification whenever it changes.'
     command_options :use_prefix => false
 
     banner <<-'BANNER'
@@ -12,7 +12,18 @@ class Pry
              watch
              watch --delete [INDEX]
 
-      Evaluate an expression after every command and display it when its value changes.
+      watch [EXPRESSION] adds an expression to the list of those being watched.
+      It will be re-evaluated every time you hit enter in pry. If its value has
+      changed, the new value will be printed to the console.
+
+      This is useful if you are step-through debugging and want to see how
+      something changes over time.  It's also useful if you're trying to write
+      a method inside pry and want to check that it gives the right answers
+      every time you redefine it.
+
+      watch on its own displays all the currently watched expressions and their
+      values, and watch --delete [INDEX] allows you to delete expressions from
+      the list being watched.
     BANNER
 
     def options(opt)
