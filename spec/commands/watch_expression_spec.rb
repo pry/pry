@@ -51,6 +51,19 @@ describe "watch expression" do
     end
   end
 
+  it "prints when an expression is mutated" do
+    ReplTester.start do
+      input 'a = "one"'
+      output '=> "one"'
+
+      input 'watch a'
+      output %(Watching a\nwatch: a => "one")
+
+      input "a.sub! 'o', 'p'"
+      output %(watch: a => "pne"\n=> "pne")
+    end
+  end
+
   it "doesn't print when an expresison remains the same" do
     ReplTester.start do
       input 'a = 1'

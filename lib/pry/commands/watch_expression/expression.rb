@@ -11,6 +11,10 @@ class Pry
       def eval!
         @previous_value = value
         @value = target_eval(target, source)
+        begin
+          @value = @value.dup
+        rescue Pry::RescuableException
+        end
       end
 
       def to_s
