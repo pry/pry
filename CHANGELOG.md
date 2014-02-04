@@ -23,11 +23,6 @@
 * require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
 * add option to disable input completer through `_pry_.config.completer = nil`
 
-#### API change.
-* CommandSet#commands, sometimes referenced through Pry.commands.commands, renamed as 'CommandSet#to_hash'.
-  it returns a duplicate of the internal hash a CommandSet uses.
-* CommandSet#keys is now an alias of CommandSet#list_commands.
-
 #### Bug fixes, etc.
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
@@ -50,6 +45,9 @@
 * Fix bug in `edit` regarding recognition of file names without suffix.
 
 #### Dev-facing changes
+* CommandSet#commands, sometimes referenced through Pry.commands.commands, renamed as 'CommandSet#to_hash'.
+  it returns a duplicate of the internal hash a CommandSet uses.
+* CommandSet#keys is now an alias of CommandSet#list_commands.
 * through changes to configuration, all commands should reference configuration values
   via `_pry_.config` and not `Pry.config`. (#1096)
 * improve configuration(Pry::Config) for easier support of concurrent environments
