@@ -1,9 +1,7 @@
 ### 1.0.0 (2013/??/??)
 #### Dependency changes
 
-* 1.8 support discontinued from 1.0+ onwards.
-  * 0.9.12+ may continue to provide 1.8+ bug fixes.
-
+* 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
 * Require Coderay `>= 1.1.0`
 
 #### Features
@@ -24,6 +22,11 @@
 * default configuration(Pry.config) lazy loads its values. (#1096)
 * require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
 * add option to disable input completer through `_pry_.config.completer = nil`
+
+#### API change.
+* CommandSet#commands, sometimes referenced through Pry.commands.commands, renamed as 'CommandSet#to_hash'.
+  it returns a duplicate of the internal hash a CommandSet uses.
+* CommandSet#keys is now an alias of CommandSet#list_commands.
 
 #### Bug fixes, etc.
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)

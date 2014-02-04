@@ -33,7 +33,7 @@ class Pry::Config::Default
     :control_d_handler      => proc { Pry::DEFAULT_CONTROL_D_HANDLER },
     :memory_size            => proc { 100 },
     :extra_sticky_locals    => proc { {} },
-    :command_completions    => proc { proc { commands.commands.keys } },
+    :command_completions    => proc { proc { commands.keys } },
     :file_completions       => proc { proc { Dir["."] } },
     :completer              => proc { lazy_completer }
   }
