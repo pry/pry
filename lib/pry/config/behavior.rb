@@ -1,6 +1,6 @@
 module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, Module, Proc, Numeric].freeze
+  NODUP = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
   RESERVED_KEYS = [
                    "[]", "[]=", "merge!",
                    "respond_to?", "key?", "refresh",
