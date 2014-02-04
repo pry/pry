@@ -5,6 +5,7 @@
 * Require Coderay `>= 1.1.0`
 
 #### Features
+* Added a `watch` command that lets you see how values change over time.
 * Added an experimental `Pry.auto_resize!` method
   * Makes Pry notice that your window has resized and tell Readline about it
   * Fixes various bugs with command history after a window resize
