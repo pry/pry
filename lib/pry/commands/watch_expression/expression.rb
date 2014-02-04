@@ -1,6 +1,7 @@
 class Pry
   class Command::WatchExpression
     class Expression
+      NODUP = [TrueClass, FalseClass, NilClass, Numeric].freeze
       attr_reader :target, :source, :value, :previous_value
 
       def initialize(target, source)
@@ -11,10 +12,7 @@ class Pry
       def eval!
         @previous_value = value
         @value = target_eval(target, source)
-        begin
-          @value = @value.dup
-        rescue Pry::RescuableException
-        end
+        @value = @value.dup unless NODUP.any? { |klass| klass === @value }
       end
 
       def to_s
