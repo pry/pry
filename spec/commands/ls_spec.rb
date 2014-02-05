@@ -47,6 +47,12 @@ describe "ls" do
     end
   end
 
+  describe "immediates" do
+    it "should work on Fixnum" do
+      pry_eval("ls 5").should =~ /Fixnum#methods:.*modulo/m
+    end
+  end
+
   describe "methods" do
     it "should show public methods by default" do
       output = pry_eval("ls Class.new{ def goo; end; public :goo }.new")

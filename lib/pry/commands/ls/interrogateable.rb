@@ -10,9 +10,8 @@ module Pry::Command::Ls::Interrogateable
     if interrogating_a_module?
       @interrogatee
     else
-      class << @interrogatee
-        ancestors.grep(::Class).reject { |c| c == self }.first
-      end
+      singleton = Pry::Method.singleton_class_of(@interrogatee)
+      singleton.ancestors.grep(::Class).reject { |c| c == singleton }.first
     end
   end
 
