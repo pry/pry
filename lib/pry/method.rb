@@ -192,8 +192,6 @@ class Pry
         /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*#{Regexp.escape(name)}/ =~ definition_line.strip
       end
 
-      private
-
       # Get the singleton classes of superclasses that could define methods on
       # the given class object, and any modules they include.
       # If a module is included at multiple points in the ancestry, only
@@ -207,7 +205,13 @@ class Pry
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end
 
-      def singleton_class_of(obj); class << obj; self; end end
+      def singleton_class_of(obj)
+        begin
+          class << obj; self; end
+        rescue TypeError # can't define singleton. Fixnum, Symbol, Float, ...
+          obj.class
+        end
+      end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
