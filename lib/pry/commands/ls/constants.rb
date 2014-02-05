@@ -1,10 +1,10 @@
-require 'pry/commands/ls/interrogateable'
+require 'pry/commands/ls/interrogatable'
 
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
 
-      include Pry::Command::Ls::Interrogateable
+      include Pry::Command::Ls::Interrogatable
 
       def initialize(interrogatee, target, no_user_opts, opts)
         super(target)
