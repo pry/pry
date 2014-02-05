@@ -19,9 +19,9 @@ class Pry
   end
 
   # The default print
-  DEFAULT_PRINT = proc do |output, value|
+  DEFAULT_PRINT = proc do |output, value, _pry_|
     Pry::Pager.with_pager(output) do |pager|
-      pager.print "=> "
+      pager.print _pry_.config.output_prefix
       Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
     end
   end
