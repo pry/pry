@@ -1,4 +1,4 @@
-module Pry::Command::Ls::Interrogateable
+module Pry::Command::Ls::Interrogatable
 
   private
 

@@ -1,11 +1,11 @@
 require 'pry/commands/ls/methods_helper'
-require 'pry/commands/ls/interrogateable'
+require 'pry/commands/ls/interrogatable'
 
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Methods < Pry::Command::Ls::Formatter
 
-      include Pry::Command::Ls::Interrogateable
+      include Pry::Command::Ls::Interrogatable
       include Pry::Command::Ls::MethodsHelper
 
       def initialize(interrogatee, no_user_opts, opts)
