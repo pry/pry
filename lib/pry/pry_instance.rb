@@ -347,7 +347,7 @@ class Pry
     if last_result_is_exception?
       exception_handler.call(output, result, self)
     elsif should_print?
-      print.call(output, result)
+      print.call(output, result, self)
     else
       # nothin'
     end
