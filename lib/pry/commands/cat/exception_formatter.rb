@@ -1,9 +1,9 @@
 class Pry
   class Command::Cat
     class ExceptionFormatter < AbstractFormatter
-      attr_accessor :ex
-      attr_accessor :opts
-      attr_accessor :_pry_
+      attr_reader :ex
+      attr_reader :opts
+      attr_reader :_pry_
 
       def initialize(exception, _pry_, opts)
         @ex = exception
@@ -23,7 +23,7 @@ class Pry
       private
 
       def code_window_size
-        Pry.config.default_window_size || 5
+        _pry_.config.default_window_size || 5
       end
 
       def backtrace_level
