@@ -178,7 +178,7 @@ class Pry
 
     def window_size
       if args.empty?
-        Pry.config.default_window_size
+        _pry_.config.default_window_size
       else
         args.first.to_i
       end
