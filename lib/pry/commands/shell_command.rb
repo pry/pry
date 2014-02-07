@@ -20,11 +20,10 @@ class Pry
         process_cd parse_destination($1)
       else
         pass_block(cmd)
-
         if command_block
           command_block.call `#{cmd}`
         else
-          Pry.config.system.call(output, cmd, _pry_)
+          _pry_.config.system.call(output, cmd, _pry_)
         end
       end
     end
