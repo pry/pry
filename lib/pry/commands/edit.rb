@@ -165,7 +165,7 @@ class Pry
     end
 
     def never_reload?
-      opts.present?(:'no-reload') || Pry.config.disable_auto_reload
+      opts.present?(:'no-reload') || _pry_.config.disable_auto_reload
     end
 
     def reload?(file_name="")
