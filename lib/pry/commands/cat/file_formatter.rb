@@ -1,9 +1,9 @@
 class Pry
   class Command::Cat
     class FileFormatter < AbstractFormatter
-      attr_accessor :file_with_embedded_line
-      attr_accessor :opts
-      attr_accessor :_pry_
+      attr_reader :file_with_embedded_line
+      attr_reader :opts
+      attr_reader :_pry_
 
       def initialize(file_with_embedded_line, _pry_, opts)
         @file_with_embedded_line = file_with_embedded_line
@@ -36,7 +36,7 @@ class Pry
       end
 
       def code_window_size
-        Pry.config.default_window_size || 7
+        _pry_.config.default_window_size || 7
       end
 
       def decorate(content)
@@ -49,7 +49,7 @@ class Pry
 
       def detect_code_type_from_file(file_name)
         code_type = @code_from_file.code_type
-        
+
         if code_type == :unknown
           name, ext = File.basename(file_name).split('.', 2)
           case name
