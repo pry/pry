@@ -1,34 +1,28 @@
 class Pry
   class Command::WatchExpression
     class Expression
-      NODUP = [TrueClass, FalseClass, NilClass, Numeric, Symbol].freeze
       attr_reader :target, :source, :value, :previous_value
 
       def initialize(target, source)
         @target = target
-        @source = source
+        @source = Code.new(source).strip
       end
 
       def eval!
-        @previous_value = value
-        @value = target_eval(target, source)
-        @value = @value.dup unless NODUP.any? { |klass| klass === @value }
+        @previous_value = @value
+        @value = Pry::ColorPrinter.pp(target_eval(target, source), "")
       end
 
       def to_s
-        "#{print_source} => #{print_value}"
+        "#{source} => #{value}"
       end
 
+      # Has the value of the expression changed?
+      #
+      # We use the pretty-printed string represenation to detect differences
+      # as this avoids problems with dup (causes too many differences) and == (causes too few)
       def changed?
         (value != previous_value)
-      end
-
-      def print_value
-        Pry::ColorPrinter.pp(value, "")
-      end
-
-      def print_source
-        Code.new(source).strip
       end
 
       private
