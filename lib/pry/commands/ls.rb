@@ -59,11 +59,10 @@ class Pry
 
       ls_entity = LsEntity.new({
         :interrogatee => @interrogatee,
-        :target => target,
         :no_user_opts => no_user_opts?,
         :opts => opts,
-        :sticky_locals => _pry_.sticky_locals,
-        :args => args
+        :args => args,
+        :_pry_ => _pry_
       })
 
       stagger_output(ls_entity.entities_table)
