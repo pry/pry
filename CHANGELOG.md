@@ -73,6 +73,15 @@
   methods of determining the terminal's dimensions
 * Add `ReplTester` class for high-level simulation of Pry sessions in tests
 
+### 0.9.12.6 (2014/01/28)
+* Don't fail if Bond is not installed (#1106)
+
+### 0.9.12.5 (2014/01/27)
+* Fix early readline errors by deferring require of readline (#1081, #1095)
+
+### 0.9.12.4 (2013/11/23)
+* Fix issue with Coderay colors being black, even when on a black background (#1016)
+
 ### 0.9.12.3 (2013/09/11)
 * Bump Coderay dependency (#987)
 * Fix consecutive newlines in heredocs being collapsed (#962)
