@@ -8,7 +8,8 @@ describe Pry::CommandSet do
 
     @ctx = {
       :target => binding,
-      :command_set => @set
+      :command_set => @set,
+      :pry_instance => Pry.new
     }
   end
 
@@ -181,6 +182,23 @@ describe Pry::CommandSet do
 
       @set.run_command @ctx, 'bar'
       run.should == true
+    end
+
+    it "should be able to alias command with command_prefix" do
+      run = false
+      begin
+        @set.command('owl', 'stuff') { run = true }
+        @set.alias_command 'owlet', 'owl'
+
+        Pry.config.command_prefix = '%'
+        @set['%owlet'].match.should == 'owlet'
+        @set['%owlet'].description.should == 'Alias for `owl`'
+
+        @set.run_command @ctx, 'owlet'
+        run.should == true
+      ensure
+        Pry.config.command_prefix = ''
+      end
     end
 
     it 'should inherit options from original command' do
