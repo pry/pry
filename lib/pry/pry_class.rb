@@ -1,15 +1,49 @@
-require 'ostruct'
 require 'pry/config'
-
 class Pry
 
-  # The RC Files to load.
   HOME_RC_FILE = ENV["PRYRC"] || "~/.pryrc"
   LOCAL_RC_FILE = "./.pryrc"
 
-  # @return [Hash] Pry's `Thread.current` hash
+  class << self
+    extend Forwardable
+    attr_accessor :custom_completions
+    attr_accessor :current_line
+    attr_accessor :line_buffer
+    attr_accessor :eval_path
+    attr_accessor :cli
+    attr_accessor :quiet
+    attr_accessor :last_internal_error
+    attr_accessor :config
+    attr_writer :history
+
+    def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
+
+    extend Pry::Config::Convenience
+    config_shortcut *Pry::Config.shortcuts
+
+    def prompt=(value)
+      config.prompt = value
+    end
+
+    def prompt
+      config.prompt
+    end
+
+    def history
+      @history ||= History.new
+    end
+  end
+
+  def self.main
+    @main ||= TOPLEVEL_BINDING.eval "self"
+  end
+
+  #
+  # @return [Pry::Config]
+  #  Returns a value store for an instance of Pry running on the current thread.
+  #
   def self.current
-    Thread.current[:__pry__] ||= {}
+    Thread.current[:__pry__] ||= Pry::Config.from_hash({}, nil)
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
@@ -24,7 +58,9 @@ class Pry
   # This method can also be used to reload the files if they have changed.
   def self.load_rc_files
     rc_files_to_load.each do |file|
-      load_file_at_toplevel(file)
+      critical_section do
+        load_file_at_toplevel(file)
+      end
     end
   end
 
@@ -62,7 +98,6 @@ class Pry
   # Including: loading .pryrc, loading plugins, loading requires, and
   # loading history.
   def self.initial_session_setup
-
     return unless initial_session?
     @initial_session = false
 
@@ -85,6 +120,7 @@ class Pry
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
+    options = options.to_hash
 
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
@@ -93,7 +129,7 @@ class Pry
     end
 
     options[:target] = Pry.binding_for(target || toplevel_binding)
-
+    options[:hooks] = Pry::Hooks.from_hash options.delete(:hooks) if options.key?(:hooks)
     initial_session_setup
 
     # Unless we were given a backtrace, save the current one
@@ -130,8 +166,10 @@ class Pry
   def self.view_clip(obj, max_length = 60)
     if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
       obj.name.to_s
-    elsif TOPLEVEL_BINDING.eval('self') == obj
-      # special case for 'main' object :)
+    elsif Pry.main == obj
+      # special-case to support jruby.
+      # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
+      # we can drop in the future.
       obj.to_s
     elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
@@ -189,7 +227,6 @@ class Pry
   def self.default_editor_for_platform
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
-
     if Helpers::BaseHelpers.windows?
       'notepad'
     else
@@ -200,15 +237,22 @@ class Pry
   end
 
   def self.auto_resize!
-    ver = Readline::VERSION
-    if ver[/edit/i]
+    Pry.config.input # by default, load Readline
+
+    if !defined?(Readline) || Pry.config.input != Readline
+      warn "Sorry, you must be using Readline for Pry.auto_resize! to work."
+      return
+    end
+
+    if Readline::VERSION =~ /edit/i
       warn <<-EOT
-Readline version #{ver} detected - will not auto_resize! correctly.
+Readline version #{Readline::VERSION} detected - will not auto_resize! correctly.
   For the fix, use GNU Readline instead:
   https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X
       EOT
       return
     end
+
     trap :WINCH do
       begin
         Readline.set_screen_size(*Terminal.size!)
@@ -223,105 +267,10 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     end
   end
 
-  def self.set_config_defaults
-    config.input = Readline
-    config.output = $stdout
-    config.commands = Pry::Commands
-    config.prompt_name = DEFAULT_PROMPT_NAME
-    config.prompt = DEFAULT_PROMPT
-    config.prompt_safe_objects = DEFAULT_PROMPT_SAFE_OBJECTS
-    config.print = DEFAULT_PRINT
-    config.exception_handler = DEFAULT_EXCEPTION_HANDLER
-    config.exception_whitelist = DEFAULT_EXCEPTION_WHITELIST
-    config.default_window_size = 5
-    config.hooks = DEFAULT_HOOKS
-    config.color = Helpers::BaseHelpers.use_ansi_codes?
-    config.pager = true
-    config.system = DEFAULT_SYSTEM
-    config.editor = default_editor_for_platform
-    config.should_load_rc = true
-    config.should_load_local_rc = true
-    config.should_trap_interrupts = Helpers::BaseHelpers.jruby?
-    config.disable_auto_reload = false
-    config.command_prefix = ""
-    config.auto_indent = Helpers::BaseHelpers.use_ansi_codes?
-    config.correct_indent = true
-    config.collision_warning = false
-    config.output_prefix = "=> "
-
-    if defined?(Bond) && Readline::VERSION !~ /editline/i
-      config.completer = Pry::BondCompleter.start
-    else
-      config.completer = Pry::InputCompleter.start
-    end
-
-    config.gist ||= OpenStruct.new
-    config.gist.inspecter = proc(&:pretty_inspect)
-
-    config.should_load_plugins = true
-
-    config.requires ||= []
-    config.should_load_requires = true
-
-    config.history ||= OpenStruct.new
-    config.history.should_save = true
-    config.history.should_load = true
-    config.history.file = File.expand_path("~/.pry_history") rescue nil
-
-    if config.history.file.nil?
-      config.should_load_rc = false
-      config.history.should_save = false
-      config.history.should_load = false
-    end
-
-    config.control_d_handler = DEFAULT_CONTROL_D_HANDLER
-
-    config.memory_size = 100
-
-    config.extra_sticky_locals = {}
-
-    config.ls ||= OpenStruct.new({
-      :heading_color            => :bright_blue,
-
-      :public_method_color      => :default,
-      :private_method_color     => :blue,
-      :protected_method_color   => :blue,
-      :method_missing_color     => :bright_red,
-
-      :local_var_color          => :yellow,
-      :pry_var_color            => :default,     # e.g. _, _pry_, _file_
-
-      :instance_var_color       => :blue,        # e.g. @foo
-      :class_var_color          => :bright_blue, # e.g. @@foo
-
-      :global_var_color         => :default,     # e.g. $CODERAY_DEBUG, $eventmachine_library
-      :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
-      :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
-
-      :constant_color           => :default,     # e.g. VERSION, ARGF
-      :class_constant_color     => :blue,        # e.g. Object, Kernel
-      :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
-      :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state
-
-      # What should separate items listed by ls?
-      :separator                => "  ",
-
-      # Any methods defined on these classes, or modules included into these classes, will not
-      # be shown by ls unless the -v flag is used.
-      # A user of Rails may wih to add ActiveRecord::Base to the list.
-      # add the following to your .pryrc:
-      # Pry.config.ls.ceiling << ActiveRecord::Base if defined? ActiveRecordBase
-      :ceiling                  => [Object, Module, Class]
-    })
-  end
-
   # Set all the configurable options back to their default values
   def self.reset_defaults
-    set_config_defaults
-
     @initial_session = true
-
-    self.custom_completions = DEFAULT_CUSTOM_COMPLETIONS
+    self.config = Pry::Config.new Pry::Config::Default.new
     self.cli = false
     self.current_line = 1
     self.line_buffer = [""]
@@ -331,9 +280,6 @@ Readline version #{ver} detected - will not auto_resize! correctly.
   # Basic initialization.
   def self.init
     @plugin_manager ||= PluginManager.new
-    self.config ||= Config.new
-    self.history ||= History.new
-
     reset_defaults
     locate_plugins
   end
@@ -347,7 +293,7 @@ Readline version #{ver} detected - will not auto_resize! correctly.
     if Binding === target
       target
     else
-      if TOPLEVEL_BINDING.eval('self') == target
+      if Pry.main == target
         TOPLEVEL_BINDING
       else
         target.__binding__

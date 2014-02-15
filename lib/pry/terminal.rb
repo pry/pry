@@ -44,7 +44,8 @@ class Pry::Terminal
       require 'io/console'
       $stdout.winsize if $stdout.tty? and $stdout.respond_to?(:winsize)
     rescue LoadError
-      # They're probably on 1.8 without the io-console gem. We'll keep trying.
+      # They probably don't have the io/console stdlib or the io-console gem.
+      # We'll keep trying.
     end
 
     def screen_size_according_to_env
@@ -53,7 +54,7 @@ class Pry::Terminal
     end
 
     def screen_size_according_to_readline
-      if Readline.respond_to?(:get_screen_size)
+      if defined?(Readline) && Readline.respond_to?(:get_screen_size)
         size = Readline.get_screen_size
         size if nonzero_column?(size)
       end

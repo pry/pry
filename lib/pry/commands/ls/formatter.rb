@@ -1,11 +1,12 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Formatter
-
       attr_accessor :grep
+      attr_reader :_pry_
 
-      def initialize(target)
-        @target = target
+      def initialize(_pry_)
+        @_pry_ = _pry_
+        @target = _pry_.current_context
       end
 
       def write_out
@@ -16,7 +17,7 @@ class Pry
       private
 
       def color(type, str)
-        Pry::Helpers::Text.send(Pry.config.ls.send(:"#{type}_color"), str)
+        Pry::Helpers::Text.send _pry_.config.ls["#{type}_color"], str
       end
 
       # Add a new section to the output.

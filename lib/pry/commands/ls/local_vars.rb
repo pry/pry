@@ -2,10 +2,10 @@ class Pry
   class Command::Ls < Pry::ClassCommand
     class LocalVars < Pry::Command::Ls::Formatter
 
-      def initialize(target, sticky_locals, opts)
-        super(target)
-        @sticky_locals = sticky_locals
+      def initialize(opts, _pry_)
+        super(_pry_)
         @default_switch = opts[:locals]
+        @sticky_locals = _pry_.sticky_locals
       end
 
       def output_self

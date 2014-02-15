@@ -144,7 +144,8 @@ describe Pry::Method do
       m.name.should == "gag"
     end
 
-    if defined?(BasicObject) && !Pry::Helpers::BaseHelpers.rbx? # rubinius issue 1921
+    # Temporarily disabled to work around rubinius/rubinius#2871.
+    unless Pry::Helpers::BaseHelpers.rbx?
       it "should find the right method from a BasicObject" do
         a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
 
@@ -433,8 +434,8 @@ describe Pry::Method do
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
         Pry::Method.resolution_order(LS::Top).should ==
-          [singleton_class(LS::Top), singleton_class(Object), (defined? BasicObject) && singleton_class(BasicObject)].compact +
-          Pry::Method.instance_resolution_order(Class)
+          [singleton_class(LS::Top), singleton_class(Object), singleton_class(BasicObject),
+           *Pry::Method.instance_resolution_order(Class)]
       end
     end
   end
@@ -496,15 +497,11 @@ describe Pry::Method do
       end
     end
 
-    unless Pry::Helpers::BaseHelpers.mri_18?
-      # Ruby 1.8 doesn't support this feature.
-      it 'should be able to find aliases for methods implemented in C' do
-        meth = Pry::Method(Hash.new.method(:key?))
-        aliases = Set.new(meth.aliases)
+    it 'should be able to find aliases for methods implemented in C' do
+      meth = Pry::Method(Hash.new.method(:key?))
+      aliases = Set.new(meth.aliases)
 
-        aliases.should == Set.new(["include?", "member?", "has_key?"])
-      end
+      aliases.should == Set.new(["include?", "member?", "has_key?"])
     end
-
   end
 end

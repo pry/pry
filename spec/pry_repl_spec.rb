@@ -47,7 +47,7 @@ describe "The whole thing" do
 
     it "shouldn't break if we start a nested instance" do
       ReplTester.start do
-        input  'Pry.start(10)'
+        input  'Pry.start(10, _pry_.config)'
         output ''
         prompt /10.*> $/
 

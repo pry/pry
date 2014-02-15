@@ -21,15 +21,6 @@ end
 desc "Set up and run tests"
 task :default => [:test]
 
-unless [].respond_to? :shuffle!
-  class Array
-    def shuffle!
-      # TODO: fill this in if anyone cares
-      self
-    end
-  end
-end
-
 def run_specs paths
   quiet = ENV['VERBOSE'] ? '' : '-q'
   exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
@@ -42,7 +33,7 @@ task :test do
     if explicit_list = ENV['run']
       explicit_list.split(',')
     else
-      Dir['spec/**/*_spec.rb'].shuffle!
+      (Dir['spec/**/*_spec.rb'] - Dir["spec/isolation/*_spec.rb"]).shuffle!
     end
   run_specs paths
 end

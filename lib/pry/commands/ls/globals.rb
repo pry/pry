@@ -19,8 +19,8 @@ class Pry
            $CHILD_STATUS $SAFE $ERROR_INFO $ERROR_POSITION $LAST_MATCH_INFO
            $LAST_PAREN_MATCH $LAST_READ_LINE $MATCH $POSTMATCH $PREMATCH)
 
-      def initialize(target, opts)
-        super(target)
+      def initialize(opts, _pry_)
+        super(_pry_)
         @default_switch = opts[:globals]
       end
 
@@ -32,7 +32,7 @@ class Pry
       private
 
       def format(globals)
-        globals.sort_by(&:downcase).map do |name|
+        globals.map(&:to_s).sort_by(&:downcase).map do |name|
           if PSEUDO_GLOBALS.include?(name)
             color(:pseudo_global, name)
           elsif BUILTIN_GLOBALS.include?(name)

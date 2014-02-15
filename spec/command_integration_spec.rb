@@ -473,22 +473,23 @@ describe "commands" do
       end
     end
 
-    klass.commands.include?("nesting").should == true
-    klass.commands.include?("jump-to").should == true
-    klass.commands.include?("cd").should == true
-    klass.commands.include?("v").should == true
+    klass.to_hash.include?("nesting").should == true
+    klass.to_hash.include?("jump-to").should == true
+    klass.to_hash.include?("cd").should == true
+    klass.to_hash.include?("v").should == true
   end
 
   it 'should change description of a command using desc' do
     klass = Pry::CommandSet.new do
       import Pry::Commands
     end
-    orig = klass.commands["help"].description
+    orig = klass["help"].description
     klass.instance_eval do
       desc "help", "blah"
     end
-    klass.commands["help"].description.should.not == orig
-    klass.commands["help"].description.should == "blah"
+    commands = klass.to_hash
+    commands["help"].description.should.not == orig
+    commands["help"].description.should == "blah"
   end
 
   it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
@@ -512,8 +513,8 @@ describe "commands" do
       import_from Pry::Commands, "ls", "jump-to"
     end
 
-    klass.commands.include?("ls").should == true
-    klass.commands.include?("jump-to").should == true
+    klass.to_hash.include?("ls").should == true
+    klass.to_hash.include?("jump-to").should == true
   end
 
   it 'should delete some inherited commands when using delete method' do
@@ -525,13 +526,14 @@ describe "commands" do
       delete "ls"
     end
 
-    klass.commands.include?("nesting").should == true
-    klass.commands.include?("jump-to").should == true
-    klass.commands.include?("cd").should == true
-    klass.commands.include?("v").should == true
-    klass.commands.include?("show-doc").should == false
-    klass.commands.include?("show-method").should == false
-    klass.commands.include?("ls").should == false
+    commands = klass.to_hash
+    commands.include?("nesting").should == true
+    commands.include?("jump-to").should == true
+    commands.include?("cd").should == true
+    commands.include?("v").should == true
+    commands.include?("show-doc").should == false
+    commands.include?("show-method").should == false
+    commands.include?("ls").should == false
   end
 
   it 'should override some inherited commands' do

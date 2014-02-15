@@ -1,7 +1,6 @@
 require 'helper'
 
 describe "gem-list" do
-  # fixing bug for 1.8 compat
   it 'should not raise when invoked' do
     proc {
       pry_eval(self, 'gem-list')

@@ -44,6 +44,11 @@ class Pry
       content.lines.each do |line|
         break unless _pry_.eval line, :generated => true
       end
+
+      unless _pry_.eval_string.empty?
+        _pry_.output.puts "#{_pry_.eval_string}...exception encountered, going interactive!"
+        interactive_mode(_pry_)
+      end
     end
 
     # Define a few extra commands useful for flipping back & forth

@@ -18,11 +18,11 @@ class Pry
     # @param [Hash] hash The hash to convert to `Pry::Hooks`.
     # @return [Pry::Hooks] The resulting `Pry::Hooks` instance.
     def self.from_hash(hash)
+      return hash if hash.instance_of?(self)
       instance = new
       hash.each do |k, v|
         instance.add_hook(k, nil, v)
       end
-
       instance
     end
 
@@ -146,18 +146,14 @@ class Pry
     def exec_hook(event_name, *args, &block)
       @hooks[event_name] ||= []
 
-      # silence warnings to get rid of 1.8's "warning: multiple values
-      # for a block parameter" warnings
-      Pry::Helpers::BaseHelpers.silence_warnings do
-        @hooks[event_name].map do |hook_name, callable|
-          begin
-            callable.call(*args, &block)
-          rescue RescuableException => e
-            errors << e
-            e
-          end
-        end.last
-      end
+      @hooks[event_name].map do |hook_name, callable|
+        begin
+          callable.call(*args, &block)
+        rescue RescuableException => e
+          errors << e
+          e
+        end
+      end.last
     end
 
     # Return the number of hook functions registered for the `event_name` event.

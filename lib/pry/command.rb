@@ -175,7 +175,7 @@ class Pry
       end
 
       def command_regex
-        pr = defined?(Pry.config.command_prefix) ? Pry.config.command_prefix : ""
+        pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
         prefix = convert_to_regex(pr)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
@@ -194,6 +194,7 @@ class Pry
       # The group in which the command should be displayed in "help" output.
       # This is usually auto-generated from directory naming, but it can be
       # manually overridden if necessary.
+      # Group should not be changed once it is initialized.
       def group(name=nil)
         @group ||= if name
                      name
@@ -248,7 +249,7 @@ class Pry
     end
 
     def commands
-      command_set.commands
+      command_set.to_hash
     end
 
     def text
@@ -284,7 +285,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      _pry_.command_state[match] ||= OpenStruct.new
+      _pry_.command_state[match] ||= Pry::Config.from_hash({})
     end
 
     # Revaluate the string (str) and perform interpolation.

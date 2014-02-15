@@ -109,7 +109,7 @@ class Pry
     end
 
     def top_level?
-      target_self == TOPLEVEL_BINDING.eval("self")
+      target_self == Pry.main
     end
 
     def handle_internal_binding
@@ -178,7 +178,7 @@ class Pry
 
     def window_size
       if args.empty?
-        Pry.config.default_window_size
+        _pry_.config.default_window_size
       else
         args.first.to_i
       end

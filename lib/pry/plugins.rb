@@ -43,7 +43,7 @@ class Pry
       # Does not reload plugin if it's already active.
       def activate!
         # Create the configuration object for the plugin.
-        Pry.config.send("#{gem_name.gsub('-', '_')}=", OpenStruct.new)
+        Pry.config.send("#{gem_name.gsub('-', '_')}=", Pry::Config.from_hash({}))
 
         begin
           require gem_name if !active?

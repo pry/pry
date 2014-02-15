@@ -7,7 +7,7 @@ describe "Prompts" do
       redirect_pry_io(InputTester.new("exit-all")) do
         Pry.start(self, :prompt => proc { |v| config = v })
       end
-      config.is_a?(OpenStruct).should == true
+      config.is_a?(Pry::Config).should == true
     end
 
     it 'should get full config object, when using a proc array' do
@@ -15,7 +15,7 @@ describe "Prompts" do
       redirect_pry_io(InputTester.new("exit-all")) do
         Pry.start(self, :prompt => [proc { |v| config1 = v }, proc { |v| config2 = v }])
       end
-      config1.is_a?(OpenStruct).should == true
+      config1.is_a?(Pry::Config).should == true
     end
 
     it 'should receive correct data in the config object' do

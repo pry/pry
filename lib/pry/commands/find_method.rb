@@ -6,8 +6,6 @@ class Pry
     group 'Context'
     description 'Recursively search for a method within a Class/Module or the current namespace.'
     command_options :shellwords => false
-    command_options :requires_gem => 'ruby18_source_location' if mri_18?
-
 
     banner <<-'BANNER'
       Usage: find-method  [-n|-c] METHOD [NAMESPACE]
@@ -25,10 +23,6 @@ class Pry
       # output.puts inside the Pry namepsace.
       find-method -c 'output.puts' Pry
     BANNER
-
-    def setup
-      require 'ruby18_source_location' if mri_18?
-    end
 
     def options(opti)
       opti.on :n, :name,    "Search for a method by name"
