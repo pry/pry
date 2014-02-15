@@ -186,6 +186,7 @@ describe Pry::CommandSet do
 
     it "should be able to alias command with command_prefix" do
       run = false
+
       begin
         @set.command('owl', 'stuff') { run = true }
         @set.alias_command 'owlet', 'owl'
@@ -547,17 +548,23 @@ describe Pry::CommandSet do
     end
 
     it 'should not find commands without command_prefix' do
-      Pry.config.command_prefix = '%'
-      cmd = @set.command('detritus'){ }
-      @set.find_command('detritus').should == nil
-      Pry.config.command_prefix = ''
+      begin
+        Pry.config.command_prefix = '%'
+        cmd = @set.command('detritus'){ }
+        @set.find_command('detritus').should == nil
+      ensure
+        Pry.config.command_prefix = ''
+      end
     end
 
     it "should find commands that don't use the prefix" do
-      Pry.config.command_prefix = '%'
-      cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
-      @set.find_command('colon').should == cmd
-      Pry.config.command_prefix = ''
+      begin
+        Pry.config.command_prefix = '%'
+        cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
+        @set.find_command('colon').should == cmd
+      ensure
+        Pry.config.command_prefix = ''
+      end
     end
 
     it "should find the command that has the longest match" do
