@@ -1,8 +1,11 @@
 ### 1.0.0 (2013/??/??)
 #### Dependency changes
+
+* 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
 * Require Coderay `>= 1.1.0`
 
 #### Features
+* Added a `watch` command that lets you see how values change over time.
 * Added an experimental `Pry.auto_resize!` method
   * Makes Pry notice that your window has resized and tell Readline about it
   * Fixes various bugs with command history after a window resize
@@ -17,8 +20,12 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
+* default configuration(Pry.config) lazy loads its values. (#1096)
+* require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
+* add option to disable input completer through `_pry_.config.completer = nil`
 
 #### Bug fixes, etc.
+* `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
 * Allow `ls -c <anything>` (#891)
 * Fix indentation not working if the `mathn` stdlib was loaded (#872)
@@ -36,8 +43,16 @@
   being inferred from context (#877)
 * Rename `--installed-plugins` flag to `--plugins`
 * Strip ANSI codes from prompt before measuring length for indentation (#493)
+* Fix bug in `edit` regarding recognition of file names without suffix.
 
 #### Dev-facing changes
+* CommandSet#commands, sometimes referenced through Pry.commands.commands, renamed as 'CommandSet#to_hash'.
+  it returns a duplicate of the internal hash a CommandSet uses.
+* CommandSet#keys is now an alias of CommandSet#list_commands.
+* through changes to configuration, all commands should reference configuration values
+  via `_pry_.config` and not `Pry.config`. (#1096)
+* improve configuration(Pry::Config) for easier support of concurrent environments
+  through a 'pry-local' config who, at times, acts as a 'pry-local store'. (#1096)
 * `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
 * Pagers now act like `IO`s and accept streaming output
   * See `Pager.page` and `Pager.with_pager`
@@ -57,6 +72,15 @@
 * There's a new `Pry::Terminal` class that implements a number of different
   methods of determining the terminal's dimensions
 * Add `ReplTester` class for high-level simulation of Pry sessions in tests
+
+### 0.9.12.6 (2014/01/28)
+* Don't fail if Bond is not installed (#1106)
+
+### 0.9.12.5 (2014/01/27)
+* Fix early readline errors by deferring require of readline (#1081, #1095)
+
+### 0.9.12.4 (2013/11/23)
+* Fix issue with Coderay colors being black, even when on a black background (#1016)
 
 ### 0.9.12.3 (2013/09/11)
 * Bump Coderay dependency (#987)

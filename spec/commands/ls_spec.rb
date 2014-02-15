@@ -34,18 +34,22 @@ describe "ls" do
     end
   end
 
-  if defined?(BasicObject)
-    describe "BasicObject" do
-      it "should work on BasicObject" do
-        pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__send__/m
-      end
+  describe "BasicObject" do
+    it "should work on BasicObject" do
+      pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__send__/m
+    end
 
-      it "should work on subclasses of BasicObject" do
-        pry_eval(
-          "class LessBasic < BasicObject; def jaroussky; 5; end; end",
-          "ls LessBasic.new"
-        ).should =~ /LessBasic#methods:.*jaroussky/m
-      end
+    it "should work on subclasses of BasicObject" do
+      pry_eval(
+        "class LessBasic < BasicObject; def jaroussky; 5; end; end",
+        "ls LessBasic.new"
+      ).should =~ /LessBasic#methods:.*jaroussky/m
+    end
+  end
+
+  describe "immediates" do
+    it "should work on Fixnum" do
+      pry_eval("ls 5").should =~ /Fixnum#methods:.*modulo/m
     end
   end
 
@@ -90,6 +94,11 @@ describe "ls" do
       end
 
       test.should.not.raise
+    end
+
+    it "should show error message when instance is given with -M option" do
+      error = lambda{ pry_eval("ls -M String.new") }.should.raise(Pry::CommandError)
+      error.message.should.match(/-M only makes sense with a Module or a Class/)
     end
 
 

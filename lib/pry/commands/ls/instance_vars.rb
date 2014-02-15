@@ -1,12 +1,12 @@
-require 'pry/commands/ls/interrogateable'
+require 'pry/commands/ls/interrogatable'
 
 class Pry
   class Command::Ls < Pry::ClassCommand
     class InstanceVars < Pry::Command::Ls::Formatter
+      include Pry::Command::Ls::Interrogatable
 
-      include Pry::Command::Ls::Interrogateable
-
-      def initialize(interrogatee, no_user_opts, opts)
+      def initialize(interrogatee, no_user_opts, opts, _pry_)
+        super(_pry_)
         @interrogatee = interrogatee
         @no_user_opts = no_user_opts
         @default_switch = opts[:ivars]

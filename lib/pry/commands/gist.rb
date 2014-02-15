@@ -58,7 +58,7 @@ class Pry
           if code && code != ""
             content << code
             if code !~ /;\Z/
-              content << "#{comment_expression_result_for_gist(Pry.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}"
+              content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}"
             end
           end
         end

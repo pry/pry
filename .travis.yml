@@ -1,14 +1,16 @@
 rvm:
-  - 1.8.7
   - 1.9.2
   - 1.9.3
   - 2.0.0
+  - 2.1.0
   - ruby-head
-  - ree
   - rbx
-  - jruby-18mode
-  - jruby-19mode
+  - jruby
   - jruby-head
+
+script:
+  - rake spec
+  - bundle exec bacon spec/isolation/readline_spec.rb
 
 matrix:
   allow_failures:

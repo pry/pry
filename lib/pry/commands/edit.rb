@@ -12,7 +12,7 @@ class Pry
 
       Open a text editor. When no FILE is given, edits the pry input buffer.
       When a method/module/command is given, the code is opened in an editor.
-      Ensure `Pry.config.editor` is set to your editor of choice.
+      Ensure `Pry.config.editor` or `_pry_.config.editor` is set to your editor of choice.
 
       edit sample.rb                edit -p MyClass#my_method
       edit sample.rb --line 105     edit MyClass
@@ -165,7 +165,7 @@ class Pry
     end
 
     def never_reload?
-      opts.present?(:'no-reload') || Pry.config.disable_auto_reload
+      opts.present?(:'no-reload') || _pry_.config.disable_auto_reload
     end
 
     def reload?(file_name="")
@@ -186,7 +186,7 @@ class Pry
     end
 
     def probably_a_file?(str)
-      [".rb", ".c", ".py", ".yml", ".gemspec"].include? File.extname(str) ||
+      [".rb", ".c", ".py", ".yml", ".gemspec"].include?(File.extname(str)) ||
         str =~ /\/|\\/
     end
 
