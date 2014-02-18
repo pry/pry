@@ -390,7 +390,7 @@ class Pry
       _, cols = Terminal.screen_size
 
       cols = cols.to_i
-      lines = cols != 0 ? (full_line.length / cols + 1) : 1
+      lines = (cols != 0 ? (full_line.length / cols + 1) : 1).to_i
 
       if Pry::Helpers::BaseHelpers.windows_ansi?
         move_up   = "\e[#{lines}F"
