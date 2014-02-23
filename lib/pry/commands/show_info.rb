@@ -43,7 +43,7 @@ class Pry
         if candidate
           return candidate
         else
-          raise CommandError, no_definition_message if !valid_superclass?(code_object)
+          raise CommandError, no_definition_message if !code_object.valid_superclass?
 
           @used_super = true
           code_object_with_accessible_source(code_object.super)
@@ -51,10 +51,6 @@ class Pry
       else
         code_object
       end
-    end
-
-    def valid_superclass?(code_object)
-      code_object.super && code_object.super.wrapped != Object
     end
 
     def content_and_header_for_code_object(code_object)

@@ -37,6 +37,10 @@ class Pry
       def command?
         is_a?(Module) && self <= Pry::Command
       end
+
+      def valid_superclass?
+        self.super && self.super.wrapped != Object
+      end
     end
 
     include Pry::Helpers::CommandHelpers

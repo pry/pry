@@ -441,6 +441,16 @@ class Pry
     # @return [Array<String>]  Completion words
     def complete(search); Bond::DefaultMission.completions; end
 
+    # code_object should have super method
+    def super
+      nil
+    end
+
+    # code_object should have wrapped method
+    def wrapped
+      nil
+    end
+
     private
 
     # Run the `#call` method and all the registered hooks.
