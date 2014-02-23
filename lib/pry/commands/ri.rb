@@ -30,7 +30,7 @@ class Pry
           end
 
           def formatter(io)
-            if @formatter_klass then
+            if @formatter_klass
               @formatter_klass.new
             else
               RDoc::Markup::ToAnsi.new
