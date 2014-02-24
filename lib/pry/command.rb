@@ -82,6 +82,16 @@ class Pry
       end
       alias_method :line, :source_line
 
+       # code_object should have super method
+      def super
+        nil
+      end
+
+      # code_object should have wrapped method
+      def wrapped
+        nil
+      end
+
       def default_options(match)
         {
           :requires_gem      => [],
@@ -440,16 +450,6 @@ class Pry
     # @param [String] search  The line typed so far
     # @return [Array<String>]  Completion words
     def complete(search); Bond::DefaultMission.completions; end
-
-    # code_object should have super method
-    def super
-      nil
-    end
-
-    # code_object should have wrapped method
-    def wrapped
-      nil
-    end
 
     private
 
