@@ -38,7 +38,7 @@ class Pry
     #
     # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
     def code_object_with_accessible_source(code_object)
-      if code_object.is_a?(WrappedModule)
+      if code_object.wrapped_module?
         candidate = code_object.candidates.find(&:source)
         if candidate
           return candidate
@@ -96,7 +96,7 @@ class Pry
 
         # It sucks we have to test for both Pry::WrappedModule and WrappedModule::Candidate,
         # probably indicates a deep refactor needs to happen in those classes.
-      elsif code_object.is_a?(Pry::WrappedModule) || code_object.is_a?(Pry::WrappedModule::Candidate)
+      elsif code_object.wrapped_module? || code_object.candidate?
         module_header(code_object, line_num)
       else
         ""
@@ -142,7 +142,7 @@ class Pry
     end
 
     def show_all_modules?(code_object)
-      code_object.is_a?(Pry::WrappedModule) && opts.present?(:all)
+      code_object.wrapped_module? && opts.present?(:all)
     end
 
     def obj_name

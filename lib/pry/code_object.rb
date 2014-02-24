@@ -31,11 +31,19 @@ class Pry
       end
 
       def module_with_yard_docs?
-        is_a?(WrappedModule) && yard_docs?
+        wrapped_module? && yard_docs?
       end
 
       def command?
         is_a?(Module) && self <= Pry::Command
+      end
+
+      def wrapped_module?
+        is_a?(WrappedModule)
+      end
+
+      def candidate?
+        is_a?(WrappedModule::Candidate)
       end
 
       def valid_superclass?
