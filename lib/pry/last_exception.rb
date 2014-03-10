@@ -1,3 +1,5 @@
+# LastException is a proxy used to add functionality to the `last_exception`
+# attribute of Pry instances.
 class Pry::LastException < BasicObject
   attr_reader :file, :line
   attr_accessor :bt_index
@@ -16,12 +18,12 @@ class Pry::LastException < BasicObject
     end
   end
 
-  def respond_to_missing?(name, boolean=false)
+  def respond_to_missing?(name, include_private = false)
     @e.respond_to?(name)
   end
 
-  def pry?
-    true
+  def wrapped_exception
+    @e
   end
 
   def bt_source_location_for(index)
