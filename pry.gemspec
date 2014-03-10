@@ -9,13 +9,12 @@ Gem::Specification.new do |s|
   s.email = ["jrmair@gmail.com", "conrad.irwin@gmail.com", "rwfitzge@gmail.com"]
   s.summary = "An IRB alternative and runtime developer console"
   s.description = s.summary
-  s.homepage = "http://pry.github.com"
+  s.homepage = "http://pryrepl.org"
   s.license = 'MIT'
 
   s.executables   = ["pry"]
   s.require_paths = ["lib"]
   s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- spec/*`.split("\n")
 
   s.add_dependency 'coderay',       '~> 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
