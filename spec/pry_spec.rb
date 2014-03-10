@@ -67,6 +67,28 @@ describe Pry do
     end
   end
 
+  describe "#last_exception=" do
+    before do
+      @pry = Pry.new binding: binding
+      @e = mock_exception "foo.rb:1"
+    end
+
+    it "returns an instance of Pry::LastException" do
+      @pry.last_exception = @e
+      should.satisfy { @pry.last_exception.pry? == true }
+    end
+
+    it "returns a frozen exception" do
+      @pry.last_exception = @e.freeze
+      @pry.last_exception.should.be.frozen?
+    end
+
+    it "returns an object who mirrors itself as the wrapped exception" do
+      @pry.last_exception = @e.freeze
+      @pry.last_exception.should.be.instance_of?(StandardError)
+    end
+  end
+
   describe "open a Pry session on an object" do
     describe "rep" do
       before do
