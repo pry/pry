@@ -467,27 +467,17 @@ class Pry
     self.last_result = result unless code =~ /\A\s*\z/
   end
 
+  #
   # Set the last exception for a session.
-  # @param [Exception] ex
-  def last_exception=(ex)
-    class << ex
-      attr_accessor :file, :line, :bt_index
-      def bt_source_location_for(index)
-        backtrace[index] =~ /(.*):(\d+)/
-        [$1, $2.to_i]
-      end
-
-      def inc_bt_index
-        @bt_index = (@bt_index + 1) % backtrace.size
-      end
-    end
-
-    ex.bt_index = 0
-    ex.file, ex.line = ex.bt_source_location_for(0)
-
+  #
+  # @param [Exception] e
+  #   the last exception.
+  #
+  def last_exception=(e)
+    last_exception = Pry::LastException.new(e)
     @last_result_is_exception = true
-    @output_array << ex
-    @last_exception = ex
+    @output_array << last_exception
+    @last_exception = last_exception
   end
 
   # Update Pry's internal state after evalling code.
