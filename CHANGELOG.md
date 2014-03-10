@@ -23,8 +23,10 @@
 * default configuration(Pry.config) lazy loads its values. (#1096)
 * require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
 * add option to disable input completer through `_pry_.config.completer = nil`
+* add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
+* `Pry#last_exception=` supports exception objects who have been frozen (#1145)
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
 * Allow `ls -c <anything>` (#891)
