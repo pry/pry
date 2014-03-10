@@ -75,7 +75,7 @@ describe Pry do
 
     it "returns an instance of Pry::LastException" do
       @pry.last_exception = @e
-      should.satisfy { @pry.last_exception.pry? == true }
+      @pry.last_exception.wrapped_exception.should == @e
     end
 
     it "returns a frozen exception" do

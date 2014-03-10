@@ -183,7 +183,7 @@ class Pry
     { _in_: input_array,
       _out_: output_array,
       _pry_: self,
-      _ex_: last_exception,
+      _ex_: last_exception && last_exception.wrapped_exception,
       _file_: last_file,
       _dir_: last_dir,
       _: proc { last_result },

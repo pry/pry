@@ -21,9 +21,34 @@ describe "Sticky locals (_file_ and friends)" do
     end
   end
 
-  # Using mock_pry here until we figure out exception handling
-  it 'locals should keep value after cd-ing (_ex_)' do
-    mock_pry("error blah;", "$x = _ex_;", "cd 0", "_ex_ == $x").should =~ /true/
+  describe '_ex_' do
+    it 'returns the last exception without wrapping it in a LastException' do
+      ReplTester.start do
+        input  'raise "halp"'
+
+        input  '_ex_.message == "halp"'
+        output '=> true'
+
+        if Pry::Helpers::BaseHelpers.mri_20? || Pry::Helpers::BaseHelpers.mri_21?
+          input  'Kernel.instance_method(:class).bind(_ex_).call'
+          output '=> RuntimeError'
+        end
+
+        input  '_ex_.wrapped_exception'
+        output /NoMethodError/
+      end
+    end
+
+    it 'keeps its value after cd-ing' do
+      ReplTester.start do
+        input  'error blah'
+        input  '$x = _ex_'
+        input  'cd 0'
+
+        input  '_ex_ == $x'
+        output '=> true'
+      end
+    end
   end
 
   it 'locals should keep value after cd-ing (_file_ and _dir_)' do
