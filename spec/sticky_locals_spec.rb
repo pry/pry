@@ -29,13 +29,8 @@ describe "Sticky locals (_file_ and friends)" do
         input  '_ex_.message == "halp"'
         output '=> true'
 
-        if Pry::Helpers::BaseHelpers.mri_20? || Pry::Helpers::BaseHelpers.mri_21?
-          input  'Kernel.instance_method(:class).bind(_ex_).call'
-          output '=> RuntimeError'
-        end
-
-        input  '_ex_.wrapped_exception'
-        output /NoMethodError/
+        input  'Kernel.instance_method(:class).bind(_ex_).call'
+        output '=> RuntimeError'
       end
     end
 
