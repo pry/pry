@@ -1,6 +1,7 @@
 ### 1.0.0 (2013/??/??)
 #### Dependency changes
 
+* remove runtime dependency on `openstruct` from pry
 * 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
 * Require Coderay `>= 1.1.0`
 
@@ -20,8 +21,8 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
-* default configuration(Pry.config) lazy loads its values. (#1096)
-* require of 'readline' is delayed until Pry.start() has been called for the first time. (#1117)
+* lazy load configuration values (Pry.config). (#1096)
+* lazy load 'readline' until pry is started for the first time. (#1117)
 * add option to disable input completer through `_pry_.config.completer = nil`
 * add `Pry::LastException` (#1145)
 
