@@ -3,7 +3,7 @@
 
 * remove runtime dependency on `openstruct` from pry
 * 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
-* Require Coderay `>= 1.1.0`
+* Require Coderay `~> 1.1.0`
 
 #### Features
 * Added a `watch` command that lets you see how values change over time.
