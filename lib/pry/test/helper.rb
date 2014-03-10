@@ -68,11 +68,9 @@ module PryTestHelpers
   end
 
   def mock_exception(*mock_backtrace)
-    e = StandardError.new("mock exception")
-    (class << e; self; end).class_eval do
-      define_method(:backtrace) { mock_backtrace }
+    StandardError.new.tap do |e|
+      e.define_singleton_method(:backtrace) { mock_backtrace }
     end
-    e
   end
 end
 
