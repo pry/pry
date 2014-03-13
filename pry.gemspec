@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.executables   = ["pry"]
   s.require_paths = ["lib"]
-  s.files         = `git ls-files`.split("\n")
+  s.files         = `git ls-files bin lib *.md LICENSE`.split("\n")
 
   s.add_dependency 'coderay',       '~> 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
