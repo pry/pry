@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 def completer_test(bind, pry=nil, assert_flag=true)
   test = proc {|symbol|

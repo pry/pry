@@ -2,7 +2,7 @@
 # how to do them yet, and i really want to release. Sorry. Someone
 # come along and do a better job.
 
-require 'helper'
+require_relative '../helper'
 
 describe "play" do
   before do

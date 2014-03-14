@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 MyKlass = Class.new do
   def hello

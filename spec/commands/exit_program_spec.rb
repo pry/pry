@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "exit-program" do
   it 'should raise SystemExit' do

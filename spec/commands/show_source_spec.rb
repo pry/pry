@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 require "fixtures/show_source_doc_examples"
 
 describe "show-source" do

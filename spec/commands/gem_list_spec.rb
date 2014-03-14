@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "gem-list" do
   it 'should not raise when invoked' do

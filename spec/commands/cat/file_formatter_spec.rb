@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../../helper'
 
 describe Pry::Command::Cat::FileFormatter do
   describe "#file_and_line" do

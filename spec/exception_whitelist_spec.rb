@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "Pry.config.exception_whitelist" do
   before do

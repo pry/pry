@@ -1,3 +1,10 @@
+require 'mocha/api'
+require "ostruct"
+require 'pry/test/helper'
+require_relative 'spec_helpers/bacon'
+require_relative 'spec_helpers/mock_pry'
+require_relative 'spec_helpers/repl_tester'
+
 if ENV["COVERAGE"]
   require "simplecov"
   SimpleCov.start
@@ -7,13 +14,6 @@ unless Object.const_defined? 'Pry'
   $:.unshift File.expand_path '../../lib', __FILE__
   require 'pry'
 end
-
-require 'mocha/api'
-require "ostruct"
-require 'pry/test/helper'
-require 'spec_helpers/bacon'
-require 'spec_helpers/mock_pry'
-require 'spec_helpers/repl_tester'
 
 class Module
   public :remove_const

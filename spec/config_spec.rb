@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::Config do
   describe "reserved keys" do

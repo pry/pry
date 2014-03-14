@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "exit" do
   before { @pry = Pry.new(:target => :outer, :output => StringIO.new) }
