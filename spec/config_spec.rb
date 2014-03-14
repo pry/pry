@@ -2,7 +2,7 @@ require_relative 'helper'
 describe Pry::Config do
   describe "reserved keys" do
     it "raises an ArgumentError on assignment of a reserved key" do
-      local = Pry::Config.from_hash({})
+      local = Pry::Config.new
       Pry::Config::RESERVED_KEYS.each do |key|
         should.raise(ArgumentError) { local[key] = 1 }
       end

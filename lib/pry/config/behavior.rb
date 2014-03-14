@@ -5,7 +5,7 @@ module Pry::Config::Behavior
                    "[]", "[]=", "merge!",
                    "respond_to?", "key?", "refresh",
                    "forget", "inherited_by", "to_h",
-                   "to_hash", "_dup"
+                   "to_hash", "_dup", "default"
                   ].freeze
 
   def self.included(klass)
@@ -39,7 +39,7 @@ module Pry::Config::Behavior
   def []=(key, value)
     key = key.to_s
     if RESERVED_KEYS.include?(key)
-      raise ArgumentError, "sorry, '#{key}' is a reserved configuration key."
+      raise ArgumentError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
     end
     @writes[key] = value
   end
