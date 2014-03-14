@@ -1,3 +1,4 @@
+require "bundler/setup"
 require 'mocha/api'
 require "ostruct"
 require 'pry/test/helper'
