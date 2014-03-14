@@ -234,7 +234,7 @@ describe "Pry::Command" do
         command_options :listing => 'number-one'
       end
 
-      cmd.command_options[:shellwords].should == false
+      cmd.command_options[:shellwords].should.be_false
       cmd.command_options[:listing].should == 'number-one'
     end
 
@@ -246,7 +246,7 @@ describe "Pry::Command" do
 
         def process
           opts.fetch_command(:blahblah).should == nil
-          opts.fetch_command(:yell).present?.should == true
+          opts.fetch_command(:yell).present?.should.be_true
         end
       end
 
@@ -263,8 +263,8 @@ describe "Pry::Command" do
 
         def process
           args.should == ['papa']
-          opts.fetch_command(:yell).present?.should == true
-          opts.fetch_command(:yell).person?.should == true
+          opts.fetch_command(:yell).present?.should.be_true
+          opts.fetch_command(:yell).person?.should.be_true
         end
       end
 

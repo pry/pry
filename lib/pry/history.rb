@@ -58,6 +58,7 @@ class Pry
     def clear
       @clearer.call
       @history = []
+      @original_lines = 0
     end
 
     # @return [Fixnum] The number of lines in history.

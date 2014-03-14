@@ -51,12 +51,12 @@ describe Pry do
 
   it "should allow trailing , to continue the line" do
     pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,").should == false
+    Pry::Code.complete_expression?("puts 1, 2,").should.be_false
   end
 
   it "should complete an expression that contains a line ending with a ," do
     pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,\n3").should == true
+    Pry::Code.complete_expression?("puts 1, 2,\n3").should.be_true
   end
 
   it "should not suppress the error output if the line ends in ;" do

@@ -1,10 +1,4 @@
 require "bundler/setup"
-require 'mocha/api'
-require "ostruct"
-require 'pry/test/helper'
-require_relative 'spec_helpers/bacon'
-require_relative 'spec_helpers/mock_pry'
-require_relative 'spec_helpers/repl_tester'
 
 if ENV["COVERAGE"]
   require "simplecov"
@@ -16,9 +10,29 @@ unless Object.const_defined? 'Pry'
   require 'pry'
 end
 
+require 'mocha/api'
+require 'ostruct'
+require 'pry/test/helper'
+require 'minitest/autorun'
+require 'minitest/spec'
+require 'minitest/bacon'
+require 'minitest/pride'
+require_relative 'spec_helpers/mock_pry'
+require_relative 'spec_helpers/repl_tester'
+
 class Module
   public :remove_const
   public :remove_method
+end
+
+class Minitest::Spec
+  extend  PryTestHelpers
+  include PryTestHelpers
+
+  def setup
+    Pry.toplevel_binding = nil
+    super
+  end
 end
 
 # turn warnings off (esp for Pry::Hooks which will generate warnings

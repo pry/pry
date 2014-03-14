@@ -301,7 +301,7 @@ describe "show-source" do
           end
         end
 
-        class ShowSourceTestClass<ShowSourceTestSuperClass
+        class ShowSourceTestClass < ShowSourceTestSuperClass
           def alpha
           end
         end
@@ -374,26 +374,26 @@ describe "show-source" do
         end
       end
 
-      before do
-        pry_eval unindent(<<-EOS)
-        class Dog
-          def woof
-          end
-        end
-
-        class TobinaMyDog < Dog
-          def woof
-          end
-        end
-        EOS
-      end
-
-      after do
-        Object.remove_const :Dog
-        Object.remove_const :TobinaMyDog
-      end
-
       describe "in REPL" do
+        before do
+          pry_eval unindent(<<-EOS)
+          class Dog
+            def woof
+            end
+          end
+
+          class TobinaMyDog < Dog
+            def woof
+            end
+          end
+          EOS
+        end
+
+        after do
+          Object.remove_const :Dog
+          Object.remove_const :TobinaMyDog
+        end
+
         it 'should find class defined in repl' do
           pry_eval('show-source TobinaMyDog').should =~ /class TobinaMyDog/
         end
@@ -404,7 +404,6 @@ describe "show-source" do
       end
 
       it 'should lookup module name with respect to current context' do
-
         constant_scope(:AlphaClass, :BetaClass) do
           class BetaClass
             def alpha

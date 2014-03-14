@@ -1,4 +1,5 @@
 require 'rake/clean'
+require 'rake/testtask'
 require 'rubygems/package_task'
 
 $:.unshift 'lib'
@@ -18,32 +19,14 @@ rescue Bundler::GemNotFound
   raise RuntimeError, "You're missing one or more required gems. Run `bundle install` first."
 end
 
-desc "Set up and run tests"
-task :default => [:test]
-
-def run_specs paths
-  quiet = ENV['VERBOSE'] ? '' : '-q'
-  exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
-end
-
-desc "Run tests"
-task :test do
+Rake::TestTask.new do |t|
   check_dependencies unless ENV['SKIP_DEP_CHECK']
-  paths =
-    if explicit_list = ENV['run']
-      explicit_list.split(',')
-    else
-      Dir['spec/**/*_spec.rb'].shuffle!
-    end
-  run_specs paths
+  t.libs.concat %w(spec)
+  t.pattern = "spec/**/*_spec.rb"
+  t.verbose = true
 end
 task :spec => :test
-
-task :recspec do
-  all = Dir['spec/**/*_spec.rb'].sort_by{|path| File.mtime(path)}.reverse
-  warn "Running all, sorting by mtime: #{all[0..2].join(' ')} ...etc."
-  run_specs all
-end
+task :default => :test
 
 desc "Run pry (you can pass arguments using _ in place of -)"
 task :pry do

@@ -1,6 +1,39 @@
 require_relative 'helper'
 
 describe Pry::WrappedModule do
+  before do
+    class Host
+      %w(spec/fixtures/candidate_helper1.rb
+         spec/fixtures/candidate_helper2.rb).each do |file|
+        binding.eval File.read(file), file, 1
+      end
+
+      # rank 2
+      class CandidateTest
+        def test6
+        end
+      end
+
+      class PitifullyBlank
+        DEFAULT_TEST = CandidateTest
+      end
+
+      FOREVER_ALONE_LINE = __LINE__ + 1
+      class ForeverAlone
+        class DoublyNested
+          # nested docs
+          class TriplyNested
+            def nested_method
+            end
+          end
+        end
+      end
+    end
+  end
+
+  after do
+    Object.remove_const :Host
+  end
 
   describe "#initialize" do
     it "should raise an exception when a non-module is passed" do
@@ -9,35 +42,6 @@ describe Pry::WrappedModule do
   end
 
   describe "candidates" do
-    before do
-      class Host
-        %w(spec/fixtures/candidate_helper1.rb
-           spec/fixtures/candidate_helper2.rb).each do |file|
-          binding.eval File.read(file), file, 1
-        end
-
-        # rank 2
-        class CandidateTest
-          def test6
-          end
-        end
-
-        class PitifullyBlank
-          DEFAULT_TEST = CandidateTest
-        end
-
-        FOREVER_ALONE_LINE = __LINE__ + 1
-        class ForeverAlone
-          class DoublyNested
-            # nested docs
-            class TriplyNested
-              def nested_method
-              end
-            end
-          end
-        end
-      end
-    end
 
     describe "number_of_candidates" do
       it 'should return the correct number of candidates' do
@@ -134,10 +138,6 @@ describe Pry::WrappedModule do
         Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
     end
-
-    after do
-      Object.remove_const(:Host)
-    end
   end
 
   describe ".method_prefix" do
@@ -150,42 +150,42 @@ describe Pry::WrappedModule do
       Object.remove_const(:Foo)
     end
 
-    it "should return Foo# for normal classes" do
+    it "returns Foo# for normal classes" do
       Pry::WrappedModule.new(Foo).method_prefix.should == "Foo#"
     end
 
-    it "should return Bar# for modules" do
+    it "returns Bar# for modules" do
       Pry::WrappedModule.new(Kernel).method_prefix.should == "Kernel#"
     end
 
-    it "should return Foo. for singleton classes of classes" do
+    it "returns Foo. for singleton classes of classes" do
       Pry::WrappedModule.new(class << Foo; self; end).method_prefix.should == "Foo."
     end
 
-    describe "of singleton classes of objects" do
+    it "returns self. for singleton classes of objects" do
       Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should == "self."
     end
 
-    describe "of anonymous classes should not be empty" do
+    it "returns a representation of an anonymous class" do
       Pry::WrappedModule.new(Class.new).method_prefix.should =~ /#<Class:.*>#/
     end
 
-    describe "of singleton classes of anonymous classes should not be empty" do
+    it "returns a representation of a singleton of an anonymous class" do
       Pry::WrappedModule.new(class << Class.new; self; end).method_prefix.should =~ /#<Class:.*>./
     end
   end
 
   describe ".singleton_class?" do
     it "should be true for singleton classes" do
-      Pry::WrappedModule.new(class << ""; self; end).singleton_class?.should == true
+      Pry::WrappedModule.new(class << ""; self; end).singleton_class?.should.be_true
     end
 
     it "should be false for normal classes" do
-      Pry::WrappedModule.new(Class.new).singleton_class?.should == false
+      Pry::WrappedModule.new(Class.new).singleton_class?.should.be_false
     end
 
     it "should be false for modules" do
-      Pry::WrappedModule.new(Module.new).singleton_class?.should == false
+      Pry::WrappedModule.new(Module.new).singleton_class?.should.be_false
     end
   end
 

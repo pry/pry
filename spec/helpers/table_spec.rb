@@ -3,21 +3,21 @@ require_relative '../helper'
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
     t = Pry::Helpers::Table.new %w(hihi), :column_count => 1
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should.be_true
     t.items = []
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should.be_true
 
     t.items = %w(hi hi)
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should.be_true
     t.column_count = 2
-    t.fits_on_line?(4).should == false
+    t.fits_on_line?(4).should.be_false
 
     t.items = %w(
       a   ccc
       bb  dddd
     ).sort
-    t.fits_on_line?(8).should == true
-    t.fits_on_line?(7).should == false
+    t.fits_on_line?(8).should.be_true
+    t.fits_on_line?(7).should.be_false
   end
 
   describe 'formatting - should order downward and wrap to columns' do
@@ -99,7 +99,7 @@ asfadsssaaad    fasfaafdssd     s
     end
   end
 
-  describe 'decide between one-line or indented output' do
-    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == 'head:  ing'
+  it 'decides between one-line or indented output' do
+    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == "head: ing\n"
   end
 end

@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake',  '~> 10.0'
   s.add_development_dependency 'mocha', '~> 1.0'
   s.add_development_dependency 'simplecov', '~> 0.8'
+  s.add_development_dependency 'minitest',  '~> 5.0'
+  s.add_development_dependency 'minitest-bacon', '~> 1.0'
   # TODO: make this a plain dependency:
   s.add_development_dependency 'bond',  '~> 0.5'
 end

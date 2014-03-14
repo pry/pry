@@ -50,7 +50,7 @@ describe Pry do
       Pry.config.should_load_rc = false
       Pry.config.should_load_local_rc = false
       Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
-      Object.const_defined?(:TEST_RC).should == false
+      Object.const_defined?(:TEST_RC).should.be_false
     end
 
     describe "that raise exceptions" do
@@ -84,8 +84,8 @@ describe Pry do
 
       it "should continue to run pry" do
         @doing_it[]
-        Object.const_defined?(:TEST_BEFORE_RAISE).should == true
-        Object.const_defined?(:TEST_AFTER_RAISE).should == true
+        Object.const_defined?(:TEST_BEFORE_RAISE).should.be_true
+        Object.const_defined?(:TEST_AFTER_RAISE).should.be_true
       end
 
       it "should output an error" do

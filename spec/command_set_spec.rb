@@ -44,7 +44,7 @@ describe Pry::CommandSet do
     end
 
     @set.run_command @ctx, 'foo'
-    run.should == true
+    run.should.be_true
   end
 
   it 'should pass arguments of the command to the block' do
@@ -101,7 +101,7 @@ describe Pry::CommandSet do
     @set.import_from(other_set, 'foo')
 
     @set.run_command @ctx, 'foo'
-    run.should == true
+    run.should.be_true
 
     lambda {
       @set.run_command @ctx, 'bar'
@@ -140,7 +140,7 @@ describe Pry::CommandSet do
     @set.import_from(other_set, 'foo')
 
     @set.run_command @ctx, /^foo1/
-    run.should == true
+    run.should.be_true
   end
 
   it 'should be able to import a whole set' do
@@ -163,7 +163,7 @@ describe Pry::CommandSet do
     @set.command('foo') { run = true }
 
     Pry::CommandSet.new(@set).run_command @ctx, 'foo'
-    run.should == true
+    run.should.be_true
   end
 
   it 'should set the descriptions of commands' do
@@ -181,7 +181,7 @@ describe Pry::CommandSet do
       @set['bar'].description.should == 'Alias for `foo`'
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should.be_true
     end
 
     it "should be able to alias command with command_prefix" do
@@ -224,7 +224,7 @@ describe Pry::CommandSet do
       @set['bar'].description.should == "tobina"
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should.be_true
     end
 
     it "should be able to alias a command by its invocation line" do
@@ -236,7 +236,7 @@ describe Pry::CommandSet do
       @set['bar'].description.should == 'Alias for `foo1`'
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should.be_true
     end
 
     it "should be able to specify options when creating alias" do
@@ -370,7 +370,7 @@ describe Pry::CommandSet do
       @set.command('foo') { run = true }
       @set.rename_command('bar', 'foo')
       @set.run_command(@ctx, 'bar')
-      run.should == true
+      run.should.be_true
     end
 
     it 'should accept listing name when renaming a command' do
@@ -378,7 +378,7 @@ describe Pry::CommandSet do
       @set.command('foo', "", :listing => 'love') { run = true }
       @set.rename_command('bar', 'love')
       @set.run_command(@ctx, 'bar')
-      run.should == true
+      run.should.be_true
     end
 
     it 'should raise exception trying to rename non-existent command' do
@@ -398,7 +398,7 @@ describe Pry::CommandSet do
       @set.rename_command('bar', 'foo', :description => desc, :listing => listing, :keep_retval => true)
       @set['bar'].description.should           == desc
       @set['bar'].options[:listing].should     == listing
-      @set['bar'].options[:keep_retval].should == true
+      @set['bar'].options[:keep_retval].should.be_true
     end
   end
 
@@ -583,11 +583,11 @@ describe Pry::CommandSet do
   describe '.valid_command?' do
     it 'should be true for commands that can be found' do
       cmd = @set.command('archchancellor')
-      @set.valid_command?('archchancellor of_the?(:University)').should == true
+      @set.valid_command?('archchancellor of_the?(:University)').should.be_true
     end
 
     it 'should be false for commands that can\'' do
-      @set.valid_command?('def monkey(ape)').should == false
+      @set.valid_command?('def monkey(ape)').should.be_false
     end
 
     it 'should not cause argument interpolation' do
@@ -602,8 +602,8 @@ describe Pry::CommandSet do
 
     it 'should return Result.new(false) if there is no matching command' do
      result = @set.process_line('1 + 42')
-     result.command?.should == false
-     result.void_command?.should == false
+     result.command?.should.be_false
+     result.void_command?.should.be_false
      result.retval.should == nil
     end
 
@@ -613,8 +613,8 @@ describe Pry::CommandSet do
       end
 
       result = @set.process_line('mrs-cake')
-      result.command?.should == true
-      result.void_command?.should == true
+      result.command?.should.be_true
+      result.void_command?.should.be_true
       result.retval.should == Pry::Command::VOID_VALUE
     end
 
@@ -624,8 +624,8 @@ describe Pry::CommandSet do
       end
 
       result = @set.process_line('magrat')
-      result.command?.should == true
-      result.void_command?.should == false
+      result.command?.should.be_true
+      result.void_command?.should.be_false
       result.retval.should == 42
     end
 
