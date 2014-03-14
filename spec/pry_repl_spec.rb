@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "The whole thing" do
   it "should let you run commands in the middle of multiline expressions" do

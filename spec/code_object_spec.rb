@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::CodeObject do
   describe "basic lookups" do

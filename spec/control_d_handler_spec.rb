@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::DEFAULT_CONTROL_D_HANDLER do
 

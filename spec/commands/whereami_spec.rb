@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "whereami" do
   it 'should work with methods that have been undefined' do

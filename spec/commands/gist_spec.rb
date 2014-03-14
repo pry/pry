@@ -2,7 +2,7 @@
 # THey need to be updated for the new 'gist' API, but im too sleepy to
 # do that now.
 
-require 'helper'
+require_relative '../helper'
 
 describe 'gist' do
   it 'has a dependency on the jist gem' do

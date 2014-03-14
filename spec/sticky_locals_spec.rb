@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do

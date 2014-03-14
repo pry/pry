@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::Helpers::DocumentationHelpers do
   before do

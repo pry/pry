@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "exit-all" do
   before { @pry = Pry.new }

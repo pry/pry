@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "Prompts" do
   describe "one-parameter prompt proc" do
