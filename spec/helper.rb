@@ -1,7 +1,10 @@
-require "bundler/setup"
+require 'bundler/setup'
 require 'mocha/api'
-require "ostruct"
+require 'ostruct'
+
+require 'pry'
 require 'pry/test/helper'
+
 require_relative 'spec_helpers/bacon'
 require_relative 'spec_helpers/mock_pry'
 require_relative 'spec_helpers/repl_tester'
@@ -9,11 +12,6 @@ require_relative 'spec_helpers/repl_tester'
 if ENV["COVERAGE"]
   require "simplecov"
   SimpleCov.start
-end
-
-unless Object.const_defined? 'Pry'
-  $:.unshift File.expand_path '../../lib', __FILE__
-  require 'pry'
 end
 
 class Module
