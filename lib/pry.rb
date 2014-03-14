@@ -132,16 +132,6 @@ require 'rbconfig'
 require 'tempfile'
 require 'pathname'
 
-
-if Pry::Helpers::BaseHelpers.jruby?
-  begin
-    require 'ffi'
-  rescue LoadError
-    # TODO: Why do we need this?
-    warn "For a better Pry experience on JRuby, please `gem install ffi`."
-  end
-end
-
 if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
   begin
     require 'win32console'
