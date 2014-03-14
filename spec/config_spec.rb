@@ -1,5 +1,4 @@
 require_relative 'helper'
-
 describe Pry::Config do
   describe "reserved keys" do
     it "raises an ArgumentError on assignment of a reserved key" do
@@ -38,18 +37,31 @@ describe Pry::Config do
   end
 
   describe ".from_hash" do
-    it "returns an object without a default when given 1 argument" do
+    it "returns an object without a default" do
       local = Pry::Config.from_hash({})
-      local.instance_variable_get(:@default).should == nil
+      local.default.should == nil
     end
 
-    it "returns an object with a default when given 2 arguments" do
+    it "returns an object with a default" do
       default = Pry::Config.new(nil)
       local = Pry::Config.from_hash({}, default)
-      local.instance_variable_get(:@default).should == default
+      local.default.should == local
     end
   end
 
+
+  describe "#default" do
+    it "returns nil" do
+      local = Pry::Config.new(nil)
+      local.default.should == nil
+    end
+
+    it "returns the default" do
+      default = Pry::Config.new(nil)
+      local = Pry::Config.new(default)
+      local.default.should == default
+    end
+  end
 
   describe "#keys" do
     it "returns an array of local keys" do

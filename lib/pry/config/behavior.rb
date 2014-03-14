@@ -24,6 +24,14 @@ module Pry::Config::Behavior
     @writes = {}
   end
 
+  #
+  # @return [Pry::Config::Behavior]
+  #   returns the fallback used when a key is not found locally.
+  #
+  def default
+    @default
+  end
+
   def [](key)
     @writes[key.to_s]
   end
