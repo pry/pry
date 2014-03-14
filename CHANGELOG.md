@@ -1,6 +1,7 @@
 ### 1.0.0 (2013/??/??)
 #### Dependency changes
 
+* "ffi" is not automatically required by pry on jruby anymore (#1158)
 * remove runtime dependency on `openstruct` from pry
 * 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
 * Require Coderay `~> 1.1.0`
