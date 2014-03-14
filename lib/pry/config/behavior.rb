@@ -19,8 +19,10 @@ module Pry::Config::Behavior
   end
 
   def initialize(default = Pry.config)
-    @default = default.dup if default
-    @default.inherited_by(self) if default
+    if default
+      @default = default.dup
+      @default.inherited_by(self)
+    end
     @writes = {}
   end
 
