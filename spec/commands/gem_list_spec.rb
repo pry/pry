@@ -10,13 +10,13 @@ describe "gem-list" do
   it 'should work arglessly' do
     list = pry_eval('gem-list')
     list.should =~ /slop \(/
-    list.should =~ /bacon \(/
+    list.should =~ /minitest \(/
   end
 
   it 'should find arg' do
     prylist = pry_eval('gem-list slop')
     prylist.should =~ /slop \(/
-    prylist.should.not =~ /bacon/
+    prylist.should.not =~ /minitest/
   end
 
   it 'should return non-results as silence' do

@@ -27,40 +27,40 @@ describe "Pry::Pager" do
 
     it "records short lines that don't add up to a page" do
       9.times { record_short_line }
-      @pt.page?.should.be.false
+      @pt.page?.should.be_false
     end
 
     it "records short lines that do add up to a page" do
       10.times { record_short_line }
-      @pt.page?.should.be.true
+      @pt.page?.should.be_true
     end
 
     it "treats a long line as taking up more than one row" do
       4.times { record_long_line }
-      @pt.page?.should.be.false
+      @pt.page?.should.be_false
       record_long_line
-      @pt.page?.should.be.true
+      @pt.page?.should.be_true
     end
 
     it "records a string with an embedded newline" do
       3.times { record_multiline }
-      @pt.page?.should.be.false
+      @pt.page?.should.be_false
       record_short_line
-      @pt.page?.should.be.true
+      @pt.page?.should.be_true
     end
 
     it "doesn't count a line until it ends" do
       12.times { record_string_without_newline }
-      @pt.page?.should.be.false
+      @pt.page?.should.be_false
       record_short_line
-      @pt.page?.should.be.true
+      @pt.page?.should.be_true
     end
 
     it "doesn't count ansi color codes towards length" do
       9.times { record_string_with_color_codes }
-      @pt.page?.should.be.false
+      @pt.page?.should.be_false
       record_string_with_color_codes
-      @pt.page?.should.be.true
+      @pt.page?.should.be_true
     end
   end
 end

@@ -202,24 +202,29 @@ describe "whereami" do
         out.should.not =~ /\=\>/
       end
     end
+
     Cor.new.blimey!
-    Object.remove_const(:Cor)
+    Object.remove_const :Cor
   end
 
   it 'should use Pry.config.default_window_size for window size when outside a method context' do
     old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
-    :litella
-    :pig
-    out = pry_eval(binding, 'whereami')
-    :punk
-    :sanders
 
-    out.should.not =~ /:litella/
-    out.should =~ /:pig/
-    out.should =~ /:punk/
-    out.should.not =~ /:sanders/
+    class TemporaryClass
+      :litella
+      :pig
+      out = pry_eval(binding, 'whereami')
+      :punk
+      :sanders
+
+      out.should.not =~ /:litella/
+      out.should =~ /:pig/
+      out.should =~ /:punk/
+      out.should.not =~ /:sanders/
+    end
 
     Pry.config.default_window_size = old_size
+    Object.remove_const :TemporaryClass
   end
 
   it "should work at the top level" do

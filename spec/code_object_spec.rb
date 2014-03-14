@@ -24,13 +24,13 @@ describe Pry::CodeObject do
 
     it 'should lookup methods' do
       m = Pry::CodeObject.lookup("@obj.ziggy", @p)
-      m.is_a?(Pry::Method).should == true
+      m.is_a?(Pry::Method).should.be_true
       m.name.to_sym.should == :ziggy
     end
 
     it 'should lookup modules' do
       m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.source.should =~ /piggy/
     end
 
@@ -38,7 +38,7 @@ describe Pry::CodeObject do
       my_proc = proc { :hello }
       @p.binding_stack = [binding]
       m = Pry::CodeObject.lookup("my_proc", @p)
-      m.is_a?(Pry::Method).should == true
+      m.is_a?(Pry::Method).should.be_true
       m.source.should =~ /hello/
     end
 
@@ -53,7 +53,7 @@ describe Pry::CodeObject do
           "lobster"
         end
         m = Pry::CodeObject.lookup("jeremy-jones", @p)
-        (m <= Pry::Command).should == true
+        (m <= Pry::Command).should.be_true
         m.source.should =~ /lobster/
       end
 
@@ -75,7 +75,7 @@ describe Pry::CodeObject do
         it 'should return Pry::ClassCommand class when looking up class command' do
           Pry.commands.add_command(LobsterLady)
           m = Pry::CodeObject.lookup("lobster-lady", @p)
-          (m <= Pry::ClassCommand).should == true
+          (m <= Pry::ClassCommand).should.be_true
           m.source.should =~ /class LobsterLady/
           Pry.commands.delete("lobster-lady")
         end
@@ -83,7 +83,7 @@ describe Pry::CodeObject do
         it 'should return Pry::WrappedModule when looking up command class directly (as a class, not as a command)' do
           Pry.commands.add_command(LobsterLady)
           m = Pry::CodeObject.lookup("LobsterLady", @p)
-          m.is_a?(Pry::WrappedModule).should == true
+          m.is_a?(Pry::WrappedModule).should.be_true
           m.source.should =~ /class LobsterLady/
           Pry.commands.delete("lobster-lady")
         end
@@ -94,7 +94,7 @@ describe Pry::CodeObject do
           "lobster"
         end
         m = Pry::CodeObject.lookup("jeremy-baby", @p)
-        (m <= Pry::Command).should == true
+        (m <= Pry::Command).should.be_true
         m.source.should =~ /lobster/
       end
 
@@ -113,7 +113,7 @@ describe Pry::CodeObject do
 
       @p.binding_stack = [binding]
       m = Pry::CodeObject.lookup("o#princess_bubblegum", @p)
-      m.is_a?(Pry::Method).should == true
+      m.is_a?(Pry::Method).should.be_true
       m.source.should =~ /mathematic!/
     end
 
@@ -125,7 +125,7 @@ describe Pry::CodeObject do
       end
       @p.binding_stack = [binding]
       m = Pry::CodeObject.lookup("o.finn", @p)
-      m.is_a?(Pry::Method).should == true
+      m.is_a?(Pry::Method).should.be_true
       m.source.should =~ /4 realzies/
     end
 
@@ -133,7 +133,7 @@ describe Pry::CodeObject do
       moddy = ClassyWassy.new
       @p.binding_stack = [binding]
       m = Pry::CodeObject.lookup("moddy", @p)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.source.should =~ /piggy/
     end
 
@@ -148,7 +148,7 @@ describe Pry::CodeObject do
           ["", nil].each do |v|
             @p.binding_stack = [@b1]
             m = Pry::CodeObject.lookup(v, @p)
-            m.is_a?(Pry::WrappedModule).should == true
+            m.is_a?(Pry::WrappedModule).should.be_true
             m.name.should =~ /ClassyWassy/
           end
         end
@@ -157,7 +157,7 @@ describe Pry::CodeObject do
           ["", nil].each do |v|
             @p.binding_stack = [@b2]
             m = Pry::CodeObject.lookup(v, @p)
-            m.is_a?(Pry::WrappedModule).should == true
+            m.is_a?(Pry::WrappedModule).should.be_true
             m.name.should =~ /ClassyWassy/
           end
         end
@@ -170,7 +170,7 @@ describe Pry::CodeObject do
           ["", nil].each do |v|
             @p.binding_stack = [b]
             m = Pry::CodeObject.lookup(v, @p)
-            m.is_a?(Pry::Method).should == true
+            m.is_a?(Pry::Method).should.be_true
             m.name.should =~ /piggy/
           end
         end
@@ -193,13 +193,13 @@ describe Pry::CodeObject do
 
     it 'should lookup original class with :super => 0' do
       m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 0)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.wrapped.should == CuteSubclass
     end
 
     it 'should lookup immediate super class with :super => 1' do
       m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 1)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.wrapped.should == MyClassyWassy
     end
 
@@ -246,19 +246,19 @@ describe Pry::CodeObject do
 
     it 'should look up classes before methods (at top-level)' do
       m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.source.should =~ /piggy/
     end
 
     it 'should look up methods before classes when ending in () (at top-level)' do
       m = Pry::CodeObject.lookup("ClassyWassy()", @p)
-      m.is_a?(Pry::Method).should == true
+      m.is_a?(Pry::Method).should.be_true
       m.source.should =~ /ducky/
     end
 
     it 'should look up classes before methods when namespaced' do
       m = Pry::CodeObject.lookup("ClassyWassy::Puff", @p)
-      m.is_a?(Pry::WrappedModule).should == true
+      m.is_a?(Pry::WrappedModule).should.be_true
       m.source.should =~ /tiggy/
     end
 
@@ -267,7 +267,7 @@ describe Pry::CodeObject do
       b.eval("piggy = Puff.new")
       @p.binding_stack = [b]
       o = Pry::CodeObject.lookup("piggy", @p)
-      o.is_a?(Pry::WrappedModule).should == true
+      o.is_a?(Pry::WrappedModule).should.be_true
     end
 
     # actually locals are never looked up (via co.default_lookup)  when they're classes, it
@@ -276,7 +276,7 @@ describe Pry::CodeObject do
       c = ClassyWassy
       @p.binding_stack = [binding]
       o = Pry::CodeObject.lookup("c", @p)
-      o.is_a?(Pry::WrappedModule).should == true
+      o.is_a?(Pry::WrappedModule).should.be_true
       o.wrapped.should == ClassyWassy
     end
   end

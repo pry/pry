@@ -409,7 +409,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => klass).eval("hello\n").empty?.should == true
+    pry_tester(:commands => klass).eval("hello\n").empty?.should.be_true
   end
 
   it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
@@ -473,10 +473,10 @@ describe "commands" do
       end
     end
 
-    klass.to_hash.include?("nesting").should == true
-    klass.to_hash.include?("jump-to").should == true
-    klass.to_hash.include?("cd").should == true
-    klass.to_hash.include?("v").should == true
+    klass.to_hash.include?("nesting").should.be_true
+    klass.to_hash.include?("jump-to").should.be_true
+    klass.to_hash.include?("cd").should.be_true
+    klass.to_hash.include?("v").should.be_true
   end
 
   it 'should change description of a command using desc' do
@@ -513,8 +513,8 @@ describe "commands" do
       import_from Pry::Commands, "ls", "jump-to"
     end
 
-    klass.to_hash.include?("ls").should == true
-    klass.to_hash.include?("jump-to").should == true
+    klass.to_hash.include?("ls").should.be_true
+    klass.to_hash.include?("jump-to").should.be_true
   end
 
   it 'should delete some inherited commands when using delete method' do
@@ -527,13 +527,13 @@ describe "commands" do
     end
 
     commands = klass.to_hash
-    commands.include?("nesting").should == true
-    commands.include?("jump-to").should == true
-    commands.include?("cd").should == true
-    commands.include?("v").should == true
-    commands.include?("show-doc").should == false
-    commands.include?("show-method").should == false
-    commands.include?("ls").should == false
+    commands.include?("nesting").should.be_true
+    commands.include?("jump-to").should.be_true
+    commands.include?("cd").should.be_true
+    commands.include?("v").should.be_true
+    commands.include?("show-doc").should.be_false
+    commands.include?("show-method").should.be_false
+    commands.include?("ls").should.be_false
   end
 
   it 'should override some inherited commands' do

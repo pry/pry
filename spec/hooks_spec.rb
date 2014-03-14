@@ -9,7 +9,7 @@ describe Pry::Hooks do
     it 'should not execute hook while adding it' do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
-      run.should == false
+      run.should.be_false
     end
 
     it 'should not allow adding of a hook with a duplicate name' do
@@ -34,8 +34,8 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name, proc { foo = true }) { run = true }
       @hooks.hook_count(:test_hook).should == 1
       @hooks.exec_hook(:test_hook)
-      run.should == true
-      foo.should == false
+      run.should.be_true
+      foo.should.be_false
     end
 
     it 'should raise if not given a block or any other object' do
@@ -180,8 +180,8 @@ describe Pry::Hooks do
         @hooks.add_hook(:test_hook, :my_name) { run = true }
         @hooks.add_hook(:test_hook, :my_name2) { fun = true }
         @hooks.get_hook(:test_hook, :my_name).call
-        run.should == true
-        fun.should == false
+        run.should.be_true
+        fun.should.be_false
       end
 
       it 'should return nil if hook does not exist' do
@@ -228,7 +228,7 @@ describe Pry::Hooks do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.delete_hook(:test_hook, :my_name).call
-      run.should == true
+      run.should.be_true
     end
 
     it 'should return nil if hook does not exist' do
@@ -241,14 +241,14 @@ describe Pry::Hooks do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.exec_hook(:test_hook)
-      run.should == true
+      run.should.be_true
     end
 
     it 'should execute proc hook' do
       run = false
       @hooks.add_hook(:test_hook, :my_name, proc { run = true })
       @hooks.exec_hook(:test_hook)
-      run.should == true
+      run.should.be_true
     end
 
     it 'should execute a general callable hook' do
@@ -262,7 +262,7 @@ describe Pry::Hooks do
 
       @hooks.add_hook(:test_hook, :my_name, callable)
       @hooks.exec_hook(:test_hook)
-      callable.test_var.should == true
+      callable.test_var.should.be_true
     end
 
     it 'should execute all hooks for an event if more than one is defined' do
@@ -271,8 +271,8 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name1) { y = true }
       @hooks.add_hook(:test_hook, :my_name2) { x = true }
       @hooks.exec_hook(:test_hook)
-      x.should == true
-      y.should == true
+      x.should.be_true
+      y.should.be_true
     end
 
     it 'should execute hooks in order' do
@@ -332,7 +332,7 @@ describe Pry::Hooks do
             Pry.start 5, :hello => :baby
           end
 
-          b.is_a?(Binding).should == true
+          b.is_a?(Binding).should.be_true
           Pry.config.hooks.delete_hook(:when_started, :test_hook)
         end
 
@@ -360,7 +360,7 @@ describe Pry::Hooks do
           Pry.start binding, :hello => :baby
         end
 
-        o.value.should == true
+        o.value.should.be_true
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
 
@@ -386,7 +386,7 @@ describe Pry::Hooks do
 
         # ensure that an exception really was raised and it broke out
         # of the repl
-        exception.is_a?(o.great_escape).should == true
+        exception.is_a?(o.great_escape).should.be_true
 
         # check that after_session hook ran
         array.should == nil

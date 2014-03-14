@@ -63,7 +63,7 @@ describe Pry do
         file = fh.to_a
 
         file.length.should == 3
-        file.any? { |a| a =~ /athos/ }.should == true
+        file.any? { |a| a =~ /athos/ }.should.be_true
       }
     end
   end

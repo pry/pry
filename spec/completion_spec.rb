@@ -60,11 +60,11 @@ describe Pry::InputCompleter do
     # check to see if variables are in scope
     object.instance_variables.
       map { |v| v.to_sym }.
-      include?(:'@name').should == true
+      include?(:'@name').should.be_true
 
     object.class.class_variables.
       map { |v| v.to_sym }.
-      include?(:'@@number').should == true
+      include?(:'@@number').should.be_true
 
     # Complete instance variables.
     b = Pry.binding_for(object)

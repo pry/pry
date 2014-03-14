@@ -65,7 +65,7 @@ describe "edit" do
 
     it "should not delete the file!" do
       pry_eval 'edit Rakefile'
-      File.exist?(@file).should == true
+      File.exist?(@file).should.be_true
     end
 
     it "works with files that contain blanks in their names" do
@@ -88,11 +88,11 @@ describe "edit" do
           nil
         }
         pry_eval "edit #@tf_path"
-        Pad.required.should == true
+        Pad.required.should.be_true
       end
     end
 
-    describe do
+    describe "with a counter" do
       before do
         Pad.counter = 0
         Pry.config.editor = lambda { |file, line|
@@ -144,7 +144,7 @@ describe "edit" do
       end
     end
 
-    describe do
+    describe "when invoking an editor proc" do
       before do
         @reloading = nil
         Pry.config.editor = lambda do |file, line, reloading|
@@ -155,9 +155,9 @@ describe "edit" do
 
       it "should pass the editor a reloading arg" do
         pry_eval 'edit lib/pry.rb'
-        @reloading.should == true
+        @reloading.should.be_true
         pry_eval 'edit -n lib/pry.rb'
-        @reloading.should == false
+        @reloading.should.be_false
       end
     end
   end
@@ -670,7 +670,7 @@ describe "edit" do
           pry_eval 'edit -p X#c'
 
 
-          Pry::Method.from_str("X#c").alias?.should == true
+          Pry::Method.from_str("X#c").alias?.should.be_true
 
           X.new.b.should == :kinda
           X.new.c.should == :kindaaa
@@ -689,9 +689,9 @@ describe "edit" do
 
         it "should pass the editor a reloading arg" do
           pry_eval 'edit X.x'
-          @reloading.should == true
+          @reloading.should.be_true
           pry_eval 'edit -n X.x'
-          @reloading.should == false
+          @reloading.should.be_false
         end
       end
     end

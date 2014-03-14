@@ -1,21 +1,27 @@
 require_relative '../helper'
 
-MyKlass = Class.new do
-  def hello
-    "timothy"
-  end
-  def goodbye
-    "jenny"
-  end
-  def tea_tim?
-    "timothy"
-  end
-  def tea_time?
-    "polly"
-  end
-end
-
 describe "find-method" do
+  before do
+    class MyKlass
+      def hello
+        "timothy"
+      end
+      def goodbye
+        "jenny"
+      end
+      def tea_tim?
+        "timothy"
+      end
+      def tea_time?
+        "polly"
+      end
+    end
+  end
+
+  after do
+    Object.remove_const :MyKlass
+  end
+
   describe "find matching methods by name regex (-n option)" do
     it "should find a method by regex" do
       pry_eval("find-method hell MyKlass").should =~
@@ -59,5 +65,3 @@ describe "find-method" do
     pry_eval('find-method tea_time\? MyKlass').should =~ good
   end
 end
-
-Object.remove_const(:MyKlass)
