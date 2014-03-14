@@ -11,18 +11,19 @@ describe "Readline" do
   end
 
   it "is not loaded on requiring 'pry'" do
-    `#@ruby -I #@pry_dir -e '
+    code = <<-RUBY
       require "pry"
-      p defined? Readline
-    '`.should == "nil\n"
+      p defined?(Readline)
+    RUBY
+    `#@ruby -I #@pry_dir -e '#{code}'`.should == "nil\n"
   end
 
   it "is loaded on invoking 'pry'" do
-    `#@ruby -I #@pry_dir -e '
+    code = <<-RUBY
       require "pry"
       Pry.start self, input: StringIO.new("exit-all\n"), output: StringIO.new
-      puts # put newline after ANSI junk printed by readline
-      p defined?(Readline)
-    '`.split("\n").last.should == '"constant"'
+      puts defined?(Readline)
+    RUBY
+    `#@ruby -I #@pry_dir -e '#{code}'`.end_with?("constant\n").should == true
   end
 end
