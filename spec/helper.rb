@@ -1,10 +1,7 @@
 require 'bundler/setup'
-require 'mocha/api'
 require 'ostruct'
-
-require 'pry'
 require 'pry/test/helper'
-
+Bundler.require :default, :test
 require_relative 'spec_helpers/bacon'
 require_relative 'spec_helpers/mock_pry'
 require_relative 'spec_helpers/repl_tester'
