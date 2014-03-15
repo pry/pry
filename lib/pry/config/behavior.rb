@@ -23,7 +23,7 @@ module Pry::Config::Behavior
       @default = default.dup
       @default.inherited_by(self)
     end
-    @writes = {}
+    @lookup = {}
   end
 
   #
@@ -35,7 +35,7 @@ module Pry::Config::Behavior
   end
 
   def [](key)
-    @writes[key.to_s]
+    @lookup[key.to_s]
   end
 
   def []=(key, value)
@@ -43,7 +43,7 @@ module Pry::Config::Behavior
     if RESERVED_KEYS.include?(key)
       raise ArgumentError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
     end
-    @writes[key] = value
+    @lookup[key] = value
   end
 
   def method_missing(name, *args, &block)
@@ -75,16 +75,16 @@ module Pry::Config::Behavior
 
   def key?(key)
     key = key.to_s
-    @writes.key?(key)
+    @lookup.key?(key)
   end
 
   def refresh
-    @writes.clear
+    @lookup.clear
     true
   end
 
   def forget(key)
-    @writes.delete(key.to_s)
+    @lookup.delete(key.to_s)
   end
 
   def inherited_by(other)
@@ -102,11 +102,11 @@ module Pry::Config::Behavior
   alias_method :eql?, :==
 
   def keys
-    @writes.keys
+    @lookup.keys
   end
 
   def to_hash
-    @writes.dup
+    @lookup.dup
   end
   alias_method :to_h, :to_hash
 
