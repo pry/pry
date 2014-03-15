@@ -19,11 +19,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'coderay',       '~> 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
   s.add_dependency 'method_source', '~> 0.8'
-
-  s.add_development_dependency 'bacon', '~> 1.2'
-  s.add_development_dependency 'rake',  '~> 10.0'
-  s.add_development_dependency 'mocha', '~> 1.0'
-  s.add_development_dependency 'simplecov', '~> 0.8'
-  # TODO: make this a plain dependency:
-  s.add_development_dependency 'bond',  '~> 0.5'
+  s.add_development_dependency 'bundler', '~> 1.0'
 end

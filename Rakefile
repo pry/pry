@@ -7,17 +7,6 @@ require 'pry/version'
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
 CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
 
-def check_dependencies
-  require 'bundler'
-  Bundler.definition.missing_specs
-
-  eval('nil', TOPLEVEL_BINDING, '<main>') # workaround for issue #395
-rescue LoadError
-  # if Bundler isn't installed, we'll just assume your setup is ok.
-rescue Bundler::GemNotFound
-  raise RuntimeError, "You're missing one or more required gems. Run `bundle install` first."
-end
-
 desc "Set up and run tests"
 task :default => [:test]
 
@@ -28,7 +17,6 @@ end
 
 desc "Run tests"
 task :test do
-  check_dependencies unless ENV['SKIP_DEP_CHECK']
   paths =
     if explicit_list = ENV['run']
       explicit_list.split(',')
@@ -47,7 +35,6 @@ end
 
 desc "Run pry (you can pass arguments using _ in place of -)"
 task :pry do
-  check_dependencies unless ENV['SKIP_DEP_CHECK']
   ARGV.shift if ARGV.first == "pry"
   ARGV.map! do |arg|
     arg.sub(/^_*/) { |m| "-" * m.size }
