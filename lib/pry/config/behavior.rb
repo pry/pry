@@ -111,10 +111,6 @@ module Pry::Config::Behavior
   end
   alias_method :to_h, :to_hash
 
-  def quiet?
-    quiet
-  end
-
 private
   def _dup(value)
     if NODUP.any? { |klass| klass === value }
