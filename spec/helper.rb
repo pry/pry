@@ -1,5 +1,4 @@
 require 'bundler/setup'
-require 'ostruct'
 require 'pry/test/helper'
 Bundler.require :default, :test
 require_relative 'spec_helpers/bacon'
@@ -20,10 +19,10 @@ end
 # in tests)
 $VERBOSE = nil
 
-Pad = OpenStruct.new
-def Pad.clear
-  @table = {}
-end
+Pad = Class.new do
+  include Pry::Config::Behavior
+  alias_method :clear, :refresh
+end.new(nil)
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
