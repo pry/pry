@@ -45,6 +45,10 @@ class Pry::Config::Default
     configure_history
   end
 
+  def quiet?
+    quiet
+  end
+
   default.each do |key, value|
     define_method(key) do
       if default[key].equal?(value)
