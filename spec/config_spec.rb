@@ -124,6 +124,26 @@ describe Pry::Config do
     end
   end
 
+  describe "#clear" do
+    before do
+      @local = Pry::Config.new(nil)
+    end
+
+    it "returns true" do
+      @local.clear.should == true
+    end
+
+    it "clears local assignments" do
+      @local.foo = 1
+      @local.clear
+      @local.to_hash.should == {}
+    end
+
+    it "is aliased as #refresh" do
+      @local.method(:clear).should == @local.method(:refresh)
+    end
+  end
+
   describe "#[]=" do
     it "stores keys as strings" do
       local = Pry::Config.from_hash({})
