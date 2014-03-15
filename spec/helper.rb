@@ -21,7 +21,6 @@ $VERBOSE = nil
 
 Pad = Class.new do
   include Pry::Config::Behavior
-  alias_method :clear, :refresh
 end.new(nil)
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
