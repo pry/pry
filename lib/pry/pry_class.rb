@@ -51,7 +51,7 @@ class Pry
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`
-  # @param [String] file_name The unexpanded file path.
+  # @param [String] file The unexpanded file path.
   def self.load_file_at_toplevel(file)
     toplevel_binding.eval(File.read(file), file)
   rescue RescuableException => e
@@ -166,7 +166,7 @@ class Pry
   # An inspector that clips the output to `max_length` chars.
   # In case of > `max_length` chars the `#<Object...> notation is used.
   #
-  # @param [Object] object
+  # @param [Object] obj
   #   The object to view.
   #
   # @param [Hash] options

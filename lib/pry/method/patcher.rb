@@ -69,8 +69,8 @@ class Pry
       # This is necessarily done by String manipulation because we can't find out what
       # syntax is needed for the argument list by ruby-level introspection.
       #
-      # @param String   The original definition line. e.g. def self.foo(bar, baz=1)
-      # @return String  The new definition line. e.g. def foo(bar, baz=1)
+      # @param [String] line The original definition line. e.g. def self.foo(bar, baz=1)
+      # @return [String]  The new definition line. e.g. def foo(bar, baz=1)
       def definition_for_owner(line)
         if line =~ /\Adef (?:.*?\.)?#{Regexp.escape(method.original_name)}(?=[\(\s;]|$)/
           "def #{method.original_name}#{$'}"
