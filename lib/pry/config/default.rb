@@ -115,8 +115,10 @@ private
 
   def lazy_completer
     if defined?(Bond) && !is_editline?(input)
+      require "pry/bond_completer" unless defined?(Pry::BondCompleter)
       Pry::BondCompleter.start
     else
+      require "pry/input_completer" unless defined?(Pry::InputCompleter)
       Pry::InputCompleter.start
     end
   end
