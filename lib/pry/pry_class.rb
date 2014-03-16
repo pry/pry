@@ -161,18 +161,21 @@ class Pry
   #
   # An inspector that clips the output to `max_length` chars.
   # In case of > `max_length` chars the `#<Object...> notation is used.
-  # @param obj The object to view.
   #
-  # @param options [Hash]
-  #   :max_length   The maximum number of chars before clipping occurs.
-  #                 default is 60.
+  # @param [Object] object
+  #   The object to view.
   #
-  #   :id           boolean to indicate whether or not a hex reprsentation of the object ID
-  #                 is attached to the output when the length of inspect is greater than value
-  #                 of `:max_length`. default is false.
+  # @param [Hash] options
+  # @option options [Integer] :max_length (60)
+  #   The maximum number of chars before clipping occurs.
+  #
+  # @option options [Boolean] :id (false)
+  #   Boolean to indicate whether or not a hex reprsentation of the object ID
+  #   is attached to the return value when the length of inspect is greater than
+  #   value of `:max_length`.
   #
   # @return [String]
-  #    The string representation of `obj`.
+  #   The string representation of `obj`.
   #
   def self.view_clip(obj, options = {})
     max = options.fetch :max_length, 60
