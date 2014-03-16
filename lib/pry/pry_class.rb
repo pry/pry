@@ -34,6 +34,10 @@ class Pry
     end
   end
 
+  #
+  # @return [main]
+  #   returns the special instance of Object, "main".
+  #
   def self.main
     @main ||= TOPLEVEL_BINDING.eval "self"
   end

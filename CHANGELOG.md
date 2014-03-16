@@ -27,6 +27,7 @@
 * lazy load `Pry::InputCompleter` or `Pry::BondCompleter`.
   - `Pry::BondCompleter` is loaded when the "bond" gem is available and editline is not being used(OSX)
 * add option to disable input completer through `_pry_.config.completer = nil`
+* add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
 * add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
