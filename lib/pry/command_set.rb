@@ -312,7 +312,7 @@ class Pry
     alias_method :to_h, :to_hash
 
     # Find a command that matches the given line
-    # @param [String] val The line that might be a command invocation
+    # @param [String] pattern The line that might be a command invocation
     # @return [Pry::Command, nil]
     def [](pattern)
       @commands.values.select do |command|
