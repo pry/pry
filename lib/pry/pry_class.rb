@@ -158,25 +158,37 @@ class Pry
     REPLFileLoader.new(file_name).load
   end
 
+  #
   # An inspector that clips the output to `max_length` chars.
   # In case of > `max_length` chars the `#<Object...> notation is used.
   # @param obj The object to view.
-  # @param max_length The maximum number of chars before clipping occurs.
-  # @return [String] The string representation of `obj`.
-  def self.view_clip(obj, max_length = 60)
-    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max_length
+  #
+  # @param options [Hash]
+  #   :max_length   The maximum number of chars before clipping occurs.
+  #                 default is 60.
+  #
+  #   :id           boolean to indicate whether or not a hex reprsentation of the object ID
+  #                 is attached to the output when the length of inspect is greater than value
+  #                 of `:max_length`. default is false.
+  #
+  # @return [String]
+  #    The string representation of `obj`.
+  #
+  def self.view_clip(obj, options = {})
+    max = options.fetch :max_length, 60
+    id = options.fetch :id, false
+    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
       obj.name.to_s
     elsif Pry.main == obj
       # special-case to support jruby.
       # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
       # we can drop in the future.
       obj.to_s
-    elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
+    elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max
       obj.inspect
     else
-      "#<#{obj.class}:0x%x>" % (obj.object_id << 1)
+      id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
     end
-
   rescue RescuableException
     "unknown"
   end
