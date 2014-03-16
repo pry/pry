@@ -38,7 +38,7 @@ class Pry
 
   # useful when playing with truly enormous objects
   CLIPPED_PRINT = proc do |output, value|
-    output.puts Pry.view_clip(value)
+    output.puts Pry.view_clip(value, id: true)
   end
 
   # Will only show the first line of the backtrace
