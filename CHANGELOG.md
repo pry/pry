@@ -30,6 +30,9 @@
 * add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
+* update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
+* change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
+  without a hex representation of object ID. (#1162)
 * break up `pry/completion.rb` into `pry/bond_completer.rb` and `pry/input_completer.rb`
 * `Pry#last_exception=` supports exception objects who have been frozen (#1145)
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)

@@ -4,7 +4,7 @@ module Pry::Config::Behavior
   RESERVED_KEYS = [
                    "[]", "[]=", "merge!",
                    "respond_to?", "key?", "refresh",
-                   "forget", "inherited_by", "to_h",
+                   "forget", "default_for", "to_h",
                    "to_hash", "_dup", "default"
                   ].freeze
 
@@ -21,8 +21,9 @@ module Pry::Config::Behavior
   def initialize(default = Pry.config)
     if default
       @default = default.dup
-      @default.inherited_by(self)
+      @default.default_for(self)
     end
+    @default_for = nil
     @lookup = {}
   end
 
@@ -88,11 +89,11 @@ module Pry::Config::Behavior
     @lookup.delete(key.to_s)
   end
 
-  def inherited_by(other)
-    if @inherited_by
-      raise RuntimeError, "instance of '#{self.class}' cannot reassign its child."
+  def default_for(other)
+    if @default_for
+      raise RuntimeError, "self is already the default for %s" % [Pry.view_clip(@default_for, id: true)]
     else
-      @inherited_by = other
+      @default_for = other
     end
   end
 
