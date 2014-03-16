@@ -174,7 +174,7 @@ class Pry
     elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max_length
       obj.inspect
     else
-      "#<#{obj.class}>:%x>" % (obj.object_id << 1)
+      "#<#{obj.class}:0x%x>" % (obj.object_id << 1)
     end
 
   rescue RescuableException
