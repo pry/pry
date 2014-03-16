@@ -6,7 +6,8 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
-describe 'Bond-based completion' do
+require "pry/bond_completer"
+describe Pry::BondCompleter do
   before do
     @local = Pry::Config.new Pry::Config::Default.new
     @local.completer
@@ -21,6 +22,8 @@ describe 'Bond-based completion' do
   end
 end
 
+
+require "pry/input_completer"
 describe Pry::InputCompleter do
   before do
     # The AMQP gem has some classes like this:

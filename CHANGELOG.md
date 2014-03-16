@@ -24,10 +24,13 @@
 * `whereami` is now aliased to `@`
 * lazy load configuration values (Pry.config). (#1096)
 * lazy load 'readline' until pry is started for the first time. (#1117)
+* lazy load `Pry::InputCompleter` or `Pry::BondCompleter`.
+  - `Pry::BondCompleter` is loaded when the "bond" gem is available and editline is not being used(OSX)
 * add option to disable input completer through `_pry_.config.completer = nil`
 * add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
+* break up `pry/completion.rb` into `pry/bond_completer.rb` and `pry/input_completer.rb`
 * `Pry#last_exception=` supports exception objects who have been frozen (#1145)
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
