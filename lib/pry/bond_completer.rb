@@ -1,3 +1,4 @@
+require "bond"
 module Pry::BondCompleter
   def self.call(input, options)
     Pry.current[:pry] = options[:pry]
