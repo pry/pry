@@ -37,8 +37,8 @@ class Pry
     ]
 
     # Return a new completion proc for use by Readline.
-    # @param [Binding] target The current binding context.
-    # @param [Array<String>] commands The array of Pry commands.
+    # @param [Binding] input The current binding context.
+    # @param [Array<String>] options The array of Pry commands.
     def self.call(input, options)
 
       custom_completions = options[:custom_completions] || []
