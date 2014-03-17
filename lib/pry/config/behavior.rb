@@ -2,17 +2,19 @@ module Pry::Config::Behavior
   ASSIGNMENT = "=".freeze
   NODUP = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
 
+  module Builder
+    def from_hash(hash, default = nil)
+      new(default).tap do |config|
+        config.merge!(hash)
+      end
+    end
+  end
+
   def self.included(klass)
     unless defined?(RESERVED_KEYS)
       const_set :RESERVED_KEYS, instance_methods(false).map(&:to_s).freeze
     end
-    klass.extend Module.new {
-      def from_hash(hash, default = nil)
-        new(default).tap do |config|
-          config.merge!(hash)
-        end
-      end
-    }
+    klass.extend(Builder)
   end
 
   def initialize(default = Pry.config)
