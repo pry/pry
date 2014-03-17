@@ -205,7 +205,7 @@ class Pry
   # 1. Pry commands will be executed immediately if the line matches.
   # 2. Partial lines of input will be queued up until a complete expression has
   #    been accepted.
-  # 3. Output is written to #output in pretty colours, not returned.
+  # 3. Output is written to `#output` in pretty colours, not returned.
   #
   # Once this method has raised an exception or returned false, this instance
   # is no longer usable. {#exit_value} will return the session's breakout
@@ -410,7 +410,7 @@ class Pry
     end
   end
 
-  # Same as process_command, but outputs exceptions to #output instead of
+  # Same as process_command, but outputs exceptions to `#output` instead of
   # raising.
   # @param [String] val  The line to process.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
