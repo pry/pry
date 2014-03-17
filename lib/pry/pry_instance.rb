@@ -120,14 +120,6 @@ class Pry
     binding_stack << Pry.binding_for(object)
   end
 
-  def prompt=(new_prompt)
-    if prompt_stack.empty?
-      push_prompt new_prompt
-    else
-      prompt_stack[-1] = new_prompt
-    end
-  end
-
   # Generate completions.
   # @param [String] input What the user has typed so far
   # @return [Array<String>] Possible completions
