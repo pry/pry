@@ -1,7 +1,12 @@
-# LastException is a proxy used to add functionality to the `last_exception`
-# attribute of Pry instances.
+#
+# {Pry::LastException} is a proxy class who wraps an Exception object for
+# {Pry#last_exception}. it extends the exception object with methods that
+# help pry commands be useful.
+#
+# the original exception object is not modified and method calls are forwarded
+# to the wrapped exception object.
+#
 class Pry::LastException < BasicObject
-  attr_reader :file, :line
   attr_accessor :bt_index
 
   def initialize(e)
@@ -22,6 +27,25 @@ class Pry::LastException < BasicObject
     @e.respond_to?(name)
   end
 
+  #
+  # @return [String]
+  #  returns the path to a file for the current backtrace. see {#bt_index}.
+  #
+  def file
+    @file
+  end
+
+  #
+  # @return [Fixnum]
+  #  returns the line for the current backtrace. see {#bt_index}.
+  #
+  def line
+    @line
+  end
+
+  # @return [Exception]
+  #   returns the wrapped exception
+  #
   def wrapped_exception
     @e
   end
