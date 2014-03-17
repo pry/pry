@@ -17,7 +17,6 @@ end
 
 group :development, :test do
   gem 'simplecov', '~> 0.8'
-  gem 'bond',  '~> 0.5'
 end
 
 platform :rbx do
