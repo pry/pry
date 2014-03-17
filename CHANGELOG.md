@@ -24,13 +24,13 @@
 * `whereami` is now aliased to `@`
 * lazy load configuration values (Pry.config). (#1096)
 * lazy load 'readline' until pry is started for the first time. (#1117)
-* lazy load `Pry::InputCompleter` or `Pry::BondCompleter`.
-  - `Pry::BondCompleter` is loaded when the "bond" gem is available and editline is not being used(OSX)
 * add option to disable input completer through `_pry_.config.completer = nil`
 * add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
 * add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
+* move `Pry::BondCompleter` and bond integration in general to the [pry-bond](https://github.com/johnny5-/pry-bond) rubygem. (#1166)
+* default input completer is always `Pry::InputCompleter` (unless pry-bond gem is used). (#1166)
 * update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
 * change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
   without a hex representation of object ID. (#1162)
