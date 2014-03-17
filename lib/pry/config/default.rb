@@ -35,7 +35,10 @@ class Pry::Config::Default
     :extra_sticky_locals    => proc { {} },
     :command_completions    => proc { proc { commands.keys } },
     :file_completions       => proc { proc { Dir["."] } },
-    :completer              => proc { lazy_completer }
+    :completer              => proc {
+      require "pry/input_completer"
+      Pry::InputCompleter.start
+    }
   }
 
   def initialize
@@ -111,16 +114,6 @@ private
     warn " * Use the rb-readline gem, which is a pure-Ruby port of Readline"
     warn " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
     raise
-  end
-
-  def lazy_completer
-    if defined?(Bond) && !is_editline?(input)
-      require "pry/bond_completer" unless defined?(Pry::BondCompleter)
-      Pry::BondCompleter.start
-    else
-      require "pry/input_completer" unless defined?(Pry::InputCompleter)
-      Pry::InputCompleter.start
-    end
   end
 
   def is_editline?(input)

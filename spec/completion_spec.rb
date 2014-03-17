@@ -5,24 +5,6 @@ def completer_test(bind, pry=nil, assert_flag=true)
     Pry::InputCompleter.call(symbol[0..-2], :target => Pry.binding_for(bind), :pry => pry).include?(symbol).should  == assert_flag}
   return proc {|*symbols| symbols.each(&test) }
 end
-
-require "pry/bond_completer"
-describe Pry::BondCompleter do
-  before do
-    @local = Pry::Config.new Pry::Config::Default.new
-    @local.completer
-  end
-
-  it "should use Bond if it's available" do
-    if defined?(Bond) && defined?(Readline) && Readline::VERSION !~ /editline/i
-      @local.completer.should == Pry::BondCompleter
-    else
-      @local.completer.should == Pry::InputCompleter
-    end
-  end
-end
-
-
 require "pry/input_completer"
 describe Pry::InputCompleter do
   before do
