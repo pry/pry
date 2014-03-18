@@ -1,9 +1,9 @@
-### 1.0.0 (2013/??/??)
+### 0.10.0 (2014/??/??)
 #### Dependency changes
 
 * "ffi" is not automatically required by pry on jruby anymore (#1158)
-* remove runtime dependency on `openstruct` from pry
-* 1.8 support discontinued from 0.10/1.0 up.  0.9 branch continues 1.8 support.
+* Remove runtime dependency on `openstruct` from pry
+* Ruby 1.9 or later required
 * Require Coderay `~> 1.1.0`
 
 #### Features
@@ -22,19 +22,18 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
-* lazy load configuration values (Pry.config). (#1096)
-* lazy load 'readline' until pry is started for the first time. (#1117)
-* add option to disable input completer through `_pry_.config.completer = nil`
-* add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
-* add `Pry::LastException` (#1145)
+* Lazy load configuration values (Pry.config). (#1096)
+* Lazy load 'readline' until pry is started for the first time. (#1117)
+* Add option to disable input completer through `_pry_.config.completer = nil`
+* Add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
+* Add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
-* move `Pry::BondCompleter` and bond integration in general to the [pry-bond](https://github.com/johnny5-/pry-bond) rubygem. (#1166)
-* default input completer is always `Pry::InputCompleter` (unless pry-bond gem is used). (#1166)
-* update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
-* change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
+* Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/johnny5-/pry-bond) rubygem. (#1166)
+* Default input completer is `Pry::InputCompleter`. (#1166)
+* Update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
+* Change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
   without a hex representation of object ID. (#1162)
-* break up `pry/completion.rb` into `pry/bond_completer.rb` and `pry/input_completer.rb`
 * `Pry#last_exception=` supports exception objects who have been frozen (#1145)
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
