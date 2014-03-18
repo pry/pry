@@ -29,7 +29,7 @@
 * Add `Pry::LastException` (#1145)
 
 #### Bug fixes, etc.
-* Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/johnny5-/pry-bond) rubygem. (#1166)
+* Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
 * Default input completer is `Pry::InputCompleter`. (#1166)
 * Update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
 * Change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
