@@ -27,6 +27,10 @@
 * Add option to disable input completer through `_pry_.config.completer = nil`
 * Add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
 * Add `Pry::LastException` (#1145)
+* Add `list-prompts` command. (#1175)
+  - lists the available prompts available for use.
+* Add `change-prompt` command. (#1175)
+  - switch the current prompt, by name.
 
 #### Bug fixes, etc.
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
