@@ -115,8 +115,4 @@ private
     warn " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
     raise
   end
-
-  def is_editline?(input)
-    defined?(input::VERSION) && input::VERSION =~ /editline/i
-  end
 end
