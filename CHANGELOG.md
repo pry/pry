@@ -32,6 +32,10 @@
   - lists the available prompts available for use.
 * Add `change-prompt` command. (#1175)
   - switch the current prompt, by name.
+* Add `list-inspectors` command. (#1176)
+  - list the inspectors available to print ruby return values in a repl.
+* Add `change-inspector` command. (#1176)
+  - switch the current inspector, by name.
 
 #### Bug fixes, etc.
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
