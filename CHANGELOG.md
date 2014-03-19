@@ -1,8 +1,8 @@
 ### 0.10.0 (2014/??/??)
 #### Dependency changes
 
-* "ffi" is not required by pry on jruby anymore (#1158)
-* "bond" is not required by pry anymore (#1166)
+* Remove require of "ffi" from pry (#1158)
+* Remove require of "bond" from pry (#1166)
 * Remove require of `openstruct` from pry (#1096)
 * Ruby 1.9 or later required
 * Require Coderay `~> 1.1.0`
