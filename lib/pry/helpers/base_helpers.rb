@@ -47,11 +47,7 @@ class Pry
       end
 
       def colorize_code(code)
-        if Pry.color
-          CodeRay.scan(code, :ruby).term
-        else
-          code
-        end
+        CodeRay.scan(code, :ruby).term
       end
 
       def highlight(string, regexp, highlight_color=:bright_yellow)
@@ -61,7 +57,7 @@ class Pry
       # formatting
       def heading(text)
         text = "#{text}\n--"
-        Pry.color ? "\e[1m#{text}\e[0m": text
+        "\e[1m#{text}\e[0m"
       end
 
       # have fun on the Windows platform.

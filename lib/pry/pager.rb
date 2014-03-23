@@ -94,7 +94,7 @@ module Pry::Pager
 
         if @tracker.page?
           @out.print "\n"
-          @out.print "\e[0m" if Pry.color
+          @out.print "\e[0m"
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
           raise StopPaging if Readline.readline("").chomp == "q"

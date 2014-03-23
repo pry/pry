@@ -68,8 +68,7 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
-    @config = Pry::Config.new
-    config.merge!(options)
+    @config = Pry::Config.from_hash({pry: self}.merge(options), Pry.config)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size

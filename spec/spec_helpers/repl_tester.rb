@@ -30,15 +30,12 @@ class ReplTester
     instance = nil
     input    = Input.new(Thread.current[:mailbox])
     output   = Output.new(StringIO.new)
-
-    redirect_pry_io input, output do
-      instance = new(options)
-      instance.instance_eval(&block)
-      instance.ensure_exit
-    end
+    repl_tester = new options.merge(input: input, output: output)
+    repl_tester.instance_eval(&block)
+    repl_tester.ensure_exit
   ensure
-    if instance && instance.thread && instance.thread.alive?
-      instance.thread.kill
+    if repl_tester and repl_tester.thread and repl_tester.thread.alive?
+      repl_tester.thread.kill
     end
   end
 

@@ -55,7 +55,7 @@ module Pry::Config::Behavior
       self[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      self[key] = _dup(value)
+      public_send "#{key}=", _dup(value)
     else
       nil
     end
@@ -65,7 +65,7 @@ module Pry::Config::Behavior
     other = try_convert_to_hash(other)
     raise TypeError, "unable to convert argument into a Hash" unless other
     other.each do |key, value|
-      self[key] = value
+      public_send "#{key}=", value
     end
   end
 
