@@ -83,7 +83,6 @@ TEXT
     end
 
     command "test-ansi", "" do
-
       prev_color = _pry_.color
       _pry_.color = true
 
