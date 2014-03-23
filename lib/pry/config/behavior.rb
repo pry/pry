@@ -70,7 +70,7 @@ module Pry::Config::Behavior
   end
 
   def ==(other)
-    to_h == try_convert_to_hash(other)
+    @lookup == try_convert_to_hash(other)
   end
   alias_method :eql?, :==
 
