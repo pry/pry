@@ -168,3 +168,4 @@ require 'pry/rubygem'
 require "pry/indent"
 require "pry/last_exception"
 require "pry/prompt"
+require "pry/inspector"
