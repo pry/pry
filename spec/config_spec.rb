@@ -50,6 +50,34 @@ describe Pry::Config do
   end
 
 
+  describe "#respond_to_missing?" do
+    before do
+      @config = Pry::Config.new(nil)
+    end
+
+    it "returns a Method object for a dynamic key" do
+      @config["key"] = 1
+      method_obj = @config.method(:key)
+      method_obj.name.should == :key
+      method_obj.call.should == 1
+    end
+  end
+
+  describe "#respond_to?" do
+    before do
+      @config = Pry::Config.new(nil)
+    end
+
+    it "returns true for a local key" do
+      @config.zzfoo = 1
+      @config.respond_to?(:zzfoo).should == true
+    end
+
+    it "returns false for an unknown key" do
+      @config.respond_to?(:blahblah).should == false
+    end
+  end
+
   describe "#default" do
     it "returns nil" do
       local = Pry::Config.new(nil)

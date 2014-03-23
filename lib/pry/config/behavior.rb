@@ -74,7 +74,7 @@ module Pry::Config::Behavior
   end
   alias_method :eql?, :==
 
-  def respond_to?(key, include_private=false)
+  def respond_to_missing?(key, include_private=false)
     key?(key) or @default.respond_to?(key) or super(key, include_private)
   end
 
