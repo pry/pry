@@ -62,16 +62,17 @@ module Pry::Config::Behavior
   end
 
   def merge!(other)
-    other = if other.respond_to?(:to_h)
-              other.to_h
-            elsif other.respond_to?(:to_hash)
-              other.to_hash
-            end
+    other = try_convert_to_hash(other)
     raise TypeError, "unable to convert argument into a Hash" unless other
     other.each do |key, value|
       self[key] = value
     end
   end
+
+  def ==(other)
+    to_h == try_convert_to_hash(other)
+  end
+  alias_method :eql?, :==
 
   def respond_to?(key, include_private=false)
     key?(key) or @default.respond_to?(key) or super(key, include_private)
@@ -100,12 +101,6 @@ module Pry::Config::Behavior
     end
   end
 
-  def ==(other)
-    return false unless other.respond_to?(:to_hash)
-    to_hash == other.to_hash
-  end
-  alias_method :eql?, :==
-
   def keys
     @lookup.keys
   end
@@ -121,6 +116,18 @@ private
       value
     else
       value.dup
+    end
+  end
+
+  def try_convert_to_hash(obj)
+    if Hash === obj
+      obj
+    elsif obj.respond_to?(:to_h)
+      obj.to_h
+    elsif obj.respond_to?(:to_hash)
+      obj.to_hash
+    else
+      nil
     end
   end
 end
