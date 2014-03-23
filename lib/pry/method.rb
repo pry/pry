@@ -148,12 +148,27 @@ class Pry
         end.flatten(1)
       end
 
+      #
       # Get all of the methods on an `Object`
+      #
       # @param [Object] obj
-      # @param [Boolean] include_super Whether to include methods from ancestors.
+      #
+      # @param [Boolean] include_super
+      #   indicates whether or not to include methods from ancestors.
+      #
       # @return [Array[Pry::Method]]
+      #
       def all_from_obj(obj, include_super=true)
         all_from_class(singleton_class_of(obj), include_super)
+      end
+
+      #
+      # @deprecated
+      #  please use {#all_from_obj} instead.
+      #  the `method_type` argument is ignored.
+      #
+      def all_from_common(obj, method_type = nil, include_super=true)
+        all_from_obj(obj, include_super)
       end
 
       # Get every `Class` and `Module`, in order, that will be checked when looking
