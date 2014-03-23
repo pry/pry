@@ -40,6 +40,7 @@
 #### Bug fixes, etc.
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
 * Default input completer is `Pry::InputCompleter`. (#1166)
+* `toggle-color` command toggles `_pry_.color` instead of the default inherited by a repl session(`Pry.color`)
 * Update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
 * Change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
   without a hex representation of object ID. (#1162)
