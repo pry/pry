@@ -28,7 +28,7 @@ module Pry::Config::Behavior
 
   #
   # @return [Pry::Config::Behavior]
-  #   returns the fallback used when a key is not found locally.
+  #   returns the default used if a matching value for a key isn't found in self
   #
   def default
     @default
@@ -62,15 +62,19 @@ module Pry::Config::Behavior
   end
 
   def merge!(other)
-    raise TypeError, "cannot coerce argument to Hash" unless other.respond_to?(:to_hash)
-    other = other.to_hash
+    other = if other.respond_to?(:to_h)
+              other.to_h
+            elsif other.respond_to?(:to_hash)
+              other.to_hash
+            end
+    raise TypeError, "unable to convert argument into a Hash" unless other
     other.each do |key, value|
       self[key] = value
     end
   end
 
-  def respond_to?(name, boolean=false)
-    key?(name) or @default.respond_to?(name) or super(name, boolean)
+  def respond_to?(key, include_private=false)
+    key?(key) or @default.respond_to?(key) or super(key, include_private)
   end
 
   def key?(key)
