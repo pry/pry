@@ -73,7 +73,7 @@ class Pry
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
-    @custom_completions = config.command_completions
+    @custom_completions = config.command_completions.call
     push_initial_binding(options[:target])
     set_last_result nil
     @input_array << nil
