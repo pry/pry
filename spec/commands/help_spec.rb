@@ -34,7 +34,7 @@ describe "help" do
 
     output = pry_eval('help')
     output.should =~ /Test listing/
-    output.should =~ /description for b/
+    output.should =~ /Description for b/
     output.should =~ /No description/
   end
 
