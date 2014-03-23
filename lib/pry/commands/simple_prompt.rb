@@ -1,7 +1,7 @@
 class Pry
   class Command::SimplePrompt < Pry::ClassCommand
     match 'simple-prompt'
-    group 'Misc'
+    group 'prompts'
     description 'Toggle the simple prompt.'
 
     banner <<-'BANNER'
