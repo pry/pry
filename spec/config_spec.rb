@@ -111,16 +111,29 @@ describe Pry::Config do
   end
 
   describe "#merge!" do
-    it "can merge a Hash-like object" do
-      local = Pry::Config.new(nil)
-      local.merge! Pry::Config.from_hash(foo: 21)
-      local.foo.should == 21
+    before do
+      @config = Pry::Config.new(nil)
     end
 
-    it "can merge a Hash" do
-      local = Pry::Config.new(nil)
-      local.merge!(foo: 21)
-      local.foo.should == 21
+    it "merges an object who returns a Hash through #to_hash" do
+      obj = Class.new { def to_hash() {epoch: 1} end }.new
+      @config.merge!(obj)
+      @config.epoch.should == 1
+    end
+
+    it "merges an object who returns a Hash through #to_h" do
+      obj = Class.new { def to_h() {epoch: 2} end }.new
+      @config.merge!(obj)
+      @config.epoch.should == 2
+    end
+
+    it "merges a Hash" do
+      @config.merge!(epoch: 420)
+      @config.epoch.should == 420
+    end
+
+    it "raises a TypeError for objects who can't become a Hash" do
+      should.raise(TypeError) { @config.merge!(Object.new) }
     end
   end
 
