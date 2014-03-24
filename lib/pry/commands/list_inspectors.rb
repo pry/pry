@@ -1,7 +1,7 @@
 class Pry::Command::ListInspectors < Pry::ClassCommand
   match 'list-inspectors'
   group 'inspect'
-  description 'list the inspector Procs available to use in pry'
+  description 'list the inspector Procs available for use in pry'
   banner <<-BANNER
     Usage: list-inspectors
     list the inspector Proc's available to print ruby objects(e.g: return values) in
