@@ -72,7 +72,7 @@ class Pry
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
-    @custom_completions = config.command_completions.call
+    @custom_completions = config.command_completions
     push_initial_binding(options[:target])
     set_last_result nil
     @input_array << nil
@@ -127,7 +127,7 @@ class Pry
     Pry.critical_section do
       config.completer.call input, :target => current_binding,
         :pry => self,
-        :custom_completions => custom_completions
+        :custom_completions => custom_completions.call.push(*sticky_locals.keys)
     end
   end
 
