@@ -45,7 +45,7 @@ class Pry
     end
 
     def complete(search)
-      super | Bond::Rc.files(search.split(' ').last || '') | load_path_completions
+      super | load_path_completions
     end
 
     def load_path_completions
