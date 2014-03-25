@@ -36,7 +36,7 @@
   - list the inspectors available to print ruby return values in a repl.
 * Add `change-inspector` command. (#1176)
   - switch the current inspector, by name.
-* Remove pry -i option. (#1155, #1182)
+* Remove pry -i option. (#1155, #1182) Please use pry-rescue -i option.
 
 #### Bug fixes, etc.
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
