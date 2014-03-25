@@ -189,10 +189,6 @@ class Pry
       [".rb", ".c", ".py", ".yml", ".gemspec"].include?(File.extname(str)) ||
         str =~ /\/|\\/
     end
-
-    def complete(search)
-      super + Bond::Rc.files(search.split(" ").last || '')
-    end
   end
 
   Pry::Commands.add_command(Pry::Command::Edit)

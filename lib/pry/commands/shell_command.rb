@@ -28,10 +28,6 @@ class Pry
       end
     end
 
-    def complete(search)
-      super + Bond::Rc.files(search.split(" ").last || '')
-    end
-
     private
 
       def parse_destination(dest)
