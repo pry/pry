@@ -11,8 +11,8 @@ module Pry::Pager
   # enabled).
   # @param [String] text A piece of text to run through a pager.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.page(text, output = $stdout)
-    with_pager(output) do |pager|
+  def self.page(text, pry)
+    with_pager(pry) do |pager|
       pager << text
     end
   end
@@ -20,8 +20,8 @@ module Pry::Pager
   # Yields a pager object (`NullPager`, `SimplePager`, or `SystemPager`).  All
   # pagers accept output with `#puts`, `#print`, `#write`, and `#<<`.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.with_pager(output = $stdout)
-    pager = best_available(output)
+  def self.with_pager(pry)
+    pager = best_available(pry)
     yield pager
   rescue StopPaging
   ensure
@@ -35,21 +35,23 @@ module Pry::Pager
   # writing output to a pager, and you must rescue `Pry::Pager::StopPaging`.
   # These requirements can be avoided by using `.with_pager` instead.
   # @param [#<<] output ($stdout) An object to send output to.
-  def self.best_available(output)
-    if !Pry.pager
-      NullPager.new(output)
+  def self.best_available(pry)
+    if !pry.pager
+      NullPager.new(pry)
     elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
-      SimplePager.new(output)
+      SimplePager.new(pry)
     else
-      SystemPager.new(output)
+      SystemPager.new(pry)
     end
   end
 
   # `NullPager` is a "pager" that actually just prints all output as it comes
   # in. Used when `Pry.pager` is false.
   class NullPager
-    def initialize(out)
-      @out = out
+    attr_reader :pry
+    def initialize(pry)
+      @pry = pry
+      @out = pry.output
     end
 
     def puts(str)
@@ -168,7 +170,7 @@ module Pry::Pager
     end
 
     def pager
-      @pager ||= IO.popen(self.class.default_pager, 'w')
+      @pager ||= Pry::Output.new pry, IO.popen(self.class.default_pager, 'w')
     end
   end
 

@@ -101,19 +101,9 @@ class Pry
       # Send the given text through the best available pager (if Pry.pager is
       # enabled). Infers where to send the output if used as a mixin.
       def stagger_output(text, out = nil)
-        out ||= case
-                when respond_to?(:output)
-                  # Mixin.
-                  output
-                when Pry.respond_to?(:output)
-                  # Parent.
-                  Pry.output
-                else
-                  # Sys.
-                  $stdout
-                end
-
-        Pry::Pager.page(text, out)
+        Pry::Pager.with_pager(_pry_) do |pager|
+          pager.write(text)
+        end
       end
 
       # @param [String] arg_string The object path expressed as a string.
