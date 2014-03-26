@@ -1,10 +1,6 @@
 require_relative 'helper'
 
 describe Pry do
-  before do
-    Pry.color = false
-  end
-
   describe "output failsafe" do
     after do
       Pry.config.print = Pry::DEFAULT_PRINT
