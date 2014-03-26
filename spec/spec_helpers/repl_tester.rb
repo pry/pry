@@ -19,17 +19,11 @@ class ReplTester
     end
   end
 
-  class Output < SimpleDelegator
-    def clear
-      __setobj__(StringIO.new)
-    end
-  end
-
   def self.start(options = {}, &block)
     Thread.current[:mailbox] = Queue.new
     instance = nil
     input    = Input.new(Thread.current[:mailbox])
-    output   = Output.new(StringIO.new)
+    output   = StringIO.new
     repl_tester = new options.merge(input: input, output: output)
     repl_tester.instance_eval(&block)
     repl_tester.ensure_exit
@@ -96,7 +90,7 @@ class ReplTester
   private
 
   def reset_output
-    @pry.output.clear
+    @pry.output = StringIO.new
   end
 
   def repl_mailbox

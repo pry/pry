@@ -24,11 +24,10 @@ describe "Sticky locals (_file_ and friends)" do
   describe '_ex_' do
     it 'returns the last exception without wrapping it in a LastException' do
       ReplTester.start do
+        input '_pry_.color = false'
         input  'raise "halp"'
-
         input  '_ex_.message == "halp"'
         output '=> true'
-
         input  'Kernel.instance_method(:class).bind(_ex_).call'
         output '=> RuntimeError'
       end
