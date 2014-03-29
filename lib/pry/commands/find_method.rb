@@ -24,9 +24,9 @@ class Pry
       find-method -c 'output.puts' Pry
     BANNER
 
-    def options(opti)
-      opti.on :n, :name,    "Search for a method by name"
-      opti.on :c, :content, "Search for a method based on content in Regex form"
+    def options(opt)
+      opt.on :n, :name,    "Search for a method by name"
+      opt.on :c, :content, "Search for a method based on content in Regex form"
     end
 
     def process
