@@ -7,7 +7,7 @@ class Pry
     description 'Show the source for a method or class.'
 
     banner <<-'BANNER'
-      Usage:   show-source [OPTIONS] [METH|CLASS|EXPRESSION]
+      Usage:   show-source [OPTIONS] [METH|CLASS]
       Aliases: $, show-method
 
       Show the source for a method or class. Tries instance methods first and then
@@ -18,14 +18,15 @@ class Pry
       show-source Pry#rep     # source for Pry#rep method
       show-source Pry         # for Pry class
       show-source Pry -a      # for all Pry class definitions (all monkey patches)
+      show-source Pry.foo -e  # for class of Pry.foo
       show-source Pry --super # for superclass of Pry (Object class)
 
       https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
     BANNER
 
-    def options(opts)
-      opts.on :e, :eval, "evaluate the command's input as a ruby expression and lookup the source of its return value"
-      super(opts)
+    def options(opt)
+      opt.on :e, :eval, "evaluate the command's input as a ruby expression and lookup the source of its return value"
+      super(opt)
     end
 
     def process
