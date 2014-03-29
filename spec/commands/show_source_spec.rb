@@ -122,6 +122,28 @@ describe "show-source" do
     pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
   end
 
+  describe "with -e option" do
+    before do
+      class FooBar
+        def bar
+          :bar
+        end
+      end
+    end
+
+    after do
+      Object.remove_const(:FooBar)
+    end
+
+    it "should find methods of evaluated argument" do
+      def @o.foobar
+        FooBar.new
+      end
+
+      pry_eval(binding, 'show-source -e @o.foobar').should =~ /class FooBar/
+    end
+  end
+
   it "should raise a CommandError when super method doesn't exist" do
     def @o.foo(*bars); end
 
