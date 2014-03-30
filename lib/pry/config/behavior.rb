@@ -113,7 +113,7 @@ module Pry::Config::Behavior
 
   def inspect
     key_str = keys.map { |key| "'#{key}'" }.join(",")
-    "<#{_clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
+    "<#{_clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
   end
 
 private
