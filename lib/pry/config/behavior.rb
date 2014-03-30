@@ -95,7 +95,7 @@ module Pry::Config::Behavior
 
   def default_for(other)
     if @default_for
-      raise RuntimeError, "self is already the default for %s" % [Pry.view_clip(@default_for, id: true)]
+      raise RuntimeError, "self is already the default for %s" % _clip_inspect(@default)
     else
       @default_for = other
     end
@@ -110,7 +110,17 @@ module Pry::Config::Behavior
   end
   alias_method :to_h, :to_hash
 
+
+  def inspect
+    key_str = keys.map { |key| "'#{key}'" }.join(",")
+    "<#{_clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
+  end
+
 private
+  def _clip_inspect(obj)
+    "#{obj.class}:0x%x" % obj.object_id << 1
+  end
+
   def _dup(value)
     if NODUP.any? { |klass| klass === value }
       value
