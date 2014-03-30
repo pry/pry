@@ -1,6 +1,7 @@
 module Pry::Config::Behavior
-  ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+  ASSIGNMENT     = "=".freeze
+  NODUP          = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+  INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
 
   module Builder
     def from_hash(hash, default = nil)
@@ -113,7 +114,11 @@ module Pry::Config::Behavior
 
   def inspect
     key_str = keys.map { |key| "'#{key}'" }.join(",")
-    "<#{_clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
+    "#<#{_clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
+  end
+
+  def pretty_print(q)
+    q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
   end
 
 private
