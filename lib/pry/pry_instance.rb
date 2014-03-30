@@ -348,6 +348,7 @@ class Pry
     # the exception either.
     begin
       output.puts "(pry) output error: #{e.inspect}"
+      output.puts e.backtrace
     rescue RescuableException => e
       if last_result_is_exception?
         output.puts "(pry) output error: failed to show exception"

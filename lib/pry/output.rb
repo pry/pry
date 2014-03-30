@@ -3,9 +3,9 @@ class Pry::Output < BasicObject
   # http://www.commandlinefu.com/commands/view/3584/remove-color-codes-special-characters-with-sed
   SHELL_COLOR_REGEXP = /\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/
 
-  def initialize(pry, io = pry.output)
-    @pry = pry
+  def initialize(io, pry = nil)
     @io = io
+    @pry = pry
   end
 
   def <<(string)
@@ -56,7 +56,7 @@ class Pry::Output < BasicObject
 private
   def decolorize_maybe(*strings)
     #
-    # `@pry` can only be nil if the IO being wrapped hasn't yet gone through {Pry#initialize}.
+    # `@pry` is typically nil if the IO being wrapped hasn't yet gone through {Pry#initialize}.
     # one place this happens is in Pry.start() if starting pry inside a critical section.
     # if an instance of `Pry` hasn't been initialized yet we assume no color.
     #

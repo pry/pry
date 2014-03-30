@@ -13,7 +13,7 @@ class Pry::Config
   end
 
   def output=(io)
-    self["output"] = Pry::Output.new(pry, io)
+    self["output"] = Pry::Output.new(io, pry)
   end
 
   #

@@ -101,7 +101,7 @@ class Pry
       # Send the given text through the best available pager (if Pry.pager is
       # enabled). Infers where to send the output if used as a mixin.
       def stagger_output(text, out = nil)
-        Pry::Pager.with_pager(_pry_) do |pager|
+        Pry::Pager.with_pager(out || _pry_.output, _pry_) do |pager|
           pager.write(text)
         end
       end
