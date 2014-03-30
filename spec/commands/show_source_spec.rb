@@ -135,12 +135,11 @@ describe "show-source" do
       Object.remove_const(:FooBar)
     end
 
-    it "should find methods of evaluated argument" do
-      def @o.foobar
-        FooBar.new
+    it "evaluates the argument as ruby and shows the source code for the returned value" do
+      ReplTester.start target: binding do
+        input 'show-source -e @o.foobar'
+        output /class FooBar/
       end
-
-      pry_eval(binding, 'show-source -e @o.foobar').should =~ /class FooBar/
     end
   end
 
