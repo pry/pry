@@ -137,7 +137,7 @@ describe "show-source" do
 
     it "evaluates the argument as ruby and shows the source code for the returned value" do
       ReplTester.start target: binding do
-        input 'show-source -e @o.foobar'
+        input 'show-source -e FooBar.new'
         output /class FooBar/
       end
     end
