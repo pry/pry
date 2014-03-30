@@ -25,7 +25,7 @@ class Pry
     BANNER
 
     def options(opt)
-      opt.on :e, :eval, "evaluate the command's input as a ruby expression and lookup the source of its return value"
+      opt.on :e, :eval, "evaluate the command's argument as a ruby expression and show the class its return value"
       super(opt)
     end
 
