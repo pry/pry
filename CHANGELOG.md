@@ -39,7 +39,9 @@
 * Add `show-source -e` (#1185)
   - evaluate the command's argument as a ruby expression and show the class of its return value.
     `show-source -e _pry_.config`
-* Remove pry -i option. (#1155, #1182) Please use pry-rescue -i option.
+* Remove pry -i option (#1155, #1182).
+  - the pry plugin [pry-rescue](https://github.com/conradirwin/pry-rescue) has an `-i` option that covers
+    corner-cases `pry -i` didn't out of the box.
 
 #### Bug fixes, etc.
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
