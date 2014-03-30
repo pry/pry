@@ -95,7 +95,7 @@ module Pry::Config::Behavior
 
   def default_for(other)
     if @default_for
-      raise RuntimeError, "self is already the default for %s" % _clip_inspect(@default)
+      raise RuntimeError, "self is already the default for %s" % _clip_inspect(@default_for)
     else
       @default_for = other
     end
