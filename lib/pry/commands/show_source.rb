@@ -18,7 +18,7 @@ class Pry
       show-source Pry#rep     # source for Pry#rep method
       show-source Pry         # for Pry class
       show-source Pry -a      # for all Pry class definitions (all monkey patches)
-      show-source Pry.foo -e  # for class of Pry.foo
+      show-source Pry.foo -e  # for class of the return value of expression `Pry.foo`
       show-source Pry --super # for superclass of Pry (Object class)
 
       https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
