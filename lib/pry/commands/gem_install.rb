@@ -22,6 +22,9 @@ class Pry
       Rubygem.install(gem)
       output.puts "Gem `#{ text.green(gem) }` installed."
       require gem
+    rescue LoadError
+      require_path = gem.split('-').join('/')
+      require require_path
     end
   end
 
