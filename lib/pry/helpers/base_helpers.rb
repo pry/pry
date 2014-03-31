@@ -42,15 +42,6 @@ class Pry
         end
       end
 
-      def set_file_and_dir_locals(file_name, _pry_=_pry_(), target=target())
-        return if !target or !file_name
-        _pry_.last_file = File.expand_path(file_name)
-        _pry_.inject_local("_file_", _pry_.last_file, target)
-
-        _pry_.last_dir = File.dirname(_pry_.last_file)
-        _pry_.inject_local("_dir_", _pry_.last_dir, target)
-      end
-
       def use_ansi_codes?
         windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end
@@ -80,7 +71,7 @@ class Pry
 
       # are we able to use ansi on windows?
       def windows_ansi?
-        defined?(Win32::Console) || ENV['ANSICON']
+        defined?(Win32::Console) || ENV['ANSICON'] || (windows? && mri_20?)
       end
 
       def jruby?
@@ -88,24 +79,31 @@ class Pry
       end
 
       def jruby_19?
-        RbConfig::CONFIG['ruby_install_name'] == 'jruby' &&
-          RbConfig::CONFIG['ruby_version'] == '1.9'
+        jruby? && RbConfig::CONFIG['ruby_version'] == '1.9'
       end
 
       def rbx?
         RbConfig::CONFIG['ruby_install_name'] == 'rbx'
       end
 
-      def mri_18?
-        RUBY_VERSION =~ /1.8/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
+      def mri?
+        RbConfig::CONFIG['ruby_install_name'] == 'ruby'
       end
 
       def mri_19?
-        RUBY_VERSION =~ /1.9/ && RbConfig::CONFIG['ruby_install_name'] == 'ruby'
+        mri? && RUBY_VERSION =~ /1.9/
       end
 
-      # Try to use `less` for paging, if it fails then use
-      # simple_pager. Also do not page if Pry.pager is falsey
+      def mri_20?
+        mri? && RUBY_VERSION =~ /2.0/
+      end
+
+      def mri_21?
+        mri? && RUBY_VERSION =~ /2.1/
+      end
+
+      # Send the given text through the best available pager (if Pry.pager is
+      # enabled). Infers where to send the output if used as a mixin.
       def stagger_output(text, out = nil)
         out ||= case
                 when respond_to?(:output)
@@ -119,14 +117,7 @@ class Pry
                   $stdout
                 end
 
-        if text.lines.count < Pry::Pager.page_size || !Pry.pager
-          out.puts text
-        else
-          Pry::Pager.page(text)
-        end
-      rescue Errno::ENOENT
-        Pry::Pager.page(text, :simple)
-      rescue Errno::EPIPE
+        Pry::Pager.page(text, out)
       end
 
       # @param [String] arg_string The object path expressed as a string.

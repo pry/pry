@@ -175,7 +175,7 @@ class Pry
       end
 
       def command_regex
-        pr = defined?(Pry.config.command_prefix) ? Pry.config.command_prefix : ""
+        pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
         prefix = convert_to_regex(pr)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
@@ -194,6 +194,7 @@ class Pry
       # The group in which the command should be displayed in "help" output.
       # This is usually auto-generated from directory naming, but it can be
       # manually overridden if necessary.
+      # Group should not be changed once it is initialized.
       def group(name=nil)
         @group ||= if name
                      name
@@ -242,12 +243,13 @@ class Pry
     # @example
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
+      command_string = _pry_.config.command_prefix.to_s + command_string
       complete_string = "#{command_string} #{args.join(" ")}".rstrip
       command_set.process_line(complete_string, context)
     end
 
     def commands
-      command_set.commands
+      command_set.to_hash
     end
 
     def text
@@ -283,7 +285,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      _pry_.command_state[match] ||= OpenStruct.new
+      _pry_.command_state[match] ||= Pry::Config.from_hash({})
     end
 
     # Revaluate the string (str) and perform interpolation.
@@ -307,8 +309,7 @@ class Pry
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
 
       if collision_type
-        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}'," +
-                                                          "which conflicts with a #{collision_type}.\n\n"
+        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}', which conflicts with a #{collision_type}.\n\n"
       end
     rescue Pry::RescuableException
     end
@@ -438,7 +439,9 @@ class Pry
     #
     # @param [String] search  The line typed so far
     # @return [Array<String>]  Completion words
-    def complete(search); Bond::DefaultMission.completions; end
+    def complete(search)
+      []
+    end
 
     private
 

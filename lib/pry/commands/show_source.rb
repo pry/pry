@@ -18,10 +18,24 @@ class Pry
       show-source Pry#rep     # source for Pry#rep method
       show-source Pry         # for Pry class
       show-source Pry -a      # for all Pry class definitions (all monkey patches)
+      show-source Pry.foo -e  # for class of the return value of expression `Pry.foo`
       show-source Pry --super # for superclass of Pry (Object class)
 
       https://github.com/pry/pry/wiki/Source-browsing#wiki-Show_method
     BANNER
+
+    def options(opt)
+      opt.on :e, :eval, "evaluate the command's argument as a ruby expression and show the class its return value"
+      super(opt)
+    end
+
+    def process
+      if opts.present?(:e)
+        obj = target.eval(args.first)
+        self.args = Array.new(1) { Module === obj ? obj.name : obj.class.name }
+      end
+      super
+    end
 
     # The source for code_object prepared for display.
     def content_for(code_object)

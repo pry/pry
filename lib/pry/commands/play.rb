@@ -32,19 +32,27 @@ class Pry
                     ' modify the method.'
 
       opt.on :e, :expression=, 'Executes until end of valid expression', :as => Integer
+      opt.on :p, :print, 'Prints executed code'
     end
 
     def process
       @cc = CodeCollector.new(args, opts, _pry_)
 
       perform_play
-      run "show-input" unless Pry::Code.complete_expression?(eval_string)
+      show_input
     end
 
     def perform_play
       eval_string << content_after_options
       run "fix-indent"
     end
+
+    def show_input
+      if opts.present?(:print) or !Pry::Code.complete_expression?(eval_string)
+        run "show-input"
+      end
+    end
+
 
     def content_after_options
       if opts.present?(:open)

@@ -15,14 +15,6 @@ class Pry
         file.close(true) if file
       end
 
-      def render_output(str, opts={})
-        if opts[:flood]
-          output.puts str
-        else
-          stagger_output str
-        end
-      end
-
       def internal_binding?(target)
         m = target.eval("::Kernel.__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753
@@ -149,6 +141,16 @@ class Pry
 
         Range.new(a, b)
       end
+
+      def set_file_and_dir_locals(file_name, _pry_=_pry_(), target=target())
+        return if !target or !file_name
+        _pry_.last_file = File.expand_path(file_name)
+        _pry_.inject_local("_file_", _pry_.last_file, target)
+
+        _pry_.last_dir = File.dirname(_pry_.last_file)
+        _pry_.inject_local("_dir_", _pry_.last_dir, target)
+      end
     end
+
   end
 end

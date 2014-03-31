@@ -94,8 +94,8 @@ class Pry
       indent = new
       lines = str.split("\n")
       n = line_number - 1
-      to_indent = lines[0...n] + (lines[n] || "").split("def").first(1)
-      indent.indent(to_indent.join("\n") + "\n")
+      to_indent = lines[0...n] << (lines[n] || "").split("def").first(1)
+      indent.indent(to_indent.join("\n") << "\n")
       indent.module_nesting
     end
 
@@ -320,7 +320,7 @@ class Pry
     # [ ["class", "Foo"], ["module", "Bar::Baz"], ["class <<", "self"] ]
     #
     # A nil value in the @module_nesting array happens in two places: either
-    # when @awaiting_token is true and we're still waiting for the string to
+    # when @awaiting_class is true and we're still waiting for the string to
     # fill that space, or when a parse was rejected.
     #
     # At the moment this function is quite restricted about what formats it will
@@ -341,7 +341,7 @@ class Pry
           @module_nesting.last[1] = token if kind == :class
           @awaiting_class = false
         else
-          # leave @nesting[-1][
+          # leave @module_nesting[-1]
           @awaiting_class = false
         end
       end
@@ -384,7 +384,7 @@ class Pry
     # @return [String]
     def correct_indentation(prompt, code, overhang=0)
       prompt = prompt.delete("\001\002")
-      line_to_measure = Pry::Helpers::Text.strip_color(prompt) + code
+      line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
       whitespace = ' ' * overhang
 
       _, cols = Terminal.screen_size

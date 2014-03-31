@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "ls" do
   describe "below ceiling" do
@@ -31,6 +31,25 @@ describe "ls" do
   describe "help" do
     it 'should show help with -h' do
       pry_eval("ls -h").should =~ /Usage: ls/
+    end
+  end
+
+  describe "BasicObject" do
+    it "should work on BasicObject" do
+      pry_eval("ls BasicObject.new").should =~ /BasicObject#methods:.*__send__/m
+    end
+
+    it "should work on subclasses of BasicObject" do
+      pry_eval(
+        "class LessBasic < BasicObject; def jaroussky; 5; end; end",
+        "ls LessBasic.new"
+      ).should =~ /LessBasic#methods:.*jaroussky/m
+    end
+  end
+
+  describe "immediates" do
+    it "should work on Fixnum" do
+      pry_eval("ls 5").should =~ /Fixnum#methods:.*modulo/m
     end
   end
 
@@ -75,6 +94,11 @@ describe "ls" do
       end
 
       test.should.not.raise
+    end
+
+    it "should show error message when instance is given with -M option" do
+      error = lambda{ pry_eval("ls -M String.new") }.should.raise(Pry::CommandError)
+      error.message.should.match(/-M only makes sense with a Module or a Class/)
     end
 
 
@@ -126,6 +150,13 @@ describe "ls" do
   end
 
   describe "constants" do
+    it "works on top-level" do
+      toplevel_consts = pry_eval('ls -c')
+      [/RUBY_PLATFORM/, /ARGF/, /STDOUT/].each do |const|
+        toplevel_consts.should =~ const
+      end
+    end
+
     it "should show constants defined on the current module" do
       pry_eval("class TempFoo1; BARGHL = 1; end", "ls TempFoo1").should =~ /BARGHL/
     end
@@ -142,16 +173,24 @@ describe "ls" do
       autoload :McflurgleTheThird, "/tmp/this-file-d000esnat-exist.rb"
       lambda{ pry_eval("ls -c") }.should.not.raise
     end
+
+    it "should show constants for an object's class regardless of mixins" do
+      pry_eval(
+        "cd Pry.new",
+        "extend Module.new",
+        "ls -c"
+      ).should.match(/Method/)
+    end
   end
 
   describe "grep" do
     it "should reduce the number of outputted things" do
-      pry_eval("ls -c").should =~ /ArgumentError/
-      pry_eval("ls -c --grep Run").should.not =~ /ArgumentError/
+      pry_eval("ls -c Object").should =~ /ArgumentError/
+      pry_eval("ls -c Object --grep Run").should.not =~ /ArgumentError/
     end
 
     it "should still output matching things" do
-      pry_eval("ls -c --grep Run").should =~ /RuntimeError/
+      pry_eval("ls -c Object --grep Run").should =~ /RuntimeError/
     end
   end
 

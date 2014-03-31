@@ -6,8 +6,6 @@ class Pry
     group 'Context'
     description 'Recursively search for a method within a Class/Module or the current namespace.'
     command_options :shellwords => false
-    command_options :requires_gem => 'ruby18_source_location' if mri_18?
-
 
     banner <<-'BANNER'
       Usage: find-method  [-n|-c] METHOD [NAMESPACE]
@@ -26,13 +24,9 @@ class Pry
       find-method -c 'output.puts' Pry
     BANNER
 
-    def setup
-      require 'ruby18_source_location' if mri_18?
-    end
-
-    def options(opti)
-      opti.on :n, :name,    "Search for a method by name"
-      opti.on :c, :content, "Search for a method based on content in Regex form"
+    def options(opt)
+      opt.on :n, :name,    "Search for a method by name"
+      opt.on :c, :content, "Search for a method based on content in Regex form"
     end
 
     def process
@@ -82,7 +76,7 @@ class Pry
 
     # pretty-print a list of matching methods.
     #
-    # @param Array[Method]
+    # @param [Array<Method>] matches
     def print_matches(matches)
       grouped = matches.group_by(&:owner)
       order = grouped.keys.sort_by{ |x| x.name || x.to_s }
@@ -105,7 +99,7 @@ class Pry
     # if `-c` was not given
     def additional_info(header, method)
       if opts.content?
-        ": " + colorize_code(matched_method_lines(header, method))
+        ": " << colorize_code(matched_method_lines(header, method))
       else
         ""
       end
@@ -117,9 +111,9 @@ class Pry
 
     # Run the given block against every constant in the provided namespace.
     #
-    # @param Module  The namespace in which to start the search.
-    # @param Hash[Module,Boolean]  The namespaces we've already visited (private)
-    # @yieldparam klazz  Each class/module in the namespace.
+    # @param [Module] klass The namespace in which to start the search.
+    # @param [Hash<Module,Boolean>] done The namespaces we've already visited (private)
+    # @yieldparam klass Each class/module in the namespace.
     #
     def recurse_namespace(klass, done={}, &block)
       return if !(Module === klass) || done[klass]
@@ -145,10 +139,10 @@ class Pry
 
     # Gather all the methods in a namespace that pass the given block.
     #
-    # @param Module  The namespace in which to search.
-    # @yieldparam Method  The method to test
-    # @yieldreturn Boolean
-    # @return Array[Method]
+    # @param [Module] namespace The namespace in which to search.
+    # @yieldparam [Method] method The method to test
+    # @yieldreturn [Boolean]
+    # @return [Array<Method>]
     #
     def search_all_methods(namespace)
       done = Hash.new{ |h,k| h[k] = {} }
@@ -169,8 +163,8 @@ class Pry
     # Search for all methods with a name that matches the given regex
     # within a namespace.
     #
-    # @param Module  The namespace to search
-    # @return Array[Method]
+    # @param [Module] namespace The namespace to search
+    # @return [Array<Method>]
     #
     def name_search(namespace)
       search_all_methods(namespace) do |meth|
@@ -181,8 +175,8 @@ class Pry
     # Search for all methods who's implementation matches the given regex
     # within a namespace.
     #
-    # @param Module  The namespace to search
-    # @return Array[Method]
+    # @param [Module] namespace The namespace to search
+    # @return [Array<Method>]
     #
     def content_search(namespace)
       search_all_methods(namespace) do |meth|

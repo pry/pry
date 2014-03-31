@@ -1,4 +1,6 @@
-require 'helper'
+require_relative 'helper'
+require "readline" unless defined?(Readline)
+require "pry/input_completer"
 
 def completer_test(bind, pry=nil, assert_flag=true)
   test = proc {|symbol|
@@ -6,16 +8,8 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
-if defined?(Bond) && Readline::VERSION !~ /editline/i
-  describe 'bond-based completion' do
-    it 'should pull in Bond by default' do
-      Pry.config.completer.should == Pry::BondCompleter
-    end
-  end
-end
 
 describe Pry::InputCompleter do
-
   before do
     # The AMQP gem has some classes like this:
     #  pry(main)> AMQP::Protocol::Test::ContentOk.name

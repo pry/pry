@@ -2,9 +2,9 @@ class Pry
   class Command::CodeCollector
     include Helpers::CommandHelpers
 
-    attr_accessor :args
-    attr_accessor :opts
-    attr_accessor :_pry_
+    attr_reader :args
+    attr_reader :opts
+    attr_reader :_pry_
 
     # The name of the explicitly given file (if any).
     attr_accessor :file
@@ -91,7 +91,7 @@ class Pry
     # @return [String]
     def pry_output_content
       pry_array_content_as_string(_pry_.output_array, self.class.output_result_ranges) do |v|
-        Pry.config.gist.inspecter.call(v)
+        _pry_.config.gist.inspecter.call(v)
       end
     end
 

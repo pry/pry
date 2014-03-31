@@ -30,7 +30,6 @@ class Pry
       opt.on     :save,   "Save history to a file", :argument => true, :as => Range
       opt.on :e, :'exclude-pry', "Exclude Pry commands from the history"
       opt.on :n, :'no-numbers',  "Omit line numbers"
-      opt.on :f, :flood,         "Do not use a pager to view text longer than one screen"
     end
 
     def process
@@ -79,7 +78,9 @@ class Pry
         @history = @history.with_line_numbers
       end
 
-      render_output(@history, opts)
+      Pry::Pager.with_pager(output) do |pager|
+        @history.print_to_output(pager)
+      end
     end
 
     def process_save

@@ -9,24 +9,15 @@ Gem::Specification.new do |s|
   s.email = ["jrmair@gmail.com", "conrad.irwin@gmail.com", "rwfitzge@gmail.com"]
   s.summary = "An IRB alternative and runtime developer console"
   s.description = s.summary
-  s.homepage = "http://pry.github.com"
+  s.homepage = "http://pryrepl.org"
   s.license = 'MIT'
 
   s.executables   = ["pry"]
   s.require_paths = ["lib"]
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- spec/*`.split("\n")
+  s.files         = `git ls-files bin lib *.md LICENSE`.split("\n")
 
-  s.add_dependency 'coderay',       '~> 1.0.5'
+  s.add_dependency 'coderay',       '~> 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
   s.add_dependency 'method_source', '~> 0.8'
-
-  s.add_development_dependency 'bacon', '~> 1.2'
-  s.add_development_dependency 'open4', '~> 1.3'
-  s.add_development_dependency 'rake',  '>= 0.9'
-  s.add_development_dependency 'guard', '~> 1.3.2'
-  s.add_development_dependency 'mocha', '~> 0.13.1'
-  s.add_development_dependency 'simplecov'
-  # TODO: make this a plain dependency:
-  s.add_development_dependency 'bond',  '~> 0.4.2'
+  s.add_development_dependency 'bundler', '~> 1.0'
 end

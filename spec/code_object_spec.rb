@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::CodeObject do
   describe "basic lookups" do
@@ -244,8 +244,14 @@ describe Pry::CodeObject do
       Object.remove_method(:ClassyWassy)
     end
 
-    it 'should look up methods before classes (at top-level)' do
+    it 'should look up classes before methods (at top-level)' do
       m = Pry::CodeObject.lookup("ClassyWassy", @p)
+      m.is_a?(Pry::WrappedModule).should == true
+      m.source.should =~ /piggy/
+    end
+
+    it 'should look up methods before classes when ending in () (at top-level)' do
+      m = Pry::CodeObject.lookup("ClassyWassy()", @p)
       m.is_a?(Pry::Method).should == true
       m.source.should =~ /ducky/
     end

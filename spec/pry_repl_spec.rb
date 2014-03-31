@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "The whole thing" do
   it "should let you run commands in the middle of multiline expressions" do
@@ -17,13 +17,13 @@ describe "The whole thing" do
       input  'raise "lorum"'
       output /^RuntimeError: lorum/
 
-      input  'raise java.lang.Exception.new("foo")'
-      expected = defined?(java.lang.Exception) ? /Exception: foo/ : /^NameError: /
-      output expected
+      if defined?(java)
+        input  'raise java.lang.Exception.new("foo")'
+        output /Exception: foo/
 
-      input  'raise java.io.IOException.new("bar")'
-      expected = defined?(java.io.IOException) ? /IOException: bar/ : /^NameError: /
-      output expected
+        input  'raise java.io.IOException.new("bar")'
+        output /IOException: bar/
+      end
     end
   end
 
@@ -47,7 +47,7 @@ describe "The whole thing" do
 
     it "shouldn't break if we start a nested instance" do
       ReplTester.start do
-        input  'Pry.start(10)'
+        input  'Pry.start(10, _pry_.config)'
         output ''
         prompt /10.*> $/
 
