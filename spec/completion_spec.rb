@@ -1,11 +1,14 @@
 require_relative 'helper'
+require "readline" unless defined?(Readline)
+require "pry/input_completer"
 
 def completer_test(bind, pry=nil, assert_flag=true)
   test = proc {|symbol|
     Pry::InputCompleter.call(symbol[0..-2], :target => Pry.binding_for(bind), :pry => pry).include?(symbol).should  == assert_flag}
   return proc {|*symbols| symbols.each(&test) }
 end
-require "pry/input_completer"
+
+
 describe Pry::InputCompleter do
   before do
     # The AMQP gem has some classes like this:
