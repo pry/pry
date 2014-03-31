@@ -10,7 +10,9 @@ class Pry
       # @return [Proc] The Proc defining the valid command line options.
       attr_accessor :options
 
-      # @return [Array] The Procs that process the parsed options.
+      # @return [Array] The Procs that process the parsed options. Plugins can
+      #   utilize this facility in order to add and process their own Pry
+      #   options.
       attr_accessor :option_processors
 
       # @return [Array<String>] The input array of strings to process
@@ -42,7 +44,7 @@ class Pry
       end
 
       # Add a block responsible for processing parsed options.
-      def process_options(&block)
+      def add_option_processor(&block)
         self.option_processors ||= []
         option_processors << block
 
@@ -55,7 +57,7 @@ class Pry
         self.option_processors = nil
       end
 
-      def parse_options(args=ARGV.dup)
+      def parse_options(args=ARGV)
         unless options
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
@@ -114,7 +116,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
-    exec_string << input + "\n"
+    exec_string << input << "\n"
   end
 
   on "no-pager", "Disable pager for long output" do
@@ -143,25 +145,25 @@ Copyright (c) 2013 John Mair (banisterfiend)
     Pry.plugins[plugin_name].disable!
   end
 
-  on :i, "interactive", "Go interactive after execution" do
-    Pry.config.exit_interactive = true
-  end
-
   on "no-plugins", "Suppress loading of plugins." do
     Pry.config.should_load_plugins = false
   end
 
-  on "installed-plugins", "List installed plugins." do
+  on "plugins", "List installed plugins." do
     puts "Installed Plugins:"
     puts "--"
     Pry.locate_plugins.each do |plugin|
-      puts "#{plugin.name}".ljust(18) + plugin.spec.summary
+      puts "#{plugin.name}".ljust(18) << plugin.spec.summary
     end
     exit
   end
 
   on "simple-prompt", "Enable simple prompt mode" do
     Pry.config.prompt = Pry::SIMPLE_PROMPT
+  end
+
+  on "noprompt", "No prompt mode" do
+    Pry.config.prompt = Pry::NO_PROMPT
   end
 
   on :r, :require=, "`require` a Ruby script at startup" do |file|
@@ -192,7 +194,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
      :default => "Pry.toplevel_binding"
      )
-end.process_options do |opts|
+end.add_option_processor do |opts|
 
   exit if opts.help?
 
@@ -210,9 +212,6 @@ end.process_options do |opts|
   if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
     full_name = File.expand_path(Pry::CLI.input_args.first)
     Pry.load_file_through_repl(full_name)
-    if Pry.config.exit_interactive
-      Pry.toplevel_binding.pry
-    end
     exit
   end
 

@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
@@ -21,9 +21,29 @@ describe "Sticky locals (_file_ and friends)" do
     end
   end
 
-  # Using mock_pry here until we figure out exception handling
-  it 'locals should keep value after cd-ing (_ex_)' do
-    mock_pry("error blah;", "$x = _ex_;", "cd 0", "_ex_ == $x").should =~ /true/
+  describe '_ex_' do
+    it 'returns the last exception without wrapping it in a LastException' do
+      ReplTester.start do
+        input  'raise "halp"'
+
+        input  '_ex_.message == "halp"'
+        output '=> true'
+
+        input  'Kernel.instance_method(:class).bind(_ex_).call'
+        output '=> RuntimeError'
+      end
+    end
+
+    it 'keeps its value after cd-ing' do
+      ReplTester.start do
+        input  'error blah'
+        input  '$x = _ex_'
+        input  'cd 0'
+
+        input  '_ex_ == $x'
+        output '=> true'
+      end
+    end
   end
 
   it 'locals should keep value after cd-ing (_file_ and _dir_)' do
@@ -40,17 +60,30 @@ describe "Sticky locals (_file_ and friends)" do
     Pry.commands.delete "file-and-dir-test"
   end
 
+  it 'locals should return last result (_)' do
+    pry_tester.tap do |t|
+      lam = t.eval 'lambda { |foo| }'
+      t.eval('_').should == lam
+    end
+  end
+
+  it 'locals should return second last result (__)' do
+    pry_tester.tap do |t|
+      lam = t.eval 'lambda { |foo| }'
+      t.eval 'num = 1'
+      t.eval('__').should == lam
+    end
+  end
+
   describe "User defined sticky locals" do
     describe "setting as Pry.config option" do
       it 'should define a new sticky local for the session (normal value)' do
         Pry.config.extra_sticky_locals[:test_local] = :john
-
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
           Pry.start(o)
         end
-
         o.instance_variable_get(:@value).should == :john
         Pry.config.extra_sticky_locals = {}
       end

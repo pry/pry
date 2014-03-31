@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry do
   describe "output failsafe" do
@@ -35,13 +35,28 @@ describe Pry do
     end
 
     it "should include the =>" do
+      pry = Pry.new
       accumulator = StringIO.new
-      Pry.config.print.call(accumulator, [1])
+      pry.config.print.call(accumulator, [1], pry)
       accumulator.string.should == "=> \[1\]\n"
     end
 
     it "should not be phased by un-inspectable things" do
       mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<.*NastyClass:0x.*?>/
+    end
+
+    it "doesn't leak colour for object literals" do
+      mock_pry("Object.new").should =~ /=> #<Object:0x[a-z0-9]+>\n/
+    end
+  end
+
+  describe "output_prefix" do
+    it "should be able to change output_prefix" do
+      pry = Pry.new
+      accumulator = StringIO.new
+      pry.config.output_prefix = "-> "
+      pry.config.print.call(accumulator, [1], pry)
+      accumulator.string.should == "-> \[1\]\n"
     end
   end
 
@@ -55,18 +70,21 @@ describe Pry do
     end
 
     it "should colorize strings as though they were ruby" do
+      pry = Pry.new
       accumulator = StringIO.new
-      Pry.config.print.call(accumulator, [1])
-      accumulator.string.should == "=> [\e[1;34m1\e[0m]\e[0m\n"
+      colorized   = CodeRay.scan("[1]", :ruby).term
+      pry.config.print.call(accumulator, [1], pry)
+      accumulator.string.should == "=> #{colorized}\n"
     end
 
     it "should not colorize strings that already include color" do
+      pry = Pry.new
       f = Object.new
       def f.inspect
         "\e[1;31mFoo\e[0m"
       end
       accumulator = StringIO.new
-      Pry.config.print.call(accumulator, f)
+      pry.config.print.call(accumulator, f, pry)
       # We add an extra \e[0m to prevent color leak
       accumulator.string.should == "=> \e[1;31mFoo\e[0m\e[0m\n"
     end

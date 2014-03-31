@@ -3,11 +3,13 @@ Makefile
 *.o
 *.def
 *.rbc
+*.bundle
 doc/
 pkg/
 coverage/
 .yardoc/
 /tags
+vendor
 *.gem
 .rbx/
 .rvmrc

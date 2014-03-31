@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do

@@ -1,19 +1,14 @@
+require 'bundler/setup'
+require 'pry/test/helper'
+Bundler.require :default, :test
+require_relative 'spec_helpers/bacon'
+require_relative 'spec_helpers/mock_pry'
+require_relative 'spec_helpers/repl_tester'
+
 if ENV["COVERAGE"]
   require "simplecov"
   SimpleCov.start
 end
-
-unless Object.const_defined? 'Pry'
-  $:.unshift File.expand_path '../../lib', __FILE__
-  require 'pry'
-end
-
-require 'mocha/api'
-
-require 'pry/test/helper'
-require 'helpers/bacon'
-require 'helpers/mock_pry'
-require 'helpers/repl_tester'
 
 class Module
   public :remove_const
@@ -24,10 +19,9 @@ end
 # in tests)
 $VERBOSE = nil
 
-Pad = OpenStruct.new
-def Pad.clear
-  @table = {}
-end
+Pad = Class.new do
+  include Pry::Config::Behavior
+end.new(nil)
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]

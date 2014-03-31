@@ -3,17 +3,12 @@ class Pry
     extend Pry::Helpers::BaseHelpers
 
     command_options :shellwords => false, :interpolate => false
-    command_options :requires_gem => "ruby18_source_location" if mri_18?
-
-    def setup
-      require 'ruby18_source_location' if mri_18?
-    end
 
     def options(opt)
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count
       opt.on :l, "line-numbers", "Show line numbers"
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)"
-      opt.on :a, :all,   "Show all definitions and monkeypatches of the module/class"
+      opt.on :a, :all,  "Show all definitions and monkeypatches of the module/class"
     end
 
     def process
@@ -63,7 +58,7 @@ class Pry
     end
 
     def content_and_header_for_code_object(code_object)
-      header(code_object) + content_for(code_object)
+      header(code_object) << content_for(code_object)
     end
 
     def content_and_headers_for_all_module_candidates(mod)
@@ -95,7 +90,7 @@ class Pry
       h << code_object_header(code_object, line_num)
       h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
         "#{content_for(code_object).lines.count}\n\n"
-      h << Helpers::Text.bold('** Warning:') + " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
+      h << Helpers::Text.bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
       h
     end
 
@@ -128,7 +123,7 @@ class Pry
       h << " #{text.bold('name:')} #{code_object.nonblank_name}"
 
       if code_object.number_of_candidates > 1
-        h << (text.bold("\nNumber of monkeypatches: ") + code_object.number_of_candidates.to_s)
+        h << (text.bold("\nNumber of monkeypatches: ") << code_object.number_of_candidates.to_s)
         h << ". Use the `-a` option to display all available monkeypatches"
       end
       h

@@ -1,28 +1,7 @@
-# taken from irb
-
 class Pry
-
-  module BondCompleter
-    def self.call(input, options)
-      Pry.current[:pry] = options[:pry]
-      Bond.agent.call(input)
-    end
-
-    def self.start
-      Bond.start(:eval_binding => lambda{ Pry.current[:pry] && Pry.current[:pry].current_context })
-      Bond.complete(:on => /\A/) do |input|
-        Pry.commands.complete(input.line,
-                             :pry_instance => Pry.current[:pry],
-                             :target       => Pry.current[:pry].current_context,
-                             :command_set  => Pry.current[:pry].commands)
-      end
-      self
-    end
-  end
-
+  # taken from irb
   # Implements tab completion for Readline in Pry
   module InputCompleter
-
     def self.start
       if Readline.respond_to?("basic_word_break_characters=")
         Readline.basic_word_break_characters = " \t\n\"\\'`><=;|&{("
@@ -58,8 +37,8 @@ class Pry
     ]
 
     # Return a new completion proc for use by Readline.
-    # @param [Binding] target The current binding context.
-    # @param [Array<String>] commands The array of Pry commands.
+    # @param [Binding] input The current binding context.
+    # @param [Array<String>] options The array of Pry commands.
     def self.call(input, options)
 
       custom_completions = options[:custom_completions] || []
@@ -112,7 +91,7 @@ class Pry
           # Symbol
           if Symbol.respond_to?(:all_symbols)
             sym        = Regexp.quote($1)
-            candidates = Symbol.all_symbols.collect{|s| ":" + s.id2name}
+            candidates = Symbol.all_symbols.collect{|s| ":" << s.id2name}
 
             candidates.grep(/^#{sym}/)
           else
@@ -123,7 +102,7 @@ class Pry
           # Absolute Constant or class methods
           receiver = $1
           candidates = Object.constants.collect(&:to_s)
-          candidates.grep(/^#{receiver}/).collect{|e| "::" + e}
+          candidates.grep(/^#{receiver}/).collect{|e| "::" << e}
 
 
         # Complete target symbols
@@ -151,7 +130,7 @@ class Pry
           rescue RescuableException
             candidates = []
           end
-          candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
+          candidates.grep(/^#{message}/).collect{|e| receiver << "::" << e}
 
         when /^(:[^:.]+)\.([^.]*)$/
           # Symbol
@@ -261,10 +240,10 @@ class Pry
       candidates.grep(/^#{message}/).collect { |e|
         case e
         when /^[a-zA-Z_]/
-          path.call(receiver + "." + e)
+          path.call(receiver + "." << e)
         when /^[0-9]/
         when *Operators
-          #receiver + " " + e
+          #receiver + " " << e
         end
       }.compact
     end

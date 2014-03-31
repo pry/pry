@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry::Hooks do
   before do
@@ -8,6 +8,16 @@ describe Pry::Hooks do
   describe "parsing options" do
     it 'should raise if no options defined' do
       lambda { Pry::CLI.parse_options(["--nothing"]) }.should.raise Pry::CLI::NoOptionsError
+    end
+
+    it "should remove args from ARGV by default" do
+      ARGV << '-v'
+      Pry::CLI.add_options do
+        on :v, "Display the Pry version" do
+          # irrelevant
+        end
+      end.parse_options
+      ARGV.include?('-v').should == false
     end
   end
 
@@ -38,8 +48,8 @@ describe Pry::Hooks do
         end
       end.parse_options(["--optiontest", "--optiontest2"])
 
-      run.should == true
-      run2.should == true
+      run.should.be.true
+      run2.should.be.true
     end
 
   end
@@ -50,7 +60,7 @@ describe Pry::Hooks do
 
       Pry::CLI.add_options do
         on :optiontest, "A test option"
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run = true if opts.present?(:optiontest)
       end.parse_options(["--optiontest"])
 
@@ -64,9 +74,9 @@ describe Pry::Hooks do
       Pry::CLI.add_options do
         on :optiontest, "A test option"
         on :optiontest2, "Another test option"
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run = true if opts.present?(:optiontest)
-      end.process_options do |opts|
+      end.add_option_processor do |opts|
         run2 = true if opts.present?(:optiontest2)
       end.parse_options(["--optiontest", "--optiontest2"])
 

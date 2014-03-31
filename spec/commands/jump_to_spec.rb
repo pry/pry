@@ -1,4 +1,4 @@
-require 'helper'
+require_relative '../helper'
 
 describe "jump-to" do
   it 'should jump to the proper binding index in the stack' do

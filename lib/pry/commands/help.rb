@@ -37,7 +37,7 @@ class Pry
 
     # Display the index view, with headings and short descriptions per command.
     #
-    # @param Hash[String => Array[Commands]]
+    # @param [Hash<String, Array<Commands>>] groups
     def display_index(groups)
       help_text = []
 
@@ -56,11 +56,11 @@ class Pry
     # return the help string for those commands.
     #
     # @param [String] name The group name.
-    # @param [Array<Pry::Command>]] commands
+    # @param [Array<Pry::Command>] commands
     # @return [String] The generated help string.
     def help_text_for_commands(name, commands)
-      "#{text.bold(name)}\n" + commands.map do |command|
-        "  #{command.options[:listing].to_s.ljust(18)} #{command.description}"
+      "#{text.bold(name.capitalize)}\n" << commands.map do |command|
+        "  #{command.options[:listing].to_s.ljust(18)} #{command.description.capitalize}"
       end.join("\n")
     end
 
@@ -130,8 +130,8 @@ class Pry
     # otherwise a sub-Hash with every key that matches the search will
     # be returned.
     #
-    # @param [String]  the search term
-    # @param [Hash]  the hash to search
+    # @param [String] search the search term
+    # @param [Hash] hash the hash to search
     def search_hash(search, hash)
       matching = {}
 
@@ -149,8 +149,8 @@ class Pry
 
     # Clean search terms to make it easier to search group names
     #
-    # @param String
-    # @return String
+    # @param [String] key
+    # @return [String]
     def normalize(key)
       key.downcase.gsub(/pry\W+/, '')
     end

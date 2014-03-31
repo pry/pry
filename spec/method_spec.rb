@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 require 'set'
 
 describe Pry::Method do
@@ -68,6 +68,18 @@ describe Pry::Method do
       meth.name.should == "hello"
     end
 
+    it 'should take care of corner cases like mongo[] e.g Foo::Bar.new[]- issue 998' do
+      klass = Class.new { def []; :hello; end }
+      meth = Pry::Method.from_str("klass.new[]", Pry.binding_for(binding))
+      meth.name.should == "[]"
+    end
+
+    it 'should take care of cases like $ mongo[] - issue 998' do
+      f = Class.new { def []; :hello; end }.new
+      meth = Pry::Method.from_str("f[]", Pry.binding_for(binding))
+      meth.name.should == "[]"
+    end
+
     it 'should look up instance methods using klass.meth#method syntax' do
       klass = Class.new { def self.meth; Class.new; end }
       meth = Pry::Method.from_str("klass.meth#initialize", Pry.binding_for(binding))
@@ -132,7 +144,8 @@ describe Pry::Method do
       m.name.should == "gag"
     end
 
-    if defined?(BasicObject) && !Pry::Helpers::BaseHelpers.rbx? # rubinius issue 1921
+    # Temporarily disabled to work around rubinius/rubinius#2871.
+    unless Pry::Helpers::BaseHelpers.rbx?
       it "should find the right method from a BasicObject" do
         a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
 
@@ -421,8 +434,8 @@ describe Pry::Method do
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
         Pry::Method.resolution_order(LS::Top).should ==
-          [singleton_class(LS::Top), singleton_class(Object), (defined? BasicObject) && singleton_class(BasicObject)].compact +
-          Pry::Method.instance_resolution_order(Class)
+          [singleton_class(LS::Top), singleton_class(Object), singleton_class(BasicObject),
+           *Pry::Method.instance_resolution_order(Class)]
       end
     end
   end
@@ -468,15 +481,27 @@ describe Pry::Method do
       meth.aliases.should.not.include "eat"
     end
 
-    unless Pry::Helpers::BaseHelpers.mri_18?
-      # Ruby 1.8 doesn't support this feature.
-      it 'should be able to find aliases for methods implemented in C' do
-        meth = Pry::Method(Hash.new.method(:key?))
-        aliases = Set.new(meth.aliases)
+    it 'should find aliases for top-level methods' do
+      # top-level methods get added as private instance methods on Object
+      class Object
+        private
+        def my_top_level_method ; end
+        alias my_other_top_level_method my_top_level_method
+      end
 
-        aliases.should == Set.new(["include?", "member?", "has_key?"])
+      meth = Pry::Method.new(method(:my_top_level_method))
+      meth.aliases.should.include 'my_other_top_level_method'
+
+      class Object
+        remove_method :my_top_level_method
       end
     end
 
+    it 'should be able to find aliases for methods implemented in C' do
+      meth = Pry::Method(Hash.new.method(:key?))
+      aliases = Set.new(meth.aliases)
+
+      aliases.should == Set.new(["include?", "member?", "has_key?"])
+    end
   end
 end

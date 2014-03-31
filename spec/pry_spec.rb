@@ -1,19 +1,15 @@
-require 'helper'
+require_relative 'helper'
 
 describe Pry do
   before do
     @str_output = StringIO.new
   end
 
-  if RUBY_VERSION =~ /1.9/
-    describe "Exotic object support" do
-      # regression test for exotic object support
-      it "Should not error when return value is a BasicObject instance" do
-
-        ReplTester.start do
-          input('BasicObject.new').should =~ /^=> #<BasicObject:/
-        end
-
+  describe "Exotic object support" do
+    # regression test for exotic object support
+    it "Should not error when return value is a BasicObject instance" do
+      ReplTester.start do
+        input('BasicObject.new').should =~ /^=> #<BasicObject:/
       end
     end
   end
@@ -71,6 +67,28 @@ describe Pry do
     end
   end
 
+  describe "#last_exception=" do
+    before do
+      @pry = Pry.new binding: binding
+      @e = mock_exception "foo.rb:1"
+    end
+
+    it "returns an instance of Pry::LastException" do
+      @pry.last_exception = @e
+      @pry.last_exception.wrapped_exception.should == @e
+    end
+
+    it "returns a frozen exception" do
+      @pry.last_exception = @e.freeze
+      @pry.last_exception.should.be.frozen?
+    end
+
+    it "returns an object who mirrors itself as the wrapped exception" do
+      @pry.last_exception = @e.freeze
+      @pry.last_exception.should.be.instance_of?(StandardError)
+    end
+  end
+
   describe "open a Pry session on an object" do
     describe "rep" do
       before do
@@ -89,11 +107,9 @@ describe Pry do
         }.should.raise(NameError)
       end
 
-      if defined?(BasicObject)
-        it 'should be able to operate inside the BasicObject class' do
-          pry_eval(BasicObject, ":foo", "Pad.obj = _")
-          Pad.obj.should == :foo
-        end
+      it 'should be able to operate inside the BasicObject class' do
+        pry_eval(BasicObject, ":foo", "Pad.obj = _")
+        Pad.obj.should == :foo
       end
 
       it 'should set an ivar on an object' do
@@ -325,9 +341,8 @@ describe Pry do
         end
 
         it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
-          # should include  float in here, but test fails for some reason
-          # on 1.8.7, no idea why!
-          [:test, 0, true, false, nil].each do |val|
+          [:test, 0, true, false, nil,
+              (0.0 unless Pry::Helpers::BaseHelpers.jruby?)].each do |val|
             pry_eval(val, "def hello; end");
             val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
           end

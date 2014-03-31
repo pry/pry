@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 version = 1
 
@@ -97,7 +97,7 @@ describe "test Pry defaults" do
     Pry.print =  new_print
 
     Pry.new.print.should == Pry.print
-    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output 
+    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
     @str_output.string.should == "=> LOL\n"
 
     @str_output = StringIO.new
@@ -244,41 +244,43 @@ describe "test Pry defaults" do
   end
 
   describe "view_clip used for displaying an object in a truncated format" do
-
-    VC_MAX_LENGTH = 60
+    DEFAULT_OPTIONS =  {
+      max_length: 60
+    }
+    MAX_LENGTH = DEFAULT_OPTIONS[:max_length]
 
     describe "given an object with an #inspect string" do
       it "returns the #<> format of the object (never use inspect)" do
         o = Object.new
-        def o.inspect; "a" * VC_MAX_LENGTH; end
+        def o.inspect; "a" * MAX_LENGTH; end
 
-        Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
+        Pry.view_clip(o, DEFAULT_OPTIONS).should =~ /#<Object/
       end
     end
 
     describe "given the 'main' object" do
       it "returns the #to_s of main (special case)" do
         o = TOPLEVEL_BINDING.eval('self')
-        Pry.view_clip(o, VC_MAX_LENGTH).should == o.to_s
+        Pry.view_clip(o, DEFAULT_OPTIONS).should == o.to_s
       end
     end
 
     describe "the list of prompt safe objects" do
       [1, 2.0, -5, "hello", :test].each do |o|
         it "returns the #inspect of the special-cased immediate object: #{o}" do
-          Pry.view_clip(o, VC_MAX_LENGTH).should == o.inspect
+          Pry.view_clip(o, DEFAULT_OPTIONS).should == o.inspect
         end
       end
 
       it "returns #<> format of the special-cased immediate object if #inspect is longer than maximum" do
-        o = "o" * (VC_MAX_LENGTH + 1)
-        Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<String/
+        o = "o" * (MAX_LENGTH + 1)
+        Pry.view_clip(o, DEFAULT_OPTIONS).should =~ /#<String/
       end
 
       it "returns the #inspect of the custom prompt safe objects" do
         Barbie = Class.new { def inspect; "life is plastic, it's fantastic" end }
         Pry.config.prompt_safe_objects << Barbie
-        output = Pry.view_clip(Barbie.new, VC_MAX_LENGTH)
+        output = Pry.view_clip(Barbie.new, DEFAULT_OPTIONS)
         output.should == "life is plastic, it's fantastic"
       end
     end
@@ -286,9 +288,9 @@ describe "test Pry defaults" do
     describe "given an object with an #inspect string as long as the maximum specified" do
       it "returns the #<> format of the object (never use inspect)" do
         o = Object.new
-        def o.inspect; "a" * VC_MAX_LENGTH; end
+        def o.inspect; "a" * DEFAULT_OPTIONS; end
 
-        Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
+        Pry.view_clip(o, DEFAULT_OPTIONS).should =~ /#<Object/
       end
     end
 
@@ -297,9 +299,9 @@ describe "test Pry defaults" do
       describe "when the object is a regular one" do
         it "returns a string of the #<class name:object idish> format" do
           o = Object.new
-          def o.inspect; "a" * (VC_MAX_LENGTH + 1); end
+          def o.inspect; "a" * (DEFAULT_OPTIONS + 1); end
 
-          Pry.view_clip(o, VC_MAX_LENGTH).should =~ /#<Object/
+          Pry.view_clip(o, DEFAULT_OPTIONS).should =~ /#<Object/
         end
       end
 
@@ -308,8 +310,8 @@ describe "test Pry defaults" do
           it "returns a string of the #<class name:object idish> format" do
             c, m = Class.new, Module.new
 
-            Pry.view_clip(c, VC_MAX_LENGTH).should =~ /#<Class/
-            Pry.view_clip(m, VC_MAX_LENGTH).should =~ /#<Module/
+            Pry.view_clip(c, DEFAULT_OPTIONS).should =~ /#<Class/
+            Pry.view_clip(m, DEFAULT_OPTIONS).should =~ /#<Module/
           end
         end
 
@@ -318,11 +320,11 @@ describe "test Pry defaults" do
             c, m = Class.new, Module.new
 
 
-            def c.name; "a" * (VC_MAX_LENGTH + 1); end
-            def m.name; "a" * (VC_MAX_LENGTH + 1); end
+            def c.name; "a" * (MAX_LENGTH + 1); end
+            def m.name; "a" * (MAX_LENGTH + 1); end
 
-            Pry.view_clip(c, VC_MAX_LENGTH).should =~ /#<Class/
-            Pry.view_clip(m, VC_MAX_LENGTH).should =~ /#<Module/
+            Pry.view_clip(c, DEFAULT_OPTIONS).should =~ /#<Class/
+            Pry.view_clip(m, DEFAULT_OPTIONS).should =~ /#<Module/
           end
         end
 
@@ -330,11 +332,11 @@ describe "test Pry defaults" do
           it "returns a string of the #<class name:object idish> format" do
             c, m = Class.new, Module.new
 
-            def c.name; "a" * VC_MAX_LENGTH; end
-            def m.name; "a" * VC_MAX_LENGTH; end
+            def c.name; "a" * MAX_LENGTH; end
+            def m.name; "a" * MAX_LENGTH; end
 
-            Pry.view_clip(c, VC_MAX_LENGTH).should == c.name
-            Pry.view_clip(m, VC_MAX_LENGTH).should == m.name
+            Pry.view_clip(c, DEFAULT_OPTIONS).should == c.name
+            Pry.view_clip(m, DEFAULT_OPTIONS).should == m.name
           end
         end
 

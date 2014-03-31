@@ -88,8 +88,8 @@ class Pry
 
       set_file_and_dir_locals(@file)
 
-      out = "\n#{text.bold('From:')} #{location}:\n\n" +
-        code.with_line_numbers(use_line_numbers?).with_marker(marker).to_s + "\n"
+      out = "\n#{text.bold('From:')} #{location}:\n\n" <<
+        code.with_line_numbers(use_line_numbers?).with_marker(marker).to_s << "\n"
 
       stagger_output(out)
     end
@@ -109,7 +109,7 @@ class Pry
     end
 
     def top_level?
-      target_self == TOPLEVEL_BINDING.eval("self")
+      target_self == Pry.main
     end
 
     def handle_internal_binding
@@ -178,7 +178,7 @@ class Pry
 
     def window_size
       if args.empty?
-        Pry.config.default_window_size
+        _pry_.config.default_window_size
       else
         args.first.to_i
       end

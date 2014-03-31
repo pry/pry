@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'helper'
 
 describe "Pry::Command" do
 
@@ -94,7 +94,7 @@ describe "Pry::Command" do
         #
       end
 
-      mock_command(@set.commands['help'], %w(oolon-colluphid), :command_set => @set).output.should =~ /Raving Atheist/
+      mock_command(@set['help'], %w(oolon-colluphid), :command_set => @set).output.should =~ /Raving Atheist/
     end
 
     it 'should use slop to generate the help for classy commands' do
@@ -104,7 +104,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(@set.commands['help'], %w(eddie), :command_set => @set).output.should =~ /Over-cheerful/
+      mock_command(@set['help'], %w(eddie), :command_set => @set).output.should =~ /Over-cheerful/
     end
 
     it 'should provide --help for classy commands' do
@@ -664,10 +664,8 @@ describe "Pry::Command" do
       pry_eval('my---test').should =~ /my-testmy-test/
     end
 
-    if !mri18_and_no_real_source_location?
-      it "shows the source of the process method" do
-        pry_eval('show-source my-test').should =~ /output.puts command_name/
-      end
+    it "shows the source of the process method" do
+      pry_eval('show-source my-test').should =~ /output.puts command_name/
     end
 
     describe "command options hash" do
@@ -805,17 +803,17 @@ describe "Pry::Command" do
     end
 
     it 'should be correct for default commands' do
-      @set.commands["help"].group.should == "Help"
+      @set["help"].group.should == "Help"
     end
 
     it 'should not change once it is initialized' do
-      @set.commands["magic"].group("-==CD COMMAND==-")
-      @set.commands["magic"].group.should == "Not for a public use"
+      @set["magic"].group("-==CD COMMAND==-")
+      @set["magic"].group.should == "Not for a public use"
     end
 
     it 'should not disappear after the call without parameters' do
-      @set.commands["magic"].group
-      @set.commands["magic"].group.should == "Not for a public use"
+      @set["magic"].group
+      @set["magic"].group.should == "Not for a public use"
     end
   end
 end

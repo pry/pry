@@ -1,5 +1,5 @@
 require 'pathname'
-require 'helper'
+require_relative '../helper'
 
 describe "edit" do
   before do
@@ -33,6 +33,16 @@ describe "edit" do
 
     after do
       FileUtils.rm(@tf_path) if File.exists?(@tf_path)
+    end
+
+    it "should not allow patching any known kind of file" do
+      ["file.rb", "file.c", "file.py", "file.yml", "file.gemspec",
+       "/tmp/file", "\\\\Temp\\\\file"].each do |file|
+        proc {
+          pry_eval "edit -p #{file}"
+        }.should.raise(NotImplementedError).
+          message.should =~ /Cannot yet patch false objects!/
+      end
     end
 
     it "should invoke Pry.config.editor with absolutified filenames" do

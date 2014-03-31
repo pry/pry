@@ -10,19 +10,15 @@ class Pry
   class CommandSet
     include Enumerable
     include Pry::Helpers::BaseHelpers
-
-    attr_reader :commands
     attr_reader :helper_module
 
-    # @param [Array<CommandSet>] imported_sets Sets which will be imported
-    #   automatically
+    # @param [Array<Commandset>] imported_sets
+    #   Sets which will be imported automatically
     # @yield Optional block run to define commands
     def initialize(*imported_sets, &block)
       @commands      = {}
       @helper_module = Module.new
-
       import(*imported_sets)
-
       instance_eval(&block) if block
     end
 
@@ -83,7 +79,7 @@ class Pry
       description, options = ["No description.", description] if description.is_a?(Hash)
       options = Pry::Command.default_options(match).merge!(options)
 
-      commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
+      @commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
     end
     alias_method :command, :block_command
 
@@ -115,9 +111,9 @@ class Pry
       description, options = ["No description.", description] if description.is_a?(Hash)
       options = Pry::Command.default_options(match).merge!(options)
 
-      commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
-      commands[match].class_eval(&block)
-      commands[match]
+      @commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
+      @commands[match].class_eval(&block)
+      @commands[match]
     end
 
     # Execute a block of code before a command is invoked. The block also
@@ -152,18 +148,12 @@ class Pry
       @commands.each(&block)
     end
 
-    # Add a given command object to this set.
-    # @param [Command] command The subclass of Pry::Command you wish to add.
-    def add_command(command)
-      commands[command.match] = command
-    end
-
     # Removes some commands from the set
     # @param [Array<String>] searches the matches or listings of the commands to remove
     def delete(*searches)
       searches.each do |search|
         cmd = find_command_by_match_or_listing(search)
-        commands.delete cmd.match
+        @commands.delete cmd.match
       end
     end
 
@@ -173,7 +163,7 @@ class Pry
     # @return [Pry::CommandSet] Returns the reciever (a command set).
     def import(*sets)
       sets.each do |set|
-        commands.merge! set.commands
+        @commands.merge! set.to_hash
         helper_module.send :include, set.helper_module
       end
       self
@@ -187,7 +177,7 @@ class Pry
       helper_module.send :include, set.helper_module
       matches.each do |match|
         cmd = set.find_command_by_match_or_listing(match)
-        commands[cmd.match] = cmd
+        @commands[cmd.match] = cmd
       end
       self
     end
@@ -196,8 +186,8 @@ class Pry
     #   of the command to retrieve.
     # @return [Command] The command object matched.
     def find_command_by_match_or_listing(match_or_listing)
-      cmd = (commands[match_or_listing] ||
-        Pry::Helpers::BaseHelpers.find_command(match_or_listing, commands))
+      cmd = (@commands[match_or_listing] ||
+        Pry::Helpers::BaseHelpers.find_command(match_or_listing, @commands))
       cmd or raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!"
     end
 
@@ -256,11 +246,11 @@ class Pry
         :description => cmd.description
       }.merge!(options)
 
-      commands[new_match] = cmd.dup
-      commands[new_match].match = new_match
-      commands[new_match].description = options.delete(:description)
-      commands[new_match].options.merge!(options)
-      commands.delete(cmd.match)
+      @commands[new_match] = cmd.dup
+      @commands[new_match].match = new_match
+      @commands[new_match].description = options.delete(:description)
+      @commands[new_match].options.merge!(options)
+      @commands.delete(cmd.match)
     end
 
     def disabled_command(name_of_disabled_command, message, matcher=name_of_disabled_command)
@@ -309,18 +299,71 @@ class Pry
     end
 
 
-    # @return [Array] The list of commands provided by the command set.
+    # @return [Array]
+    #   The list of commands provided by the command set.
     def list_commands
-      commands.keys
+      @commands.keys
     end
+    alias_method :keys, :list_commands
+
+    def to_hash
+      @commands.dup
+    end
+    alias_method :to_h, :to_hash
 
     # Find a command that matches the given line
-    # @param [String] val The line that might be a command invocation
+    # @param [String] pattern The line that might be a command invocation
     # @return [Pry::Command, nil]
-    def find_command(val)
-      commands.values.select{ |c| c.matches?(val) }.sort_by{ |c| c.match_score(val) }.last
+    def [](pattern)
+      @commands.values.select do |command|
+        command.matches?(pattern)
+      end.sort_by do |command|
+        command.match_score(pattern)
+      end.last
     end
-    alias_method :[], :find_command
+    alias_method :find_command, :[]
+
+    #
+    # Re-assign the command found at _pattern_ with _command_.
+    #
+    # @param [Regexp, String] pattern
+    #   The command to add or replace(found at _pattern_).
+    #
+    # @param [Pry::Command] command
+    #   The command to add.
+    #
+    # @return [Pry::Command]
+    #   Returns the new command (matched with "pattern".)
+    #
+    # @example
+    #   Pry.commands["help"] = MyHelpCommand
+    #
+    def []=(pattern, command)
+      if command.equal?(nil)
+        return @commands.delete(pattern)
+      end
+      unless Class === command && command < Pry::Command
+        raise TypeError, "command is not a subclass of Pry::Command"
+      end
+      bind_command_to_pattern = pattern != command.match
+      if bind_command_to_pattern
+        command_copy = command.dup
+        command_copy.match = pattern
+        @commands[pattern] = command_copy
+      else
+        @commands[pattern] = command
+      end
+    end
+
+    #
+    # Add a command to set.
+    #
+    # @param [Command] command
+    #   a subclass of Pry::Command.
+    #
+    def add_command(command)
+      self[command.match] = command
+    end
 
     # Find the command that the user might be trying to refer to.
     # @param [String] search The user's search.
@@ -356,7 +399,7 @@ class Pry
 
     # @private (used for testing)
     def run_command(context, match, *args)
-      command = commands[match] or raise NoCommandError.new(match, self)
+      command = @commands[match] or raise NoCommandError.new(match, self)
       command.new(context).call_safely(*args)
     end
 
@@ -368,9 +411,9 @@ class Pry
       if command = find_command(search)
         command.new(context).complete(search)
       else
-        commands.keys.select do |key|
+        @commands.keys.select do |key|
           String === key && key.start_with?(search)
-        end.map{ |key| key + " " } + Bond::DefaultMission.completions
+        end.map{ |key| key + " " }
       end
     end
   end

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'pry/helpers/documentation_helpers'
 
 class Pry
@@ -31,8 +30,7 @@ class Pry
       # search in, find and return the requested method wrapped in a `Pry::Method`
       # instance.
       #
-      # @param [String, nil] name The name of the method to retrieve, or `nil` to
-      #   delegate to `from_binding` instead.
+      # @param [String] name The name of the method to retrieve.
       # @param [Binding] target The context in which to search for the method.
       # @param [Hash] options
       # @option options [Boolean] :instance Look for an instance method if `name` doesn't
@@ -40,13 +38,16 @@ class Pry
       # @option options [Boolean] :methods Look for a bound/singleton method if `name` doesn't
       #   contain any context.
       # @return [Pry::Method, nil] A `Pry::Method` instance containing the requested
-      #   method, or `nil` if no method could be located matching the parameters.
+      #   method, or `nil` if name is `nil` or no method could be located matching the parameters.
       def from_str(name, target=TOPLEVEL_BINDING, options={})
         if name.nil?
-          from_binding(target)
+          nil
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
           context, meth_name = $1, $2
           from_module(target.eval(context), meth_name, target)
+        elsif name.to_s =~ /(.+)(\[\])\Z/
+          context, meth_name = $1, $2
+          from_obj(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\.|::)(\S+)\Z/
           context, meth_name = $1, $3
           from_obj(target.eval(context), meth_name, target)
@@ -139,15 +140,34 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super=true)
-        all_from_common(klass, :instance_method, include_super)
+        %w(public protected private).map do |visibility|
+          safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
+            new(safe_send(klass, :instance_method, method_name), :visibility => visibility.to_sym)
+          end
+        end.flatten(1)
       end
 
+      #
       # Get all of the methods on an `Object`
+      #
       # @param [Object] obj
-      # @param [Boolean] include_super Whether to include methods from ancestors.
+      #
+      # @param [Boolean] include_super
+      #   indicates whether or not to include methods from ancestors.
+      #
       # @return [Array[Pry::Method]]
+      #
       def all_from_obj(obj, include_super=true)
-        all_from_common(obj, :method, include_super)
+        all_from_class(singleton_class_of(obj), include_super)
+      end
+
+      #
+      # @deprecated
+      #  please use {#all_from_obj} instead.
+      #  the `method_type` argument is ignored.
+      #
+      def all_from_common(obj, method_type = nil, include_super=true)
+        all_from_obj(obj, include_super)
       end
 
       # Get every `Class` and `Module`, in order, that will be checked when looking
@@ -186,21 +206,6 @@ class Pry
         /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*#{Regexp.escape(name)}/ =~ definition_line.strip
       end
 
-      private
-
-      # See all_from_class and all_from_obj.
-      # If method_type is :instance_method, obj must be a `Class` or a `Module`
-      # If method_type is :method, obj can be any `Object`
-      #
-      # N.B. we pre-cache the visibility here to avoid O(N²) behaviour in "ls".
-      def all_from_common(obj, method_type, include_super=true)
-        %w(public protected private).map do |visibility|
-          safe_send(obj, :"#{visibility}_#{method_type}s", include_super).map do |method_name|
-            new(safe_send(obj, method_type, method_name), :visibility => visibility.to_sym)
-          end
-        end.flatten(1)
-      end
-
       # Get the singleton classes of superclasses that could define methods on
       # the given class object, and any modules they include.
       # If a module is included at multiple points in the ancestry, only
@@ -214,7 +219,13 @@ class Pry
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end
 
-      def singleton_class_of(obj); class << obj; self; end end
+      def singleton_class_of(obj)
+        begin
+          class << obj; self; end
+        rescue TypeError # can't define singleton. Fixnum, Symbol, Float, ...
+          obj.class
+        end
+      end
     end
 
     # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
@@ -411,15 +422,14 @@ class Pry
     end
 
     # @return [Array<String>] All known aliases for the method.
-    # @note On Ruby 1.8 this method always returns an empty Array for methods
-    #   implemented in C.
     def aliases
       owner = @method.owner
       # Avoid using `to_sym` on {Method#name}, which returns a `String`, because
       # it won't be garbage collected.
       name = @method.name
 
-      alias_list = owner.instance_methods.combination(2).select do |pair|
+      all_methods_to_compare = owner.instance_methods | owner.private_instance_methods
+      alias_list = all_methods_to_compare.combination(2).select do |pair|
         pair.include?(name) &&
           owner.instance_method(pair.first) == owner.instance_method(pair.last)
       end.flatten
@@ -473,7 +483,7 @@ class Pry
         Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
       else
         fail_msg = "Cannot locate this method: #{name}."
-        if mri_18? || mri_19?
+        if mri?
           fail_msg += ' Try `gem-install pry-doc` to get access to Ruby Core documentation.'
         end
         raise CommandError, fail_msg
