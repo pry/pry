@@ -38,7 +38,7 @@ class Pry::Config::Default
     :ls                     => proc { Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS) },
     :completer              => proc {
       require "pry/input_completer"
-      Pry::InputCompleter.start
+      Pry::InputCompleter
     }
   }
 
