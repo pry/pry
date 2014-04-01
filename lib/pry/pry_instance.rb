@@ -148,7 +148,7 @@ class Pry
   #   The value the local was set to.
   #
   def inject_local(name, value, b)
-    value = value.is_a?(Proc) ? value.call : value
+    value = Proc === value ? value.call : value
     if b.respond_to?(:local_variable_set)
       b.local_variable_set name, value
     else # < 2.1
