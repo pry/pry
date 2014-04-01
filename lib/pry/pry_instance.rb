@@ -132,16 +132,33 @@ class Pry
     end
   end
 
+  #
   # Injects a local variable into the provided binding.
-  # @param [String] name The name of the local to inject.
-  # @param [Object] value The value to set the local to.
-  # @param [Binding] b The binding to set the local on.
-  # @return [Object] The value the local was set to.
+  #
+  # @param [String] name
+  #   The name of the local to inject.
+  #
+  # @param [Object] value
+  #   The value to set the local to.
+  #
+  # @param [Binding] b
+  #   The binding to set the local on.
+  #
+  # @return [Object]
+  #   The value the local was set to.
+  #
   def inject_local(name, value, b)
-    Pry.current[:pry_local] = value.is_a?(Proc) ? value.call : value
-    b.eval("#{name} = ::Pry.current[:pry_local]")
-  ensure
-    Pry.current[:pry_local] = nil
+    value = value.is_a?(Proc) ? value.call : value
+    if b.respond_to?(:local_variable_set)
+      b.local_variable_set name, value
+    else # < 2.1
+      begin
+        Pry.current[:pry_local] = value
+        b.eval "#{name} = ::Pry.current[:pry_local]"
+      ensure
+        Pry.current[:pry_local] = nil
+      end
+    end
   end
 
   # @return [Integer] The maximum amount of objects remembered by the inp and
