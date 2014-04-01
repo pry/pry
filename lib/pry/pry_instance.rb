@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
 # features syntax highlighting, a flexible plugin architecture, runtime
@@ -125,9 +126,8 @@ class Pry
   def complete(input)
     return EMPTY_COMPLETIONS unless config.completer
     Pry.critical_section do
-      config.completer.call input, :target => current_binding,
-        :pry => self,
-        :custom_completions => custom_completions.call.push(*sticky_locals.keys)
+      completer = config.completer.new(self)
+      completer.call input, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
     end
   end
 
