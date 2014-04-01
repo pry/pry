@@ -68,16 +68,17 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
+    target = options.delete(:target)
     @config = Pry::Config.new
     config.merge!(options)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
     @custom_completions = config.command_completions
-    push_initial_binding(options[:target])
+    push_initial_binding(target)
+    exec_hook(:when_started, target, options, self)
     set_last_result nil
     @input_array << nil
-    exec_hook(:when_started, options[:target], options, self)
   end
 
   # The current prompt.
