@@ -44,6 +44,7 @@
     corner-cases `pry -i` didn't out of the box.
 
 #### Bug fixes, etc.
+* the `gem-install` command won't fail to require gems like `net-ssh` thanks to better guess logic about its path (#1188)
 * Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
 * Default input completer is `Pry::InputCompleter`. (#1166)
 * `toggle-color` command toggles `_pry_.color` instead of the default inherited by a repl session(`Pry.color`)
