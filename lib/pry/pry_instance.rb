@@ -75,10 +75,10 @@ class Pry
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
     @custom_completions = config.command_completions
-    push_initial_binding(target)
-    exec_hook(:when_started, target, options, self)
     set_last_result nil
     @input_array << nil
+    push_initial_binding(target)
+    exec_hook(:when_started, target, options, self)
   end
 
   # The current prompt.
