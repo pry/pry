@@ -42,7 +42,7 @@ class Pry::InputCompleter
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
 
   def initialize(input, pry = nil)
-    @pry = pry if pry
+    @pry = pry
     @input = input
     @input.basic_word_break_characters = WORD_ESCAPE_STR if @input.respond_to?(:basic_word_break_characters=)
     @input.completion_append_character = nil if @input.respond_to?(:completion_append_character=)
