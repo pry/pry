@@ -4,7 +4,7 @@ require "pry/input_completer"
 
 def completer_test(bind, pry=nil, assert_flag=true)
   test = proc {|symbol|
-    Pry::InputCompleter.new(pry).call(symbol[0..-2], :target => Pry.binding_for(bind)).include?(symbol).should  == assert_flag}
+    Pry::InputCompleter.new(pry || Readline, pry).call(symbol[0..-2], :target => Pry.binding_for(bind)).include?(symbol).should  == assert_flag}
   return proc {|*symbols| symbols.each(&test) }
 end
 
@@ -30,12 +30,12 @@ describe Pry::InputCompleter do
   # another jruby hack :((
   if !Pry::Helpers::BaseHelpers.jruby?
     it "should not crash if there's a Module that has a symbolic name." do
-      lambda{ Pry::InputCompleter.new.call "a.to_s.", :target => Pry.binding_for(Object.new) }.should.not.raise Exception
+      lambda{ Pry::InputCompleter.new(Readline).call "a.to_s.", :target => Pry.binding_for(Object.new) }.should.not.raise Exception
     end
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    lambda { Pry::InputCompleter.new.call(":class)", :target => Pry.binding_for(Object.new)) }.should.not.raise(RegexpError)
+    lambda { Pry::InputCompleter.new(Readline).call(":class)", :target => Pry.binding_for(Object.new)) }.should.not.raise(RegexpError)
   end
 
   it 'should complete instance variables' do
@@ -114,7 +114,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    Pry::InputCompleter.new.call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
+    Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
   end
 
   it 'should complete for arbitrary scopes' do
@@ -185,7 +185,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    Pry::InputCompleter.new.call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
+    Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/').should   == true
   end
 
   it 'should complete for arbitrary scopes' do
@@ -209,6 +209,6 @@ describe Pry::InputCompleter do
 
   it 'should not return nil in its output' do
     pry = Pry.new
-    Pry::InputCompleter.new(pry).call("pry.", :target => binding).should.not.include nil
+    Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding).should.not.include nil
   end
 end
