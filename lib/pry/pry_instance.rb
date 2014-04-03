@@ -127,7 +127,8 @@ class Pry
   def complete(input)
     return EMPTY_COMPLETIONS unless config.completer
     Pry.critical_section do
-      completer = config.completer.new(self)
+      completer = config.completer.new(input, self)
+      # todo: `input` argument isn't needed.
       completer.call input, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
     end
   end
