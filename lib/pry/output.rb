@@ -1,11 +1,13 @@
 class Pry::Output < BasicObject
-  # courtesy of:
-  # http://www.commandlinefu.com/commands/view/3584/remove-color-codes-special-characters-with-sed
-  SHELL_COLOR_REGEXP = /\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]/
+  ANSI_ESCAPE = /\033\[[0-9;]*m/
 
   def initialize(io, pry = nil)
-    @io = io
     @pry = pry
+    @io = if io.respond_to?(:wrapped_io)
+      io.wrapped_io
+    else
+      io
+    end
   end
 
   def <<(string)
@@ -49,10 +51,6 @@ class Pry::Output < BasicObject
     @io
   end
 
-  def wrapped_io?
-    true
-  end
-
 private
   def decolorize_maybe(*strings)
     #
@@ -64,7 +62,7 @@ private
       strings.join
     else
       strings.flatten.map { |str|
-        str.gsub(SHELL_COLOR_REGEXP, '')
+        str.gsub(ANSI_ESCAPE, '')
       }.join
     end
   end
