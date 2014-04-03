@@ -23,8 +23,11 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
-* Lazy load configuration values (Pry.config). (#1096)
-* Lazy load 'readline' until pry is started for the first time. (#1117)
+* Localize configuration(`_pry_.config`) to a repl session. (#1096)
+  - localization was partially supported before but now supported throughout pry
+  - defaults are copied from `Pry.config`
+* Lazy load all configuration defaults (`Pry.config`). (#1096)
+* Lazy require 'readline' until pry is started for the first time. (#1117)
 * Add option to disable input completer through `_pry_.config.completer = nil`
 * Add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
 * Add `Pry::LastException` (#1145)

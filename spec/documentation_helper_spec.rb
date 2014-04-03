@@ -24,14 +24,6 @@ describe Pry::Helpers::DocumentationHelpers do
   end
 
   describe "process_rdoc" do
-    before do
-      Pry.color = true
-    end
-
-    after do
-      Pry.color = false
-    end
-
     it "should syntax highlight indented code" do
       @helper.process_rdoc("  4 + 4\n").should.not == "  4 + 4\n"
     end
@@ -63,11 +55,5 @@ describe Pry::Helpers::DocumentationHelpers do
     it "should not remove ++" do
       @helper.process_rdoc("--\n  comment in a bubble\n++").should =~ /\+\+/
     end
-
-    it "should do nothing if Pry.color is false" do
-      Pry.color = false
-      @helper.process_rdoc("  4 + 4\n").should == "  4 + 4\n"
-    end
   end
-
 end

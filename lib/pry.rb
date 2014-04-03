@@ -17,9 +17,9 @@ class Pry
   end
 
   # The default print
-  DEFAULT_PRINT = proc do |output, value, _pry_|
-    Pry::Pager.with_pager(output) do |pager|
-      pager.print _pry_.config.output_prefix
+  DEFAULT_PRINT = proc do |out, value, pry|
+    Pry::Pager.with_pager(out, pry) do |pager|
+      pager.print pry.config.output_prefix
       Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
     end
   end
@@ -40,7 +40,7 @@ class Pry
   end
 
   # Will only show the first line of the backtrace
-  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, _|
+  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, pry|
     if UserError === exception && SyntaxError === exception
       output.puts "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
     else
@@ -169,3 +169,4 @@ require "pry/indent"
 require "pry/last_exception"
 require "pry/prompt"
 require "pry/inspector"
+require "pry/output"

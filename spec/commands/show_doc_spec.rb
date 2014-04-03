@@ -114,7 +114,7 @@ describe "show-doc" do
   end
 
   describe "rdoc highlighting" do
-    it "should syntax highlight code in rdoc" do
+    it "shows documentation with and without color" do
       c = Class.new{
         # This can initialize your class:
         #
@@ -124,15 +124,13 @@ describe "show-doc" do
         def initialize(foo); end
       }
 
-      begin
-        t = pry_tester(binding)
-        t.eval("show-doc c#initialize").should =~ /c.new :foo/
-        Pry.config.color = true
-        # I don't want the test to rely on which colour codes are there, just to
-        # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should.not =~ /c.new :foo/
-      ensure
-        Pry.config.color = false
+      ReplTester.start target: binding do
+        input "_pry_.color = false"
+        input "show-doc c#initialize"
+        output /c.new :foo/
+        input "_pry_.color = true"
+        input "show-doc c#initialize"
+        output /#{Regexp.escape("\e[33m")}/
       end
     end
 
@@ -143,18 +141,11 @@ describe "show-doc" do
         # @param foo
         def initialize(foo); end
       }
-
-      begin
-        t = pry_tester(binding)
-        t.eval("show-doc c#initialize").should =~ /c.new\(:foo\)/
-        Pry.config.color = true
-        # I don't want the test to rely on which colour codes are there, just to
-        # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should.not =~ /c.new\(:foo\)/
-      ensure
-        Pry.config.color = false
+      ReplTester.start target: binding do
+        input "_pry_.color = true"
+        input "show-doc c#initialize"
+        output /#{Regexp.escape("c.new(\e[33m:foo\e[0m)")}/
       end
-
     end
 
     it "should not syntax highlight `` inside code" do

@@ -11,8 +11,8 @@ module Pry::Pager
   # enabled).
   # @param [String] text A piece of text to run through a pager.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.page(text, output = $stdout)
-    with_pager(output) do |pager|
+  def self.page(text, pry)
+    with_pager(pry.output, pry) do |pager|
       pager << text
     end
   end
@@ -20,8 +20,8 @@ module Pry::Pager
   # Yields a pager object (`NullPager`, `SimplePager`, or `SystemPager`).  All
   # pagers accept output with `#puts`, `#print`, `#write`, and `#<<`.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.with_pager(output = $stdout)
-    pager = best_available(output)
+  def self.with_pager(io, pry = nil)
+    pager = best_available(io, pry)
     yield pager
   rescue StopPaging
   ensure
@@ -35,21 +35,23 @@ module Pry::Pager
   # writing output to a pager, and you must rescue `Pry::Pager::StopPaging`.
   # These requirements can be avoided by using `.with_pager` instead.
   # @param [#<<] output ($stdout) An object to send output to.
-  def self.best_available(output)
-    if !Pry.pager
-      NullPager.new(output)
+  def self.best_available(io, pry = nil)
+    if !pry or !pry.pager
+      NullPager.new(io)
     elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
-      SimplePager.new(output)
+      SimplePager.new(io)
     else
-      SystemPager.new(output)
+      SystemPager.new(io, pry)
     end
   end
 
   # `NullPager` is a "pager" that actually just prints all output as it comes
   # in. Used when `Pry.pager` is false.
   class NullPager
-    def initialize(out)
-      @out = out
+    attr_reader :pry
+    def initialize(io, pry = nil)
+      @io  = io
+      @pry = pry
     end
 
     def puts(str)
@@ -62,7 +64,7 @@ module Pry::Pager
     alias << print
 
     def write(str)
-      @out.write str
+      @io.write str
     end
 
     def close
@@ -89,13 +91,13 @@ module Pry::Pager
 
     def write(str)
       str.lines.each do |line|
-        @out.print line
+        @io.print line
         @tracker.record line
 
         if @tracker.page?
-          @out.print "\n"
-          @out.print "\e[0m" if Pry.color
-          @out.print "<page break> --- Press enter to continue " \
+          @io.print "\n"
+          @io.print "\e[0m"
+          @io.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
           raise StopPaging if Readline.readline("").chomp == "q"
           @tracker.reset
@@ -106,7 +108,7 @@ module Pry::Pager
 
   # `SystemPager` buffers output until we're pretty sure it's at least a page
   # long, then invokes an external pager and starts streaming output to it. If
-  # `#close` is called before then, it just prints out the buffered content.
+  # `#close` is called before then, it just prints io the buffered content.
   class SystemPager < NullPager
     def self.default_pager
       pager = ENV["PAGER"] || ""
@@ -134,6 +136,9 @@ module Pry::Pager
 
     def initialize(*)
       super
+      # SystemPager will always wrap `@pry.output`.
+      # disregard whatever it was.
+      @io      = @pry.output
       @tracker = PageTracker.new(height, width)
       @buffer  = ""
     end
@@ -157,7 +162,7 @@ module Pry::Pager
       if invoked_pager?
         pager.close
       else
-        @out.puts @buffer
+        @io.puts @buffer
       end
     end
 
@@ -168,11 +173,11 @@ module Pry::Pager
     end
 
     def pager
-      @pager ||= IO.popen(self.class.default_pager, 'w')
+      @pager ||= Pry::Output.new IO.popen(self.class.default_pager, 'w'), pry
     end
   end
 
-  # `PageTracker` tracks output to determine whether it's likely to take up a
+  # `PageTracker` tracks ioput to determine whether it's likely to take up a
   # whole page. This doesn't need to be super precise, but we can use it for
   # `SimplePager` and to avoid invoking the system pager unnecessarily.
   #

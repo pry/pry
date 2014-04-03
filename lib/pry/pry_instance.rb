@@ -69,8 +69,7 @@ class Pry
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
     target = options.delete(:target)
-    @config = Pry::Config.new
-    config.merge!(options)
+    @config = Pry::Config.from_hash({pry: self}.merge(options), Pry.config)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
@@ -372,6 +371,7 @@ class Pry
     # the exception either.
     begin
       output.puts "(pry) output error: #{e.inspect}"
+      output.puts e.backtrace
     rescue RescuableException => e
       if last_result_is_exception?
         output.puts "(pry) output error: failed to show exception"

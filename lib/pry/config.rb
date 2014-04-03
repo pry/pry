@@ -8,6 +8,14 @@ class Pry::Config
     Convenience::SHORTCUTS
   end
 
+  def pry
+    self["pry"]
+  end
+
+  def output=(io)
+    self["output"] = Pry::Output.new(io, pry)
+  end
+
   #
   # FIXME
   # @param [Pry::Hooks] hooks

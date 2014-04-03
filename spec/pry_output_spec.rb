@@ -15,9 +15,10 @@ describe Pry do
     end
 
     it "should display serialization exceptions" do
-      Pry.config.print = lambda { |*a| raise "catch-22" }
-
-      mock_pry("1").should =~ /\(pry\) output error: #<RuntimeError: catch-22>/
+      ReplTester.start print: lambda { |*a| raise "catch-22" } do
+        input "p 'hello'"
+        output /\(pry\) output error: #<RuntimeError: catch-22>/
+      end
     end
 
     it "should catch errors serializing exceptions" do
@@ -35,10 +36,9 @@ describe Pry do
     end
 
     it "should include the =>" do
-      pry = Pry.new
-      accumulator = StringIO.new
-      pry.config.print.call(accumulator, [1], pry)
-      accumulator.string.should == "=> \[1\]\n"
+      pry = Pry.new output: StringIO.new
+      pry.config.print.call(pry.output, [1], pry)
+      pry.output.string.should == "=> \[1\]\n"
     end
 
     it "should not be phased by un-inspectable things" do
@@ -52,11 +52,10 @@ describe Pry do
 
   describe "output_prefix" do
     it "should be able to change output_prefix" do
-      pry = Pry.new
-      accumulator = StringIO.new
+      pry = Pry.new output: StringIO.new
       pry.config.output_prefix = "-> "
-      pry.config.print.call(accumulator, [1], pry)
-      accumulator.string.should == "-> \[1\]\n"
+      pry.config.print.call(pry.output, [1], pry)
+      pry.output.string.should == "-> \[1\]\n"
     end
   end
 
