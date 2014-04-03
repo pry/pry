@@ -54,11 +54,11 @@ class Pry
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+                      "[#{pry.input_array.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
                     },
 
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] #{Pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+                      "[#{pry.input_array.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
                     }
                    ]
 
