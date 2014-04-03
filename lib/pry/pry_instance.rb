@@ -121,15 +121,20 @@ class Pry
     binding_stack << Pry.binding_for(object)
   end
 
+  #
   # Generate completions.
-  # @param [String] input What the user has typed so far
-  # @return [Array<String>] Possible completions
-  def complete(input)
+  #
+  # @param [String] input
+  #   What the user has typed so far
+  #
+  # @return [Array<String>]
+  #   Possible completions
+  #
+  def complete(str)
     return EMPTY_COMPLETIONS unless config.completer
     Pry.critical_section do
-      completer = config.completer.new(input, self)
-      # todo: `input` argument isn't needed.
-      completer.call input, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
+      completer = config.completer.new(config.input, self)
+      completer.call str, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
     end
   end
 
