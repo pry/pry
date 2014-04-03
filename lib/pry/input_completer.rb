@@ -48,15 +48,14 @@ class Pry::InputCompleter
     @input.completion_append_character = nil if @input.respond_to?(:completion_append_character=)
   end
 
+  #
   # Return a new completion proc for use by Readline.
-  # @param [Binding] input The current binding context.
-  # @param [Array<String>] options The array of Pry commands.
-  def call(input, options)
+  #
+  def call(str, options = {})
     custom_completions = options[:custom_completions] || []
-
     # if there are multiple contexts e.g. cd 1/2/3
     # get new target for 1/2 and find candidates for 3
-    path, input = build_path(input)
+    path, input = build_path(str)
 
     if path.call.empty?
       target = options[:target]
@@ -235,5 +234,4 @@ class Pry::InputCompleter
       end
       return path, input
     end
-
 end
