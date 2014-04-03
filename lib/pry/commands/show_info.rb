@@ -8,7 +8,7 @@ class Pry
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count
       opt.on :l, "line-numbers", "Show line numbers"
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)"
-      opt.on :a, :all,   "Show all definitions and monkeypatches of the module/class"
+      opt.on :a, :all,  "Show all definitions and monkeypatches of the module/class"
     end
 
     def process

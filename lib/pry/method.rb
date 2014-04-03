@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require 'pry/helpers/documentation_helpers'
 
 class Pry

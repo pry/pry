@@ -1,6 +1,7 @@
 module Pry::Config::Behavior
-  ASSIGNMENT = "=".freeze
-  NODUP = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+  ASSIGNMENT     = "=".freeze
+  NODUP          = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+  INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
 
   module Builder
     def from_hash(hash, default = nil)
@@ -95,7 +96,7 @@ module Pry::Config::Behavior
 
   def default_for(other)
     if @default_for
-      raise RuntimeError, "self is already the default for %s" % [Pry.view_clip(@default_for, id: true)]
+      raise RuntimeError, "self is already the default for %s" % _clip_inspect(@default_for)
     else
       @default_for = other
     end
@@ -110,7 +111,21 @@ module Pry::Config::Behavior
   end
   alias_method :to_h, :to_hash
 
+
+  def inspect
+    key_str = keys.map { |key| "'#{key}'" }.join(",")
+    "#<#{_clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
+  end
+
+  def pretty_print(q)
+    q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
+  end
+
 private
+  def _clip_inspect(obj)
+    "#{obj.class}:0x%x" % obj.object_id << 1
+  end
+
   def _dup(value)
     if NODUP.any? { |klass| klass === value }
       value

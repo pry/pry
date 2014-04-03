@@ -68,15 +68,16 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
+    target = options.delete(:target)
     @config = Pry::Config.from_hash({pry: self}.merge(options), Pry.config)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
     @custom_completions = config.command_completions
-    push_initial_binding(options[:target])
     set_last_result nil
     @input_array << nil
-    exec_hook(:when_started, options[:target], options, self)
+    push_initial_binding(target)
+    exec_hook(:when_started, target, options, self)
   end
 
   # The current prompt.
@@ -119,28 +120,50 @@ class Pry
     binding_stack << Pry.binding_for(object)
   end
 
+  #
   # Generate completions.
-  # @param [String] input What the user has typed so far
-  # @return [Array<String>] Possible completions
-  def complete(input)
+  #
+  # @param [String] input
+  #   What the user has typed so far
+  #
+  # @return [Array<String>]
+  #   Possible completions
+  #
+  def complete(str)
     return EMPTY_COMPLETIONS unless config.completer
     Pry.critical_section do
-      config.completer.call input, :target => current_binding,
-        :pry => self,
-        :custom_completions => custom_completions.call.push(*sticky_locals.keys)
+      completer = config.completer.new(config.input, self)
+      completer.call str, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
     end
   end
 
+  #
   # Injects a local variable into the provided binding.
-  # @param [String] name The name of the local to inject.
-  # @param [Object] value The value to set the local to.
-  # @param [Binding] b The binding to set the local on.
-  # @return [Object] The value the local was set to.
+  #
+  # @param [String] name
+  #   The name of the local to inject.
+  #
+  # @param [Object] value
+  #   The value to set the local to.
+  #
+  # @param [Binding] b
+  #   The binding to set the local on.
+  #
+  # @return [Object]
+  #   The value the local was set to.
+  #
   def inject_local(name, value, b)
-    Pry.current[:pry_local] = value.is_a?(Proc) ? value.call : value
-    b.eval("#{name} = ::Pry.current[:pry_local]")
-  ensure
-    Pry.current[:pry_local] = nil
+    value = Proc === value ? value.call : value
+    if b.respond_to?(:local_variable_set)
+      b.local_variable_set name, value
+    else # < 2.1
+      begin
+        Pry.current[:pry_local] = value
+        b.eval "#{name} = ::Pry.current[:pry_local]"
+      ensure
+        Pry.current[:pry_local] = nil
+      end
+    end
   end
 
   # @return [Integer] The maximum amount of objects remembered by the inp and

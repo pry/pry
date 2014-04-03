@@ -8,8 +8,8 @@ class Pry
     banner <<-'BANNER'
       Usage: gem-install GEM_NAME
 
-      Installs the given gem and refreshes the gem cache so that you can immediately
-      'require GEM_FILE'.
+      Installs the given gem, refreshes the gem cache, and requires the gem for you
+      based on a best guess from the gem name.
 
       gem-install pry-stack_explorer
     BANNER
@@ -22,6 +22,9 @@ class Pry
       Rubygem.install(gem)
       output.puts "Gem `#{ text.green(gem) }` installed."
       require gem
+    rescue LoadError
+      require_path = gem.split('-').join('/')
+      require require_path
     end
   end
 
