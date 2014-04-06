@@ -4,7 +4,7 @@ describe Pry::Command::Cat::FileFormatter do
   describe "#file_and_line" do
     before do
       @p = Pry.new
-      @opt = Slop.new
+      @opt = Pry::Slop.new
       Pry::Code.stubs(:from_file)
     end
 
@@ -43,7 +43,7 @@ describe Pry::Command::Cat::FileFormatter do
         file_name, line_num = ff.file_and_line
         file_name.should == "C:\\Ruby193\\pry_instance.rb"
         line_num.should == 2
-      end      
+      end
     end
 
     describe "UNIX-like filesystem" do
