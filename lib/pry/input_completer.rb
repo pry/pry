@@ -112,7 +112,7 @@ class Pry::InputCompleter
           begin
             candidates = eval("#{receiver}.constants.collect(&:to_s)", bind)
             candidates |= eval("#{receiver}.methods.collect(&:to_s)", bind)
-          rescue RescuableException
+          rescue Pry::RescuableException
             candidates = []
           end
           candidates.grep(/^#{message}/).collect{|e| receiver << "::" << e}
@@ -127,7 +127,7 @@ class Pry::InputCompleter
           message = Regexp.quote($5)
           begin
             candidates = eval(receiver, bind).methods.collect(&:to_s)
-          rescue RescuableException
+          rescue Pry::RescuableException
             candidates = []
           end
           select_message(path, receiver, message, candidates)
@@ -137,7 +137,7 @@ class Pry::InputCompleter
           message = Regexp.quote($2)
           begin
             candidates = eval(receiver, bind).methods.collect(&:to_s)
-          rescue RescuableException
+          rescue Pry::RescuableException
             candidates = []
           end
           select_message(path, receiver, message, candidates)
@@ -157,7 +157,7 @@ class Pry::InputCompleter
             # Foo::Bar.func
             begin
               candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
-            rescue RescuableException
+            rescue Pry::RescuableException
               candidates = []
             end
           else
@@ -166,7 +166,7 @@ class Pry::InputCompleter
             ObjectSpace.each_object(Module){|m|
               begin
                 name = m.name.to_s
-              rescue RescuableException
+              rescue Pry::RescuableException
                 name = ""
               end
               next if name != "IRB::Context" and
@@ -201,7 +201,7 @@ class Pry::InputCompleter
           candidates = (candidates|ReservedWords|custom_completions).grep(/^#{Regexp.quote(input)}/)
           candidates.collect(&path)
         end
-      rescue RescuableException
+      rescue Pry::RescuableException
         []
       end
     end
