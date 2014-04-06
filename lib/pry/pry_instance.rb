@@ -431,7 +431,7 @@ class Pry
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command_safely(val)
     process_command(val)
-  rescue CommandError, Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
+  rescue CommandError, Pry::Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
     Pry.last_internal_error = e
     output.puts "Error: #{e.message}"
     true

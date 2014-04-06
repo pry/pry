@@ -19,7 +19,7 @@ class Pry
       #   as CLI options.
       attr_accessor :input_args
 
-      # Add another set of CLI options (a Slop block)
+      # Add another set of CLI options (a Pry::Slop block)
       def add_options(&block)
         if options
           old_options = options
@@ -65,16 +65,16 @@ class Pry
         self.input_args = args
 
         begin
-          opts = Slop.parse!(
+          opts = Pry::Slop.parse!(
             args,
             :help => true,
             :multiple_switches => false,
             :strict => true,
             &options
           )
-        rescue Slop::InvalidOptionError
+        rescue Pry::Slop::InvalidOptionError
           # Display help message on unknown switches and exit.
-          puts Slop.new(&options)
+          puts Pry::Slop.new(&options)
           exit
         end
 
@@ -97,7 +97,7 @@ end
 exec_string = ""
 
 # Bring in options defined by plugins
-Slop.new do
+Pry::Slop.new do
   on "no-plugins" do
     Pry.config.should_load_plugins = false
   end
