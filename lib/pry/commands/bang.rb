@@ -1,6 +1,6 @@
 class Pry
   class Command::Bang < Pry::ClassCommand
-    match '!'
+    match /^\s*!\s*$/
     group 'Editing'
     description 'Clear the input buffer.'
     command_options :use_prefix => false

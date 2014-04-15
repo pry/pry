@@ -15,4 +15,10 @@ describe "!" do
     @t.last_output.should =~ /Input buffer cleared!/
     @t.eval_string.should == ''
   end
+
+  it 'should not clear the input buffer for negation' do
+    @t.push '! false'
+    @t.last_output.should =~ /true/
+    @t.eval_string.should == ''
+  end
 end
