@@ -18,6 +18,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'coderay',       '~> 1.1.0'
   s.add_dependency 'slop',          '~> 3.4'
-  s.add_dependency 'method_source', '~> 0.8'
+  s.add_dependency 'method_source', '~> 0.8.1'
   s.add_development_dependency 'bundler', '~> 1.0'
 end
