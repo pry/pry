@@ -138,7 +138,7 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
     # Instead we'll recommend ansicon, which does.
   rescue LoadError
     warn "For a better Pry experience on Windows, please use ansicon:"
-    warn "   http://adoxa.3eeweb.com/ansicon/"
+    warn "   https://github.com/adoxa/ansicon"
   end
 end
 
