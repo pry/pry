@@ -19,7 +19,13 @@ class Pry
       if obj_name.empty?
         # if no parameters were provided then try to reload the
         # current file (i.e target.eval("__FILE__"))
-        reload_current_file
+        if _pry_.current_context.eval("self").class == Class
+          @obj_name = "self"
+          code_object = Pry::CodeObject.lookup("self", _pry_)
+          reload_code_object(code_object)
+        else
+          reload_current_file
+        end
       else
         code_object = Pry::CodeObject.lookup(obj_name, _pry_)
         reload_code_object(code_object)
