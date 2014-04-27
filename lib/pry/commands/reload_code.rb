@@ -15,20 +15,12 @@ class Pry
     BANNER
 
     def process
-
-      if obj_name.empty?
-        # if no parameters were provided then try to reload the
-        # current file (i.e target.eval("__FILE__"))
-        if _pry_.current_context.eval("self").class == Class
-          @obj_name = "self"
-          code_object = Pry::CodeObject.lookup("self", _pry_)
-          reload_code_object(code_object)
-        else
-          reload_current_file
-        end
+      if !args.empty?
+        reload_object(args.join(" "))
+      elsif Class === target.eval("self")
+        reload_object("self")
       else
-        code_object = Pry::CodeObject.lookup(obj_name, _pry_)
-        reload_code_object(code_object)
+        reload_current_file
       end
     end
 
@@ -47,21 +39,20 @@ class Pry
       output.puts "The current file: #{current_file} was reloaded!"
     end
 
-    def reload_code_object(code_object)
-      check_for_reloadability(code_object)
+    def reload_object(identifier)
+      code_object = Pry::CodeObject.lookup(identifier, _pry_)
+      check_for_reloadability(code_object, identifier)
       load code_object.source_file
-      output.puts "#{obj_name} was reloaded!"
+      output.puts "#{identifier} was reloaded!"
     end
 
-    def obj_name
-      @obj_name ||= args.join(" ")
-    end
-
-    def check_for_reloadability(code_object)
+    def check_for_reloadability(code_object, identifier)
       if !code_object || !code_object.source_file
-        raise CommandError, "Cannot locate #{obj_name}!"
+        raise CommandError, "Cannot locate #{identifier}!"
       elsif !File.exists?(code_object.source_file)
-        raise CommandError, "Cannot reload #{obj_name} as it has no associated file on disk. File found was: #{code_object.source_file}"
+        raise CommandError,
+          "Cannot reload #{identifier} as it has no associated file on disk. " \
+          "File found was: #{code_object.source_file}"
       end
     end
   end
