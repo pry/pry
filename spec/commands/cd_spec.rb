@@ -241,10 +241,9 @@ describe 'cd' do
   end
 
   # Regression test for ticket #516.
-  # FIXME: This is actually broken.
-  # it 'should be able to cd into the Object BasicObject' do
-  #   proc {
-  #     @t.eval 'cd BasicObject.new'
-  #   }.should.not.raise
-  # end
+  it 'should be able to cd into the Object BasicObject' do
+    proc {
+      @t.eval 'cd BasicObject.new'
+    }.should.not.raise
+  end
 end
