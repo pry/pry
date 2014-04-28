@@ -240,6 +240,16 @@ describe 'cd' do
     @t.assert_binding_stack [@o]
   end
 
+  it 'can cd into an expression containing a string with slashes in it' do
+    @t.eval 'cd ["http://google.com"]'
+    @t.eval('self').should == ["http://google.com"]
+  end
+
+  it 'can cd into an expression with division in it' do
+    @t.eval 'cd (10/2)/even?'
+    @t.eval('self').should == false
+  end
+
   # Regression test for ticket #516.
   # FIXME: This is actually broken.
   # it 'should be able to cd into the Object BasicObject' do
