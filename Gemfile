@@ -4,7 +4,7 @@ gem 'rake',  '~> 10.0'
 
 # For Guard
 group :development do
-  gem 'jist'
+  gem 'gist'
   gem 'yard'
   gem 'rb-inotify', :require => false
   gem 'rb-fsevent', :require => false

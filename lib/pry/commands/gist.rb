@@ -3,7 +3,7 @@ class Pry
     match 'gist'
     group 'Misc'
     description 'Upload code, docs, history to https://gist.github.com/.'
-    command_options :requires_gem => "jist"
+    command_options :requires_gem => "gist"
 
     banner <<-'BANNER'
       Usage: gist [OPTIONS] [--help]
@@ -16,18 +16,18 @@ class Pry
     BANNER
 
     def setup
-      require 'jist'
+      require 'gist'
     end
 
     def options(opt)
       CodeCollector.inject_options(opt)
-      opt.on :login, "Authenticate the jist gem with GitHub"
+      opt.on :login, "Authenticate the gist gem with GitHub"
       opt.on :p, :public, "Create a public gist (default: false)", :default => false
       opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it", :default => false
     end
 
     def process
-      return Jist.login! if opts.present?(:login)
+      return ::Gist.login! if opts.present?(:login)
       cc = CodeCollector.new(args, opts, _pry_)
 
       if cc.content =~ /\A\s*\z/
@@ -45,7 +45,7 @@ class Pry
     end
 
     def clipboard_content(content)
-      Jist.copy(content)
+      ::Gist.copy(content)
       output.puts "Copied content to clipboard!"
     end
 
@@ -81,14 +81,14 @@ class Pry
     end
 
     def gist_content(content, filename)
-      response = Jist.gist(content, :filename => filename || "pry_gist.rb", :public => !!opts[:p])
+      response = ::Gist.gist(content, :filename => filename || "pry_gist.rb", :public => !!opts[:p])
       if response
         url = response['html_url']
         message = "Gist created at URL #{url}"
         begin
-          Jist.copy(url)
+          ::Gist.copy(url)
           message << ", which is now in the clipboard."
-        rescue Jist::ClipboardError
+        rescue ::Gist::ClipboardError
         end
 
         output.puts message
@@ -98,5 +98,4 @@ class Pry
 
   Pry::Commands.add_command(Pry::Command::Gist)
   Pry::Commands.alias_command 'clipit', 'gist --clip'
-  Pry::Commands.alias_command 'jist', 'gist'
 end
