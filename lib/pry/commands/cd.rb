@@ -21,7 +21,8 @@ class Pry
 
     def process
       state.old_stack ||= []
-      stack, state.old_stack = context_from_object_path(arg_string, _pry_, state.old_stack)
+      stack, state.old_stack =
+        ObjectPath.new(arg_string, _pry_.binding_stack, state.old_stack).resolve
       _pry_.binding_stack = stack if stack
     end
   end
