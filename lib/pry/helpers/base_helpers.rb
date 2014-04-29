@@ -71,7 +71,7 @@ class Pry
 
       # are we able to use ansi on windows?
       def windows_ansi?
-        defined?(Win32::Console) || ENV['ANSICON'] || (windows? && mri_20?)
+        defined?(Win32::Console) || ENV['ANSICON'] || (windows? && mri_2?)
       end
 
       def jruby?
@@ -91,15 +91,19 @@ class Pry
       end
 
       def mri_19?
-        mri? && RUBY_VERSION =~ /1.9/
+        mri? && RUBY_VERSION =~ /^1\.9/
+      end
+
+      def mri_2?
+        mri? && RUBY_VERSION =~ /^2/
       end
 
       def mri_20?
-        mri? && RUBY_VERSION =~ /2.0/
+        mri? && RUBY_VERSION =~ /^2\.0/
       end
 
       def mri_21?
-        mri? && RUBY_VERSION =~ /2.1/
+        mri? && RUBY_VERSION =~ /^2\.1/
       end
 
       # Send the given text through the best available pager (if Pry.pager is
