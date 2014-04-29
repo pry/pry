@@ -173,13 +173,13 @@ describe "show-source" do
 
   it "should output the source of a command defined inside Pry" do
     command_definition = %{
-      Pry.commands.command "hubba-hubba" do
+      Pry.config.commands.command "hubba-hubba" do
         puts "that's what she said!"
       end
     }
     out = pry_eval(command_definition, 'show-source hubba-hubba')
     out.should =~ /what she said/
-    Pry.commands.delete "hubba-hubba"
+    Pry.config.commands.delete "hubba-hubba"
   end
 
   describe "finding super methods with help of `--super` switch" do
@@ -677,7 +677,7 @@ describe "show-source" do
           def process() :body_of_temp end
         end
 
-        Pry.commands.add_command(::TemporaryCommand)
+        Pry.config.commands.add_command(::TemporaryCommand)
       end
 
       after do
@@ -695,7 +695,7 @@ describe "show-source" do
             def process() :body_of_temp end
           end
         }
-        Pry.commands.add_command(::TemporaryCommandInPry)
+        Pry.config.commands.add_command(::TemporaryCommandInPry)
         pry_eval('show-source temp-command-in-pry').should =~ /:body_of_temp/
         Object.remove_const(:TemporaryCommandInPry)
       end

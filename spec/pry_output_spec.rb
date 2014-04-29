@@ -62,11 +62,11 @@ describe Pry do
 
   describe "color" do
     before do
-      Pry.color = true
+      Pry.config.color = true
     end
 
     after do
-      Pry.color = false
+      Pry.config.color = false
     end
 
     it "should colorize strings as though they were ruby" do

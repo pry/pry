@@ -462,7 +462,7 @@ describe "commands" do
       end
     end
 
-    Pry.commands = klass
+    Pry.config.commands = klass
     pry_tester.eval("hello").should == "hello world\n"
     pry_tester(:commands => other_klass).eval("goodbye").should == "goodbye world\n"
   end

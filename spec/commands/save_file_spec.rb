@@ -141,7 +141,7 @@ describe "save-file" do
   describe "saving commands" do
     it 'should save a command to a file' do
       @t.eval "save-file --to '#{@path}' show-source"
-      cmd_source = Pry.commands["show-source"].source
+      cmd_source = Pry.config.commands["show-source"].source
       File.read(@path).should == cmd_source
     end
   end

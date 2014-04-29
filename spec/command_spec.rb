@@ -653,11 +653,11 @@ describe "Pry::Command" do
         end
       end
 
-      Pry.commands.add_command MyTestCommand
+      Pry.config.commands.add_command MyTestCommand
     end
 
     after do
-      Pry.commands.delete 'my-test'
+      Pry.config.commands.delete 'my-test'
     end
 
     it "allows creation of custom subclasses of Pry::Command" do
@@ -689,11 +689,11 @@ describe "Pry::Command" do
             match 'happy-new-year'
             description 'Happy New Year 2013'
           end
-          Pry.commands.add_command HappyNewYear
+          Pry.config.commands.add_command HappyNewYear
 
           HappyNewYear.options[:listing].should == 'happy-new-year'
 
-          Pry.commands.delete 'happy-new-year'
+          Pry.config.commands.delete 'happy-new-year'
         end
 
         it "can be set explicitly" do
@@ -702,11 +702,11 @@ describe "Pry::Command" do
             description 'Merry Christmas!'
             command_options :listing => 'happy-holidays'
           end
-          Pry.commands.add_command MerryChristmas
+          Pry.config.commands.add_command MerryChristmas
 
           MerryChristmas.options[:listing].should == 'happy-holidays'
 
-          Pry.commands.delete 'merry-christmas'
+          Pry.config.commands.delete 'merry-christmas'
         end
 
         it "equals to :match option's inspect, if :match is Regexp" do
@@ -714,11 +714,11 @@ describe "Pry::Command" do
             match /.*winter/
             description 'Is winter cool or cool?'
           end
-          Pry.commands.add_command CoolWinter
+          Pry.config.commands.add_command CoolWinter
 
           CoolWinter.options[:listing].should == '/.*winter/'
 
-          Pry.commands.delete /.*winter/
+          Pry.config.commands.delete /.*winter/
         end
       end
     end

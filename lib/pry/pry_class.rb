@@ -212,7 +212,7 @@ class Pry
   end
 
   # Run a Pry command from outside a session. The commands available are
-  # those referenced by `Pry.commands` (the default command set).
+  # those referenced by `Pry.config.commands` (the default command set).
   # @param [String] command_string The Pry command (including arguments,
   #   if any).
   # @param [Hash] options Optional named parameters.
@@ -231,8 +231,8 @@ class Pry
     options = {
       :target => TOPLEVEL_BINDING,
       :show_output => true,
-      :output => Pry.output,
-      :commands => Pry.commands
+      :output => Pry.config.output,
+      :commands => Pry.config.commands
     }.merge!(options)
 
     # :context for compatibility with <= 0.9.11.4

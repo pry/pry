@@ -21,11 +21,11 @@ class Pry
 
         COLORS.each_pair do |color, value|
           define_method color do |text|
-            Pry.color ? "\033[0;#{30+value}m#{text}\033[0m" : text.to_s
+            Pry.config.color ? "\033[0;#{30+value}m#{text}\033[0m" : text.to_s
           end
 
           define_method "bright_#{color}" do |text|
-            Pry.color ? "\033[1;#{30+value}m#{text}\033[0m" : text.to_s
+            Pry.config.color ? "\033[1;#{30+value}m#{text}\033[0m" : text.to_s
           end
         end
 
@@ -38,12 +38,12 @@ class Pry
         end
 
         # Returns _text_ as bold text for use on a terminal.
-        # _Pry.color_ must be true for this method to perform any transformations.
+        # _Pry.config.color_ must be true for this method to perform any transformations.
         #
         # @param [String, #to_s] text
         # @return [String] _text_
         def bold(text)
-          Pry.color ? "\e[1m#{text}\e[0m" : text.to_s
+          Pry.config.color ? "\e[1m#{text}\e[0m" : text.to_s
         end
 
         # Returns `text` in the default foreground colour.
@@ -56,7 +56,7 @@ class Pry
         end
         alias_method :bright_default, :bold
 
-        # Executes the block with `Pry.color` set to false.
+        # Executes the block with `Pry.config.color` set to false.
         # @yield
         # @return [void]
         def no_color(&block)

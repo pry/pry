@@ -261,7 +261,7 @@ class Pry
     def print_to_output(output)
       @lines.each do |loc|
         loc = loc.dup
-        loc.colorize(@code_type)              if Pry.color
+        loc.colorize(@code_type)              if Pry.config.color
         loc.add_line_number(max_lineno_width) if @with_line_numbers
         loc.add_marker(@marker_lineno)        if @with_marker
         loc.indent(@indentation_num)          if @with_indentation

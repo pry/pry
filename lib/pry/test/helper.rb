@@ -7,8 +7,8 @@ class << Pry
   def reset_defaults
     orig_reset_defaults
 
-    Pry.color = false
-    Pry.pager = false
+    Pry.config.color = false
+    Pry.config.pager = false
     Pry.config.should_load_rc      = false
     Pry.config.should_load_local_rc= false
     Pry.config.should_load_plugins = false
