@@ -52,7 +52,7 @@ class Pry
     # FIXME:
     # This is a hack to alert people of the new API.
     def [](event_name)
-      warn "`Pry.hooks[]` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      warn "`Pry.config.hooks[]` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
 
       get_hook(event_name, nil)
     end
@@ -60,7 +60,7 @@ class Pry
     # FIXME:
     # This is a hack to alert people of the new API.
     def []=(event_name, callable)
-      warn "`Pry.hooks[]=` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
+      warn "`Pry.config.hooks[]=` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
 
       add_hook(event_name, nil, callable)
     end

@@ -47,7 +47,7 @@ describe "Sticky locals (_file_ and friends)" do
   end
 
   it 'locals should keep value after cd-ing (_file_ and _dir_)' do
-    Pry.commands.command "file-and-dir-test" do
+    Pry.config.commands.command "file-and-dir-test" do
       set_file_and_dir_locals("/blah/ostrich.rb")
     end
 
@@ -57,7 +57,7 @@ describe "Sticky locals (_file_ and friends)" do
     pry_eval('file-and-dir-test', 'cd 0', '_dir_').
       should =~ /\/blah/
 
-    Pry.commands.delete "file-and-dir-test"
+    Pry.config.commands.delete "file-and-dir-test"
   end
 
   it 'locals should return last result (_)' do

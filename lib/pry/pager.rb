@@ -7,7 +7,7 @@ module Pry::Pager
   class StopPaging < StandardError
   end
 
-  # Send the given text through the best available pager (if `Pry.pager` is
+  # Send the given text through the best available pager (if `Pry.config.pager` is
   # enabled).
   # @param [String] text A piece of text to run through a pager.
   # @param [IO] output (`$stdout`) An object to send output to.
@@ -36,7 +36,7 @@ module Pry::Pager
   # These requirements can be avoided by using `.with_pager` instead.
   # @param [#<<] output ($stdout) An object to send output to.
   def self.best_available(output)
-    if !Pry.pager
+    if !Pry.config.pager
       NullPager.new(output)
     elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
       SimplePager.new(output)
@@ -46,7 +46,7 @@ module Pry::Pager
   end
 
   # `NullPager` is a "pager" that actually just prints all output as it comes
-  # in. Used when `Pry.pager` is false.
+  # in. Used when `Pry.config.pager` is false.
   class NullPager
     def initialize(out)
       @out = out
@@ -94,7 +94,7 @@ module Pry::Pager
 
         if @tracker.page?
           @out.print "\n"
-          @out.print "\e[0m" if Pry.color
+          @out.print "\e[0m" if Pry.config.color
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
           raise StopPaging if Readline.readline("").chomp == "q"

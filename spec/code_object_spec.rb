@@ -73,19 +73,19 @@ describe Pry::CodeObject do
         end
 
         it 'should return Pry::ClassCommand class when looking up class command' do
-          Pry.commands.add_command(LobsterLady)
+          Pry.config.commands.add_command(LobsterLady)
           m = Pry::CodeObject.lookup("lobster-lady", @p)
           (m <= Pry::ClassCommand).should == true
           m.source.should =~ /class LobsterLady/
-          Pry.commands.delete("lobster-lady")
+          Pry.config.commands.delete("lobster-lady")
         end
 
         it 'should return Pry::WrappedModule when looking up command class directly (as a class, not as a command)' do
-          Pry.commands.add_command(LobsterLady)
+          Pry.config.commands.add_command(LobsterLady)
           m = Pry::CodeObject.lookup("LobsterLady", @p)
           m.is_a?(Pry::WrappedModule).should == true
           m.source.should =~ /class LobsterLady/
-          Pry.commands.delete("lobster-lady")
+          Pry.config.commands.delete("lobster-lady")
         end
       end
 

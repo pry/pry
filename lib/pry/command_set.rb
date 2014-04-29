@@ -122,7 +122,7 @@ class Pry
     # @param [String, Regexp] search The match or listing of the command.
     # @yield The block to be run before the command.
     # @example Display parameter before invoking command
-    #   Pry.commands.before_command("whereami") do |n|
+    #   Pry.config.commands.before_command("whereami") do |n|
     #     output.puts "parameter passed was #{n}"
     #   end
     def before_command(search, &block)
@@ -136,7 +136,7 @@ class Pry
     # @param [String, Regexp] search The match or listing of the command.
     # @yield The block to be run after the command.
     # @example Display text 'command complete' after invoking command
-    #   Pry.commands.after_command("whereami") do |n|
+    #   Pry.config.commands.after_command("whereami") do |n|
     #     output.puts "command complete!"
     #   end
     def after_command(search, &block)
@@ -336,7 +336,7 @@ class Pry
     #   Returns the new command (matched with "pattern".)
     #
     # @example
-    #   Pry.commands["help"] = MyHelpCommand
+    #   Pry.config.commands["help"] = MyHelpCommand
     #
     def []=(pattern, command)
       if command.equal?(nil)

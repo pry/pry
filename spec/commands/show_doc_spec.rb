@@ -433,7 +433,7 @@ describe "show-doc" do
           end
         end
 
-        Pry.commands.add_command(LobsterLady)
+        Pry.config.commands.add_command(LobsterLady)
       end
 
       after do
@@ -442,12 +442,12 @@ describe "show-doc" do
 
       it 'should display "help" when looking up by command name' do
         pry_eval('show-doc lobster-lady').should =~ /nada/
-        Pry.commands.delete("lobster-lady")
+        Pry.config.commands.delete("lobster-lady")
       end
 
       it 'should display actual preceding comment for a class command, when class is used (rather than command name) when looking up' do
         pry_eval('show-doc LobsterLady').should =~ /pretty pink pincers/
-        Pry.commands.delete("lobster-lady")
+        Pry.config.commands.delete("lobster-lady")
       end
     end
   end

@@ -18,7 +18,7 @@ class Pry
     end
 
     def text(str, width = str.length)
-      super(*if !Pry.color
+      super(*if !Pry.config.color
         [str, width]
       # Don't recolorize output with color [Issue #751]
       elsif str.include?("\e[")
@@ -43,7 +43,7 @@ class Pry
       obj_id = obj.__id__.to_s(16) rescue 0
       str    = "#<#{klass}:0x#{obj_id}>"
 
-      text(Pry.color ? highlight_object_literal(str) : str)
+      text(Pry.config.color ? highlight_object_literal(str) : str)
     end
 
     private
