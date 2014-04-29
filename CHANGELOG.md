@@ -6,6 +6,7 @@
 * Remove require of `openstruct` from pry (#1096)
 * Ruby 1.9 or later required
 * Require Coderay `~> 1.1.0`
+* Remove deprecated hooks API (#1209)
 
 #### Features
 * Added a `watch` command that lets you see how values change over time.

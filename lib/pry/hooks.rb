@@ -49,22 +49,6 @@ class Pry
       @errors ||= []
     end
 
-    # FIXME:
-    # This is a hack to alert people of the new API.
-    def [](event_name)
-      warn "`Pry.hooks[]` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-
-      get_hook(event_name, nil)
-    end
-
-    # FIXME:
-    # This is a hack to alert people of the new API.
-    def []=(event_name, callable)
-      warn "`Pry.hooks[]=` is deprecated! Please use the new `Pry::Hooks` API! http://rubydoc.info/github/pry/pry/master/Pry/Hooks"
-
-      add_hook(event_name, nil, callable)
-    end
-
     # Destructively merge the contents of two `Pry:Hooks` instances.
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
     # @return [Pry:Hooks] Returns the receiver.
