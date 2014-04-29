@@ -1,12 +1,12 @@
 ### 0.10.0 (2014/??/??)
 #### Dependency changes
 
-* Remove require of "ffi" from pry (#1158)
-* Remove require of "bond" from pry (#1166)
-* Remove require of `openstruct` from pry (#1096)
+* Remove require of "ffi" from pry ([#1158](https://github.com/pry/pry/issues/1158))
+* Remove require of "bond" from pry ([#1166](https://github.com/pry/pry/issues/1166))
+* Remove require of `openstruct` from pry ([#1096](https://github.com/pry/pry/issues/1096))
 * Ruby 1.9 or later required
 * Require Coderay `~> 1.1.0`
-* Remove deprecated hooks API (#1209)
+* Remove deprecated hooks API ([#1209](https://github.com/pry/pry/pull/1209))
 
 #### Features
 * Added a `watch` command that lets you see how values change over time.
