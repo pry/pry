@@ -52,7 +52,7 @@ class Pry
 
     attr_accessor :str
     attr_accessor :target
-    attr_accessor :pry
+    attr_accessor :_pry_
     attr_accessor :super_level
 
     def initialize(str, _pry_, options={})
@@ -61,7 +61,7 @@ class Pry
       }.merge!(options)
 
       @str = str
-      @pry = _pry_
+      @_pry_ = _pry_
       @target = _pry_.current_context
       @super_level = options[:super]
     end
@@ -69,7 +69,7 @@ class Pry
     def command_lookup
       # TODO: just make it so find_command_by_match_or_listing doesn't
       # raise?
-      pry.commands.find_command_by_match_or_listing(str) rescue nil
+      _pry_.commands.find_command_by_match_or_listing(str) rescue nil
     end
 
     # when no paramter is given (i.e CodeObject.lookup(nil)), then we
