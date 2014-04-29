@@ -47,7 +47,7 @@ class Pry
       end
 
       def colorize_code(code)
-        if Pry.color
+        if Pry.config.color
           CodeRay.scan(code, :ruby).term
         else
           code
@@ -61,7 +61,7 @@ class Pry
       # formatting
       def heading(text)
         text = "#{text}\n--"
-        Pry.color ? "\e[1m#{text}\e[0m": text
+        Pry.config.color ? "\e[1m#{text}\e[0m": text
       end
 
       # have fun on the Windows platform.
@@ -102,7 +102,7 @@ class Pry
         mri? && RUBY_VERSION =~ /2.1/
       end
 
-      # Send the given text through the best available pager (if Pry.pager is
+      # Send the given text through the best available pager (if Pry.config.pager is
       # enabled). Infers where to send the output if used as a mixin.
       def stagger_output(text, out = nil)
         out ||= case
@@ -111,7 +111,7 @@ class Pry
                   output
                 when Pry.respond_to?(:output)
                   # Parent.
-                  Pry.output
+                  Pry.config.output
                 else
                   # Sys.
                   $stdout

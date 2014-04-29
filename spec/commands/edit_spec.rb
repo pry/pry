@@ -719,7 +719,7 @@ describe "edit" do
     end
 
     it 'should edit method context' do
-      Pry.editor = lambda do |file, line|
+      Pry.config.editor = lambda do |file, line|
         [file, line].should == BinkyWink.instance_method(:tots_macgee).source_location
         nil
       end
@@ -729,7 +729,7 @@ describe "edit" do
     end
 
     it 'errors when cannot find method context' do
-      Pry.editor = lambda do |file, line|
+      Pry.config.editor = lambda do |file, line|
         [file, line].should == BinkyWink.instance_method(:tits_macgee).source_location
         nil
       end
