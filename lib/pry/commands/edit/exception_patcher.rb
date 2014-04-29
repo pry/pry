@@ -16,7 +16,7 @@ class Pry
         file_name, _ = file_and_line
         lines = state.dynamical_ex_file || File.read(file_name)
 
-        source = Pry::Editor.edit_tempfile_with_content(lines)
+        source = Pry::Editor.new(_pry_).edit_tempfile_with_content(lines)
         _pry_.evaluate_ruby source
         state.dynamical_ex_file = source.split("\n")
       end
