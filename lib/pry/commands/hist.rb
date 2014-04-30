@@ -79,7 +79,7 @@ class Pry
       end
 
       Pry::Pager.with_pager(output) do |pager|
-        @history.print_to_output(pager)
+        @history.print_to_output(pager, _pry_.config.color)
       end
     end
 

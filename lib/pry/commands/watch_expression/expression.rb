@@ -1,20 +1,21 @@
 class Pry
   class Command::WatchExpression
     class Expression
-      attr_reader :target, :source, :value, :previous_value
+      attr_reader :target, :source, :value, :previous_value, :_pry_
 
-      def initialize(target, source)
+      def initialize(_pry_, target, source)
+        @_pry_ = _pry_
         @target = target
         @source = Code.new(source).strip
       end
 
       def eval!
         @previous_value = @value
-        @value = Pry::ColorPrinter.pp(target_eval(target, source), "")
+        @value = Pry::ColorPrinter.pp(_pry_, target_eval(target, source), "")
       end
 
       def to_s
-        "#{source} => #{value}"
+        "#{Code.new(source).highlighted(_pry_.config.color).strip} => #{value}"
       end
 
       # Has the value of the expression changed?

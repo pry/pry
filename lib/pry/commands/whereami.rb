@@ -89,7 +89,7 @@ class Pry
       set_file_and_dir_locals(@file)
 
       out = "\n#{text.bold('From:')} #{location}:\n\n" <<
-        code.with_line_numbers(use_line_numbers?).with_marker(marker).to_s << "\n"
+        code.with_line_numbers(use_line_numbers?).with_marker(marker).highlighted(_pry_.config.color) << "\n"
 
       stagger_output(out)
     end

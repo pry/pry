@@ -87,8 +87,8 @@ class Pry
     end
 
     def add_expression(arguments)
-      expressions << Expression.new(target, arg_string)
-      output.puts "Watching #{Code.new(arg_string)}"
+      expressions << Expression.new(_pry_, target, arg_string)
+      output.puts "Watching #{Code.new(arg_string).highlighted(_pry_.config.color)}"
     end
 
     def add_hook
