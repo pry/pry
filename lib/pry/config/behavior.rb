@@ -19,11 +19,7 @@ module Pry::Config::Behavior
   end
 
   def initialize(default = Pry.config)
-    if default
-      @default = default.dup
-      @default.default_for(self)
-    end
-    @default_for = nil
+    @default = default
     @lookup = {}
   end
 
@@ -56,7 +52,10 @@ module Pry::Config::Behavior
       self[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      self[key] = _dup(value)
+      # FIXME: refactor Pry::Hook so that it stores config on the config object,
+      # so that we can use the normal strategy.
+      self[key] = value.dup if key == 'hooks'
+      value
     else
       nil
     end
@@ -92,14 +91,6 @@ module Pry::Config::Behavior
 
   def forget(key)
     @lookup.delete(key.to_s)
-  end
-
-  def default_for(other)
-    if @default_for
-      raise RuntimeError, "self is already the default for %s" % _clip_inspect(@default_for)
-    else
-      @default_for = other
-    end
   end
 
   def keys
