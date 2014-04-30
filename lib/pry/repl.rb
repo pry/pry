@@ -104,7 +104,7 @@ class Pry
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
-        if output.tty? && @indent.should_correct_indentation?
+        if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
           output.print @indent.correct_indentation(
             current_prompt, indented_val,
             original_val.length - indented_val.length
