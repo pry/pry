@@ -23,9 +23,9 @@ class Pry
     # and use the regular print and exception handlers.
     # @param [Pry] _pry_ the Pry instance to make interactive.
     def interactive_mode(_pry_)
-      _pry_.input = Pry.config.input
-      _pry_.print = Pry.config.print
-      _pry_.exception_handler = Pry.config.exception_handler
+      _pry_.config.input = Pry.config.input
+      _pry_.config.print = Pry.config.print
+      _pry_.config.exception_handler = Pry.config.exception_handler
       Pry::REPL.new(_pry_).start
     end
 
