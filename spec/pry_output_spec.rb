@@ -37,6 +37,7 @@ describe Pry do
     it "should include the =>" do
       pry = Pry.new
       accumulator = StringIO.new
+      pry.config.output = accumulator
       pry.config.print.call(accumulator, [1], pry)
       accumulator.string.should == "=> \[1\]\n"
     end
@@ -54,6 +55,7 @@ describe Pry do
     it "should be able to change output_prefix" do
       pry = Pry.new
       accumulator = StringIO.new
+      pry.config.output = accumulator
       pry.config.output_prefix = "-> "
       pry.config.print.call(accumulator, [1], pry)
       accumulator.string.should == "-> \[1\]\n"
@@ -73,6 +75,7 @@ describe Pry do
       pry = Pry.new
       accumulator = StringIO.new
       colorized   = CodeRay.scan("[1]", :ruby).term
+      pry.config.output = accumulator
       pry.config.print.call(accumulator, [1], pry)
       accumulator.string.should == "=> #{colorized}\n"
     end
@@ -84,6 +87,7 @@ describe Pry do
         "\e[1;31mFoo\e[0m"
       end
       accumulator = StringIO.new
+      pry.config.output = accumulator
       pry.config.print.call(accumulator, f, pry)
       # We add an extra \e[0m to prevent color leak
       accumulator.string.should == "=> \e[1;31mFoo\e[0m\e[0m\n"

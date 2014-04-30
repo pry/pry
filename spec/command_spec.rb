@@ -144,7 +144,7 @@ describe "Pry::Command" do
       :output => StringIO.new,
       :eval_string => "eval-string",
       :command_set => @set,
-      :pry_instance => Object.new
+      :pry_instance => Pry.new
     }
 
     it 'should capture lots of stuff from the hash passed to new before setup' do

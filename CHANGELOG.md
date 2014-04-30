@@ -83,7 +83,7 @@
   through a 'pry-local' config who, at times, acts as a 'pry-local store'. (#1096)
 * `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
 * Pagers now act like `IO`s and accept streaming output
-  * See `Pager.page` and `Pager.with_pager`
+  * See `_pry_.pager.page` and `_pry_.pager.opent`
 * The `Pry` class has been broken up into two smaller classes
   * `Pry` represents non-UI-specific session state, including the eval string
   * `Pry::REPL` controls the user-facing interface

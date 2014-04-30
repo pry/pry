@@ -63,7 +63,8 @@ module PryTestHelpers
 
   def mock_command(cmd, args=[], opts={})
     output = StringIO.new
-    ret = cmd.new(opts.merge(:output => output)).call_safely(*args)
+    pry = Pry.new(output: output)
+    ret = cmd.new(opts.merge(pry_instance: pry, :output => output)).call_safely(*args)
     Struct.new(:output, :return).new(output.string, ret)
   end
 

@@ -41,7 +41,7 @@ class Pry
                  FileFormatter.new(args.first, _pry_, opts).format
                end
 
-      stagger_output(output)
+      _pry_.pager.page output
     end
 
     def complete(search)

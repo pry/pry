@@ -66,7 +66,7 @@ class Pry
       if expressions.empty?
         output.puts "No watched expressions"
       else
-        Pry::Pager.with_pager(output) do |pager|
+        _pry_.pager.open do |pager|
           pager.puts "Listing all watched expressions:"
           pager.puts ""
           expressions.each_with_index do |expr, index|

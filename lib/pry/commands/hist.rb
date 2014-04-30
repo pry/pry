@@ -78,7 +78,7 @@ class Pry
         @history = @history.with_line_numbers
       end
 
-      Pry::Pager.with_pager(output) do |pager|
+      _pry_.pager.open do |pager|
         @history.print_to_output(pager, _pry_.config.color)
       end
     end

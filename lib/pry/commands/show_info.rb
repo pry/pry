@@ -27,7 +27,7 @@ class Pry
       end
 
       set_file_and_dir_locals(code_object.source_file)
-      stagger_output result
+      _pry_.pager.page result
     end
 
     # This method checks whether the `code_object` is a WrappedModule,

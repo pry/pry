@@ -91,7 +91,7 @@ class Pry
       out = "\n#{text.bold('From:')} #{location}:\n\n" <<
         code.with_line_numbers(use_line_numbers?).with_marker(marker).highlighted(_pry_.config.color) << "\n"
 
-      stagger_output(out)
+      _pry_.pager.page out
     end
 
     private
