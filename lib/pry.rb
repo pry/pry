@@ -70,20 +70,20 @@ class Pry
   NO_PROMPT = [proc { '' }, proc { '' }]
 
   SHELL_PROMPT = [
-                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
-                  proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
+                  proc { |target_self, _, _pry_| "#{_pry_.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} $ " },
+                  proc { |target_self, _, _pry_| "#{_pry_.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                  ]
 
   # A prompt that includes the full object path as well as
   # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
-                proc do |conf|
-                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (#{Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}> "
+                proc do |_, _, _pry_|
+                  tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{_pry_.input_array.count}] (#{_pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}> "
                 end,
-                proc do |conf|
-                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{conf.expr_number}] (#{ Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}* "
+                proc do |_, _, _pry_|
+                  tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  "[#{_pry_.input_array.count}] (#{ _pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}* "
                 end,
                ]
 
