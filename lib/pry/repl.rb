@@ -48,7 +48,7 @@ class Pry
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
 
       # Clear the line before starting Pry. This fixes issue #566.
-      if Pry.config.correct_indent
+      if pry.config.correct_indent
         Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
       end
     end
@@ -93,14 +93,14 @@ class Pry
     def read
       @indent.reset if pry.eval_string.empty?
       current_prompt = pry.select_prompt
-      indentation = Pry.config.auto_indent ? @indent.current_prefix : ''
+      indentation = pry.config.auto_indent ? @indent.current_prefix : ''
 
       val = read_line("#{current_prompt}#{indentation}")
 
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless String === val
 
-      if Pry.config.auto_indent
+      if pry.config.auto_indent
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
@@ -128,7 +128,7 @@ class Pry
       begin
         yield
       rescue EOFError
-        pry.input = Pry.config.input
+        pry.config.input = Pry.config.input
         if !should_retry
           output.puts "Error: Pry ran out of things to read from! " \
             "Attempting to break out of REPL."
