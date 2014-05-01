@@ -60,7 +60,7 @@ class Pry::InputCompleter
     if path.call.empty?
       target = options[:target]
     else
-      target = Pry::ObjectPath.new(path.call, @pry.binding_stack).resolve.last
+      target = Pry::ObjectPath.new(path.call, @pry.bstack).resolve.last
     end
 
     begin

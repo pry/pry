@@ -22,7 +22,7 @@
 #
 
 class Pry
-  attr_accessor :binding_stack
+  attr_accessor :bstack
   attr_accessor :custom_completions
   attr_accessor :eval_string
   attr_accessor :suppress_output
@@ -61,7 +61,7 @@ class Pry
   # @option options [Object] :target
   #   The initial context for this session.
   def initialize(options={})
-    @binding_stack = []
+    @bstack = []
     @indent        = Pry::Indent.new
     @eval_string   = ""
     target = options.delete(:target)
@@ -106,7 +106,7 @@ class Pry
   # The currently active `Binding`.
   # @return [Binding] The currently active `Binding` for the session.
   def current_binding
-    binding_stack.last
+    bstack.last
   end
   alias current_context current_binding # support previous API
 
@@ -114,7 +114,7 @@ class Pry
   # currently stopped, mark it as usable again.
   def push_binding(object)
     @stopped = false
-    binding_stack << Pry.binding_for(object)
+    bstack << Pry.binding_for(object)
   end
 
   #
@@ -527,13 +527,13 @@ class Pry
 
     c = Pry::Config.from_hash({
                        :object         => object,
-                       :nesting_level  => binding_stack.size - 1,
+                       :nesting_level  => bstack.size - 1,
                        :open_token     => open_token,
                        :session_line   => Pry.history.session_line_count + 1,
                        :history_line   => Pry.history.history_line_count + 1,
                        :expr_number    => input_array.count,
                        :_pry_          => self,
-                       :binding_stack  => binding_stack,
+                       :bstack  => bstack,
                        :input_array    => input_array,
                        :eval_string    => @eval_string,
                        :cont           => !@eval_string.empty?})
@@ -623,11 +623,11 @@ class Pry
 
     exception.set_backtrace(args.length === 3 ? args[2] : caller(1))
 
-    if force || binding_stack.one?
-      binding_stack.clear
+    if force || bstack.one?
+      bstack.clear
       throw :raise_up, exception
     else
-      binding_stack.pop
+      bstack.pop
       raise exception
     end
   end

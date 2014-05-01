@@ -10,13 +10,13 @@ class Pry
 
     def process(break_level)
       break_level = break_level.to_i
-      nesting_level = _pry_.binding_stack.size - 1
+      nesting_level = _pry_.bstack.size - 1
 
       case break_level
       when nesting_level
         output.puts "Already at nesting level #{nesting_level}"
       when (0...nesting_level)
-        _pry_.binding_stack.slice!(break_level + 1, _pry_.binding_stack.size)
+        _pry_.bstack.slice!(break_level + 1, _pry_.bstack.size)
 
       else
         max_nest_level = nesting_level - 1

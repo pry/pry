@@ -21,11 +21,11 @@ class Pry
 
     def process
       if arg_string.strip == "-"
-        _pry_.binding_stack = []
+        _pry_.bstack = []
       else
-        stack = ObjectPath.new(arg_string, _pry_.binding_stack).resolve
-        if stack && stack != _pry_.binding_stack
-          _pry_.binding_stack = stack
+        stack = ObjectPath.new(arg_string, _pry_.bstack).resolve
+        if stack && stack != _pry_.bstack
+          _pry_.bstack = stack
         end
       end
     end

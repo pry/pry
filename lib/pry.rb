@@ -78,11 +78,11 @@ class Pry
   # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
                 proc do |conf|
-                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  tree = conf.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
                   "[#{conf.expr_number}] (#{Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}> "
                 end,
                 proc do |conf|
-                  tree = conf.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
+                  tree = conf.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
                   "[#{conf.expr_number}] (#{ Pry.config.prompt_name}) #{tree}: #{conf.nesting_level}* "
                 end,
                ]
@@ -94,11 +94,11 @@ class Pry
   DEFAULT_CONTROL_D_HANDLER = proc do |eval_string, _pry_|
     if !eval_string.empty?
       eval_string.replace('') # Clear input buffer.
-    elsif _pry_.binding_stack.one?
-      _pry_.binding_stack.clear
+    elsif _pry_.bstack.one?
+      _pry_.bstack.clear
       throw(:breakout)
     else
-      _pry_.binding_stack.pop
+      _pry_.bstack.pop
     end
   end
 
