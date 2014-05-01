@@ -20,17 +20,11 @@ class Pry
     BANNER
 
     def process
-      state.old_stack ||= []
-
       if arg_string.strip == "-"
-        unless state.old_stack.empty?
-          _pry_.binding_stack, state.old_stack = state.old_stack, _pry_.binding_stack
-        end
+        _pry_.binding_stack = []
       else
         stack = ObjectPath.new(arg_string, _pry_.binding_stack).resolve
-
         if stack && stack != _pry_.binding_stack
-          state.old_stack = _pry_.binding_stack
           _pry_.binding_stack = stack
         end
       end

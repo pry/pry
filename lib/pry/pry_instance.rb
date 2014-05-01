@@ -31,7 +31,6 @@ class Pry
   attr_accessor :last_dir
 
   attr_reader :last_exception
-  attr_reader :command_state
   attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
@@ -64,7 +63,6 @@ class Pry
   def initialize(options={})
     @binding_stack = []
     @indent        = Pry::Indent.new
-    @command_state = {}
     @eval_string   = ""
     target = options.delete(:target)
     @config = Pry::Config.new
