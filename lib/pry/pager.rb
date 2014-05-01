@@ -153,13 +153,13 @@ class Pry::Pager
 
     def write(str)
       if invoked_pager?
-        pager.write str
+        write_to_pager str
       else
         @tracker.record str
         @buffer << str
 
         if @tracker.page?
-          pager.write @buffer
+          write_to_pager @buffer
         end
       end
     rescue Errno::EPIPE
@@ -175,6 +175,10 @@ class Pry::Pager
     end
 
     private
+
+    def write_to_pager(text)
+      pager.write @out.decolorize_maybe(text)
+    end
 
     def invoked_pager?
       @pager
