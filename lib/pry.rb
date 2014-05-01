@@ -170,3 +170,4 @@ require "pry/last_exception"
 require "pry/prompt"
 require "pry/inspector"
 require 'pry/object_path'
+require 'pry/output'

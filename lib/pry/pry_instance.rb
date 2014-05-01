@@ -603,6 +603,13 @@ class Pry
     Pry::Pager.new(self)
   end
 
+  # Returns an output device
+  # @example
+  #   _pry_.output.puts "ohai!"
+  def output
+    Pry::Output.new(self)
+  end
+
   # Raise an exception out of Pry.
   #
   # See Kernel#raise for documentation of parameters.

@@ -50,11 +50,11 @@ class Pry::Pager
   # @param [#<<] output ($stdout) An object to send output to.
   def best_available
     if !_pry_.config.pager
-      NullPager.new(_pry_.config.output)
+      NullPager.new(_pry_.output)
     elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
-      SimplePager.new(_pry_.config.output)
+      SimplePager.new(_pry_.output)
     else
-      SystemPager.new(_pry_.config.output)
+      SystemPager.new(_pry_.output)
     end
   end
 
@@ -107,7 +107,7 @@ class Pry::Pager
 
         if @tracker.page?
           @out.print "\n"
-          @out.print "\e[0m" if Pry.config.color
+          @out.print "\e[0m"
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
           raise StopPaging if Readline.readline("").chomp == "q"
