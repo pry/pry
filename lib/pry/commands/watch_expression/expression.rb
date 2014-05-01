@@ -11,11 +11,11 @@ class Pry
 
       def eval!
         @previous_value = @value
-        @value = Pry::ColorPrinter.pp(_pry_, target_eval(target, source), "")
+        @value = Pry::ColorPrinter.pp(target_eval(target, source), "")
       end
 
       def to_s
-        "#{Code.new(source).highlighted(_pry_.config.color).strip} => #{value}"
+        "#{Code.new(source).highlighted.strip} => #{value}"
       end
 
       # Has the value of the expression changed?

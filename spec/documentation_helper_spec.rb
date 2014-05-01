@@ -63,11 +63,6 @@ describe Pry::Helpers::DocumentationHelpers do
     it "should not remove ++" do
       @helper.process_rdoc("--\n  comment in a bubble\n++").should =~ /\+\+/
     end
-
-    it "should do nothing if Pry.config.color is false" do
-      Pry.config.color = false
-      @helper.process_rdoc("  4 + 4\n").should == "  4 + 4\n"
-    end
   end
 
 end

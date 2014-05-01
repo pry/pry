@@ -257,8 +257,8 @@ class Pry
     end
 
     # @return [String] a (possibly highlighted) copy of the source code.
-    def highlighted(color=false)
-      print_to_output("", color)
+    def highlighted
+      print_to_output("", true)
     end
 
     # Writes a formatted representation (based on the configuration of the
@@ -267,7 +267,7 @@ class Pry
       @lines.each do |loc|
         loc = loc.dup
         loc.colorize(@code_type)              if color
-        loc.add_line_number(max_lineno_width) if @with_line_numbers
+        loc.add_line_number(max_lineno_width, color) if @with_line_numbers
         loc.add_marker(@marker_lineno)        if @with_marker
         loc.indent(@indentation_num)          if @with_indentation
         output << loc.line
