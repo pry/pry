@@ -1,8 +1,4 @@
-# (C) John Mair (banisterfiend) 2013
-# MIT License
-#
 require 'pp'
-
 require 'pry/input_lock'
 require 'pry/exceptions'
 require 'pry/helpers/base_helpers'
@@ -77,14 +73,14 @@ class Pry
   # A prompt that includes the full object path as well as
   # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
-                proc do |pry|
+                proc { |pry|
                   tree = pry.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{pry.expr_number}] (#{Pry.config.prompt_name}) #{tree}: #{pry.nesting_level}> "
-                end,
-                proc do |pry|
+                  "[#{pry.expr_number}] (#{pry.config.prompt_name}) #{tree}: #{pry.nesting_level}> "
+                },
+                proc { |pry|
                   tree = pry.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
                   "[#{pry.expr_number}] (#{ pry.config.prompt_name}) #{tree}: #{pry.nesting_level}* "
-                end,
+		}
                ]
 
   # Deal with the ^D key being pressed. Different behaviour in different cases:
@@ -152,7 +148,6 @@ require 'pry/command'
 require 'pry/command_set'
 require 'pry/commands'
 require 'pry/plugins'
-require 'pry/core_extensions'
 require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/cli'
