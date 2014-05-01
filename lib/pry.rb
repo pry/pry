@@ -135,6 +135,7 @@ if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi
 end
 
 require 'pry/version'
+require 'pry/bstack'
 require 'pry/repl'
 require 'pry/rbx_path'
 require 'pry/code'

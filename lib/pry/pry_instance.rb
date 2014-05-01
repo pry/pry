@@ -61,9 +61,9 @@ class Pry
   # @option options [Object] :target
   #   The initial context for this session.
   def initialize(options={})
-    @bstack = []
-    @indent        = Pry::Indent.new
-    @eval_string   = ""
+    @bstack = Pry::BStack.new(self)
+    @indent = Pry::Indent.new
+    @eval_string = ""
     target = options.delete(:target)
     @config = Pry::Config.new
     config.merge!(options)
