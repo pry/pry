@@ -25,7 +25,6 @@ class Pry
   attr_accessor :binding_stack
   attr_accessor :custom_completions
   attr_accessor :eval_string
-  attr_accessor :backtrace
   attr_accessor :suppress_output
   attr_accessor :last_result
   attr_accessor :last_file
@@ -67,7 +66,6 @@ class Pry
     @indent        = Pry::Indent.new
     @command_state = {}
     @eval_string   = ""
-    @backtrace     = options.delete(:backtrace) || caller
     target = options.delete(:target)
     @config = Pry::Config.new
     config.merge!(options)
