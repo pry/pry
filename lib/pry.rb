@@ -70,17 +70,9 @@ class Pry
                   proc { |target_self, _, _| "#{Pry.config.prompt_name} #{Pry.view_clip(target_self)}:#{Dir.pwd} * " }
                  ]
 
-  # A prompt that includes the full object path as well as
-  # input/output (_in_ and _out_) information. Good for navigation.
   NAV_PROMPT = [
-                proc { |pry|
-                  tree = pry.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{pry.expr_number}] (#{pry.config.prompt_name}) #{tree}: #{pry.nesting_level}> "
-                },
-                proc { |pry|
-                  tree = pry.bstack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{pry.expr_number}] (#{ pry.config.prompt_name}) #{tree}: #{pry.nesting_level}* "
-		}
+                proc { |pry| pry.bstack.to_s },
+                proc { |pry| pry.bstack.to_s }
                ]
 
   # Deal with the ^D key being pressed. Different behaviour in different cases:

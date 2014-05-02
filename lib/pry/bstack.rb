@@ -5,12 +5,17 @@ class Pry::BStack < BasicObject
     @index = 0
   end
 
+  def method_missing(m, *argz, &blk)
+    @stack.public_send(m, *argz, &blk)
+  end
+
   def switch_to(index)
     ::Kernel.raise ::IndexError, "index is out of bounds" if index >= @stack.size
     @index = index
   end
 
-  def method_missing(m, *argz, &blk)
-    @stack.public_send(m, *argz, &blk)
+  def to_s
+    path = @stack.map { |b| ::Pry.view_clip(b) }.join " / "
+    "[%s] %s %s " % [@pry.input_array.size, @pry.config.prompt_name, path]
   end
 end
