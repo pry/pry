@@ -56,6 +56,7 @@ class Pry::LastException < BasicObject
   #  the backtrace.
   # 
   #  @return [Fixnum]
+  #  @return [Infinity] (rails)
   #
   def bump_index!
     @bt_index += 1
