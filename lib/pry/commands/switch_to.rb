@@ -2,20 +2,17 @@ class Pry
   class Command::SwitchTo < Pry::ClassCommand
     match 'switch-to'
     group 'Navigating Pry'
-    description 'Start a new subsession on a binding in the current stack.'
+    description 'switch the active index stored in the binding stack'
 
     banner <<-'BANNER'
-      Start a new subsession on a binding in the current stack (numbered by nesting).
+      switch-to X
+
+      switch the active index stored in the binding stack.
+      the stack is accessible at `_pry_.bstack` from a repl session.
     BANNER
 
-    def process(selection)
-      selection = selection.to_i
-
-      if selection < 0 || selection > _pry_.binding_stack.size - 1
-        raise CommandError, "Invalid binding index #{selection} - use `nesting` command to view valid indices."
-      else
-        Pry.start(_pry_.binding_stack[selection])
-      end
+    def process(index)
+      _pry_.bstack.switch_to Integer(index)
     end
   end
 

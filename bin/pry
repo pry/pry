@@ -1,16 +1,4 @@
 #!/usr/bin/env ruby
-
-# (C) John Mair (banisterfiend)
-# MIT license
-
 $0 = 'pry'
-
-begin
-  require 'pry'
-rescue LoadError
-  require 'rubygems'
-  require 'pry'
-end
-
-# Process command line options and run Pry
+require 'pry'
 Pry::CLI.parse_options

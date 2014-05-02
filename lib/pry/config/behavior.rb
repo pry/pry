@@ -85,10 +85,8 @@ module Pry::Config::Behavior
   end
 
   def clear
-    @lookup.clear
-    true
+    @lookup.clear and true
   end
-  alias_method :refresh, :clear
 
   def forget(key)
     @lookup.delete(key.to_s)

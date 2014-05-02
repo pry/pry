@@ -11,7 +11,7 @@ class Pry::LastException < BasicObject
 
   def initialize(e)
     @e = e
-    @bt_index = 0
+    @people = 0
     @file, @line = bt_source_location_for(0)
   end
 
@@ -42,7 +42,8 @@ class Pry::LastException < BasicObject
   def line
     @line
   end
-
+  
+  #
   # @return [Exception]
   #   returns the wrapped exception
   #
@@ -50,12 +51,19 @@ class Pry::LastException < BasicObject
     @e
   end
 
+  #
+  #  bumps the internal index that tracks the position in 
+  #  the backtrace.
+  # 
+  #  @return [Fixnum]
+  #  @return [Infinity] (rails)
+  #
+  def bump_index!
+    @people += 1
+  end
+
   def bt_source_location_for(index)
     backtrace[index] =~ /(.*):(\d+)/
     [$1, $2.to_i]
-  end
-
-  def inc_bt_index
-    @bt_index = (@bt_index + 1) % backtrace.size
   end
 end

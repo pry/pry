@@ -1,3 +1,0 @@
-# Run this with:
-# gem install foreman && foreman start -f spec/Procfile
-pryhere: sh -c '(cd ..; rake pry)'

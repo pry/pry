@@ -274,20 +274,6 @@ class Pry
       self._pry_        = context[:pry_instance]
     end
 
-    # @return [Object] The value of `self` inside the `target` binding.
-    def target_self; target.eval('self'); end
-
-    # @return [Hash] Pry commands can store arbitrary state
-    #   here. This state persists between subsequent command invocations.
-    #   All state saved here is unique to the command, it does not
-    #   need to be namespaced.
-    # @example
-    #   state.my_state = "my state"  # this will not conflict with any
-    #                                # `state.my_state` used in another command.
-    def state
-      _pry_.command_state[match] ||= Pry::Config.from_hash({})
-    end
-
     # Revaluate the string (str) and perform interpolation.
     # @param [String] str The string to reevaluate with interpolation.
     #

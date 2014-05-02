@@ -1,0 +1,99 @@
+accurate and detailed graph data about contributions is available from github:
+https://github.com/pry/pry/graphs/contributors
+
+pry is the work of many people. feel free to add yourself if you were missed.
+
+Aldric Giacomoni
+Alex Manelis
+Andrew Meyer
+Andrew Vos
+Andrey Ognevsky
+Andy Monat
+Ben Langfeld
+Ben Pickles
+Bram Swenson
+Christopher Sexton
+Colin Shea
+Conrad Irwin
+Danielle Sucher
+Danielle Sucher & Jason Laster
+Darrick Wiebe
+David Palm
+David Rodríguez
+Deepender
+Eero Saynatkari
+Eric Christopherson
+Erik Michaels-Ober
+Eugene Diachkin
+Geraud Puechaldou
+Gerbert Olivé
+Gosha Arinich
+Greg Stearns
+Havenwood
+Ingrid
+Ivo Wever
+Janko Marohnić
+Jason Laster
+Joe Peduto
+John Mair
+Johnny Five
+Jonas Arvidsson
+Jonathan Jackson
+Jonathan Jackson and Travis Anderson
+Jonathan Soeder
+Jordan Running
+Jordon Bedwell
+Josh Adams
+Josh Cheek
+Josh Lewis
+Kannan Manickam
+Kelsey Judson
+Kirill Lashuk
+Kohei Suzuki
+Kyrylo Silin
+Larry Gilbert
+Lars Haugseth
+Lee Jarvis
+Loic Nageleisen
+Matt Carey
+Matthew Carey
+Michael Bensoussan
+Michael Moore
+Mon ouïe
+Nicolas Viennot
+Noah Davis
+Patrick Ritchie
+Paul Chechetin
+Pradyumna
+Reginald Tan
+Renato Mascarenhas
+René Föhring
+Richo Healey
+Russell Jennings
+Ryan Fitzgerald
+Sean Bryant
+Sean Linsley
+Shannon Skipper
+Shawn Anderson
+Sherin C
+Sonali Sridhar
+Tim Pope
+Tom Kadwill
+Trey Lawrence
+Uros Jurglic
+Uwe Stuehler
+Vít Ondruch
+WU Jun
+Xavier Shay
+Yasuharu Ozaki
+Yorick Peterse
+ZPH
+Zeh Rizzatti
+epitron
+fowlmouth
+hashrocketeer
+misfo
+shirmung
+sonnym
+yui-knk
+☈king
