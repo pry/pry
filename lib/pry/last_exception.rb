@@ -11,7 +11,7 @@ class Pry::LastException < BasicObject
 
   def initialize(e)
     @e = e
-    @bt_index = 0
+    @people = 0
     @file, @line = bt_source_location_for(0)
   end
 
@@ -59,7 +59,7 @@ class Pry::LastException < BasicObject
   #  @return [Infinity] (rails)
   #
   def bump_index!
-    @bt_index += 1
+    @people += 1
   end
 
   def bt_source_location_for(index)
