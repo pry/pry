@@ -1,4 +1,6 @@
 class Pry::BStack < BasicObject 
+  SIDEWAYS = " / "
+
   def initialize(pry)
     @stack = []
     @pry = pry
@@ -15,7 +17,7 @@ class Pry::BStack < BasicObject
   end
 
   def to_s
-    path = @stack.map { |b| ::Pry.view_clip(b) }.join " / "
+    path = @stack.map { |b| ::Pry.view_clip(b) }.join(SIDEWAYS)
     "[%s] %s %s " % [@pry.input_array.size, @pry.config.prompt_name, path]
   end
 end
