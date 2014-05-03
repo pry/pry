@@ -98,6 +98,23 @@ class Pry
     trap('INT'){ raise Interrupt }
   end
 
+  def self.load_win32console
+    begin
+      require 'win32console'
+      # The mswin and mingw versions of pry require win32console, so this should
+      # only fail on jruby (where win32console doesn't work).
+      # Instead we'll recommend ansicon, which does.
+    rescue LoadError
+      warn <<-WARNING
+Can not require win32console.
+For a better Pry experience on Windows, please use ansicon: https://github.com/adoxa/ansicon
+(win32console has been deprecated).
+If you use alternative to win32console or ansicon and want not to display this warning, you can
+add "Pry.config.should_load_win32console=false" to your .pryrc.
+      WARNING
+    end
+  end
+
   # Do basic setup for initial session.
   # Including: loading .pryrc, loading plugins, loading requires, and
   # loading history.
@@ -112,6 +129,7 @@ class Pry
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
     load_traps if Pry.config.should_trap_interrupts
+    load_win32console if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi? && Pry.config.should_load_win32console
   end
 
   # Start a Pry REPL.
