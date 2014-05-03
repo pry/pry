@@ -82,11 +82,11 @@ namespace :jruby do
 end
 
 
-[:mingw32, :mswin32].each do |v|
-  namespace v do
+[:mingw32, :mswin32].each do |platform|
+  namespace platform do
     spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')
-      s.platform = "i386-#{v}"
+      s.platform = Gem::Platform.new(['universal', platform])
     end
 
     Gem::PackageTask.new(spec) do |pkg|
