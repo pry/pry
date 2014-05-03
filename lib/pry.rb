@@ -130,18 +130,6 @@ require 'rbconfig'
 require 'tempfile'
 require 'pathname'
 
-if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
-  begin
-    require 'win32console'
-    # The mswin and mingw versions of pry require win32console, so this should
-    # only fail on jruby (where win32console doesn't work).
-    # Instead we'll recommend ansicon, which does.
-  rescue LoadError
-    warn "For a better Pry experience on Windows, please use ansicon:"
-    warn "   https://github.com/adoxa/ansicon"
-  end
-end
-
 require 'pry/version'
 require 'pry/repl'
 require 'pry/rbx_path'
