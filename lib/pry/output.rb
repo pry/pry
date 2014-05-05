@@ -1,4 +1,3 @@
-
 class Pry
   class Output
     attr_reader :_pry_
@@ -7,8 +6,16 @@ class Pry
       @_pry_ = _pry_
     end
 
-    def puts(str)
-      print "#{str.chomp}\n"
+    def puts(*objs)
+      return print "\n" if objs.empty?
+
+      objs.each do |obj|
+        if obj.is_a?(Array)
+          puts(*obj)
+        else
+          print "#{obj.to_s.chomp}\n"
+        end
+      end
     end
 
     def print(str)
