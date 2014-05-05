@@ -1,11 +1,13 @@
 class Pry::Command::ChangePrompt < Pry::ClassCommand
   match 'change-prompt'
-  group 'prompts'
-  description 'change the current pry prompt'
+  group 'Input and Output'
+  description 'Change the current prompt.'
   command_options argument_required: true
   banner <<-BANNER
-    Usage: change-prompt
-    change the current prompt. see list-prompts for a list of available prompts.
+    Usage: change-prompt NAME
+
+    Change the current prompt. See list-prompts for a list of available
+    prompts.
   BANNER
 
   def process(prompt)

@@ -2,22 +2,25 @@ class Pry::Prompt
   MAP = {
     "default" => {
       value: Pry::DEFAULT_PROMPT,
-      description: "the default pry prompt"
+      description: "The default Pry prompt. Includes information about the\n" \
+                   "current expression number, evaluation context, and nesting\n" \
+                   "level, plus a reminder that you're using Pry."
     },
 
     "simple" => {
       value: Pry::SIMPLE_PROMPT,
-      description: "a simple prompt"
+      description: "A simple '>>'."
     },
 
     "nav" => {
       value: Pry::NAV_PROMPT,
-      description: "a prompt that draws the binding stack as a path and includes information about _in_ and _out_"
+      description: "A prompt that displays the binding stack as a path and\n" \
+                   "includes information about _in_ and _out_."
     },
 
     "none" => {
       value: Pry::NO_PROMPT,
-      description: "wave goodbye to the pry prompt"
+      description: "Wave goodbye to the Pry prompt."
     }
  }
 end

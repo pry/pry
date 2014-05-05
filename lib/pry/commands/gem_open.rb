@@ -2,7 +2,7 @@ class Pry
   class Command::GemOpen < Pry::ClassCommand
     match 'gem-open'
     group 'Gems'
-    description 'Opens the working directory of the gem in your editor'
+    description 'Opens the working directory of the gem in your editor.'
     command_options :argument_required => true
 
     banner <<-'BANNER'
