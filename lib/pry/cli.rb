@@ -128,7 +128,7 @@ Copyright (c) 2013 John Mair (banisterfiend)
   end
 
   on "no-color", "Disable syntax highlighting for session" do
-    Pry.color = false
+    Pry.config.color = false
   end
 
   on :f, "Suppress loading of ~/.pryrc and ./.pryrc" do

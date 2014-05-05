@@ -21,12 +21,6 @@ describe Pry::Config do
       local.foo.should == 2
     end
 
-    it "duplicates a copy on read from the parent" do
-      ukraine = "i love"
-      local = Pry::Config.new Pry::Config.from_hash(home: ukraine)
-      local.home.equal?(ukraine).should == false
-    end
-
     it "traverses through a chain of parents" do
       root = Pry::Config.from_hash({foo: 21})
       local1 = Pry::Config.new(root)

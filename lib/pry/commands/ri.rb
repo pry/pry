@@ -23,10 +23,14 @@ class Pry
         subclass = Class.new(RDoc::RI::Driver) # the hard way.
 
         subclass.class_eval do
+          def initialize(pager, opts)
+            @pager = pager
+            super opts
+          end
           def page
             paging_text = StringIO.new
             yield paging_text
-            Pry::Pager.page(paging_text.string)
+            @pager.page(paging_text.string)
           end
 
           def formatter(io)
@@ -42,7 +46,7 @@ class Pry
       end
 
       # Spin-up an RI insance.
-      ri = RDoc::RI::PryDriver.new :use_stdout => true, :interactive => false
+      ri = RDoc::RI::PryDriver.new _pry_.pager, :use_stdout => true, :interactive => false
 
       begin
         ri.display_names [spec]  # Get the documentation (finally!)

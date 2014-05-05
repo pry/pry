@@ -9,22 +9,22 @@ describe "test Pry defaults" do
 
   after do
     Pry.reset_defaults
-    Pry.color = false
+    Pry.config.color = false
   end
 
   describe "input" do
     after do
       Pry.reset_defaults
-      Pry.color = false
+      Pry.config.color = false
     end
 
     it 'should set the input default, and the default should be overridable' do
-      Pry.input = InputTester.new("5")
-      Pry.output = @str_output
+      Pry.config.input = InputTester.new("5")
+      Pry.config.output = @str_output
       Object.new.pry
       @str_output.string.should =~ /5/
 
-      Pry.output = @str_output
+      Pry.config.output = @str_output
       Object.new.pry :input => InputTester.new("6")
       @str_output.string.should =~ /6/
     end
@@ -75,17 +75,17 @@ describe "test Pry defaults" do
   end
 
   it 'should set the output default, and the default should be overridable' do
-    Pry.output = @str_output
+    Pry.config.output = @str_output
 
-    Pry.input  = InputTester.new("5")
+    Pry.config.input  = InputTester.new("5")
     Object.new.pry
     @str_output.string.should =~ /5/
 
-    Pry.input  = InputTester.new("6")
+    Pry.config.input  = InputTester.new("6")
     Object.new.pry
     @str_output.string.should =~ /5\n.*6/
 
-    Pry.input  = InputTester.new("7")
+    Pry.config.input  = InputTester.new("7")
     @str_output = StringIO.new
     Object.new.pry :output => @str_output
     @str_output.string.should.not =~ /5\n.*6/
@@ -94,9 +94,9 @@ describe "test Pry defaults" do
 
   it "should set the print default, and the default should be overridable" do
     new_print = proc { |out, value| out.puts "=> LOL" }
-    Pry.print =  new_print
+    Pry.config.print =  new_print
 
-    Pry.new.print.should == Pry.print
+    Pry.new.print.should == Pry.config.print
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
     @str_output.string.should == "=> LOL\n"
 
@@ -105,7 +105,7 @@ describe "test Pry defaults" do
                    :print => proc { |out, value| out.puts value.reverse }
     @str_output.string.should == "tset\n"
 
-    Pry.new.print.should == Pry.print
+    Pry.new.print.should == Pry.config.print
     @str_output = StringIO.new
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
     @str_output.string.should == "=> LOL\n"
@@ -135,7 +135,7 @@ describe "test Pry defaults" do
 
   describe "prompts" do
     before do
-      Pry.output = StringIO.new
+      Pry.config.output = StringIO.new
     end
 
     def get_prompts(pry)
@@ -385,8 +385,8 @@ describe "test Pry defaults" do
   end
 
   it 'should set the hooks default, and the default should be overridable' do
-    Pry.input = InputTester.new("exit-all")
-    Pry.hooks = Pry::Hooks.new.
+    Pry.config.input = InputTester.new("exit-all")
+    Pry.config.hooks = Pry::Hooks.new.
       add_hook(:before_session, :my_name) { |out,_,_|  out.puts "HELLO" }.
       add_hook(:after_session, :my_name) { |out,_,_| out.puts "BYE" }
 
@@ -394,7 +394,7 @@ describe "test Pry defaults" do
     @str_output.string.should =~ /HELLO/
     @str_output.string.should =~ /BYE/
 
-    Pry.input.rewind
+    Pry.config.input.rewind
 
     @str_output = StringIO.new
     Object.new.pry :output => @str_output,
@@ -406,7 +406,7 @@ describe "test Pry defaults" do
     @str_output.string.should =~ /EVENING/
 
     # try below with just defining one hook
-    Pry.input.rewind
+    Pry.config.input.rewind
     @str_output = StringIO.new
     Object.new.pry :output => @str_output,
                    :hooks => Pry::Hooks.new.
@@ -414,7 +414,7 @@ describe "test Pry defaults" do
 
     @str_output.string.should =~ /OPEN/
 
-    Pry.input.rewind
+    Pry.config.input.rewind
     @str_output = StringIO.new
     Object.new.pry :output => @str_output,
                    :hooks => Pry::Hooks.new.
@@ -423,6 +423,6 @@ describe "test Pry defaults" do
     @str_output.string.should =~ /CLOSE/
 
     Pry.reset_defaults
-    Pry.color = false
+    Pry.config.color = false
   end
 end

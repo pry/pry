@@ -17,8 +17,7 @@ class Pry
     BANNER
 
     def process
-      stagger_output text.bold('Backtrace:') <<
-        "\n--\n" << _pry_.backtrace.join("\n")
+      _pry_.pager.page text.bold('Backtrace:') << "\n--\n" << _pry_.backtrace.join("\n")
     end
   end
 

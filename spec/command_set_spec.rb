@@ -9,7 +9,7 @@ describe Pry::CommandSet do
     @ctx = {
       :target => binding,
       :command_set => @set,
-      :pry_instance => Pry.new
+      :pry_instance => Pry.new(output: StringIO.new)
     }
   end
 

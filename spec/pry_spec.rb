@@ -35,7 +35,7 @@ describe Pry do
   describe "Pry.critical_section" do
     it "should prevent Pry being called" do
       output = StringIO.new
-      Pry.output = output
+      Pry.config.output = output
       Pry.critical_section do
         Pry.start
       end
@@ -305,13 +305,13 @@ describe Pry do
       describe "nesting" do
         after do
           Pry.reset_defaults
-          Pry.color = false
+          Pry.config.color = false
         end
 
         it 'should nest properly' do
-          Pry.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all")
+          Pry.config.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all")
 
-          Pry.output = @str_output
+          Pry.config.output = @str_output
 
           o = Object.new
 
@@ -353,14 +353,14 @@ describe Pry do
 
         after do
           Pry.reset_defaults
-          Pry.color = false
+          Pry.config.color = false
         end
 
         it "should start a pry session on the receiver (first form)" do
-          Pry.input = InputTester.new("self", "exit-all")
+          Pry.config.input = InputTester.new("self", "exit-all")
 
           str_output = StringIO.new
-          Pry.output = str_output
+          Pry.config.output = str_output
 
           20.pry
 
@@ -368,10 +368,10 @@ describe Pry do
         end
 
         it "should start a pry session on the receiver (second form)" do
-          Pry.input = InputTester.new("self", "exit-all")
+          Pry.config.input = InputTester.new("self", "exit-all")
 
           str_output = StringIO.new
-          Pry.output = str_output
+          Pry.config.output = str_output
 
           pry 20
 

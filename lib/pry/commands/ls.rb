@@ -85,7 +85,7 @@ class Pry
         :_pry_ => _pry_
       })
 
-      stagger_output(ls_entity.entities_table)
+      _pry_.pager.page ls_entity.entities_table
     end
 
     private

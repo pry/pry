@@ -15,16 +15,16 @@ end
 
 # Set I/O streams. Out defaults to an anonymous StringIO.
 def redirect_pry_io(new_in, new_out = StringIO.new)
-  old_in = Pry.input
-  old_out = Pry.output
+  old_in = Pry.config.input
+  old_out = Pry.config.output
 
-  Pry.input = new_in
-  Pry.output = new_out
+  Pry.config.input = new_in
+  Pry.config.output = new_out
   begin
     yield
   ensure
-    Pry.input = old_in
-    Pry.output = old_out
+    Pry.config.input = old_in
+    Pry.config.output = old_out
   end
 end
 
