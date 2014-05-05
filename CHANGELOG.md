@@ -1,10 +1,12 @@
 ### 0.10.0 (2014/??/??)
 #### Dependency changes
 
-* Remove require of "ffi" from pry ([#1158](https://github.com/pry/pry/issues/1158))
-* Remove require of "bond" from pry ([#1166](https://github.com/pry/pry/issues/1166))
-* Remove require of `openstruct` from pry ([#1096](https://github.com/pry/pry/issues/1096))
-* Ruby 1.9 or later required
+* Remove dependency on `ffi` gem on JRuby ([#1158](https://github.com/pry/pry/issues/1158))
+* Remove optional dependency on Bond ([#1166](https://github.com/pry/pry/issues/1166))
+  * Bond support has been extracted to the `pry-bond` plugin
+* Remove dependency on `openstruct` ([#1096](https://github.com/pry/pry/issues/1096))
+* Drop support for Ruby 1.8.7 (we now require 1.9.2 or above)
+* Add support for Ruby 2.1
 * Require Coderay `~> 1.1.0`
 * Remove deprecated hooks API ([#1209](https://github.com/pry/pry/pull/1209))
 
@@ -14,10 +16,9 @@
   * Makes Pry notice that your window has resized and tell Readline about it
   * Fixes various bugs with command history after a window resize
   * Off by default, but can be called from your `.pryrc` if you're brave
-* Added support for Ruby 2.1
 * `play` now has an `-e`/`--expression` flag
   * Evaluates until the end of the first valid expression
-* Readline history gets appended after every input, not just when Pry quits
+* History gets appended to `~/.pry_history` after every input, not just at quit
 * Return values render with more accurate syntax highlighting
 * Return values start rendering immediately and stream into the pager
 * User can override `.pryrc` location by setting `$PRYRC` env var (#893)
@@ -25,36 +26,31 @@
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
 * Lazy load configuration values (Pry.config). (#1096)
-* Lazy load 'readline' until pry is started for the first time. (#1117)
+* Defer requiring `readline` until Pry is started for the first time. (#1117)
 * Add option to disable input completer through `_pry_.config.completer = nil`
-* Add `Pry.main`. returns a special instance of Object referenced by self of `TOPLEVEL_BINDING`: "main".
-* Add `Pry::LastException` (#1145)
 * Add `list-prompts` command. (#1175)
-  - lists the available prompts available for use.
+  * Lists the available prompts available for use.
 * Add `change-prompt` command. (#1175)
-  - switch the current prompt, by name.
+  * Switches the current prompt, by name.
 * Add `list-inspectors` command. (#1176)
-  - list the inspectors available to print ruby return values in a repl.
+  * Lists the inspectors available to print Ruby return values.
 * Add `change-inspector` command. (#1176)
-  - switch the current inspector, by name.
-* Add `show-source -e` (#1185)
-  - evaluate the command's argument as a ruby expression and show the class of its return value.
-    `show-source -e _pry_.config`
-* Remove pry -i option (#1155, #1182).
-  - the pry plugin [pry-rescue](https://github.com/conradirwin/pry-rescue) has an `-i` option that covers
-    corner-cases `pry -i` didn't out of the box.
+  * Switches the current inspector, by name.
+* Add `show-source -e`. (#1185)
+  * Evaluate the given Ruby expression and show the source of its return value.
 * Add `Pry.config.windows_console_warning`(#1218)
-  - windows jruby users who don't want warnings about ansicon can set `Pry.config.windows_console_warning = false`
+  * Windows JRuby users who don't want warnings about ansicon can set
+    `Pry.config.windows_console_warning = false`.
 
 #### Bug fixes, etc.
-* the `gem-install` command won't fail to require gems like `net-ssh` thanks to better guess logic about its path (#1188)
-* Move `Pry::BondCompleter` and bond integration to the [pry-bond](https://github.com/pry/pry-bond) rubygem. (#1166)
-* Default input completer is `Pry::InputCompleter`. (#1166)
-* `toggle-color` command toggles `_pry_.color` instead of the default inherited by a repl session(`Pry.color`)
-* Update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when printing a return value. (#1162)
-* Change second argument of `Pry.view_clip()` from Fixnum to Hash to support returning a string with or
-  without a hex representation of object ID. (#1162)
-* `Pry#last_exception=` supports exception objects who have been frozen (#1145)
+* The `gem-install` command can require gems like `net-ssh` thanks to better
+  logic for guessing what path to require. (#1188)
+* `toggle-color` command toggles the local `_pry_.color` setting instead of the
+  global `Pry.color`.
+* Update `Pry::CLIPPED_PRINT` to include a hex representation of object ID when
+  printing a return value. (#1162)
+* Wrap exceptions in a proxy instead of adding singleton methods. (#1145)
+  * `Pry#last_exception=` now supports exception objects that have been frozen.
 * `binding.pry` inside `.pryrc` file now works, with some limitations (@richo / #1118)
 * Add support for BasicObjects to `ls` (#984)
 * Allow `ls -c <anything>` (#891)
@@ -76,17 +72,19 @@
 * Fix bug in `edit` regarding recognition of file names without suffix.
 
 #### Dev-facing changes
-* CommandSet#commands, sometimes referenced through Pry.commands.commands, renamed as 'CommandSet#to_hash'.
-  it returns a duplicate of the internal hash a CommandSet uses.
-* CommandSet#keys is now an alias of CommandSet#list_commands.
-* through changes to configuration, all commands should reference configuration values
-  via `_pry_.config` and not `Pry.config`. (#1096)
-* improve configuration(Pry::Config) for easier support of concurrent environments
-  through a 'pry-local' config who, at times, acts as a 'pry-local store'. (#1096)
+* `CommandSet#commands`, sometimes referenced through `Pry.commands.commands`,
+  renamed to `CommandSet#to_hash`. It returns a duplicate of the internal hash
+  a CommandSet uses.
+* `CommandSet#keys` is now an alias of `CommandSet#list_commands`.
+* All commands should now reference configuration values via `_pry_.config`
+  (local) and not `Pry.config` (global). (#1096)
+  * This change improves support for concurrent environments and
+    context-specific Pry sessions. `_pry_.config` inherits default values from
+    `Pry.config` but can override them locally.
 * `rake pry` now accepts switches prefixed with `_` (e.g., `rake pry _v`)
 * Pagers now act like `IO`s and accept streaming output
-  * See `_pry_.pager.page` and `_pry_.pager.open`
-* The `Pry` class has been broken up into two smaller classes
+  * See `_pry_.pager.page` and `_pry_.pager.open`.
+* The `Pry` class has been broken up into two smaller classes.
   * `Pry` represents non-UI-specific session state, including the eval string
   * `Pry::REPL` controls the user-facing interface
   * This should make it easier to drive Pry from alternative interfaces
@@ -102,6 +100,10 @@
 * There's a new `Pry::Terminal` class that implements a number of different
   methods of determining the terminal's dimensions
 * Add `ReplTester` class for high-level simulation of Pry sessions in tests
+* Add `Pry.main`. Returns the special instance of Object referenced by self of
+  `TOPLEVEL_BINDING`: "main".
+* Changed second argument of `Pry.view_clip()` from Fixnum to Hash to support
+  returning a string with or without a hex representation of object ID. (#1162)
 
 ### 0.9.12.6 (2014/01/28)
 * Don't fail if Bond is not installed (#1106)
