@@ -113,8 +113,9 @@ class Pry
   # Push a binding for the given object onto the stack. If this instance is
   # currently stopped, mark it as usable again.
   def push_binding(object)
+    # not sure what '@stopped' is used for.
     @stopped = false
-    bstack << Pry.binding_for(object)
+    bstack.push Pry.binding_for(object)
   end
 
   #

@@ -1,10 +1,11 @@
 class Pry::BStack < BasicObject 
-  SIDEWAYS = " / "
+  SIDEWAYS      = " / "
+  EMPTY_STACK   = [].freeze
 
   def initialize(pry)
-    @stack = []
+    @stack = EMPTY_STACK
     @pry = pry
-    @index = 0
+    @people = 0
   end
 
   def method_missing(m, *argz, &blk)
@@ -13,7 +14,33 @@ class Pry::BStack < BasicObject
 
   def switch_to(index)
     ::Kernel.raise ::IndexError, "index is out of bounds" if index >= @stack.size
-    @index = index
+    @people = index
+  end
+
+  def last
+    @stack.last
+  end
+
+  def frozen?
+    @stack.frozen?
+  end
+
+  def push(b)
+    if frozen?
+      @stack = [] 
+    end
+    @stack.push(b)
+  end
+    
+  def traverse_via(str)
+    case str
+    when "-"
+      @stack = EMPTY_STACK
+    else
+      str.split { |f|
+        f == ".." ? @stack.pop : @stack.push(last.eval(f))
+      }
+    end
   end
 
   def to_s
