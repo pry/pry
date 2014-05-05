@@ -43,8 +43,8 @@
 * Remove pry -i option (#1155, #1182).
   - the pry plugin [pry-rescue](https://github.com/conradirwin/pry-rescue) has an `-i` option that covers
     corner-cases `pry -i` didn't out of the box.
-* Add `Pry.config.should_load_win32console`(#1218)
-  - add config for windows user who do not want require win32console (fix #963).
+* Add `Pry.config.windows_console_warning`(#1218)
+  - windows jruby users who don't want warnings about ansicon can set `Pry.config.windows_console_warning = false`
 
 #### Bug fixes, etc.
 * the `gem-install` command won't fail to require gems like `net-ssh` thanks to better guess logic about its path (#1188)

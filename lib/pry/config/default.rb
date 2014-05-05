@@ -30,7 +30,7 @@ class Pry::Config::Default
     :requires                 => proc { [] },
     :should_load_requires     => proc { true },
     :should_load_plugins      => proc { true },
-    :should_load_win32console => proc { true },
+    :windows_console_warning  => proc { true },
     :control_d_handler        => proc { Pry::DEFAULT_CONTROL_D_HANDLER },
     :memory_size              => proc { 100 },
     :extra_sticky_locals      => proc { {} },

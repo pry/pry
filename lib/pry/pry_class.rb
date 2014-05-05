@@ -105,12 +105,12 @@ class Pry
       # only fail on jruby (where win32console doesn't work).
       # Instead we'll recommend ansicon, which does.
     rescue LoadError
-      warn <<-WARNING
+      warn <<-WARNING unless Pry.config.windows_console_warning == false
 Can not require win32console.
 For a better Pry experience on Windows, please use ansicon: https://github.com/adoxa/ansicon
 (win32console has been deprecated).
 If you use alternative to win32console or ansicon and want not to display this warning, you can
-add "Pry.config.should_load_win32console=false" to your .pryrc.
+add "Pry.config.windows_console_warning=false" to your .pryrc.
       WARNING
     end
   end
@@ -129,7 +129,7 @@ add "Pry.config.should_load_win32console=false" to your .pryrc.
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
     load_traps if Pry.config.should_trap_interrupts
-    load_win32console if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi? && Pry.config.should_load_win32console
+    load_win32console if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
   end
 
   # Start a Pry REPL.
