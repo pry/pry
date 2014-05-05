@@ -1,5 +1,6 @@
 class Pry::BStack < BasicObject 
   SIDEWAYS      = " / "
+  SPLIT_R       = %r(/)
   EMPTY_STACK   = [].freeze
 
   def initialize(pry)
@@ -31,19 +32,24 @@ class Pry::BStack < BasicObject
     end
     @stack.push(b)
   end
+ 
+  def eval(str)
+    ::Kernel.eval ::Kernel.inspect(str), last
+  end
+
     
   def traverse_via(str)
     case str
     when "-"
       @stack = EMPTY_STACK
+    when SPLIT_R
+      str.scan(SPLIT_R) { |f| f == ".." ? @stack.pop : @stack.push(eval(f)) }
     else
-      str.split { |f|
-        f == ".." ? @stack.pop : @stack.push(last.eval(f))
-      }
+      eval(str)
     end
   end
 
-  def to_s
+  def inspect(*)
     path = @stack.map { |b| ::Pry.view_clip(b) }.join(SIDEWAYS)
     "[%s] %s %s " % [@pry.input_array.size, @pry.config.prompt_name, path]
   end
