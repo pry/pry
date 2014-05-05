@@ -596,6 +596,20 @@ class Pry
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
+  # Returns the currently configured pager
+  # @example
+  #   _pry_.pager.page text
+  def pager
+    Pry::Pager.new(self)
+  end
+
+  # Returns an output device
+  # @example
+  #   _pry_.output.puts "ohai!"
+  def output
+    Pry::Output.new(self)
+  end
+
   # Raise an exception out of Pry.
   #
   # See Kernel#raise for documentation of parameters.

@@ -22,7 +22,7 @@ class Pry
     BANNER
 
     def process
-      return stagger_output help if captures[0] =~ /(-h|--help)\b/
+      return _pry.pager.page help if captures[0] =~ /(-h|--help)\b/
       # Handle 'raise-up', 'raise-up "foo"', 'raise-up RuntimeError, 'farble' in a rubyesque manner
       target.eval("_pry_.raise_up#{captures[0]}")
     end

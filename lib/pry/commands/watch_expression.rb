@@ -66,7 +66,7 @@ class Pry
       if expressions.empty?
         output.puts "No watched expressions"
       else
-        Pry::Pager.with_pager(output) do |pager|
+        _pry_.pager.open do |pager|
           pager.puts "Listing all watched expressions:"
           pager.puts ""
           expressions.each_with_index do |expr, index|
@@ -87,8 +87,8 @@ class Pry
     end
 
     def add_expression(arguments)
-      expressions << Expression.new(target, arg_string)
-      output.puts "Watching #{Code.new(arg_string)}"
+      expressions << Expression.new(_pry_, target, arg_string)
+      output.puts "Watching #{Code.new(arg_string).highlighted}"
     end
 
     def add_hook

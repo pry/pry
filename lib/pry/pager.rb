@@ -3,16 +3,24 @@ require 'pry/terminal'
 # A pager is an `IO`-like object that accepts text and either prints it
 # immediately, prints it one page at a time, or streams it to an external
 # program to print one page at a time.
-module Pry::Pager
+class Pry::Pager
   class StopPaging < StandardError
   end
 
-  # Send the given text through the best available pager (if `Pry.pager` is
+  attr_reader :_pry_
+
+  def initialize(_pry_)
+    @_pry_ = _pry_
+  end
+
+  # Send the given text through the best available pager (if `Pry.config.pager` is
   # enabled).
+  # If you want to send text through in chunks as you generate it, use `open` to
+  # get a writable object instead.
   # @param [String] text A piece of text to run through a pager.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.page(text, output = $stdout)
-    with_pager(output) do |pager|
+  def page(text)
+    open do |pager|
       pager << text
     end
   end
@@ -20,33 +28,38 @@ module Pry::Pager
   # Yields a pager object (`NullPager`, `SimplePager`, or `SystemPager`).  All
   # pagers accept output with `#puts`, `#print`, `#write`, and `#<<`.
   # @param [IO] output (`$stdout`) An object to send output to.
-  def self.with_pager(output = $stdout)
-    pager = best_available(output)
+  def open
+    pager = best_available
     yield pager
   rescue StopPaging
   ensure
     pager.close if pager
   end
 
+  private
+
+  attr_reader :output
+  def enabled?; !!@enabled; end
+
   # Return an instance of the "best" available pager class -- `SystemPager` if
   # possible, `SimplePager` if `SystemPager` isn't available, and `NullPager`
   # if the user has disabled paging. All pagers accept output with `#puts`,
   # `#print`, `#write`, and `#<<`. You must call `#close` when you're done
   # writing output to a pager, and you must rescue `Pry::Pager::StopPaging`.
-  # These requirements can be avoided by using `.with_pager` instead.
+  # These requirements can be avoided by using `.open` instead.
   # @param [#<<] output ($stdout) An object to send output to.
-  def self.best_available(output)
-    if !Pry.pager
-      NullPager.new(output)
+  def best_available
+    if !_pry_.config.pager
+      NullPager.new(_pry_.output)
     elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
-      SimplePager.new(output)
+      SimplePager.new(_pry_.output)
     else
-      SystemPager.new(output)
+      SystemPager.new(_pry_.output)
     end
   end
 
   # `NullPager` is a "pager" that actually just prints all output as it comes
-  # in. Used when `Pry.pager` is false.
+  # in. Used when `Pry.config.pager` is false.
   class NullPager
     def initialize(out)
       @out = out
@@ -94,7 +107,7 @@ module Pry::Pager
 
         if @tracker.page?
           @out.print "\n"
-          @out.print "\e[0m" if Pry.color
+          @out.print "\e[0m"
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
           raise StopPaging if Readline.readline("").chomp == "q"
@@ -140,13 +153,13 @@ module Pry::Pager
 
     def write(str)
       if invoked_pager?
-        pager.write str
+        write_to_pager str
       else
         @tracker.record str
         @buffer << str
 
         if @tracker.page?
-          pager.write @buffer
+          write_to_pager @buffer
         end
       end
     rescue Errno::EPIPE
@@ -162,6 +175,10 @@ module Pry::Pager
     end
 
     private
+
+    def write_to_pager(text)
+      pager.write @out.decolorize_maybe(text)
+    end
 
     def invoked_pager?
       @pager

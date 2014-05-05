@@ -8,7 +8,6 @@ class Pry
       module_function
 
       def process_rdoc(comment)
-        return comment unless Pry.color
         comment = comment.dup
         comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan($1, :ruby).term }.
           gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{$1}\e[0m" }.
@@ -37,7 +36,7 @@ class Pry
         yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
                      "deprecate", "example", "raise"]
         (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
-          gsub(/^@(#{yard_tags.join("|")})/) { Pry.color ? "\e[33m#{$1}\e[0m": $1 }
+          gsub(/^@(#{yard_tags.join("|")})/) { "\e[33m#{$1}\e[0m" }
       end
 
       def process_comment_markup(comment)

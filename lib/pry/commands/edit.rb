@@ -60,7 +60,7 @@ class Pry
     end
 
     def repl_edit
-      content = Pry::Editor.edit_tempfile_with_content(initial_temp_file_content,
+      content = Pry::Editor.new(_pry_).edit_tempfile_with_content(initial_temp_file_content,
                                                        initial_temp_file_content.lines.count)
       silence_warnings do
         eval_string.replace content
@@ -80,7 +80,7 @@ class Pry
         ExceptionPatcher.new(_pry_, state, file_and_line_for_current_exception).perform_patch
       else
         if code_object.is_a?(Pry::Method)
-          code_object.redefine Pry::Editor.edit_tempfile_with_content(code_object.source)
+          code_object.redefine Pry::Editor.new(_pry_).edit_tempfile_with_content(code_object.source)
         else
           raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
@@ -116,7 +116,7 @@ class Pry
 
       ensure_file_name_is_valid(file_name)
 
-      Pry::Editor.invoke_editor(file_name, line, reload?(file_name))
+      Pry::Editor.new(_pry_).invoke_editor(file_name, line, reload?(file_name))
       set_file_and_dir_locals(file_name)
 
       if reload?(file_name)

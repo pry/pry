@@ -1,9 +1,10 @@
 class Pry
   class Command::WatchExpression
     class Expression
-      attr_reader :target, :source, :value, :previous_value
+      attr_reader :target, :source, :value, :previous_value, :_pry_
 
-      def initialize(target, source)
+      def initialize(_pry_, target, source)
+        @_pry_ = _pry_
         @target = target
         @source = Code.new(source).strip
       end
@@ -14,7 +15,7 @@ class Pry
       end
 
       def to_s
-        "#{source} => #{value}"
+        "#{Code.new(source).highlighted.strip} => #{value}"
       end
 
       # Has the value of the expression changed?
