@@ -2,7 +2,7 @@
 require File.expand_path('../lib/pry/version', __FILE__)
 
 Gem::Specification.new do |s|
-  s.name    = "pry"
+  s.name    = "fry"
   s.version = Pry::VERSION
 
   s.authors = ["Public Domain"]
