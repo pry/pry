@@ -10,14 +10,14 @@ class Pry
       e.g reload-code MyClass#my_method    #=> reload a method
           reload-code MyClass              #=> reload a class
           reload-code my-command           #=> reload a pry command
-          reload-code self                 #=> reload the 'current' object
-          reload-code                      #=> identical to reload-code self
+          reload-code self                 #=> reload the current object
+          reload-code                      #=> reload the current file or object
     BANNER
 
     def process
       if !args.empty?
         reload_object(args.join(" "))
-      elsif Class === target.eval("self")
+      elsif internal_binding?(target)
         reload_object("self")
       else
         reload_current_file
