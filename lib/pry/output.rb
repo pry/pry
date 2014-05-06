@@ -10,16 +10,22 @@ class Pry
       return print "\n" if objs.empty?
 
       objs.each do |obj|
-        if obj.is_a?(Array)
-          puts(*obj)
+        if ary = Array.try_convert(obj)
+          puts(*ary)
         else
           print "#{obj.to_s.chomp}\n"
         end
       end
+
+      nil
     end
 
-    def print(str)
-      _pry_.config.output.print decolorize_maybe(str)
+    def print(*objs)
+      objs.each do |obj|
+        _pry_.config.output.print decolorize_maybe(obj.to_s)
+      end
+
+      nil
     end
     alias << print
     alias write print
