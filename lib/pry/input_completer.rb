@@ -60,7 +60,13 @@ class Pry::InputCompleter
     if path.call.empty?
       target = options[:target]
     else
-      target = Pry::ObjectPath.new(path.call, @pry.binding_stack).resolve.last
+      # Assume the user is tab-completing the 'cd' command
+      begin
+        target = Pry::ObjectPath.new(path.call, @pry.binding_stack).resolve.last
+      # but if that doesn't work, assume they're doing division with no spaces
+      rescue Pry::CommandError
+        target = options[:target]
+      end
     end
 
     begin
