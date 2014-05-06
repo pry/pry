@@ -1,8 +1,8 @@
-class Pry::Config
+class Pry::Store
   require_relative 'config/behavior'
   require_relative 'config/default'
   require_relative 'config/convenience'
-  include Pry::Config::Behavior
+  include Pry::Store::Behavior
 
   def self.shortcuts
     Convenience::SHORTCUTS

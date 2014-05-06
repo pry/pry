@@ -1,4 +1,4 @@
-module Pry::Config::Behavior
+module Pry::Store::Behavior
   ASSIGNMENT     = "=".freeze
   NODUP          = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
   INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
@@ -28,7 +28,7 @@ module Pry::Config::Behavior
   end
 
   #
-  # @return [Pry::Config::Behavior]
+  # @return [Pry::Store::Behavior]
   #   returns the default used if a matching value for a key isn't found in self
   #
   def default

@@ -13,13 +13,13 @@ class Pry
     attr_accessor :cli
     attr_accessor :quiet
     attr_accessor :last_internal_error
-    attr_accessor :config
+    attr_accessor :store
     attr_writer :history
 
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
-    extend Pry::Config::Convenience
-    config_shortcut *Pry::Config.shortcuts
+    extend Pry::Store::Convenience
+    config_shortcut *Pry::Store.shortcuts
 
     def prompt=(value)
       config.prompt = value
@@ -247,7 +247,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @initial_session = true
-    self.config = Pry::Config.new Pry::Config::Default.new
+    self.config = Pry::Store.new Pry::Store::Default.new
     self.cli = false
     self.current_line = 1
     self.line_buffer = [""]

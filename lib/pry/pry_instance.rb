@@ -34,10 +34,10 @@ class Pry
   attr_reader :exit_value
   attr_reader :input_array
   attr_reader :output_array
-  attr_reader :config
+  attr_reader :store
 
-  extend Pry::Config::Convenience
-  config_shortcut *Pry::Config.shortcuts
+  extend Pry::Store::Convenience
+  config_shortcut *Pry::Store.shortcuts
   EMPTY_COMPLETIONS = [].freeze
 
   # Create a new {Pry} instance.
@@ -65,7 +65,7 @@ class Pry
     @indent = Pry::Indent.new
     @eval_string = ""
     target = options.delete(:target)
-    @config = Pry::Config.new
+    @store = Pry::Store.new
     config.merge!(options)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
@@ -526,7 +526,7 @@ class Pry
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
-    c = Pry::Config.from_hash({
+    c = Pry::Store.from_hash({
                        :object         => object,
                        :nesting_level  => bstack.size - 1,
                        :open_token     => open_token,

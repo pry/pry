@@ -95,7 +95,7 @@ class Pry::Toad
   end
 
   # The Hash of configuration options for this Slop instance.
-  attr_reader :config
+  attr_reader :store
 
   # The Array of Slop::Option objects tied to this Slop instance.
   attr_reader :options
@@ -108,7 +108,7 @@ class Pry::Toad
   # config - A Hash of configuration options.
   # block  - An optional block used to specify options.
   def initialize(config = {}, &block)
-    @config = DEFAULT_OPTIONS.merge(config)
+    @store = DEFAULT_OPTIONS.merge(config)
     @options = []
     @commands = {}
     @trash = []
@@ -179,7 +179,7 @@ class Pry::Toad
   #
   # Returns a new instance of Slop mapped to this command.
   def command(command, options = {}, &block)
-    options = @config.merge(options)
+    options = @store.merge(options)
     @commands[command.to_s] = Slop.new(options.merge(:command => command.to_s), &block)
   end
 
@@ -449,8 +449,8 @@ class Pry::Toad
 
   def build_option(objects, &block)
     config = {}
-    config[:argument] = true if @config[:arguments]
-    config[:optional_argument] = true if @config[:optional_arguments]
+    config[:argument] = true if @store[:arguments]
+    config[:optional_argument] = true if @store[:optional_arguments]
 
     if objects.last.is_a?(Hash)
       config.merge!(objects.pop)

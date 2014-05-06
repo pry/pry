@@ -175,7 +175,7 @@ class Pry
       end
 
       def command_regex
-        pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
+        pr = Pry.respond_to?(:store) ? Pry.config.command_prefix : ""
         prefix = convert_to_regex(pr)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 

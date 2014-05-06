@@ -1,4 +1,4 @@
-module Pry::Config::Convenience
+module Pry::Store::Convenience
   SHORTCUTS = [
                :input,
                :output,

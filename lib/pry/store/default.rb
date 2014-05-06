@@ -1,5 +1,5 @@
-class Pry::Config::Default
-  include Pry::Config::Behavior
+class Pry::Store::Default
+  include Pry::Store::Behavior
 
   default = {
     :input                  => proc { lazy_readline },
@@ -35,7 +35,7 @@ class Pry::Config::Default
     :extra_sticky_locals    => proc { {} },
     :command_completions    => proc { proc { commands.keys } },
     :file_completions       => proc { proc { Dir["."] } },
-    :ls                     => proc { Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS) },
+    :ls                     => proc { Pry::Store.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS) },
     :completer              => proc {
       require "pry/input_completer"
       Pry::InputCompleter
@@ -66,11 +66,11 @@ private
   # all of this configure_* stuff is a relic of old code.
   # we should try move this code to being command-local.
   def configure_gist
-    self["gist"] = Pry::Config.from_hash(inspecter: proc(&:pretty_inspect))
+    self["gist"] = Pry::Store.from_hash(inspecter: proc(&:pretty_inspect))
   end
 
   def configure_history
-    self["history"] = Pry::Config.from_hash "should_save" => true,
+    self["history"] = Pry::Store.from_hash "should_save" => true,
       "should_load" => true
     history.file = File.expand_path("~/.pry_history") rescue nil
     if history.file.nil?
