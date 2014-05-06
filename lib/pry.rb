@@ -1,5 +1,4 @@
 require 'pp'
-require 'pry/input_lock'
 require 'pry/exceptions'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
@@ -31,8 +30,8 @@ class Pry
   end
 
   # useful when playing with truly enormous objects
-  CLIPPED_PRINT = proc do |output, value|
-    output.puts Pry.view_clip(value, id: true)
+  CLIPPED_PRINT = proc do |output, obj|
+    output.puts Pry.inspect(obj)
   end
 
   # Will only show the first line of the backtrace

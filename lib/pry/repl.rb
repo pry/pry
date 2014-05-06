@@ -35,7 +35,7 @@ class Pry
     #   thrown with it.
     def start
       prologue
-      Pry::InputLock.for(:all).with_ownership { repl }
+      repl
     ensure
       epilogue
     end

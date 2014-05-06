@@ -42,14 +42,6 @@ class Pry
     @main ||= TOPLEVEL_BINDING.eval "self"
   end
 
-  #
-  # @return [Pry::Config]
-  #  Returns a value store for an instance of Pry running on the current thread.
-  #
-  def self.current
-    Thread.current[:__pry__] ||= Pry::Config.from_hash({}, nil)
-  end
-
   # Load the given file in the context of `Pry.toplevel_binding`
   # @param [String] file The unexpanded file path.
   def self.load_file_at_toplevel(file)
@@ -162,42 +154,8 @@ class Pry
     REPLFileLoader.new(file_name).load
   end
 
-  #
-  # An inspector that clips the output to `max_length` chars.
-  # In case of > `max_length` chars the `#<Object...> notation is used.
-  #
-  # @param [Object] obj
-  #   The object to view.
-  #
-  # @param [Hash] options
-  # @option options [Integer] :max_length (60)
-  #   The maximum number of chars before clipping occurs.
-  #
-  # @option options [Boolean] :id (false)
-  #   Boolean to indicate whether or not a hex reprsentation of the object ID
-  #   is attached to the return value when the length of inspect is greater than
-  #   value of `:max_length`.
-  #
-  # @return [String]
-  #   The string representation of `obj`.
-  #
-  def self.view_clip(obj, options = {})
-    max = options.fetch :max_length, 60
-    id = options.fetch :id, false
-    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
-      obj.name.to_s
-    elsif Pry.main == obj
-      # special-case to support jruby.
-      # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
-      # we can drop in the future.
-      obj.to_s
-    elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max
-      obj.inspect
-    else
-      id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
-    end
-  rescue RescuableException
-    "unknown"
+  def self.inspect(obj, with_id=false)
+    with_id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
   end
 
   # Load Readline history if required.
