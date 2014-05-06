@@ -116,7 +116,7 @@ class Pry
       if top_level?
         output.puts "At the top level."
       else
-        output.puts "Inside #{Pry.view_clip(target_self)}."
+        output.puts "Inside #{Pry.inspect(target_self)}."
       end
     end
 

@@ -194,9 +194,7 @@ class Pry
     end
 
     def input_readline(*args)
-      Pry::InputLock.for(:all).interruptible_region do
-        input.readline(*args)
-      end
+      input.readline(*args)
     end
   end
 end

@@ -53,7 +53,7 @@ class Pry::BStack < BasicObject
   end
 
   def inspect(*)
-    path = @stack.map { |b| ::Pry.view_clip(b) }.join(SIDEWAYS)
+    path = @stack.map { |b| ::Pry.inspect(b) }.join(SIDEWAYS)
     "[%s] %s %s " % [@pry.input_array.size, @pry.config.prompt_name, path]
   end
 end
