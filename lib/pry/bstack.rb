@@ -37,6 +37,9 @@ class Pry::BStack < BasicObject
     ::Kernel.eval ::Kernel.inspect(str), last
   end
 
+  def bump_index!
+    @people += 1
+  end
     
   def traverse_via(str)
     case str
