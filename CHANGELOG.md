@@ -1,14 +1,4 @@
-### 0.10.0 (2014/??/??)
-#### Dependency changes
-
-* Remove dependency on `ffi` gem on JRuby ([#1158](https://github.com/pry/pry/issues/1158))
-* Remove optional dependency on Bond ([#1166](https://github.com/pry/pry/issues/1166))
-  * Bond support has been extracted to the `pry-bond` plugin
-* Remove dependency on `openstruct` ([#1096](https://github.com/pry/pry/issues/1096))
-* Drop support for Ruby 1.8.7 (we now require 1.9.2 or above)
-* Add support for Ruby 2.1
-* Require Coderay `~> 1.1.0`
-* Remove deprecated hooks API ([#1209](https://github.com/pry/pry/pull/1209))
+### 0.10.0.pre2 (2014/??/??)
 
 #### Features
 * Added a `watch` command that lets you see how values change over time.
@@ -25,6 +15,10 @@
 * User can whitelist objects whose inspect output should appear in prompt (#885)
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
+* Added  arguments to `whereami`:
+  * `-m` shows the surroungind method
+  * `-c` shows the surrounding class
+  * `-f` shows the entire file
 * Lazy load configuration values (Pry.config). (#1096)
 * Defer requiring `readline` until Pry is started for the first time. (#1117)
 * Add option to disable input completer through `_pry_.config.completer = nil`
@@ -41,6 +35,23 @@
 * Add `Pry.config.windows_console_warning`(#1218)
   * Windows JRuby users who don't want warnings about ansicon can set
     `Pry.config.windows_console_warning = false`.
+* Add arguments to `play` command.
+  * `-p` prints the code before playing it.
+  * `-e` allows you to play expressions from your session.
+* Add `cd -` to switch to the previous binding.
+* Allow prying into frozen objects.
+
+#### Dependency changes
+
+* Remove dependency on `ffi` gem on JRuby ([#1158](https://github.com/pry/pry/issues/1158))
+* Remove optional dependency on Bond ([#1166](https://github.com/pry/pry/issues/1166))
+  * Bond support has been extracted to the `pry-bond` plugin
+* Remove dependency on `openstruct` ([#1096](https://github.com/pry/pry/issues/1096))
+* Drop support for Ruby 1.8.7 (0.9.12.x will continue to be available)
+* Add support for Ruby 2.1
+* Require Coderay `~> 1.1.0`
+* Remove deprecated hooks API ([#1209](https://github.com/pry/pry/pull/1209))
+* Add 64-bit windows support.
 
 #### Bug fixes, etc.
 * The `gem-install` command can require gems like `net-ssh` thanks to better
@@ -70,6 +81,7 @@
 * Rename `--installed-plugins` flag to `--plugins`
 * Strip ANSI codes from prompt before measuring length for indentation (#493)
 * Fix bug in `edit` regarding recognition of file names without suffix.
+* Reduced download size by removing tests etc. from distributed gem.
 
 #### Dev-facing changes
 * `CommandSet#commands`, sometimes referenced through `Pry.commands.commands`,
@@ -104,6 +116,10 @@
   `TOPLEVEL_BINDING`: "main".
 * Changed second argument of `Pry.view_clip()` from Fixnum to Hash to support
   returning a string with or without a hex representation of object ID. (#1162)
+* The `output` and `pager` objects will now strip color-codes, so commands should
+  always print in color.
+* Commands now have a `state` hash that is persistent across invocations of the command
+  in the same pry session.
 
 ### 0.9.12.6 (2014/01/28)
 * Don't fail if Bond is not installed (#1106)
