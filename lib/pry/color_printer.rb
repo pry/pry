@@ -21,13 +21,17 @@ class Pry
 
     def text(str, width = str.length)
       # Don't recolorize output with color [Issue #751]
-      if str.include?("\e[")
+      if str.include?("\e[") || excluded_from_color.include?(str)
         super "#{str}\e[0m", width
       elsif str.start_with?('#<') || str == '=' || str == '>'
         super highlight_object_literal(str), width
       else
         super CodeRay.scan(str, :ruby).term, width
       end
+    end
+
+    def excluded_from_color
+      ["Example(Table doesn't exist)"]
     end
 
     def pp(obj)
