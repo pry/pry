@@ -20,7 +20,7 @@ class Pry
 
           content
         else
-          decorate(Pry::Code(selected_input_items.first)).to_s
+          decorate(Pry::Code(selected_input_items.first))
         end
       end
 
