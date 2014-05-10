@@ -253,12 +253,7 @@ class Pry
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      print_to_output("", false)
-    end
-
-    # @return [String] a (possibly highlighted) copy of the source code.
-    def highlighted
-      print_to_output("", true)
+      print_to_output("")
     end
 
     # Writes a formatted representation (based on the configuration of the
@@ -266,7 +261,7 @@ class Pry
     def print_to_output(output, color=false)
       @lines.each do |loc|
         loc = loc.dup
-        loc.colorize(@code_type)              if color
+        loc.colorize(@code_type)
         loc.add_line_number(max_lineno_width, color) if @with_line_numbers
         loc.add_marker(@marker_lineno)        if @with_marker
         loc.indent(@indentation_num)          if @with_indentation

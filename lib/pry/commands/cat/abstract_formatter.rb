@@ -8,7 +8,7 @@ class Pry
       def decorate(content)
         content.code_type = code_type
         content.between(*between_lines).
-          with_line_numbers(use_line_numbers?).highlighted
+          with_line_numbers(use_line_numbers?)
       end
 
       def code_type

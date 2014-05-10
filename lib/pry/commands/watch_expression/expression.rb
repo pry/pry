@@ -6,7 +6,7 @@ class Pry
       def initialize(_pry_, target, source)
         @_pry_ = _pry_
         @target = target
-        @source = Code.new(source).strip
+        @source = source.strip
       end
 
       def eval!
@@ -15,7 +15,7 @@ class Pry
       end
 
       def to_s
-        "#{Code.new(source).highlighted.strip} => #{value}"
+        "#{Code.new(source).strip} => #{value}"
       end
 
       # Has the value of the expression changed?
