@@ -11,7 +11,7 @@
 
 **Sponsors**
 
-[Tealeaf Academy](www.gotealeaf.com)<br/>
+[Tealeaf Academy](http://www.gotealeaf.com)<br/>
 [Atomic Object](http://www.atomicobject.com/)<br/>
 [Hashrocket](http://hashrocket.com/)<br/>
 [Intridea](http://intridea.com/)<br/>
