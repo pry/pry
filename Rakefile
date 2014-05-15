@@ -82,11 +82,11 @@ namespace :jruby do
 end
 
 
-[:mingw32, :mswin32].each do |v|
-  namespace v do
+['i386-mingw32', 'i386-mswin32', 'x64-mingw32'].each do |platform|
+  namespace platform do
     spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')
-      s.platform = "i386-#{v}"
+      s.platform = platform
     end
 
     Gem::PackageTask.new(spec) do |pkg|
@@ -97,7 +97,7 @@ end
 end
 
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, 'ruby:gem', 'mswin32:gem', 'mingw32:gem', 'jruby:gem']
+task :gems => [:clean, :rmgems, 'ruby:gem', 'i386-mswin32:gem', 'i386-mingw32:gem', 'x64-mingw32:gem', 'jruby:gem']
 
 desc "remove all platform gems"
 task :rmgems => ['ruby:clobber_package']
