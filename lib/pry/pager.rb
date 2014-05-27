@@ -136,7 +136,8 @@ class Pry::Pager
       if @system_pager.nil?
         @system_pager = begin
           pager_executable = default_pager.split(' ').first
-          `which #{ pager_executable }`
+          `which #{pager_executable}`
+          $?.success?
         rescue
           false
         end
