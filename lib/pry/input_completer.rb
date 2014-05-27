@@ -120,7 +120,7 @@ class Pry::InputCompleter
           rescue Pry::RescuableException
             candidates = []
           end
-          candidates.grep(/^#{message}/).collect{|e| receiver << "::" << e}
+          candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
         when SYMBOL_METHOD_CALL_REGEXP # method call on a Symbol
           receiver = $1
           message = Regexp.quote($2)
