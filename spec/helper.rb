@@ -5,6 +5,11 @@ require_relative 'spec_helpers/bacon'
 require_relative 'spec_helpers/mock_pry'
 require_relative 'spec_helpers/repl_tester'
 
+if ENV["COVERAGE"]
+  require "simplecov"
+  SimpleCov.start
+end
+
 class Module
   public :remove_const
   public :remove_method
