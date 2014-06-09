@@ -1,4 +1,4 @@
-### 0.10.0.pre2 (2014/??/??)
+### 0.10.0
 
 #### Features
 * Added a `watch` command that lets you see how values change over time.
