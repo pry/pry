@@ -1,3 +1,3 @@
 class Pry
-  VERSION = "0.10.0.rc1"
+  VERSION = "0.10.0"
 end
