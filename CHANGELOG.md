@@ -16,7 +16,7 @@
   * See `Pry.config.prompt_safe_objects`
 * `whereami` is now aliased to `@`
 * Added  arguments to `whereami`:
-  * `-m` shows the surroungind method
+  * `-m` shows the surrounding method
   * `-c` shows the surrounding class
   * `-f` shows the entire file
 * Lazy load configuration values (Pry.config). (#1096)
