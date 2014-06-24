@@ -711,7 +711,7 @@ describe "Pry::Command" do
 
         it "equals to :match option's inspect, if :match is Regexp" do
           class CoolWinter < Pry::ClassCommand
-            match /.*winter/
+            match(/.*winter/)
             description 'Is winter cool or cool?'
           end
           Pry.config.commands.add_command CoolWinter
