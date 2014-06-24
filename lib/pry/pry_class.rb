@@ -19,7 +19,7 @@ class Pry
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     extend Pry::Config::Convenience
-    config_shortcut *Pry::Config.shortcuts
+    config_shortcut(*Pry::Config.shortcuts)
 
     def prompt=(value)
       config.prompt = value

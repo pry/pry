@@ -39,7 +39,7 @@ class Pry
   attr_reader :config
 
   extend Pry::Config::Convenience
-  config_shortcut *Pry::Config.shortcuts
+  config_shortcut(*Pry::Config.shortcuts)
   EMPTY_COMPLETIONS = [].freeze
 
   # Create a new {Pry} instance.
