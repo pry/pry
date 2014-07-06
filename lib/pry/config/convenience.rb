@@ -5,7 +5,6 @@ module Pry::Config::Convenience
                :commands,
                :print,
                :exception_handler,
-               :quiet?,
                :hooks,
                :color,
                :pager,

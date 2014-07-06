@@ -395,10 +395,15 @@ describe Pry do
   end
 
   describe 'setting custom options' do
-    it 'should not raise for unrecognized options' do
+    it 'does not raise for unrecognized options' do
       should.not.raise?(NoMethodError) {
         instance = Pry.new(:custom_option => 'custom value')
       }
+    end
+
+    it 'correctly handles the :quiet option (#1261)' do
+      instance = Pry.new(:quiet => true)
+      instance.quiet?.should == true
     end
   end
 
