@@ -21,14 +21,14 @@ describe Pry do
   end
 
   describe '#push' do
-    it "should not record duplicated lines" do
+    it "does not record duplicated lines" do
       Pry.history << '3'
       Pry.history << '_ += 1'
       Pry.history << '_ += 1'
       Pry.history.to_a.grep('_ += 1').count.should == 1
     end
 
-    it "should not record empty lines" do
+    it "does not record empty lines" do
       c = Pry.history.to_a.count
       Pry.history << ''
       Pry.history.to_a.count.should == c
@@ -120,7 +120,7 @@ describe Pry do
   end
 
   describe ".load_history" do
-    it "should read the contents of the file" do
+    it "reads the contents of the file" do
       Pry.history.to_a[-2..-1].should == %w(2 3)
     end
   end
@@ -138,17 +138,35 @@ describe Pry do
       Pry.config.history.should_save = false
     end
 
-    it "should save lines to a file as they are written" do
+    it "saves lines to a file as they are written" do
       @history.push "5"
       File.read(@histfile.path).should == "5\n"
     end
 
-    it "should interleave lines from many places" do
+    it "interleaves lines from many places" do
       @history.push "5"
       File.open(@histfile.path, 'a'){ |f| f.puts "6" }
       @history.push "7"
 
       File.read(@histfile.path).should == "5\n6\n7\n"
+    end
+  end
+
+  describe "expanding the history file path" do
+    before { Pry.config.history.should_save = true  }
+    after  { Pry.config.history.should_save = false }
+
+    it "recognizes ~ (#1262)" do
+      # This is a pretty dumb way of testing this, but at least it shouldn't
+      # succeed spuriously.
+      history = Pry::History.new(file_path: '~/test_history')
+      error = Class.new(RuntimeError)
+
+      File.expects(:open).
+        with("#{ENV['HOME']}/test_history", 'a', 0600).
+        raises(error)
+
+      -> { history.push 'a line' }.should.raise(error)
     end
   end
 end

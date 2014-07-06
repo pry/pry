@@ -81,10 +81,10 @@ class Pry
 
     # The default loader. Yields lines from `Pry.history.config.file`.
     def read_from_file
-      filename = File.expand_path(Pry.config.history.file)
+      path = history_file_path
 
-      if File.exists?(filename)
-        File.foreach(filename) { |line| yield(line) }
+      if File.exists?(path)
+        File.foreach(path) { |line| yield(line) }
       end
     rescue => error
       warn "History file not loaded: #{error.message}"
@@ -111,15 +111,17 @@ class Pry
       if defined?(@history_file)
         @history_file
       else
-        @history_file = File.open(file_path, 'a', 0600).tap { |f| f.sync = true }
+        @history_file = File.open(history_file_path, 'a', 0600).tap do |file|
+          file.sync = true
+        end
       end
     rescue Errno::EACCES
       warn 'History not saved; unable to open your history file for writing.'
       @history_file = false
     end
 
-    def file_path
-      @file_path || Pry.config.history.file
+    def history_file_path
+      File.expand_path(@file_path || Pry.config.history.file)
     end
   end
 end
