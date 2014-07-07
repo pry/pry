@@ -164,7 +164,7 @@ class Pry
       end
 
       def valid_file?(file)
-        (File.exists?(file) && !File.directory?(file)) || Pry.eval_path == file
+        (File.exist?(file) && !File.directory?(file)) || Pry.eval_path == file
       end
 
       def lines_for_file(file)
