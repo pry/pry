@@ -163,7 +163,7 @@ describe Pry do
       error = Class.new(RuntimeError)
 
       File.expects(:open).
-        with("#{ENV['HOME']}/test_history", 'a', 0600).
+        with(File.join(ENV['HOME'].to_s, "/test_history"), 'a', 0600).
         raises(error)
 
       -> { history.push 'a line' }.should.raise(error)
