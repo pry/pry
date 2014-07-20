@@ -28,6 +28,14 @@ describe Pry::Config do
       local3 = Pry::Config.new(local2)
       local3.foo.should == 21
     end
+
+    it "stores a local copy of the parent's hooks upon accessing them" do
+      parent = Pry::Config.from_hash(hooks: "parent_hooks")
+      local  = Pry::Config.new parent
+      local.hooks.gsub! 'parent', 'local'
+      local.hooks.should == 'local_hooks'
+      parent.hooks.should == 'parent_hooks'
+    end
   end
 
   describe ".from_hash" do

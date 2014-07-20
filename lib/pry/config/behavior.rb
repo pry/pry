@@ -54,7 +54,7 @@ module Pry::Config::Behavior
       value = @default.public_send(name, *args, &block)
       # FIXME: refactor Pry::Hook so that it stores config on the config object,
       # so that we can use the normal strategy.
-      self[key] = value.dup if key == 'hooks'
+      self[key] = value = value.dup if key == 'hooks'
       value
     else
       nil
