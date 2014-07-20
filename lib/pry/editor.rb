@@ -84,7 +84,7 @@ class Pry
         '--nofork' if blocking
       when /^jedit/
         '-wait' if blocking
-      when /^mate/, /^subl/
+      when /^mate/, /^subl/, /^redcar/
         '-w' if blocking
       end
     end
@@ -106,6 +106,8 @@ class Pry
         "#{file_name}/#{line_number}"
       when /^jedit/
         "#{file_name} +line:#{line_number}"
+      when /^redcar/
+        "-l#{line_number} #{file_name}"
       else
         if windows?
           "#{file_name}"
