@@ -39,7 +39,7 @@ class Pry
   attr_reader :config
 
   extend Pry::Config::Convenience
-  config_shortcut *Pry::Config.shortcuts
+  config_shortcut(*Pry::Config.shortcuts)
   EMPTY_COMPLETIONS = [].freeze
 
   # Create a new {Pry} instance.
@@ -167,12 +167,14 @@ class Pry
     end
   end
 
+  undef :memory_size if method_defined? :memory_size
   # @return [Integer] The maximum amount of objects remembered by the inp and
   #   out arrays. Defaults to 100.
   def memory_size
     @output_array.max_size
   end
 
+  undef :memory_size= if method_defined? :memory_size=
   def memory_size=(size)
     @input_array  = Pry::HistoryArray.new(size)
     @output_array = Pry::HistoryArray.new(size)
@@ -596,6 +598,7 @@ class Pry
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end
 
+  undef :pager if method_defined? :pager
   # Returns the currently configured pager
   # @example
   #   _pry_.pager.page text
@@ -603,6 +606,7 @@ class Pry
     Pry::Pager.new(self)
   end
 
+  undef :output if method_defined? :output
   # Returns an output device
   # @example
   #   _pry_.output.puts "ohai!"

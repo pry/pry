@@ -1,7 +1,7 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Formatter
-      attr_accessor :grep
+      attr_writer :grep
       attr_reader :_pry_
 
       def initialize(_pry_)

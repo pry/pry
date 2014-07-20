@@ -51,7 +51,7 @@ class Pry
         code_type = @code_from_file.code_type
 
         if code_type == :unknown
-          name, ext = File.basename(file_name).split('.', 2)
+          name = File.basename(file_name).split('.', 2).first
           case name
           when "Rakefile", "Gemfile"
             :ruby
