@@ -120,3 +120,15 @@ task :pushgems => :gems do
     end
   end
 end
+
+namespace :docker do
+  desc "build a docker container with multiple rubies"
+  task :build do
+    system "docker build -t pry/pry ."
+  end
+
+  desc "test pry on multiple ruby versions"
+  task :test => :build do
+    system "docker run -i -t -v /tmp/prytmp:/tmp/prytmp pry/pry ./multi_test_inside_docker.sh"
+  end
+end
