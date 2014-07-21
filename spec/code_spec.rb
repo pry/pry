@@ -114,9 +114,6 @@ describe Pry::Code do
   end
 
   describe 'filters and formatters' do
-    def raw(str)
-      Pry::Helpers::Text.strip_color(str)
-    end
     before do
       @code = Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
         class MyProgram
@@ -132,8 +129,8 @@ describe Pry::Code do
         should 'work with an inclusive range' do
           @code = @code.between(1..3)
           @code.length.should == 3
-          raw(@code).should =~ /\Aclass MyProgram/
-          raw(@code).should =~ /world!'\Z/
+          @code.should =~ /\Aclass MyProgram/
+          @code.should =~ /world!'\Z/
         end
 
         should 'default to an inclusive range' do
@@ -144,22 +141,22 @@ describe Pry::Code do
         should 'work with an exclusive range' do
           @code = @code.between(2...4)
           @code.length.should == 2
-          raw(@code).should =~ /\A  def self/
-          raw(@code).should =~ /world!'\Z/
+          @code.should =~ /\A  def self/
+          @code.should =~ /world!'\Z/
         end
 
         should 'use real line numbers for positive indices' do
           @code = @code.after(3, 3)
           @code = @code.between(4, 4)
           @code.length.should == 1
-          raw(@code).should =~ /\A  end\Z/
+          @code.should =~ /\A  end\Z/
         end
       end
 
       describe '#before' do
         should 'work' do
           @code = @code.before(3, 1)
-          raw(@code).should =~ /\A  def self\.main\Z/
+          @code.should =~ /\A  def self\.main\Z/
         end
       end
 
@@ -167,15 +164,15 @@ describe Pry::Code do
         should 'work' do
           @code = @code.around(3, 1)
           @code.length.should == 3
-          raw(@code).should =~ /\A  def self/
-          raw(@code).should =~ /  end\Z/
+          @code.should =~ /\A  def self/
+          @code.should =~ /  end\Z/
         end
       end
 
       describe '#after' do
         should 'work' do
           @code = @code.after(3, 1)
-          raw(@code).should =~ /\A  end\Z/
+          @code.should =~ /\A  end\Z/
         end
       end
 
@@ -204,26 +201,26 @@ describe Pry::Code do
       describe '#with_marker' do
         should 'show a marker in the right place' do
           @code = @code.with_marker(2)
-          raw(@code).should =~ /^ =>   def self/
+          @code.should =~ /^ =>   def self/
         end
 
         should 'disable the marker when falsy' do
           @code = @code.with_marker(2)
           @code = @code.with_marker(false)
-          raw(@code).should =~ /^  def self/
+          @code.should =~ /^  def self/
         end
       end
 
       describe '#with_indentation' do
         should 'indent the text' do
           @code = @code.with_indentation(2)
-          raw(@code).should =~ /^    def self/
+          @code.should =~ /^    def self/
         end
 
         should 'disable the indentation when falsy' do
           @code = @code.with_indentation(2)
           @code = @code.with_indentation(false)
-          raw(@code).should =~ /^  def self/
+          @code.should =~ /^  def self/
         end
       end
     end
@@ -232,23 +229,23 @@ describe Pry::Code do
       describe 'grep and with_line_numbers' do
         should 'work' do
           @code = @code.grep(/end/).with_line_numbers
-          raw(@code).should =~ /\A4:   end/
-          raw(@code).should =~ /5: end\Z/
+          @code.should =~ /\A4:   end/
+          @code.should =~ /5: end\Z/
         end
       end
 
       describe 'grep and before and with_line_numbers' do
         should 'work' do
           @code = @code.grep(/e/).before(5, 5).with_line_numbers
-          raw(@code).should =~ /\A2:   def self.main\n3:/
-          raw(@code).should =~ /4:   end\Z/
+          @code.should =~ /\A2:   def self.main\n3:/
+          @code.should =~ /4:   end\Z/
         end
       end
 
       describe 'before and after' do
         should 'work' do
           @code = @code.before(4, 2).after(2)
-          raw(@code).should == "    puts 'Hello, world!'\n"
+          @code.should == "    puts 'Hello, world!'"
         end
       end
     end
