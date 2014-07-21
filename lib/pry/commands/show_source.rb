@@ -40,7 +40,7 @@ class Pry
     # The source for code_object prepared for display.
     def content_for(code_object)
       Code.new(code_object.source, start_line_for(code_object)).
-        with_line_numbers(use_line_numbers?)
+        with_line_numbers(use_line_numbers?).highlighted
     end
   end
 
