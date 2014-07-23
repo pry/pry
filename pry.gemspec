@@ -5,6 +5,8 @@ Gem::Specification.new do |s|
   s.name    = "pry"
   s.version = Pry::VERSION
 
+  s.required_ruby_version = '>= 1.9.3'
+
   s.authors = ["John Mair (banisterfiend)", "Conrad Irwin", "Ryan Fitzgerald"]
   s.email = ["jrmair@gmail.com", "conrad.irwin@gmail.com", "rwfitzge@gmail.com"]
   s.summary = "An IRB alternative and runtime developer console"
