@@ -16,7 +16,6 @@ describe "edit" do
   end
 
   describe "with FILE" do
-
     before do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
@@ -406,6 +405,41 @@ describe "edit" do
       }.should.raise(Pry::CommandError).
         message.should =~ /Not a valid range: three/
     end
+  end
+
+  describe 'when editing a method by name' do
+    it 'uses patch editing on methods that were previously patched' do
+      # initial definition
+      filename = __FILE__
+      line     = __LINE__ + 2
+      klass    = Class.new do
+        def to_be_edited; 1; end
+      end
+      method1 = klass.instance_method(:to_be_edited)
+
+      # now patch it
+      Pry::Method(method1).redefine('def to_be_edited; 2; end')
+      method2 = klass.instance_method(:to_be_edited)
+
+      # edit by name, no --patch
+      tester = pry_tester binding
+      tester.pry.config.editor = lambda do |filename, line|
+        File.open(filename, 'w') { |f| f.write 'def to_be_edited; 3; end' }
+        nil
+      end
+      tester.eval "edit klass#to_be_edited"
+      method3 = klass.instance_method(:to_be_edited)
+
+      # methods all worked as expected
+      method1.bind(klass.new).call.should == 1
+      method2.bind(klass.new).call.should == 2
+      method3.bind(klass.new).call.should == 3
+
+      # original file is unchanged
+      File.readlines(filename)[line-1].strip.should == 'def to_be_edited; 1; end'
+    end
+
+    # it 'uses runtime editing on methods that were defined in the console'
   end
 
   describe "old edit-method tests now migrated to edit" do
