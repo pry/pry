@@ -41,7 +41,7 @@ describe Pry do
       old_home = ENV['HOME']
       ENV['HOME'] = nil
       Pry.config.should_load_rc = true
-      lambda { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.should.not.raise
+      expect { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.to_not raise_error
 
       ENV['HOME'] = old_home
     end
@@ -79,7 +79,7 @@ describe Pry do
       end
 
       it "should not raise exceptions" do
-        @doing_it.should.not.raise
+        expect(&@doing_it).to_not raise_error
       end
 
       it "should continue to run pry" do

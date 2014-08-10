@@ -53,7 +53,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      lambda { Pry.start(self, :input => arity_zero_input, :output => StringIO.new) }.should.not.raise Exception
+      expect { Pry.start(self, :input => arity_zero_input, :output => StringIO.new) }.to_not raise_error
     end
 
     it 'should not pass in the prompt if the arity is -1' do
@@ -88,7 +88,7 @@ describe "test Pry defaults" do
     Pry.config.input  = InputTester.new("7")
     @str_output = StringIO.new
     Object.new.pry :output => @str_output
-    @str_output.string.should.not =~ /5\n.*6/
+    @str_output.string.should_not =~ /5\n.*6/
     @str_output.string.should =~ /7/
   end
 
@@ -367,7 +367,7 @@ describe "test Pry defaults" do
 
   describe 'toplevel_binding' do
     it 'should be devoid of local variables' do
-      pry_eval(Pry.toplevel_binding, "ls -l").should.not =~ /version/
+      pry_eval(Pry.toplevel_binding, "ls -l").should_not =~ /version/
     end
 
     it 'should have self the same as TOPLEVEL_BINDING' do

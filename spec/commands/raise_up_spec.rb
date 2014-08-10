@@ -13,13 +13,13 @@ describe "raise-up" do
 
   it "should raise the exception with raise-up" do
     redirect_pry_io(InputTester.new("raise NoMethodError", "raise-up NoMethodError")) do
-      lambda { Object.new.pry }.should.raise NoMethodError
+      expect { Object.new.pry }.to raise_error NoMethodError
     end
   end
 
   it "should raise an unamed exception with raise-up" do
     redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
-      lambda { Object.new.pry }.should.raise RuntimeError, "noreally"
+      expect { Object.new.pry }.to raise_error(RuntimeError, "noreally")
     end
   end
 
@@ -34,7 +34,7 @@ describe "raise-up" do
   end
 
   it "should raise the most recently raised exception" do
-    lambda { mock_pry("raise NameError, 'homographery'","raise-up") }.should.raise NameError, 'homographery'
+    expect { mock_pry("raise NameError, 'homographery'","raise-up") }.to raise_error(NameError, 'homographery')
   end
 
   it "should allow you to cd up and (eventually) out" do
@@ -42,7 +42,7 @@ describe "raise-up" do
                                     "deep = :deep", "cd deep","Pad.deep = self",
                                     "raise-up NoMethodError", "raise-up", @outer,
                                     "raise-up", "exit-all")) do
-      lambda { Pry.start(:outer) }.should.raise NoMethodError
+      expect { Pry.start(:outer) }.to raise_error NoMethodError
     end
 
     Pad.deep.should  == :deep
@@ -51,6 +51,6 @@ describe "raise-up" do
   end
 
   it "should jump immediately out of nested contexts with !" do
-    lambda { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.should.raise RuntimeError, 'fancy that...'
+    expect { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.to raise_error(RuntimeError, 'fancy that...')
   end
 end

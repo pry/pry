@@ -11,18 +11,18 @@ describe "exit" do
   end
 
   it "should break out of the repl when binding_stack has only one binding" do
-    @pry.eval("exit").should.be.false
-    @pry.exit_value.should.be.nil
+    @pry.eval("exit").should equal false
+    @pry.exit_value.should equal nil
   end
 
   it "should break out of the repl and return user-given value" do
-    @pry.eval("exit :john").should.be.false
+    @pry.eval("exit :john").should equal false
     @pry.exit_value.should == :john
   end
 
   it "should break out of the repl even after an exception" do
     @pry.eval "exit = 42"
     @pry.output.string.should =~ /^SyntaxError/
-    @pry.eval("exit").should.be.false
+    @pry.eval("exit").should equal false
   end
 end

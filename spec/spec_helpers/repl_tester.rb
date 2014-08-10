@@ -89,7 +89,7 @@ class ReplTester
   # @private
   def ensure_exit
     if @should_exit_naturally
-      @thread[:session_ended].should.be.true
+      raise "Session was not ended!" unless @thread[:session_ended].equal?(true)
     else
       input "exit-all"
       raise "REPL didn't die" unless @thread[:session_ended]

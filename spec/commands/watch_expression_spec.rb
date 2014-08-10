@@ -113,7 +113,7 @@ describe "watch expression" do
     end
 
     it "deletes delete" do
-      eval('watch').should.not =~ /delete/
+      eval('watch').should_not =~ /delete/
     end
   end
 end

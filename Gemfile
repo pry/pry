@@ -11,8 +11,7 @@ group :development do
 end
 
 group :test do
-  gem 'bacon', '~> 1.2'
-  gem 'mocha', '~> 1.0', require: "mocha/api"
+  gem 'rspec', '~> 3.0'
 end
 
 group :development, :test do

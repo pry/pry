@@ -221,7 +221,7 @@ describe "commands" do
       p.eval "def hello\npeter pan\n"
       p.run_command "amend-line !"
       p.eval_string.should =~ /def hello/
-      p.eval_string.should.not =~ /peter pan/
+      p.eval_string.should_not =~ /peter pan/
     end
 
     it 'should run a command in the context of a session' do
@@ -248,7 +248,7 @@ describe "commands" do
       pry
     end
 
-    @str_output.string.should.not =~ /SyntaxError/
+    @str_output.string.should_not =~ /SyntaxError/
   end
 
   it 'should NOT interpolate ruby code into commands if :interpolate => false' do
@@ -264,13 +264,8 @@ describe "commands" do
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
     # These should raise RuntimeError instead of NameError
-    proc {
-      pry_eval 'raise \'#{aggy}\''
-    }.should.raise(RuntimeError)
-
-    proc {
-      pry_eval 'raise #{aggy}'
-    }.should.raise(RuntimeError)
+    expect { pry_eval 'raise \'#{aggy}\'' }.to raise_error RuntimeError
+    expect { pry_eval 'raise #{aggy}'     }.to raise_error RuntimeError
 
     pry_eval('format \'#{my_var}\'').should == "\#{my_var}"
   end
@@ -488,7 +483,7 @@ describe "commands" do
       desc "help", "blah"
     end
     commands = klass.to_hash
-    commands["help"].description.should.not == orig
+    commands["help"].description.should_not == orig
     commands["help"].description.should == "blah"
   end
 

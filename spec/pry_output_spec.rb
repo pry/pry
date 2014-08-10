@@ -9,9 +9,7 @@ describe Pry do
     it "should catch serialization exceptions" do
       Pry.config.print = lambda { |*a| raise "catch-22" }
 
-      lambda {
-        mock_pry("1")
-      }.should.not.raise
+      expect { mock_pry("1") }.to_not raise_error
     end
 
     it "should display serialization exceptions" do

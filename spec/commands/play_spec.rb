@@ -101,7 +101,7 @@ describe "play" do
     end
 
     it 'has pretty error messages when -d cant find object' do
-      lambda { @t.process_command "play -d sdfsdf" }.should.raise(Pry::CommandError).message.should.match(/Cannot locate/)
+      expect { @t.process_command "play -d sdfsdf" }.to raise_error(Pry::CommandError, /Cannot locate/)
     end
 
     it 'should play a method (a single line)' do

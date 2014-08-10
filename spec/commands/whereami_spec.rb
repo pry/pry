@@ -74,9 +74,7 @@ describe "whereami" do
         END
       end
 
-      lambda{
-        Cor.instance_method(:blimey!).source
-      }.should.raise(MethodSource::SourceNotFoundError)
+      expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
 
       Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
       Object.remove_const(:Cor)
@@ -199,7 +197,7 @@ describe "whereami" do
       def blimey!
         out = pry_eval(binding, 'whereami -n')
         out.should =~ /^\s*def/
-        out.should.not =~ /\=\>/
+        out.should_not =~ /\=\>/
       end
     end
     Cor.new.blimey!
@@ -214,10 +212,10 @@ describe "whereami" do
     :punk
     :sanders
 
-    out.should.not =~ /:litella/
+    out.should_not =~ /:litella/
     out.should =~ /:pig/
     out.should =~ /:punk/
-    out.should.not =~ /:sanders/
+    out.should_not =~ /:sanders/
 
     Pry.config.default_window_size = old_size
   end

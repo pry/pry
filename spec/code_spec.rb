@@ -24,9 +24,9 @@ describe Pry::Code do
     end
 
     should 'raise an error if the file doesn\'t exist' do
-      proc do
+      expect do
         Pry::Code.from_file('/knalkjsdnalsd/alkjdlkq')
-      end.should.raise(MethodSource::SourceNotFoundError)
+      end.to raise_error MethodSource::SourceNotFoundError
     end
 
     should 'check for files relative to origin pwd' do
@@ -194,7 +194,7 @@ describe Pry::Code do
         should 'disable line numbers when falsy' do
           @code = @code.with_line_numbers
           @code = @code.with_line_numbers(false)
-          @code.should.not =~ /1:/
+          @code.should_not =~ /1:/
         end
       end
 

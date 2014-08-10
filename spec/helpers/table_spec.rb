@@ -88,9 +88,8 @@ asfadsssaaad    fasfaafdssd     s
     end
 
     it 'should not raise error' do
-      should.not.raise(FloatDomainError) {
-        Pry::Helpers.tablify(@out, @elem_len - 1)
-      }
+      expect { Pry::Helpers.tablify(@out, @elem_len - 1) }.not_to raise_error
+
     end
 
     it 'should format output as one column' do
@@ -99,7 +98,7 @@ asfadsssaaad    fasfaafdssd     s
     end
   end
 
-  describe 'decide between one-line or indented output' do
-    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == 'head:  ing'
+  should 'decide between one-line or indented output' do
+    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == "head: ing\n"
   end
 end

@@ -287,9 +287,7 @@ OUTPUT
         result = line.split("#").last.strip
         if result == ""
           it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
-            lambda {
-              Pry::Indent.nesting_at(test, i + 1)
-            }.should.raise(Pry::Indent::UnparseableNestingError)
+            expect { Pry::Indent.nesting_at(test, i + 1) }.to raise_error Pry::Indent::UnparseableNestingError
           end
         else
           it "should parse nesting on line #{i + 1} of example_nesting.rb" do
