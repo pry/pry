@@ -100,7 +100,7 @@ describe Pry do
         Object.send(:remove_const, :Hello)
       end
 
-      # bug fix for https://github.com/banister/pry/issues/93
+      # bug fix for https://github.com/pry/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
         lambda{
           pry_eval(Object.new, "Command")
