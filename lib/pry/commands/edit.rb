@@ -72,7 +72,7 @@ class Pry
     end
 
     def runtime_patch?
-       !file_based_exception? && (opts.present?(:patch) || previously_patched?(code_object))
+       !file_based_exception? && (opts.present?(:patch) || previously_patched?(code_object) || pry_method?(code_object))
     end
 
     def apply_runtime_patch

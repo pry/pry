@@ -408,38 +408,53 @@ describe "edit" do
   end
 
   describe 'when editing a method by name' do
+    def use_editor(tester, options)
+      initial_editor = tester.pry.editor
+      tester.pry.config.editor = lambda do |filename, line|
+        File.open(filename, 'w') { |f| f.write options.fetch(:replace_all) }
+        nil
+      end
+      tester
+    end
+
     it 'uses patch editing on methods that were previously patched' do
       # initial definition
+      tester   = pry_tester binding
       filename = __FILE__
       line     = __LINE__ + 2
       klass    = Class.new do
-        def to_be_edited; 1; end
+        def m; 1; end
       end
-      method1 = klass.instance_method(:to_be_edited)
+      klass.new.m.should == 1
 
       # now patch it
-      Pry::Method(method1).redefine('def to_be_edited; 2; end')
-      method2 = klass.instance_method(:to_be_edited)
+      use_editor(tester, replace_all: 'def m; 2; end').eval('edit --patch klass#m')
+      klass.new.m.should == 2
 
       # edit by name, no --patch
-      tester = pry_tester binding
-      tester.pry.config.editor = lambda do |filename, line|
-        File.open(filename, 'w') { |f| f.write 'def to_be_edited; 3; end' }
-        nil
-      end
-      tester.eval "edit klass#to_be_edited"
-      method3 = klass.instance_method(:to_be_edited)
-
-      # methods all worked as expected
-      method1.bind(klass.new).call.should == 1
-      method2.bind(klass.new).call.should == 2
-      method3.bind(klass.new).call.should == 3
+      use_editor(tester, replace_all: 'def m; 3; end').eval("edit klass#m")
+      klass.new.m.should == 3
 
       # original file is unchanged
-      File.readlines(filename)[line-1].strip.should == 'def to_be_edited; 1; end'
+      File.readlines(filename)[line-1].strip.should == 'def m; 1; end'
     end
 
-    # it 'uses runtime editing on methods that were defined in the console'
+    it 'can repeatedly edit methods that were defined in the console' do
+      # initial definition
+      tester = pry_tester binding
+      tester.eval("klass = Class.new do\n"\
+                  "  def m; 1; end\n"\
+                  "end")
+      tester.eval("klass.new.m").should == 1
+
+      # first edit
+      use_editor(tester, replace_all: 'def m; 2; end').eval('edit klass#m')
+      tester.eval('klass.new.m').should == 2
+
+      # repeat edit
+      use_editor(tester, replace_all: 'def m; 3; end').eval('edit klass#m')
+      tester.eval('klass.new.m').should == 3
+    end
   end
 
   describe "old edit-method tests now migrated to edit" do
