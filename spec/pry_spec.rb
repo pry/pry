@@ -52,12 +52,12 @@ describe Pry do
         raise
       end
 
-      lambda { Pry.binding_for(o) }.should.not.raise Exception
+      expect { Pry.binding_for(o) }.to_not raise_error
     end
 
     it "should not leak local variables" do
       [Object.new, Array, 3].each do |obj|
-        Pry.binding_for(obj).eval("local_variables").should.be.empty
+        Pry.binding_for(obj).eval("local_variables").should be_empty
       end
     end
 
@@ -80,12 +80,12 @@ describe Pry do
 
     it "returns a frozen exception" do
       @pry.last_exception = @e.freeze
-      @pry.last_exception.should.be.frozen?
+      expect(@pry.last_exception).to be_frozen
     end
 
     it "returns an object who mirrors itself as the wrapped exception" do
       @pry.last_exception = @e.freeze
-      @pry.last_exception.should.be.instance_of?(StandardError)
+      expect(@pry.last_exception).to be_an_instance_of StandardError
     end
   end
 
@@ -102,9 +102,7 @@ describe Pry do
 
       # bug fix for https://github.com/banister/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        lambda{
-          pry_eval(Object.new, "Command")
-        }.should.raise(NameError)
+        expect { pry_eval(Object.new, "Command") }.to raise_error
       end
 
       it 'should be able to operate inside the BasicObject class' do
@@ -156,9 +154,9 @@ describe Pry do
       end
 
       it 'should not try to catch intended exceptions' do
-        lambda { mock_pry("raise SystemExit") }.should.raise SystemExit
+        expect { mock_pry("raise SystemExit") }.to raise_error SystemExit
         # SIGTERM
-        lambda { mock_pry("raise SignalException.new(15)") }.should.raise SignalException
+        expect { mock_pry("raise SignalException.new(15)") }.to raise_error SignalException
       end
 
       describe "multi-line input" do
@@ -247,7 +245,7 @@ describe Pry do
           t.eval "42"
           res = t.eval "_out_"
 
-          res.should.be.kind_of Pry::HistoryArray
+          res.should be_a_kind_of Pry::HistoryArray
           res[1..2].should == [:foo, 42]
         end
 
@@ -257,7 +255,7 @@ describe Pry do
           t.eval "42"
           res = t.eval "_in_"
 
-          res.should.be.kind_of Pry::HistoryArray
+          res.should be_a_kind_of Pry::HistoryArray
           res[1..2].should == [":foo\n", "42\n"]
         end
 
@@ -273,7 +271,7 @@ describe Pry do
           mock_pry("foo!", "Pad.in = _in_[-1]; Pad.out = _out_[-1]")
 
           Pad.in.should == "foo!\n"
-          Pad.out.should.be.kind_of NoMethodError
+          expect(Pad.out).to be_a_kind_of NoMethodError
         end
       end
 
@@ -379,7 +377,7 @@ describe Pry do
         end
 
         it "should raise if more than two arguments are passed to Object#pry" do
-          lambda { pry(20, :quiet, :input => Readline) }.should.raise ArgumentError
+          expect { pry(20, :quiet, :input => Readline) }.to raise_error ArgumentError
         end
       end
 
@@ -396,9 +394,7 @@ describe Pry do
 
   describe 'setting custom options' do
     it 'does not raise for unrecognized options' do
-      should.not.raise?(NoMethodError) {
-        instance = Pry.new(:custom_option => 'custom value')
-      }
+      expect { instance = Pry.new(:custom_option => 'custom value') }.to_not raise_error
     end
 
     it 'correctly handles the :quiet option (#1261)' do
@@ -412,8 +408,8 @@ describe Pry do
       location  = "#{__FILE__}:#{__LINE__ + 1}"[1..-1] # omit leading .
       backtrace = Pry.new.backtrace
 
-      backtrace.should.not.be.nil
-      backtrace.any? { |l| l.include?(location) }.should.be.true
+      backtrace.should_not equal nil
+      backtrace.any? { |l| l.include?(location) }.should equal true
     end
   end
 end

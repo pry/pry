@@ -2,15 +2,11 @@ require_relative 'helper'
 
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
-    proc {
-      pry_eval '_file_', '_dir_', '_ex_', '_pry_', '_'
-    }.should.not.raise(NameError)
+    expect { pry_eval '_file_', '_dir_', '_ex_', '_pry_', '_' }.to_not raise_error
   end
 
   it 'locals should still exist after cd-ing into a new context' do
-    proc {
-      pry_eval 'cd 0', '_file_', '_dir_', '_ex_', '_pry_', '_'
-    }.should.not.raise(NameError)
+    expect { pry_eval 'cd 0', '_file_', '_dir_', '_ex_', '_pry_', '_' }.to_not raise_error
   end
 
   it 'locals should keep value after cd-ing (_pry_)' do
@@ -173,7 +169,7 @@ describe "Sticky locals (_file_ and friends)" do
       pry.add_sticky_local(:test_local) { rand }
       value1 = pry.evaluate_ruby 'test_local'
       value2 = pry.evaluate_ruby 'test_local'
-      value1.should.not == value2
+      value1.should_not == value2
     end
   end
 

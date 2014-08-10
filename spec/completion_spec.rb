@@ -30,12 +30,12 @@ describe Pry::InputCompleter do
   # another jruby hack :((
   if !Pry::Helpers::BaseHelpers.jruby?
     it "should not crash if there's a Module that has a symbolic name." do
-      lambda{ Pry::InputCompleter.new(Readline).call "a.to_s.", :target => Pry.binding_for(Object.new) }.should.not.raise Exception
+      expect { Pry::InputCompleter.new(Readline).call "a.to_s.", :target => Pry.binding_for(Object.new) }.not_to raise_error Exception
     end
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    lambda { Pry::InputCompleter.new(Readline).call(":class)", :target => Pry.binding_for(Object.new)) }.should.not.raise(RegexpError)
+    expect { Pry::InputCompleter.new(Readline).call ":class)", :target => Pry.binding_for(Object.new) }.not_to raise_error
   end
 
   it 'should complete instance variables' do
@@ -209,6 +209,6 @@ describe Pry::InputCompleter do
 
   it 'should not return nil in its output' do
     pry = Pry.new
-    Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding).should.not.include nil
+    Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding).should_not include nil
   end
 end

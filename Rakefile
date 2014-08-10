@@ -11,8 +11,8 @@ desc "Set up and run tests"
 task :default => [:test]
 
 def run_specs paths
-  quiet = ENV['VERBOSE'] ? '' : '-q'
-  exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
+  format = ENV['VERBOSE'] ? '--format documentation ' : ''
+  sh "rspec #{format}#{paths.join ' '}"
 end
 
 desc "Run tests"

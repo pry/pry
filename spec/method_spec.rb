@@ -93,7 +93,7 @@ describe Pry::Method do
     end
 
     it 'should not raise an exception if receiver does not exist' do
-      lambda { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }.should.not.raise
+      expect { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }.to_not raise_error
     end
   end
 
@@ -228,7 +228,7 @@ describe Pry::Method do
 
   describe 'all_from_class' do
     def should_find_method(name)
-      Pry::Method.all_from_class(@class).map(&:name).should.include(name)
+      Pry::Method.all_from_class(@class).map(&:name).should include name
     end
 
     it 'should be able to find public instance methods defined in a class' do
@@ -281,7 +281,7 @@ describe Pry::Method do
   describe 'all_from_obj' do
     describe 'on normal objects' do
       def should_find_method(name)
-        Pry::Method.all_from_obj(@obj).map(&:name).should.include(name)
+        Pry::Method.all_from_obj(@obj).map(&:name).should include name
       end
 
       it "should find methods defined in the object's class" do
@@ -313,7 +313,7 @@ describe Pry::Method do
 
       it "should not find methods defined on the classes singleton class" do
         @obj = Class.new{ class << self; def meth; 1; end; end }.new
-        Pry::Method.all_from_obj(@obj).map(&:name).should.not.include('meth')
+        Pry::Method.all_from_obj(@obj).map(&:name).should_not include 'meth'
       end
 
       it "should work in the face of an overridden send" do
@@ -324,7 +324,7 @@ describe Pry::Method do
 
     describe 'on classes' do
       def should_find_method(name)
-        Pry::Method.all_from_obj(@class).map(&:name).should.include(name)
+        Pry::Method.all_from_obj(@class).map(&:name).should include name
       end
 
       it "should find methods defined in the class' singleton class" do
@@ -344,7 +344,7 @@ describe Pry::Method do
 
       it "should not find methods defined within the class" do
         @class = Class.new{ def meth; 1; end }
-        Pry::Method.all_from_obj(@obj).map(&:name).should.not.include('meth')
+        Pry::Method.all_from_obj(@obj).map(&:name).should_not include 'meth'
       end
 
       it "should find methods defined on Class" do
@@ -473,12 +473,12 @@ describe Pry::Method do
 
     it 'should return an empty Array if cannot find aliases' do
       meth = Pry::Method(@class.new.method(:eruct))
-      meth.aliases.should.be.empty
+      meth.aliases.should be_empty
     end
 
     it 'should not include the own name in the list of aliases' do
       meth = Pry::Method(@class.new.method(:eat))
-      meth.aliases.should.not.include "eat"
+      meth.aliases.should_not include "eat"
     end
 
     it 'should find aliases for top-level methods' do
@@ -490,7 +490,7 @@ describe Pry::Method do
       end
 
       meth = Pry::Method.new(method(:my_top_level_method))
-      meth.aliases.should.include 'my_other_top_level_method'
+      meth.aliases.should include 'my_other_top_level_method'
 
       class Object
         remove_method :my_top_level_method

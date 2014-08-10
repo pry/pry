@@ -28,7 +28,7 @@ describe 'cd' do
 
   describe 'state' do
     it 'should not to be set up in fresh instance' do
-      @t.command_state.should.be.nil
+      @t.command_state.should equal nil
     end
   end
 
@@ -44,9 +44,7 @@ describe 'cd' do
 
     describe 'when an error was raised' do
       it 'should not toggle and should keep correct stacks' do
-        proc {
-          @t.eval 'cd %'
-        }.should.raise(Pry::CommandError)
+        expect { @t.eval 'cd %' }.to raise_error Pry::CommandError
 
         @t.old_stack.should == []
         @t.assert_binding_stack [@o]
@@ -233,9 +231,7 @@ describe 'cd' do
   end
 
   it 'should not cd into complex input when it encounters an exception' do
-    proc {
-      @t.eval 'cd 1/2/swoop_a_doop/3'
-    }.should.raise(Pry::CommandError)
+    expect { @t.eval 'cd 1/2/swoop_a_doop/3' }.to raise_error Pry::CommandError
 
     @t.assert_binding_stack [@o]
   end
@@ -252,8 +248,6 @@ describe 'cd' do
 
   # Regression test for ticket #516.
   it 'should be able to cd into the Object BasicObject' do
-    proc {
-      @t.eval 'cd BasicObject.new'
-    }.should.not.raise
+    expect { @t.eval 'cd BasicObject.new' }.to_not raise_error
   end
 end

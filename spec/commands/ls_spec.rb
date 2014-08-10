@@ -3,8 +3,8 @@ require_relative '../helper'
 describe "ls" do
   describe "below ceiling" do
     it "should stop before Object by default" do
-      pry_eval("cd Class.new{ def goo; end }.new", "ls").should.not =~ /Object/
-      pry_eval("cd Class.new{ def goo; end }", "ls -M").should.not =~ /Object/
+      pry_eval("cd Class.new{ def goo; end }.new", "ls").should_not =~ /Object/
+      pry_eval("cd Class.new{ def goo; end }", "ls -M").should_not =~ /Object/
     end
 
     it "should include object if -v is given" do
@@ -23,8 +23,8 @@ describe "ls" do
     end
 
     it "should not include super-classes when -q is given" do
-      pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls -q").should.not =~ /goo/
-      pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M -q").should.not =~ /goo/
+      pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls -q").should_not =~ /goo/
+      pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M -q").should_not =~ /goo/
     end
   end
 
@@ -60,8 +60,8 @@ describe "ls" do
     end
 
     it "should not show protected/private by default" do
-      pry_eval("ls -M Class.new{ def goo; end; private :goo }").should.not =~ /goo/
-      pry_eval("ls Class.new{ def goo; end; protected :goo }.new").should.not =~ /goo/
+      pry_eval("ls -M Class.new{ def goo; end; private :goo }").should_not =~ /goo/
+      pry_eval("ls Class.new{ def goo; end; protected :goo }.new").should_not =~ /goo/
     end
 
     it "should show public methods with -p" do
@@ -93,12 +93,11 @@ describe "ls" do
         end
       end
 
-      test.should.not.raise
+      expect(test).to_not raise_error
     end
 
     it "should show error message when instance is given with -M option" do
-      error = lambda{ pry_eval("ls -M String.new") }.should.raise(Pry::CommandError)
-      error.message.should.match(/-M only makes sense with a Module or a Class/)
+      expect { pry_eval("ls -M String.new") }.to raise_error(Pry::CommandError, /-M only makes sense with a Module or a Class/)
     end
 
 
@@ -114,12 +113,12 @@ describe "ls" do
   describe 'with -l' do
     it 'should find locals and sort by descending size' do
       result = pry_eval("aa = 'asdf'; bb = 'xyz'", 'ls -l')
-      result.should.not =~ /=>/
-      result.should.not =~ /0x\d{5}/
+      result.should_not =~ /=>/
+      result.should_not =~ /0x\d{5}/
       result.should =~ /asdf.*xyz/m
     end
     it 'should not list pry noise' do
-      pry_eval('ls -l').should.not =~ /_(?:dir|file|ex|pry|out|in)_/
+      pry_eval('ls -l').should_not =~ /_(?:dir|file|ex|pry|out|in)_/
     end
   end
 
@@ -145,7 +144,7 @@ describe "ls" do
     end
 
     it "should behave normally when invoked on Module itself" do
-      pry_eval("ls Module").should.not =~ /Pry/
+      pry_eval("ls Module").should_not =~ /Pry/
     end
   end
 
@@ -162,7 +161,7 @@ describe "ls" do
     end
 
     it "should not show constants defined on parent modules by default" do
-      pry_eval("class TempFoo2; LHGRAB = 1; end; class TempFoo3 < TempFoo2; BARGHL = 1; end", "ls TempFoo3").should.not =~ /LHGRAB/
+      pry_eval("class TempFoo2; LHGRAB = 1; end; class TempFoo3 < TempFoo2; BARGHL = 1; end", "ls TempFoo3").should_not =~ /LHGRAB/
     end
 
     it "should show constants defined on ancestors with -v" do
@@ -171,7 +170,7 @@ describe "ls" do
 
     it "should not autoload constants!" do
       autoload :McflurgleTheThird, "/tmp/this-file-d000esnat-exist.rb"
-      lambda{ pry_eval("ls -c") }.should.not.raise
+      expect { pry_eval("ls -c") }.to_not raise_error
     end
 
     it "should show constants for an object's class regardless of mixins" do
@@ -179,14 +178,14 @@ describe "ls" do
         "cd Pry.new",
         "extend Module.new",
         "ls -c"
-      ).should.match(/Method/)
+      ).should match(/Method/)
     end
   end
 
   describe "grep" do
     it "should reduce the number of outputted things" do
       pry_eval("ls -c Object").should =~ /ArgumentError/
-      pry_eval("ls -c Object --grep Run").should.not =~ /ArgumentError/
+      pry_eval("ls -c Object --grep Run").should_not =~ /ArgumentError/
     end
 
     it "should still output matching things" do
@@ -234,7 +233,7 @@ describe "ls" do
     describe 'on java objects' do
       it 'should omit java-esque aliases by default' do
         pry_eval('ls java.lang.Thread.current_thread').should =~ /\bthread_group\b/
-        pry_eval('ls java.lang.Thread.current_thread').should.not =~ /\bgetThreadGroup\b/
+        pry_eval('ls java.lang.Thread.current_thread').should_not =~ /\bgetThreadGroup\b/
       end
 
       it 'should include java-esque aliases if requested' do

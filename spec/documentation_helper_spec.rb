@@ -33,7 +33,7 @@ describe Pry::Helpers::DocumentationHelpers do
     end
 
     it "should syntax highlight indented code" do
-      @helper.process_rdoc("  4 + 4\n").should.not == "  4 + 4\n"
+      @helper.process_rdoc("  4 + 4\n").should_not == "  4 + 4\n"
     end
 
     it "should highlight words surrounded by +s" do

@@ -91,9 +91,7 @@ describe "show-source" do
   it "should not find instance methods with self.moo" do
     c = Class.new{ def moo; "ve over!"; end }
 
-    proc {
-      pry_eval(binding, 'cd c', 'show-source self.moo')
-    }.should.raise(Pry::CommandError).message.should =~ /Couldn't locate/
+    expect { pry_eval(binding, 'cd c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods with self.moo" do
@@ -105,9 +103,7 @@ describe "show-source" do
   it "should not find normal methods with self#moo" do
     c = Class.new{ def self.moo; "ve over!"; end }
 
-    proc {
-      pry_eval(binding, 'cd c', 'show-source self#moo')
-    }.should.raise(Pry::CommandError).message.should =~ /Couldn't locate/
+    expect { pry_eval(binding, 'cd c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods (i.e non-instance methods) by default" do
@@ -146,9 +142,7 @@ describe "show-source" do
   it "should raise a CommandError when super method doesn't exist" do
     def @o.foo(*bars); end
 
-    proc {
-      pry_eval(binding, "show-source --super @o.foo")
-    }.should.raise(Pry::CommandError).message.should =~ /No superclass found/
+    expect { pry_eval(binding, "show-source --super @o.foo") }.to raise_error(Pry::CommandError, /No superclass found/)
   end
 
   it "should output the source of a method defined inside Pry" do
@@ -277,7 +271,7 @@ describe "show-source" do
 
         it "source of variable should take precedence over method that is being shadowed" do
           source = @t.eval('show-source hello')
-          source.should.not =~ /def hello/
+          source.should_not =~ /def hello/
           source.should =~ /proc \{ ' smile ' \}/
         end
 
@@ -519,7 +513,7 @@ describe "show-source" do
             end
 
             result = pry_eval('show-source Aarrrrrghh')
-            result.should.not =~ /available monkeypatches/
+            result.should_not =~ /available monkeypatches/
             Object.remove_const(:Aarrrrrghh)
           end
         end
@@ -557,16 +551,13 @@ describe "show-source" do
           end
 
           it 'should be unable to find module source if no methods defined' do
-            proc {
-              pry_eval(TestHost::C, 'show-source')
-            }.should.raise(Pry::CommandError).
-              message.should =~ /Couldn't locate/
+            expect { pry_eval(TestHost::C, 'show-source') }.to raise_error(Pry::CommandError, /Couldn't locate/)
           end
 
           it 'should display method code (rather than class) if Pry started inside method binding' do
             out = TestHost::D.invoked_in_method
             out.should =~ /invoked_in_method/
-            out.should.not =~ /module D/
+            out.should_not =~ /module D/
           end
 
           it 'should display class source when inside instance' do
@@ -607,7 +598,7 @@ describe "show-source" do
             it 'should return source for first valid module' do
               out = pry_eval('show-source BabyDuck::Muesli')
               out.should =~ /def d; end/
-              out.should.not =~ /def a; end/
+              out.should_not =~ /def a; end/
             end
           end
         end
@@ -743,13 +734,12 @@ describe "show-source" do
         it 'ignores included modules' do
           t = pry_tester
           t.process_command "show-source Jesus::Jangle"
-          t.last_output.should.not =~ /lillybing/
+          t.last_output.should_not =~ /lillybing/
         end
 
         it 'errors when class has no superclass to show' do
           t = pry_tester
-          lambda { t.process_command "show-source Jesus::Brian" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
+          expect { t.process_command "show-source Jesus::Brian" }.to raise_error(Pry::CommandError, /Couldn't locate/)
         end
 
         it 'shows warning when reverting to superclass code' do
@@ -808,8 +798,7 @@ describe "show-source" do
 
         it 'errors when module has no included module to show' do
           t = pry_tester
-          lambda { t.process_command "show-source Jesus::Zeta" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
+          expect { t.process_command "show-source Jesus::Zeta" }.to raise_error(Pry::CommandError, /Couldn't locate/)
         end
 
         it 'shows nth level included module code (when no intermediary modules have code either)' do

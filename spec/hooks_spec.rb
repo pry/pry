@@ -15,7 +15,7 @@ describe Pry::Hooks do
     it 'should not allow adding of a hook with a duplicate name' do
       @hooks.add_hook(:test_hook, :my_name) {}
 
-      lambda { @hooks.add_hook(:test_hook, :my_name) {} }.should.raise ArgumentError
+      expect { @hooks.add_hook(:test_hook, :my_name) {} }.to raise_error
     end
 
     it 'should create a new hook with a block' do
@@ -39,7 +39,7 @@ describe Pry::Hooks do
     end
 
     it 'should raise if not given a block or any other object' do
-      lambda { @hooks.add_hook(:test_hook, :my_name) }.should.raise ArgumentError
+      expect { @hooks.add_hook(:test_hook, :my_name) }.to raise_error ArgumentError
     end
 
     it 'should create multiple hooks for an event' do
@@ -69,7 +69,7 @@ describe Pry::Hooks do
 
         h2.merge!(h1)
         h2.add_hook(:test_hook, :testing2) {}
-        h2.get_hook(:test_hook, :testing2).should.not == h1.get_hook(:test_hook, :testing2)
+        h2.get_hook(:test_hook, :testing2).should_not == h1.get_hook(:test_hook, :testing2)
       end
 
       it 'should NOT overwrite hooks belonging to shared event in receiver' do
@@ -114,8 +114,8 @@ describe Pry::Hooks do
           h2 = Pry::Hooks.new
 
           h3 = h2.merge(h1)
-          h3.should.not == h1
-          h3.should.not == h2
+          h3.should_not == h1
+          h3.should_not == h2
         end
 
         it 'should contain hooks from original instance' do
@@ -158,7 +158,7 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:other_test_hook, :testing) { :okay_man }
 
-      hooks_dup.get_hook(:other_test_hook, :testing).should.not == @hooks.get_hook(:other_test_hook, :testing)
+      hooks_dup.get_hook(:other_test_hook, :testing).should_not == @hooks.get_hook(:other_test_hook, :testing)
     end
 
     it 'adding a new hook to dupped instance should not affect original' do
@@ -167,7 +167,7 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:test_hook, :testing2) { :okay_man }
 
-      hooks_dup.get_hook(:test_hook, :testing2).should.not == @hooks.get_hook(:test_hook, :testing2)
+      hooks_dup.get_hook(:test_hook, :testing2).should_not == @hooks.get_hook(:test_hook, :testing2)
     end
 
   end
@@ -403,7 +403,7 @@ describe Pry::Hooks do
               Pry.start(self, :hooks => hooks)
             end
             out.string.should =~ /little_duck/
-            out.string.should.not =~ /jemima/
+            out.string.should_not =~ /jemima/
           end
 
           it 'should not interfere with command processing when replacing input code' do
@@ -420,7 +420,7 @@ describe Pry::Hooks do
               Pry.start(self, :hooks => hooks, :commands => commands)
             end
             out.string.should =~ /in hours of bitterness i imagine balls of sapphire, of metal/
-            out.string.should.not =~ /little_duck/
+            out.string.should_not =~ /little_duck/
           end
         end
 
@@ -437,9 +437,7 @@ describe Pry::Hooks do
           Pry.config.hooks.delete_hook(:after_eval, :simbads)
         end
         it "should not raise exceptions" do
-          lambda{
-            mock_pry("1", "2", "3")
-          }.should.not.raise
+          expect { mock_pry("1", "2", "3") }.to_not raise_error
         end
 
         it "should print out a notice for each exception raised" do

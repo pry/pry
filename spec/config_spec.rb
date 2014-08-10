@@ -4,7 +4,7 @@ describe Pry::Config do
     it "raises an ArgumentError on assignment of a reserved key" do
       local = Pry::Config.new
       Pry::Config::RESERVED_KEYS.each do |key|
-        should.raise(ArgumentError) { local[key] = 1 }
+        expect { local[key] = 1 }.to  raise_error ArgumentError
       end
     end
   end
@@ -112,7 +112,7 @@ describe Pry::Config do
 
     it "compares equality against an object who does not implement #to_hash" do
       local1 = Pry::Config.new(nil)
-      local1.should.not == Object.new
+      local1.should_not == Object.new
     end
   end
 
@@ -136,7 +136,7 @@ describe Pry::Config do
     it "returns a duplicate of the lookup table" do
       local = Pry::Config.new(nil)
       local.to_hash.merge!("foo" => 42)
-      local.foo.should.not == 42
+      local.foo.should_not == 42
     end
   end
 
@@ -163,7 +163,7 @@ describe Pry::Config do
     end
 
     it "raises a TypeError for objects who can't become a Hash" do
-      should.raise(TypeError) { @config.merge!(Object.new) }
+      expect { @config.merge!(Object.new) }.to raise_error TypeError
     end
   end
 

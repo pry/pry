@@ -19,7 +19,7 @@ describe "show-doc" do
   end
 
   it 'should raise exception when cannot find docs' do
-    lambda { pry_eval(binding, "show-doc @o.no_docs") }.should.raise(Pry::CommandError)
+    expect { pry_eval(binding, "show-doc @o.no_docs") }.to raise_error Pry::CommandError
   end
 
   it 'should output a method\'s documentation with line numbers' do
@@ -130,7 +130,7 @@ describe "show-doc" do
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should.not =~ /c.new :foo/
+        t.eval("show-doc c#initialize").should_not =~ /c.new :foo/
       ensure
         Pry.config.color = false
       end
@@ -150,7 +150,7 @@ describe "show-doc" do
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should.not =~ /c.new\(:foo\)/
+        t.eval("show-doc c#initialize").should_not =~ /c.new\(:foo\)/
       ensure
         Pry.config.color = false
       end
@@ -171,7 +171,7 @@ describe "show-doc" do
         t = pry_tester(binding)
         Pry.config.color = true
         t.eval("show-doc c#decolumnize").should =~ /ls -l \$HOME/
-        t.eval("show-doc c#decolumnize").should.not =~ /`ls -l \$HOME`/
+        t.eval("show-doc c#decolumnize").should_not =~ /`ls -l \$HOME`/
       ensure
         Pry.config.color = false
       end
@@ -336,7 +336,7 @@ describe "show-doc" do
           end
 
           result = pry_eval('show-doc Aarrrrrghh')
-          result.should.not =~ /available monkeypatches/
+          result.should_not =~ /available monkeypatches/
           Object.remove_const(:Aarrrrrghh)
         end
       end
@@ -390,7 +390,7 @@ describe "show-doc" do
       it 'should return doc for first valid module' do
         result = pry_eval("show-doc TestHost::M")
         result.should =~ /goodbye/
-        result.should.not =~ /hello/
+        result.should_not =~ /hello/
       end
     end
   end
@@ -490,8 +490,7 @@ describe "show-doc" do
 
         it 'errors when class has no superclass to show' do
           t = pry_tester
-          lambda { t.process_command "show-doc Jesus::Brian" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
+          expect { t.process_command "show-doc Jesus::Brian" }.to raise_error(Pry::CommandError, /Couldn't locate/)
         end
 
         it 'shows warning when reverting to superclass docs' do
@@ -552,8 +551,7 @@ describe "show-doc" do
 
         it 'errors when module has no included module to show' do
           t = pry_tester
-          lambda { t.process_command "show-source Jesus::Zeta" }.should.raise(Pry::CommandError).message.
-            should =~ /Couldn't locate/
+          expect { t.process_command "show-source Jesus::Zeta" }.to raise_error(Pry::CommandError, /Couldn't locate/)
         end
 
         it 'shows nth level included module doc (when no intermediary modules have code either)' do
