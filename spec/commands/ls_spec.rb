@@ -111,8 +111,8 @@ describe "ls" do
   end
 
   describe 'with -l' do
-    it 'should find locals and sort by descending size' do
-      result = pry_eval("aa = 'asdf'; bb = 'xyz'", 'ls -l')
+    focus 'should find locals and sort by descending size' do
+      result = pry_eval(Object.new, "aa = 'asdf'; bb = 'xyz'", 'ls -l')
       result.should_not =~ /=>/
       result.should_not =~ /0x\d{5}/
       result.should =~ /asdf.*xyz/m
