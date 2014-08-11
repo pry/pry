@@ -10,9 +10,11 @@ CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc
 desc "Set up and run tests"
 task :default => [:test]
 
-def run_specs paths
-  quiet = ENV['VERBOSE'] ? '' : '-q'
-  exec "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
+def self.run_specs paths
+  quiet   = ENV['VERBOSE'] ? '' : '-q'
+  command = "bacon -Ispec -rubygems #{quiet} #{paths.join ' '}"
+  $stderr.puts command if Rake::FileUtilsExt.verbose_flag.equal?(true)
+  exec command
 end
 
 desc "Run tests"
