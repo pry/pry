@@ -9,30 +9,28 @@ describe Pry::WrappedModule do
   end
 
   describe "candidates" do
-    before do
-      class Host
-        %w(spec/fixtures/candidate_helper1.rb
-           spec/fixtures/candidate_helper2.rb).each do |file|
-          binding.eval File.read(file), file, 1
-        end
+    class Host
+      %w(spec/fixtures/candidate_helper1.rb
+         spec/fixtures/candidate_helper2.rb).each do |file|
+        binding.eval File.read(file), file, 1
+      end
 
-        # rank 2
-        class CandidateTest
-          def test6
-          end
+      # rank 2
+      class CandidateTest
+        def test6
         end
+      end
 
-        class PitifullyBlank
-          DEFAULT_TEST = CandidateTest
-        end
+      class PitifullyBlank
+        DEFAULT_TEST = CandidateTest
+      end
 
-        FOREVER_ALONE_LINE = __LINE__ + 1
-        class ForeverAlone
-          class DoublyNested
-            # nested docs
-            class TriplyNested
-              def nested_method
-              end
+      FOREVER_ALONE_LINE = __LINE__ + 1
+      class ForeverAlone
+        class DoublyNested
+          # nested docs
+          class TriplyNested
+            def nested_method
             end
           end
         end
@@ -133,10 +131,6 @@ describe Pry::WrappedModule do
       it 'should return docs for deeply nested class' do
         Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
-    end
-
-    after do
-      Object.remove_const(:Host)
     end
   end
 
