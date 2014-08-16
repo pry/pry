@@ -505,7 +505,7 @@ class Pry
     @input_array << code
     if code
       Pry.line_buffer.push(*code.each_line)
-      Pry.current_line += code.each_line.count
+      Pry.current_line += code.lines.count
     end
   end
 
