@@ -7,17 +7,17 @@ describe Pry::Hooks do
 
   describe "parsing options" do
     it 'should raise if no options defined' do
-      lambda { Pry::CLI.parse_options(["--nothing"]) }.should.raise Pry::CLI::NoOptionsError
+      expect { Pry::CLI.parse_options(["--nothing"]) }.to raise_error Pry::CLI::NoOptionsError
     end
 
     it "should remove args from ARGV by default" do
-      ARGV << '-v'
+      argv = ['filename', '-v']
       Pry::CLI.add_options do
         on :v, "Display the Pry version" do
           # irrelevant
         end
-      end.parse_options
-      ARGV.include?('-v').should == false
+      end.parse_options(argv)
+      argv.include?('-v').should == false
     end
   end
 
@@ -48,8 +48,8 @@ describe Pry::Hooks do
         end
       end.parse_options(["--optiontest", "--optiontest2"])
 
-      run.should.be.true
-      run2.should.be.true
+      run.should equal true
+      run2.should equal true
     end
 
   end

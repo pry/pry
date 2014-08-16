@@ -107,6 +107,10 @@ class Pry
     def singleton_class?
       if Pry::Method.safe_send(wrapped, :respond_to?, :singleton_class?)
         Pry::Method.safe_send(wrapped, :singleton_class?)
+      elsif defined?(Rubinius)
+        # https://github.com/rubinius/rubinius/commit/2e71722dba53d1a92c54d5e3968d64d1042486fe singleton_class? added 30 Jul 2014
+        # https://github.com/rubinius/rubinius/commit/4310f6b2ef3c8fc88135affe697db4e29e4621c4 has been around since 2011
+        !!Rubinius::Type.singleton_class_object(wrapped)
       else
         wrapped != Pry::Method.safe_send(wrapped, :ancestors).first
       end

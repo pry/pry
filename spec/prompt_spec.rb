@@ -29,7 +29,7 @@ describe "Prompts" do
       config.expr_number.should == 1
       config.cont.should == true
       config._pry_.is_a?(Pry).should == true
-      config.object.should == self
+      expect(config.object).to eq self
     end
   end
 

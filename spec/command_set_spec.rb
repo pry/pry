@@ -15,16 +15,16 @@ describe Pry::CommandSet do
 
   describe "[]=" do
     it "removes a command from the command set" do
-      @set["help"].should.not == nil
+      @set["help"].should_not == nil
       @set["help"] = nil
       @set["help"].should == nil
-      lambda { @set.run_command(TOPLEVEL_BINDING, "help") }.should.raise Pry::NoCommandError
+      expect { @set.run_command(TOPLEVEL_BINDING, "help") }.to raise_error Pry::NoCommandError
     end
 
     it "replaces a command" do
       old_help = @set["help"]
       @set["help"] = @set["pry-version"]
-      @set["help"].should.not == old_help
+      @set["help"].should_not == old_help
     end
 
     it "rebinds the command with key" do
@@ -33,7 +33,7 @@ describe Pry::CommandSet do
     end
 
     it "raises a TypeError when command is not a subclass of Pry::Command" do
-      lambda { @set["help"] = "hello" }.should.raise TypeError
+      expect { @set["help"] = "hello" }.to raise_error TypeError
     end
   end
 
@@ -67,27 +67,21 @@ describe Pry::CommandSet do
 
   it 'should raise an error when calling an undefined command' do
     @set.command('foo') {}
-    lambda {
-      @set.run_command @ctx, 'bar'
-    }.should.raise(Pry::NoCommandError)
+    expect { @set.run_command @ctx, 'bar' }.to raise_error Pry::NoCommandError
   end
 
   it 'should be able to remove its own commands' do
     @set.command('foo') {}
     @set.delete 'foo'
 
-    lambda {
-      @set.run_command @ctx, 'foo'
-    }.should.raise(Pry::NoCommandError)
+    expect { @set.run_command @ctx, 'foo' }.to raise_error Pry::NoCommandError
   end
 
   it 'should be able to remove its own commands, by listing name' do
     @set.command(/^foo1/, 'desc', :listing => 'foo') {}
     @set.delete 'foo'
 
-    lambda {
-      @set.run_command @ctx, /^foo1/
-    }.should.raise(Pry::NoCommandError)
+    expect { @set.run_command @ctx, /^foo1/ }.to raise_error Pry::NoCommandError
   end
 
   it 'should be able to import some commands from other sets' do
@@ -103,9 +97,7 @@ describe Pry::CommandSet do
     @set.run_command @ctx, 'foo'
     run.should == true
 
-    lambda {
-      @set.run_command @ctx, 'bar'
-    }.should.raise(Pry::NoCommandError)
+    expect { @set.run_command @ctx, 'bar' }.to raise_error Pry::NoCommandError
   end
 
   it 'should return command set after import' do
@@ -211,7 +203,7 @@ describe Pry::CommandSet do
       @set['bar'].options[:interpolate].should == @set['foo'].options[:interpolate]
 
       # however some options should not be inherited
-      @set['bar'].options[:listing].should.not ==  @set['foo'].options[:listing]
+      @set['bar'].options[:listing].should_not ==  @set['foo'].options[:listing]
       @set['bar'].options[:listing].should == "bar"
     end
 
@@ -289,22 +281,19 @@ describe Pry::CommandSet do
   end
 
   it 'should be able to have its own helpers' do
-    @set.command('foo') do
-      should.respond_to :my_helper
-    end
-
-    @set.helpers do
-      def my_helper; end
-    end
+    @set.command('foo') { my_helper }
+    @set.helpers { def my_helper; end }
 
     @set.run_command(@ctx, 'foo')
-    Pry::Command.subclass('foo', '', {}, Module.new).new({:target => binding}).should.not.respond_to :my_helper
+    Pry::Command.subclass('foo', '', {}, Module.new)
+                .new({:target => binding})
+                .should_not(respond_to :my_helper)
   end
 
   it 'should not recreate a new helper module when helpers is called' do
     @set.command('foo') do
-      should.respond_to :my_helper
-      should.respond_to :my_other_helper
+      my_helper
+      my_other_helper
     end
 
     @set.helpers do
@@ -326,7 +315,7 @@ describe Pry::CommandSet do
     end
 
     @set.import imported_set
-    @set.command('foo') { should.respond_to :imported_helper_method }
+    @set.command('foo') { imported_helper_method }
     @set.run_command(@ctx, 'foo')
   end
 
@@ -340,7 +329,7 @@ describe Pry::CommandSet do
     end
 
     @set.import_from imported_set, 'bar'
-    @set.command('foo') { should.respond_to :imported_helper_method }
+    @set.command('foo') { imported_helper_method }
     @set.run_command(@ctx, 'foo')
   end
 
@@ -358,9 +347,7 @@ describe Pry::CommandSet do
     @ctx[:command_set] = @set
     @ctx[:output] = StringIO.new
 
-    lambda {
-      @set.run_command(@ctx, 'help')
-    }.should.not.raise
+    expect { @set.run_command(@ctx, 'help') }.to_not raise_error
   end
 
 
@@ -382,13 +369,13 @@ describe Pry::CommandSet do
     end
 
     it 'should raise exception trying to rename non-existent command' do
-      lambda { @set.rename_command('bar', 'foo') }.should.raise ArgumentError
+      expect { @set.rename_command('bar', 'foo') }.to raise_error ArgumentError
     end
 
     it 'should make old command name inaccessible' do
       @set.command('foo') { }
       @set.rename_command('bar', 'foo')
-      lambda { @set.run_command(@ctx, 'foo') }.should.raise Pry::NoCommandError
+      expect { @set.run_command(@ctx, 'foo') }.to raise_error Pry::NoCommandError
     end
 
     it 'should be able to pass in options when renaming command' do
@@ -592,9 +579,7 @@ describe Pry::CommandSet do
 
     it 'should not cause argument interpolation' do
       cmd = @set.command('hello')
-      lambda {
-        @set.valid_command?('hello #{raise "futz"}')
-      }.should.not.raise
+      expect { @set.valid_command?('hello #{raise "futz"}') }.to_not raise_error
     end
   end
 

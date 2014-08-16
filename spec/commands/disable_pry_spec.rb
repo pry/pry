@@ -10,16 +10,12 @@ describe "disable-pry" do
   end
 
   it 'should quit the current session' do
-    lambda{
-      @t.process_command 'disable-pry'
-    }.should.throw(:breakout)
+    expect { @t.process_command 'disable-pry' }.to throw_symbol :breakout
   end
 
   it "should set DISABLE_PRY" do
     ENV['DISABLE_PRY'].should == nil
-    lambda{
-      @t.process_command 'disable-pry'
-    }.should.throw(:breakout)
+    expect { @t.process_command 'disable-pry' }.to throw_symbol :breakout
     ENV['DISABLE_PRY'].should == 'true'
   end
 end

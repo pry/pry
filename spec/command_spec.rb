@@ -22,9 +22,7 @@ describe "Pry::Command" do
         #
       end
 
-      lambda {
-        mock_command(cmd, %w())
-      }.should.raise(Pry::CommandError)
+      expect { mock_command(cmd, %w()) }.to raise_error Pry::CommandError
     end
 
     it 'should return VOID without keep_retval' do
@@ -198,9 +196,7 @@ describe "Pry::Command" do
         end
       end
 
-      lambda {
-        mock_command(cmd)
-      }.should.raise(Pry::CommandError)
+      expect { mock_command(cmd) }.to raise_error Pry::CommandError
     end
 
     it 'should work if neither options, nor setup is overridden' do
@@ -402,10 +398,7 @@ describe "Pry::Command" do
 
     it "should raise an error if the line doesn't match the command" do
       cmd = @set.command 'grunthos', 'the flatulent'
-
-      lambda {
-        cmd.new.process_line %(grumpos)
-      }.should.raise(Pry::CommandError)
+      expect { cmd.new.process_line %(grumpos) }.to raise_error Pry::CommandError
     end
    end
 
@@ -619,9 +612,7 @@ describe "Pry::Command" do
           end
           @out = StringIO.new
 
-          proc {
-            @t.eval 'walking-spanish | { :jesus }'
-          }.should.raise(NoMethodError)
+          expect { @t.eval 'walking-spanish | { :jesus }' }.to raise_error(NoMethodError)
         end
 
         it "should expose block in command_block method" do

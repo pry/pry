@@ -27,6 +27,6 @@ describe 'gist' do
 
   it 'nominally logs in' do
     pry_eval 'gist --login'
-    Pad.gist_calls[:login!].should.not.be.nil
+    Pad.gist_calls[:login!].should_not be_nil
   end
 end

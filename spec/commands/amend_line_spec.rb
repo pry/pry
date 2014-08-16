@@ -117,7 +117,7 @@ describe "amend-line" do
       error = e
     end
 
-    error.should.not.be.nil
+    error.should_not equal nil
     error.message.should =~ /No input to amend/
   end
 

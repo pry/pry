@@ -152,18 +152,15 @@ describe "hist" do
   it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
     @t.eval ":banzai"
     @t.eval "hist --replay 1"
-    lambda do
-      @t.eval "hist --replay 2"
-    end.should.raise(Pry::CommandError, /Replay index 4 points out to another replay call: `hist --replay 1`/)
+
+    expect { @t.eval "hist --replay 2" }.to raise_error(Pry::CommandError, /Replay index 2 points out to another replay call: `hist --replay 1`/)
   end
 
   it "should disallow execution of `--replay <i>` when CommandError raised" do
     @t.eval "a = 0"
     @t.eval "a += 1"
     @t.eval "hist --replay 2"
-    lambda{
-      @t.eval "hist --replay 3"
-    }.should.raise(Pry::CommandError)
+    expect { @t.eval "hist --replay 3" }.to raise_error Pry::CommandError
     @t.eval("a").should == 2
     @t.eval("hist").lines.to_a.size.should == 5
   end

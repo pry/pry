@@ -38,10 +38,7 @@ describe "edit" do
     it "should not allow patching any known kind of file" do
       ["file.rb", "file.c", "file.py", "file.yml", "file.gemspec",
        "/tmp/file", "\\\\Temp\\\\file"].each do |file|
-        proc {
-          pry_eval "edit -p #{file}"
-        }.should.raise(NotImplementedError).
-          message.should =~ /Cannot yet patch false objects!/
+        expect { pry_eval "edit -p #{file}" }.to raise_error(NotImplementedError, /Cannot yet patch false objects!/)
       end
     end
 
@@ -200,7 +197,7 @@ describe "edit" do
           nil
         }
 
-        defined?(FOO).should.be.nil
+        defined?(FOO).should equal nil
 
         @t.eval 'edit --ex'
 
@@ -234,11 +231,11 @@ describe "edit" do
           nil
         }
 
-        defined?(FOO2).should.be.nil
+        defined?(FOO2).should equal nil
 
         @t.eval 'edit -n --ex'
 
-        defined?(FOO2).should.be.nil
+        defined?(FOO2).should equal nil
       end
 
       describe "with --patch" do
@@ -250,7 +247,7 @@ describe "edit" do
             nil
           }
 
-          defined?(FOO3).should.be.nil
+          defined?(FOO3).should equal nil
 
           @t.eval 'edit --ex --patch'
 
@@ -299,9 +296,7 @@ describe "edit" do
       end
 
       it 'should display error message when backtrace level is invalid' do
-        proc {
-          @t.eval 'edit -n --ex 4'
-        }.should.raise(Pry::CommandError)
+        expect { @t.eval 'edit -n --ex 4' }.to raise_error Pry::CommandError
       end
     end
   end
@@ -394,17 +389,11 @@ describe "edit" do
     end
 
     it "should not work with a filename" do
-      proc {
-        pry_eval 'edit ruby.rb -i'
-      }.should.raise(Pry::CommandError).
-        message.should =~ /Only one of --ex, --temp, --in, --method and FILE/
+      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(Pry::CommandError, /Only one of --ex, --temp, --in, --method and FILE/)
     end
 
     it "should not work with nonsense" do
-      proc {
-        pry_eval 'edit --in three'
-      }.should.raise(Pry::CommandError).
-        message.should =~ /Not a valid range: three/
+      expect { pry_eval 'edit --in three' }.to raise_error(Pry::CommandError, /Not a valid range: three/)
     end
   end
 
@@ -702,12 +691,12 @@ describe "edit" do
       @t = pry_tester
       class BinkyWink
         eval %{
-          def tits_macgee
+          def m1
             binding
           end
         }
 
-        def tots_macgee
+        def m2
           :jeremy_jones
           binding
         end
@@ -720,28 +709,26 @@ describe "edit" do
 
     it 'should edit method context' do
       Pry.config.editor = lambda do |file, line|
-        [file, line].should == BinkyWink.instance_method(:tots_macgee).source_location
+        [file, line].should == BinkyWink.instance_method(:m2).source_location
         nil
       end
 
-      t = pry_tester(BinkyWink.new.tots_macgee)
+      t = pry_tester(BinkyWink.new.m2)
       t.process_command "edit -m -n"
     end
 
     it 'errors when cannot find method context' do
       Pry.config.editor = lambda do |file, line|
-        [file, line].should == BinkyWink.instance_method(:tits_macgee).source_location
+        [file, line].should == BinkyWink.instance_method(:m1).source_location
         nil
       end
 
-      t = pry_tester(BinkyWink.new.tits_macgee)
-      lambda { t.process_command "edit -m -n" }.should.
-        raise(Pry::CommandError).message.should.match(/Cannot find a file for/)
+      t = pry_tester(BinkyWink.new.m1)
+      expect { t.process_command "edit -m -n" }.to  raise_error(Pry::CommandError, /Cannot find a file for/)
     end
 
     it 'errors when a filename arg is passed with --method' do
-      lambda { @t.process_command "edit -m Pry#repl" }.should.
-        raise(Pry::CommandError).message.should.match(/Only one of/)
+      expect { @t.process_command "edit -m Pry#repl" }.to raise_error(Pry::CommandError, /Only one of/)
     end
   end
 
@@ -750,7 +737,7 @@ describe "edit" do
       @t = pry_tester
       class TrinkyDink
         eval %{
-          def claudia_linklater
+          def m
           end
         }
       end
@@ -761,8 +748,7 @@ describe "edit" do
     end
 
     it 'should display a nice error message when cannot open a file' do
-      lambda { @t.process_command "edit TrinkyDink#claudia_linklater" }.should.
-        raise(Pry::CommandError).message.should.match(/Cannot find a file for/)
+      expect { @t.process_command "edit TrinkyDink#m" }.to raise_error(Pry::CommandError, /Cannot find a file for/)
     end
   end
 end

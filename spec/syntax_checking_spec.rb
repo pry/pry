@@ -19,7 +19,7 @@ describe Pry do
         Pry.start
       end
 
-      @str_output.string.should.not =~ /SyntaxError/
+      @str_output.string.should_not =~ /SyntaxError/
     end
   end
 

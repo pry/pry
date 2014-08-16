@@ -17,9 +17,7 @@ describe "cat" do
 
   describe "on receiving a file that does not exist" do
     it 'should display an error message' do
-      proc {
-        @t.eval 'cat supercalifragilicious66'
-      }.should.raise(StandardError).message.should =~ /Cannot open/
+      expect { @t.eval 'cat supercalifragilicious66' }.to raise_error(StandardError, /Cannot open/)
     end
   end
 
@@ -135,9 +133,7 @@ describe "cat" do
 
     it 'should show error when backtrace level out of bounds' do
       @t.last_exception = mock_exception('x', 'x', 'x')
-      proc {
-        @t.eval('cat --ex 3')
-      }.should.raise(Pry::CommandError).message.should =~ /out of bounds/
+      expect { @t.eval('cat --ex 3') }.to raise_error(Pry::CommandError, /out of bounds/)
     end
 
     it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do

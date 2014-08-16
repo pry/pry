@@ -4,35 +4,33 @@ describe Pry::WrappedModule do
 
   describe "#initialize" do
     it "should raise an exception when a non-module is passed" do
-      lambda{ Pry::WrappedModule.new(nil) }.should.raise ArgumentError
+      expect { Pry::WrappedModule.new(nil) }.to raise_error ArgumentError
     end
   end
 
   describe "candidates" do
-    before do
-      class Host
-        %w(spec/fixtures/candidate_helper1.rb
-           spec/fixtures/candidate_helper2.rb).each do |file|
-          binding.eval File.read(file), file, 1
-        end
+    class Host
+      %w(spec/fixtures/candidate_helper1.rb
+         spec/fixtures/candidate_helper2.rb).each do |file|
+        binding.eval File.read(file), file, 1
+      end
 
-        # rank 2
-        class CandidateTest
-          def test6
-          end
+      # rank 2
+      class CandidateTest
+        def test6
         end
+      end
 
-        class PitifullyBlank
-          DEFAULT_TEST = CandidateTest
-        end
+      class PitifullyBlank
+        DEFAULT_TEST = CandidateTest
+      end
 
-        FOREVER_ALONE_LINE = __LINE__ + 1
-        class ForeverAlone
-          class DoublyNested
-            # nested docs
-            class TriplyNested
-              def nested_method
-              end
+      FOREVER_ALONE_LINE = __LINE__ + 1
+      class ForeverAlone
+        class DoublyNested
+          # nested docs
+          class TriplyNested
+            def nested_method
             end
           end
         end
@@ -67,7 +65,7 @@ describe Pry::WrappedModule do
       end
 
       it 'should raise when trying to access non-existent candidate' do
-        lambda { Pry::WrappedModule(Host::CandidateTest).candidate(3) }.should.raise Pry::CommandError
+        expect { Pry::WrappedModule(Host::CandidateTest).candidate(3) }.to raise_error Pry::CommandError
       end
     end
 
@@ -134,10 +132,6 @@ describe Pry::WrappedModule do
         Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
       end
     end
-
-    after do
-      Object.remove_const(:Host)
-    end
   end
 
   describe ".method_prefix" do
@@ -162,15 +156,15 @@ describe Pry::WrappedModule do
       Pry::WrappedModule.new(class << Foo; self; end).method_prefix.should == "Foo."
     end
 
-    describe "of singleton classes of objects" do
+    example "of singleton classes of objects" do
       Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should == "self."
     end
 
-    describe "of anonymous classes should not be empty" do
+    example "of anonymous classes should not be empty" do
       Pry::WrappedModule.new(Class.new).method_prefix.should =~ /#<Class:.*>#/
     end
 
-    describe "of singleton classes of anonymous classes should not be empty" do
+    example "of singleton classes of anonymous classes should not be empty" do
       Pry::WrappedModule.new(class << Class.new; self; end).method_prefix.should =~ /#<Class:.*>./
     end
   end
@@ -191,7 +185,7 @@ describe Pry::WrappedModule do
 
   describe ".singleton_instance" do
     it "should raise an exception when called on a non-singleton-class" do
-      lambda{ Pry::WrappedModule.new(Class).singleton_instance }.should.raise ArgumentError
+      expect { Pry::WrappedModule.new(Class).singleton_instance }.to raise_error ArgumentError
     end
 
     it "should return the attached object" do
@@ -256,21 +250,27 @@ describe Pry::WrappedModule do
   end
 
   describe ".from_str" do
+    before do
+      class Namespace
+        Value = Class.new
+      end
+    end
+
     it 'should lookup a constant' do
-      m = Pry::WrappedModule.from_str("Host::CandidateTest", binding)
-      m.wrapped.should == Host::CandidateTest
+      m = Pry::WrappedModule.from_str("Namespace::Value", binding)
+      m.wrapped.should == Namespace::Value
     end
 
     it 'should lookup a local' do
-      local = Host::CandidateTest
+      local = Namespace::Value
       m = Pry::WrappedModule.from_str("local", binding)
-      m.wrapped.should == Host::CandidateTest
+      m.wrapped.should == Namespace::Value
     end
 
     it 'should lookup an ivar' do
-      @ivar = Host::CandidateTest
+      @ivar = Namespace::Value
       m = Pry::WrappedModule.from_str("@ivar", binding)
-      m.wrapped.should == Host::CandidateTest
+      m.wrapped.should == Namespace::Value
     end
   end
 end

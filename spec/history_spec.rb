@@ -162,11 +162,11 @@ describe Pry do
       history = Pry::History.new(file_path: '~/test_history')
       error = Class.new(RuntimeError)
 
-      File.expects(:open).
+      expect(File).to receive(:open).
         with(File.join(ENV['HOME'].to_s, "/test_history"), 'a', 0600).
-        raises(error)
+        and_raise(error)
 
-      -> { history.push 'a line' }.should.raise(error)
+      expect { history.push 'a line' }.to raise_error error
     end
   end
 end
