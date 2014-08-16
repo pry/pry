@@ -82,6 +82,16 @@ class Pry
       end
       alias_method :line, :source_line
 
+       # code_object should have super method
+      def super
+        nil
+      end
+
+      # code_object should have wrapped method
+      def wrapped
+        nil
+      end
+
       def default_options(match)
         {
           :requires_gem      => [],

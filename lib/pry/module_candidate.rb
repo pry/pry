@@ -86,6 +86,11 @@ class Pry
         nil
       end
 
+      # code_object should have super method
+      def super
+        nil
+      end
+
       private
 
       # Locate the first line of the module definition.
