@@ -16,7 +16,6 @@ describe "edit" do
   end
 
   describe "with FILE" do
-
     before do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
@@ -394,6 +393,56 @@ describe "edit" do
 
     it "should not work with nonsense" do
       expect { pry_eval 'edit --in three' }.to raise_error(Pry::CommandError, /Not a valid range: three/)
+    end
+  end
+
+  describe 'when editing a method by name' do
+    def use_editor(tester, options)
+      initial_editor = tester.pry.editor
+      tester.pry.config.editor = lambda do |filename, line|
+        File.open(filename, 'w') { |f| f.write options.fetch(:replace_all) }
+        nil
+      end
+      tester
+    end
+
+    it 'uses patch editing on methods that were previously patched' do
+      # initial definition
+      tester   = pry_tester binding
+      filename = __FILE__
+      line     = __LINE__ + 2
+      klass    = Class.new do
+        def m; 1; end
+      end
+      klass.new.m.should == 1
+
+      # now patch it
+      use_editor(tester, replace_all: 'def m; 2; end').eval('edit --patch klass#m')
+      klass.new.m.should == 2
+
+      # edit by name, no --patch
+      use_editor(tester, replace_all: 'def m; 3; end').eval("edit klass#m")
+      klass.new.m.should == 3
+
+      # original file is unchanged
+      File.readlines(filename)[line-1].strip.should == 'def m; 1; end'
+    end
+
+    it 'can repeatedly edit methods that were defined in the console' do
+      # initial definition
+      tester = pry_tester binding
+      tester.eval("klass = Class.new do\n"\
+                  "  def m; 1; end\n"\
+                  "end")
+      tester.eval("klass.new.m").should == 1
+
+      # first edit
+      use_editor(tester, replace_all: 'def m; 2; end').eval('edit klass#m')
+      tester.eval('klass.new.m').should == 2
+
+      # repeat edit
+      use_editor(tester, replace_all: 'def m; 3; end').eval('edit klass#m')
+      tester.eval('klass.new.m').should == 3
     end
   end
 

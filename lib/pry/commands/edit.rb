@@ -46,7 +46,7 @@ class Pry
         # code defined in pry, eval'd within pry.
         repl_edit
       elsif runtime_patch?
-        # patch code without persisting changes
+        # patch code without persisting changes, implies future changes are patches
         apply_runtime_patch
       else
         # code stored in actual files, eval'd at top-level
@@ -72,7 +72,7 @@ class Pry
     end
 
     def runtime_patch?
-       !file_based_exception? && (opts.present?(:patch) || pry_method?(code_object))
+       !file_based_exception? && (opts.present?(:patch) || previously_patched?(code_object) || pry_method?(code_object))
     end
 
     def apply_runtime_patch
@@ -138,6 +138,10 @@ class Pry
     def pry_method?(code_object)
       code_object.is_a?(Pry::Method) &&
         code_object.pry_method?
+    end
+
+    def previously_patched?(code_object)
+      code_object.is_a?(Pry::Method) && Pry::Method::Patcher.code_for(code_object.source_location.first)
     end
 
     def patch_exception?
