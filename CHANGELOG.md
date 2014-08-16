@@ -1,3 +1,10 @@
+### 0.10.1
+
+* Fix bugs with jruby
+* Move to rspec for testing (from bacon)
+* Clean up ruby warnings
+
+
 ### 0.10.0
 
 #### Features
