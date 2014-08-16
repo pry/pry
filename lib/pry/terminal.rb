@@ -5,7 +5,7 @@ class Pry::Terminal
     # If the window size cannot be determined, return nil.
     def screen_size
       rows, cols = actual_screen_size
-      if rows && cols
+      if rows.to_i != 0 && cols.to_i != 0
         [rows.to_i, cols.to_i]
       else
         nil
