@@ -23,10 +23,10 @@ describe "reload_code" do
     end
 
     it 'raises an error when pry command not found' do
-      proc do
+      expect do
         pry_eval(
           "reload-code not-a-real-command")
-      end.should.raise(Pry::CommandError).message.should =~ /Cannot locate not-a-real-command!/
+      end.to raise_error(Pry::CommandError, /Cannot locate not-a-real-command!/)
     end
   end
 end
