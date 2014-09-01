@@ -1,15 +1,18 @@
-require_relative '../helper'
+require 'helper'
 
-describe "jump-to" do
-  it 'should jump to the proper binding index in the stack' do
-    pry_eval('cd 1', 'cd 2', 'jump-to 1', 'self').should == 1
+RSpec.describe "jump-to" do
+  let(:obj) { Object.new }
+
+  it 'jumps to the proper binding index in the stack' do
+    expect(pry_eval obj, "cd 1", "cd 2", "jump-to 0", 'self').to eq obj
+    expect(pry_eval obj, 'cd 1', 'cd 2', 'jump-to 1', 'self').to eq 1
   end
 
-  it 'should print error when trying to jump to a non-existent binding index' do
-    pry_eval("cd 1", "cd 2", "jump-to 100").should =~ /Invalid nest level/
+  it 'prints an error when trying to jump to the same binding index' do
+    expect(pry_eval obj,  "cd 1", "cd 2", "jump-to 2").to match /Already/
   end
 
-  it 'should print error when trying to jump to the same binding index' do
-    pry_eval("cd 1", "cd 2", "jump-to 2").should =~ /Already/
+  it 'prints error when trying to jump to a non-existent binding index' do
+    expect(pry_eval obj, "cd 1", "cd 2", "jump-to 3").to match /Invalid nest level/
   end
 end
