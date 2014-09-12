@@ -25,13 +25,13 @@ describe Pry do
       Pry.history << '3'
       Pry.history << '_ += 1'
       Pry.history << '_ += 1'
-      Pry.history.to_a.grep('_ += 1').count.should == 1
+      expect(Pry.history.to_a.grep('_ += 1').count).to eq(1)
     end
 
     it "does not record empty lines" do
       c = Pry.history.to_a.count
       Pry.history << ''
-      Pry.history.to_a.count.should == c
+      expect(Pry.history.to_a.count).to eq(c)
     end
   end
 
@@ -50,20 +50,20 @@ describe Pry do
     end
 
     it "clears this session's history" do
-      Pry.history.to_a.size.should > 0
+      expect(Pry.history.to_a.size).to be > 0
       Pry.history.clear
-      Pry.history.to_a.size.should == 0
+      expect(Pry.history.to_a.size).to eq(0)
     end
 
     it "doesn't affect the contents of the history file" do
-      Pry.history.to_a.size.should == 3
+      expect(Pry.history.to_a.size).to eq(3)
       Pry.history.clear
 
       File.open(@hist_file_path, 'r') { |fh|
         file = fh.to_a
 
-        file.length.should == 3
-        file.any? { |a| a =~ /athos/ }.should == true
+        expect(file.length).to eq(3)
+        expect(file.any? { |a| a =~ /athos/ }).to eq(true)
       }
     end
   end
@@ -77,7 +77,7 @@ describe Pry do
       end
       Pry.load_history
 
-      Pry.history.history_line_count.should == 5
+      expect(Pry.history.history_line_count).to eq(5)
     end
   end
 
@@ -85,29 +85,29 @@ describe Pry do
     it "restores loader" do
       Pry.history.loader = proc {}
       Pry.history.restore_default_behavior
-      Pry.history.loader.class.should == Method
-      Pry.history.loader.name.to_sym.should == :read_from_file
+      expect(Pry.history.loader.class).to eq(Method)
+      expect(Pry.history.loader.name.to_sym).to eq(:read_from_file)
     end
 
     it "restores saver" do
       Pry.history.saver = proc {}
       Pry.history.restore_default_behavior
-      Pry.history.saver.class.should == Method
-      Pry.history.saver.name.to_sym.should == :save_to_file
+      expect(Pry.history.saver.class).to eq(Method)
+      expect(Pry.history.saver.name.to_sym).to eq(:save_to_file)
     end
 
     it "restores pusher" do
       Pry.history.pusher = proc {}
       Pry.history.restore_default_behavior
-      Pry.history.pusher.class.should == Method
-      Pry.history.pusher.name.to_sym.should == :push_to_readline
+      expect(Pry.history.pusher.class).to eq(Method)
+      expect(Pry.history.pusher.name.to_sym).to eq(:push_to_readline)
     end
 
     it "restores clearer" do
       Pry.history.clearer = proc {}
       Pry.history.restore_default_behavior
-      Pry.history.clearer.class.should == Method
-      Pry.history.clearer.name.to_sym.should == :clear_readline
+      expect(Pry.history.clearer.class).to eq(Method)
+      expect(Pry.history.clearer.name.to_sym).to eq(:clear_readline)
     end
   end
 
@@ -115,13 +115,13 @@ describe Pry do
     it "returns the number of lines in history from just this session" do
       Pry.history << 'you?'
       Pry.history << 'you are so precious'
-      Pry.history.session_line_count.should == 2
+      expect(Pry.history.session_line_count).to eq(2)
     end
   end
 
   describe ".load_history" do
     it "reads the contents of the file" do
-      Pry.history.to_a[-2..-1].should == %w(2 3)
+      expect(Pry.history.to_a[-2..-1]).to eq(%w(2 3))
     end
   end
 
@@ -140,7 +140,7 @@ describe Pry do
 
     it "saves lines to a file as they are written" do
       @history.push "5"
-      File.read(@histfile.path).should == "5\n"
+      expect(File.read(@histfile.path)).to eq("5\n")
     end
 
     it "interleaves lines from many places" do
@@ -148,7 +148,7 @@ describe Pry do
       File.open(@histfile.path, 'a'){ |f| f.puts "6" }
       @history.push "7"
 
-      File.read(@histfile.path).should == "5\n6\n7\n"
+      expect(File.read(@histfile.path)).to eq("5\n6\n7\n")
     end
   end
 

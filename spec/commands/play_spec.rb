@@ -39,7 +39,7 @@ describe "play" do
   describe "playing a file" do
     it 'should play a file' do
       @t.process_command 'play spec/fixtures/whereami_helper.rb'
-      @t.eval_string.should == unindent(<<-STR)
+      expect(@t.eval_string).to eq unindent(<<-STR)
         class Cor
           def a; end
           def b; end
@@ -52,7 +52,7 @@ describe "play" do
 
     it 'should output file contents with print option' do
       @t.process_command 'play --print spec/fixtures/whereami_helper.rb'
-      @t.last_output.should == unindent(<<-STR)
+      expect(@t.last_output).to eq unindent(<<-STR)
         1: class Cor
         2:   def a; end
         3:   def b; end
@@ -78,7 +78,7 @@ describe "play" do
       end
 
       @t.process_command 'play -d test_method'
-      @t.eval_string.should == unindent(<<-STR)
+      expect(@t.eval_string).to eq unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -94,7 +94,7 @@ describe "play" do
       end
 
       @t.process_command 'play -d test_method --lines 2..3'
-      @t.eval_string.should == unindent(<<-STR)
+      expect(@t.eval_string).to eq unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -106,7 +106,7 @@ describe "play" do
 
     it 'should play a method (a single line)' do
       @t.process_command 'play test_method --lines 2'
-      @t.eval_string.should == ":test_method_content\n"
+      expect(@t.eval_string).to eq(":test_method_content\n")
     end
 
     it 'should properly reindent lines' do
@@ -115,7 +115,7 @@ describe "play" do
       end
 
       @t.process_command 'play test_method --lines 2'
-      @t.eval_string.should == "'hello world'\n"
+      expect(@t.eval_string).to eq("'hello world'\n")
     end
 
     it 'should APPEND to the input buffer when playing a method line, not replace it' do
@@ -125,7 +125,7 @@ describe "play" do
 
       @t.process_command 'play test_method --lines 2'
 
-      @t.eval_string.should == unindent(<<-STR)
+      expect(@t.eval_string).to eq unindent(<<-STR)
         def another_test_method
           :test_method_content
       STR
@@ -140,7 +140,7 @@ describe "play" do
       end
 
       @t.process_command 'play test_method --lines 3..4'
-      @t.eval_string.should == unindent(<<-STR, 0)
+      expect(@t.eval_string).to eq unindent(<<-STR, 0)
         @var1 = 20
         @var2 = 30
       STR
@@ -155,8 +155,8 @@ describe "play" do
           binding.pry
         end
 
-        [a, b, c].all? { |v| v.should == 2 }
-        d.should == 1
+        [a, b, c].all? { |v| expect(v).to eq(2) }
+        expect(d).to eq(1)
       end
     end
 
@@ -170,7 +170,7 @@ describe "play" do
         end
 
         @t.process_command 'play test_method -e 2'
-        @t.eval_string.should == unindent(<<-STR, 0)
+        expect(@t.eval_string).to eq unindent(<<-STR, 0)
           @s = [
             1,2,3,
             4,5,6

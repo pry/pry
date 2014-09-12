@@ -21,7 +21,7 @@ describe "Command::ShellCommand" do
         expect(Dir).to receive(:pwd).at_least(:once).and_return("initial_path") # called once in MRI, 2x in RBX
 
         @t.eval ".cd new_path"
-        @t.command_state.old_pwd.should == "initial_path"
+        expect(@t.command_state.old_pwd).to eq("initial_path")
       end
 
       describe "given a path" do

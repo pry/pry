@@ -29,8 +29,8 @@ describe "raise-up" do
       Pry.start(:outer)
     end
 
-    Pad.inner.should == :inner
-    Pad.outer.should == :outer
+    expect(Pad.inner).to eq(:inner)
+    expect(Pad.outer).to eq(:outer)
   end
 
   it "should raise the most recently raised exception" do
@@ -45,9 +45,9 @@ describe "raise-up" do
       expect { Pry.start(:outer) }.to raise_error NoMethodError
     end
 
-    Pad.deep.should  == :deep
-    Pad.inner.should == :inner
-    Pad.outer.should == :outer
+    expect(Pad.deep).to  eq(:deep)
+    expect(Pad.inner).to eq(:inner)
+    expect(Pad.outer).to eq(:outer)
   end
 
   it "should jump immediately out of nested contexts with !" do

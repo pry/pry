@@ -13,16 +13,16 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       it "should clear out passed string" do
         str = 'hello world'
         Pry::DEFAULT_CONTROL_D_HANDLER.call(str, nil)
-        str.should == ''
+        expect(str).to eq('')
       end
     end
 
     describe 'at top-level session' do
       it 'should break out of a REPL loop' do
         instance = Pry.new
-        instance.binding_stack.should_not be_empty
-        instance.eval(nil).should equal false
-        instance.binding_stack.should be_empty
+        expect(instance.binding_stack).not_to be_empty
+        expect(instance.eval(nil)).to equal false
+        expect(instance.binding_stack).to be_empty
       end
     end
 
@@ -30,9 +30,9 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       it 'should pop last binding from the binding stack' do
         t = pry_tester
         t.eval "cd Object.new"
-        t.eval("_pry_.binding_stack.size").should == 2
-        t.eval("_pry_.eval(nil)").should equal true
-        t.eval("_pry_.binding_stack.size").should == 1
+        expect(t.eval("_pry_.binding_stack.size")).to eq(2)
+        expect(t.eval("_pry_.eval(nil)")).to equal true
+        expect(t.eval("_pry_.binding_stack.size")).to eq(1)
       end
 
       it "breaks out of the parent session" do

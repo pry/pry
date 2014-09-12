@@ -17,7 +17,7 @@ describe Pry::Hooks do
           # irrelevant
         end
       end.parse_options(argv)
-      argv.include?('-v').should == false
+      expect(argv.include?('-v')).to eq(false)
     end
   end
 
@@ -31,7 +31,7 @@ describe Pry::Hooks do
         end
       end.parse_options(["--optiontest"])
 
-      run.should == true
+      expect(run).to eq(true)
     end
 
     it "should be able to add multiple options" do
@@ -48,8 +48,8 @@ describe Pry::Hooks do
         end
       end.parse_options(["--optiontest", "--optiontest2"])
 
-      run.should equal true
-      run2.should equal true
+      expect(run).to equal true
+      expect(run2).to equal true
     end
 
   end
@@ -64,7 +64,7 @@ describe Pry::Hooks do
         run = true if opts.present?(:optiontest)
       end.parse_options(["--optiontest"])
 
-      run.should == true
+      expect(run).to eq(true)
     end
 
     it "should be able to  process multiple options" do
@@ -80,8 +80,8 @@ describe Pry::Hooks do
         run2 = true if opts.present?(:optiontest2)
       end.parse_options(["--optiontest", "--optiontest2"])
 
-      run.should == true
-      run2.should == true
+      expect(run).to eq(true)
+      expect(run2).to eq(true)
     end
 
   end

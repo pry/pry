@@ -28,7 +28,7 @@ describe 'cd' do
 
   describe 'state' do
     it 'should not to be set up in fresh instance' do
-      @t.command_state.should equal nil
+      expect(@t.command_state).to equal nil
     end
   end
 
@@ -46,11 +46,11 @@ describe 'cd' do
       it 'should not toggle and should keep correct stacks' do
         expect { @t.eval 'cd %' }.to raise_error Pry::CommandError
 
-        @t.old_stack.should == []
+        expect(@t.old_stack).to eq([])
         @t.assert_binding_stack [@o]
 
         @t.eval 'cd -'
-        @t.old_stack.should == []
+        expect(@t.old_stack).to eq([])
         @t.assert_binding_stack [@o]
       end
     end
@@ -148,42 +148,42 @@ describe 'cd' do
 
   it 'should cd into simple input' do
     @t.eval 'cd :mon_ouie'
-    @t.eval('self').should == :mon_ouie
+    expect(@t.eval('self')).to eq(:mon_ouie)
   end
 
   it 'should break out of session with cd ..' do
     @t.eval 'cd :outer', 'cd :inner'
-    @t.eval('self').should == :inner
+    expect(@t.eval('self')).to eq(:inner)
 
     @t.eval 'cd ..'
-    @t.eval('self').should == :outer
+    expect(@t.eval('self')).to eq(:outer)
   end
 
   it "should not leave the REPL session when given 'cd ..'" do
     @t.eval 'cd ..'
-    @t.eval('self').should == @o
+    expect(@t.eval('self')).to eq(@o)
   end
 
   it 'should break out to outer-most session with cd /' do
     @t.eval 'cd :inner'
-    @t.eval('self').should == :inner
+    expect(@t.eval('self')).to eq(:inner)
 
     @t.eval 'cd 5'
-    @t.eval('self').should == 5
+    expect(@t.eval('self')).to eq(5)
 
     @t.eval 'cd /'
-    @t.eval('self').should == @o
+    expect(@t.eval('self')).to eq(@o)
   end
 
   it 'should break out to outer-most session with just cd (no args)' do
     @t.eval 'cd :inner'
-    @t.eval('self').should == :inner
+    expect(@t.eval('self')).to eq(:inner)
 
     @t.eval 'cd 5'
-    @t.eval('self').should == 5
+    expect(@t.eval('self')).to eq(5)
 
     @t.eval 'cd'
-    @t.eval('self').should == @o
+    expect(@t.eval('self')).to eq(@o)
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar syntax' do
@@ -218,7 +218,7 @@ describe 'cd' do
 
   it 'should start a session on TOPLEVEL_BINDING with cd ::' do
     @t.eval 'cd ::'
-    @t.eval('self').should == TOPLEVEL_BINDING.eval('self')
+    expect(@t.eval('self')).to eq(TOPLEVEL_BINDING.eval('self'))
   end
 
   it 'should cd into complex input (with spaces)' do
@@ -227,7 +227,7 @@ describe 'cd' do
     end
 
     @t.eval 'cd hello 1, 2, 3'
-    @t.eval('self').should == :mon_ouie
+    expect(@t.eval('self')).to eq(:mon_ouie)
   end
 
   it 'should not cd into complex input when it encounters an exception' do
@@ -238,12 +238,12 @@ describe 'cd' do
 
   it 'can cd into an expression containing a string with slashes in it' do
     @t.eval 'cd ["http://google.com"]'
-    @t.eval('self').should == ["http://google.com"]
+    expect(@t.eval('self')).to eq(["http://google.com"])
   end
 
   it 'can cd into an expression with division in it' do
     @t.eval 'cd (10/2)/even?'
-    @t.eval('self').should == false
+    expect(@t.eval('self')).to eq(false)
   end
 
   # Regression test for ticket #516.

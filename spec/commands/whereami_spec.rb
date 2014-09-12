@@ -12,7 +12,7 @@ describe "whereami" do
     Cor.new.blimey!
 
     # using [.] so the regex doesn't match itself
-    pry_eval(Pad.binding, 'whereami').should =~ /self[.]blimey!/
+    expect(pry_eval(Pad.binding, 'whereami')).to match(/self[.]blimey!/)
 
     Object.remove_const(:Cor)
   end
@@ -48,7 +48,7 @@ describe "whereami" do
       end
     end.new.blimey!
 
-    pry_eval(cor, 'whereami').should =~ /::Kernel.binding [#] omnom/
+    expect(pry_eval(cor, 'whereami')).to match(/::Kernel.binding [#] omnom/)
   end
 
   it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
@@ -60,8 +60,8 @@ describe "whereami" do
       end
     end
 
-    Cor.instance_method(:blimey!).source.should =~ /pry_eval/
-    Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+    expect(Cor.instance_method(:blimey!).source).to match(/pry_eval/)
+    expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
     Object.remove_const(:Cor)
   end
 
@@ -76,7 +76,7 @@ describe "whereami" do
 
       expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
 
-      Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+      expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
       Object.remove_const(:Cor)
     end
 
@@ -212,24 +212,25 @@ describe "whereami" do
     :punk
     :sanders
 
-    out.should_not =~ /:litella/
-    out.should =~ /:pig/
-    out.should =~ /:punk/
-    out.should_not =~ /:sanders/
+    expect(out).not_to match(/:litella/)
+    expect(out).to match(/:pig/)
+    expect(out).to match(/:punk/)
+    expect(out).not_to match(/:sanders/)
 
     Pry.config.default_window_size = old_size
   end
 
   it "should work at the top level" do
-    pry_eval(Pry.toplevel_binding, 'whereami').should =~
+    expect(pry_eval(Pry.toplevel_binding, 'whereami')).to match(
       /At the top level/
+    )
   end
 
   it "should work inside a class" do
-    pry_eval(Pry, 'whereami').should =~ /Inside Pry/
+    expect(pry_eval(Pry, 'whereami')).to match(/Inside Pry/)
   end
 
   it "should work inside an object" do
-    pry_eval(Object.new, 'whereami').should =~ /Inside #<Object/
+    expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
 end

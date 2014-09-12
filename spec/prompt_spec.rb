@@ -7,7 +7,7 @@ describe "Prompts" do
       redirect_pry_io(InputTester.new("exit-all")) do
         Pry.start(self, :prompt => proc { |v| config = v })
       end
-      config.is_a?(Pry::Config).should == true
+      expect(config.is_a?(Pry::Config)).to eq(true)
     end
 
     it 'should get full config object, when using a proc array' do
@@ -15,7 +15,7 @@ describe "Prompts" do
       redirect_pry_io(InputTester.new("exit-all")) do
         Pry.start(self, :prompt => [proc { |v| config1 = v }, proc { |v| config2 = v }])
       end
-      config1.is_a?(Pry::Config).should == true
+      expect(config1.is_a?(Pry::Config)).to eq(true)
     end
 
     it 'should receive correct data in the config object' do
@@ -24,11 +24,11 @@ describe "Prompts" do
         Pry.start(self, :prompt => proc { |v| config = v })
       end
 
-      config.eval_string.should =~ /def hello/
-      config.nesting_level.should == 0
-      config.expr_number.should == 1
-      config.cont.should == true
-      config._pry_.is_a?(Pry).should == true
+      expect(config.eval_string).to match(/def hello/)
+      expect(config.nesting_level).to eq(0)
+      expect(config.expr_number).to eq(1)
+      expect(config.cont).to eq(true)
+      expect(config._pry_.is_a?(Pry)).to eq(true)
       expect(config.object).to eq self
     end
   end
@@ -40,9 +40,9 @@ describe "Prompts" do
         Pry.start(:test, :prompt => proc { |obj, nesting, _pry_|
                     o, n, p = obj, nesting, _pry_ })
       end
-      o.should == :test
-      n.should == 0
-      p.is_a?(Pry).should == true
+      expect(o).to eq(:test)
+      expect(n).to eq(0)
+      expect(p.is_a?(Pry)).to eq(true)
     end
 
     it 'should get 3 parameters, when using proc array' do
@@ -53,9 +53,9 @@ describe "Prompts" do
                                      proc { |obj, nesting, _pry_|
                                        o2, n2, p2 = obj, nesting, _pry_ }])
       end
-      o1.should == :test
-      n1.should == 0
-      p1.is_a?(Pry).should == true
+      expect(o1).to eq(:test)
+      expect(n1).to eq(0)
+      expect(p1.is_a?(Pry)).to eq(true)
     end
   end
 end
