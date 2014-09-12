@@ -335,6 +335,11 @@ class Pry
     end
     undef =~
 
+    # Check if the output of `#to_s` responds to missing methods.
+    def respond_to_missing?(name, include_all = false)
+      to_s.respond_to?(name, include_all)
+    end
+
     protected
 
     # An abstraction of the `dup.instance_eval` pattern used throughout this
