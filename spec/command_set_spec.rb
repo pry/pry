@@ -55,13 +55,13 @@ describe Pry::CommandSet do
   end
 
   it 'should use the first argument as context' do
-    ctx = @ctx
+    inside = inner_scope do |probe|
+      @set.command('foo', &probe)
 
-    @set.command 'foo' do
-      self.context.should == ctx
+      @set.run_command @ctx, 'foo'
     end
 
-    @set.run_command @ctx, 'foo'
+    expect(inside.context).to eq(@ctx)
   end
 
   it 'should raise an error when calling an undefined command' do
@@ -620,27 +620,31 @@ describe Pry::CommandSet do
         :output => StringIO.new,
         :target => binding
       }
-      @set.create_command('agnes') do
-        define_method(:process) do
-          eval_string.should == ctx[:eval_string]
-          output.should == ctx[:output]
-          target.should == ctx[:target]
-          _pry_.should == ctx[:pry_instance]
+
+      inside = inner_scope do |probe|
+        @set.create_command('agnes') do
+          define_method(:process, &probe)
         end
+
+        @set.process_line('agnes', ctx)
       end
 
-      @set.process_line('agnes', ctx)
+      expect(inside.eval_string).to eq(ctx[:eval_string])
+      expect(inside.output).to eq(ctx[:output])
+      expect(inside.target).to eq(ctx[:target])
+      expect(inside._pry_).to eq(ctx[:pry_instance])
     end
 
     it 'should add command_set to context' do
-      set = @set
-      @set.create_command(/nann+y ogg+/) do
-        define_method(:process) do
-          command_set.should == set
+      inside = inner_scope do |probe|
+        @set.create_command(/nann+y ogg+/) do
+          define_method(:process, &probe)
         end
+
+        @set.process_line('nannnnnny oggggg')
       end
 
-      @set.process_line('nannnnnny oggggg')
+      expect(inside.command_set).to eq(@set)
     end
   end
 
