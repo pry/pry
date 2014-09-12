@@ -137,31 +137,47 @@ describe "Pry::Command" do
   end
 
   describe 'context' do
-    context = {
-      :target => binding,
-      :output => StringIO.new,
-      :eval_string => "eval-string",
-      :command_set => @set,
-      :pry_instance => Pry.new
+    let(:context) {
+      {
+        :target => binding,
+        :output => StringIO.new,
+        :eval_string => "eval-string",
+        :command_set => @set,
+        :pry_instance => Pry.new
+      }
     }
 
-    it 'should capture lots of stuff from the hash passed to new before setup' do
-      cmd = @set.create_command 'fenchurch', "Floats slightly off the ground" do
-        define_method(:setup) do
-          self.context.should == context
-          target.should == context[:target]
-          target_self.should == context[:target].eval('self')
-          output.should == context[:output]
+    describe '#setup' do
+      it 'should capture lots of stuff from the hash passed to new before setup' do
+        inside = inner_scope do |probe|
+          cmd = @set.create_command('fenchurch', "Floats slightly off the ground") do
+            define_method(:setup, &probe)
+          end
+
+          cmd.new(context).call
         end
 
-        define_method(:process) do
-          eval_string.should == "eval-string"
-          command_set.should == @set
-          _pry_.should == context[:pry_instance]
-        end
+        expect(inside.context).to eq(context)
+        expect(inside.target).to eq(context[:target])
+        expect(inside.target_self).to eq(context[:target].eval('self'))
+        expect(inside.output).to eq(context[:output])
       end
+    end
 
-      cmd.new(context).call
+    describe '#process' do
+      it 'should capture lots of stuff from the hash passed to new before setup' do
+        inside = inner_scope do |probe|
+          cmd = @set.create_command('fenchurch', "Floats slightly off the ground") do
+            define_method(:process, &probe)
+          end
+
+          cmd.new(context).call
+        end
+
+        expect(inside.eval_string).to eq("eval-string")
+        expect(inside.__send__(:command_set)).to eq(@set)
+        expect(inside._pry_).to eq(context[:pry_instance])
+      end
     end
   end
 
@@ -385,14 +401,14 @@ describe "Pry::Command" do
     end
 
     it "should set the commands' arg_string and captures" do
+      inside = inner_scope { |probe|
+        cmd = @set.command(/benj(ie|ei)/, &probe)
 
-      cmd = @set.command /benj(ie|ei)/ do |*args|
-        self.arg_string.should == "mouse"
-        self.captures.should == ['ie']
-        args.should == ['ie', 'mouse']
-      end
+        cmd.new.process_line %(benjie mouse)
+      }
 
-      cmd.new.process_line %(benjie mouse)
+      expect(inside.arg_string).to eq("mouse")
+      expect(inside.captures).to eq(['ie'])
     end
 
     it "should raise an error if the line doesn't match the command" do

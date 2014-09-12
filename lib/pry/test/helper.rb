@@ -73,6 +73,12 @@ module PryTestHelpers
       e.define_singleton_method(:backtrace) { mock_backtrace }
     end
   end
+
+  def inner_scope
+    catch(:inner_scope) do
+      yield ->{ throw(:inner_scope, self) }
+    end
+  end
 end
 
 def pry_tester(*args, &block)
