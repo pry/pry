@@ -371,7 +371,7 @@ describe "test Pry defaults" do
     end
 
     it 'should have self the same as TOPLEVEL_BINDING' do
-      expect(Pry.toplevel_binding.eval('self')).to.equal? TOPLEVEL_BINDING.eval('self')
+      expect(Pry.toplevel_binding.eval('self')).to eq(TOPLEVEL_BINDING.eval('self'))
     end
 
     # https://github.com/rubinius/rubinius/issues/1779

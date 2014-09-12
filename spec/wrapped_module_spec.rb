@@ -190,7 +190,7 @@ describe Pry::WrappedModule do
 
     it "should return the attached object" do
       expect(Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance).to eq("hi")
-      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance).to.equal?(Object)
+      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance).to eq(Object)
     end
   end
 

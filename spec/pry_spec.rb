@@ -63,7 +63,7 @@ describe Pry do
 
     it "should work on frozen objects" do
       a = "hello".freeze
-      expect(Pry.binding_for(a).eval("self")).to.equal? a
+      expect(Pry.binding_for(a).eval("self")).to eq(a)
     end
   end
 

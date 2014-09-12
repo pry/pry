@@ -99,6 +99,6 @@ asfadsssaaad    fasfaafdssd     s
   end
 
   specify 'decide between one-line or indented output' do
-    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == "head: ing\n"
+    expect(Pry::Helpers.tablify_or_one_line('head', %w(ing))).to eq("head: ing\n")
   end
 end
