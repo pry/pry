@@ -43,11 +43,6 @@ describe Pry::Editor do
       end
     end
 
-    it "should replace / by \\" do
-      invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
-      invocation_str.should =~ %r(\\#{@tf_dir.basename}\\)
-    end
-
     it "should not shell-escape files" do
       invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
       invocation_str.should =~ /hello world\.rb/
