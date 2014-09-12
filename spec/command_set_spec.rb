@@ -48,11 +48,10 @@ describe Pry::CommandSet do
   end
 
   it 'should pass arguments of the command to the block' do
-    @set.command 'foo' do |*args|
-      args.should == [1, 2, 3]
-    end
-
-    @set.run_command @ctx, 'foo', 1, 2, 3
+    expect { |probe|
+      @set.command('foo', &probe)
+      @set.run_command(@ctx, 'foo', 1, 2, 3)
+    }.to yield_with_args(1, 2, 3)
   end
 
   it 'should use the first argument as context' do

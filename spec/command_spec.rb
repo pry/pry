@@ -301,53 +301,52 @@ describe "Pry::Command" do
 
   describe 'tokenize' do
     it 'should interpolate string with #{} in them' do
-      cmd = @set.command 'random-dent' do |*args|
-        args.should == ["3", "8"]
-      end
+      expect { |probe|
+        cmd = @set.command('random-dent', &probe)
 
-      foo = 5
-
-      cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + foo}'
+        foo = 5
+        cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + foo}'
+      }.to yield_with_args('3', '8')
     end
 
     it 'should not fail if interpolation is not needed and target is not set' do
-      cmd = @set.command 'the-book' do |*args|
-        args.should == ['--help']
-      end
+      expect { |probe|
+        cmd = @set.command('the-book', &probe)
 
-      cmd.new.process_line 'the-book --help'
+        cmd.new.process_line 'the-book --help'
+      }.to yield_with_args('--help')
     end
 
     it 'should not interpolate commands with :interpolate => false' do
-      cmd = @set.command 'thor', 'norse god', :interpolate => false do |*args|
-        args.should == ['%(#{foo})']
-      end
+      expect { |probe|
+        cmd = @set.command('thor', 'norse god', :interpolate => false, &probe)
 
-      cmd.new.process_line 'thor %(#{foo})'
+        cmd.new.process_line 'thor %(#{foo})'
+      }.to yield_with_args('%(#{foo})')
     end
 
     it 'should use shell-words to split strings' do
-      cmd = @set.command 'eccentrica' do |*args|
-        args.should == ['gallumbits', 'eroticon', '6']
-      end
+      expect { |probe|
+        cmd = @set.command('eccentrica', &probe)
 
-      cmd.new.process_line %(eccentrica "gallumbits" 'erot''icon' 6)
+        cmd.new.process_line %(eccentrica "gallumbits" 'erot''icon' 6)
+      }.to yield_with_args('gallumbits', 'eroticon', '6')
     end
 
     it 'should split on spaces if shellwords is not used' do
-      cmd = @set.command 'bugblatter-beast', 'would eat its grandmother', :shellwords => false do |*args|
-        args.should == ['"of', 'traal"']
-      end
+      expect { |probe|
+        cmd = @set.command('bugblatter-beast', 'would eat its grandmother', :shellwords => false, &probe)
 
-      cmd.new.process_line %(bugblatter-beast "of traal")
+        cmd.new.process_line %(bugblatter-beast "of traal")
+      }.to yield_with_args('"of', 'traal"')
     end
 
     it 'should add captures to arguments for regex commands' do
-      cmd = @set.command /perfectly (normal)( beast)?/i do |*args|
-        args.should == ['Normal', ' Beast', '(honest!)']
-      end
+      expect { |probe|
+        cmd = @set.command(/perfectly (normal)( beast)?/i, &probe)
 
-      cmd.new.process_line %(Perfectly Normal Beast (honest!))
+        cmd.new.process_line %(Perfectly Normal Beast (honest!))
+      }.to yield_with_args('Normal', ' Beast', '(honest!)')
     end
   end
 
