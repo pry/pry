@@ -18,7 +18,11 @@ class Pry
       %w(.rhtml)     => :rhtml,
       %w(.yaml .yml) => :yaml,
       %w(.cpp .hpp .cc .h cxx) => :cpp,
-      %w(.rb .ru .irbrc .gemspec .pryrc) => :ruby,
+      %w(.rb .ru .irbrc .gemspec .pryrc .rake) => :ruby,
+    }
+
+    FILES = {
+      %w(Gemfile Rakefile Guardfile Capfile) => :ruby
     }
 
     # @return [Symbol] The type of code stored in this wrapper.
@@ -79,6 +83,8 @@ class Pry
     def type_from_filename(filename, default = :unknown)
       _, @code_type = EXTENSIONS.find do |k, _|
         k.any? { |ext| ext == File.extname(filename) }
+      end || FILES.find do |k, _|
+        k.any? { |file_name| file_name == File.basename(filename) }
       end
 
       code_type || default
