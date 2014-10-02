@@ -57,7 +57,8 @@ class Pry
       # @param [String] name
       # @return [void]
       def install(name)
-        gemrc_opts = Gem.configuration['gem'].split(' ')
+        gem_config = Gem.configuration['gem']
+        gemrc_opts = (gem_config.nil? ? "" : gem_config.split(' '))
         destination = if gemrc_opts.include?('--user-install')
                         Gem.user_dir
                       elsif File.writable?(Gem.dir)
