@@ -19,7 +19,7 @@ module Pry::Command::Ls::JRubyHacks
       m.name.sub(/\A(is|get|set)(?=[A-Z_])/, '').gsub(/[_?=]/, '').downcase
     end
 
-    grouped.map do |key, values|
+    grouped.flat_map do |key, values|
       values = values.sort_by do |m|
         rubbishness(m.name)
       end
@@ -28,7 +28,7 @@ module Pry::Command::Ls::JRubyHacks
       values.select do |x|
         (!found.any? { |y| x == y }) && found << x
       end
-    end.flatten(1)
+    end
   end
 
   # When removing jruby aliases, we want to keep the alias that is

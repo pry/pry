@@ -330,13 +330,13 @@ class Pry
 
       return methods unless methods.empty?
 
-      safe_send(mod, :constants).map do |const_name|
+      safe_send(mod, :constants).flat_map do |const_name|
         if const = nested_module?(mod, const_name)
           all_relevant_methods_for(const)
         else
           []
         end
-      end.flatten
+      end
     end
 
     # Return all methods (instance methods and class methods) for a
