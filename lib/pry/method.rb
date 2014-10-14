@@ -140,11 +140,11 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super=true)
-        %w(public protected private).map do |visibility|
+        %w(public protected private).flat_map do |visibility|
           safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
             new(safe_send(klass, :instance_method, method_name), :visibility => visibility.to_sym)
           end
-        end.flatten(1)
+        end
       end
 
       #
@@ -212,9 +212,9 @@ class Pry
       # the lowest copy will be returned.
       def singleton_class_resolution_order(klass)
         ancestors = Pry::Method.safe_send(klass, :ancestors)
-        resolution_order = ancestors.grep(Class).map do |anc|
+        resolution_order = ancestors.grep(Class).flat_map do |anc|
           [singleton_class_of(anc), *singleton_class_of(anc).included_modules]
-        end.flatten(1)
+        end
 
         resolution_order.reverse.uniq.reverse - Class.included_modules
       end

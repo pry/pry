@@ -603,9 +603,9 @@ class Pry
     # @param [String] search  The line typed so far
     # @return [Array<String>]  the words to complete
     def complete(search)
-      slop.map do |opt|
+      slop.flat_map do |opt|
         [opt.long && "--#{opt.long} " || opt.short && "-#{opt.short}"]
-      end.flatten(1).compact + super
+      end.compact + super
     end
 
     # A method called just before `options(opt)` as part of `call`.
