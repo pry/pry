@@ -16,7 +16,7 @@ class Pry
 
     def process(gem)
       Dir.chdir(Rubygem.spec(gem).full_gem_path) do
-        Pry::Editor.invoke_editor(".", 0, false)
+        Pry::Editor.new(_pry_).invoke_editor(".", 0, false)
       end
     end
 
