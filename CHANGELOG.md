@@ -1,3 +1,7 @@
+### HEAD
+
+* Add 'gem-readme' command, prints the README file bundled with a rubygem
+
 ### 0.10.1
 
 * Fix bugs with jruby
