@@ -1,7 +1,7 @@
 class Pry::Command::GemReadme < Pry::ClassCommand
   match 'gem-readme'
   description 'Show the readme bundled with a rubygem'
-  group 'gems'
+  group 'Gems'
   command_options argument_required: true
   banner <<-BANNER
     gem-readme gem
