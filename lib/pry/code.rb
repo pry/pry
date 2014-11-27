@@ -91,6 +91,8 @@ class Pry
       @lines = lines.each_with_index.map { |line, lineno|
         LOC.new(line, lineno + start_line.to_i) }
       @code_type = code_type
+
+      @with_marker = @with_indentation = nil
     end
 
     # Append the given line. +lineno+ is one more than the last existing
