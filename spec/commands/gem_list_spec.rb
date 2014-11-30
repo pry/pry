@@ -7,17 +7,17 @@ describe "gem-list" do
 
   it 'should work arglessly' do
     list = pry_eval('gem-list')
-    list.should =~ /slop \(/
-    list.should =~ /rspec \(/
+    expect(list).to match(/slop \(/)
+    expect(list).to match(/rspec \(/)
   end
 
   it 'should find arg' do
     prylist = pry_eval('gem-list slop')
-    prylist.should =~ /slop \(/
-    prylist.should_not =~ /rspec/
+    expect(prylist).to match(/slop \(/)
+    expect(prylist).not_to match(/rspec/)
   end
 
   it 'should return non-results as silence' do
-    pry_eval('gem-list aoeuoueouaou').should be_empty
+    expect(pry_eval('gem-list aoeuoueouaou')).to be_empty
   end
 end

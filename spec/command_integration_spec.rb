@@ -41,7 +41,7 @@ describe "commands" do
       end
 
       pry_tester(:commands => set).tap do |t|
-        t.eval('test-command').should == t.eval('test-alias')
+        expect(t.eval('test-command')).to eq(t.eval('test-alias'))
       end
     end
 
@@ -56,7 +56,7 @@ describe "commands" do
       t = pry_tester(:commands => set)
 
       t.process_command "test-alias hello baby duck"
-      t.last_output.should =~ /testing hello baby duck/
+      expect(t.last_output).to match(/testing hello baby duck/)
     end
 
     it 'should pass option arguments to original' do
@@ -69,7 +69,7 @@ describe "commands" do
       t = pry_tester(obj, :commands => set)
 
       t.process_command "test-alias -i"
-      t.last_output.should =~ /@x/
+      expect(t.last_output).to match(/@x/)
     end
 
     it 'should pass option arguments to original with additional parameters' do
@@ -81,7 +81,7 @@ describe "commands" do
       obj = Class.new { @x = Class.new { define_method(:plymouth) {} } }
       t = pry_tester(obj, :commands => set)
       t.process_command "test-alias @x"
-      t.last_output.should =~ /plymouth/
+      expect(t.last_output).to match(/plymouth/)
     end
 
     it 'should be able to alias a regex command' do
@@ -94,7 +94,7 @@ describe "commands" do
 
       t = pry_tester(:commands => set)
       t.process_command "test-alias"
-      t.last_output.should =~ /ducky/
+      expect(t.last_output).to match(/ducky/)
     end
 
     it 'should be able to make the alias a regex' do
@@ -109,7 +109,7 @@ describe "commands" do
         Pry.start self, :commands => set
       end
 
-      out1.string.should =~ /ducky/
+      expect(out1.string).to match(/ducky/)
     end
   end
 
@@ -127,9 +127,9 @@ describe "commands" do
         Pry.start(@o, :commands => set)
       end
 
-      Pad.bs1.size.should == 7
-      Pad.self.should == @o
-      Pad.bs2.size.should == 1
+      expect(Pad.bs1.size).to eq(7)
+      expect(Pad.self).to eq(@o)
+      expect(Pad.bs2.size).to eq(1)
     end
 
     it 'should allow running of cd command when contained in a single string' do
@@ -144,9 +144,9 @@ describe "commands" do
         Pry.start(@o, :commands => set)
       end
 
-      Pad.bs1.size.should == 7
-      Pad.self.should == @o
-      Pad.bs2.size.should == 1
+      expect(Pad.bs1.size).to eq(7)
+      expect(Pad.self).to eq(@o)
+      expect(Pad.bs2.size).to eq(1)
     end
 
     it 'should allow running of cd command when split into array' do
@@ -161,9 +161,9 @@ describe "commands" do
         Pry.start(@o, :commands => set)
       end
 
-      Pad.bs1.size.should == 7
-      Pad.self.should == @o
-      Pad.bs2.size.should == 1
+      expect(Pad.bs1.size).to eq(7)
+      expect(Pad.self).to eq(@o)
+      expect(Pad.bs2.size).to eq(1)
     end
 
     it 'should run a command from within a command' do
@@ -177,7 +177,7 @@ describe "commands" do
         end
       end
 
-      pry_tester(:commands => klass).eval('run_v').should =~ /v command/
+      expect(pry_tester(:commands => klass).eval('run_v')).to match(/v command/)
     end
 
     it 'should run a regex command from within a command' do
@@ -191,7 +191,7 @@ describe "commands" do
         end
       end
 
-      pry_tester(:commands => klass).eval('run_v').should =~ /v baby/
+      expect(pry_tester(:commands => klass).eval('run_v')).to match(/v baby/)
     end
 
     it 'should run a command from within a command with arguments' do
@@ -210,7 +210,7 @@ describe "commands" do
       end
 
       ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
-        pry_tester(:commands => klass).eval(cmd).should =~ /v baby param/
+        expect(pry_tester(:commands => klass).eval(cmd)).to match(/v baby param/)
       end
     end
   end
@@ -220,14 +220,14 @@ describe "commands" do
       p = Pry.new(:output => @str_output)
       p.eval "def hello\npeter pan\n"
       p.run_command "amend-line !"
-      p.eval_string.should =~ /def hello/
-      p.eval_string.should_not =~ /peter pan/
+      expect(p.eval_string).to match(/def hello/)
+      expect(p.eval_string).not_to match(/peter pan/)
     end
 
     it 'should run a command in the context of a session' do
       pry_tester(Object.new).tap do |t|
         t.eval "@session_ivar = 10", "_pry_.run_command('ls')"
-        t.last_output.should =~ /@session_ivar/
+        expect(t.last_output).to match(/@session_ivar/)
       end
     end
   end
@@ -239,7 +239,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello #{Pad.bong}').should =~ /bong/
+    expect(pry_tester(:commands => set).eval('hello #{Pad.bong}')).to match(/bong/)
   end
 
   # bug fix for https://github.com/pry/pry/issues/170
@@ -248,7 +248,7 @@ describe "commands" do
       pry
     end
 
-    @str_output.string.should_not =~ /SyntaxError/
+    expect(@str_output.string).not_to match(/SyntaxError/)
   end
 
   it 'should NOT interpolate ruby code into commands if :interpolate => false' do
@@ -258,8 +258,8 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello #{Pad.bong}').
-      should =~ /Pad\.bong/
+    expect(pry_tester(:commands => set).eval('hello #{Pad.bong}')).
+      to match(/Pad\.bong/)
   end
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
@@ -267,7 +267,7 @@ describe "commands" do
     expect { pry_eval 'raise \'#{aggy}\'' }.to raise_error RuntimeError
     expect { pry_eval 'raise #{aggy}'     }.to raise_error RuntimeError
 
-    pry_eval('format \'#{my_var}\'').should == "\#{my_var}"
+    expect(pry_eval('format \'#{my_var}\'')).to eq("\#{my_var}")
   end
 
   it 'should create a command with a space in its name zzz' do
@@ -277,8 +277,8 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello baby').
-      should =~ /hello baby command/
+    expect(pry_tester(:commands => set).eval('hello baby')).
+      to match(/hello baby command/)
   end
 
   it 'should create a command with a space in its name and pass an argument' do
@@ -288,8 +288,8 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello baby john').
-      should =~ /hello baby command john/
+    expect(pry_tester(:commands => set).eval('hello baby john')).
+      to match(/hello baby command john/)
   end
 
   it 'should create a regex command and be able to invoke it' do
@@ -300,7 +300,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello1').should =~ /hello1/
+    expect(pry_tester(:commands => set).eval('hello1')).to match(/hello1/)
   end
 
   it 'should create a regex command and pass captures into the args list before regular arguments' do
@@ -310,7 +310,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello1 baby').should =~ /hello 1 baby/
+    expect(pry_tester(:commands => set).eval('hello1 baby')).to match(/hello 1 baby/)
   end
 
   it 'should create a regex command and interpolate the captures' do
@@ -321,8 +321,8 @@ describe "commands" do
     end
 
     bong = "bong"
-    pry_tester(binding, :commands => set).eval('hello #{bong}').
-      should =~ /hello bong/
+    expect(pry_tester(binding, :commands => set).eval('hello #{bong}')).
+      to match(/hello bong/)
   end
 
   it 'should create a regex command and arg_string should be interpolated' do
@@ -336,9 +336,9 @@ describe "commands" do
     bong = 'bong'
     bang = 'bang'
 
-    pry_tester(binding, :commands => set).
-      eval('hellojohn #{bing} #{bong} #{bang}').
-      should =~ /hello john bing bong bang/
+    expect(pry_tester(binding, :commands => set).
+      eval('hellojohn #{bing} #{bong} #{bang}')).
+      to match(/hello john bing bong bang/)
   end
 
   it 'if a regex capture is missing it should be nil' do
@@ -348,11 +348,11 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => set).eval('hello baby').should =~ /hello nil baby/
+    expect(pry_tester(:commands => set).eval('hello baby')).to match(/hello nil baby/)
   end
 
   it 'should create a command in a nested context and that command should be accessible from the parent' do
-    pry_tester(Object.new).eval(*(<<-RUBY.split("\n"))).should =~ /instance variables:\s+@x/m
+    expect(pry_tester(Object.new).eval(*(<<-RUBY.split("\n")))).to match(/instance variables:\s+@x/m)
       @x = nil
       cd 7
       _pry_.commands.instance_eval { command('bing') { |arg| run arg } }
@@ -370,7 +370,7 @@ describe "commands" do
 
     t = pry_tester(:commands => klass)
     t.eval("hello\n")
-    t.last_command_result.should == :kept_hello
+    expect(t.last_command_result).to eq(:kept_hello)
   end
 
   it 'should define a command that does NOT keep its return value' do
@@ -381,8 +381,8 @@ describe "commands" do
     end
 
     t = pry_tester(:commands => klass)
-    t.eval("hello\n").should == ''
-    t.last_command_result.should == Pry::Command::VOID_VALUE
+    expect(t.eval("hello\n")).to eq('')
+    expect(t.last_command_result).to eq(Pry::Command::VOID_VALUE)
   end
 
   it 'should define a command that keeps its return value even when nil' do
@@ -394,7 +394,7 @@ describe "commands" do
 
     t = pry_tester(:commands => klass)
     t.eval("hello\n")
-    t.last_command_result.should == nil
+    expect(t.last_command_result).to eq(nil)
   end
 
   it 'should define a command that keeps its return value but does not return when value is void' do
@@ -404,7 +404,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => klass).eval("hello\n").empty?.should == true
+    expect(pry_tester(:commands => klass).eval("hello\n").empty?).to eq(true)
   end
 
   it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
@@ -420,7 +420,7 @@ describe "commands" do
       Pry.start self, :commands => klass
     end
 
-    output.string.should =~ /6/
+    expect(output.string).to match(/6/)
   end
 
   it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
@@ -431,7 +431,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => klass).eval("def yo\nhello\n").should == 7
+    expect(pry_tester(:commands => klass).eval("def yo\nhello\n")).to eq(7)
   end
 
   it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
@@ -441,7 +441,7 @@ describe "commands" do
       end
     end
 
-    pry_tester(:commands => klass).eval("def yo\nhello\n").should == 5
+    expect(pry_tester(:commands => klass).eval("def yo\nhello\n")).to eq(5)
   end
 
   it 'should set the commands default, and the default should be overridable' do
@@ -458,8 +458,8 @@ describe "commands" do
     end
 
     Pry.config.commands = klass
-    pry_tester.eval("hello").should == "hello world\n"
-    pry_tester(:commands => other_klass).eval("goodbye").should == "goodbye world\n"
+    expect(pry_tester.eval("hello")).to eq("hello world\n")
+    expect(pry_tester(:commands => other_klass).eval("goodbye")).to eq("goodbye world\n")
   end
 
   it 'should inherit commands from Pry::Commands' do
@@ -468,10 +468,10 @@ describe "commands" do
       end
     end
 
-    klass.to_hash.include?("nesting").should == true
-    klass.to_hash.include?("jump-to").should == true
-    klass.to_hash.include?("cd").should == true
-    klass.to_hash.include?("v").should == true
+    expect(klass.to_hash.include?("nesting")).to eq(true)
+    expect(klass.to_hash.include?("jump-to")).to eq(true)
+    expect(klass.to_hash.include?("cd")).to eq(true)
+    expect(klass.to_hash.include?("v")).to eq(true)
   end
 
   it 'should change description of a command using desc' do
@@ -483,8 +483,8 @@ describe "commands" do
       desc "help", "blah"
     end
     commands = klass.to_hash
-    commands["help"].description.should_not == orig
-    commands["help"].description.should == "blah"
+    expect(commands["help"].description).not_to eq(orig)
+    expect(commands["help"].description).to eq("blah")
   end
 
   it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
@@ -500,7 +500,7 @@ describe "commands" do
     mock_pry(Pry.binding_for('john'), "v", :print => proc {}, :commands => child_klass,
                                            :output => @str_output)
 
-    @str_output.string.should == "john\n"
+    expect(@str_output.string).to eq("john\n")
   end
 
   it 'should import commands from another command object' do
@@ -508,8 +508,8 @@ describe "commands" do
       import_from Pry::Commands, "ls", "jump-to"
     end
 
-    klass.to_hash.include?("ls").should == true
-    klass.to_hash.include?("jump-to").should == true
+    expect(klass.to_hash.include?("ls")).to eq(true)
+    expect(klass.to_hash.include?("jump-to")).to eq(true)
   end
 
   it 'should delete some inherited commands when using delete method' do
@@ -522,13 +522,13 @@ describe "commands" do
     end
 
     commands = klass.to_hash
-    commands.include?("nesting").should == true
-    commands.include?("jump-to").should == true
-    commands.include?("cd").should == true
-    commands.include?("v").should == true
-    commands.include?("show-doc").should == false
-    commands.include?("show-method").should == false
-    commands.include?("ls").should == false
+    expect(commands.include?("nesting")).to eq(true)
+    expect(commands.include?("jump-to")).to eq(true)
+    expect(commands.include?("cd")).to eq(true)
+    expect(commands.include?("v")).to eq(true)
+    expect(commands.include?("show-doc")).to eq(false)
+    expect(commands.include?("show-method")).to eq(false)
+    expect(commands.include?("ls")).to eq(false)
   end
 
   it 'should override some inherited commands' do
@@ -543,17 +543,17 @@ describe "commands" do
     end
 
     t = pry_tester(:commands => klass)
-    t.eval('jump-to').should == "jump-to the music\n"
-    t.eval('help').should == "help to the music\n"
+    expect(t.eval('jump-to')).to eq("jump-to the music\n")
+    expect(t.eval('help')).to eq("help to the music\n")
   end
 
   it 'should run a command with no parameter' do
-    pry_tester(:commands => @command_tester).eval('command1').
-      should == "command1\n"
+    expect(pry_tester(:commands => @command_tester).eval('command1')).
+      to eq("command1\n")
   end
 
   it 'should run a command with one parameter' do
-    pry_tester(:commands => @command_tester).eval('command2 horsey').
-      should == "horsey\n"
+    expect(pry_tester(:commands => @command_tester).eval('command2 horsey')).
+      to eq("horsey\n")
   end
 end

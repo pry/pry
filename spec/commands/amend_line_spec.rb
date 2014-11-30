@@ -13,7 +13,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line   puts :blah'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :blah
     STR
@@ -28,7 +28,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 1 def goodbye'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def goodbye
         puts :bing
         puts :bang
@@ -44,7 +44,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 0 def goodbye'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def goodbye
         puts :bing
         puts :bang
@@ -60,7 +60,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -1   puts :bink'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bing
         puts :bink
@@ -68,7 +68,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -2   puts :bink'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bink
         puts :bink
@@ -85,7 +85,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line -3..-2   puts :bink'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bink
         puts :boat
@@ -101,7 +101,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line   puts "#{goodbye}"'
 
-    @t.eval_string.should == unindent(<<-'STR')
+    expect(@t.eval_string).to eq unindent(<<-'STR')
       def hello
         puts :bing
         puts "#{goodbye}"
@@ -117,8 +117,8 @@ describe "amend-line" do
       error = e
     end
 
-    error.should_not equal nil
-    error.message.should =~ /No input to amend/
+    expect(error).not_to equal nil
+    expect(error.message).to match(/No input to amend/)
   end
 
   it 'should correctly amend the specified range of lines' do
@@ -131,7 +131,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..3   puts :bong'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bong
         puts :heart
@@ -149,7 +149,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 3 !'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bing
         puts :boast
@@ -168,7 +168,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..4 !'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :heart
     STR
@@ -185,7 +185,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line !'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bing
         puts :bang
@@ -204,7 +204,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..-2   puts :bong'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :bong
         puts :heart
@@ -220,7 +220,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2 >  puts :inserted'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :inserted
         puts :bing
@@ -237,7 +237,7 @@ describe "amend-line" do
 
     @t.process_command 'amend-line 2..21 >  puts :inserted'
 
-    @t.eval_string.should == unindent(<<-STR)
+    expect(@t.eval_string).to eq unindent(<<-STR)
       def hello
         puts :inserted
         puts :bing

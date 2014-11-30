@@ -13,17 +13,17 @@ describe "help" do
   end
 
   it 'should display help for a specific command' do
-    pry_eval('help ls').should =~ /Usage: ls/
+    expect(pry_eval('help ls')).to match(/Usage: ls/)
   end
 
   it 'should display help for a regex command with a "listing"' do
     @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
-    pry_eval('help foo').should =~ /Test listing/
+    expect(pry_eval('help foo')).to match(/Test listing/)
   end
 
   it 'should display help for a command with a spaces in its name' do
     @set.command "cmd with spaces", "desc of a cmd with spaces" do; end
-    pry_eval('help "cmd with spaces"').should =~ /desc of a cmd with spaces/
+    expect(pry_eval('help "cmd with spaces"')).to match(/desc of a cmd with spaces/)
   end
 
   it 'should display help for all commands with a description' do
@@ -33,9 +33,9 @@ describe "help" do
     @set.command "d", "" do;end
 
     output = pry_eval('help')
-    output.should =~ /Test listing/
-    output.should =~ /Description for b/
-    output.should =~ /No description/
+    expect(output).to match(/Test listing/)
+    expect(output).to match(/Description for b/)
+    expect(output).to match(/No description/)
   end
 
   it "should sort the output of the 'help' command" do
@@ -51,6 +51,6 @@ describe "help" do
              doc.index("gaa"),
              doc.index("maa")]
 
-    order.should == order.sort
+    expect(order).to eq(order.sort)
   end
 end

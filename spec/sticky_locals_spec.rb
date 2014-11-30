@@ -13,7 +13,7 @@ describe "Sticky locals (_file_ and friends)" do
     pry_tester.tap do |t|
       pry = t.eval '_pry_'
       t.eval 'cd 0'
-      t.eval('_pry_').should == pry
+      expect(t.eval('_pry_')).to eq(pry)
     end
   end
 
@@ -47,11 +47,11 @@ describe "Sticky locals (_file_ and friends)" do
       set_file_and_dir_locals("/blah/ostrich.rb")
     end
 
-    pry_eval('file-and-dir-test', 'cd 0', '_file_').
-      should =~ /\/blah\/ostrich\.rb/
+    expect(pry_eval('file-and-dir-test', 'cd 0', '_file_')).
+      to match(/\/blah\/ostrich\.rb/)
 
-    pry_eval('file-and-dir-test', 'cd 0', '_dir_').
-      should =~ /\/blah/
+    expect(pry_eval('file-and-dir-test', 'cd 0', '_dir_')).
+      to match(/\/blah/)
 
     Pry.config.commands.delete "file-and-dir-test"
   end
@@ -59,7 +59,7 @@ describe "Sticky locals (_file_ and friends)" do
   it 'locals should return last result (_)' do
     pry_tester.tap do |t|
       lam = t.eval 'lambda { |foo| }'
-      t.eval('_').should == lam
+      expect(t.eval('_')).to eq(lam)
     end
   end
 
@@ -67,7 +67,7 @@ describe "Sticky locals (_file_ and friends)" do
     pry_tester.tap do |t|
       lam = t.eval 'lambda { |foo| }'
       t.eval 'num = 1'
-      t.eval('__').should == lam
+      expect(t.eval('__')).to eq(lam)
     end
   end
 
@@ -80,7 +80,7 @@ describe "Sticky locals (_file_ and friends)" do
                                         "exit-all")) do
           Pry.start(o)
         end
-        o.instance_variable_get(:@value).should == :john
+        expect(o.instance_variable_get(:@value)).to eq(:john)
         Pry.config.extra_sticky_locals = {}
       end
 
@@ -93,7 +93,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o)
         end
 
-        o.instance_variable_get(:@value).should == :john
+        expect(o.instance_variable_get(:@value)).to eq(:john)
         Pry.config.extra_sticky_locals = {}
       end
 
@@ -107,7 +107,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => :john } )
         end
 
-        o.instance_variable_get(:@value).should == :john
+        expect(o.instance_variable_get(:@value)).to eq(:john)
       end
 
       it 'should define multiple sticky locals' do
@@ -119,8 +119,8 @@ describe "Sticky locals (_file_ and friends)" do
                       :test_local2 => :carl} )
         end
 
-        o.instance_variable_get(:@value1).should == :john
-        o.instance_variable_get(:@value2).should == :carl
+        expect(o.instance_variable_get(:@value1)).to eq(:john)
+        expect(o.instance_variable_get(:@value2)).to eq(:carl)
       end
 
 
@@ -131,7 +131,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => proc { :john }} )
         end
 
-        o.instance_variable_get(:@value).should == :john
+        expect(o.instance_variable_get(:@value)).to eq(:john)
       end
     end
 
@@ -145,7 +145,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => :carl })
         end
 
-        o.instance_variable_get(:@value).should == :carl
+        expect(o.instance_variable_get(:@value)).to eq(:carl)
         Pry.config.extra_sticky_locals = {}
       end
     end
@@ -153,14 +153,14 @@ describe "Sticky locals (_file_ and friends)" do
     it 'should create a new sticky local' do
       t = pry_tester
       t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
-      t.eval("test_local").should == :test_value
+      expect(t.eval("test_local")).to eq(:test_value)
     end
 
     it 'should still exist after cd-ing into new binding' do
       t = pry_tester
       t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
       t.eval "cd Object.new"
-      t.eval("test_local").should == :test_value
+      expect(t.eval("test_local")).to eq(:test_value)
     end
 
     it 'should provide different values for successive block invocations' do
@@ -169,7 +169,7 @@ describe "Sticky locals (_file_ and friends)" do
       pry.add_sticky_local(:test_local) { rand }
       value1 = pry.evaluate_ruby 'test_local'
       value2 = pry.evaluate_ruby 'test_local'
-      value1.should_not == value2
+      expect(value1).not_to eq(value2)
     end
   end
 

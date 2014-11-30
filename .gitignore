@@ -16,3 +16,4 @@ vendor
 Gemfile.lock
 *.swp
 **/*~
+.idea/

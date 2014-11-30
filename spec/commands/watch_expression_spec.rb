@@ -20,22 +20,22 @@ describe "watch expression" do
 
   it "registers the after_eval hook" do
     eval 'watch 1+1'
-    @tester.pry.hooks.hook_exists?(:after_eval, :watch_expression).should == true
+    expect(@tester.pry.hooks.hook_exists?(:after_eval, :watch_expression)).to eq(true)
   end
 
   it "prints no watched expressions" do
-    eval('watch').should =~ /No watched expressions/
+    expect(eval('watch')).to match(/No watched expressions/)
   end
 
   it "watches an expression" do
     eval "watch 1+1"
-    eval('watch').should =~ /=> 2/
+    expect(eval('watch')).to match(/=> 2/)
   end
 
   it "watches a local variable" do
     eval 'foo = :bar'
     eval 'watch foo'
-    eval('watch').should =~ /=> :bar/
+    expect(eval('watch')).to match(/=> :bar/)
   end
 
   it "prints when an expression changes" do
@@ -109,11 +109,11 @@ describe "watch expression" do
     end
 
     it "keeps keeper" do
-      eval('watch').should =~ /keeper/
+      expect(eval('watch')).to match(/keeper/)
     end
 
     it "deletes delete" do
-      eval('watch').should_not =~ /delete/
+      expect(eval('watch')).not_to match(/delete/)
     end
   end
 end

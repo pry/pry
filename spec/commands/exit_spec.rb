@@ -5,24 +5,24 @@ describe "exit" do
 
   it "should pop a binding" do
     @pry.eval "cd :inner"
-    @pry.evaluate_ruby("self").should == :inner
+    expect(@pry.evaluate_ruby("self")).to eq(:inner)
     @pry.eval "exit"
-    @pry.evaluate_ruby("self").should == :outer
+    expect(@pry.evaluate_ruby("self")).to eq(:outer)
   end
 
   it "should break out of the repl when binding_stack has only one binding" do
-    @pry.eval("exit").should equal false
-    @pry.exit_value.should equal nil
+    expect(@pry.eval("exit")).to equal false
+    expect(@pry.exit_value).to equal nil
   end
 
   it "should break out of the repl and return user-given value" do
-    @pry.eval("exit :john").should equal false
-    @pry.exit_value.should == :john
+    expect(@pry.eval("exit :john")).to equal false
+    expect(@pry.exit_value).to eq(:john)
   end
 
   it "should break out of the repl even after an exception" do
     @pry.eval "exit = 42"
-    @pry.output.string.should =~ /^SyntaxError/
-    @pry.eval("exit").should equal false
+    expect(@pry.output.string).to match(/^SyntaxError/)
+    expect(@pry.eval("exit")).to equal false
   end
 end

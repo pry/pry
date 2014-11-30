@@ -9,7 +9,7 @@ describe "exit-program" do
     begin
       pry_eval 'exit-program 66'
     rescue SystemExit => e
-      e.status.should == 66
+      expect(e.status).to eq(66)
     else
       raise "Failed to raise SystemExit"
     end

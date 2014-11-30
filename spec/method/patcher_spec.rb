@@ -9,26 +9,26 @@ describe Pry::Method::Patcher do
   end
 
   it "should change the behaviour of the method" do
-    @x.test.should == :before
+    expect(@x.test).to eq(:before)
     @method.redefine "def @x.test; :after; end\n"
-    @x.test.should == :after
+    expect(@x.test).to eq(:after)
   end
 
   it "should return a new method with new source" do
-    @method.source.strip.should == "def @x.test; :before; end"
-    @method.redefine("def @x.test; :after; end\n").
-      source.strip.should == "def @x.test; :after; end"
+    expect(@method.source.strip).to eq("def @x.test; :before; end")
+    expect(@method.redefine("def @x.test; :after; end\n").
+      source.strip).to eq("def @x.test; :after; end")
   end
 
   it "should change the source of new Pry::Method objects" do
     @method.redefine "def @x.test; :after; end\n"
-    Pry::Method(@x.method(:test)).source.strip.should == "def @x.test; :after; end"
+    expect(Pry::Method(@x.method(:test)).source.strip).to eq("def @x.test; :after; end")
   end
 
   it "should preserve visibility" do
     class << @x; private :test; end
-    @method.visibility.should == :private
+    expect(@method.visibility).to eq(:private)
     @method.redefine "def @x.test; :after; end\n"
-    Pry::Method(@x.method(:test)).visibility.should == :private
+    expect(Pry::Method(@x.method(:test)).visibility).to eq(:private)
   end
 end

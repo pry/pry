@@ -19,7 +19,7 @@ describe Pry do
         Pry.start
       end
 
-      @str_output.string.should_not =~ /SyntaxError/
+      expect(@str_output.string).not_to match(/SyntaxError/)
     end
   end
 
@@ -37,7 +37,7 @@ describe Pry do
         Pry.start
       end
 
-      @str_output.string.should =~ /SyntaxError/
+      expect(@str_output.string).to match(/SyntaxError/)
     end
   end
 
@@ -46,36 +46,36 @@ describe Pry do
       Pry.start
     end
 
-    @str_output.string.should =~ /SyntaxError/
+    expect(@str_output.string).to match(/SyntaxError/)
   end
 
   it "should allow trailing , to continue the line" do
     pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,").should == false
+    expect(Pry::Code.complete_expression?("puts 1, 2,")).to eq(false)
   end
 
   it "should complete an expression that contains a line ending with a ," do
     pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,\n3").should == true
+    expect(Pry::Code.complete_expression?("puts 1, 2,\n3")).to eq(true)
   end
 
   it "should not suppress the error output if the line ends in ;" do
-    mock_pry("raise RuntimeError, 'foo';").should =~ /RuntimeError/
+    expect(mock_pry("raise RuntimeError, 'foo';")).to match(/RuntimeError/)
   end
 
   it "should not clobber _ex_ on a SyntaxError in the repl" do
-    mock_pry("raise RuntimeError, 'foo'", "puts foo)", "_ex_.is_a?(RuntimeError)").should =~ /^RuntimeError.*\nSyntaxError.*\n=> true/m
+    expect(mock_pry("raise RuntimeError, 'foo'", "puts foo)", "_ex_.is_a?(RuntimeError)")).to match(/^RuntimeError.*\nSyntaxError.*\n=> true/m)
   end
 
   it "should allow whitespace delimeted strings" do
-    mock_pry('"%s" %% foo ').should =~ /"foo"/
+    expect(mock_pry('"%s" %% foo ')).to match(/"foo"/)
   end
 
   it "should allow newline delimeted strings" do
-    mock_pry('"%s" %%','foo').should =~ /"foo"/
+    expect(mock_pry('"%s" %%','foo')).to match(/"foo"/)
   end
 
   it "should allow whitespace delimeted strings ending on the first char of a line" do
-    mock_pry('"%s" %% ', ' #done!').should =~ /"\\n"/
+    expect(mock_pry('"%s" %% ', ' #done!')).to match(/"\\n"/)
   end
 end
