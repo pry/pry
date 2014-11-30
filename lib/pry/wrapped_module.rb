@@ -63,6 +63,7 @@ class Pry
       @source = nil
       @source_location = nil
       @doc = nil
+      @all_source_locations_by_popularity = nil
     end
 
     # Returns an array of the names of the constants accessible in the wrapped

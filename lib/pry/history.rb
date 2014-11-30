@@ -83,7 +83,7 @@ class Pry
     def read_from_file
       path = history_file_path
 
-      if File.exists?(path)
+      if File.exist?(path)
         File.foreach(path) { |line| yield(line) }
       end
     rescue => error

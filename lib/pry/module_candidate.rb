@@ -49,6 +49,7 @@ class Pry
           raise CommandError, "No such module candidate. Allowed candidates range is from 0 to #{number_of_candidates - 1}"
         end
 
+        @source = @source_location = nil
         @rank = rank
         @file, @line = source_location
       end
