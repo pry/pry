@@ -66,8 +66,10 @@ class Pry
     #
     # :reserved and :keywords are the CodeRay 0.9.8 and 1.0.0 respectively
     # classifications of "super", "next", "return", etc.
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float, :keyword,
-                                            :delimiter, :reserved]
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float,
+                                            :keyword, :delimiter, :reserved,
+                                            :instance_variable,
+                                            :class_variable, :global_variable]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
