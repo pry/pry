@@ -368,7 +368,7 @@ describe Pry::Hooks do
 
     describe "after_session hook" do
       it 'should always run, even if uncaught exception bubbles out of repl' do
-        o = OpenStruct.new
+        o = Pry::Config.new
         o.great_escape = Class.new(StandardError)
 
         old_ew = Pry.config.exception_whitelist
