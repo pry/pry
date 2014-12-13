@@ -65,7 +65,7 @@ module Pry::Config::Behavior
   end
 
   def merge!(other)
-    other = try_convert_to_hash(other)
+    other = __try_convert_to_hash(other)
     raise TypeError, "unable to convert argument into a Hash" unless other
     other.each do |key, value|
       self[key] = value
@@ -73,7 +73,7 @@ module Pry::Config::Behavior
   end
 
   def ==(other)
-    @lookup == try_convert_to_hash(other)
+    @lookup == __try_convert_to_hash(other)
   end
   alias_method :eql?, :==
 
@@ -104,7 +104,7 @@ module Pry::Config::Behavior
 
   def inspect
     key_str = keys.map { |key| "'#{key}'" }.join(",")
-    "#<#{_clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
+    "#<#{__clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
   end
 
   def pretty_print(q)
@@ -112,11 +112,11 @@ module Pry::Config::Behavior
   end
 
 private
-  def _clip_inspect(obj)
+  def __clip_inspect(obj)
     "#{obj.class}:0x%x" % obj.object_id << 1
   end
 
-  def try_convert_to_hash(obj)
+  def __try_convert_to_hash(obj)
     if Hash === obj
       obj
     elsif obj.respond_to?(:to_h)
