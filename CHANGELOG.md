@@ -1,5 +1,6 @@
 ### HEAD
 
+* Fix 'include RSpec::Matchers' at the top-level (#1277)
 * Add 'gem-readme' command, prints the README file bundled with a rubygem
 * Add 'gem-search' command, searches for a gem with the rubygems.org HTTP API
 
