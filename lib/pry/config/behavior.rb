@@ -41,7 +41,12 @@ module Pry::Config::Behavior
     if RESERVED_KEYS.include?(key)
       raise ArgumentError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
     end
-    @lookup[key] = value
+    __push(key,value)
+  end
+
+  def forget(key)
+    key = key.to_s
+    __remove(key)
   end
 
   def method_missing(name, *args, &block)
@@ -53,10 +58,7 @@ module Pry::Config::Behavior
       self[key]
     elsif @default.respond_to?(name)
       value = @default.public_send(name, *args, &block)
-      # FIXME: refactor Pry::Hook so that it stores config on the config object,
-      # so that we can use the normal strategy.
-      self[key] = value = value.dup if key == 'hooks'
-      value
+      self[key] = __dup(value)
     else
       nil
     end
@@ -90,10 +92,6 @@ module Pry::Config::Behavior
   end
   alias_method :refresh, :clear
 
-  def forget(key)
-    @lookup.delete(key.to_s)
-  end
-
   def keys
     @lookup.keys
   end
@@ -118,14 +116,6 @@ private
     "#{obj.class}:0x%x" % obj.object_id << 1
   end
 
-  def _dup(value)
-    if NODUP.any? { |klass| klass === value }
-      value
-    else
-      value.dup
-    end
-  end
-
   def try_convert_to_hash(obj)
     if Hash === obj
       obj
@@ -136,5 +126,23 @@ private
     else
       nil
     end
+  end
+
+  def __dup(value)
+    if NODUP.any? { |klass| klass === value }
+      value
+    else
+      value.dup
+    end
+  end
+
+  def __push(key,value)
+    define_singleton_method(key) { self[key] }
+    define_singleton_method("#{key}=") { |value| @lookup[key] = value }
+    @lookup[key] = value
+  end
+
+  def __remove(key)
+    @lookup.delete(key)
   end
 end

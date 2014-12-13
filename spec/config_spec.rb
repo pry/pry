@@ -38,6 +38,15 @@ describe Pry::Config do
     end
   end
 
+  describe "collision" do
+    # Testcase GH-1277
+    it "doesn't collide" do
+      local = Pry::Config.from_hash(output: 'foobar')
+      local.extend Module.new { def output(); 'broken'; end }
+      expect(local.output).to eq('foobar')
+    end
+  end
+
   describe ".from_hash" do
     it "returns an object without a default" do
       local = Pry::Config.from_hash({})
