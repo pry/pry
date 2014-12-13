@@ -32,7 +32,8 @@ module Pry::Config::Behavior
   end
 
   def [](key)
-    @lookup[key.to_s]
+    key = key.to_s
+    @lookup[key] or (@default and @default[key])
   end
 
   def []=(key, value)

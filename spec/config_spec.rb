@@ -194,4 +194,24 @@ describe Pry::Config do
       local.to_hash.should == { "zoo" => "hello" }
     end
   end
+
+  describe "#[]" do
+    it "traverses back to a default" do
+      default = Pry::Config.from_hash({k: 1})
+      local = Pry::Config.new(default)
+      expect(local['k']).to eq(1)
+    end
+
+    it "traverses back to a default (2 deep)" do
+      default1 = Pry::Config.from_hash({k: 1})
+      default2 = Pry::Config.from_hash({}, default1)
+      local = Pry::Config.new(default2)
+      expect(local['k']).to eq(1)
+    end
+
+    it "traverses back to a default that doesn't exist, and returns nil" do
+      local = Pry::Config.from_hash({}, nil)
+      expect(local['output']).to eq(nil)
+    end
+  end
 end
