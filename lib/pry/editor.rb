@@ -44,7 +44,8 @@ class Pry
         _pry_.config.editor.call(*args)
       else
         sanitized_file = if windows?
-                            file.gsub(/\//, '\\')
+                            # Windows tolerates the forward slash separator.
+                            # file.gsub(/\//, '\\')
                           else
                             Shellwords.escape(file)
                           end
