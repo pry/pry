@@ -53,6 +53,7 @@ describe Pry do
       Pry.history.to_a.size.should > 0
       Pry.history.clear
       Pry.history.to_a.size.should == 0
+      Pry.history.original_lines.should == 0
     end
 
     it "doesn't affect the contents of the history file" do

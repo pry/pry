@@ -57,6 +57,7 @@ class Pry
     # history file.
     def clear
       @clearer.call
+      @original_lines = 0
       @history = []
     end
 
