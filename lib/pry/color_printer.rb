@@ -34,14 +34,17 @@ class Pry
       super
     rescue => e
       raise if e.is_a? Pry::Pager::StopPaging
-
-      # Read the class name off of the singleton class to provide a default
-      # inspect.
-      singleton = class << obj; self; end
-      ancestors = Pry::Method.safe_send(singleton, :ancestors)
-      klass  = ancestors.reject { |k| k == singleton }.first
-      obj_id = obj.__id__.to_s(16) rescue 0
-      str    = "#<#{klass}:0x#{obj_id}>"
+      begin
+        str = obj.inspect
+      rescue Exception 
+        # Read the class name off of the singleton class to provide a default
+        # inspect.
+        singleton = class << obj; self; end
+        ancestors = Pry::Method.safe_send(singleton, :ancestors)
+        klass  = ancestors.reject { |k| k == singleton }.first
+        obj_id = obj.__id__.to_s(16) rescue 0
+        str    = "#<#{klass}:0x#{obj_id}>"
+      end
 
       text highlight_object_literal(str)
     end
