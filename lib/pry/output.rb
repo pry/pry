@@ -40,7 +40,7 @@ class Pry
     end
 
     def method_missing(name, *args, &block)
-      _pry_.config.output.send(name, *args, &block)
+      _pry_.config.output.__send__(name, *args, &block)
     end
 
     def respond_to_missing?(*a)
