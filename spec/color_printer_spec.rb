@@ -12,6 +12,37 @@ describe Pry::ColorPrinter do
       end
     end
 
+    describe 'Object subclass' do 
+      before do
+        class ObjectF < Object 
+          def inspect
+            'foo'
+          end
+        end
+
+        class ObjectG < Object
+          def inspect 
+            raise 
+          end
+        end
+      end
+
+      after do 
+        Object.send :remove_const, :ObjectF
+        Object.send :remove_const, :ObjectG
+      end 
+
+      it 'prints a string' do
+        Pry::ColorPrinter.pp(ObjectF.new, io)
+        expect(str).to eq('foo')
+      end 
+
+      it 'prints a string, even when an exception is raised' do 
+        Pry::ColorPrinter.pp(ObjectG.new, io)
+        expect(str).to match(/\A#<ObjectG:0x\w+>\z/)
+      end
+    end
+
     describe 'BasicObject' do
       it 'prints a string' do
         Pry::ColorPrinter.pp(BasicObject.new, io)
