@@ -14,9 +14,13 @@ class Pry
       max_nest_level = nesting_level - 1
 
       case break_level
-      when nesting_level       then output.puts "Already at nesting level #{nesting_level}"
-      when (0..max_nest_level) then _pry_.binding_stack = _pry_.binding_stack[0..break_level]
-      else                          output.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
+      when nesting_level
+        output.puts "Already at nesting level #{nesting_level}"
+      when 0..max_nest_level
+        _pry_.binding_stack = _pry_.binding_stack[0..break_level]
+      else
+        output.puts "Invalid nest level. Must be between 0 and " \
+          "#{max_nest_level}. Got #{break_level}."
       end
     end
   end
