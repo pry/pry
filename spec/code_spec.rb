@@ -79,6 +79,10 @@ describe Pry::Code do
       it "doesn't confuse files with the same name, but with an extension" do
         Pry::Code.from_file('cat_load_path.rb').code_type.should == :ruby
       end
+
+      it "recognizes special Ruby files without extensions" do
+        Pry::Code.from_file('Gemfile').code_type.should == :ruby
+      end
     end
   end
 
