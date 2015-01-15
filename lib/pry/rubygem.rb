@@ -57,6 +57,7 @@ class Pry
       # @param [String] name
       # @return [void]
       def install(name)
+        require 'rubygems/dependency_installer'
         gem_config = Gem.configuration['gem']
         gemrc_opts = (gem_config.nil? ? "" : gem_config.split(' '))
         destination = if gemrc_opts.include?('--user-install')
