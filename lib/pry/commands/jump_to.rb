@@ -9,18 +9,14 @@ class Pry
     BANNER
 
     def process(break_level)
-      break_level = break_level.to_i
-      nesting_level = _pry_.binding_stack.size - 1
+      break_level    = break_level.to_i
+      nesting_level  = _pry_.binding_stack.size - 1
+      max_nest_level = nesting_level - 1
 
       case break_level
-      when nesting_level
-        output.puts "Already at nesting level #{nesting_level}"
-      when (0...nesting_level)
-        _pry_.binding_stack.slice!(break_level + 1, _pry_.binding_stack.size)
-
-      else
-        max_nest_level = nesting_level - 1
-        output.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
+      when nesting_level       then output.puts "Already at nesting level #{nesting_level}"
+      when (0..max_nest_level) then _pry_.binding_stack = _pry_.binding_stack[0..break_level]
+      else                          output.puts "Invalid nest level. Must be between 0 and #{max_nest_level}. Got #{break_level}."
       end
     end
   end
