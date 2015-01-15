@@ -32,7 +32,7 @@ class Pry
       end
 
       def not_a_real_file?(file)
-        file =~ /(\(.*\))|<.*>/ || file =~ /__unknown__/ || file == "" || file == "-e"
+        file =~ /^(\(.*\))$|^<.*>$/ || file =~ /__unknown__/ || file == "" || file == "-e"
       end
 
       def command_dependencies_met?(options)
