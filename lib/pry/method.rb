@@ -484,7 +484,7 @@ class Pry
       else
         fail_msg = "Cannot locate this method: #{name}."
         if mri?
-          fail_msg += ' Try `gem install pry-doc` to get access to Ruby Core documentation.'
+          fail_msg += " Try 'gem install pry-doc' to get access to Ruby Core documentation.""
         end
         raise CommandError, fail_msg
       end
