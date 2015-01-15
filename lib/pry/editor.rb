@@ -44,7 +44,7 @@ class Pry
         _pry_.config.editor.call(*args)
       else
         sanitized_file = if windows?
-                            file.gsub(/\//, '\\')
+                            file
                           else
                             Shellwords.escape(file)
                           end
