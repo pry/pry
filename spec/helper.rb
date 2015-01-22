@@ -14,10 +14,6 @@ class Module
   public :remove_method
 end
 
-# turn warnings off (esp for Pry::Hooks which will generate warnings
-# in tests)
-$VERBOSE = nil
-
 Pad = Class.new do
   include Pry::Config::Behavior
 end.new(nil)
