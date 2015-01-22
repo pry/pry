@@ -52,7 +52,7 @@ class Pry
       # Define or get the command's banner
       def banner(arg=nil)
         @banner = arg if arg
-        @banner || description
+        @banner ||= description
       end
 
       def block

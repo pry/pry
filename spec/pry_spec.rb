@@ -24,11 +24,11 @@ describe Pry do
     end
 
     it 'should not binding.pry' do
-      binding.pry.should == nil
+      binding.pry.should eq nil
     end
 
     it 'should not Pry.start' do
-      Pry.start.should == nil
+      Pry.start.should eq nil
     end
   end
 
@@ -75,7 +75,7 @@ describe Pry do
 
     it "returns an instance of Pry::LastException" do
       @pry.last_exception = @e
-      @pry.last_exception.wrapped_exception.should == @e
+      @pry.last_exception.wrapped_exception.should eq @e
     end
 
     it "returns a frozen exception" do
@@ -107,13 +107,13 @@ describe Pry do
 
       it 'should be able to operate inside the BasicObject class' do
         pry_eval(BasicObject, ":foo", "Pad.obj = _")
-        Pad.obj.should == :foo
+        Pad.obj.should eq :foo
       end
 
       it 'should set an ivar on an object' do
         o = Object.new
         pry_eval(o, "@x = 10")
-        o.instance_variable_get(:@x).should == 10
+        o.instance_variable_get(:@x).should eq 10
       end
 
       it 'should display error if Pry instance runs out of input' do
@@ -125,32 +125,32 @@ describe Pry do
 
       it 'should make self evaluate to the receiver of the rep session' do
         o = :john
-        pry_eval(o, "self").should == o
+        pry_eval(o, "self").should eq o
       end
 
       it 'should define a nested class under Hello and not on top-level or Pry' do
         mock_pry(Pry.binding_for(Hello), "class Nested", "end")
-        Hello.const_defined?(:Nested).should == true
+        Hello.const_defined?(:Nested).should eq true
       end
 
       it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
-        mock_pry("Exception.new;").should == ""
+        mock_pry("Exception.new;").should eq ""
       end
 
       it 'should suppress output if input ends in a ";" (single line)' do
-        mock_pry("x = 5;").should == ""
+        mock_pry("x = 5;").should eq ""
       end
 
       it 'should be able to evaluate exceptions normally' do
         was_called = false
         mock_pry("RuntimeError.new", :exception_handler => proc{ was_called = true })
-        was_called.should == false
+        was_called.should eq false
       end
 
       it 'should notice when exceptions are raised' do
         was_called = false
         mock_pry("raise RuntimeError", :exception_handler => proc{ was_called = true })
-        was_called.should == true
+        was_called.should eq true
       end
 
       it 'should not try to catch intended exceptions' do
@@ -165,7 +165,7 @@ describe Pry do
         end
 
         it 'should suppress output if input ends in a ";" (multi-line)' do
-          mock_pry('def self.blah', ':test', 'end;').should == ''
+          mock_pry('def self.blah', ':test', 'end;').should eq ''
         end
 
         describe "newline stripping from an empty string" do
@@ -215,9 +215,9 @@ describe Pry do
 
           o = Object.new
 
-          pry_tester = Pry.start(o, :input => input, :output => StringIO.new)
+          Pry.start(o, :input => input, :output => StringIO.new)
 
-          o.instance_variable_get(:@x).should == 10
+          o.instance_variable_get(:@x).should eq 10
         end
       end
 
@@ -226,7 +226,7 @@ describe Pry do
           clean = "puts <<-FOO\nhi\nFOO\n"
           a = clean.dup
           Pry::Code.complete_expression?(a)
-          a.should == clean
+          a.should eq clean
         end
       end
 
@@ -234,9 +234,9 @@ describe Pry do
         it 'sets _ to the last result' do
           t = pry_tester
           t.eval ":foo"
-          t.eval("_").should == :foo
+          t.eval("_").should eq :foo
           t.eval "42"
-          t.eval("_").should == 42
+          t.eval("_").should eq 42
         end
 
         it 'sets out to an array with the result' do
@@ -246,7 +246,7 @@ describe Pry do
           res = t.eval "_out_"
 
           res.should be_a_kind_of Pry::HistoryArray
-          res[1..2].should == [:foo, 42]
+          res[1..2].should eq [:foo, 42]
         end
 
         it 'sets _in_ to an array with the entered lines' do
@@ -256,28 +256,28 @@ describe Pry do
           res = t.eval "_in_"
 
           res.should be_a_kind_of Pry::HistoryArray
-          res[1..2].should == [":foo\n", "42\n"]
+          res[1..2].should eq [":foo\n", "42\n"]
         end
 
         it 'uses 100 as the size of _in_ and _out_' do
-          pry_tester.eval("[_in_.max_size, _out_.max_size]").should == [100, 100]
+          pry_tester.eval("[_in_.max_size, _out_.max_size]").should eq [100, 100]
         end
 
         it 'can change the size of the history arrays' do
-          pry_tester(:memory_size => 1000).eval("[_out_, _in_].map(&:max_size)").should == [1000, 1000]
+          pry_tester(:memory_size => 1000).eval("[_out_, _in_].map(&:max_size)").should eq [1000, 1000]
         end
 
         it 'store exceptions' do
           mock_pry("foo!", "Pad.in = _in_[-1]; Pad.out = _out_[-1]")
 
-          Pad.in.should == "foo!\n"
+          Pad.in.should eq "foo!\n"
           expect(Pad.out).to be_a_kind_of NoMethodError
         end
       end
 
       describe "last_result" do
         it "should be set to the most recent value" do
-          pry_eval("2", "_ + 82").should == 84
+          pry_eval("2", "_ + 82").should eq 84
         end
 
         # This test needs mock_pry because the command retvals work by
@@ -292,11 +292,11 @@ describe Pry do
         end
 
         it "should be preserved over an empty line" do
-          pry_eval("2 + 2", " ", "\t",  " ", "_ + 92").should == 96
+          pry_eval("2 + 2", " ", "\t",  " ", "_ + 92").should eq 96
         end
 
         it "should be preserved when evalling a  command without :keep_retval" do
-          pry_eval("2 + 2", "ls -l", "_ + 96").should == 100
+          pry_eval("2 + 2", "ls -l", "_ + 96").should eq 100
         end
       end
 
@@ -312,8 +312,8 @@ describe Pry do
           Pry.config.output = @str_output
 
           o = Object.new
+          o.pry
 
-          pry_tester = o.pry
           @str_output.string.should =~ /nest:3/
         end
       end
@@ -322,27 +322,27 @@ describe Pry do
         it 'should define a method on the singleton class of an object when performing "def meth;end" inside the object' do
           [Object.new, {}, []].each do |val|
             pry_eval(val, 'def hello; end')
-            val.methods(false).map(&:to_sym).include?(:hello).should == true
+            val.methods(false).map(&:to_sym).include?(:hello).should eq true
           end
         end
 
         it 'should define an instance method on the module when performing "def meth;end" inside the module' do
           hello = Module.new
           pry_eval(hello, "def hello; end")
-          hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+          hello.instance_methods(false).map(&:to_sym).include?(:hello).should eq true
         end
 
         it 'should define an instance method on the class when performing "def meth;end" inside the class' do
           hello = Class.new
           pry_eval(hello, "def hello; end")
-          hello.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+          hello.instance_methods(false).map(&:to_sym).include?(:hello).should eq true
         end
 
         it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
           [:test, 0, true, false, nil,
               (0.0 unless Pry::Helpers::BaseHelpers.jruby?)].each do |val|
             pry_eval(val, "def hello; end");
-            val.class.instance_methods(false).map(&:to_sym).include?(:hello).should == true
+            val.class.instance_methods(false).map(&:to_sym).include?(:hello).should eq true
           end
         end
       end
@@ -384,9 +384,9 @@ describe Pry do
       describe "Pry.binding_for" do
         it 'should return TOPLEVEL_BINDING if parameter self is main' do
           _main_ = lambda { TOPLEVEL_BINDING.eval('self') }
-          Pry.binding_for(_main_.call).is_a?(Binding).should == true
-          Pry.binding_for(_main_.call).should == TOPLEVEL_BINDING
-          Pry.binding_for(_main_.call).should == Pry.binding_for(_main_.call)
+          Pry.binding_for(_main_.call).is_a?(Binding).should eq true
+          Pry.binding_for(_main_.call).should eq TOPLEVEL_BINDING
+          Pry.binding_for(_main_.call).should eq Pry.binding_for(_main_.call)
         end
       end
     end
@@ -394,12 +394,12 @@ describe Pry do
 
   describe 'setting custom options' do
     it 'does not raise for unrecognized options' do
-      expect { instance = Pry.new(:custom_option => 'custom value') }.to_not raise_error
+      expect { Pry.new(:custom_option => 'custom value') }.to_not raise_error
     end
 
     it 'correctly handles the :quiet option (#1261)' do
       instance = Pry.new(:quiet => true)
-      instance.quiet?.should == true
+      instance.quiet?.should eq true
     end
   end
 

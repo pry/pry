@@ -92,7 +92,7 @@ class Pry
         LOC.new(line, lineno + start_line.to_i) }
       @code_type = code_type
 
-      @with_marker = @with_indentation = nil
+      @with_marker = @with_indentation = @with_line_numbers = nil
     end
 
     # Append the given line. +lineno+ is one more than the last existing

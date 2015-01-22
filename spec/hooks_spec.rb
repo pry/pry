@@ -9,7 +9,7 @@ describe Pry::Hooks do
     it 'should not execute hook while adding it' do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
-      run.should == false
+      run.should eq false
     end
 
     it 'should not allow adding of a hook with a duplicate name' do
@@ -20,22 +20,22 @@ describe Pry::Hooks do
 
     it 'should create a new hook with a block' do
       @hooks.add_hook(:test_hook, :my_name) { }
-      @hooks.hook_count(:test_hook).should == 1
+      @hooks.hook_count(:test_hook).should eq 1
     end
 
     it 'should create a new hook with a callable' do
       @hooks.add_hook(:test_hook, :my_name, proc { })
-      @hooks.hook_count(:test_hook).should == 1
+      @hooks.hook_count(:test_hook).should eq 1
     end
 
     it 'should use block if given both block and callable' do
       run = false
       foo = false
       @hooks.add_hook(:test_hook, :my_name, proc { foo = true }) { run = true }
-      @hooks.hook_count(:test_hook).should == 1
+      @hooks.hook_count(:test_hook).should eq 1
       @hooks.exec_hook(:test_hook)
-      run.should == true
-      foo.should == false
+      run.should eq true
+      foo.should eq false
     end
 
     it 'should raise if not given a block or any other object' do
@@ -45,11 +45,11 @@ describe Pry::Hooks do
     it 'should create multiple hooks for an event' do
       @hooks.add_hook(:test_hook, :my_name) {}
       @hooks.add_hook(:test_hook, :my_name2) {}
-      @hooks.hook_count(:test_hook).should == 2
+      @hooks.hook_count(:test_hook).should eq 2
     end
 
     it 'should return a count of 0 for an empty hook' do
-      @hooks.hook_count(:test_hook).should == 0
+      @hooks.hook_count(:test_hook).should eq 0
     end
   end
 
@@ -60,7 +60,7 @@ describe Pry::Hooks do
         h2 = Pry::Hooks.new
 
         h2.merge!(h1)
-        h2.get_hook(:test_hook, :testing).should == h1.get_hook(:test_hook, :testing)
+        h2.get_hook(:test_hook, :testing).should eq h1.get_hook(:test_hook, :testing)
       end
 
       it 'should not share merged elements with original' do
@@ -69,7 +69,7 @@ describe Pry::Hooks do
 
         h2.merge!(h1)
         h2.add_hook(:test_hook, :testing2) {}
-        h2.get_hook(:test_hook, :testing2).should_not == h1.get_hook(:test_hook, :testing2)
+        h2.get_hook(:test_hook, :testing2).should_not eq h1.get_hook(:test_hook, :testing2)
       end
 
       it 'should NOT overwrite hooks belonging to shared event in receiver' do
@@ -78,7 +78,7 @@ describe Pry::Hooks do
         h2 = Pry::Hooks.new.add_hook(:test_hook, :testing2, callable)
 
         h2.merge!(h1)
-        h2.get_hook(:test_hook, :testing2).should == callable
+        h2.get_hook(:test_hook, :testing2).should eq callable
       end
 
       it 'should overwrite identical hook in receiver' do
@@ -88,8 +88,8 @@ describe Pry::Hooks do
         h2 = Pry::Hooks.new.add_hook(:test_hook, :testing, callable2)
 
         h2.merge!(h1)
-        h2.get_hook(:test_hook, :testing).should == callable1
-        h2.hook_count(:test_hook).should == 1
+        h2.get_hook(:test_hook, :testing).should eq callable1
+        h2.hook_count(:test_hook).should eq 1
       end
 
       it 'should preserve hook order' do
@@ -105,7 +105,7 @@ describe Pry::Hooks do
         h2.merge!(h1)
         h2.exec_hook(:test_hook)
 
-        name.should == "john"
+        name.should eq "john"
       end
 
       describe "merge" do
@@ -114,8 +114,8 @@ describe Pry::Hooks do
           h2 = Pry::Hooks.new
 
           h3 = h2.merge(h1)
-          h3.should_not == h1
-          h3.should_not == h2
+          h3.should_not eq h1
+          h3.should_not eq h2
         end
 
         it 'should contain hooks from original instance' do
@@ -123,8 +123,8 @@ describe Pry::Hooks do
           h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
 
           h3 = h2.merge(h1)
-          h3.get_hook(:test_hook, :testing).should == h1.get_hook(:test_hook, :testing)
-          h3.get_hook(:test_hook2, :testing).should == h2.get_hook(:test_hook2, :testing)
+          h3.get_hook(:test_hook, :testing).should eq h1.get_hook(:test_hook, :testing)
+          h3.get_hook(:test_hook2, :testing).should eq h2.get_hook(:test_hook2, :testing)
         end
 
         it 'should not affect original instances when new hooks are added' do
@@ -134,8 +134,8 @@ describe Pry::Hooks do
           h3 = h2.merge(h1)
           h3.add_hook(:test_hook3, :testing) {}
 
-          h1.get_hook(:test_hook3, :testing).should == nil
-          h2.get_hook(:test_hook3, :testing).should == nil
+          h1.get_hook(:test_hook3, :testing).should eq nil
+          h2.get_hook(:test_hook3, :testing).should eq nil
         end
       end
 
@@ -149,7 +149,7 @@ describe Pry::Hooks do
       end
 
       hooks_dup = @hooks.dup
-      hooks_dup.get_hook(:test_hook, :testing).should == @hooks.get_hook(:test_hook, :testing)
+      hooks_dup.get_hook(:test_hook, :testing).should eq @hooks.get_hook(:test_hook, :testing)
     end
 
     it 'adding a new event to dupped instance should not affect original' do
@@ -158,7 +158,7 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:other_test_hook, :testing) { :okay_man }
 
-      hooks_dup.get_hook(:other_test_hook, :testing).should_not == @hooks.get_hook(:other_test_hook, :testing)
+      hooks_dup.get_hook(:other_test_hook, :testing).should_not eq @hooks.get_hook(:other_test_hook, :testing)
     end
 
     it 'adding a new hook to dupped instance should not affect original' do
@@ -167,7 +167,7 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:test_hook, :testing2) { :okay_man }
 
-      hooks_dup.get_hook(:test_hook, :testing2).should_not == @hooks.get_hook(:test_hook, :testing2)
+      hooks_dup.get_hook(:test_hook, :testing2).should_not eq @hooks.get_hook(:test_hook, :testing2)
     end
 
   end
@@ -180,12 +180,12 @@ describe Pry::Hooks do
         @hooks.add_hook(:test_hook, :my_name) { run = true }
         @hooks.add_hook(:test_hook, :my_name2) { fun = true }
         @hooks.get_hook(:test_hook, :my_name).call
-        run.should == true
-        fun.should == false
+        run.should eq true
+        fun.should eq false
       end
 
       it 'should return nil if hook does not exist' do
-        @hooks.get_hook(:test_hook, :my_name).should == nil
+        @hooks.get_hook(:test_hook, :my_name).should eq nil
       end
     end
 
@@ -196,9 +196,9 @@ describe Pry::Hooks do
         @hooks.add_hook(:test_hook, :my_name1, hook1)
         @hooks.add_hook(:test_hook, :my_name2, hook2)
         hash = @hooks.get_hooks(:test_hook)
-        hash.size.should == 2
-        hash[:my_name1].should == hook1
-        hash[:my_name2].should == hook2
+        hash.size.should eq 2
+        hash[:my_name1].should eq hook1
+        hash[:my_name2].should eq hook2
       end
 
       it 'should return an empty hash if no hooks defined' do
@@ -213,7 +213,7 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name2) { }
       @hooks.add_hook(:test_hook, :my_name3) { }
       @hooks.clear(:test_hook)
-      @hooks.hook_count(:test_hook).should == 0
+      @hooks.hook_count(:test_hook).should eq 0
     end
   end
 
@@ -221,18 +221,18 @@ describe Pry::Hooks do
     it 'should successfully delete a hook' do
       @hooks.add_hook(:test_hook, :my_name) {}
       @hooks.delete_hook(:test_hook, :my_name)
-      @hooks.hook_count(:test_hook).should == 0
+      @hooks.hook_count(:test_hook).should eq 0
     end
 
     it 'should return the deleted hook' do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.delete_hook(:test_hook, :my_name).call
-      run.should == true
+      run.should eq true
     end
 
     it 'should return nil if hook does not exist' do
-      @hooks.delete_hook(:test_hook, :my_name).should == nil
+      @hooks.delete_hook(:test_hook, :my_name).should eq nil
     end
   end
 
@@ -241,14 +241,14 @@ describe Pry::Hooks do
       run = false
       @hooks.add_hook(:test_hook, :my_name) { run = true }
       @hooks.exec_hook(:test_hook)
-      run.should == true
+      run.should eq true
     end
 
     it 'should execute proc hook' do
       run = false
       @hooks.add_hook(:test_hook, :my_name, proc { run = true })
       @hooks.exec_hook(:test_hook)
-      run.should == true
+      run.should eq true
     end
 
     it 'should execute a general callable hook' do
@@ -262,7 +262,7 @@ describe Pry::Hooks do
 
       @hooks.add_hook(:test_hook, :my_name, callable)
       @hooks.exec_hook(:test_hook)
-      callable.test_var.should == true
+      callable.test_var.should eq true
     end
 
     it 'should execute all hooks for an event if more than one is defined' do
@@ -271,8 +271,8 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name1) { y = true }
       @hooks.add_hook(:test_hook, :my_name2) { x = true }
       @hooks.exec_hook(:test_hook)
-      x.should == true
-      y.should == true
+      x.should eq true
+      y.should eq true
     end
 
     it 'should execute hooks in order' do
@@ -281,14 +281,14 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name2) { array << 2 }
       @hooks.add_hook(:test_hook, :my_name3) { array << 3 }
       @hooks.exec_hook(:test_hook)
-      array.should == [1, 2, 3]
+      array.should eq [1, 2, 3]
     end
 
     it 'return value of exec_hook should be that of last executed hook' do
       @hooks.add_hook(:test_hook, :my_name1) { 1 }
       @hooks.add_hook(:test_hook, :my_name2) { 2 }
       @hooks.add_hook(:test_hook, :my_name3) { 3 }
-      @hooks.exec_hook(:test_hook).should == 3
+      @hooks.exec_hook(:test_hook).should eq 3
     end
 
     it 'should add exceptions to the errors array' do
@@ -296,14 +296,14 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :foo2) { raise 'two' }
       @hooks.add_hook(:test_hook, :foo3) { raise 'three' }
       @hooks.exec_hook(:test_hook)
-      @hooks.errors.map(&:message).should == ['one', 'two', 'three']
+      @hooks.errors.map(&:message).should eq ['one', 'two', 'three']
     end
 
     it 'should return the last exception raised as the return value' do
       @hooks.add_hook(:test_hook, :foo1) { raise 'one' }
       @hooks.add_hook(:test_hook, :foo2) { raise 'two' }
       @hooks.add_hook(:test_hook, :foo3) { raise 'three' }
-      @hooks.exec_hook(:test_hook).should == @hooks.errors.last
+      @hooks.exec_hook(:test_hook).should eq @hooks.errors.last
     end
   end
 
@@ -313,11 +313,11 @@ describe Pry::Hooks do
         options = nil
         Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| options = opt }
 
-        redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
+        redirect_pry_io(StringIO.new("exit"), StringIO.new) do
           Pry.start binding, :hello => :baby
         end
 
-        options[:hello].should == :baby
+        options[:hello].should eq :baby
 
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
@@ -328,11 +328,11 @@ describe Pry::Hooks do
           b = nil
           Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
-          redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
+          redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, :hello => :baby
           end
 
-          b.is_a?(Binding).should == true
+          b.is_a?(Binding).should eq true
           Pry.config.hooks.delete_hook(:when_started, :test_hook)
         end
 
@@ -340,17 +340,16 @@ describe Pry::Hooks do
           b = nil
           Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
-          redirect_pry_io(StringIO.new("exit"), out=StringIO.new) do
+          redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, :hello => :baby
           end
 
-          b.eval('self').should == 5
+          b.eval('self').should eq 5
           Pry.config.hooks.delete_hook(:when_started, :test_hook)
         end
       end
 
       it 'should allow overriding of target (and binding_stack)' do
-        options = nil
         o = Object.new
         class << o; attr_accessor :value; end
 
@@ -360,7 +359,7 @@ describe Pry::Hooks do
           Pry.start binding, :hello => :baby
         end
 
-        o.value.should == true
+        o.value.should eq true
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
 
@@ -377,7 +376,7 @@ describe Pry::Hooks do
         array = [1, 2, 3, 4, 5]
 
         begin
-          redirect_pry_io(StringIO.new("raise great_escape"), out=StringIO.new) do
+          redirect_pry_io(StringIO.new("raise great_escape"), StringIO.new) do
             Pry.start o, :hooks => Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
           end
         rescue => ex
@@ -386,10 +385,10 @@ describe Pry::Hooks do
 
         # ensure that an exception really was raised and it broke out
         # of the repl
-        exception.is_a?(o.great_escape).should == true
+        exception.is_a?(o.great_escape).should eq true
 
         # check that after_session hook ran
-        array.should == nil
+        array.should eq nil
 
         # cleanup after test
         Pry.config.exception_whitelist = old_ew
@@ -450,13 +449,13 @@ describe Pry::Hooks do
   describe "anonymous hooks" do
     it 'should allow adding of hook without a name' do
       @hooks.add_hook(:test_hook, nil) {}
-      @hooks.hook_count(:test_hook).should == 1
+      @hooks.hook_count(:test_hook).should eq 1
     end
 
     it 'should only allow one anonymous hook to exist' do
       @hooks.add_hook(:test_hook, nil) {  }
       @hooks.add_hook(:test_hook, nil) {  }
-      @hooks.hook_count(:test_hook).should == 1
+      @hooks.hook_count(:test_hook).should eq 1
     end
 
     it 'should execute most recently added anonymous hook' do
@@ -465,8 +464,8 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, nil) { y = 1 }
       @hooks.add_hook(:test_hook, nil) { x = 2 }
       @hooks.exec_hook(:test_hook)
-      y.should == nil
-      x.should == 2
+      y.should eq nil
+      x.should eq 2
     end
   end
 

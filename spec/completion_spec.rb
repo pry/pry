@@ -48,11 +48,11 @@ describe Pry::InputCompleter do
     # check to see if variables are in scope
     object.instance_variables.
       map { |v| v.to_sym }.
-      include?(:'@name').should == true
+      include?(:'@name').should eq true
 
     object.class.class_variables.
       map { |v| v.to_sym }.
-      include?(:'@@number').should == true
+      include?(:'@@number').should eq true
 
     # Complete instance variables.
     b = Pry.binding_for(object)
@@ -92,6 +92,7 @@ describe Pry::InputCompleter do
 
     # Constant
     module Mod
+      remove_const :Con if defined? Con
       Con = 'Constant'
       module Mod2
       end
@@ -103,7 +104,7 @@ describe Pry::InputCompleter do
     completer_test(o).call('Mod::Con')
 
     # Symbol
-    foo = :symbol
+    _foo = :symbol
     completer_test(o).call(':symbol')
 
     # Variables
@@ -123,6 +124,7 @@ describe Pry::InputCompleter do
     end
 
     module Baz
+      remove_const :Con if defined? Con
       @bar = Bar
       @bazvar = :baz
       Con = :constant
@@ -163,6 +165,7 @@ describe Pry::InputCompleter do
 
     # Constant
     module Mod
+      remove_const :Con if defined? Con
       Con = 'Constant'
       module Mod2
       end
@@ -174,7 +177,7 @@ describe Pry::InputCompleter do
     completer_test(o).call('Mod::Con')
 
     # Symbol
-    foo = :symbol
+    _foo = :symbol
     completer_test(o).call(':symbol')
 
     # Variables
@@ -194,6 +197,7 @@ describe Pry::InputCompleter do
     end
 
     module Baz
+      remove_const :Con if defined? Con
       @bar = Bar
       @bazvar = :baz
       Con = :constant

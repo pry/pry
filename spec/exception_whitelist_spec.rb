@@ -6,7 +6,7 @@ describe "Pry.config.exception_whitelist" do
   end
 
   it 'should rescue all exceptions NOT specified on whitelist' do
-    Pry.config.exception_whitelist.include?(NameError).should == false
+    Pry.config.exception_whitelist.include?(NameError).should eq false
     expect { Pry.start(self, :input => StringIO.new("raise NameError\nexit"), :output => @str_output) }.not_to raise_error
   end
 

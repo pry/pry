@@ -8,18 +8,18 @@ describe Pry::Code do
 
     specify 'read lines from Pry\'s line buffer' do
       pry_eval ':hay_guys'
-      Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should == 1
+      Pry::Code.from_file('(pry)').grep(/:hay_guys/).length.should eq 1
     end
 
     specify 'default to unknown' do
       temp_file('') do |f|
-        Pry::Code.from_file(f.path).code_type.should == :unknown
+        Pry::Code.from_file(f.path).code_type.should eq :unknown
       end
     end
 
     specify 'check the extension' do
       temp_file('.c') do |f|
-        Pry::Code.from_file(f.path).code_type.should == :c
+        Pry::Code.from_file(f.path).code_type.should eq :c
       end
     end
 
@@ -31,19 +31,19 @@ describe Pry::Code do
 
     specify 'check for files relative to origin pwd' do
       Dir.chdir('spec') do |f|
-        Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type.should == :ruby
+        Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type.should eq :ruby
       end
     end
 
     specify 'check for Ruby files relative to origin pwd with `.rb` omitted' do
       Dir.chdir('spec') do |f|
-        Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type.should == :ruby
+        Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type.should eq :ruby
       end
     end
 
     specify 'find files that are relative to the current working directory' do
       Dir.chdir('spec') do |f|
-        Pry::Code.from_file(File.basename(__FILE__)).code_type.should == :ruby
+        Pry::Code.from_file(File.basename(__FILE__)).code_type.should eq :ruby
       end
     end
 
@@ -57,31 +57,31 @@ describe Pry::Code do
       end
 
       it 'finds files with `.rb` extension' do
-        Pry::Code.from_file('slinky.rb').code_type.should == :ruby
+        Pry::Code.from_file('slinky.rb').code_type.should eq :ruby
       end
 
       it 'finds files with `.rb` omitted' do
-        Pry::Code.from_file('slinky').code_type.should == :ruby
+        Pry::Code.from_file('slinky').code_type.should eq :ruby
       end
 
       it 'finds files in a relative directory with `.rb` extension' do
-        Pry::Code.from_file('../helper.rb').code_type.should == :ruby
+        Pry::Code.from_file('../helper.rb').code_type.should eq :ruby
       end
 
       it 'finds files in a relative directory with `.rb` omitted' do
-        Pry::Code.from_file('../helper').code_type.should == :ruby
+        Pry::Code.from_file('../helper').code_type.should eq :ruby
       end
 
       it "doesn't confuse files with the same name, but without an extension" do
-        Pry::Code.from_file('cat_load_path').code_type.should == :unknown
+        Pry::Code.from_file('cat_load_path').code_type.should eq :unknown
       end
 
       it "doesn't confuse files with the same name, but with an extension" do
-        Pry::Code.from_file('cat_load_path.rb').code_type.should == :ruby
+        Pry::Code.from_file('cat_load_path.rb').code_type.should eq :ruby
       end
 
       it "recognizes special Ruby files without extensions" do
-        Pry::Code.from_file('Gemfile').code_type.should == :ruby
+        Pry::Code.from_file('Gemfile').code_type.should eq :ruby
       end
     end
   end
@@ -105,15 +105,15 @@ describe Pry::Code do
     end
 
     specify 'break a string into lines' do
-      Pry::Code.new(@str).length.should == 3
+      Pry::Code.new(@str).length.should eq 3
     end
 
     specify 'accept an array' do
-      Pry::Code.new(@array).length.should == 3
+      Pry::Code.new(@array).length.should eq 3
     end
 
     it 'an array or string specify produce an equivalent object' do
-      Pry::Code.new(@str).should == Pry::Code.new(@array)
+      Pry::Code.new(@str).should eq Pry::Code.new(@array)
     end
   end
 
@@ -132,19 +132,19 @@ describe Pry::Code do
       describe '#between' do
         specify 'work with an inclusive range' do
           @code = @code.between(1..3)
-          @code.length.should == 3
+          @code.length.should eq 3
           @code.should =~ /\Aclass MyProgram/
           @code.should =~ /world!'\Z/
         end
 
         specify 'default to an inclusive range' do
           @code = @code.between(3, 5)
-          @code.length.should == 3
+          @code.length.should eq 3
         end
 
         specify 'work with an exclusive range' do
           @code = @code.between(2...4)
-          @code.length.should == 2
+          @code.length.should eq 2
           @code.should =~ /\A  def self/
           @code.should =~ /world!'\Z/
         end
@@ -152,7 +152,7 @@ describe Pry::Code do
         specify 'use real line numbers for positive indices' do
           @code = @code.after(3, 3)
           @code = @code.between(4, 4)
-          @code.length.should == 1
+          @code.length.should eq 1
           @code.should =~ /\A  end\Z/
         end
       end
@@ -167,7 +167,7 @@ describe Pry::Code do
       describe '#around' do
         specify 'work' do
           @code = @code.around(3, 1)
-          @code.length.should == 3
+          @code.length.should eq 3
           @code.should =~ /\A  def self/
           @code.should =~ /  end\Z/
         end
@@ -183,7 +183,7 @@ describe Pry::Code do
       describe '#grep' do
         specify 'work' do
           @code = @code.grep(/end/)
-          @code.length.should == 2
+          @code.length.should eq 2
         end
       end
     end
@@ -249,7 +249,7 @@ describe Pry::Code do
       describe 'before and after' do
         specify 'work' do
           @code = @code.before(4, 2).after(2)
-          @code.should == "    puts 'Hello, world!'"
+          @code.should eq "    puts 'Hello, world!'"
         end
       end
     end

@@ -61,16 +61,14 @@ class Pry
         return nil if file.nil?
         return @source if @source
 
-        @source = strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk))
+        @source ||= strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk))
       end
 
       # @raise [Pry::CommandError] If documentation cannot be found.
       # @return [String] The documentation for the candidate.
       def doc
         return nil if file.nil?
-        return @doc if @doc
-
-        @doc = get_comment_content(Pry::Code.from_file(file).comment_describing(line))
+        @doc ||= get_comment_content(Pry::Code.from_file(file).comment_describing(line))
       end
 
       # @return [Array, nil] A `[String, Fixnum]` pair representing the

@@ -77,7 +77,7 @@ describe Pry::WrappedModule do
 
       it 'should return the location of the outer module if an inner module has methods' do
         wm = Pry::WrappedModule(Host::ForeverAlone)
-        File.expand_path(wm.source_location.first).should == File.expand_path(__FILE__)
+        File.expand_path(wm.source_location.first).should eq File.expand_path(__FILE__)
         wm.source_location.last.should == Host::FOREVER_ALONE_LINE
       end
 
@@ -189,7 +189,7 @@ describe Pry::WrappedModule do
     end
 
     it "should return the attached object" do
-      Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance.should == "hi"
+      Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance.should eq "hi"
       Pry::WrappedModule.new(class << Object; self; end).singleton_instance.should.equal?(Object)
     end
   end
@@ -252,6 +252,7 @@ describe Pry::WrappedModule do
   describe ".from_str" do
     before do
       class Namespace
+        remove_const :Value if defined? Value
         Value = Class.new
       end
     end
@@ -264,7 +265,7 @@ describe Pry::WrappedModule do
     it 'should lookup a local' do
       local = Namespace::Value
       m = Pry::WrappedModule.from_str("local", binding)
-      m.wrapped.should == Namespace::Value
+      m.wrapped.should == local
     end
 
     it 'should lookup an ivar' do

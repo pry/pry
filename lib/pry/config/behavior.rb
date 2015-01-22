@@ -137,8 +137,10 @@ private
   end
 
   def __push(key,value)
-    define_singleton_method(key) { self[key] }
-    define_singleton_method("#{key}=") { |val| @lookup[key] = val }
+    unless singleton_class.method_defined? key
+      define_singleton_method(key) { self[key] }
+      define_singleton_method("#{key}=") { |val| @lookup[key] = val }
+    end
     @lookup[key] = value
   end
 

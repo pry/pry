@@ -22,6 +22,7 @@ class Pry
       # @param [String] method_name
       def initialize(receiver, method_name, binding=nil)
         @receiver, @name = receiver, method_name
+        @method = nil
       end
 
       # Is the method undefined? (aka `Disowned`)

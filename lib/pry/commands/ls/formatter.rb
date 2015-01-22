@@ -7,6 +7,7 @@ class Pry
       def initialize(_pry_)
         @_pry_ = _pry_
         @target = _pry_.current_context
+        @default_switch = nil
       end
 
       def write_out

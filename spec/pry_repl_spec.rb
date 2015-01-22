@@ -5,7 +5,7 @@ describe "The whole thing" do
     ReplTester.start do
       input  'def a'
       input  '!'
-      output /^Input buffer cleared/
+      output(/^Input buffer cleared/)
 
       input  '5'
       output '=> 5'
@@ -15,14 +15,14 @@ describe "The whole thing" do
   it "should rescue exceptions" do
     ReplTester.start do
       input  'raise "lorum"'
-      output /^RuntimeError: lorum/
+      output(/^RuntimeError: lorum/)
 
       if defined?(java)
         input  'raise java.lang.Exception.new("foo")'
-        output /Exception: foo/
+        output(/Exception: foo/)
 
         input  'raise java.io.IOException.new("bar")'
-        output /IOException: bar/
+        output(/IOException: bar/)
       end
     end
   end
@@ -32,7 +32,7 @@ describe "The whole thing" do
       ReplTester.start do
         input  'Pry::REPL.new(_pry_, :target => 10).start'
         output ''
-        prompt /10.*> $/
+        prompt(/10.*> $/)
 
         input  'self'
         output '=> 10'
@@ -49,7 +49,7 @@ describe "The whole thing" do
       ReplTester.start do
         input  'Pry.start(10, _pry_.config)'
         output ''
-        prompt /10.*> $/
+        prompt(/10.*> $/)
 
         input  'self'
         output '=> 10'
@@ -66,14 +66,14 @@ describe "The whole thing" do
       ReplTester.start do
         input  'cd 10'
         output ''
-        prompt /10.*> $/
+        prompt(/10.*> $/)
 
         input  '_pry_.binding_stack.pop'
-        output /^=> #<Binding/
-        prompt /main.*> $/
+        output(/^=> #<Binding/)
+        prompt(/main.*> $/)
 
         input  '_pry_.binding_stack.pop'
-        output /^=> #<Binding/
+        output(/^=> #<Binding/)
         assert_exited
       end
     end
@@ -90,11 +90,11 @@ describe "The whole thing" do
       ReplTester.start(:commands => set) do
         input  'def x'
         output ''
-        prompt /\*   $/
+        prompt(/\*   $/)
 
         input  'hello!'
         output '=> "hello"'
-        prompt /> $/
+        prompt(/> $/)
       end
     end
   end

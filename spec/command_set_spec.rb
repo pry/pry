@@ -15,21 +15,21 @@ describe Pry::CommandSet do
 
   describe "[]=" do
     it "removes a command from the command set" do
-      @set["help"].should_not == nil
+      @set["help"].should_not eq nil
       @set["help"] = nil
-      @set["help"].should == nil
+      @set["help"].should eq nil
       expect { @set.run_command(TOPLEVEL_BINDING, "help") }.to raise_error Pry::NoCommandError
     end
 
     it "replaces a command" do
       old_help = @set["help"]
       @set["help"] = @set["pry-version"]
-      @set["help"].should_not == old_help
+      @set["help"].should_not eq old_help
     end
 
     it "rebinds the command with key" do
       @set["help-1"] = @set["help"]
-      @set["help-1"].match.should == "help-1"
+      @set["help-1"].match.should eq "help-1"
     end
 
     it "raises a TypeError when command is not a subclass of Pry::Command" do
@@ -44,7 +44,7 @@ describe Pry::CommandSet do
     end
 
     @set.run_command @ctx, 'foo'
-    run.should == true
+    run.should eq true
   end
 
   it 'should pass arguments of the command to the block' do
@@ -94,7 +94,7 @@ describe Pry::CommandSet do
     @set.import_from(other_set, 'foo')
 
     @set.run_command @ctx, 'foo'
-    run.should == true
+    run.should eq true
 
     expect { @set.run_command @ctx, 'bar' }.to raise_error Pry::NoCommandError
   end
@@ -107,7 +107,7 @@ describe Pry::CommandSet do
       command('bar') {}
     end
 
-    @set.import(other_set).should == @set
+    @set.import(other_set).should eq @set
   end
 
   it 'should return command set after import_from' do
@@ -118,7 +118,7 @@ describe Pry::CommandSet do
       command('bar') {}
     end
 
-    @set.import_from(other_set, 'foo').should == @set
+    @set.import_from(other_set, 'foo').should eq @set
   end
 
   it 'should be able to import some commands from other sets using listing name' do
@@ -131,7 +131,7 @@ describe Pry::CommandSet do
     @set.import_from(other_set, 'foo')
 
     @set.run_command @ctx, /^foo1/
-    run.should == true
+    run.should eq true
   end
 
   it 'should be able to import a whole set' do
@@ -146,7 +146,7 @@ describe Pry::CommandSet do
 
     @set.run_command @ctx, 'foo'
     @set.run_command @ctx, 'bar'
-    run.should == [true, true]
+    run.should eq [true, true]
   end
 
   it 'should be able to import sets at creation' do
@@ -154,12 +154,12 @@ describe Pry::CommandSet do
     @set.command('foo') { run = true }
 
     Pry::CommandSet.new(@set).run_command @ctx, 'foo'
-    run.should == true
+    run.should eq true
   end
 
   it 'should set the descriptions of commands' do
     @set.command('foo', 'some stuff') {}
-    @set['foo'].description.should == 'some stuff'
+    @set['foo'].description.should eq 'some stuff'
   end
 
   describe "aliases" do
@@ -168,11 +168,11 @@ describe Pry::CommandSet do
       @set.command('foo', 'stuff') { run = true }
 
       @set.alias_command 'bar', 'foo'
-      @set['bar'].match.should == 'bar'
-      @set['bar'].description.should == 'Alias for `foo`'
+      @set['bar'].match.should eq 'bar'
+      @set['bar'].description.should eq 'Alias for `foo`'
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should eq true
     end
 
     it "should be able to alias command with command_prefix" do
@@ -183,11 +183,11 @@ describe Pry::CommandSet do
         @set.alias_command 'owlet', 'owl'
 
         Pry.config.command_prefix = '%'
-        @set['%owlet'].match.should == 'owlet'
-        @set['%owlet'].description.should == 'Alias for `owl`'
+        @set['%owlet'].match.should eq 'owlet'
+        @set['%owlet'].description.should eq 'Alias for `owl`'
 
         @set.run_command @ctx, 'owlet'
-        run.should == true
+        run.should eq true
       ensure
         Pry.config.command_prefix = ''
       end
@@ -198,12 +198,12 @@ describe Pry::CommandSet do
       @set.command('foo', 'stuff', :shellwords => true, :interpolate => false) { run = true }
 
       @set.alias_command 'bar', 'foo'
-      @set['bar'].options[:shellwords].should == @set['foo'].options[:shellwords]
-      @set['bar'].options[:interpolate].should == @set['foo'].options[:interpolate]
+      @set['bar'].options[:shellwords].should eq @set['foo'].options[:shellwords]
+      @set['bar'].options[:interpolate].should eq @set['foo'].options[:interpolate]
 
       # however some options should not be inherited
-      @set['bar'].options[:listing].should_not ==  @set['foo'].options[:listing]
-      @set['bar'].options[:listing].should == "bar"
+      @set['bar'].options[:listing].should_not eq  @set['foo'].options[:listing]
+      @set['bar'].options[:listing].should eq "bar"
     end
 
     it 'should be able to specify alias\'s description when aliasing' do
@@ -211,11 +211,11 @@ describe Pry::CommandSet do
       @set.command('foo', 'stuff') { run = true }
 
       @set.alias_command 'bar', 'foo', :desc => "tobina"
-      @set['bar'].match.should == 'bar'
-      @set['bar'].description.should == "tobina"
+      @set['bar'].match.should eq 'bar'
+      @set['bar'].description.should eq "tobina"
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should eq true
     end
 
     it "should be able to alias a command by its invocation line" do
@@ -223,19 +223,19 @@ describe Pry::CommandSet do
       @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
       @set.alias_command 'bar', 'foo1'
-      @set['bar'].match.should == 'bar'
-      @set['bar'].description.should == 'Alias for `foo1`'
+      @set['bar'].match.should eq 'bar'
+      @set['bar'].description.should eq 'Alias for `foo1`'
 
       @set.run_command @ctx, 'bar'
-      run.should == true
+      run.should eq true
     end
 
     it "should be able to specify options when creating alias" do
       run = false
       @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
-      @set.alias_command /^b.r/, 'foo1', :listing => "bar"
-      @set.to_hash[/^b.r/].options[:listing].should == "bar"
+      @set.alias_command(/^b.r/, 'foo1', :listing => "bar")
+      @set.to_hash[/^b.r/].options[:listing].should eq "bar"
     end
 
     it "should set description to default if description parameter is nil" do
@@ -243,7 +243,7 @@ describe Pry::CommandSet do
       @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
 
       @set.alias_command "bar", 'foo1'
-      @set["bar"].description.should == "Alias for `foo1`"
+      @set["bar"].description.should eq "Alias for `foo1`"
     end
   end
 
@@ -251,32 +251,32 @@ describe Pry::CommandSet do
     @set.command('foo', 'bar') {}
     @set.desc 'foo', 'baz'
 
-    @set['foo'].description.should == 'baz'
+    @set['foo'].description.should eq 'baz'
   end
 
   it 'should get the descriptions of commands' do
     @set.command('foo', 'bar') {}
-    @set.desc('foo').should == 'bar'
+    @set.desc('foo').should eq 'bar'
   end
 
   it 'should get the descriptions of commands, by listing' do
     @set.command(/^foo1/, 'bar', :listing => 'foo') {}
-    @set.desc('foo').should == 'bar'
+    @set.desc('foo').should eq 'bar'
   end
 
   it 'should return Pry::Command::VOID_VALUE for commands by default' do
     @set.command('foo') { 3 }
-    @set.run_command(@ctx, 'foo').should == Pry::Command::VOID_VALUE
+    @set.run_command(@ctx, 'foo').should eq Pry::Command::VOID_VALUE
   end
 
   it 'should be able to keep return values' do
     @set.command('foo', '', :keep_retval => true) { 3 }
-    @set.run_command(@ctx, 'foo').should == 3
+    @set.run_command(@ctx, 'foo').should eq 3
   end
 
   it 'should be able to keep return values, even if return value is nil' do
     @set.command('foo', '', :keep_retval => true) { nil }
-    @set.run_command(@ctx, 'foo').should == nil
+    @set.run_command(@ctx, 'foo').should eq nil
   end
 
   it 'should be able to have its own helpers' do
@@ -334,12 +334,12 @@ describe Pry::CommandSet do
 
   it 'should provide a :listing for a command that defaults to its name' do
     @set.command 'foo', "" do;end
-    @set['foo'].options[:listing].should == 'foo'
+    @set['foo'].options[:listing].should eq 'foo'
   end
 
   it 'should provide a :listing for a command that differs from its name' do
     @set.command 'foo', "", :listing => 'bar' do;end
-    @set['foo'].options[:listing].should == 'bar'
+    @set['foo'].options[:listing].should eq 'bar'
   end
 
   it "should provide a 'help' command" do
@@ -356,7 +356,7 @@ describe Pry::CommandSet do
       @set.command('foo') { run = true }
       @set.rename_command('bar', 'foo')
       @set.run_command(@ctx, 'bar')
-      run.should == true
+      run.should eq true
     end
 
     it 'should accept listing name when renaming a command' do
@@ -364,7 +364,7 @@ describe Pry::CommandSet do
       @set.command('foo', "", :listing => 'love') { run = true }
       @set.rename_command('bar', 'love')
       @set.run_command(@ctx, 'bar')
-      run.should == true
+      run.should eq true
     end
 
     it 'should raise exception trying to rename non-existent command' do
@@ -382,9 +382,9 @@ describe Pry::CommandSet do
       listing = "bing"
       @set.command('foo') { }
       @set.rename_command('bar', 'foo', :description => desc, :listing => listing, :keep_retval => true)
-      @set['bar'].description.should           == desc
-      @set['bar'].options[:listing].should     == listing
-      @set['bar'].options[:keep_retval].should == true
+      @set['bar'].description.should           eq desc
+      @set['bar'].options[:listing].should     eq listing
+      @set['bar'].options[:keep_retval].should eq true
     end
   end
 
@@ -396,7 +396,7 @@ describe Pry::CommandSet do
         @set.before_command('foo') { foo << 2 }
         @set.run_command(@ctx, 'foo')
 
-        foo.should == [2, 1]
+        foo.should eq [2, 1]
       end
 
       it 'should be called before the original command, using listing name' do
@@ -405,7 +405,7 @@ describe Pry::CommandSet do
         @set.before_command('foo') { foo << 2 }
         @set.run_command(@ctx, /^foo1/)
 
-        foo.should == [2, 1]
+        foo.should eq [2, 1]
       end
 
       it 'should share the context with the original command' do
@@ -416,8 +416,8 @@ describe Pry::CommandSet do
         @set.before_command('foo') { before_val = target }
         @set.run_command(@ctx, 'foo')
 
-        before_val.should == @ctx[:target]
-        orig_val.should == @ctx[:target]
+        before_val.should eq @ctx[:target]
+        orig_val.should eq @ctx[:target]
       end
 
       it 'should work when applied multiple times' do
@@ -428,7 +428,7 @@ describe Pry::CommandSet do
         @set.before_command('foo') { foo << 4 }
         @set.run_command(@ctx, 'foo')
 
-        foo.should == [4, 3, 2, 1]
+        foo.should eq [4, 3, 2, 1]
       end
 
     end
@@ -440,7 +440,7 @@ describe Pry::CommandSet do
         @set.after_command('foo') { foo << 2 }
         @set.run_command(@ctx, 'foo')
 
-        foo.should == [1, 2]
+        foo.should eq [1, 2]
       end
 
       it 'should be called after the original command, using listing name' do
@@ -449,7 +449,7 @@ describe Pry::CommandSet do
         @set.after_command('foo') { foo << 2 }
         @set.run_command(@ctx, /^foo1/)
 
-        foo.should == [1, 2]
+        foo.should eq [1, 2]
       end
 
       it 'should share the context with the original command' do
@@ -460,14 +460,14 @@ describe Pry::CommandSet do
         @set.after_command('foo') { after_val = target }
         @set.run_command(@ctx, 'foo')
 
-        after_val.should == @ctx[:target]
-        orig_val.should == @ctx[:target]
+        after_val.should eq @ctx[:target]
+        orig_val.should eq @ctx[:target]
       end
 
       it 'should determine the return value for the command' do
         @set.command('foo', 'bar', :keep_retval => true) { 1 }
         @set.after_command('foo') { 2 }
-        @set.run_command(@ctx, 'foo').should == 2
+        @set.run_command(@ctx, 'foo').should eq 2
       end
 
       it 'should work when applied multiple times' do
@@ -478,7 +478,7 @@ describe Pry::CommandSet do
         @set.after_command('foo') { foo << 4 }
         @set.run_command(@ctx, 'foo')
 
-        foo.should == [1, 2, 3, 4]
+        foo.should eq [1, 2, 3, 4]
       end
     end
 
@@ -490,7 +490,7 @@ describe Pry::CommandSet do
         @set.before_command('foo') { foo << 3 }
         @set.run_command(@ctx, 'foo')
 
-        foo.should == [3, 1, 2]
+        foo.should eq [3, 1, 2]
       end
 
     end
@@ -500,44 +500,44 @@ describe Pry::CommandSet do
   describe 'find_command' do
     it 'should find commands with the right string' do
       cmd = @set.command('rincewind'){ }
-      @set.find_command('rincewind').should == cmd
+      @set.find_command('rincewind').should eq cmd
     end
 
     it 'should not find commands with spaces before' do
-      cmd = @set.command('luggage'){ }
-      @set.find_command(' luggage').should == nil
+      @set.command('luggage'){ }
+      @set.find_command(' luggage').should eq nil
     end
 
     it 'should find commands with arguments after' do
       cmd = @set.command('vetinari'){ }
-      @set.find_command('vetinari --knock 3').should == cmd
+      @set.find_command('vetinari --knock 3').should eq cmd
     end
 
     it 'should find commands with names containing spaces' do
       cmd = @set.command('nobby nobbs'){ }
-      @set.find_command('nobby nobbs --steal petty-cash').should == cmd
+      @set.find_command('nobby nobbs --steal petty-cash').should eq cmd
     end
 
     it 'should find command defined by regex' do
       cmd = @set.command(/(capt|captain) vimes/i){ }
-      @set.find_command('Capt Vimes').should == cmd
+      @set.find_command('Capt Vimes').should eq cmd
     end
 
     it 'should find commands defined by regex with arguments' do
       cmd = @set.command(/(cpl|corporal) Carrot/i){ }
-      @set.find_command('cpl carrot --write-home').should == cmd
+      @set.find_command('cpl carrot --write-home').should eq cmd
     end
 
     it 'should not find commands by listing' do
-      cmd = @set.command(/werewol(f|ve)s?/, 'only once a month', :listing => "angua"){ }
-      @set.find_command('angua').should == nil
+      @set.command(/werewol(f|ve)s?/, 'only once a month', :listing => "angua"){ }
+      @set.find_command('angua').should eq nil
     end
 
     it 'should not find commands without command_prefix' do
       begin
         Pry.config.command_prefix = '%'
-        cmd = @set.command('detritus'){ }
-        @set.find_command('detritus').should == nil
+        @set.command('detritus'){ }
+        @set.find_command('detritus').should eq nil
       ensure
         Pry.config.command_prefix = ''
       end
@@ -547,37 +547,37 @@ describe Pry::CommandSet do
       begin
         Pry.config.command_prefix = '%'
         cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
-        @set.find_command('colon').should == cmd
+        @set.find_command('colon').should eq cmd
       ensure
         Pry.config.command_prefix = ''
       end
     end
 
     it "should find the command that has the longest match" do
-      cmd = @set.command(/\.(.*)/){ }
+      @set.command(/\.(.*)/){ }
       cmd2 = @set.command(/\.\|\|(.*)/){ }
-      @set.find_command('.||').should == cmd2
+      @set.find_command('.||').should eq cmd2
     end
 
     it "should find the command that has the longest name" do
-      cmd = @set.command(/\.(.*)/){ }
+      @set.command(/\.(.*)/){ }
       cmd2 = @set.command('.||'){ }
-      @set.find_command('.||').should == cmd2
+      @set.find_command('.||').should eq cmd2
     end
   end
 
   describe '.valid_command?' do
     it 'should be true for commands that can be found' do
-      cmd = @set.command('archchancellor')
-      @set.valid_command?('archchancellor of_the?(:University)').should == true
+      @set.command('archchancellor')
+      @set.valid_command?('archchancellor of_the?(:University)').should eq true
     end
 
     it 'should be false for commands that can\'' do
-      @set.valid_command?('def monkey(ape)').should == false
+      @set.valid_command?('def monkey(ape)').should eq false
     end
 
     it 'should not cause argument interpolation' do
-      cmd = @set.command('hello')
+      @set.command('hello')
       expect { @set.valid_command?('hello #{raise "futz"}') }.to_not raise_error
     end
   end
@@ -586,9 +586,9 @@ describe Pry::CommandSet do
 
     it 'should return Result.new(false) if there is no matching command' do
      result = @set.process_line('1 + 42')
-     result.command?.should == false
-     result.void_command?.should == false
-     result.retval.should == nil
+     result.command?.should eq false
+     result.void_command?.should eq false
+     result.retval.should eq nil
     end
 
     it 'should return Result.new(true, VOID) if the command is not keep_retval' do
@@ -597,9 +597,9 @@ describe Pry::CommandSet do
       end
 
       result = @set.process_line('mrs-cake')
-      result.command?.should == true
-      result.void_command?.should == true
-      result.retval.should == Pry::Command::VOID_VALUE
+      result.command?.should eq true
+      result.void_command?.should eq true
+      result.retval.should eq Pry::Command::VOID_VALUE
     end
 
     it 'should return Result.new(true, retval) if the command is keep_retval' do
@@ -608,9 +608,9 @@ describe Pry::CommandSet do
       end
 
       result = @set.process_line('magrat')
-      result.command?.should == true
-      result.void_command?.should == false
-      result.retval.should == 42
+      result.command?.should eq true
+      result.void_command?.should eq false
+      result.retval.should eq 42
     end
 
     it 'should pass through context' do
@@ -657,7 +657,7 @@ describe Pry::CommandSet do
 
       it "should delegate to commands" do
         @set.create_command('susan'){ def complete(search); ['--foo']; end }
-        @set.complete('susan ').should == ['--foo']
+        @set.complete('susan ').should eq ['--foo']
       end
     end
   end
