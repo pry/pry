@@ -14,8 +14,8 @@ describe "disable-pry" do
   end
 
   it "should set DISABLE_PRY" do
-    ENV['DISABLE_PRY'].should == nil
+    ENV['DISABLE_PRY'].should eq nil
     expect { @t.process_command 'disable-pry' }.to throw_symbol :breakout
-    ENV['DISABLE_PRY'].should == 'true'
+    ENV['DISABLE_PRY'].should eq 'true'
   end
 end

@@ -232,12 +232,13 @@ describe "Pry::Command" do
         end
 
         def process
-          args.should == ['four']
-          opts[:f].should == 4
+          output.puts args.inspect
+          output.puts opts[:f]
         end
       end
 
-      mock_command(cmd, %w(--four 4 four))
+      result = mock_command(cmd, %w(--four 4 four))
+      result.output.split.should eq ['["four"]', '4']
     end
 
     it 'should allow overriding options after definition' do
@@ -257,12 +258,13 @@ describe "Pry::Command" do
         end
 
         def process
-          opts.fetch_command(:blahblah).should == nil
-          opts.fetch_command(:yell).present?.should == true
+          output.puts opts.fetch_command(:blahblah).inspect
+          output.puts opts.fetch_command(:yell).present?
         end
       end
 
-      mock_command(cmd, ['yell'])
+      result = mock_command(cmd, ['yell'])
+      result.output.split.should eq ['nil', 'true']
     end
 
     it "should create subcommand options" do
@@ -274,13 +276,14 @@ describe "Pry::Command" do
         end
 
         def process
-          args.should == ['papa']
-          opts.fetch_command(:yell).present?.should == true
-          opts.fetch_command(:yell).person?.should == true
+          output.puts args.inspect
+          output.puts opts.fetch_command(:yell).present?
+          output.puts opts.fetch_command(:yell).person?
         end
       end
 
-      mock_command(cmd, %w|yell --person papa|)
+      result = mock_command(cmd, %w|yell --person papa|)
+      result.output.split.should eq ['["papa"]', 'true', 'true']
     end
 
     it "should accept top-level arguments" do

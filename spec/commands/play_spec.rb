@@ -39,7 +39,7 @@ describe "play" do
   describe "playing a file" do
     it 'should play a file' do
       @t.process_command 'play spec/fixtures/whereami_helper.rb'
-      @t.eval_string.should == unindent(<<-STR)
+      @t.eval_string.should eq unindent(<<-STR)
         class Cor
           def a; end
           def b; end
@@ -52,7 +52,7 @@ describe "play" do
 
     it 'should output file contents with print option' do
       @t.process_command 'play --print spec/fixtures/whereami_helper.rb'
-      @t.last_output.should == unindent(<<-STR)
+      @t.last_output.should eq unindent(<<-STR)
         1: class Cor
         2:   def a; end
         3:   def b; end
@@ -71,6 +71,8 @@ describe "play" do
     end
 
     it 'should play documentation with the -d switch' do
+      @o.singleton_class.send :remove_method, :test_method
+
       # @v = 10
       # @y = 20
       def @o.test_method
@@ -78,13 +80,15 @@ describe "play" do
       end
 
       @t.process_command 'play -d test_method'
-      @t.eval_string.should == unindent(<<-STR)
+      @t.eval_string.should eq unindent(<<-STR)
         @v = 10
         @y = 20
       STR
     end
 
     it 'should restrict -d switch with --lines' do
+      @o.singleton_class.send :remove_method, :test_method
+
       # @x = 0
       # @v = 10
       # @y = 20
@@ -94,7 +98,7 @@ describe "play" do
       end
 
       @t.process_command 'play -d test_method --lines 2..3'
-      @t.eval_string.should == unindent(<<-STR)
+      @t.eval_string.should eq unindent(<<-STR)
         @v = 10
         @y = 20
       STR
@@ -106,16 +110,18 @@ describe "play" do
 
     it 'should play a method (a single line)' do
       @t.process_command 'play test_method --lines 2'
-      @t.eval_string.should == ":test_method_content\n"
+      @t.eval_string.should eq ":test_method_content\n"
     end
 
     it 'should properly reindent lines' do
+      @o.singleton_class.send :remove_method, :test_method
+
       def @o.test_method
         'hello world'
       end
 
       @t.process_command 'play test_method --lines 2'
-      @t.eval_string.should == "'hello world'\n"
+      @t.eval_string.should eq "'hello world'\n"
     end
 
     it 'should APPEND to the input buffer when playing a method line, not replace it' do
@@ -125,13 +131,15 @@ describe "play" do
 
       @t.process_command 'play test_method --lines 2'
 
-      @t.eval_string.should == unindent(<<-STR)
+      @t.eval_string.should eq unindent(<<-STR)
         def another_test_method
           :test_method_content
       STR
     end
 
     it 'should play a method (multiple lines)' do
+      @o.singleton_class.send :remove_method, :test_method
+
       def @o.test_method
         @var0 = 10
         @var1 = 20
@@ -140,7 +148,7 @@ describe "play" do
       end
 
       @t.process_command 'play test_method --lines 3..4'
-      @t.eval_string.should == unindent(<<-STR, 0)
+      @t.eval_string.should eq unindent(<<-STR, 0)
         @var1 = 20
         @var2 = 30
       STR
@@ -155,13 +163,16 @@ describe "play" do
           binding.pry
         end
 
-        [a, b, c].all? { |v| v.should == 2 }
-        d.should == 1
+        [a, b, c].all? { |v| v.should eq 2 }
+        d.should eq 1
+        e.should eq 1
       end
     end
 
     describe "play -e" do
       it 'should run an expression from given line number' do
+        @o.singleton_class.send :remove_method, :test_method
+
         def @o.test_method
           @s = [
             1,2,3,
@@ -170,7 +181,7 @@ describe "play" do
         end
 
         @t.process_command 'play test_method -e 2'
-        @t.eval_string.should == unindent(<<-STR, 0)
+        @t.eval_string.should eq unindent(<<-STR, 0)
           @s = [
             1,2,3,
             4,5,6

@@ -71,126 +71,123 @@ describe "whereami" do
         def blimey!
           pry_eval(binding, 'whereami')
         end
-        END
-      end
-
-      expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
-
-      Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
-      Object.remove_const(:Cor)
+      END
     end
 
-    # Now that we use stagger_output (paging output) we no longer get
-    # the "From: " line, as we output everything in one go (not separate output.puts)
-    # and so the user just gets a single `Error: Cannot open
-    # "not.found.file.erb" for reading.`
-    # which is good enough IMO. Unfortunately we can't test for it
-    # though, as we don't hook stdout.
-    #
-    # it 'should display a description and error if reading the file goes wrong' do
-    #   class Cor
-    #     def blimey!
-    #       eval <<-END, binding, "not.found.file.erb", 7
-    #         Pad.tester = pry_tester(binding)
-    #         Pad.tester.eval('whereami')
-    #       END
-    #     end
-    #   end
+    expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
 
-    #   proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
+    Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+    Object.remove_const(:Cor)
+  end
 
-    #   Pad.tester.last_output.should =~
-    #     /From: not.found.file.erb @ line 7 Cor#blimey!:/
-    #   Object.remove_const(:Cor)
-    # end
+  # Now that we use stagger_output (paging output) we no longer get
+  # the "From: " line, as we output everything in one go (not separate output.puts)
+  # and so the user just gets a single `Error: Cannot open
+  # "not.found.file.erb" for reading.`
+  # which is good enough IMO. Unfortunately we can't test for it
+  # though, as we don't hook stdout.
+  #
+  # it 'should display a description and error if reading the file goes wrong' do
+  #   class Cor
+  #     def blimey!
+  #       eval <<-END, binding, "not.found.file.erb", 7
+  #         Pad.tester = pry_tester(binding)
+  #         Pad.tester.eval('whereami')
+  #       END
+  #     end
+  #   end
 
-    it 'should show code window (not just method source) if parameter passed to whereami' do
+  #   proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
+
+  #   Pad.tester.last_output.should =~
+  #     /From: not.found.file.erb @ line 7 Cor#blimey!:/
+  #   Object.remove_const(:Cor)
+  # end
+
+  it 'should show code window (not just method source) if parameter passed to whereami' do
+    class Cor
+      def blimey!
+        pry_eval(binding, 'whereami 3').should =~ /class Cor/
+      end
+    end
+    Cor.new.blimey!
+    Object.remove_const(:Cor)
+  end
+
+  it 'should show entire method when -m option used' do
+    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
+    old_cutoff, Pry::Command::Whereami.method_size_cutoff = Pry::Command::Whereami.method_size_cutoff, 1
+    class Cor
+      def blimey!
+        @foo = 1
+        @bar = 2
+        pry_eval(binding, 'whereami -m')
+      end
+    end
+    Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
+    result = Cor.new.blimey!
+    Object.remove_const(:Cor)
+    result.should =~ /def blimey/
+  end
+
+  it 'should show entire file when -f option used' do
+    class Cor
+      def blimey!
+        pry_eval(binding, 'whereami -f')
+      end
+    end
+    result = Cor.new.blimey!
+    Object.remove_const(:Cor)
+    result.should =~ /show entire file when -f option used/
+  end
+
+  describe "-c" do
+    it 'should show class when -c option used, and locate correct candidate' do
+      require 'fixtures/whereami_helper'
       class Cor
         def blimey!
-          pry_eval(binding, 'whereami 3').should =~ /class Cor/
+          pry_eval(binding, 'whereami -c')
         end
       end
-      Cor.new.blimey!
+      out = Cor.new.blimey!
       Object.remove_const(:Cor)
+      out.should =~ /class Cor/
+      out.should =~ /blimey/
     end
 
-    it 'should show entire method when -m option used' do
-      old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
-      old_cutoff, Pry::Command::Whereami.method_size_cutoff = Pry::Command::Whereami.method_size_cutoff, 1
+    it 'should show class when -c option used, and locate correct superclass' do
       class Cor
         def blimey!
-          1
-          2
-          pry_eval(binding, 'whereami -m').should =~ /def blimey/
+          pry_eval(binding, 'whereami -c')
         end
       end
-      Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
-      Cor.new.blimey!
-      Object.remove_const(:Cor)
-    end
 
-    it 'should show entire file when -f option used' do
-      class Cor
-        def blimey!
-          1
-          2
-          pry_eval(binding, 'whereami -f').should =~ /show entire file when -f option used/
-        end
+      class Horse < Cor
+        def pig;end
       end
-      Cor.new.blimey!
+
+      out = Horse.new.blimey!
       Object.remove_const(:Cor)
+      Object.remove_const(:Horse)
+
+      out.should =~ /class Cor/
+      out.should =~ /blimey/
     end
 
-    describe "-c" do
-      it 'should show class when -c option used, and locate correct candidate' do
-        require 'fixtures/whereami_helper'
+    # https://github.com/rubinius/rubinius/pull/2247
+    unless Pry::Helpers::BaseHelpers.rbx?
+      it 'should show class when -c option used, and binding is outside a method' do
         class Cor
-          def blimey!
-            1
-            2
-            out = pry_eval(binding, 'whereami -c')
-            out.should =~ /class Cor/
-            out.should =~ /blimey/
-          end
+          def blimey;end
+
+          out = pry_eval(binding, 'whereami -c')
+          out.should =~ /class Cor/
+          out.should =~ /blimey/
         end
-        Cor.new.blimey!
         Object.remove_const(:Cor)
       end
-
-      it 'should show class when -c option used, and locate correct superclass' do
-        class Cor
-          def blimey!
-            1
-            2
-            out = pry_eval(binding, 'whereami -c')
-            out.should =~ /class Cor/
-            out.should =~ /blimey/
-          end
-        end
-
-        class Horse < Cor
-          def pig;end
-        end
-
-        Horse.new.blimey!
-        Object.remove_const(:Cor)
-        Object.remove_const(:Horse)
-      end
-
-      # https://github.com/rubinius/rubinius/pull/2247
-      unless Pry::Helpers::BaseHelpers.rbx?
-        it 'should show class when -c option used, and binding is outside a method' do
-          class Cor
-            def blimey;end
-
-            out = pry_eval(binding, 'whereami -c')
-            out.should =~ /class Cor/
-            out.should =~ /blimey/
-          end
-          Object.remove_const(:Cor)
-        end
-      end
     end
+  end
 
   it 'should not show line numbers or marker when -n switch is used' do
     class Cor
@@ -206,11 +203,11 @@ describe "whereami" do
 
   it 'should use Pry.config.default_window_size for window size when outside a method context' do
     old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
-    :litella
-    :pig
+    _foo = :litella
+    _foo = :pig
     out = pry_eval(binding, 'whereami')
-    :punk
-    :sanders
+    _foo = :punk
+    _foo = :sanders
 
     out.should_not =~ /:litella/
     out.should =~ /:pig/

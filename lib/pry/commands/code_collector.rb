@@ -51,21 +51,23 @@ class Pry
     #
     # @return [String]
     def content
-      return @content if @content
-      raise CommandError, "Only one of --out, --in, --doc and CODE_OBJECT may be specified." if bad_option_combination?
+      @content ||=
+        begin
+          raise CommandError, "Only one of --out, --in, --doc and CODE_OBJECT may be specified." if bad_option_combination?
 
-      content = case
-                when opts.present?(:o)
-                  pry_output_content
-                when opts.present?(:i)
-                  pry_input_content
-                when opts.present?(:d)
-                  code_object_doc
-                else
-                  code_object_source_or_file
-                end
+          content = case
+                    when opts.present?(:o)
+                      pry_output_content
+                    when opts.present?(:i)
+                      pry_input_content
+                    when opts.present?(:d)
+                      code_object_doc
+                    else
+                      code_object_source_or_file
+                    end
 
-      @content ||= restrict_to_lines(content, line_range)
+          restrict_to_lines(content, line_range)
+        end
     end
 
     # The code object
@@ -141,7 +143,7 @@ class Pry
     end
 
     def file_content
-      if File.exists?(obj_name)
+      if File.exist?(obj_name)
         # Set the file accessor.
         self.file = obj_name
         File.read(obj_name)

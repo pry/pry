@@ -24,7 +24,7 @@ describe "hist" do
     @t.push_binding o
     @t.eval 'hist --replay -1'
 
-    o.instance_variable_get(:@z).should == 30
+    o.instance_variable_get(:@z).should eq 30
   end
 
   it 'should replay a range of history correctly (range of items)' do
@@ -34,19 +34,18 @@ describe "hist" do
 
     @t.push_binding o
     @t.eval 'hist --replay 0..2'
-    @t.eval('[@x, @y]').should == [10, 20]
+    @t.eval('[@x, @y]').should eq [10, 20]
   end
 
   # this is to prevent a regression where input redirection is
   # replaced by just appending to `eval_string`
   it 'should replay a range of history correctly (range of commands)' do
-    o = Object.new
     @hist.push "cd 1"
     @hist.push "cd 2"
 
     @t.eval("hist --replay 0..2")
     stack = @t.eval("Pad.stack = _pry_.binding_stack.dup")
-    stack.map{ |b| b.eval("self") }.should == [TOPLEVEL_BINDING.eval("self"), 1, 2]
+    stack.map{ |b| b.eval("self") }.should eq [TOPLEVEL_BINDING.eval("self"), 1, 2]
   end
 
   it 'should grep for correct lines in history' do
@@ -75,7 +74,7 @@ describe "hist" do
     end
 
     out = @t.eval 'hist --tail 3'
-    out.each_line.count.should == 3
+    out.each_line.count.should eq 3
     out.should =~ /x\n\d+:.*y\n\d+:.*z/
   end
 
@@ -93,7 +92,7 @@ describe "hist" do
     @hist.push "puts  5"
 
     out = @t.eval 'hist --tail 2 --grep print'
-    out.each_line.count.should == 2
+    out.each_line.count.should eq 2
     out.should =~ /\d:.*?print 2\n\d:.*?print 4/
   end
 
@@ -105,7 +104,7 @@ describe "hist" do
     @hist.push "print 5"
 
     out = @t.eval 'hist --head 2 --grep print'
-    out.each_line.count.should == 2
+    out.each_line.count.should eq 2
     out.should =~ /\d:.*?print 2\n\d:.*?print 4/
   end
 
@@ -117,7 +116,7 @@ describe "hist" do
     end
 
     out = @t.eval 'hist --head 4'
-    out.each_line.count.should == 4
+    out.each_line.count.should eq 4
     out.should =~ /a\n\d+:.*b\n\d+:.*c/
   end
 
@@ -129,7 +128,7 @@ describe "hist" do
     end
 
     out = @t.eval 'hist --show 1..4'
-    out.each_line.count.should == 4
+    out.each_line.count.should eq 4
     out.should =~ /b\n\d+:.*c\n\d+:.*d/
   end
 
@@ -146,7 +145,7 @@ describe "hist" do
     @t.eval("hist --replay 1..3")
 
     output = @t.eval("hist")
-    output.should == "1: :banzai\n2: :geronimo\n3: :huzzah\n4: hist --replay 1..3\n"
+    output.should eq "1: :banzai\n2: :geronimo\n3: :huzzah\n4: hist --replay 1..3\n"
   end
 
   it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
@@ -161,14 +160,14 @@ describe "hist" do
     @t.eval "a += 1"
     @t.eval "hist --replay 2"
     expect { @t.eval "hist --replay 3" }.to raise_error Pry::CommandError
-    @t.eval("a").should == 2
-    @t.eval("hist").lines.to_a.size.should == 5
+    @t.eval("a").should eq 2
+    @t.eval("hist").lines.to_a.size.should eq 5
   end
 
   it "excludes Pry commands from the history with `-e` switch" do
     @hist.push('a = 20')
     @hist.push('ls')
-    pry_eval('hist -e').should == "1: a = 20\n"
+    pry_eval('hist -e').should eq "1: a = 20\n"
   end
 
   describe "sessions" do

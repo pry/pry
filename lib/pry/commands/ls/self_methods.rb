@@ -11,6 +11,7 @@ class Pry
         super(_pry_)
         @interrogatee = interrogatee
         @no_user_opts = no_user_opts
+        @ppp_switch = nil
       end
 
       def output_self

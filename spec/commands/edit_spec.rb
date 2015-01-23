@@ -31,7 +31,7 @@ describe "edit" do
     end
 
     after do
-      FileUtils.rm(@tf_path) if File.exists?(@tf_path)
+      FileUtils.rm(@tf_path) if File.exist?(@tf_path)
     end
 
     it "should not allow patching any known kind of file" do
@@ -43,32 +43,32 @@ describe "edit" do
 
     it "should invoke Pry.config.editor with absolutified filenames" do
       pry_eval 'edit lib/pry.rb'
-      @file.should == File.expand_path('lib/pry.rb')
+      @file.should eq File.expand_path('lib/pry.rb')
 
       pry_eval "edit #@tf_path"
-      @file.should == @tf_path
+      @file.should eq @tf_path
     end
 
     it "should guess the line number from a colon" do
       pry_eval 'edit lib/pry.rb:10'
-      @line.should == 10
+      @line.should eq 10
     end
 
     it "should use the line number from -l" do
       pry_eval 'edit -l 10 lib/pry.rb'
-      @line.should == 10
+      @line.should eq 10
     end
 
     it "should not delete the file!" do
       pry_eval 'edit Rakefile'
-      File.exist?(@file).should == true
+      File.exist?(@file).should eq true
     end
 
     it "works with files that contain blanks in their names" do
       tf_path = File.join(File.dirname(@tf_path), 'swoop and doop.rb')
       FileUtils.touch(tf_path)
       pry_eval "edit #{ tf_path }"
-      @file.should == tf_path
+      @file.should eq tf_path
       FileUtils.rm(tf_path)
     end
 
@@ -84,7 +84,7 @@ describe "edit" do
           nil
         }
         pry_eval "edit #@tf_path"
-        Pad.required.should == true
+        Pad.required.should eq true
       end
     end
 
@@ -104,7 +104,7 @@ describe "edit" do
 
           pry_eval "edit #{path}"
 
-          Pad.counter.should == counter + 1
+          Pad.counter.should eq counter + 1
         end
       end
 
@@ -115,7 +115,7 @@ describe "edit" do
 
           pry_eval "edit #{path}"
 
-          Pad.counter.should == counter
+          Pad.counter.should eq counter
         end
       end
 
@@ -124,7 +124,9 @@ describe "edit" do
           counter = Pad.counter
           path    = tf.path
 
-          Pad.counter.should == counter
+          pry_eval "edit -n #{path}"
+
+          Pad.counter.should eq counter
         end
       end
 
@@ -135,7 +137,7 @@ describe "edit" do
 
           pry_eval "edit -r #{path}"
 
-          Pad.counter.should == counter + 1
+          Pad.counter.should eq counter + 1
         end
       end
     end
@@ -151,9 +153,9 @@ describe "edit" do
 
       it "should pass the editor a reloading arg" do
         pry_eval 'edit lib/pry.rb'
-        @reloading.should == true
+        @reloading.should eq true
         pry_eval 'edit -n lib/pry.rb'
-        @reloading.should == false
+        @reloading.should eq false
       end
     end
   end
@@ -184,7 +186,7 @@ describe "edit" do
 
       after do
         @tf.close(true)
-        File.unlink("#{@path}c") if File.exists?("#{@path}c") #rbx
+        File.unlink("#{@path}c") if File.exist?("#{@path}c") #rbx
       end
 
       it "should reload the file" do
@@ -200,7 +202,7 @@ describe "edit" do
 
         @t.eval 'edit --ex'
 
-        FOO.should == 'BAR'
+        FOO.should eq 'BAR'
       end
 
       # regression test (this used to edit the current method instead
@@ -220,7 +222,7 @@ describe "edit" do
           Object.new.pry
         end
 
-        source_location.should == [@path, 3]
+        source_location.should eq [@path, 3]
         Pad.clear
       end
 
@@ -250,11 +252,11 @@ describe "edit" do
 
           @t.eval 'edit --ex --patch'
 
-          FOO3.should == 'PIYO'
+          FOO3.should eq 'PIYO'
 
           @tf.rewind
-          @tf.read.should == "1\n2\nraise RuntimeError"
-          @patched_def.should == "FOO3 = 'PIYO'"
+          @tf.read.should eq "1\n2\nraise RuntimeError"
+          @patched_def.should eq "FOO3 = 'PIYO'"
         end
       end
     end
@@ -272,26 +274,26 @@ describe "edit" do
 
       it 'should start on first level of backtrace with just --ex' do
         @t.eval 'edit -n --ex'
-        @__ex_file__.should == "a"
-        @__ex_line__.should == 1
+        @__ex_file__.should eq "a"
+        @__ex_line__.should eq 1
       end
 
       it 'should start editor on first level of backtrace with --ex 0' do
         @t.eval 'edit -n --ex 0'
-        @__ex_file__.should == "a"
-        @__ex_line__.should == 1
+        @__ex_file__.should eq "a"
+        @__ex_line__.should eq 1
       end
 
       it 'should start editor on second level of backtrace with --ex 1' do
         @t.eval 'edit -n --ex 1'
-        @__ex_file__.should == "b"
-        @__ex_line__.should == 2
+        @__ex_file__.should eq "b"
+        @__ex_line__.should eq 2
       end
 
       it 'should start editor on third level of backtrace with --ex 2' do
         @t.eval 'edit -n --ex 2'
-        @__ex_file__.should == "c"
-        @__ex_line__.should == 3
+        @__ex_file__.should eq "c"
+        @__ex_line__.should eq 3
       end
 
       it 'should display error message when backtrace level is invalid' do
@@ -308,29 +310,29 @@ describe "edit" do
     it "should edit the current expression if it's incomplete" do
       @t.push 'def a'
       @t.process_command 'edit'
-      @contents.should == "def a\n"
+      @contents.should eq "def a\n"
     end
 
     it "should edit the previous expression if the current is empty" do
       @t.eval 'def a; 2; end', 'edit'
-      @contents.should == "def a; 2; end\n"
+      @contents.should eq "def a; 2; end\n"
     end
 
     it "should use a blank file if -t is specified" do
       @t.eval 'def a; 5; end', 'edit -t'
-      @contents.should == "\n"
+      @contents.should eq "\n"
     end
 
     it "should use a blank file if -t given, even during an expression" do
       @t.push 'def a;'
       @t.process_command 'edit -t'
-      @contents.should == "\n"
+      @contents.should eq "\n"
     end
 
     it "should position the cursor at the end of the expression" do
       @t.eval "def a; 2;\nend"
       @t.process_command 'edit'
-      @line.should == 2
+      @line.should eq 2
     end
 
     it "should evaluate the expression" do
@@ -339,7 +341,7 @@ describe "edit" do
         nil
       }
       @t.process_command 'edit'
-      @t.eval_string.should == "'FOO'\n"
+      @t.eval_string.should eq "'FOO'\n"
     end
 
     it "should ignore -n for tempfiles" do
@@ -348,7 +350,7 @@ describe "edit" do
         nil
       }
       @t.process_command "edit -n"
-      @t.eval_string.should == "'FOO'\n"
+      @t.eval_string.should eq "'FOO'\n"
     end
 
     it "should not evaluate a file with -n" do
@@ -358,8 +360,8 @@ describe "edit" do
       }
       begin
         @t.process_command 'edit -n spec/fixtures/foo.rb'
-        File.read("spec/fixtures/foo.rb").should == "'FOO'\n"
-        @t.eval_string.should == ''
+        File.read("spec/fixtures/foo.rb").should eq "'FOO'\n"
+        @t.eval_string.should eq ''
       ensure
         FileUtils.rm "spec/fixtures/foo.rb"
       end
@@ -369,22 +371,22 @@ describe "edit" do
   describe "with --in" do
     it "should edit the nth line of _in_" do
       pry_eval '10', '11', 'edit --in -2'
-      @contents.should == "10\n"
+      @contents.should eq "10\n"
     end
 
     it "should edit the last line if no argument is given" do
       pry_eval '10', '11', 'edit --in'
-      @contents.should == "11\n"
+      @contents.should eq "11\n"
     end
 
     it "should edit a range of lines if a range is given" do
       pry_eval "10", "11", "edit -i 1,2"
-      @contents.should == "10\n11\n"
+      @contents.should eq "10\n11\n"
     end
 
     it "should edit a multi-line expression as it occupies one line of _in_" do
       pry_eval "class Fixnum\n  def invert; -self; end\nend", "edit -i 1"
-      @contents.should == "class Fixnum\n  def invert; -self; end\nend\n"
+      @contents.should eq "class Fixnum\n  def invert; -self; end\nend\n"
     end
 
     it "should not work with a filename" do
@@ -398,7 +400,6 @@ describe "edit" do
 
   describe 'when editing a method by name' do
     def use_editor(tester, options)
-      initial_editor = tester.pry.editor
       tester.pry.config.editor = lambda do |filename, line|
         File.open(filename, 'w') { |f| f.write options.fetch(:replace_all) }
         nil
@@ -414,18 +415,18 @@ describe "edit" do
       klass    = Class.new do
         def m; 1; end
       end
-      klass.new.m.should == 1
+      klass.new.m.should eq 1
 
       # now patch it
       use_editor(tester, replace_all: 'def m; 2; end').eval('edit --patch klass#m')
-      klass.new.m.should == 2
+      klass.new.m.should eq 2
 
       # edit by name, no --patch
       use_editor(tester, replace_all: 'def m; 3; end').eval("edit klass#m")
-      klass.new.m.should == 3
+      klass.new.m.should eq 3
 
       # original file is unchanged
-      File.readlines(filename)[line-1].strip.should == 'def m; 1; end'
+      File.readlines(filename)[line-1].strip.should eq 'def m; 1; end'
     end
 
     it 'can repeatedly edit methods that were defined in the console' do
@@ -434,21 +435,23 @@ describe "edit" do
       tester.eval("klass = Class.new do\n"\
                   "  def m; 1; end\n"\
                   "end")
-      tester.eval("klass.new.m").should == 1
+      tester.eval("klass.new.m").should eq 1
 
       # first edit
       use_editor(tester, replace_all: 'def m; 2; end').eval('edit klass#m')
-      tester.eval('klass.new.m').should == 2
+      tester.eval('klass.new.m').should eq 2
 
       # repeat edit
       use_editor(tester, replace_all: 'def m; 3; end').eval('edit klass#m')
-      tester.eval('klass.new.m').should == 3
+      tester.eval('klass.new.m').should eq 3
     end
   end
 
   describe "old edit-method tests now migrated to edit" do
     describe "on a method defined in a file" do
       before do
+        Object.remove_const :X if defined? ::X
+        Object.remove_const :A if defined? ::A
         @tempfile = (Tempfile.new(['pry', '.rb']))
         @tempfile.puts <<-EOS
         module A
@@ -485,7 +488,7 @@ describe "edit" do
             G = :nawt
 
             def foo
-              :possibly
+              _foo = :possibly
               G
             end
           end
@@ -513,33 +516,33 @@ describe "edit" do
         it "should correctly find a class method" do
           pry_eval 'edit X.x'
 
-          @file.should == @tempfile_path
-          @line.should == 14
+          @file.should eq @tempfile_path
+          @line.should eq 14
 
         end
 
         it "should correctly find an instance method" do
           pry_eval 'edit X#x'
-          @file.should == @tempfile_path
-          @line.should == 18
+          @file.should eq @tempfile_path
+          @line.should eq 18
         end
 
         it "should correctly find a method on an instance" do
           pry_eval 'x = X.new', 'edit x.x'
-          @file.should == @tempfile_path
-          @line.should == 18
+          @file.should eq @tempfile_path
+          @line.should eq 18
         end
 
         it "should correctly find a method from a module" do
           pry_eval 'edit X#a'
-          @file.should == @tempfile_path
-          @line.should == 2
+          @file.should eq @tempfile_path
+          @line.should eq 2
         end
 
         it "should correctly find an aliased method" do
           pry_eval 'edit X#c'
-          @file.should == @tempfile_path
-          @line.should == 22
+          @file.should eq @tempfile_path
+          @line.should eq 22
         end
       end
 
@@ -562,44 +565,44 @@ describe "edit" do
           class << X
             X.method(:x).owner.should == self
           end
-          X.method(:x).receiver.should == X
-          X.x.should == :maybe
+          X.method(:x).receiver.should eq X
+          X.x.should eq :maybe
         end
 
         it "should successfully replace an instance method" do
           pry_eval 'edit -p X#x'
 
-          X.instance_method(:x).owner.should == X
-          X.new.x.should == :maybe
+          X.instance_method(:x).owner.should eq X
+          X.new.x.should eq :maybe
         end
 
         it "should successfully replace a method on an instance" do
           pry_eval 'instance = X.new', 'edit -p instance.x'
 
           instance = X.new
-          instance.method(:x).owner.should == X
-          instance.x.should == :maybe
+          instance.method(:x).owner.should eq X
+          instance.x.should eq :maybe
         end
 
         it "should successfully replace a method from a module" do
           pry_eval 'edit -p X#a'
 
-          X.instance_method(:a).owner.should == A
-          X.new.a.should == :maybe
+          X.instance_method(:a).owner.should eq A
+          X.new.a.should eq :maybe
         end
 
         it "should successfully replace a method with a question mark" do
           pry_eval 'edit -p X#y?'
 
-          X.instance_method(:y?).owner.should == X
-          X.new.y?.should == :maybe
+          X.instance_method(:y?).owner.should eq X
+          X.new.y?.should eq :maybe
         end
 
         it "should preserve module nesting" do
           pry_eval 'edit -p X::B#foo'
 
-          X::B.instance_method(:foo).owner.should == X::B
-          X::B.new.foo.should == :nawt
+          X::B.instance_method(:foo).owner.should eq X::B
+          X::B.new.foo.should eq :nawt
         end
 
         describe "monkey-patching" do
@@ -611,7 +614,7 @@ describe "edit" do
           # @return [String] the stripped line from the tempfile at +lineno+
           def stripped_line_at(lineno)
             @tempfile.rewind
-            @tempfile.lines.to_a[lineno].strip
+            @tempfile.each_line.to_a[lineno].strip
           end
 
           # Applies the monkey patch for +method+ with help of evaluation of
@@ -638,54 +641,54 @@ describe "edit" do
             def_before, def_after =
               apply_monkey_patch(X.method(:x), "#@edit X.x")
 
-            def_before.should   == ':double_yup'
-            def_after.should    == ':double_yup'
-            @patched_def.should == ':maybe'
+            def_before.should   eq ':double_yup'
+            def_after.should    eq ':double_yup'
+            @patched_def.should eq ':maybe'
           end
 
           it "should work for an instance method" do
             def_before, def_after =
               apply_monkey_patch(X.instance_method(:x), "#@edit X#x")
 
-            def_before.should   == ':nope'
-            def_after.should    == ':nope'
-            @patched_def.should == ':maybe'
+            def_before.should   eq ':nope'
+            def_after.should    eq ':nope'
+            @patched_def.should eq ':maybe'
           end
 
           it "should work for a method on an instance" do
             def_before, def_after =
               apply_monkey_patch(X.instance_method(:x), 'instance = X.new', "#@edit instance.x")
 
-            def_before.should   == ':nope'
-            def_after.should    == ':nope'
-            @patched_def.should == ':maybe'
+            def_before.should   eq ':nope'
+            def_after.should    eq ':nope'
+            @patched_def.should eq ':maybe'
           end
 
           it "should work for a method from a module" do
             def_before, def_after =
               apply_monkey_patch(X.instance_method(:a), "#@edit X#a")
 
-            def_before.should   == ':yup'
-            def_after.should    == ':yup'
-            @patched_def.should == ':maybe'
+            def_before.should   eq ':yup'
+            def_after.should    eq ':yup'
+            @patched_def.should eq ':maybe'
           end
 
           it "should work for a method with a question mark" do
             def_before, def_after =
               apply_monkey_patch(X.instance_method(:y?), "#@edit X#y?")
 
-            def_before.should   == ':because'
-            def_after.should    == ':because'
-            @patched_def.should == ':maybe'
+            def_before.should   eq ':because'
+            def_after.should    eq ':because'
+            @patched_def.should eq ':maybe'
           end
 
           it "should work with nesting" do
             def_before, def_after =
               apply_monkey_patch(X::B.instance_method(:foo), "#@edit X::B#foo")
 
-            def_before.should   == ':possibly'
-            def_after.should    == ':possibly'
-            @patched_def.should == ':maybe'
+            def_before.should   eq '_foo = :possibly'
+            def_after.should    eq '_foo = :possibly'
+            @patched_def.should eq ':maybe'
           end
         end
       end
@@ -708,10 +711,10 @@ describe "edit" do
           pry_eval 'edit -p X#c'
 
 
-          Pry::Method.from_str("X#c").alias?.should == true
+          Pry::Method.from_str("X#c").alias?.should eq true
 
-          X.new.b.should == :kinda
-          X.new.c.should == :kindaaa
+          X.new.b.should eq :kinda
+          X.new.c.should eq :kindaaa
           $x = nil
         end
       end
@@ -727,9 +730,9 @@ describe "edit" do
 
         it "should pass the editor a reloading arg" do
           pry_eval 'edit X.x'
-          @reloading.should == true
+          @reloading.should eq true
           pry_eval 'edit -n X.x'
-          @reloading.should == false
+          @reloading.should eq false
         end
       end
     end
@@ -746,7 +749,7 @@ describe "edit" do
         }
 
         def m2
-          :jeremy_jones
+          _foo = :jeremy_jones
           binding
         end
       end
@@ -758,7 +761,7 @@ describe "edit" do
 
     it 'should edit method context' do
       Pry.config.editor = lambda do |file, line|
-        [file, line].should == BinkyWink.instance_method(:m2).source_location
+        [file, line].should eq BinkyWink.instance_method(:m2).source_location
         nil
       end
 
@@ -768,7 +771,7 @@ describe "edit" do
 
     it 'errors when cannot find method context' do
       Pry.config.editor = lambda do |file, line|
-        [file, line].should == BinkyWink.instance_method(:m1).source_location
+        [file, line].should eq BinkyWink.instance_method(:m1).source_location
         nil
       end
 
