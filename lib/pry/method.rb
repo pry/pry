@@ -359,13 +359,13 @@ class Pry
     #   Paraphrased from `awesome_print` gem.
     def signature
       if respond_to?(:parameters)
-        args = parameters.inject([]) do |arr, (type, name)|
-          name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-          arr << case type
-                 when :req   then name.to_s
-                 when :opt   then "#{name}=?"
-                 when :rest  then "*#{name}"
-                 when :block then "&#{name}"
+        args = parameters.inject([]) do |arr, (typ, nam)|
+          nam ||= (typ == :block ? 'block' : "arg#{arr.size + 1}")
+          arr << case typ
+                 when :req   then nam.to_s
+                 when :opt   then "#{nam}=?"
+                 when :rest  then "*#{nam}"
+                 when :block then "&#{nam}"
                  else '?'
                  end
         end

@@ -414,13 +414,11 @@ describe "commands" do
       end
     end
 
-    output = StringIO.new
-
-    redirect_pry_io(InputTester.new('def yo', 'hello'), output) do
+    redirect_pry_io(InputTester.new('def yo', 'hello'), @str_output) do
       Pry.start self, :commands => klass
     end
 
-    output.string.should =~ /6/
+    @str_output.string.should =~ /6/
   end
 
   it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do

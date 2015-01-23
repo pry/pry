@@ -13,7 +13,7 @@ describe "Prompts" do
     it 'should get full config object, when using a proc array' do
       config1 = nil
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(self, :prompt => [proc { |v| config1 = v }, proc { |_v| _config2 = v }])
+        Pry.start(self, :prompt => [proc { |v| config1 = v }, proc { |v| _config2 = v }])
       end
       config1.is_a?(Pry::Config).should eq true
     end
