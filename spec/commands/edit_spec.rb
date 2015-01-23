@@ -550,7 +550,11 @@ describe "edit" do
         before do
           Pry.config.editor = lambda do |file, line|
             lines = File.read(file).lines.to_a
-            lines[1] = ":maybe\n"
+            lines[1] = if lines[2] =~ /end/
+                         ":maybe\n"
+                       else
+                         "_foo = :maybe\n"
+                       end
             File.open(file, 'w') do |f|
               f.write(lines.join)
             end
@@ -688,7 +692,7 @@ describe "edit" do
 
             def_before.should   eq '_foo = :possibly'
             def_after.should    eq '_foo = :possibly'
-            @patched_def.should eq ':maybe'
+            @patched_def.should eq '_foo = :maybe'
           end
         end
       end
