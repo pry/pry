@@ -259,6 +259,7 @@ describe "show-source" do
           class ::TestHost
             def hello
               hello = proc { ' smile ' }
+              _foo = hello
               pry_tester(binding)
             end
           end

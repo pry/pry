@@ -58,14 +58,14 @@ describe "Sticky locals (_file_ and friends)" do
 
   it 'locals should return last result (_)' do
     pry_tester.tap do |t|
-      lam = t.eval 'lambda { |foo| }'
+      lam = t.eval 'lambda { |_foo| }'
       t.eval('_').should == lam
     end
   end
 
   it 'locals should return second last result (__)' do
     pry_tester.tap do |t|
-      lam = t.eval 'lambda { |foo| }'
+      lam = t.eval 'lambda { |_foo| }'
       t.eval 'num = 1'
       t.eval('__').should == lam
     end
