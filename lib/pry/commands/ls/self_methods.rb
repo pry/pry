@@ -11,7 +11,8 @@ class Pry
         super(_pry_)
         @interrogatee = interrogatee
         @no_user_opts = no_user_opts
-        @ppp_switch = nil
+        @ppp_switch = opts[:ppp]
+        @jruby_switch = opts['all-java']
       end
 
       def output_self

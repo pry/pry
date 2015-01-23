@@ -359,17 +359,17 @@ describe Pry::Method do
 
       it "should attribute overridden methods to the sub-class' singleton class" do
         @class = Class.new(Class.new{ class << self; def meth; 1; end; end }) { class << self; def meth; 1; end; end }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq(class << @class; self; end)
       end
 
       it "should attrbute overridden methods to the class not the module" do
         @class = Class.new { class << self; def meth; 1; end; end; extend Module.new{ def meth; 1; end; } }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq(class << @class; self; end)
       end
 
       it "should attribute overridden methods to the relevant singleton class in preference to Class" do
         @class = Class.new { class << self; def allocate; 1; end; end }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner.should eq (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner.should eq(class << @class; self; end)
       end
     end
 
