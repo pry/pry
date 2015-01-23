@@ -66,14 +66,14 @@ describe Pry do
   end
 
   it "should allow whitespace delimeted strings" do
-    mock_pry('"%s" %% foo ').should =~ /"foo"/
+    mock_pry('"%s" % % foo ').should =~ /"foo"/
   end
 
   it "should allow newline delimeted strings" do
-    mock_pry('"%s" %%','foo').should =~ /"foo"/
+    mock_pry('"%s" % %','foo').should =~ /"foo"/
   end
 
   it "should allow whitespace delimeted strings ending on the first char of a line" do
-    mock_pry('"%s" %% ', ' #done!').should =~ /"\\n"/
+    mock_pry('"%s" % % ', ' #done!').should =~ /"\\n"/
   end
 end
