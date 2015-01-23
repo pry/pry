@@ -174,7 +174,7 @@ describe "edit" do
       before do
         @tf = Tempfile.new(["pry", ".rb"])
         @path = @tf.path
-        @tf << "1\n2\nraise RuntimeError"
+        @tf << "_foo = 1\n_bar = 2\nraise RuntimeError"
         @tf.flush
 
         begin
@@ -255,7 +255,7 @@ describe "edit" do
           FOO3.should eq 'PIYO'
 
           @tf.rewind
-          @tf.read.should eq "1\n2\nraise RuntimeError"
+          @tf.read.should eq "_foo = 1\n_bar = 2\nraise RuntimeError"
           @patched_def.should eq "FOO3 = 'PIYO'"
         end
       end
