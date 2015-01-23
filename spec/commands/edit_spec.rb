@@ -314,11 +314,13 @@ describe "edit" do
     end
 
     it "should edit the previous expression if the current is empty" do
+      @t.eval 'undef a if self.singleton_class.method_defined? :a'
       @t.eval 'def a; 2; end', 'edit'
       @contents.should eq "def a; 2; end\n"
     end
 
     it "should use a blank file if -t is specified" do
+      @t.eval 'undef a if self.singleton_class.method_defined? :a'
       @t.eval 'def a; 5; end', 'edit -t'
       @contents.should eq "\n"
     end
@@ -330,6 +332,7 @@ describe "edit" do
     end
 
     it "should position the cursor at the end of the expression" do
+      @t.eval 'undef a if self.singleton_class.method_defined? :a'
       @t.eval "def a; 2;\nend"
       @t.process_command 'edit'
       @line.should eq 2
