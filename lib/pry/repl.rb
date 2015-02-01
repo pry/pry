@@ -174,8 +174,8 @@ class Pry
             completions.compact
           end
         elsif input.respond_to? :completion_proc=
-          input.completion_proc = proc do |input|
-            @pry.complete input
+          input.completion_proc = proc do |inp|
+            @pry.complete inp
           end
         end
 

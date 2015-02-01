@@ -12,21 +12,21 @@ describe Pry::Indent do
     input  = "array = [\n10,\n15\n]"
     output = "array = [\n  10,\n  15\n]"
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it 'should indent a hash' do
     input  = "hash = {\n:name => 'Ruby'\n}"
     output = "hash = {\n  :name => 'Ruby'\n}"
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it 'should indent a function' do
     input  = "def\nreturn 10\nend"
     output = "def\n  return 10\nend"
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it 'should indent a module and class' do
@@ -35,14 +35,14 @@ describe Pry::Indent do
     input_class  = "class Foo\n# Hello world\nend"
     output_class = "class Foo\n  # Hello world\nend"
 
-    @indent.indent(input).should       == output
-    @indent.indent(input_class).should == output_class
+    @indent.indent(input).should       eq output
+    @indent.indent(input_class).should eq output_class
   end
 
   it 'should indent separate lines' do
-    @indent.indent('def foo').should   == 'def foo'
-    @indent.indent('return 10').should == '  return 10'
-    @indent.indent('end').should       == 'end'
+    @indent.indent('def foo').should   eq 'def foo'
+    @indent.indent('return 10').should eq '  return 10'
+    @indent.indent('end').should       eq 'end'
   end
 
   it 'should not indent single line statements' do
@@ -51,7 +51,7 @@ def hello; end
 puts "Hello"
 TXT
 
-    @indent.indent(input).should == input
+    @indent.indent(input).should eq input
   end
 
   it 'should handle multiple open and closing tokens on a line' do
@@ -67,7 +67,7 @@ TXT
 end
 TXT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it 'should properly indent nested code' do
@@ -99,7 +99,7 @@ module A
 end
 TXT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it 'should indent statements such as if, else, etc' do
@@ -147,12 +147,12 @@ for num in [10, 15, 20] do
 end
 TXT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it "should correctly handle while <foo> do" do
     input = "while 5 do\n5\nend"
-    @indent.indent(input).should == "while 5 do\n  5\nend"
+    @indent.indent(input).should eq "while 5 do\n  5\nend"
   end
 
   it "should ident case statements" do
@@ -186,42 +186,42 @@ else
 end
 TXT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it "should indent correctly with nesting" do
-    @indent.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
-    @indent.reset.indent("[[\n[]]\n]").should == "[[\n  []]\n]"
-    @indent.reset.indent("[[{\n[] =>\n[]}]\n]").should == "[[{\n      [] =>\n  []}]\n]"
+    @indent.indent("[[\n[]]\n]").should eq "[[\n  []]\n]"
+    @indent.reset.indent("[[\n[]]\n]").should eq "[[\n  []]\n]"
+    @indent.reset.indent("[[{\n[] =>\n[]}]\n]").should eq "[[{\n      [] =>\n  []}]\n]"
   end
 
   it "should not indent single-line ifs" do
-    @indent.indent("foo if bar\n#").should == "foo if bar\n#"
-    @indent.reset.indent("foo() if bar\n#").should == "foo() if bar\n#"
-    @indent.reset.indent("foo 'hi' if bar\n#").should == "foo 'hi' if bar\n#"
-    @indent.reset.indent("foo 1 while bar\n#").should == "foo 1 while bar\n#"
-    @indent.reset.indent("$foo if false\n#").should == "$foo if false\n#"
-    @indent.reset.indent("@foo if false\n#").should == "@foo if false\n#"
-    @indent.reset.indent("@@foo if false\n#").should == "@@foo if false\n#"
-    @indent.reset.indent("super if true\n#").should == "super if true\n#"
-    @indent.reset.indent("true if false\n#").should == "true if false\n#"
-    @indent.reset.indent("String if false\n#").should == "String if false\n#"
+    @indent.indent("foo if bar\n#").should eq "foo if bar\n#"
+    @indent.reset.indent("foo() if bar\n#").should eq "foo() if bar\n#"
+    @indent.reset.indent("foo 'hi' if bar\n#").should eq "foo 'hi' if bar\n#"
+    @indent.reset.indent("foo 1 while bar\n#").should eq "foo 1 while bar\n#"
+    @indent.reset.indent("$foo if false\n#").should eq "$foo if false\n#"
+    @indent.reset.indent("@foo if false\n#").should eq "@foo if false\n#"
+    @indent.reset.indent("@@foo if false\n#").should eq "@@foo if false\n#"
+    @indent.reset.indent("super if true\n#").should eq "super if true\n#"
+    @indent.reset.indent("true if false\n#").should eq "true if false\n#"
+    @indent.reset.indent("String if false\n#").should eq "String if false\n#"
   end
 
   it "should indent cunningly disguised ifs" do
-    @indent.indent("{1 => if bar\n#").should == "{1 => if bar\n    #"
-    @indent.reset.indent("foo(if bar\n#").should == "foo(if bar\n    #"
-    @indent.reset.indent("bar(baz, if bar\n#").should == "bar(baz, if bar\n    #"
-    @indent.reset.indent("[if bar\n#").should == "[if bar\n    #"
-    @indent.reset.indent("true; while bar\n#").should == "true; while bar\n  #"
+    @indent.indent("{1 => if bar\n#").should eq "{1 => if bar\n    #"
+    @indent.reset.indent("foo(if bar\n#").should eq "foo(if bar\n    #"
+    @indent.reset.indent("bar(baz, if bar\n#").should eq "bar(baz, if bar\n    #"
+    @indent.reset.indent("[if bar\n#").should eq "[if bar\n    #"
+    @indent.reset.indent("true; while bar\n#").should eq "true; while bar\n  #"
   end
 
   it "should differentiate single/multi-line unless" do
-    @indent.indent("foo unless bar\nunless foo\nbar\nend").should == "foo unless bar\nunless foo\n  bar\nend"
+    @indent.indent("foo unless bar\nunless foo\nbar\nend").should eq "foo unless bar\nunless foo\n  bar\nend"
   end
 
   it "should not indent single/multi-line until" do
-    @indent.indent("%w{baz} until bar\nuntil foo\nbar\nend").should == "%w{baz} until bar\nuntil foo\n  bar\nend"
+    @indent.indent("%w{baz} until bar\nuntil foo\nbar\nend").should eq "%w{baz} until bar\nuntil foo\n  bar\nend"
   end
 
   it "should indent begin rescue end" do
@@ -240,17 +240,17 @@ rescue => e
 end
 OUTPUT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   it "should not indent inside strings" do
-    @indent.indent(%(def a\n"foo\nbar"\n  end)).should == %(def a\n  "foo\nbar"\nend)
-    @indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end)).should == %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
+    @indent.indent(%(def a\n"foo\nbar"\n  end)).should eq %(def a\n  "foo\nbar"\nend)
+    @indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end)).should eq %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
   end
 
   it "should not indent inside HEREDOCs" do
-    @indent.indent(%(def a\nputs <<FOO\n bar\nFOO\nbaz\nend)).should == %(def a\n  puts <<FOO\n bar\nFOO\n  baz\nend)
-    @indent.indent(%(def a\nputs <<-'^^'\n bar\n\t^^\nbaz\nend)).should == %(def a\n  puts <<-'^^'\n bar\n\t^^\n  baz\nend)
+    @indent.indent(%(def a\nputs <<FOO\n bar\nFOO\nbaz\nend)).should eq %(def a\n  puts <<FOO\n bar\nFOO\n  baz\nend)
+    @indent.indent(%(def a\nputs <<-'^^'\n bar\n\t^^\nbaz\nend)).should eq %(def a\n  puts <<-'^^'\n bar\n\t^^\n  baz\nend)
   end
 
   it "should not indent nested HEREDOCs" do
@@ -280,7 +280,7 @@ tongue
 end
 OUTPUT
 
-    @indent.indent(input).should == output
+    @indent.indent(input).should eq output
   end
 
   describe "nesting" do
@@ -294,7 +294,7 @@ OUTPUT
           end
         else
           it "should parse nesting on line #{i + 1} of example_nesting.rb" do
-            Pry::Indent.nesting_at(test, i + 1).should == eval(result)
+            Pry::Indent.nesting_at(test, i + 1).should eq eval(result)
           end
         end
       end

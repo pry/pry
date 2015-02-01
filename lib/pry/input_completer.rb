@@ -106,137 +106,137 @@ class Pry::InputCompleter
         begin
           context = target.eval("self")
           context = context.class unless context.respond_to? :constants
-                                    candidates = context.constants.collect(&:to_s)
-                                  rescue
-                                    candidates = []
-                                  end
-          candidates = candidates.grep(/^#{message}/).collect(&path)
-        when CONSTANT_OR_METHOD_REGEXP # Constant or class methods
-          receiver = $1
-          message = Regexp.quote($2)
+          candidates = context.constants.collect(&:to_s)
+        rescue
+          candidates = []
+        end
+        candidates = candidates.grep(/^#{message}/).collect(&path)
+      when CONSTANT_OR_METHOD_REGEXP # Constant or class methods
+        receiver = $1
+        message = Regexp.quote($2)
+        begin
+          candidates = eval("#{receiver}.constants.collect(&:to_s)", bind)
+          candidates |= eval("#{receiver}.methods.collect(&:to_s)", bind)
+        rescue Pry::RescuableException
+          candidates = []
+        end
+        candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
+      when SYMBOL_METHOD_CALL_REGEXP # method call on a Symbol
+        receiver = $1
+        message = Regexp.quote($2)
+        candidates = Symbol.instance_methods.collect(&:to_s)
+        select_message(path, receiver, message, candidates)
+      when NUMERIC_REGEXP
+        # Numeric
+        receiver = $1
+        message = Regexp.quote($5)
+        begin
+          candidates = eval(receiver, bind).methods.collect(&:to_s)
+        rescue Pry::RescuableException
+          candidates = []
+        end
+        select_message(path, receiver, message, candidates)
+      when HEX_REGEXP
+        # Numeric(0xFFFF)
+        receiver = $1
+        message = Regexp.quote($2)
+        begin
+          candidates = eval(receiver, bind).methods.collect(&:to_s)
+        rescue Pry::RescuableException
+          candidates = []
+        end
+        select_message(path, receiver, message, candidates)
+      when GLOBALVARIABLE_REGEXP # global
+        regmessage = Regexp.new(Regexp.quote($1))
+        candidates = global_variables.collect(&:to_s).grep(regmessage)
+      when VARIABLE_REGEXP # variable
+        receiver = $1
+        message = Regexp.quote($2)
+
+        gv = eval("global_variables", bind).collect(&:to_s)
+        lv = eval("local_variables", bind).collect(&:to_s)
+        cv = eval("self.class.constants", bind).collect(&:to_s)
+
+        if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
+          # foo.func and foo is local var. OR
+          # Foo::Bar.func
           begin
-            candidates = eval("#{receiver}.constants.collect(&:to_s)", bind)
-            candidates |= eval("#{receiver}.methods.collect(&:to_s)", bind)
+            candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
           rescue Pry::RescuableException
             candidates = []
           end
-          candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
-        when SYMBOL_METHOD_CALL_REGEXP # method call on a Symbol
-          receiver = $1
-          message = Regexp.quote($2)
-          candidates = Symbol.instance_methods.collect(&:to_s)
-          select_message(path, receiver, message, candidates)
-        when NUMERIC_REGEXP
-          # Numeric
-          receiver = $1
-          message = Regexp.quote($5)
-          begin
-            candidates = eval(receiver, bind).methods.collect(&:to_s)
-          rescue Pry::RescuableException
-            candidates = []
-          end
-          select_message(path, receiver, message, candidates)
-        when HEX_REGEXP
-          # Numeric(0xFFFF)
-          receiver = $1
-          message = Regexp.quote($2)
-          begin
-            candidates = eval(receiver, bind).methods.collect(&:to_s)
-          rescue Pry::RescuableException
-            candidates = []
-          end
-          select_message(path, receiver, message, candidates)
-        when GLOBALVARIABLE_REGEXP # global
-          regmessage = Regexp.new(Regexp.quote($1))
-          candidates = global_variables.collect(&:to_s).grep(regmessage)
-        when VARIABLE_REGEXP # variable
-          receiver = $1
-          message = Regexp.quote($2)
-
-          gv = eval("global_variables", bind).collect(&:to_s)
-          lv = eval("local_variables", bind).collect(&:to_s)
-          cv = eval("self.class.constants", bind).collect(&:to_s)
-
-          if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
-            # foo.func and foo is local var. OR
-            # Foo::Bar.func
-            begin
-              candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
-            rescue Pry::RescuableException
-              candidates = []
-            end
-          else
-            # func1.func2
-            candidates = []
-            ObjectSpace.each_object(Module){|m|
-              begin
-                name = m.name.to_s
-              rescue Pry::RescuableException
-                name = ""
-              end
-              next if name != "IRB::Context" and
-              /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-              # jruby doesn't always provide #instance_methods() on each
-              # object.
-              if m.respond_to?(:instance_methods)
-                candidates.concat m.instance_methods(false).collect(&:to_s)
-              end
-            }
-            candidates.sort!
-            candidates.uniq!
-          end
-          select_message(path, receiver, message, candidates)
-        when /^\.([^.]*)$/
-          # Unknown(maybe String)
-          receiver = ""
-          message = Regexp.quote($1)
-          candidates = String.instance_methods(true).collect(&:to_s)
-          select_message(path, receiver, message, candidates)
         else
-          candidates = eval(
-                            "methods | private_methods | local_variables | " \
-                            "self.class.constants | instance_variables",
-                            bind
-                            ).collect(&:to_s)
+          # func1.func2
+          candidates = []
+          ObjectSpace.each_object(Module){|m|
+            begin
+              name = m.name.to_s
+            rescue Pry::RescuableException
+              name = ""
+            end
+            next if name != "IRB::Context" and
+            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
 
-          if eval("respond_to?(:class_variables)", bind)
-            candidates += eval("class_variables", bind).collect(&:to_s)
-          end
-          candidates = (candidates|ReservedWords|custom_completions).grep(/^#{Regexp.quote(input)}/)
-          candidates.collect(&path)
+            # jruby doesn't always provide #instance_methods() on each
+            # object.
+            if m.respond_to?(:instance_methods)
+              candidates.concat m.instance_methods(false).collect(&:to_s)
+            end
+          }
+          candidates.sort!
+          candidates.uniq!
         end
-      rescue Pry::RescuableException
-        []
-      end
-    end
+        select_message(path, receiver, message, candidates)
+      when /^\.([^.]*)$/
+        # Unknown(maybe String)
+        receiver = ""
+        message = Regexp.quote($1)
+        candidates = String.instance_methods(true).collect(&:to_s)
+        select_message(path, receiver, message, candidates)
+      else
+        candidates = eval(
+                          "methods | private_methods | local_variables | " \
+                          "self.class.constants | instance_variables",
+                          bind
+                          ).collect(&:to_s)
 
-    def select_message(path, receiver, message, candidates)
-      candidates.grep(/^#{message}/).collect { |e|
-        case e
-        when /^[a-zA-Z_]/
-          path.call(receiver + "." << e)
-        when /^[0-9]/
-        when *Operators
-          #receiver + " " << e
+        if eval("respond_to?(:class_variables)", bind)
+          candidates += eval("class_variables", bind).collect(&:to_s)
         end
-      }.compact
-    end
-
-    # build_path seperates the input into two parts: path and input.
-    # input is the partial string that should be completed
-    # path is a proc that takes an input and builds a full path.
-    def build_path(input)
-      # check to see if the input is a regex
-      return proc {|i| i.to_s }, input if input[/\/\./]
-      trailing_slash = input.end_with?('/')
-      contexts = input.chomp('/').split(/\//)
-      input = contexts[-1]
-      path = proc do |i|
-        p = contexts[0..-2].push(i).join('/')
-        p += '/' if trailing_slash && !i.nil?
-        p
+        candidates = (candidates|ReservedWords|custom_completions).grep(/^#{Regexp.quote(input)}/)
+        candidates.collect(&path)
       end
-      return path, input
+    rescue Pry::RescuableException
+      []
     end
+  end
+
+  def select_message(path, receiver, message, candidates)
+    candidates.grep(/^#{message}/).collect { |e|
+      case e
+      when /^[a-zA-Z_]/
+        path.call(receiver + "." << e)
+      when /^[0-9]/
+      when *Operators
+        #receiver + " " << e
+      end
+    }.compact
+  end
+
+  # build_path seperates the input into two parts: path and input.
+  # input is the partial string that should be completed
+  # path is a proc that takes an input and builds a full path.
+  def build_path(input)
+    # check to see if the input is a regex
+    return proc {|i| i.to_s }, input if input[/\/\./]
+    trailing_slash = input.end_with?('/')
+    contexts = input.chomp('/').split(/\//)
+    input = contexts[-1]
+    path = proc do |i|
+      p = contexts[0..-2].push(i).join('/')
+      p += '/' if trailing_slash && !i.nil?
+      p
+    end
+    return path, input
+  end
 end

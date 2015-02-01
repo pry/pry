@@ -115,10 +115,10 @@ describe "show-doc" do
 
   describe "rdoc highlighting" do
     it "should syntax highlight code in rdoc" do
-      c = Class.new{
+      _c = Class.new{
         # This can initialize your class:
         #
-        #   a = c.new :foo
+        #   a = _c.new :foo
         #
         # @param foo
         def initialize(foo); end
@@ -126,19 +126,19 @@ describe "show-doc" do
 
       begin
         t = pry_tester(binding)
-        t.eval("show-doc c#initialize").should =~ /c.new :foo/
+        t.eval("show-doc _c#initialize").should =~ /_c.new :foo/
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should_not =~ /c.new :foo/
+        t.eval("show-doc _c#initialize").should_not =~ /_c.new :foo/
       ensure
         Pry.config.color = false
       end
     end
 
     it "should syntax highlight `code` in rdoc" do
-      c = Class.new{
-        # After initializing your class with `c.new(:foo)`, go have fun!
+      _c = Class.new{
+        # After initializing your class with `_c.new(:foo)`, go have fun!
         #
         # @param foo
         def initialize(foo); end
@@ -146,11 +146,11 @@ describe "show-doc" do
 
       begin
         t = pry_tester(binding)
-        t.eval("show-doc c#initialize").should =~ /c.new\(:foo\)/
+        t.eval("show-doc _c#initialize").should =~ /_c.new\(:foo\)/
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc c#initialize").should_not =~ /c.new\(:foo\)/
+        t.eval("show-doc _c#initialize").should_not =~ /_c.new\(:foo\)/
       ensure
         Pry.config.color = false
       end
@@ -158,7 +158,7 @@ describe "show-doc" do
     end
 
     it "should not syntax highlight `` inside code" do
-      c = Class.new{
+      _c = Class.new{
         # Convert aligned output (from many shell commands) into nested arrays:
         #
         #   a = decolumnize `ls -l $HOME`
@@ -170,8 +170,8 @@ describe "show-doc" do
       begin
         t = pry_tester(binding)
         Pry.config.color = true
-        t.eval("show-doc c#decolumnize").should =~ /ls -l \$HOME/
-        t.eval("show-doc c#decolumnize").should_not =~ /`ls -l \$HOME`/
+        t.eval("show-doc _c#decolumnize").should =~ /ls -l \$HOME/
+        t.eval("show-doc _c#decolumnize").should_not =~ /`ls -l \$HOME`/
       ensure
         Pry.config.color = false
       end
@@ -181,8 +181,8 @@ describe "show-doc" do
   describe "on sourcable objects" do
     it "should show documentation for object" do
       # this is a documentation
-      hello = proc { puts 'hello world!' }
-      mock_pry(binding, "show-doc hello").should =~ /this is a documentation/
+      _hello = proc { puts 'hello world!' }
+      mock_pry(binding, "show-doc _hello").should =~ /this is a documentation/
     end
   end
 
@@ -296,7 +296,7 @@ describe "show-doc" do
       it 'should show the docs for all monkeypatches defined in different files' do
         # local monkeypatch
         class TestClassForShowSource
-          def beta
+          def epsilon
           end
         end
 
@@ -321,7 +321,7 @@ describe "show-doc" do
           '(when -a not used and more than one candidate exists for class)' do
           # Still reading boring tests, eh?
           class TestClassForShowSource
-            def beta
+            def delta
             end
           end
 
@@ -413,7 +413,7 @@ describe "show-doc" do
     end
 
     it 'should display help for a regex command with a "listing"' do
-      @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
+      @set.command(/bar(.*)/, "Test listing", :listing => "foo") do; end
       pry_eval('show-doc foo').should =~ /Test listing/
     end
 

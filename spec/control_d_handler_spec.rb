@@ -13,7 +13,7 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       it "should clear out passed string" do
         str = 'hello world'
         Pry::DEFAULT_CONTROL_D_HANDLER.call(str, nil)
-        str.should == ''
+        str.should eq ''
       end
     end
 
@@ -30,9 +30,9 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
       it 'should pop last binding from the binding stack' do
         t = pry_tester
         t.eval "cd Object.new"
-        t.eval("_pry_.binding_stack.size").should == 2
+        t.eval("_pry_.binding_stack.size").should eq 2
         t.eval("_pry_.eval(nil)").should equal true
-        t.eval("_pry_.binding_stack.size").should == 1
+        t.eval("_pry_.binding_stack.size").should eq 1
       end
 
       it "breaks out of the parent session" do

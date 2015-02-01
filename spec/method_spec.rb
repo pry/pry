@@ -4,92 +4,92 @@ require 'set'
 describe Pry::Method do
   it "should use String names for compatibility" do
     klass = Class.new { def hello; end }
-    Pry::Method.new(klass.instance_method(:hello)).name.should == "hello"
+    Pry::Method.new(klass.instance_method(:hello)).name.should eq "hello"
   end
 
   describe ".from_str" do
     it 'should look up instance methods if no methods available and no options provided' do
       klass = Class.new { def hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
-      meth.should == klass.instance_method(:hello)
+      meth.should eq klass.instance_method(:hello)
     end
 
     it 'should look up methods if no instance methods available and no options provided' do
       klass = Class.new { def self.hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
-      meth.should == klass.method(:hello)
+      meth.should eq klass.method(:hello)
     end
 
     it 'should look up instance methods first even if methods available and no options provided' do
       klass = Class.new { def hello; end; def self.hello; end  }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
-      meth.should == klass.instance_method(:hello)
+      meth.should eq klass.instance_method(:hello)
     end
 
     it 'should look up instance methods if "instance-methods"  option provided' do
       klass = Class.new { def hello; end; def self.hello; end  }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {"instance-methods" => true})
-      meth.should == klass.instance_method(:hello)
+      meth.should eq klass.instance_method(:hello)
     end
 
     it 'should look up methods if :methods  option provided' do
       klass = Class.new { def hello; end; def self.hello; end  }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {:methods => true})
-      meth.should == klass.method(:hello)
+      meth.should eq klass.method(:hello)
     end
 
     it 'should look up instance methods using the Class#method syntax' do
       klass = Class.new { def hello; end; def self.hello; end  }
       meth = Pry::Method.from_str("klass#hello", Pry.binding_for(binding))
-      meth.should == klass.instance_method(:hello)
+      meth.should eq klass.instance_method(:hello)
     end
 
     it 'should look up methods using the object.method syntax' do
       klass = Class.new { def hello; end; def self.hello; end  }
       meth = Pry::Method.from_str("klass.hello", Pry.binding_for(binding))
-      meth.should == klass.method(:hello)
+      meth.should eq klass.method(:hello)
     end
 
     it 'should NOT look up instance methods using the Class#method syntax if no instance methods defined' do
-      klass = Class.new { def self.hello; end  }
-      meth = Pry::Method.from_str("klass#hello", Pry.binding_for(binding))
-      meth.should == nil
+      _klass = Class.new { def self.hello; end  }
+      meth = Pry::Method.from_str("_klass#hello", Pry.binding_for(binding))
+      meth.should eq nil
     end
 
     it 'should NOT look up methods using the object.method syntax if no methods defined' do
-      klass = Class.new { def hello; end  }
-      meth = Pry::Method.from_str("klass.hello", Pry.binding_for(binding))
-      meth.should == nil
+      _klass = Class.new { def hello; end  }
+      meth = Pry::Method.from_str("_klass.hello", Pry.binding_for(binding))
+      meth.should eq nil
     end
 
     it 'should look up methods using klass.new.method syntax' do
-      klass = Class.new { def hello; :hello; end }
-      meth = Pry::Method.from_str("klass.new.hello", Pry.binding_for(binding))
-      meth.name.should == "hello"
+      _klass = Class.new { def hello; :hello; end }
+      meth = Pry::Method.from_str("_klass.new.hello", Pry.binding_for(binding))
+      meth.name.should eq "hello"
     end
 
     it 'should take care of corner cases like mongo[] e.g Foo::Bar.new[]- issue 998' do
-      klass = Class.new { def []; :hello; end }
-      meth = Pry::Method.from_str("klass.new[]", Pry.binding_for(binding))
-      meth.name.should == "[]"
+      _klass = Class.new { def []; :hello; end }
+      meth = Pry::Method.from_str("_klass.new[]", Pry.binding_for(binding))
+      meth.name.should eq "[]"
     end
 
     it 'should take care of cases like $ mongo[] - issue 998' do
       f = Class.new { def []; :hello; end }.new
       meth = Pry::Method.from_str("f[]", Pry.binding_for(binding))
-      meth.name.should == "[]"
+      meth.should eq f.method(:[])
     end
 
     it 'should look up instance methods using klass.meth#method syntax' do
-      klass = Class.new { def self.meth; Class.new; end }
-      meth = Pry::Method.from_str("klass.meth#initialize", Pry.binding_for(binding))
-      meth.name.should == "initialize"
+      _klass = Class.new { def self.meth; Class.new; end }
+      meth = Pry::Method.from_str("_klass.meth#initialize", Pry.binding_for(binding))
+      meth.name.should eq "initialize"
     end
 
     it 'should look up methods using instance::bar syntax' do
-      klass = Class.new{ def self.meth; Class.new; end }
-      meth = Pry::Method.from_str("klass::meth", Pry.binding_for(binding))
-      meth.name.should == "meth"
+      _klass = Class.new{ def self.meth; Class.new; end }
+      meth = Pry::Method.from_str("_klass::meth", Pry.binding_for(binding))
+      meth.name.should eq "meth"
     end
 
     it 'should not raise an exception if receiver does not exist' do
@@ -99,11 +99,11 @@ describe Pry::Method do
 
   describe '.from_binding' do
     it 'should be able to pick a method out of a binding' do
-      Pry::Method.from_binding(Class.new{ def self.foo; binding; end }.foo).name.should == "foo"
+      Pry::Method.from_binding(Class.new{ def self.foo; binding; end }.foo).name.should eq "foo"
     end
 
     it 'should NOT find a method from the toplevel binding' do
-      Pry::Method.from_binding(TOPLEVEL_BINDING).should == nil
+      Pry::Method.from_binding(TOPLEVEL_BINDING).should eq nil
     end
 
     it "should find methods that have been undef'd" do
@@ -115,7 +115,7 @@ describe Pry::Method do
       end
 
       m = Pry::Method.from_binding(c.bar)
-      m.name.should == "bar"
+      m.name.should eq "bar"
     end
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
@@ -127,9 +127,9 @@ describe Pry::Method do
         g = b.new.gag33
         m = Pry::Method.from_binding(g)
 
-        m.owner.should == a
-        m.source_line.should == a.line
-        m.name.should == "gag33"
+        m.owner.should eq a
+        m.source_line.should eq a.line
+        m.name.should eq "gag33"
       end
     end
 
@@ -139,9 +139,9 @@ describe Pry::Method do
 
       m = Pry::Method.from_binding(b.new.gag)
 
-      m.owner.should == b
-      m.source_line.should == b.line
-      m.name.should == "gag"
+      m.owner.should eq b
+      m.source_line.should eq b.line
+      m.name.should eq "gag"
     end
 
     # Temporarily disabled to work around rubinius/rubinius#2871.
@@ -150,9 +150,9 @@ describe Pry::Method do
         a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
 
         m = Pry::Method.from_binding(a.new.gag)
-        m.owner.should == a
-        m.source_file.should == __FILE__
-        m.source_line.should == a.line
+        m.owner.should eq a
+        m.source_file.should eq __FILE__
+        m.source_line.should eq a.line
       end
     end
 
@@ -160,7 +160,7 @@ describe Pry::Method do
       o = Object.new
       class << o
         def borscht
-          "nips"
+          @nips = "nips"
           binding
         end
         alias paella borscht
@@ -168,7 +168,7 @@ describe Pry::Method do
       end
 
       m = Pry::Method.from_binding(o.borscht)
-      m.source.should == Pry::Method(o.method(:paella)).source
+      m.source.should eq Pry::Method(o.method(:paella)).source
     end
   end
 
@@ -180,8 +180,8 @@ describe Pry::Method do
       obj = b.new
 
       zuper = Pry::Method(obj.method(:rar)).super
-      zuper.owner.should == a
-      zuper.receiver.should == obj
+      zuper.owner.should eq a
+      zuper.receiver.should eq obj
     end
 
     it 'should be able to find the super method of an unbound method' do
@@ -189,13 +189,13 @@ describe Pry::Method do
       b = Class.new(a){ def rar; super; end }
 
       zuper = Pry::Method(b.instance_method(:rar)).super
-      zuper.owner.should == a
+      zuper.owner.should eq a
     end
 
     it 'should return nil if no super method exists' do
       a = Class.new{ def rar; super; end }
 
-      Pry::Method(a.instance_method(:rar)).super.should == nil
+      Pry::Method(a.instance_method(:rar)).super.should eq nil
     end
 
     it 'should be able to find super methods defined on modules' do
@@ -203,7 +203,7 @@ describe Pry::Method do
       a = Class.new{ def rar; super; end; include m }
 
       zuper = Pry::Method(a.new.method(:rar)).super
-      zuper.owner.should == m
+      zuper.owner.should eq m
     end
 
     it 'should be able to find super methods defined on super-classes when there are modules in the way' do
@@ -212,7 +212,7 @@ describe Pry::Method do
       b = Class.new(a){ def rar; super; end; include m }
 
       zuper = Pry::Method(b.new.method(:rar)).super
-      zuper.owner.should == a
+      zuper.owner.should eq a
     end
 
     it 'should be able to jump up multiple levels of bound method, even through modules' do
@@ -221,8 +221,8 @@ describe Pry::Method do
       b = Class.new(a){ def rar; super; end; include m }
 
       zuper = Pry::Method(b.new.method(:rar)).super
-      zuper.owner.should == m
-      zuper.super.owner.should == a
+      zuper.owner.should eq m
+      zuper.super.owner.should eq a
     end
   end
 
@@ -264,7 +264,7 @@ describe Pry::Method do
 
     it 'should attribute overridden methods to the sub-class' do
       @class = Class.new(Class.new{ include Module.new{ def meth; 1; end; } }) { def meth; 2; end }
-      Pry::Method.all_from_class(@class).detect{ |x| x.name == 'meth' }.owner.should == @class
+      Pry::Method.all_from_class(@class).detect{ |x| x.name == 'meth' }.owner.should eq @class
     end
 
     it 'should be able to find methods defined on a singleton class' do
@@ -344,7 +344,7 @@ describe Pry::Method do
 
       it "should not find methods defined within the class" do
         @class = Class.new{ def meth; 1; end }
-        Pry::Method.all_from_obj(@obj).map(&:name).should_not include 'meth'
+        Pry::Method.all_from_obj(@class).map(&:name).should_not include 'meth'
       end
 
       it "should find methods defined on Class" do
@@ -359,17 +359,17 @@ describe Pry::Method do
 
       it "should attribute overridden methods to the sub-class' singleton class" do
         @class = Class.new(Class.new{ class << self; def meth; 1; end; end }) { class << self; def meth; 1; end; end }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should == (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq(class << @class; self; end)
       end
 
       it "should attrbute overridden methods to the class not the module" do
         @class = Class.new { class << self; def meth; 1; end; end; extend Module.new{ def meth; 1; end; } }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should == (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner.should eq(class << @class; self; end)
       end
 
       it "should attribute overridden methods to the relevant singleton class in preference to Class" do
         @class = Class.new { class << self; def allocate; 1; end; end }
-        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner.should == (class << @class; self; end)
+        Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner.should eq(class << @class; self; end)
       end
     end
 
@@ -392,44 +392,44 @@ describe Pry::Method do
       def singleton_class(obj); class << obj; self; end; end
 
       it "should look at a class and then its superclass" do
-        Pry::Method.instance_resolution_order(LS::Next).should == [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
+        Pry::Method.instance_resolution_order(LS::Next).should eq [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
       end
 
       it "should include the included modules between a class and its superclass" do
-        Pry::Method.instance_resolution_order(LS::Low).should == [LS::Low, LS::P, LS::N, LS::M] + Pry::Method.instance_resolution_order(LS::Next)
+        Pry::Method.instance_resolution_order(LS::Low).should eq [LS::Low, LS::P, LS::N, LS::M] + Pry::Method.instance_resolution_order(LS::Next)
       end
 
       it "should not include modules extended into the class" do
-        Pry::Method.instance_resolution_order(LS::Bottom).should == [LS::Bottom] + Pry::Method.instance_resolution_order(LS::Lower)
+        Pry::Method.instance_resolution_order(LS::Bottom).should eq [LS::Bottom] + Pry::Method.instance_resolution_order(LS::Lower)
       end
 
       it "should include included modules for Modules" do
-        Pry::Method.instance_resolution_order(LS::O).should == [LS::O, LS::M]
+        Pry::Method.instance_resolution_order(LS::O).should eq [LS::O, LS::M]
       end
 
       it "should include the singleton class of objects" do
         obj = LS::Low.new
-        Pry::Method.resolution_order(obj).should == [singleton_class(obj)] + Pry::Method.instance_resolution_order(LS::Low)
+        Pry::Method.resolution_order(obj).should eq [singleton_class(obj)] + Pry::Method.instance_resolution_order(LS::Low)
       end
 
       it "should not include singleton classes of numbers" do
-        Pry::Method.resolution_order(4).should == Pry::Method.instance_resolution_order(Fixnum)
+        Pry::Method.resolution_order(4).should eq Pry::Method.instance_resolution_order(Fixnum)
       end
 
       it "should include singleton classes for classes" do
-        Pry::Method.resolution_order(LS::Low).should == [singleton_class(LS::Low)] + Pry::Method.resolution_order(LS::Next)
+        Pry::Method.resolution_order(LS::Low).should eq [singleton_class(LS::Low)] + Pry::Method.resolution_order(LS::Next)
       end
 
       it "should include modules included into singleton classes" do
-        Pry::Method.resolution_order(LS::Lower).should == [singleton_class(LS::Lower), LS::N, LS::M] + Pry::Method.resolution_order(LS::Low)
+        Pry::Method.resolution_order(LS::Lower).should eq [singleton_class(LS::Lower), LS::N, LS::M] + Pry::Method.resolution_order(LS::Low)
       end
 
       it "should include modules at most once" do
-        Pry::Method.resolution_order(LS::Bottom).count(LS::M).should == 1
+        Pry::Method.resolution_order(LS::Bottom).count(LS::M).should eq 1
       end
 
       it "should include modules at the point which they would be reached" do
-        Pry::Method.resolution_order(LS::Bottom).should == [singleton_class(LS::Bottom), LS::O] + (Pry::Method.resolution_order(LS::Lower))
+        Pry::Method.resolution_order(LS::Bottom).should eq [singleton_class(LS::Bottom), LS::O] + (Pry::Method.resolution_order(LS::Lower))
       end
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
@@ -443,10 +443,10 @@ describe Pry::Method do
   describe 'method_name_from_first_line' do
     it 'should work in all simple cases' do
       meth = Pry::Method.new(nil)
-      meth.send(:method_name_from_first_line, "def x").should == "x"
-      meth.send(:method_name_from_first_line, "def self.x").should == "x"
-      meth.send(:method_name_from_first_line, "def ClassName.x").should == "x"
-      meth.send(:method_name_from_first_line, "def obj_name.x").should == "x"
+      meth.send(:method_name_from_first_line, "def x").should eq "x"
+      meth.send(:method_name_from_first_line, "def self.x").should eq "x"
+      meth.send(:method_name_from_first_line, "def ClassName.x").should eq "x"
+      meth.send(:method_name_from_first_line, "def obj_name.x").should eq "x"
     end
   end
 
@@ -468,7 +468,7 @@ describe Pry::Method do
       meth = Pry::Method(@class.new.method(:eat))
       aliases = Set.new(meth.aliases)
 
-      aliases.should == Set.new(["fress", "omnomnom"])
+      aliases.should eq Set.new(["fress", "omnomnom"])
     end
 
     it 'should return an empty Array if cannot find aliases' do
@@ -501,7 +501,7 @@ describe Pry::Method do
       meth = Pry::Method(Hash.new.method(:key?))
       aliases = Set.new(meth.aliases)
 
-      aliases.should == Set.new(["include?", "member?", "has_key?"])
+      aliases.should eq Set.new(["include?", "member?", "has_key?"])
     end
   end
 end

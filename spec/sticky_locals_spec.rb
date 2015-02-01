@@ -58,14 +58,14 @@ describe "Sticky locals (_file_ and friends)" do
 
   it 'locals should return last result (_)' do
     pry_tester.tap do |t|
-      lam = t.eval 'lambda { |foo| }'
+      lam = t.eval 'lambda { |_foo| }'
       t.eval('_').should == lam
     end
   end
 
   it 'locals should return second last result (__)' do
     pry_tester.tap do |t|
-      lam = t.eval 'lambda { |foo| }'
+      lam = t.eval 'lambda { |_foo| }'
       t.eval 'num = 1'
       t.eval('__').should == lam
     end
@@ -80,7 +80,7 @@ describe "Sticky locals (_file_ and friends)" do
                                         "exit-all")) do
           Pry.start(o)
         end
-        o.instance_variable_get(:@value).should == :john
+        o.instance_variable_get(:@value).should eq :john
         Pry.config.extra_sticky_locals = {}
       end
 
@@ -93,7 +93,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o)
         end
 
-        o.instance_variable_get(:@value).should == :john
+        o.instance_variable_get(:@value).should eq :john
         Pry.config.extra_sticky_locals = {}
       end
 
@@ -107,7 +107,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => :john } )
         end
 
-        o.instance_variable_get(:@value).should == :john
+        o.instance_variable_get(:@value).should eq :john
       end
 
       it 'should define multiple sticky locals' do
@@ -119,8 +119,8 @@ describe "Sticky locals (_file_ and friends)" do
                       :test_local2 => :carl} )
         end
 
-        o.instance_variable_get(:@value1).should == :john
-        o.instance_variable_get(:@value2).should == :carl
+        o.instance_variable_get(:@value1).should eq :john
+        o.instance_variable_get(:@value2).should eq :carl
       end
 
 
@@ -131,7 +131,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => proc { :john }} )
         end
 
-        o.instance_variable_get(:@value).should == :john
+        o.instance_variable_get(:@value).should eq :john
       end
     end
 
@@ -145,7 +145,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(o, :extra_sticky_locals => { :test_local => :carl })
         end
 
-        o.instance_variable_get(:@value).should == :carl
+        o.instance_variable_get(:@value).should eq :carl
         Pry.config.extra_sticky_locals = {}
       end
     end

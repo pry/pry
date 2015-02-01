@@ -1,6 +1,6 @@
 require_relative 'helper'
 
-version = 1
+_version = 1
 
 describe "test Pry defaults" do
   before do
@@ -41,7 +41,7 @@ describe "test Pry defaults" do
       end.new
 
       Pry.start(self, :input => arity_one_input, :output => StringIO.new)
-      arity_one_input.prompt.should == Pry.prompt.call
+      arity_one_input.prompt.should eq Pry.prompt.call
     end
 
     it 'should not pass in the prompt if the arity is 0' do
@@ -69,7 +69,7 @@ describe "test Pry defaults" do
       end.new
 
       Pry.start(self, :input => arity_multi_input, :output => StringIO.new)
-      arity_multi_input.prompt.should == nil
+      arity_multi_input.prompt.should eq nil
     end
 
   end
@@ -96,40 +96,40 @@ describe "test Pry defaults" do
     new_print = proc { |out, value| out.puts "=> LOL" }
     Pry.config.print =  new_print
 
-    Pry.new.print.should == Pry.config.print
+    Pry.new.print.should eq Pry.config.print
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
-    @str_output.string.should == "=> LOL\n"
+    @str_output.string.should eq "=> LOL\n"
 
     @str_output = StringIO.new
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output,
                    :print => proc { |out, value| out.puts value.reverse }
-    @str_output.string.should == "tset\n"
+    @str_output.string.should eq "tset\n"
 
-    Pry.new.print.should == Pry.config.print
+    Pry.new.print.should eq Pry.config.print
     @str_output = StringIO.new
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
-    @str_output.string.should == "=> LOL\n"
+    @str_output.string.should eq "=> LOL\n"
   end
 
   describe "pry return values" do
     it 'should return nil' do
-      Pry.start(self, :input => StringIO.new("exit-all"), :output => StringIO.new).should == nil
+      Pry.start(self, :input => StringIO.new("exit-all"), :output => StringIO.new).should eq nil
     end
 
     it 'should return the parameter given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all 10"), :output => StringIO.new).should == 10
+      Pry.start(self, :input => StringIO.new("exit-all 10"), :output => StringIO.new).should eq 10
     end
 
     it 'should return the parameter (multi word string) given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all \"john mair\""), :output => StringIO.new).should == "john mair"
+      Pry.start(self, :input => StringIO.new("exit-all \"john mair\""), :output => StringIO.new).should eq "john mair"
     end
 
     it 'should return the parameter (function call) given to exit-all' do
-      Pry.start(self, :input => StringIO.new("exit-all 'abc'.reverse"), :output => StringIO.new).should == 'cba'
+      Pry.start(self, :input => StringIO.new("exit-all 'abc'.reverse"), :output => StringIO.new).should eq 'cba'
     end
 
     it 'should return the parameter (self) given to exit-all' do
-      Pry.start("carl", :input => StringIO.new("exit-all self"), :output => StringIO.new).should == "carl"
+      Pry.start("carl", :input => StringIO.new("exit-all self"), :output => StringIO.new).should eq "carl"
     end
   end
 
@@ -151,17 +151,17 @@ describe "test Pry defaults" do
       new_prompt = proc { "A" }
 
       pry = Pry.new
-      pry.prompt.should == Pry.prompt
-      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
+      pry.prompt.should eq Pry.prompt
+      get_prompts(pry).should eq ["test prompt> ",  "test prompt> "]
 
 
       pry = Pry.new(:prompt => new_prompt)
-      pry.prompt.should == new_prompt
-      get_prompts(pry).should == ["A",  "A"]
+      pry.prompt.should eq new_prompt
+      get_prompts(pry).should eq ["A",  "A"]
 
       pry = Pry.new
-      pry.prompt.should == Pry.prompt
-      get_prompts(pry).should == ["test prompt> ",  "test prompt> "]
+      pry.prompt.should eq Pry.prompt
+      get_prompts(pry).should eq ["test prompt> ",  "test prompt> "]
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
@@ -169,17 +169,17 @@ describe "test Pry defaults" do
       new_prompt = [proc { "A" }, proc { "B" }]
 
       pry = Pry.new
-      pry.prompt.should == Pry.prompt
-      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
+      pry.prompt.should eq Pry.prompt
+      get_prompts(pry).should eq ["test prompt> ",  "test prompt* "]
 
 
       pry = Pry.new(:prompt => new_prompt)
-      pry.prompt.should == new_prompt
-      get_prompts(pry).should == ["A",  "B"]
+      pry.prompt.should eq new_prompt
+      get_prompts(pry).should eq ["A",  "B"]
 
       pry = Pry.new
-      pry.prompt.should == Pry.prompt
-      get_prompts(pry).should == ["test prompt> ",  "test prompt* "]
+      pry.prompt.should eq Pry.prompt
+      get_prompts(pry).should eq ["test prompt> ",  "test prompt* "]
     end
 
     describe 'storing and restoring the prompt' do
@@ -195,49 +195,49 @@ describe "test Pry defaults" do
       it 'should have a prompt stack' do
         @pry.push_prompt @b
         @pry.push_prompt @c
-        @pry.prompt.should == @c
+        @pry.prompt.should eq @c
         @pry.pop_prompt
-        @pry.prompt.should == @b
+        @pry.prompt.should eq @b
         @pry.pop_prompt
-        @pry.prompt.should == @a
+        @pry.prompt.should eq @a
       end
 
       it 'should restore overridden prompts when returning from file-mode' do
         pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
-        pry.select_prompt.should == "P>"
+        pry.select_prompt.should eq "P>"
         pry.process_command('shell-mode')
         pry.select_prompt.should =~ /\Apry .* \$ \z/
         pry.process_command('shell-mode')
-        pry.select_prompt.should == "P>"
+        pry.select_prompt.should eq "P>"
       end
 
       it '#pop_prompt should return the popped prompt' do
         @pry.push_prompt @b
         @pry.push_prompt @c
-        @pry.pop_prompt.should == @c
-        @pry.pop_prompt.should == @b
+        @pry.pop_prompt.should eq @c
+        @pry.pop_prompt.should eq @b
       end
 
       it 'should not pop the last prompt' do
         @pry.push_prompt @b
-        @pry.pop_prompt.should == @b
-        @pry.pop_prompt.should == @a
-        @pry.pop_prompt.should == @a
-        @pry.prompt.should == @a
+        @pry.pop_prompt.should eq @b
+        @pry.pop_prompt.should eq @a
+        @pry.pop_prompt.should eq @a
+        @pry.prompt.should eq @a
       end
 
       describe '#prompt= should replace the current prompt with the new prompt' do
         it 'when only one prompt on the stack' do
           @pry.prompt = @b
-          @pry.prompt.should == @b
-          @pry.pop_prompt.should == @b
-          @pry.pop_prompt.should == @b
+          @pry.prompt.should eq @b
+          @pry.pop_prompt.should eq @b
+          @pry.pop_prompt.should eq @b
         end
         it 'when several prompts on the stack' do
           @pry.push_prompt @b
           @pry.prompt = @c
-          @pry.pop_prompt.should == @c
-          @pry.pop_prompt.should == @a
+          @pry.pop_prompt.should eq @c
+          @pry.pop_prompt.should eq @a
         end
       end
     end
@@ -261,14 +261,14 @@ describe "test Pry defaults" do
     describe "given the 'main' object" do
       it "returns the #to_s of main (special case)" do
         o = TOPLEVEL_BINDING.eval('self')
-        Pry.view_clip(o, DEFAULT_OPTIONS).should == o.to_s
+        Pry.view_clip(o, DEFAULT_OPTIONS).should eq o.to_s
       end
     end
 
     describe "the list of prompt safe objects" do
       [1, 2.0, -5, "hello", :test].each do |o|
         it "returns the #inspect of the special-cased immediate object: #{o}" do
-          Pry.view_clip(o, DEFAULT_OPTIONS).should == o.inspect
+          Pry.view_clip(o, DEFAULT_OPTIONS).should eq o.inspect
         end
       end
 
@@ -281,7 +281,7 @@ describe "test Pry defaults" do
         Barbie = Class.new { def inspect; "life is plastic, it's fantastic" end }
         Pry.config.prompt_safe_objects << Barbie
         output = Pry.view_clip(Barbie.new, DEFAULT_OPTIONS)
-        output.should == "life is plastic, it's fantastic"
+        output.should eq "life is plastic, it's fantastic"
       end
     end
 
@@ -335,8 +335,8 @@ describe "test Pry defaults" do
             def c.name; "a" * MAX_LENGTH; end
             def m.name; "a" * MAX_LENGTH; end
 
-            Pry.view_clip(c, DEFAULT_OPTIONS).should == c.name
-            Pry.view_clip(m, DEFAULT_OPTIONS).should == m.name
+            Pry.view_clip(c, DEFAULT_OPTIONS).should eq c.name
+            Pry.view_clip(m, DEFAULT_OPTIONS).should eq m.name
           end
         end
 
@@ -361,13 +361,13 @@ describe "test Pry defaults" do
               :quiet => true,
               :hooks => Pry::DEFAULT_HOOKS)
 
-      @str_output.string.should == ""
+      @str_output.string.should eq ""
     end
   end
 
   describe 'toplevel_binding' do
     it 'should be devoid of local variables' do
-      pry_eval(Pry.toplevel_binding, "ls -l").should_not =~ /version/
+      pry_eval(Pry.toplevel_binding, "ls -l").should_not =~ /_version/
     end
 
     it 'should have self the same as TOPLEVEL_BINDING' do
@@ -378,8 +378,8 @@ describe "test Pry defaults" do
     unless Pry::Helpers::BaseHelpers.rbx?
       it 'should define private methods on Object' do
         TOPLEVEL_BINDING.eval 'def gooey_fooey; end'
-        method(:gooey_fooey).owner.should == Object
-        Pry::Method(method(:gooey_fooey)).visibility.should == :private
+        method(:gooey_fooey).owner.should eq Object
+        Pry::Method(method(:gooey_fooey)).visibility.should eq :private
       end
     end
   end

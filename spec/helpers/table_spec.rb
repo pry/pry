@@ -3,21 +3,21 @@ require_relative '../helper'
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
     t = Pry::Helpers::Table.new %w(hihi), :column_count => 1
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should eq true
     t.items = []
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should eq true
 
     t.items = %w(hi hi)
-    t.fits_on_line?(4).should == true
+    t.fits_on_line?(4).should eq true
     t.column_count = 2
-    t.fits_on_line?(4).should == false
+    t.fits_on_line?(4).should eq false
 
     t.items = %w(
       a   ccc
       bb  dddd
     ).sort
-    t.fits_on_line?(8).should == true
-    t.fits_on_line?(7).should == false
+    t.fits_on_line?(8).should eq true
+    t.fits_on_line?(7).should eq false
   end
 
   describe 'formatting - should order downward and wrap to columns' do
@@ -25,7 +25,7 @@ describe 'Formatting Table' do
     def try_round_trip(expected)
       things = expected.split(/\s+/).sort
       actual = Pry::Helpers.tablify(things, FAKE_COLUMNS).to_s.strip
-      [expected, actual].each{|e| e.gsub! /\s+$/, ''}
+      [expected, actual].each{|e| e.gsub!(/\s+$/, '')}
       if actual != expected
         bar = '-'*25
         puts \
@@ -34,7 +34,7 @@ describe 'Formatting Table' do
           bar+'actual'+bar,
           actual
       end
-      actual.should == expected
+      actual.should eq expected
     end
 
     it 'should handle a tiny case' do
@@ -94,11 +94,11 @@ asfadsssaaad    fasfaafdssd     s
 
     it 'should format output as one column' do
       table = Pry::Helpers.tablify(@out, @elem_len - 1).to_s
-      table.should == "swizzle\ncrime  \nfun    "
+      table.should eq "swizzle\ncrime  \nfun    "
     end
   end
 
   specify 'decide between one-line or indented output' do
-    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should == "head: ing\n"
+    Pry::Helpers.tablify_or_one_line('head', %w(ing)).should eq "head: ing\n"
   end
 end

@@ -8,6 +8,7 @@ describe "show-source" do
       :sample
     end
 
+    Object.remove_const :Test if Object.const_defined? :Test
     Object.const_set(:Test, Module.new)
   end
 
@@ -47,7 +48,7 @@ describe "show-source" do
 
   it "should find methods even if there are spaces in the arguments" do
     def @o.foo(*bars)
-      "Mr flibble"
+      @foo = "Mr flibble"
       self
     end
 
@@ -56,22 +57,22 @@ describe "show-source" do
   end
 
   it "should find methods even if the object overrides method method" do
-    c = Class.new{
+    _c = Class.new{
       def method;
         98
       end
     }
 
-    pry_eval(binding, "show-source c.new.method").should =~ /98/
+    pry_eval(binding, "show-source _c.new.method").should =~ /98/
   end
 
   it "should not show the source when a non-extant method is requested" do
-    c = Class.new{ def method; 98; end }
-    mock_pry(binding, "show-source c#wrongmethod").should =~ /Couldn't locate/
+    _c = Class.new{ def method; 98; end }
+    mock_pry(binding, "show-source _c#wrongmethod").should =~ /Couldn't locate/
   end
 
   it "should find instance_methods if the class overrides instance_method" do
-    c = Class.new{
+    _c = Class.new{
       def method;
         98
       end
@@ -79,43 +80,43 @@ describe "show-source" do
       def self.instance_method; 789; end
     }
 
-    pry_eval(binding, "show-source c#method").should =~ /98/
+    pry_eval(binding, "show-source _c#method").should =~ /98/
   end
 
   it "should find instance methods with self#moo" do
-    c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new{ def moo; "ve over!"; end }
 
-    pry_eval(binding, "cd c", "show-source self#moo").should =~ /ve over/
+    pry_eval(binding, "cd _c", "show-source self#moo").should =~ /ve over/
   end
 
   it "should not find instance methods with self.moo" do
-    c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new{ def moo; "ve over!"; end }
 
-    expect { pry_eval(binding, 'cd c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+    expect { pry_eval(binding, 'cd _c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods with self.moo" do
-    c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new{ def self.moo; "ve over!"; end }
 
-    pry_eval(binding, 'cd c', 'show-source self.moo').should =~ /ve over/
+    pry_eval(binding, 'cd _c', 'show-source self.moo').should =~ /ve over/
   end
 
   it "should not find normal methods with self#moo" do
-    c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new{ def self.moo; "ve over!"; end }
 
-    expect { pry_eval(binding, 'cd c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+    expect { pry_eval(binding, 'cd _c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods (i.e non-instance methods) by default" do
-    c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new{ def self.moo; "ve over!"; end }
 
-    pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
+    pry_eval(binding, "cd _c", "show-source moo").should =~ /ve over/
   end
 
   it "should find instance methods if no normal methods available" do
-    c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new{ def moo; "ve over!"; end }
 
-    pry_eval(binding, "cd c", "show-source moo").should =~ /ve over/
+    pry_eval(binding, "cd _c", "show-source moo").should =~ /ve over/
   end
 
   describe "with -e option" do
@@ -134,7 +135,7 @@ describe "show-source" do
     it "evaluates the argument as ruby and shows the source code for the returned value" do
       ReplTester.start target: binding do
         input 'show-source -e FooBar.new'
-        output /class FooBar/
+        output(/class FooBar/)
       end
     end
   end
@@ -202,7 +203,7 @@ describe "show-source" do
     it "finds super methods without explicit method argument" do
       o = Foo.new
       def o.foo(*bars)
-        :wibble
+        @foo = :wibble
         pry_eval(binding, 'show-source --super')
       end
 
@@ -219,7 +220,7 @@ describe "show-source" do
       }
 
       def o.foo(*bars)
-        :wibble
+        @foo = :wibble
         pry_eval(binding, 'show-source --super --super')
       end
 
@@ -236,8 +237,8 @@ describe "show-source" do
     end
 
     it "should output source for procs/lambdas stored in variables" do
-      hello = proc { puts 'hello world!' }
-      pry_eval(binding, 'show-source hello').should =~ /proc \{ puts/
+      _hello = proc { puts 'hello world!' }
+      pry_eval(binding, 'show-source _hello').should =~ /proc \{ puts/
     end
 
     it "should output source for procs/lambdas stored in constants" do
@@ -248,8 +249,8 @@ describe "show-source" do
 
     it "should output source for method objects" do
       def @o.hi; puts 'hi world'; end
-      meth = @o.method(:hi)
-      pry_eval(binding, "show-source meth").should =~ /puts 'hi world'/
+      _meth = @o.method(:hi)
+      pry_eval(binding, "show-source _meth").should =~ /puts 'hi world'/
     end
 
     describe "on variables that shadow methods" do
@@ -258,6 +259,7 @@ describe "show-source" do
           class ::TestHost
             def hello
               hello = proc { ' smile ' }
+              _foo = hello
               pry_tester(binding)
             end
           end
@@ -296,8 +298,8 @@ describe "show-source" do
       end
 
       it "should output source of its class if variable doesn't respond to source_location" do
-        test_host = TestHost.new
-        pry_eval(binding, 'show-source test_host').
+        _test_host = TestHost.new
+        pry_eval(binding, 'show-source _test_host').
           should =~ /class TestHost\n.*def hello/
       end
 
@@ -499,7 +501,7 @@ describe "show-source" do
         describe "messages relating to -a" do
           it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
             class TestClassForShowSource
-              def beta
+              def gamma
               end
             end
 
@@ -637,7 +639,7 @@ describe "show-source" do
         end
 
         it 'should show source for a command by listing name' do
-          @set.command /foo(.*)/, :body_of_foo_bar_regex, :listing => "bar" do; end
+          @set.command(/foo(.*)/, :body_of_foo_bar_regex, :listing => "bar") do; end
 
           pry_eval('show-source bar').should =~ /:body_of_foo_bar_regex/
         end

@@ -31,7 +31,7 @@ class Pry
     end
 
     def reload_current_file
-      if !File.exists?(current_file)
+      if !File.exist?(current_file)
         raise CommandError, "Current file: #{current_file} cannot be found on disk!"
       end
 
@@ -49,7 +49,7 @@ class Pry
     def check_for_reloadability(code_object, identifier)
       if !code_object || !code_object.source_file
         raise CommandError, "Cannot locate #{identifier}!"
-      elsif !File.exists?(code_object.source_file)
+      elsif !File.exist?(code_object.source_file)
         raise CommandError,
           "Cannot reload #{identifier} as it has no associated file on disk. " \
           "File found was: #{code_object.source_file}"

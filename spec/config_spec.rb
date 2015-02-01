@@ -33,7 +33,7 @@ describe Pry::Config do
       parent = Pry::Config.from_hash(hooks: "parent_hooks")
       local  = Pry::Config.new parent
       local.hooks.gsub! 'parent', 'local'
-      local.hooks.should == 'local_hooks'
+      local.hooks.should eq 'local_hooks'
       parent.hooks.should == 'parent_hooks'
     end
   end
@@ -69,7 +69,7 @@ describe Pry::Config do
     it "returns a Method object for a dynamic key" do
       @config["key"] = 1
       method_obj = @config.method(:key)
-      method_obj.name.should == :key
+      method_obj.name.should eq :key
       method_obj.call.should == 1
     end
   end
@@ -129,7 +129,7 @@ describe Pry::Config do
     it "forgets a local key" do
       local = Pry::Config.new Pry::Config.from_hash(foo: 1)
       local.foo = 2
-      local.foo.should == 2
+      local.foo.should eq 2
       local.forget(:foo)
       local.foo.should == 1
     end

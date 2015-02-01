@@ -17,7 +17,7 @@ describe "help" do
   end
 
   it 'should display help for a regex command with a "listing"' do
-    @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
+    @set.command(/bar(.*)/, "Test listing", :listing => "foo") do; end
     pry_eval('help foo').should =~ /Test listing/
   end
 
@@ -27,7 +27,7 @@ describe "help" do
   end
 
   it 'should display help for all commands with a description' do
-    @set.command /bar(.*)/, "Test listing", :listing => "foo" do; end
+    @set.command(/bar(.*)/, "Test listing", :listing => "foo") do; end
     @set.command "b", "description for b", :listing => "foo" do; end
     @set.command "c" do;end
     @set.command "d", "" do;end

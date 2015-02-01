@@ -19,10 +19,10 @@ describe Pry do
 
     it "should never run the rc file twice" do
       Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
-      TEST_RC.should == [0]
+      TEST_RC.should eq [0]
 
       Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
-      TEST_RC.should == [0]
+      TEST_RC.should eq [0]
     end
 
     # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
@@ -33,7 +33,7 @@ describe Pry do
 
         Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
 
-        TEST_RC.should == [0]
+        TEST_RC.should eq [0]
       end
     end
 
@@ -50,12 +50,12 @@ describe Pry do
       Pry.config.should_load_rc = false
       Pry.config.should_load_local_rc = false
       Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
-      Object.const_defined?(:TEST_RC).should == false
+      Object.const_defined?(:TEST_RC).should eq false
     end
 
     describe "that raise exceptions" do
       before do
-        Pry::HOME_RC_FILE = "spec/fixtures/testrcbad"
+        Pry::HOME_RC_FILE.replace "spec/fixtures/testrcbad"
         Pry.config.should_load_local_rc = false
 
         putsed = nil
@@ -84,8 +84,8 @@ describe Pry do
 
       it "should continue to run pry" do
         @doing_it[]
-        Object.const_defined?(:TEST_BEFORE_RAISE).should == true
-        Object.const_defined?(:TEST_AFTER_RAISE).should == true
+        Object.const_defined?(:TEST_BEFORE_RAISE).should eq true
+        Object.const_defined?(:TEST_AFTER_RAISE).should eq true
       end
 
       it "should output an error" do

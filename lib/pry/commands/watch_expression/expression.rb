@@ -10,7 +10,7 @@ class Pry
       end
 
       def eval!
-        @previous_value = @value
+        @previous_value = value
         @value = Pry::ColorPrinter.pp(target_eval(target, source), "")
       end
 

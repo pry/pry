@@ -54,7 +54,7 @@ module PryTestHelpers
     yield file
   ensure
     file.close(true) if file
-    File.unlink("#{file.path}c") if File.exists?("#{file.path}c") # rbx
+    File.unlink("#{file.path}c") if File.exist?("#{file.path}c") # rbx
   end
 
   def unindent(*args)

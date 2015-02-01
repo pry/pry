@@ -39,15 +39,15 @@ describe Pry::WrappedModule do
 
     describe "number_of_candidates" do
       it 'should return the correct number of candidates' do
-        Pry::WrappedModule(Host::CandidateTest).number_of_candidates.should == 3
+        Pry::WrappedModule(Host::CandidateTest).number_of_candidates.should eq 3
       end
 
       it 'should return 0 candidates for a class with no nested modules or methods' do
-        Pry::WrappedModule(Host::PitifullyBlank).number_of_candidates.should == 0
+        Pry::WrappedModule(Host::PitifullyBlank).number_of_candidates.should eq 0
       end
 
       it 'should return 1 candidate for a class with a nested module with methods' do
-        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should == 1
+        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should eq 1
       end
     end
 
@@ -72,24 +72,24 @@ describe Pry::WrappedModule do
     describe "source_location" do
       it 'should return primary candidates source_location by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.source_location.should == wm.candidate(0).source_location
+        wm.source_location.should eq wm.candidate(0).source_location
       end
 
       it 'should return the location of the outer module if an inner module has methods' do
         wm = Pry::WrappedModule(Host::ForeverAlone)
-        File.expand_path(wm.source_location.first).should == File.expand_path(__FILE__)
-        wm.source_location.last.should == Host::FOREVER_ALONE_LINE
+        File.expand_path(wm.source_location.first).should eq File.expand_path(__FILE__)
+        wm.source_location.last.should eq Host::FOREVER_ALONE_LINE
       end
 
       it 'should return nil if no source_location can be found' do
-        Pry::WrappedModule(Host::PitifullyBlank).source_location.should == nil
+        Pry::WrappedModule(Host::PitifullyBlank).source_location.should eq nil
       end
     end
 
     describe "source" do
       it 'should return primary candidates source by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.source.should == wm.candidate(0).source
+        wm.source.should eq wm.candidate(0).source
       end
 
       it 'should return source for highest ranked candidate' do
@@ -106,14 +106,14 @@ describe Pry::WrappedModule do
 
       it 'should return source for deeply nested class' do
         Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.should =~ /nested_method/
-        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count.should == 4
+        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count.should eq 4
       end
     end
 
     describe "doc" do
       it 'should return primary candidates doc by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.doc.should == wm.candidate(0).doc
+        wm.doc.should eq wm.candidate(0).doc
       end
 
       it 'should return doc for highest ranked candidate' do
@@ -145,19 +145,19 @@ describe Pry::WrappedModule do
     end
 
     it "should return Foo# for normal classes" do
-      Pry::WrappedModule.new(Foo).method_prefix.should == "Foo#"
+      Pry::WrappedModule.new(Foo).method_prefix.should eq "Foo#"
     end
 
     it "should return Bar# for modules" do
-      Pry::WrappedModule.new(Kernel).method_prefix.should == "Kernel#"
+      Pry::WrappedModule.new(Kernel).method_prefix.should eq "Kernel#"
     end
 
     it "should return Foo. for singleton classes of classes" do
-      Pry::WrappedModule.new(class << Foo; self; end).method_prefix.should == "Foo."
+      Pry::WrappedModule.new(class << Foo; self; end).method_prefix.should eq "Foo."
     end
 
     example "of singleton classes of objects" do
-      Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should == "self."
+      Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should eq "self."
     end
 
     example "of anonymous classes should not be empty" do
@@ -171,15 +171,15 @@ describe Pry::WrappedModule do
 
   describe ".singleton_class?" do
     it "should be true for singleton classes" do
-      Pry::WrappedModule.new(class << ""; self; end).singleton_class?.should == true
+      Pry::WrappedModule.new(class << ""; self; end).singleton_class?.should eq true
     end
 
     it "should be false for normal classes" do
-      Pry::WrappedModule.new(Class.new).singleton_class?.should == false
+      Pry::WrappedModule.new(Class.new).singleton_class?.should eq false
     end
 
     it "should be false for modules" do
-      Pry::WrappedModule.new(Module.new).singleton_class?.should == false
+      Pry::WrappedModule.new(Module.new).singleton_class?.should eq false
     end
   end
 
@@ -189,7 +189,7 @@ describe Pry::WrappedModule do
     end
 
     it "should return the attached object" do
-      Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance.should == "hi"
+      Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance.should eq "hi"
       Pry::WrappedModule.new(class << Object; self; end).singleton_instance.should.equal?(Object)
     end
   end
@@ -205,25 +205,25 @@ describe Pry::WrappedModule do
       end
 
       it 'should return superclass for a wrapped class'  do
-        Pry::WrappedModule(@c).super.wrapped.should == @b
+        Pry::WrappedModule(@c).super.wrapped.should eq @b
       end
 
       it 'should return nth superclass for a wrapped class'  do
         d = Class.new(@c)
-        Pry::WrappedModule(d).super(2).wrapped.should == @b
+        Pry::WrappedModule(d).super(2).wrapped.should eq @b
       end
 
       it 'should ignore modules when retrieving nth superclass'  do
-        Pry::WrappedModule(@c).super(2).wrapped.should == @a
+        Pry::WrappedModule(@c).super(2).wrapped.should eq @a
       end
 
       it 'should return nil when no nth superclass exists' do
-        Pry::WrappedModule(@c).super(10).should == nil
+        Pry::WrappedModule(@c).super(10).should eq nil
       end
 
       it 'should return self when .super(0) is used' do
         c = Pry::WrappedModule(@c)
-        c.super(0).should == c
+        c.super(0).should eq c
       end
     end
 
@@ -235,16 +235,16 @@ describe Pry::WrappedModule do
       end
 
       it 'should not ignore modules when retrieving supers' do
-        Pry::WrappedModule(@m3).super.wrapped.should == @m2
+        Pry::WrappedModule(@m3).super.wrapped.should eq @m2
       end
 
       it 'should retrieve nth super' do
-        Pry::WrappedModule(@m3).super(2).wrapped.should == @m1
+        Pry::WrappedModule(@m3).super(2).wrapped.should eq @m1
       end
 
       it 'should return self when .super(0) is used' do
         m = Pry::WrappedModule(@m1)
-        m.super(0).should == m
+        m.super(0).should eq m
       end
     end
   end
@@ -252,25 +252,26 @@ describe Pry::WrappedModule do
   describe ".from_str" do
     before do
       class Namespace
+        remove_const :Value if defined? Value
         Value = Class.new
       end
     end
 
     it 'should lookup a constant' do
       m = Pry::WrappedModule.from_str("Namespace::Value", binding)
-      m.wrapped.should == Namespace::Value
+      m.wrapped.should eq Namespace::Value
     end
 
     it 'should lookup a local' do
       local = Namespace::Value
       m = Pry::WrappedModule.from_str("local", binding)
-      m.wrapped.should == Namespace::Value
+      m.wrapped.should eq local
     end
 
     it 'should lookup an ivar' do
       @ivar = Namespace::Value
       m = Pry::WrappedModule.from_str("@ivar", binding)
-      m.wrapped.should == Namespace::Value
+      m.wrapped.should eq Namespace::Value
     end
   end
 end

@@ -159,12 +159,12 @@ class Pry
     end
 
     def class_code
-      return @class_code if @class_code
-
-      mod = @method ? Pry::WrappedModule(@method.owner) : target_class
-
-      idx = mod.candidates.find_index { |v| expand_path(v.source_file) == @file }
-      @class_code = idx && Pry::Code.from_module(mod, idx)
+      @class_code ||=
+        begin
+          mod = @method ? Pry::WrappedModule(@method.owner) : target_class
+          idx = mod.candidates.find_index { |v| expand_path(v.source_file) == @file }
+          idx && Pry::Code.from_module(mod, idx)
+        end
     end
 
     def valid_method?

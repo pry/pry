@@ -10,17 +10,17 @@ class Pry
     end
 
     command "get-naked", "" do
-      text = %{
+      txt = %{
   --
   We dont have to take our clothes off to have a good time.
   We could dance & party all night And drink some cherry wine.
   -- Jermaine Stewart }
-      output.puts text
-      text
+      output.puts txt
+      txt
     end
 
     command "east-coker", "" do
-      text = %{
+      txt = %{
   --
   Now the light falls
   Across the open field, leaving the deep lane
@@ -34,12 +34,12 @@ class Pry
   Wait for the early owl.
                 -- T.S Eliot
           }
-      output.puts text
-      text
+      output.puts txt
+      txt
     end
 
     command "cohen-poem", "" do
-      text = %{
+      txt = %{
   --
   When this American woman,
   whose thighs are bound in casual red cloth,
@@ -57,8 +57,8 @@ class Pry
   they are lost for hours.
                 -- Leonard Cohen
               }
-      output.puts text
-      text
+      output.puts txt
+      txt
     end
 
     command "pessoa-poem", "" do

@@ -59,6 +59,8 @@ class ReplTester
       end
     end
 
+    @should_exit_naturally = false
+
     wait # wait until the instance reaches its first readline
   end
 

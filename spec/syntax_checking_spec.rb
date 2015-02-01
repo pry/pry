@@ -23,7 +23,7 @@ describe Pry do
     end
   end
 
-  [
+  ([
     ["end"],
     ["puts )("],
     ["1 1"],
@@ -31,7 +31,7 @@ describe Pry do
   ] + (Pry::Helpers::BaseHelpers.rbx? ? [] : [
     ["def", "method(1"], # in this case the syntax error is "expecting ')'".
     ["o = Object.new.tap{ def o.render;","'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
-  ]).compact.each do |foo|
+  ])).compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
@@ -50,13 +50,11 @@ describe Pry do
   end
 
   it "should allow trailing , to continue the line" do
-    pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,").should == false
+    Pry::Code.complete_expression?("puts 1, 2,").should eq false
   end
 
   it "should complete an expression that contains a line ending with a ," do
-    pry = Pry.new
-    Pry::Code.complete_expression?("puts 1, 2,\n3").should == true
+    Pry::Code.complete_expression?("puts 1, 2,\n3").should eq true
   end
 
   it "should not suppress the error output if the line ends in ;" do
@@ -68,14 +66,14 @@ describe Pry do
   end
 
   it "should allow whitespace delimeted strings" do
-    mock_pry('"%s" %% foo ').should =~ /"foo"/
+    mock_pry('"%s" % % foo ').should =~ /"foo"/
   end
 
   it "should allow newline delimeted strings" do
-    mock_pry('"%s" %%','foo').should =~ /"foo"/
+    mock_pry('"%s" % %','foo').should =~ /"foo"/
   end
 
   it "should allow whitespace delimeted strings ending on the first char of a line" do
-    mock_pry('"%s" %% ', ' #done!').should =~ /"\\n"/
+    mock_pry('"%s" % % ', ' #done!').should =~ /"\\n"/
   end
 end

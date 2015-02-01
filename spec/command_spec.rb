@@ -32,7 +32,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should == Pry::Command::VOID_VALUE
+      mock_command(cmd).return.should eq Pry::Command::VOID_VALUE
     end
 
     it 'should return the return value with keep_retval' do
@@ -42,7 +42,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should == 5
+      mock_command(cmd).return.should eq 5
     end
 
     it 'should call hooks in the right order' do
@@ -67,7 +67,7 @@ describe "Pry::Command" do
         output.puts 5 + i.to_i
       end
 
-      mock_command(cmd, %w(2)).output.should == "3\n4\n5\n6\n7\n"
+      mock_command(cmd, %w(2)).output.should eq "3\n4\n5\n6\n7\n"
     end
 
     # TODO: This strikes me as rather silly...
@@ -82,7 +82,7 @@ describe "Pry::Command" do
         10
       end
 
-      mock_command(cmd).return.should == 10
+      mock_command(cmd).return.should eq 10
     end
   end
 
@@ -202,7 +202,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).output.should == "setup\nsubcommands\noptions\nprocess\n"
+      mock_command(cmd).output.should eq "setup\nsubcommands\noptions\nprocess\n"
     end
 
     it 'should raise a command error if process is not overridden' do
@@ -222,7 +222,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should == 5
+      mock_command(cmd).return.should eq 5
     end
 
     it 'should provide opts and args as provided by slop' do
@@ -232,22 +232,23 @@ describe "Pry::Command" do
         end
 
         def process
-          args.should == ['four']
-          opts[:f].should == 4
+          output.puts args.inspect
+          output.puts opts[:f]
         end
       end
 
-      mock_command(cmd, %w(--four 4 four))
+      result = mock_command(cmd, %w(--four 4 four))
+      result.output.split.should eq ['["four"]', '4']
     end
 
     it 'should allow overriding options after definition' do
-      cmd = @set.create_command /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false do
+      cmd = @set.create_command(/number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false) do
 
         command_options :listing => 'number-one'
       end
 
-      cmd.command_options[:shellwords].should == false
-      cmd.command_options[:listing].should == 'number-one'
+      cmd.command_options[:shellwords].should eq false
+      cmd.command_options[:listing].should eq 'number-one'
     end
 
     it "should create subcommands" do
@@ -257,12 +258,13 @@ describe "Pry::Command" do
         end
 
         def process
-          opts.fetch_command(:blahblah).should == nil
-          opts.fetch_command(:yell).present?.should == true
+          output.puts opts.fetch_command(:blahblah).inspect
+          output.puts opts.fetch_command(:yell).present?
         end
       end
 
-      mock_command(cmd, ['yell'])
+      result = mock_command(cmd, ['yell'])
+      result.output.split.should eq ['nil', 'true']
     end
 
     it "should create subcommand options" do
@@ -274,13 +276,14 @@ describe "Pry::Command" do
         end
 
         def process
-          args.should == ['papa']
-          opts.fetch_command(:yell).present?.should == true
-          opts.fetch_command(:yell).person?.should == true
+          output.puts args.inspect
+          output.puts opts.fetch_command(:yell).present?
+          output.puts opts.fetch_command(:yell).person?
         end
       end
 
-      mock_command(cmd, %w|yell --person papa|)
+      result = mock_command(cmd, %w|yell --person papa|)
+      result.output.split.should eq ['["papa"]', 'true', 'true']
     end
 
     it "should accept top-level arguments" do
@@ -301,16 +304,16 @@ describe "Pry::Command" do
       before do
         @x = Class.new(Pry::ClassCommand) do
           options :baby => :pig
-          match /goat/
+          match(/goat/)
           description "waaaninngggiiigygygygygy"
         end
       end
 
       it 'subclasses should inherit options, match and description from superclass' do
         k = Class.new(@x)
-        k.options.should == @x.options
-        k.match.should == @x.match
-        k.description.should == @x.description
+        k.options.should eq @x.options
+        k.match.should eq @x.match
+        k.description.should eq @x.description
       end
     end
   end
@@ -320,8 +323,8 @@ describe "Pry::Command" do
       expect { |probe|
         cmd = @set.command('random-dent', &probe)
 
-        foo = 5
-        cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + foo}'
+        _foo = 5
+        cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + _foo}'
       }.to yield_with_args('3', '8')
     end
 
@@ -371,13 +374,13 @@ describe "Pry::Command" do
       old = Pry.config.collision_warning
       Pry.config.collision_warning = true
 
-      cmd = @set.command 'frankie' do
+      cmd = @set.command '_frankie' do
 
       end
 
-      frankie = 'boyle'
+      _frankie = 'boyle'
       output = StringIO.new
-      cmd.new(:target => binding, :output => output).process_line %(frankie mouse)
+      cmd.new(:target => binding, :output => output).process_line %(_frankie mouse)
 
       output.string.should =~ /command .* conflicts/
 
@@ -435,7 +438,7 @@ describe "Pry::Command" do
         end
       EOS
 
-      @context.instance_variable_get(:@x).should == :jesus
+      @context.instance_variable_get(:@x).should eq :jesus
     end
 
     it 'should accept normal parameters along with block' do
@@ -449,25 +452,25 @@ describe "Pry::Command" do
 
       @t.eval 'walking-spanish john carl| { :jesus }'
 
-      @context.instance_variable_get(:@x).should == "john"
-      @context.instance_variable_get(:@y).should == "carl"
-      @context.instance_variable_get(:@block_var).should == :jesus
+      @context.instance_variable_get(:@x).should eq "john"
+      @context.instance_variable_get(:@y).should eq "carl"
+      @context.instance_variable_get(:@block_var).should eq :jesus
     end
 
     describe "single line blocks" do
       it 'should accept blocks with do ; end' do
         @t.eval 'walking-spanish | do ; :jesus; end'
-        @context.instance_variable_get(:@x).should == :jesus
+        @context.instance_variable_get(:@x).should eq :jesus
       end
 
       it 'should accept blocks with do; end' do
         @t.eval 'walking-spanish | do; :jesus; end'
-        @context.instance_variable_get(:@x).should == :jesus
+        @context.instance_variable_get(:@x).should eq :jesus
       end
 
       it 'should accept blocks with { }' do
         @t.eval 'walking-spanish | { :jesus }'
-        @context.instance_variable_get(:@x).should == :jesus
+        @context.instance_variable_get(:@x).should eq :jesus
       end
     end
 
@@ -482,7 +485,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish john| { :jesus }'
 
-          @context.instance_variable_get(:@arg_string).should == @context.instance_variable_get(:@x)
+          @context.instance_variable_get(:@arg_string).should eq @context.instance_variable_get(:@x)
         end
 
         it 'should remove block-related content from arg_string (with no normal args)' do
@@ -492,7 +495,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@arg_string).should == ""
+          @context.instance_variable_get(:@arg_string).should eq ""
         end
 
         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
@@ -503,7 +506,7 @@ describe "Pry::Command" do
 
           @t.eval "walking-spanish #{block_string}"
 
-          @context.instance_variable_get(:@arg_string).should == block_string
+          @context.instance_variable_get(:@arg_string).should eq block_string
         end
       end
 
@@ -517,8 +520,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should == nil
-            @context.instance_variable_get(:@y).should == nil
+            @context.instance_variable_get(:@x).should eq nil
+            @context.instance_variable_get(:@y).should eq nil
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
@@ -529,8 +532,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should == "|"
-            @context.instance_variable_get(:@y).should == "{"
+            @context.instance_variable_get(:@x).should eq "|"
+            @context.instance_variable_get(:@y).should eq "{"
           end
         end
 
@@ -545,8 +548,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should == nil
-            @context.instance_variable_get(:@y).should == nil
+            @context.instance_variable_get(:@x).should eq nil
+            @context.instance_variable_get(:@y).should eq nil
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
@@ -559,8 +562,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should == "|"
-            @context.instance_variable_get(:@y).should == "{"
+            @context.instance_variable_get(:@x).should eq "|"
+            @context.instance_variable_get(:@y).should eq "{"
           end
         end
       end
@@ -575,7 +578,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { |x, y| [x, y] }'
 
-          @context.instance_variable_get(:@x).should == [1, 2]
+          @context.instance_variable_get(:@x).should eq [1, 2]
         end
       end
 
@@ -593,7 +596,7 @@ describe "Pry::Command" do
             end
           EOS
 
-          @context.instance_variable_get(:@x).should == [1, 2]
+          @context.instance_variable_get(:@x).should eq [1, 2]
         end
       end
     end
@@ -601,7 +604,7 @@ describe "Pry::Command" do
     describe "closure behaviour" do
       it 'should close over locals in the definition context' do
         @t.eval 'var = :hello', 'walking-spanish | { var }'
-        @context.instance_variable_get(:@x).should == :hello
+        @context.instance_variable_get(:@x).should eq :hello
       end
     end
 
@@ -614,7 +617,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@x).should == :jesus
+          @context.instance_variable_get(:@x).should eq :jesus
         end
       end
 
@@ -639,7 +642,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@x).should == :jesus
+          @context.instance_variable_get(:@x).should eq :jesus
         end
       end
     end
@@ -649,10 +652,12 @@ describe "Pry::Command" do
 
     before do
       class MyTestCommand < Pry::ClassCommand
-        match /my-*test/
+        match(/my-*test/)
         description 'So just how many sound technicians does it take to' \
           'change a lightbulb? 1? 2? 3? 1-2-3? Testing?'
         options :shellwords => false, :listing => 'my-test'
+
+        undef process if method_defined? :process
 
         def process
           output.puts command_name * 2
@@ -686,7 +691,7 @@ describe "Pry::Command" do
           :use_prefix        => true,
           :takes_block       => false
         }
-        MyTestCommand.options.should == options_hash
+        MyTestCommand.options.should eq options_hash
       end
 
       describe ":listing option" do
@@ -697,7 +702,7 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command HappyNewYear
 
-          HappyNewYear.options[:listing].should == 'happy-new-year'
+          HappyNewYear.options[:listing].should eq 'happy-new-year'
 
           Pry.config.commands.delete 'happy-new-year'
         end
@@ -710,7 +715,7 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command MerryChristmas
 
-          MerryChristmas.options[:listing].should == 'happy-holidays'
+          MerryChristmas.options[:listing].should eq 'happy-holidays'
 
           Pry.config.commands.delete 'merry-christmas'
         end
@@ -722,9 +727,9 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command CoolWinter
 
-          CoolWinter.options[:listing].should == '/.*winter/'
+          CoolWinter.options[:listing].should eq '/.*winter/'
 
-          Pry.config.commands.delete /.*winter/
+          Pry.config.commands.delete(/.*winter/)
         end
       end
     end
@@ -747,7 +752,7 @@ describe "Pry::Command" do
           end
         end
 
-        create_command /[Hh]ello-world/, "desc" do
+        create_command(/[Hh]ello-world/, "desc") do
           def process
             state.my_state ||= 0
             state.my_state += 2
@@ -761,25 +766,25 @@ describe "Pry::Command" do
 
     it 'should save state for the command on the Pry#command_state hash' do
       @t.eval 'litella'
-      @t.pry.command_state["litella"].my_state.should == 1
+      @t.pry.command_state["litella"].my_state.should eq 1
     end
 
     it 'should ensure state is maintained between multiple invocations of command' do
       @t.eval 'litella'
       @t.eval 'litella'
-      @t.pry.command_state["litella"].my_state.should == 2
+      @t.pry.command_state["litella"].my_state.should eq 2
     end
 
     it 'should ensure state with same name stored seperately for each command' do
       @t.eval 'litella', 'sanders'
 
-      @t.pry.command_state["litella"].my_state.should == 1
+      @t.pry.command_state["litella"].my_state.should eq 1
       @t.pry.command_state["sanders"].my_state.should =="wood"
     end
 
     it 'should ensure state is properly saved for regex commands' do
       @t.eval 'hello-world', 'Hello-world'
-      @t.pry.command_state[/[Hh]ello-world/].my_state.should == 4
+      @t.pry.command_state[/[Hh]ello-world/].my_state.should eq 4
     end
   end
 
@@ -809,17 +814,17 @@ describe "Pry::Command" do
     end
 
     it 'should be correct for default commands' do
-      @set["help"].group.should == "Help"
+      @set["help"].group.should eq "Help"
     end
 
     it 'should not change once it is initialized' do
       @set["magic"].group("-==CD COMMAND==-")
-      @set["magic"].group.should == "Not for a public use"
+      @set["magic"].group.should eq "Not for a public use"
     end
 
     it 'should not disappear after the call without parameters' do
       @set["magic"].group
-      @set["magic"].group.should == "Not for a public use"
+      @set["magic"].group.should eq "Not for a public use"
     end
   end
 end
