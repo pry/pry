@@ -4,6 +4,7 @@
 * Fix 'include RSpec::Matchers' at the top-level (#1277)
 * Add 'gem-readme' command, prints the README file bundled with a rubygem
 * Add 'gem-search' command, searches for a gem with the rubygems.org HTTP API
+* Fixed bug in the `cat` command where it was impossible to use line numbers with files ([#1349](https://github.com/pry/pry/issues/1349))
 
 ### 0.10.1
 

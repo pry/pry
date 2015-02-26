@@ -40,7 +40,11 @@ class Pry
       end
 
       def decorate(content)
-        line_number ? super.around(line_number, code_window_size) : super
+        if line_number
+          super(content.around(line_number, code_window_size))
+        else
+          super
+        end
       end
 
       def code_type

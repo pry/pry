@@ -1,10 +1,13 @@
 require_relative '../../helper'
 
 describe Pry::Command::Cat::FileFormatter do
+  before do
+    @p   = Pry.new
+    @opt = Slop.new
+  end
+
   describe "#file_and_line" do
     before do
-      @p   = Pry.new
-      @opt = Slop.new
       expect(Pry::Code).to receive(:from_file)
     end
 
@@ -74,6 +77,18 @@ describe Pry::Command::Cat::FileFormatter do
       file_name, line_num = ff.file_and_line
       file_name.should eq "pry_instance.rb"
       line_num.should eq 2
+    end
+  end
+
+  describe "#format" do
+    it "formats given files" do
+      ff = Pry::Command::Cat::FileFormatter.new(__FILE__, @p, @opt)
+      expect(ff.format).to match(/it "formats given files" do/)
+    end
+
+    it "should format given files with line number" do
+      ff = Pry::Command::Cat::FileFormatter.new(__FILE__ + ':83', @p, @opt)
+      expect(ff.format).to match(/it "formats given files" do/)
     end
   end
 end
