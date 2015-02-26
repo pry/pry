@@ -1,3 +1,4 @@
+# coding: utf-8
 class Pry::Terminal
   class << self
     # Return a pair of [rows, columns] which gives the size of the window.
@@ -41,11 +42,21 @@ class Pry::Terminal
 
     def screen_size_according_to_io_console
       return if Pry::Helpers::BaseHelpers.jruby?
-      require 'io/console'
-      $stdout.winsize if $stdout.tty? and $stdout.respond_to?(:winsize)
-    rescue LoadError
-      # They probably don't have the io/console stdlib or the io-console gem.
-      # We'll keep trying.
+
+      begin
+        require 'io/console'
+
+        begin
+          if $stdout.tty? && $stdout.respond_to?(:winsize)
+            $stdout.winsize
+          end
+        rescue Errno::EOPNOTSUPP
+          # $stdout is probably a socket, which doesn't support #winsize.
+        end
+      rescue LoadError
+        # They probably don't have the io/console stdlib or the io-console gem.
+        # We'll keep trying.
+      end
     end
 
     def screen_size_according_to_env
