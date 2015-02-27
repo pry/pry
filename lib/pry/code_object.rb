@@ -37,6 +37,28 @@ class Pry
       def command?
         is_a?(Module) && self <= Pry::Command
       end
+
+      # @return [Boolean] `true` if this module was defined by means of the C API,
+      #   `false` if it's a Ruby module.
+      # @note If a module defined by C was extended with a lot of methods written
+      #   in Ruby, this method would fail.
+      def c_module?
+        if is_a?(WrappedModule)
+
+          method_locations = wrapped.methods(false).map do |m|
+            wrapped.method(m).source_location
+          end
+
+          method_locations.concat(wrapped.instance_methods(false).map do |m|
+                                    wrapped.instance_method(m).source_location
+                                  end)
+
+          c_methods = method_locations.grep(nil).count
+          ruby_methods = method_locations.count - c_methods
+
+          c_methods > ruby_methods
+        end
+      end
     end
 
     include Pry::Helpers::CommandHelpers

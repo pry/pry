@@ -22,7 +22,15 @@ class Pry
       raise CommandError, no_definition_message if !code_object
       @original_code_object = code_object
 
-      if show_all_modules?(code_object)
+      if !obj_name && code_object.c_module? && !opts[:all]
+        result = "Warning: You're inside an object, whose class is defined by means\n" +
+                 "         of the C Ruby API. Pry cannot display the information for\n" +
+                 "         this class."
+        if code_object.candidates.any?
+          result += "\n         However, you can view monkey-patches applied to this class.\n" +
+                    "         Just execute the same command with the '--all' switch."
+        end
+      elsif show_all_modules?(code_object)
         # show all monkey patches for a module
 
         result = content_and_headers_for_all_module_candidates(code_object)

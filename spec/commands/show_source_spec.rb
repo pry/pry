@@ -603,6 +603,39 @@ describe "show-source" do
               out.should_not =~ /def a; end/
             end
           end
+
+          describe "monkey-patched C modules" do
+            # Monkey-patch Array and add 15 methods, so its internal rank is
+            # high enough to make this definition primary.
+            class Array
+              15.times do |i|
+                define_method(:"doge#{i}") do
+                  :"doge#{i}"
+                end
+              end
+            end
+
+            describe "when current context is a C object" do
+              it "should display a warning, and not monkey-patched definition" do
+                out = pry_eval([1, 2, 3], 'show-source')
+                expect(out).not_to match(/doge/)
+                expect(out).to match(/warning/i)
+              end
+
+              it "recommends to use the --all switch when other candidates are found" do
+                out = pry_eval([], 'show-source')
+                expect(out).to match(/'--all' switch/i)
+              end
+            end
+
+            describe "when current context is something other than a C object" do
+              it "should display a candidate, not a warning" do
+                out = pry_eval('show-source Array')
+                expect(out).to match(/doge/)
+                expect(out).not_to match(/warning/i)
+              end
+            end
+          end
         end
       end
     end
