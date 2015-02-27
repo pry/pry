@@ -94,14 +94,6 @@ class Pry
         mri? && RUBY_VERSION =~ /^2/
       end
 
-      def mri_20?
-        mri? && RUBY_VERSION =~ /^2\.0/
-      end
-
-      def mri_21?
-        mri? && RUBY_VERSION =~ /^2\.1/
-      end
-
       # Send the given text through the best available pager (if Pry.config.pager is
       # enabled). Infers where to send the output if used as a mixin.
       # DEPRECATED.
