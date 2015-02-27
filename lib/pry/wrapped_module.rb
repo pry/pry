@@ -1,4 +1,4 @@
-require 'pry/module_candidate'
+require 'pry/wrapped_module/candidate'
 
 class Pry
   class << self
@@ -233,7 +233,7 @@ class Pry
     # @param [Fixnum] rank
     # @return [Pry::WrappedModule::Candidate]
     def candidate(rank)
-      @memoized_candidates[rank] ||= Candidate.new(self, rank)
+      @memoized_candidates[rank] ||= WrappedModule::Candidate.new(self, rank)
     end
 
     # @return [Fixnum] The number of candidate definitions for the
