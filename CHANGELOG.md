@@ -6,6 +6,7 @@
 * Add 'gem-search' command, searches for a gem with the rubygems.org HTTP API
 * Fixed bug in the `cat` command where it was impossible to use line numbers with files ([#1349](https://github.com/pry/pry/issues/1349))
 * Fixed uncaught Errno::EOPNOTSUPP exception when $stdout is a socket ([#1352](https://github.com/pry/pry/issues/1352))
+* Display a warning when you cd'ed inside a C object and executed 'show-source' without arguments ([#691](https://github.com/pry/pry/issues/691))
 
 ### 0.10.1
 
