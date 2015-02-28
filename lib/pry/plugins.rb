@@ -60,6 +60,16 @@ class Pry
 
       alias active? active
       alias enabled? enabled
+
+      def supported?
+        pry_version = Gem::Version.new(VERSION)
+        spec.dependencies.each do |dependency|
+          if dependency.name == "pry"
+            return dependency.requirement.satisfied_by?(pry_version)
+          end
+        end
+        true
+      end
     end
 
     def initialize
@@ -68,11 +78,11 @@ class Pry
 
     # Find all installed Pry plugins and store them in an internal array.
     def locate_plugins
-      Gem.refresh
-      (Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')).each do |gem|
+      gem_list.each do |gem|
         next if gem.name !~ PRY_PLUGIN_PREFIX
         plugin_name = gem.name.split('-', 2).last
-        @plugins << Plugin.new(plugin_name, gem.name, gem, true) if !gem_located?(gem.name)
+        plugin = Plugin.new(plugin_name, gem.name, gem, false)
+        @plugins << plugin.tap(&:enable!) if plugin.supported? && !plugin_located?(plugin)
       end
       @plugins
     end
@@ -95,8 +105,13 @@ class Pry
     end
 
     private
-    def gem_located?(gem_name)
-      @plugins.any? { |plugin| plugin.gem_name == gem_name }
+    def plugin_located?(plugin)
+      @plugins.any? { |existing| existing.gem_name == plugin.gem_name }
+    end
+
+    def gem_list
+      Gem.refresh
+      Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')
     end
   end
 
