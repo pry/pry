@@ -7,6 +7,10 @@
 * Fixed bug in the `cat` command where it was impossible to use line numbers with files ([#1349](https://github.com/pry/pry/issues/1349))
 * Fixed uncaught Errno::EOPNOTSUPP exception when $stdout is a socket ([#1352](https://github.com/pry/pry/issues/1352))
 * Display a warning when you cd'ed inside a C object and executed 'show-source' without arguments ([#691](https://github.com/pry/pry/issues/691))
+* Make the stagger_output method more reliable by reusing possibly available Pry instance ([#1364](https://github.com/pry/pry/pull/1364))
+* Make the 'gem-install' message less confusing by removing backticks ([#1350](https://github.com/pry/pry/pull/1350))
+* Fixed error when Pry was trying to load incompatible versions of plugins ([#1312](https://github.com/pry/pry/issues/1312))
+* Fixed bug when `hist --clear` led to ArgumentError ([#1340](https://github.com/pry/pry/pull/1340))
 
 ### 0.10.1
 
