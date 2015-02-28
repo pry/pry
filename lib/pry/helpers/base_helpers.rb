@@ -98,7 +98,11 @@ class Pry
       # enabled). Infers where to send the output if used as a mixin.
       # DEPRECATED.
       def stagger_output(text, out = nil)
-        Pry.new.pager.page text
+        if _pry_
+          _pry_.pager.page text
+        else
+          Pry.new.pager.page text
+        end
       end
     end
   end
