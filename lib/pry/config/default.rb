@@ -6,7 +6,7 @@ class Pry::Config::Default
       lazy_readline
     },
     output: proc {
-      $stdout
+      $stdout.tap { |out| out.sync = true }
     },
     commands: proc {
       Pry::Commands
