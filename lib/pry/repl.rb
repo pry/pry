@@ -26,10 +26,6 @@ class Pry
       if options[:target]
         @pry.push_binding options[:target]
       end
-
-      if readline_available? && piping?
-        Readline.output = File.open('/dev/tty', 'w')
-      end
     end
 
     # Start the read-eval-print loop.
@@ -184,6 +180,7 @@ class Pry
         end
 
         if readline_available?
+          set_readline_output
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
           input_readline(current_prompt)
@@ -221,6 +218,12 @@ class Pry
     #   % pry | tee log
     def piping?
       !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
+    end
+
+    def set_readline_output
+      @readline_output ||= if piping?
+                             Readline.output = File.open('/dev/tty', 'w')
+                           end
     end
   end
 end
