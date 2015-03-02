@@ -26,6 +26,10 @@ class Pry
       if options[:target]
         @pry.push_binding options[:target]
       end
+
+      if readline_available? && piping?
+        Readline.output = File.open('/dev/tty', 'w')
+      end
     end
 
     # Start the read-eval-print loop.
@@ -179,10 +183,7 @@ class Pry
           end
         end
 
-        if defined?(Readline) and input == Readline
-          if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
-            Readline.output = File.open('/dev/tty', 'w')
-          end
+        if readline_available?
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif defined? Coolline and input.is_a? Coolline
           input_readline(current_prompt)
@@ -200,6 +201,22 @@ class Pry
       Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
       end
+    end
+
+    def readline_available?
+      defined?(Readline) && input == Readline
+    end
+
+    # If `$stdout` is not a tty, it's probably a pipe.
+    # @example
+    #   # `piping?` returns `false`
+    #   % pry
+    #   [1] pry(main)
+    #
+    #   # `piping?` returns `true`
+    #   % pry | tee log
+    def piping?
+      !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
     end
   end
 end
