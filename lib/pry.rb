@@ -124,6 +124,7 @@ end
 require 'method_source'
 require 'shellwords'
 require 'stringio'
+require 'strscan'
 require 'coderay'
 require 'slop'
 require 'rbconfig'
