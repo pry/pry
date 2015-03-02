@@ -172,7 +172,7 @@ class Pry
     # @return [String?] The next line of input, or `nil` on <Ctrl-D>.
     def read_line(current_prompt)
       handle_read_errors do
-        if defined? Coolline and input.is_a? Coolline
+        if coolline_available?
           input.completion_proc = proc do |cool|
             completions = @pry.complete cool.completed_word
             completions.compact
@@ -185,7 +185,7 @@ class Pry
 
         if readline_available?
           input_readline(current_prompt, false) # false since we'll add it manually
-        elsif defined? Coolline and input.is_a? Coolline
+        elsif coolline_available?
           input_readline(current_prompt)
         else
           if input.method(:readline).arity == 1
@@ -205,6 +205,10 @@ class Pry
 
     def readline_available?
       defined?(Readline) && input == Readline
+    end
+
+    def coolline_available?
+      defined?(Coolline) && input.is_a?(Coolline)
     end
 
     # If `$stdout` is not a tty, it's probably a pipe.
