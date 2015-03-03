@@ -220,10 +220,18 @@ class Pry
       !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
     end
 
+    # @return [void]
     def set_readline_output
-      @readline_output ||= if piping?
-                             Readline.output = File.open('/dev/tty', 'w')
-                           end
+      return if @readline_output
+      if piping?
+        @readline_output = (Readline.output = Pry.config.output)
+
+        # Foreman fix. Without this the output is slightly contaminated, because
+        # when Readline initialises, it overwrites current line (which already
+        # has some text from Foreman). One side effect is that it works every
+        # time you pipe output.
+        @readline_output.puts
+      end
     end
   end
 end
