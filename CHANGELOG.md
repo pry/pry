@@ -11,6 +11,7 @@
 * Make the 'gem-install' message less confusing by removing backticks ([#1350](https://github.com/pry/pry/pull/1350))
 * Fixed error when Pry was trying to load incompatible versions of plugins ([#1312](https://github.com/pry/pry/issues/1312))
 * Fixed bug when `hist --clear` led to ArgumentError ([#1340](https://github.com/pry/pry/pull/1340))
+* Fixed the "uninitialized constant Pry::ObjectPath::StringScanner" exception during autocomplete ([#1330](https://github.com/pry/pry/issues/1330))
 
 ### 0.10.1
 
