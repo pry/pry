@@ -13,6 +13,7 @@
 * Fixed bug when `hist --clear` led to ArgumentError ([#1340](https://github.com/pry/pry/pull/1340))
 * Fixed the "uninitialized constant Pry::ObjectPath::StringScanner" exception during autocomplete ([#1330](https://github.com/pry/pry/issues/1330))
 * Secured usage of colours with special characters (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) in Pry::Helpers::Text ([#493](https://github.com/pry/pry/issues/493#issuecomment-39232771))
+* Fixed regression with `pry -e` when it messes the terminal ([#1387](https://github.com/pry/pry/issues/1387))
 
 ### 0.10.1
 
