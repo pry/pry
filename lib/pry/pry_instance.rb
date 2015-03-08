@@ -269,7 +269,7 @@ class Pry
     @suppress_output = false
     inject_sticky_locals!
     begin
-      if !process_command_safely(line.lstrip)
+      if !process_command_safely(line)
         @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
     rescue RescuableException => e
@@ -400,6 +400,7 @@ class Pry
   # @param [String] val The line to process.
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command(val)
+    val = val.lstrip if /^\s\S/ !~ val
     val = val.chomp
     result = commands.process_line(val,
       :target => current_binding,

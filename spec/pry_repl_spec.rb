@@ -99,4 +99,17 @@ describe "The whole thing" do
     end
   end
 
+  describe "space prefix" do
+    describe "with 1 space" do
+      it "it prioritizes variables over commands" do
+        expect(pry_eval(' ls = 2+2', ' ls')).to eq(4)
+      end
+    end
+
+    describe "with more than 1 space" do
+      it "prioritizes commands over variables" do
+        expect(mock_pry('    ls = 2+2')).to match(/SyntaxError.+unexpected '='/)
+      end
+    end
+  end
 end

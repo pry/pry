@@ -121,7 +121,10 @@ class PryTester
     result = nil
 
     strs.flatten.each do |str|
-      str = "#{str.strip}\n"
+      # Check for space prefix. See #1369.
+      if str !~ /^\s\S/
+        str = "#{str.strip}\n"
+      end
       @history.push str if @history
 
       if @pry.process_command(str)
