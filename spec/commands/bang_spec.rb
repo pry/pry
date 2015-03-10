@@ -12,13 +12,13 @@ describe "!" do
     STR
 
     @t.process_command '!'
-    @t.last_output.should =~ /Input buffer cleared!/
-    @t.eval_string.should == ''
+    expect(@t.last_output).to match(/Input buffer cleared!/)
+    expect(@t.eval_string).to eq('')
   end
 
   it 'should not clear the input buffer for negation' do
     @t.push '! false'
-    @t.last_output.should =~ /true/
-    @t.eval_string.should == ''
+    expect(@t.last_output).to match(/true/)
+    expect(@t.eval_string).to eq('')
   end
 end

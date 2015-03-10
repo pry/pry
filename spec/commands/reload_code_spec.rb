@@ -19,7 +19,7 @@ describe "reload_code" do
     end
 
     it 'reloads pry commmand' do
-      pry_eval("reload-code reload-code").should =~ /reload-code was reloaded!/
+      expect(pry_eval("reload-code reload-code")).to match(/reload-code was reloaded!/)
     end
 
     it 'raises an error when pry command not found' do

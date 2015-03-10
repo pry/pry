@@ -15,7 +15,7 @@ describe "show-doc" do
   end
 
   it 'should output a method\'s documentation' do
-    pry_eval(binding, "show-doc @o.sample_method").should =~ /sample doc/
+    expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
   end
 
   it 'should raise exception when cannot find docs' do
@@ -23,11 +23,11 @@ describe "show-doc" do
   end
 
   it 'should output a method\'s documentation with line numbers' do
-    pry_eval(binding, "show-doc @o.sample_method -l").should =~ /\d: sample doc/
+    expect(pry_eval(binding, "show-doc @o.sample_method -l")).to match(/\d: sample doc/)
   end
 
   it 'should output a method\'s documentation with line numbers (base one)' do
-    pry_eval(binding, "show-doc @o.sample_method -b").should =~ /1: sample doc/
+    expect(pry_eval(binding, "show-doc @o.sample_method -b")).to match(/1: sample doc/)
   end
 
   it 'should output a method\'s documentation if inside method without needing to use method name' do
@@ -69,17 +69,17 @@ describe "show-doc" do
 
     it "finds super method docs" do
       output = pry_eval(binding, 'show-doc --super @o.initialize')
-      output.should =~ /grungy initialize/
+      expect(output).to match(/grungy initialize/)
     end
 
     it "traverses ancestor chain and finds super method docs" do
       output = pry_eval(binding, 'show-doc -ss @o.initialize')
-      output.should =~ /classy initialize/
+      expect(output).to match(/classy initialize/)
     end
 
     it "traverses ancestor chain even higher and finds super method doc" do
       output = pry_eval(binding, 'show-doc @o.initialize -sss')
-      output.should =~ /daddy initialize/
+      expect(output).to match(/daddy initialize/)
     end
 
     it "finds super method docs without explicit method argument" do
@@ -91,7 +91,7 @@ describe "show-doc" do
       end
 
       output = fatty.initialize
-      output.should =~ /grungy initialize/
+      expect(output).to match(/grungy initialize/)
     end
 
     it "finds super method docs without `--super` but with the `super` keyword" do
@@ -109,7 +109,7 @@ describe "show-doc" do
       end
 
       output = fatty.initialize
-      output.should =~ /grungy initialize/
+      expect(output).to match(/grungy initialize/)
     end
   end
 
@@ -126,11 +126,11 @@ describe "show-doc" do
 
       begin
         t = pry_tester(binding)
-        t.eval("show-doc _c#initialize").should =~ /_c.new :foo/
+        expect(t.eval("show-doc _c#initialize")).to match(/_c.new :foo/)
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc _c#initialize").should_not =~ /_c.new :foo/
+        expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new :foo/)
       ensure
         Pry.config.color = false
       end
@@ -146,11 +146,11 @@ describe "show-doc" do
 
       begin
         t = pry_tester(binding)
-        t.eval("show-doc _c#initialize").should =~ /_c.new\(:foo\)/
+        expect(t.eval("show-doc _c#initialize")).to match(/_c.new\(:foo\)/)
         Pry.config.color = true
         # I don't want the test to rely on which colour codes are there, just to
         # assert that "something" is being colourized.
-        t.eval("show-doc _c#initialize").should_not =~ /_c.new\(:foo\)/
+        expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new\(:foo\)/)
       ensure
         Pry.config.color = false
       end
@@ -170,8 +170,8 @@ describe "show-doc" do
       begin
         t = pry_tester(binding)
         Pry.config.color = true
-        t.eval("show-doc _c#decolumnize").should =~ /ls -l \$HOME/
-        t.eval("show-doc _c#decolumnize").should_not =~ /`ls -l \$HOME`/
+        expect(t.eval("show-doc _c#decolumnize")).to match(/ls -l \$HOME/)
+        expect(t.eval("show-doc _c#decolumnize")).not_to match(/`ls -l \$HOME`/)
       ensure
         Pry.config.color = false
       end
@@ -182,7 +182,7 @@ describe "show-doc" do
     it "should show documentation for object" do
       # this is a documentation
       _hello = proc { puts 'hello world!' }
-      mock_pry(binding, "show-doc _hello").should =~ /this is a documentation/
+      expect(mock_pry(binding, "show-doc _hello")).to match(/this is a documentation/)
     end
   end
 
@@ -222,23 +222,27 @@ describe "show-doc" do
 
     describe "basic functionality, should show docs for top-level module definitions" do
       it 'should show docs for a class' do
-        pry_eval("show-doc ShowSourceTestClass").should =~
+        expect(pry_eval("show-doc ShowSourceTestClass")).to match(
           /god this is boring1/
+        )
       end
 
       it 'should show docs for a module' do
-        pry_eval("show-doc ShowSourceTestModule").should =~
+        expect(pry_eval("show-doc ShowSourceTestModule")).to match(
           /god this is boring2/
+        )
       end
 
       it 'should show docs for a class when Const = Class.new syntax is used' do
-        pry_eval("show-doc ShowSourceTestClassWeirdSyntax").should =~
+        expect(pry_eval("show-doc ShowSourceTestClassWeirdSyntax")).to match(
           /god this is boring3/
+        )
       end
 
       it 'should show docs for a module when Const = Module.new syntax is used' do
-        pry_eval("show-doc ShowSourceTestModuleWeirdSyntax").should =~
+        expect(pry_eval("show-doc ShowSourceTestModuleWeirdSyntax")).to match(
           /god this is boring4/
+        )
       end
     end
 
@@ -252,7 +256,7 @@ describe "show-doc" do
             end
           end
         RUBY
-        t.eval('show-doc TobinaMyDog').should =~ /hello tobina/
+        expect(t.eval('show-doc TobinaMyDog')).to match(/hello tobina/)
         Object.remove_const :TobinaMyDog
       end
     end
@@ -273,7 +277,7 @@ describe "show-doc" do
           end
         end
 
-        pry_eval(AlphaClass, "show-doc BetaClass").should =~ /nested beta/
+        expect(pry_eval(AlphaClass, "show-doc BetaClass")).to match(/nested beta/)
       end
     end
 
@@ -287,8 +291,9 @@ describe "show-doc" do
           end
         end
 
-        pry_eval("show-doc AlphaClass::BetaClass").should =~
+        expect(pry_eval("show-doc AlphaClass::BetaClass")).to match(
           /nested beta/
+        )
       end
     end
 
@@ -301,8 +306,8 @@ describe "show-doc" do
         end
 
         result = pry_eval("show-doc TestClassForShowSource -a")
-        result.should =~ /used by/
-        result.should =~ /local monkeypatch/
+        expect(result).to match(/used by/)
+        expect(result).to match(/local monkeypatch/)
       end
 
       describe "messages relating to -a" do
@@ -313,8 +318,8 @@ describe "show-doc" do
           end
 
           result = pry_eval("show-doc TestClassForCandidatesOrder")
-          result.should =~ /Number of monkeypatches: 2/
-          result.should =~ /The first definition/
+          expect(result).to match(/Number of monkeypatches: 2/)
+          expect(result).to match(/The first definition/)
         end
 
         it 'indicates all available monkeypatches can be shown with -a ' \
@@ -326,7 +331,7 @@ describe "show-doc" do
           end
 
           result = pry_eval('show-doc TestClassForShowSource')
-          result.should =~ /available monkeypatches/
+          expect(result).to match(/available monkeypatches/)
         end
 
         it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
@@ -336,7 +341,7 @@ describe "show-doc" do
           end
 
           result = pry_eval('show-doc Aarrrrrghh')
-          result.should_not =~ /available monkeypatches/
+          expect(result).not_to match(/available monkeypatches/)
           Object.remove_const(:Aarrrrrghh)
         end
       end
@@ -359,7 +364,7 @@ describe "show-doc" do
       end
 
       it 'should return doc for current module' do
-        pry_eval(TestHost::M, "show-doc").should =~ /hello there froggy/
+        expect(pry_eval(TestHost::M, "show-doc")).to match(/hello there froggy/)
       end
     end
 
@@ -389,8 +394,8 @@ describe "show-doc" do
 
       it 'should return doc for first valid module' do
         result = pry_eval("show-doc TestHost::M")
-        result.should =~ /goodbye/
-        result.should_not =~ /hello/
+        expect(result).to match(/goodbye/)
+        expect(result).not_to match(/hello/)
       end
     end
   end
@@ -409,17 +414,17 @@ describe "show-doc" do
     end
 
     it 'should display help for a specific command' do
-      pry_eval('show-doc ls').should =~ /Usage: ls/
+      expect(pry_eval('show-doc ls')).to match(/Usage: ls/)
     end
 
     it 'should display help for a regex command with a "listing"' do
       @set.command(/bar(.*)/, "Test listing", :listing => "foo") do; end
-      pry_eval('show-doc foo').should =~ /Test listing/
+      expect(pry_eval('show-doc foo')).to match(/Test listing/)
     end
 
     it 'should display help for a command with a spaces in its name' do
       @set.command "command with spaces", "description of a command with spaces" do; end
-      pry_eval('show-doc command with spaces').should =~ /description of a command with spaces/
+      expect(pry_eval('show-doc command with spaces')).to match(/description of a command with spaces/)
     end
 
     describe "class commands" do
@@ -441,12 +446,12 @@ describe "show-doc" do
       end
 
       it 'should display "help" when looking up by command name' do
-        pry_eval('show-doc lobster-lady').should =~ /nada/
+        expect(pry_eval('show-doc lobster-lady')).to match(/nada/)
         Pry.config.commands.delete("lobster-lady")
       end
 
       it 'should display actual preceding comment for a class command, when class is used (rather than command name) when looking up' do
-        pry_eval('show-doc LobsterLady').should =~ /pretty pink pincers/
+        expect(pry_eval('show-doc LobsterLady')).to match(/pretty pink pincers/)
         Pry.config.commands.delete("lobster-lady")
       end
     end
@@ -456,8 +461,8 @@ describe "show-doc" do
     it 'should set _file_ and _dir_ to file containing method source' do
       t = pry_tester
       t.process_command "show-doc TestClassForShowSource#alpha"
-      t.pry.last_file.should =~ /show_source_doc_examples/
-      t.pry.last_dir.should =~ /fixtures/
+      expect(t.pry.last_file).to match(/show_source_doc_examples/)
+      expect(t.pry.last_dir).to match(/fixtures/)
     end
   end
 
@@ -485,7 +490,7 @@ describe "show-doc" do
         it 'shows superclass doc' do
           t = pry_tester
           t.process_command "show-doc Jesus::Jangle"
-          t.last_output.should =~ /doink-doc/
+          expect(t.last_output).to match(/doink-doc/)
         end
 
         it 'errors when class has no superclass to show' do
@@ -496,19 +501,19 @@ describe "show-doc" do
         it 'shows warning when reverting to superclass docs' do
           t = pry_tester
           t.process_command "show-doc Jesus::Jangle"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/
+          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/)
         end
 
         it 'shows nth level superclass docs (when no intermediary superclasses have code either)' do
           t = pry_tester
           t.process_command "show-doc Jesus::Bangle"
-          t.last_output.should =~ /doink-doc/
+          expect(t.last_output).to match(/doink-doc/)
         end
 
         it 'shows correct warning when reverting to nth level superclass' do
           t = pry_tester
           t.process_command "show-doc Jesus::Bangle"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/
+          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/)
         end
       end
 
@@ -540,13 +545,13 @@ describe "show-doc" do
         it 'shows included module doc' do
           t = pry_tester
           t.process_command "show-doc Jesus::Beta"
-          t.last_output.should =~ /alpha-doc/
+          expect(t.last_output).to match(/alpha-doc/)
         end
 
         it 'shows warning when reverting to included module doc' do
           t = pry_tester
           t.process_command "show-doc Jesus::Beta"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/
+          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/)
         end
 
         it 'errors when module has no included module to show' do
@@ -557,13 +562,13 @@ describe "show-doc" do
         it 'shows nth level included module doc (when no intermediary modules have code either)' do
           t = pry_tester
           t.process_command "show-doc Jesus::Gamma"
-          t.last_output.should =~ /alpha-doc/
+          expect(t.last_output).to match(/alpha-doc/)
         end
 
         it 'shows correct warning when reverting to nth level included module' do
           t = pry_tester
           t.process_command "show-source Jesus::Gamma"
-          t.last_output.should =~ /Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/
+          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/)
         end
       end
     end

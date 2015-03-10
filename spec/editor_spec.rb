@@ -25,7 +25,7 @@ describe Pry::Editor do
     describe "build_editor_invocation_string" do
       it 'should shell-escape files' do
         invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
-        invocation_str.should =~ /#@tf_dir.+hello\\ world\.rb/
+        expect(invocation_str).to match(/#@tf_dir.+hello\\ world\.rb/)
       end
     end
   end
@@ -45,7 +45,7 @@ describe Pry::Editor do
 
     it "should not shell-escape files" do
       invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
-      invocation_str.should =~ /hello world\.rb/
+      expect(invocation_str).to match(/hello world\.rb/)
     end
   end
 
@@ -57,7 +57,7 @@ describe Pry::Editor do
       }))
 
       editor.invoke_editor(@tf_path, 10, true)
-      @file.should == @tf_path
+      expect(@file).to eq(@tf_path)
     end
   end
 end

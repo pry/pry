@@ -12,6 +12,6 @@ describe "show-input" do
     STR
 
     @t.process_command 'show-input'
-    @t.last_output.should =~ /\A\d+: def hello\n\d+:   puts :bing/
+    expect(@t.last_output).to match(/\A\d+: def hello\n\d+:   puts :bing/)
   end
 end

@@ -14,7 +14,7 @@ describe "Pry::Command" do
         #
       end
 
-      mock_command(cmd, %w(hello world)).output.should =~ /install-command ford-prefect/
+      expect(mock_command(cmd, %w(hello world)).output).to match(/install-command ford-prefect/)
     end
 
     it 'should abort early if arguments are required' do
@@ -32,7 +32,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should eq Pry::Command::VOID_VALUE
+      expect(mock_command(cmd).return).to eq Pry::Command::VOID_VALUE
     end
 
     it 'should return the return value with keep_retval' do
@@ -42,7 +42,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should eq 5
+      expect(mock_command(cmd).return).to eq 5
     end
 
     it 'should call hooks in the right order' do
@@ -67,7 +67,7 @@ describe "Pry::Command" do
         output.puts 5 + i.to_i
       end
 
-      mock_command(cmd, %w(2)).output.should eq "3\n4\n5\n6\n7\n"
+      expect(mock_command(cmd, %w(2)).output).to eq "3\n4\n5\n6\n7\n"
     end
 
     # TODO: This strikes me as rather silly...
@@ -82,7 +82,7 @@ describe "Pry::Command" do
         10
       end
 
-      mock_command(cmd).return.should eq 10
+      expect(mock_command(cmd).return).to eq 10
     end
   end
 
@@ -92,7 +92,7 @@ describe "Pry::Command" do
         #
       end
 
-      mock_command(@set['help'], %w(oolon-colluphid), :command_set => @set).output.should =~ /Raving Atheist/
+      expect(mock_command(@set['help'], %w(oolon-colluphid), :command_set => @set).output).to match(/Raving Atheist/)
     end
 
     it 'should use slop to generate the help for classy commands' do
@@ -102,7 +102,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(@set['help'], %w(eddie), :command_set => @set).output.should =~ /Over-cheerful/
+      expect(mock_command(@set['help'], %w(eddie), :command_set => @set).output).to match(/Over-cheerful/)
     end
 
     it 'should provide --help for classy commands' do
@@ -112,7 +112,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd, %w(--help)).output.should =~ /--retaliate/
+      expect(mock_command(cmd, %w(--help)).output).to match(/--retaliate/)
     end
 
     it 'should provide a -h for classy commands' do
@@ -122,7 +122,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd, %w(--help)).output.should =~ /Total Perspective Vortex/
+      expect(mock_command(cmd, %w(--help)).output).to match(/Total Perspective Vortex/)
     end
 
     it 'should use the banner provided' do
@@ -132,7 +132,7 @@ describe "Pry::Command" do
         BANNER
       end
 
-      mock_command(cmd, %w(--help)).output.should =~ /Who\'s merest/
+      expect(mock_command(cmd, %w(--help)).output).to match(/Who\'s merest/)
     end
   end
 
@@ -202,7 +202,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).output.should eq "setup\nsubcommands\noptions\nprocess\n"
+      expect(mock_command(cmd).output).to eq "setup\nsubcommands\noptions\nprocess\n"
     end
 
     it 'should raise a command error if process is not overridden' do
@@ -222,7 +222,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd).return.should eq 5
+      expect(mock_command(cmd).return).to eq 5
     end
 
     it 'should provide opts and args as provided by slop' do
@@ -238,7 +238,7 @@ describe "Pry::Command" do
       end
 
       result = mock_command(cmd, %w(--four 4 four))
-      result.output.split.should eq ['["four"]', '4']
+      expect(result.output.split).to eq ['["four"]', '4']
     end
 
     it 'should allow overriding options after definition' do
@@ -247,8 +247,8 @@ describe "Pry::Command" do
         command_options :listing => 'number-one'
       end
 
-      cmd.command_options[:shellwords].should eq false
-      cmd.command_options[:listing].should eq 'number-one'
+      expect(cmd.command_options[:shellwords]).to eq false
+      expect(cmd.command_options[:listing]).to eq 'number-one'
     end
 
     it "should create subcommands" do
@@ -264,7 +264,7 @@ describe "Pry::Command" do
       end
 
       result = mock_command(cmd, ['yell'])
-      result.output.split.should eq ['nil', 'true']
+      expect(result.output.split).to eq ['nil', 'true']
     end
 
     it "should create subcommand options" do
@@ -283,7 +283,7 @@ describe "Pry::Command" do
       end
 
       result = mock_command(cmd, %w|yell --person papa|)
-      result.output.split.should eq ['["papa"]', 'true', 'true']
+      expect(result.output.split).to eq ['["papa"]', 'true', 'true']
     end
 
     it "should accept top-level arguments" do
@@ -311,9 +311,9 @@ describe "Pry::Command" do
 
       it 'subclasses should inherit options, match and description from superclass' do
         k = Class.new(@x)
-        k.options.should eq @x.options
-        k.match.should eq @x.match
-        k.description.should eq @x.description
+        expect(k.options).to eq @x.options
+        expect(k.match).to eq @x.match
+        expect(k.description).to eq @x.description
       end
     end
   end
@@ -382,7 +382,7 @@ describe "Pry::Command" do
       output = StringIO.new
       cmd.new(:target => binding, :output => output).process_line %(_frankie mouse)
 
-      output.string.should =~ /command .* conflicts/
+      expect(output.string).to match(/command .* conflicts/)
 
       Pry.config.collision_warning = old
     end
@@ -398,7 +398,7 @@ describe "Pry::Command" do
       output = StringIO.new
       cmd.new(:target => binding, :output => output).process_line %(frankie = mouse)
 
-      output.string.should =~ /command .* conflicts/
+      expect(output.string).to match(/command .* conflicts/)
 
       Pry.config.collision_warning = old
     end
@@ -438,7 +438,7 @@ describe "Pry::Command" do
         end
       EOS
 
-      @context.instance_variable_get(:@x).should eq :jesus
+      expect(@context.instance_variable_get(:@x)).to eq :jesus
     end
 
     it 'should accept normal parameters along with block' do
@@ -452,25 +452,25 @@ describe "Pry::Command" do
 
       @t.eval 'walking-spanish john carl| { :jesus }'
 
-      @context.instance_variable_get(:@x).should eq "john"
-      @context.instance_variable_get(:@y).should eq "carl"
-      @context.instance_variable_get(:@block_var).should eq :jesus
+      expect(@context.instance_variable_get(:@x)).to eq "john"
+      expect(@context.instance_variable_get(:@y)).to eq "carl"
+      expect(@context.instance_variable_get(:@block_var)).to eq :jesus
     end
 
     describe "single line blocks" do
       it 'should accept blocks with do ; end' do
         @t.eval 'walking-spanish | do ; :jesus; end'
-        @context.instance_variable_get(:@x).should eq :jesus
+        expect(@context.instance_variable_get(:@x)).to eq :jesus
       end
 
       it 'should accept blocks with do; end' do
         @t.eval 'walking-spanish | do; :jesus; end'
-        @context.instance_variable_get(:@x).should eq :jesus
+        expect(@context.instance_variable_get(:@x)).to eq :jesus
       end
 
       it 'should accept blocks with { }' do
         @t.eval 'walking-spanish | { :jesus }'
-        @context.instance_variable_get(:@x).should eq :jesus
+        expect(@context.instance_variable_get(:@x)).to eq :jesus
       end
     end
 
@@ -485,7 +485,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish john| { :jesus }'
 
-          @context.instance_variable_get(:@arg_string).should eq @context.instance_variable_get(:@x)
+          expect(@context.instance_variable_get(:@arg_string)).to eq @context.instance_variable_get(:@x)
         end
 
         it 'should remove block-related content from arg_string (with no normal args)' do
@@ -495,7 +495,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@arg_string).should eq ""
+          expect(@context.instance_variable_get(:@arg_string)).to eq ""
         end
 
         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
@@ -506,7 +506,7 @@ describe "Pry::Command" do
 
           @t.eval "walking-spanish #{block_string}"
 
-          @context.instance_variable_get(:@arg_string).should eq block_string
+          expect(@context.instance_variable_get(:@arg_string)).to eq block_string
         end
       end
 
@@ -520,8 +520,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should eq nil
-            @context.instance_variable_get(:@y).should eq nil
+            expect(@context.instance_variable_get(:@x)).to eq nil
+            expect(@context.instance_variable_get(:@y)).to eq nil
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
@@ -532,8 +532,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should eq "|"
-            @context.instance_variable_get(:@y).should eq "{"
+            expect(@context.instance_variable_get(:@x)).to eq "|"
+            expect(@context.instance_variable_get(:@y)).to eq "{"
           end
         end
 
@@ -548,8 +548,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should eq nil
-            @context.instance_variable_get(:@y).should eq nil
+            expect(@context.instance_variable_get(:@x)).to eq nil
+            expect(@context.instance_variable_get(:@y)).to eq nil
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
@@ -562,8 +562,8 @@ describe "Pry::Command" do
 
             @t.eval 'walking-spanish | { :jesus }'
 
-            @context.instance_variable_get(:@x).should eq "|"
-            @context.instance_variable_get(:@y).should eq "{"
+            expect(@context.instance_variable_get(:@x)).to eq "|"
+            expect(@context.instance_variable_get(:@y)).to eq "{"
           end
         end
       end
@@ -578,7 +578,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { |x, y| [x, y] }'
 
-          @context.instance_variable_get(:@x).should eq [1, 2]
+          expect(@context.instance_variable_get(:@x)).to eq [1, 2]
         end
       end
 
@@ -596,7 +596,7 @@ describe "Pry::Command" do
             end
           EOS
 
-          @context.instance_variable_get(:@x).should eq [1, 2]
+          expect(@context.instance_variable_get(:@x)).to eq [1, 2]
         end
       end
     end
@@ -604,7 +604,7 @@ describe "Pry::Command" do
     describe "closure behaviour" do
       it 'should close over locals in the definition context' do
         @t.eval 'var = :hello', 'walking-spanish | { var }'
-        @context.instance_variable_get(:@x).should eq :hello
+        expect(@context.instance_variable_get(:@x)).to eq :hello
       end
     end
 
@@ -617,7 +617,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@x).should eq :jesus
+          expect(@context.instance_variable_get(:@x)).to eq :jesus
         end
       end
 
@@ -642,7 +642,7 @@ describe "Pry::Command" do
 
           @t.eval 'walking-spanish | { :jesus }'
 
-          @context.instance_variable_get(:@x).should eq :jesus
+          expect(@context.instance_variable_get(:@x)).to eq :jesus
         end
       end
     end
@@ -672,11 +672,11 @@ describe "Pry::Command" do
     end
 
     it "allows creation of custom subclasses of Pry::Command" do
-      pry_eval('my---test').should =~ /my-testmy-test/
+      expect(pry_eval('my---test')).to match(/my-testmy-test/)
     end
 
     it "shows the source of the process method" do
-      pry_eval('show-source my-test').should =~ /output.puts command_name/
+      expect(pry_eval('show-source my-test')).to match(/output.puts command_name/)
     end
 
     describe "command options hash" do
@@ -691,7 +691,7 @@ describe "Pry::Command" do
           :use_prefix        => true,
           :takes_block       => false
         }
-        MyTestCommand.options.should eq options_hash
+        expect(MyTestCommand.options).to eq options_hash
       end
 
       describe ":listing option" do
@@ -702,7 +702,7 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command HappyNewYear
 
-          HappyNewYear.options[:listing].should eq 'happy-new-year'
+          expect(HappyNewYear.options[:listing]).to eq 'happy-new-year'
 
           Pry.config.commands.delete 'happy-new-year'
         end
@@ -715,7 +715,7 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command MerryChristmas
 
-          MerryChristmas.options[:listing].should eq 'happy-holidays'
+          expect(MerryChristmas.options[:listing]).to eq 'happy-holidays'
 
           Pry.config.commands.delete 'merry-christmas'
         end
@@ -727,7 +727,7 @@ describe "Pry::Command" do
           end
           Pry.config.commands.add_command CoolWinter
 
-          CoolWinter.options[:listing].should eq '/.*winter/'
+          expect(CoolWinter.options[:listing]).to eq '/.*winter/'
 
           Pry.config.commands.delete(/.*winter/)
         end
@@ -766,25 +766,25 @@ describe "Pry::Command" do
 
     it 'should save state for the command on the Pry#command_state hash' do
       @t.eval 'litella'
-      @t.pry.command_state["litella"].my_state.should eq 1
+      expect(@t.pry.command_state["litella"].my_state).to eq 1
     end
 
     it 'should ensure state is maintained between multiple invocations of command' do
       @t.eval 'litella'
       @t.eval 'litella'
-      @t.pry.command_state["litella"].my_state.should eq 2
+      expect(@t.pry.command_state["litella"].my_state).to eq 2
     end
 
     it 'should ensure state with same name stored seperately for each command' do
       @t.eval 'litella', 'sanders'
 
-      @t.pry.command_state["litella"].my_state.should eq 1
-      @t.pry.command_state["sanders"].my_state.should =="wood"
+      expect(@t.pry.command_state["litella"].my_state).to eq 1
+      expect(@t.pry.command_state["sanders"].my_state).to eq("wood")
     end
 
     it 'should ensure state is properly saved for regex commands' do
       @t.eval 'hello-world', 'Hello-world'
-      @t.pry.command_state[/[Hh]ello-world/].my_state.should eq 4
+      expect(@t.pry.command_state[/[Hh]ello-world/].my_state).to eq 4
     end
   end
 
@@ -799,7 +799,7 @@ describe "Pry::Command" do
           end
         end
 
-        @set.complete('torrid ').should.include('--test ')
+        expect(@set.complete('torrid ')).to.include('--test ')
       end
     end
   end
@@ -814,17 +814,17 @@ describe "Pry::Command" do
     end
 
     it 'should be correct for default commands' do
-      @set["help"].group.should eq "Help"
+      expect(@set["help"].group).to eq "Help"
     end
 
     it 'should not change once it is initialized' do
       @set["magic"].group("-==CD COMMAND==-")
-      @set["magic"].group.should eq "Not for a public use"
+      expect(@set["magic"].group).to eq "Not for a public use"
     end
 
     it 'should not disappear after the call without parameters' do
       @set["magic"].group
-      @set["magic"].group.should eq "Not for a public use"
+      expect(@set["magic"].group).to eq "Not for a public use"
     end
   end
 end

@@ -12,7 +12,7 @@ describe "whereami" do
     Cor.new.blimey!
 
     # using [.] so the regex doesn't match itself
-    pry_eval(Pad.binding, 'whereami').should =~ /self[.]blimey!/
+    expect(pry_eval(Pad.binding, 'whereami')).to match(/self[.]blimey!/)
 
     Object.remove_const(:Cor)
   end
@@ -48,7 +48,7 @@ describe "whereami" do
       end
     end.new.blimey!
 
-    pry_eval(cor, 'whereami').should =~ /::Kernel.binding [#] omnom/
+    expect(pry_eval(cor, 'whereami')).to match(/::Kernel.binding [#] omnom/)
   end
 
   it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
@@ -60,8 +60,8 @@ describe "whereami" do
       end
     end
 
-    Cor.instance_method(:blimey!).source.should =~ /pry_eval/
-    Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+    expect(Cor.instance_method(:blimey!).source).to match(/pry_eval/)
+    expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
     Object.remove_const(:Cor)
   end
 
@@ -76,7 +76,7 @@ describe "whereami" do
 
     expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
 
-    Cor.new.blimey!.should =~ /Cor#blimey!.*Look at me/m
+    expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
     Object.remove_const(:Cor)
   end
 
@@ -127,7 +127,7 @@ describe "whereami" do
     Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
     result = Cor.new.blimey!
     Object.remove_const(:Cor)
-    result.should =~ /def blimey/
+    expect(result).to match(/def blimey/)
   end
 
   it 'should show entire file when -f option used' do
@@ -138,7 +138,7 @@ describe "whereami" do
     end
     result = Cor.new.blimey!
     Object.remove_const(:Cor)
-    result.should =~ /show entire file when -f option used/
+    expect(result).to match(/show entire file when -f option used/)
   end
 
   describe "-c" do
@@ -151,8 +151,8 @@ describe "whereami" do
       end
       out = Cor.new.blimey!
       Object.remove_const(:Cor)
-      out.should =~ /class Cor/
-      out.should =~ /blimey/
+      expect(out).to match(/class Cor/)
+      expect(out).to match(/blimey/)
     end
 
     it 'should show class when -c option used, and locate correct superclass' do
@@ -170,8 +170,8 @@ describe "whereami" do
       Object.remove_const(:Cor)
       Object.remove_const(:Horse)
 
-      out.should =~ /class Cor/
-      out.should =~ /blimey/
+      expect(out).to match(/class Cor/)
+      expect(out).to match(/blimey/)
     end
 
     # https://github.com/rubinius/rubinius/pull/2247
@@ -209,24 +209,25 @@ describe "whereami" do
     _foo = :punk
     _foo = :sanders
 
-    out.should_not =~ /:litella/
-    out.should =~ /:pig/
-    out.should =~ /:punk/
-    out.should_not =~ /:sanders/
+    expect(out).not_to match(/:litella/)
+    expect(out).to match(/:pig/)
+    expect(out).to match(/:punk/)
+    expect(out).not_to match(/:sanders/)
 
     Pry.config.default_window_size = old_size
   end
 
   it "should work at the top level" do
-    pry_eval(Pry.toplevel_binding, 'whereami').should =~
+    expect(pry_eval(Pry.toplevel_binding, 'whereami')).to match(
       /At the top level/
+    )
   end
 
   it "should work inside a class" do
-    pry_eval(Pry, 'whereami').should =~ /Inside Pry/
+    expect(pry_eval(Pry, 'whereami')).to match(/Inside Pry/)
   end
 
   it "should work inside an object" do
-    pry_eval(Object.new, 'whereami').should =~ /Inside #<Object/
+    expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
 end

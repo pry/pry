@@ -16,32 +16,32 @@ describe Pry::Command::Cat::FileFormatter do
         file_with_embedded_line = "C:/Ruby193/pry_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "C:/Ruby193/pry_instance.rb"
-        line_num.should eq nil
+        expect(file_name).to eq "C:/Ruby193/pry_instance.rb"
+        expect(line_num).to eq nil
       end
 
       it "parses '/'style absolute path with line_num" do
         file_with_embedded_line = "C:/Ruby193/pry_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "C:/Ruby193/pry_instance.rb"
-        line_num.should eq 2
+        expect(file_name).to eq "C:/Ruby193/pry_instance.rb"
+        expect(line_num).to eq 2
       end
 
       it "parses '\\'style absolute path without line_num" do
         file_with_embedded_line = "C:\\Ruby193\\pry_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "C:\\Ruby193\\pry_instance.rb"
-        line_num.should eq nil
+        expect(file_name).to eq "C:\\Ruby193\\pry_instance.rb"
+        expect(line_num).to eq nil
       end
 
       it "parses '\\'style absolute path with line_num" do
         file_with_embedded_line = "C:\\Ruby193\\pry_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "C:\\Ruby193\\pry_instance.rb"
-        line_num.should eq 2
+        expect(file_name).to eq "C:\\Ruby193\\pry_instance.rb"
+        expect(line_num).to eq 2
       end
     end
 
@@ -50,16 +50,16 @@ describe Pry::Command::Cat::FileFormatter do
         file_with_embedded_line = "/Ruby193/pry_instance.rb"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "/Ruby193/pry_instance.rb"
-        line_num.should eq nil
+        expect(file_name).to eq "/Ruby193/pry_instance.rb"
+        expect(line_num).to eq nil
       end
 
       it "parses absolute path with line_num" do
         file_with_embedded_line = "/Ruby193/pry_instance.rb:2"
         ff = described_class.new(file_with_embedded_line, @p, @opt)
         file_name, line_num = ff.file_and_line
-        file_name.should eq "/Ruby193/pry_instance.rb"
-        line_num.should eq 2
+        expect(file_name).to eq "/Ruby193/pry_instance.rb"
+        expect(line_num).to eq 2
       end
     end
 
@@ -67,16 +67,16 @@ describe Pry::Command::Cat::FileFormatter do
       file_with_embedded_line = "pry_instance.rb"
       ff = described_class.new(file_with_embedded_line, @p, @opt)
       file_name, line_num = ff.file_and_line
-      file_name.should eq "pry_instance.rb"
-      line_num.should eq nil
+      expect(file_name).to eq "pry_instance.rb"
+      expect(line_num).to eq nil
     end
 
     it "parses relative path with line_num" do
       file_with_embedded_line = "pry_instance.rb:2"
       ff = described_class.new(file_with_embedded_line, @p, @opt)
       file_name, line_num = ff.file_and_line
-      file_name.should eq "pry_instance.rb"
-      line_num.should eq 2
+      expect(file_name).to eq "pry_instance.rb"
+      expect(line_num).to eq 2
     end
   end
 

@@ -21,7 +21,7 @@ describe "save-file" do
         @t.eval("save-file '#{path}' --to '#{@path}'")
 
        
-        File.read(@path).should == File.read(path)
+        expect(File.read(@path)).to eq(File.read(path))
       end
     end
   end
@@ -30,25 +30,25 @@ describe "save-file" do
     it 'should save input expressions to a file (single expression)' do
       @t.eval ':horse_nostrils'
       @t.eval "save-file -i 1 --to '#{@path}'"
-      File.read(@path).should == ":horse_nostrils\n"
+      expect(File.read(@path)).to eq(":horse_nostrils\n")
     end
 
     it "should display a success message on save" do
       @t.eval ':horse_nostrils'
-      @t.eval("save-file -i 1 --to '#{@path}'").should =~ /successfully saved/
+      expect(@t.eval("save-file -i 1 --to '#{@path}'")).to match(/successfully saved/)
     end
 
     it 'should save input expressions to a file (range)' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever'
       @t.eval "save-file -i 1..2 --to '#{@path}'"
-      File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n"
+      expect(File.read(@path)).to eq(":or_nostrils\n:sucking_up_all_the_oxygen\n")
     end
 
     it 'should save multi-ranged input expressions' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever',
       ':baby_ducks', ':cannot_escape'
       @t.eval "save-file -i 1..2 -i 4..5 --to '#{@path}'"
-      File.read(@path).should == ":or_nostrils\n:sucking_up_all_the_oxygen\n:baby_ducks\n:cannot_escape\n"
+      expect(File.read(@path)).to eq(":or_nostrils\n:sucking_up_all_the_oxygen\n:baby_ducks\n:cannot_escape\n")
     end
   end
 
@@ -68,19 +68,20 @@ describe "save-file" do
     describe "single method" do
       it 'should save a method to a file' do
         @t.eval "save-file --to '#{@path}' baby"
-        File.read(@path).should == Pry::Method.from_obj(@o, :baby).source
+        expect(File.read(@path)).to eq(Pry::Method.from_obj(@o, :baby).source)
       end
 
       it "should display a success message on save" do
-        @t.eval("save-file --to '#{@path}' baby").should =~ /successfully saved/
+        expect(@t.eval("save-file --to '#{@path}' baby")).to match(/successfully saved/)
       end
 
       it 'should save a method to a file truncated by --lines' do
         @t.eval "save-file --to '#{@path}' baby --lines 2..4"
 
         # must add 1 as first line of method is 1
-        File.read(@path).should ==
+        expect(File.read(@path)).to eq(
           Pry::Method.from_obj(@o, :baby).source.lines.to_a[1..5].join
+        )
       end
     end
 
@@ -121,7 +122,7 @@ describe "save-file" do
       @t.eval ':sucking_up_all_the_oxygen'
       @t.eval "save-file -i 2 --to '#{@path}'"
 
-      File.read(@path).should == ":sucking_up_all_the_oxygen\n"
+      expect(File.read(@path)).to eq(":sucking_up_all_the_oxygen\n")
     end
   end
 
@@ -133,8 +134,9 @@ describe "save-file" do
       @t.eval ':sucking_up_all_the_oxygen'
       @t.eval "save-file -i 2 --to '#{@path}' -a"
 
-      File.read(@path).should ==
+      expect(File.read(@path)).to eq(
         ":horse_nostrils\n:sucking_up_all_the_oxygen\n"
+      )
     end
   end
 
@@ -142,7 +144,7 @@ describe "save-file" do
     it 'should save a command to a file' do
       @t.eval "save-file --to '#{@path}' show-source"
       cmd_source = Pry.config.commands["show-source"].source
-      File.read(@path).should == cmd_source
+      expect(File.read(@path)).to eq(cmd_source)
     end
   end
 

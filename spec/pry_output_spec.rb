@@ -15,7 +15,7 @@ describe Pry do
     it "should display serialization exceptions" do
       Pry.config.print = lambda { |*a| raise "catch-22" }
 
-      mock_pry("1").should =~ /\(pry\) output error: #<RuntimeError: catch-22>/
+      expect(mock_pry("1")).to match(/\(pry\) output error: #<RuntimeError: catch-22>/)
     end
 
     it "should catch errors serializing exceptions" do
@@ -23,13 +23,13 @@ describe Pry do
         raise Exception.new("catch-22").tap{ |e| class << e; def inspect; raise e; end; end }
       end
 
-      mock_pry("1").should =~ /\(pry\) output error: failed to show result/
+      expect(mock_pry("1")).to match(/\(pry\) output error: failed to show result/)
     end
   end
 
   describe "DEFAULT_PRINT" do
     it "should output the right thing" do
-      mock_pry("[1]").should =~ /^=> \[1\]/
+      expect(mock_pry("[1]")).to match(/^=> \[1\]/)
     end
 
     it "should include the =>" do
@@ -37,15 +37,15 @@ describe Pry do
       accumulator = StringIO.new
       pry.config.output = accumulator
       pry.config.print.call(accumulator, [1], pry)
-      accumulator.string.should == "=> \[1\]\n"
+      expect(accumulator.string).to eq("=> \[1\]\n")
     end
 
     it "should not be phased by un-inspectable things" do
-      mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new").should =~ /#<.*NastyClass:0x.*?>/
+      expect(mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new")).to match(/#<.*NastyClass:0x.*?>/)
     end
 
     it "doesn't leak colour for object literals" do
-      mock_pry("Object.new").should =~ /=> #<Object:0x[a-z0-9]+>\n/
+      expect(mock_pry("Object.new")).to match(/=> #<Object:0x[a-z0-9]+>\n/)
     end
   end
 
@@ -56,7 +56,7 @@ describe Pry do
       pry.config.output = accumulator
       pry.config.output_prefix = "-> "
       pry.config.print.call(accumulator, [1], pry)
-      accumulator.string.should == "-> \[1\]\n"
+      expect(accumulator.string).to eq("-> \[1\]\n")
     end
   end
 
@@ -75,7 +75,7 @@ describe Pry do
       colorized   = CodeRay.scan("[1]", :ruby).term
       pry.config.output = accumulator
       pry.config.print.call(accumulator, [1], pry)
-      accumulator.string.should == "=> #{colorized}\n"
+      expect(accumulator.string).to eq("=> #{colorized}\n")
     end
 
     it "should not colorize strings that already include color" do
@@ -88,7 +88,7 @@ describe Pry do
       pry.config.output = accumulator
       pry.config.print.call(accumulator, f, pry)
       # We add an extra \e[0m to prevent color leak
-      accumulator.string.should == "=> \e[1;31mFoo\e[0m\e[0m\n"
+      expect(accumulator.string).to eq("=> \e[1;31mFoo\e[0m\e[0m\n")
     end
   end
 
@@ -97,19 +97,19 @@ describe Pry do
       @t = pry_tester
     end
     it "should normally output the result" do
-      mock_pry("1 + 2").should == "=> 3\n"
+      expect(mock_pry("1 + 2")).to eq("=> 3\n")
     end
 
     it "should not output anything if the input ends with a semicolon" do
-      mock_pry("1 + 2;").should == ""
+      expect(mock_pry("1 + 2;")).to eq("")
     end
 
     it "should output something if the input ends with a comment" do
-      mock_pry("1 + 2 # basic addition").should == "=> 3\n"
+      expect(mock_pry("1 + 2 # basic addition")).to eq("=> 3\n")
     end
 
     it "should not output something if the input is only a comment" do
-      mock_pry("# basic addition").should == ""
+      expect(mock_pry("# basic addition")).to eq("")
     end
   end
 end

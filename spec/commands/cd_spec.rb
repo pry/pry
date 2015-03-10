@@ -28,7 +28,7 @@ describe 'cd' do
 
   describe 'state' do
     it 'should not to be set up in fresh instance' do
-      @t.command_state.should equal nil
+      expect(@t.command_state).to equal nil
     end
   end
 
@@ -37,7 +37,7 @@ describe 'cd' do
       it 'should not toggle when there is no old stack' do
         2.times do
           @t.eval 'cd -'
-          @t.mapped_binding_stack.should eq [@o]
+          expect(@t.mapped_binding_stack).to eq [@o]
         end
       end
     end
@@ -46,88 +46,88 @@ describe 'cd' do
       it 'should not toggle and should keep correct stacks' do
         expect { @t.eval 'cd %' }.to raise_error Pry::CommandError
 
-        @t.old_stack.should eq []
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.old_stack).to eq []
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.old_stack.should eq []
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.old_stack).to eq []
+        expect(@t.mapped_binding_stack).to eq [@o]
       end
     end
 
     describe 'when using simple cd syntax' do
       it 'should toggle' do
         @t.eval 'cd :mon_dogg', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, :mon_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :mon_dogg]
       end
     end
 
     describe "when using complex cd syntax" do
       it 'should toggle with a complex path (simple case)' do
         @t.eval 'cd 1/2/3', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, 1, 2, 3]
+        expect(@t.mapped_binding_stack).to eq [@o, 1, 2, 3]
       end
 
       it 'should toggle with a complex path (more complex case)' do
         @t.eval 'cd 1/2/3', 'cd ../4', 'cd -'
-        @t.mapped_binding_stack.should eq [@o, 1, 2, 3]
+        expect(@t.mapped_binding_stack).to eq [@o, 1, 2, 3]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, 1, 2, 4]
+        expect(@t.mapped_binding_stack).to eq [@o, 1, 2, 4]
       end
     end
 
     describe 'series of cd calls' do
       it 'should toggle with fuzzy `cd -` calls' do
         @t.eval 'cd :mon_dogg', 'cd -', 'cd 42', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, 42]
+        expect(@t.mapped_binding_stack).to eq [@o, 42]
       end
     end
 
     describe 'when using cd ..' do
       it 'should toggle with a simple path' do
         @t.eval 'cd :john_dogg', 'cd ..'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, :john_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :john_dogg]
       end
 
       it 'should toggle with a complex path' do
         @t.eval 'cd 1/2/3/../4', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, 1, 2, 4]
+        expect(@t.mapped_binding_stack).to eq [@o, 1, 2, 4]
       end
     end
 
     describe 'when using cd ::' do
       it 'should toggle' do
         @t.eval 'cd ::', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, TOPLEVEL_BINDING.eval('self')]
+        expect(@t.mapped_binding_stack).to eq [@o, TOPLEVEL_BINDING.eval('self')]
       end
     end
 
     describe 'when using cd /' do
       it 'should toggle' do
         @t.eval 'cd /', 'cd -'
-        @t.mapped_binding_stack.should eq [@o]
+        expect(@t.mapped_binding_stack).to eq [@o]
 
         @t.eval 'cd :john_dogg', 'cd /', 'cd -'
-        @t.mapped_binding_stack.should eq [@o, :john_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :john_dogg]
       end
     end
 
@@ -135,90 +135,90 @@ describe 'cd' do
       it 'should keep correct old binding' do
         @t.eval 'cd :john_dogg', 'cd :mon_dogg', 'cd :kyr_dogg',
           'Pry::DEFAULT_CONTROL_D_HANDLER.call("", _pry_)'
-        @t.mapped_binding_stack.should eq [@o, :john_dogg, :mon_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, :john_dogg, :mon_dogg, :kyr_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg, :kyr_dogg]
 
         @t.eval 'cd -'
-        @t.mapped_binding_stack.should eq [@o, :john_dogg, :mon_dogg]
+        expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg]
       end
     end
   end
 
   it 'should cd into simple input' do
     @t.eval 'cd :mon_ouie'
-    @t.eval('self').should eq :mon_ouie
+    expect(@t.eval('self')).to eq :mon_ouie
   end
 
   it 'should break out of session with cd ..' do
     @t.eval 'cd :outer', 'cd :inner'
-    @t.eval('self').should eq :inner
+    expect(@t.eval('self')).to eq :inner
 
     @t.eval 'cd ..'
-    @t.eval('self').should eq :outer
+    expect(@t.eval('self')).to eq :outer
   end
 
   it "should not leave the REPL session when given 'cd ..'" do
     @t.eval 'cd ..'
-    @t.eval('self').should eq @o
+    expect(@t.eval('self')).to eq @o
   end
 
   it 'should break out to outer-most session with cd /' do
     @t.eval 'cd :inner'
-    @t.eval('self').should eq :inner
+    expect(@t.eval('self')).to eq :inner
 
     @t.eval 'cd 5'
-    @t.eval('self').should eq 5
+    expect(@t.eval('self')).to eq 5
 
     @t.eval 'cd /'
-    @t.eval('self').should eq @o
+    expect(@t.eval('self')).to eq @o
   end
 
   it 'should break out to outer-most session with just cd (no args)' do
     @t.eval 'cd :inner'
-    @t.eval('self').should eq :inner
+    expect(@t.eval('self')).to eq :inner
 
     @t.eval 'cd 5'
-    @t.eval('self').should eq 5
+    expect(@t.eval('self')).to eq 5
 
     @t.eval 'cd'
-    @t.eval('self').should eq @o
+    expect(@t.eval('self')).to eq @o
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar syntax' do
     @t.eval 'cd @obj/@x'
-    @t.mapped_binding_stack.should eq [@o, @obj, 66]
+    expect(@t.mapped_binding_stack).to eq [@o, @obj, 66]
   end
 
   it 'should cd into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
     @t.eval 'cd @obj/@x/'
-    @t.mapped_binding_stack.should eq [@o, @obj, 66]
+    expect(@t.mapped_binding_stack).to eq [@o, @obj, 66]
   end
 
   it 'should cd into previous object and its local using cd ../local syntax' do
     @t.eval 'cd @obj', 'local = :local', 'cd @x', 'cd ../local'
-    @t.mapped_binding_stack.should eq [@o, @obj, :local]
+    expect(@t.mapped_binding_stack).to eq [@o, @obj, :local]
   end
 
   it 'should cd into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
     @t.eval 'cd @obj/@x/..'
-    @t.mapped_binding_stack.should eq [@o, @obj]
+    expect(@t.mapped_binding_stack).to eq [@o, @obj]
   end
 
   it 'should cd into an object and its ivar and back and then into another ivar using cd obj/@ivar/../@y syntax' do
     @t.eval 'cd @obj/@x/../@y'
-    @t.mapped_binding_stack.should eq [@o, @obj, 79]
+    expect(@t.mapped_binding_stack).to eq [@o, @obj, 79]
   end
 
   it 'should cd back to top-level and then into another ivar using cd /@ivar/ syntax' do
     @t.eval '@z = 20', 'cd @obj/@x/', 'cd /@z'
-    @t.mapped_binding_stack.should eq [@o, 20]
+    expect(@t.mapped_binding_stack).to eq [@o, 20]
   end
 
   it 'should start a session on TOPLEVEL_BINDING with cd ::' do
     @t.eval 'cd ::'
-    @t.eval('self').should eq TOPLEVEL_BINDING.eval('self')
+    expect(@t.eval('self')).to eq TOPLEVEL_BINDING.eval('self')
   end
 
   it 'should cd into complex input (with spaces)' do
@@ -227,23 +227,23 @@ describe 'cd' do
     end
 
     @t.eval 'cd hello 1, 2, 3'
-    @t.eval('self').should eq :mon_ouie
+    expect(@t.eval('self')).to eq :mon_ouie
   end
 
   it 'should not cd into complex input when it encounters an exception' do
     expect { @t.eval 'cd 1/2/swoop_a_doop/3' }.to raise_error Pry::CommandError
 
-    @t.mapped_binding_stack.should eq [@o]
+    expect(@t.mapped_binding_stack).to eq [@o]
   end
 
   it 'can cd into an expression containing a string with slashes in it' do
     @t.eval 'cd ["http://google.com"]'
-    @t.eval('self').should eq ["http://google.com"]
+    expect(@t.eval('self')).to eq ["http://google.com"]
   end
 
   it 'can cd into an expression with division in it' do
     @t.eval 'cd (10/2)/even?'
-    @t.eval('self').should eq false
+    expect(@t.eval('self')).to eq false
   end
 
   # Regression test for ticket #516.

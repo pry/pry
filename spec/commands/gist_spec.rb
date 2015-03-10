@@ -6,7 +6,7 @@ require_relative '../helper'
 
 describe 'gist' do
   it 'has a dependency on the jist gem' do
-    Pry::Command::Gist.command_options[:requires_gem].should == "gist"
+    expect(Pry::Command::Gist.command_options[:requires_gem]).to eq("gist")
   end
 
   before do
@@ -27,6 +27,6 @@ describe 'gist' do
 
   it 'nominally logs in' do
     pry_eval 'gist --login'
-    Pad.gist_calls[:login!].should_not be_nil
+    expect(Pad.gist_calls[:login!]).not_to be_nil
   end
 end

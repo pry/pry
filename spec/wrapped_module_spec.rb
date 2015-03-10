@@ -39,29 +39,29 @@ describe Pry::WrappedModule do
 
     describe "number_of_candidates" do
       it 'should return the correct number of candidates' do
-        Pry::WrappedModule(Host::CandidateTest).number_of_candidates.should eq 3
+        expect(Pry::WrappedModule(Host::CandidateTest).number_of_candidates).to eq 3
       end
 
       it 'should return 0 candidates for a class with no nested modules or methods' do
-        Pry::WrappedModule(Host::PitifullyBlank).number_of_candidates.should eq 0
+        expect(Pry::WrappedModule(Host::PitifullyBlank).number_of_candidates).to eq 0
       end
 
       it 'should return 1 candidate for a class with a nested module with methods' do
-        Pry::WrappedModule(Host::ForeverAlone).number_of_candidates.should eq 1
+        expect(Pry::WrappedModule(Host::ForeverAlone).number_of_candidates).to eq 1
       end
     end
 
     describe "ordering of candidates" do
       it 'should return class with largest number of methods as primary candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(0).file.should =~ /helper1/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).file).to match(/helper1/)
       end
 
       it 'should return class with second largest number of methods as second ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(1).file.should =~ /helper2/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).file).to match(/helper2/)
       end
 
       it 'should return class with third largest number of methods as third ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(2).file.should =~ /#{__FILE__}/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).file).to match(/#{__FILE__}/)
       end
 
       it 'should raise when trying to access non-existent candidate' do
@@ -72,64 +72,64 @@ describe Pry::WrappedModule do
     describe "source_location" do
       it 'should return primary candidates source_location by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.source_location.should eq wm.candidate(0).source_location
+        expect(wm.source_location).to eq wm.candidate(0).source_location
       end
 
       it 'should return the location of the outer module if an inner module has methods' do
         wm = Pry::WrappedModule(Host::ForeverAlone)
-        File.expand_path(wm.source_location.first).should eq File.expand_path(__FILE__)
-        wm.source_location.last.should eq Host::FOREVER_ALONE_LINE
+        expect(File.expand_path(wm.source_location.first)).to eq File.expand_path(__FILE__)
+        expect(wm.source_location.last).to eq Host::FOREVER_ALONE_LINE
       end
 
       it 'should return nil if no source_location can be found' do
-        Pry::WrappedModule(Host::PitifullyBlank).source_location.should eq nil
+        expect(Pry::WrappedModule(Host::PitifullyBlank).source_location).to eq nil
       end
     end
 
     describe "source" do
       it 'should return primary candidates source by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.source.should eq wm.candidate(0).source
+        expect(wm.source).to eq wm.candidate(0).source
       end
 
       it 'should return source for highest ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(0).source.should =~ /test1/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).source).to match(/test1/)
       end
 
       it 'should return source for second ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(1).source.should =~ /test4/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).source).to match(/test4/)
       end
 
       it 'should return source for third ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(2).source.should =~ /test6/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).source).to match(/test6/)
       end
 
       it 'should return source for deeply nested class' do
-        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.should =~ /nested_method/
-        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count.should eq 4
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source).to match(/nested_method/)
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count).to eq 4
       end
     end
 
     describe "doc" do
       it 'should return primary candidates doc by default' do
         wm = Pry::WrappedModule(Host::CandidateTest)
-        wm.doc.should eq wm.candidate(0).doc
+        expect(wm.doc).to eq wm.candidate(0).doc
       end
 
       it 'should return doc for highest ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(0).doc.should =~ /rank 0/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).doc).to match(/rank 0/)
       end
 
       it 'should return doc for second ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(1).doc.should =~ /rank 1/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).doc).to match(/rank 1/)
       end
 
       it 'should return doc for third ranked candidate' do
-        Pry::WrappedModule(Host::CandidateTest).candidate(2).doc.should =~ /rank 2/
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).doc).to match(/rank 2/)
       end
 
       it 'should return docs for deeply nested class' do
-        Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc.should =~ /nested docs/
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc).to match(/nested docs/)
       end
     end
   end
@@ -145,41 +145,41 @@ describe Pry::WrappedModule do
     end
 
     it "should return Foo# for normal classes" do
-      Pry::WrappedModule.new(Foo).method_prefix.should eq "Foo#"
+      expect(Pry::WrappedModule.new(Foo).method_prefix).to eq "Foo#"
     end
 
     it "should return Bar# for modules" do
-      Pry::WrappedModule.new(Kernel).method_prefix.should eq "Kernel#"
+      expect(Pry::WrappedModule.new(Kernel).method_prefix).to eq "Kernel#"
     end
 
     it "should return Foo. for singleton classes of classes" do
-      Pry::WrappedModule.new(class << Foo; self; end).method_prefix.should eq "Foo."
+      expect(Pry::WrappedModule.new(class << Foo; self; end).method_prefix).to eq "Foo."
     end
 
     example "of singleton classes of objects" do
-      Pry::WrappedModule.new(class << @foo; self; end).method_prefix.should eq "self."
+      expect(Pry::WrappedModule.new(class << @foo; self; end).method_prefix).to eq "self."
     end
 
     example "of anonymous classes should not be empty" do
-      Pry::WrappedModule.new(Class.new).method_prefix.should =~ /#<Class:.*>#/
+      expect(Pry::WrappedModule.new(Class.new).method_prefix).to match(/#<Class:.*>#/)
     end
 
     example "of singleton classes of anonymous classes should not be empty" do
-      Pry::WrappedModule.new(class << Class.new; self; end).method_prefix.should =~ /#<Class:.*>./
+      expect(Pry::WrappedModule.new(class << Class.new; self; end).method_prefix).to match(/#<Class:.*>./)
     end
   end
 
   describe ".singleton_class?" do
     it "should be true for singleton classes" do
-      Pry::WrappedModule.new(class << ""; self; end).singleton_class?.should eq true
+      expect(Pry::WrappedModule.new(class << ""; self; end).singleton_class?).to eq true
     end
 
     it "should be false for normal classes" do
-      Pry::WrappedModule.new(Class.new).singleton_class?.should eq false
+      expect(Pry::WrappedModule.new(Class.new).singleton_class?).to eq false
     end
 
     it "should be false for modules" do
-      Pry::WrappedModule.new(Module.new).singleton_class?.should eq false
+      expect(Pry::WrappedModule.new(Module.new).singleton_class?).to eq false
     end
   end
 
@@ -189,8 +189,8 @@ describe Pry::WrappedModule do
     end
 
     it "should return the attached object" do
-      Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance.should eq "hi"
-      Pry::WrappedModule.new(class << Object; self; end).singleton_instance.should.equal?(Object)
+      expect(Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance).to eq "hi"
+      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance).to equal(Object)
     end
   end
 
@@ -205,25 +205,25 @@ describe Pry::WrappedModule do
       end
 
       it 'should return superclass for a wrapped class'  do
-        Pry::WrappedModule(@c).super.wrapped.should eq @b
+        expect(Pry::WrappedModule(@c).super.wrapped).to eq @b
       end
 
       it 'should return nth superclass for a wrapped class'  do
         d = Class.new(@c)
-        Pry::WrappedModule(d).super(2).wrapped.should eq @b
+        expect(Pry::WrappedModule(d).super(2).wrapped).to eq @b
       end
 
       it 'should ignore modules when retrieving nth superclass'  do
-        Pry::WrappedModule(@c).super(2).wrapped.should eq @a
+        expect(Pry::WrappedModule(@c).super(2).wrapped).to eq @a
       end
 
       it 'should return nil when no nth superclass exists' do
-        Pry::WrappedModule(@c).super(10).should eq nil
+        expect(Pry::WrappedModule(@c).super(10)).to eq nil
       end
 
       it 'should return self when .super(0) is used' do
         c = Pry::WrappedModule(@c)
-        c.super(0).should eq c
+        expect(c.super(0)).to eq c
       end
     end
 
@@ -235,16 +235,16 @@ describe Pry::WrappedModule do
       end
 
       it 'should not ignore modules when retrieving supers' do
-        Pry::WrappedModule(@m3).super.wrapped.should eq @m2
+        expect(Pry::WrappedModule(@m3).super.wrapped).to eq @m2
       end
 
       it 'should retrieve nth super' do
-        Pry::WrappedModule(@m3).super(2).wrapped.should eq @m1
+        expect(Pry::WrappedModule(@m3).super(2).wrapped).to eq @m1
       end
 
       it 'should return self when .super(0) is used' do
         m = Pry::WrappedModule(@m1)
-        m.super(0).should eq m
+        expect(m.super(0)).to eq m
       end
     end
   end
@@ -259,19 +259,19 @@ describe Pry::WrappedModule do
 
     it 'should lookup a constant' do
       m = Pry::WrappedModule.from_str("Namespace::Value", binding)
-      m.wrapped.should eq Namespace::Value
+      expect(m.wrapped).to eq Namespace::Value
     end
 
     it 'should lookup a local' do
       local = Namespace::Value
       m = Pry::WrappedModule.from_str("local", binding)
-      m.wrapped.should eq local
+      expect(m.wrapped).to eq local
     end
 
     it 'should lookup an ivar' do
       @ivar = Namespace::Value
       m = Pry::WrappedModule.from_str("@ivar", binding)
-      m.wrapped.should eq Namespace::Value
+      expect(m.wrapped).to eq Namespace::Value
     end
   end
 end
