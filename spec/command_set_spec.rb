@@ -428,7 +428,7 @@ describe Pry::CommandSet do
         @set.before_command('foo') { foo << 4 }
         @set.run_command(@ctx, 'foo')
 
-        expect(foo).to eq [4, 3, 2, 1]
+        expect(foo).to eq [2, 3, 4, 1]
       end
 
     end
