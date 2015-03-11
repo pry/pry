@@ -110,6 +110,9 @@ class Pry::Config::Default
     completer: proc {
       require "pry/input_completer"
       Pry::InputCompleter
+    },
+    exec_string: proc {
+      ""
     }
   }
 
