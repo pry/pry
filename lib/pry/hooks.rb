@@ -96,6 +96,7 @@ class Pry
     # @example
     #   Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     def add_hook(event_name, hook_name, callable=nil, &block)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
 
       # do not allow duplicates, but allow multiple `nil` hooks
@@ -128,6 +129,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.exec_hook(:before_session) #=> OUTPUT: "hi!"
     def exec_hook(event_name, *args, &block)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
 
       @hooks[event_name].map do |hook_name, callable|
@@ -147,6 +149,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.count(:before_session) #=> 1
     def hook_count(event_name)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
       @hooks[event_name].size
     end
@@ -159,6 +162,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.get_hook(:before_session, :say_hi).call #=> "hi!"
     def get_hook(event_name, hook_name)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
       hook = @hooks[event_name].find { |current_hook_name, callable| current_hook_name == hook_name }
       hook.last if hook
@@ -173,6 +177,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.get_hooks(:before_session) #=> {:say_hi=>#<Proc:0x00000101645e18@(pry):9>}
     def get_hooks(event_name)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
       Hash[@hooks[event_name]]
     end
@@ -186,6 +191,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.delete_hook(:before_session, :say_hi)
     def delete_hook(event_name, hook_name)
+      event_name = event_name.to_s
       @hooks[event_name] ||= []
       deleted_callable = nil
 
@@ -206,6 +212,7 @@ class Pry
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.delete_hook(:before_session)
     def delete_hooks(event_name)
+      event_name = event_name.to_s
       @hooks[event_name] = []
     end
 
@@ -224,6 +231,7 @@ class Pry
     # @param [Symbol] hook_name Name of the hook.
     # @return [Boolean] Whether the hook by the name `hook_name`
     def hook_exists?(event_name, hook_name)
+      event_name = event_name.to_s
       !!(@hooks[event_name] && @hooks[event_name].find { |name, _| name == hook_name })
     end
   end
