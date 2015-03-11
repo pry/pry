@@ -406,7 +406,8 @@ class Pry
       :target => current_binding,
       :output => output,
       :eval_string => @eval_string,
-      :pry_instance => self
+      :pry_instance => self,
+      :hooks => hooks
     )
 
     # set a temporary (just so we can inject the value we want into eval_string)

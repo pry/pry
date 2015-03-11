@@ -125,9 +125,10 @@ class Pry
     #   Pry.config.commands.before_command("whereami") do |n|
     #     output.puts "parameter passed was #{n}"
     #   end
+    # @deprecated Use {Pry::Hooks#add_hook} instead.
     def before_command(search, &block)
       cmd = find_command_by_match_or_listing(search)
-      cmd.hooks[:before].unshift block
+      cmd.hooks.add_hook("before_#{cmd.command_name}", random_hook_name, block)
     end
 
     # Execute a block of code after a command is invoked. The block also
@@ -139,10 +140,16 @@ class Pry
     #   Pry.config.commands.after_command("whereami") do |n|
     #     output.puts "command complete!"
     #   end
+    # @deprecated Use {Pry::Hooks#add_hook} instead.
     def after_command(search, &block)
       cmd = find_command_by_match_or_listing(search)
-      cmd.hooks[:after] << block
+      cmd.hooks.add_hook("after_#{cmd.command_name}", random_hook_name, block)
     end
+
+    def random_hook_name
+      (0...8).map { ('a'..'z').to_a[rand(26)] }.join
+    end
+    private :random_hook_name
 
     def each(&block)
       @commands.each(&block)

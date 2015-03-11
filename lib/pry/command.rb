@@ -167,11 +167,12 @@ class Pry
         end
       end
 
+      # @deprecated Replaced with {Pry::Hooks#add_hook}. Left for compatibility.
       # Store hooks to be run before or after the command body.
       # @see {Pry::CommandSet#before_command}
       # @see {Pry::CommandSet#after_command}
       def hooks
-        @hooks ||= {:before => [], :after => []}
+        Pry.hooks
       end
 
       def command_regex
@@ -223,6 +224,7 @@ class Pry
     attr_accessor :arg_string
     attr_accessor :context
     attr_accessor :command_set
+    attr_accessor :hooks
     attr_accessor :_pry_
 
     # The block we pass *into* a command so long as `:takes_block` is
@@ -271,6 +273,7 @@ class Pry
       self.output       = context[:output]
       self.eval_string  = context[:eval_string]
       self.command_set  = context[:command_set]
+      self.hooks        = context[:hooks]
       self._pry_        = context[:pry_instance]
     end
 
@@ -445,17 +448,28 @@ class Pry
 
     private
 
+    def find_hooks(event)
+      event_name = "#{event}_#{command_name}"
+      (self.hooks || self.class.hooks).get_hooks(event_name).values
+    end
+
+    def before_hooks
+      find_hooks('before')
+    end
+
+    def after_hooks
+      find_hooks('after')
+    end
+
     # Run the `#call` method and all the registered hooks.
     # @param [Array<String>] args The arguments to `#call`
     # @return [Object] The return value from `#call`
     def call_with_hooks(*args)
-      self.class.hooks[:before].each do |block|
-        instance_exec(*args, &block)
-      end
+      before_hooks.each { |block| instance_exec(*args, &block) }
 
       ret = call(*args)
 
-      self.class.hooks[:after].each do |block|
+      after_hooks.each do |block|
         ret = instance_exec(*args, &block)
       end
 

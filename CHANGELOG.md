@@ -15,6 +15,8 @@
 * Secured usage of colours with special characters (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) in Pry::Helpers::Text ([#493](https://github.com/pry/pry/issues/493#issuecomment-39232771))
 * Fixed regression with `pry -e` when it messes the terminal ([#1387](https://github.com/pry/pry/issues/1387))
 * Fixed regression with space prefixes of expressions ([#1369](https://github.com/pry/pry/issues/1369))
+* Introduced the new way to define hooks for commands (with `Pry.hooks.add_hook("{before,after}_commandName")). The old way is deprecated, but still supported (with `Pry.commands.{before,after}_command) ([#651](https://github.com/pry/pry/issues/651))
+
 
 ### 0.10.1
 

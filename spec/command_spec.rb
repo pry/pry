@@ -45,29 +45,66 @@ describe "Pry::Command" do
       expect(mock_command(cmd).return).to eq 5
     end
 
-    it 'should call hooks in the right order' do
-      cmd = @set.create_command 'marvin', "Pained by the diodes in his left side" do
-        def process
-          output.puts 3 + args[0].to_i
+    context "deprecated API" do
+      it "should call hooks in the right order" do
+        cmd = @set.create_command 'marvin', "Pained by the diodes in his left side" do
+          def process
+            output.puts 1 + args[0].to_i
+          end
+        end
+
+        @set.before_command 'marvin' do |i|
+          output.puts 3 - i.to_i
+        end
+
+        @set.before_command 'marvin' do |i|
+          output.puts 4 - i.to_i
+        end
+
+        @set.after_command 'marvin' do |i|
+          output.puts 2 + i.to_i
+        end
+
+        @set.after_command 'marvin' do |i|
+          output.puts 3 + i.to_i
+        end
+
+        expect(mock_command(cmd, %w(2)).output).to eq "1\n2\n3\n4\n5\n"
+      end
+    end
+
+    context "hooks API" do
+      before do
+        @set.create_command 'jamaica', 'Out of Many, One People' do
+          def process
+            output.puts 1 + args[0].to_i
+          end
         end
       end
 
-      @set.before_command 'marvin' do |i|
-        output.puts 2 + i.to_i
-      end
-      @set.before_command 'marvin' do |i|
-        output.puts 1 + i.to_i
-      end
+      let(:hooks) {
+        h = Pry::Hooks.new
+        h.add_hook('before_jamaica', 'name1') do |i|
+          output.puts 3 - i.to_i
+        end
 
-      @set.after_command 'marvin' do |i|
-        output.puts 4 + i.to_i
-      end
+        h.add_hook('before_jamaica', 'name2') do |i|
+          output.puts 4 - i.to_i
+        end
 
-      @set.after_command 'marvin' do |i|
-        output.puts 5 + i.to_i
-      end
+        h.add_hook('after_jamaica', 'name3') do |i|
+          output.puts 2 + i.to_i
+        end
 
-      expect(mock_command(cmd, %w(2)).output).to eq "3\n4\n5\n6\n7\n"
+        h.add_hook('after_jamaica', 'name4') do |i|
+          output.puts 3 + i.to_i
+        end
+      }
+
+      it "should call hooks in the right order" do
+        out = pry_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
+        expect(out).to eq("1\n2\n3\n4\n5\n")
+      end
     end
 
     # TODO: This strikes me as rather silly...
