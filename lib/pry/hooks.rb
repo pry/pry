@@ -57,18 +57,17 @@ class Pry
     #   Pry::Hooks.new.merge!(hooks)
     def merge!(other)
       @hooks.merge!(other.dup.hooks) do |key, array, other_array|
-        uniq_keeping_last(array + other_array, &:first)
+        temp_hash, output = {}, []
+
+        (array + other_array).reverse_each do |pair|
+          temp_hash[pair.first] ||= output.unshift(pair)
+        end
+
+        output
       end
 
       self
     end
-
-    def uniq_keeping_last(input, &block)
-      hash, output = {}, []
-      input.reverse.each{ |i| hash[block[i]] ||= (output.unshift i) }
-      output
-    end
-    private :uniq_keeping_last
 
     # Return a new `Pry::Hooks` instance containing a merge of the contents of two `Pry:Hooks` instances,
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
