@@ -212,7 +212,7 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name) { }
       @hooks.add_hook(:test_hook, :my_name2) { }
       @hooks.add_hook(:test_hook, :my_name3) { }
-      @hooks.clear(:test_hook)
+      @hooks.clear_event_hooks(:test_hook)
       expect(@hooks.hook_count(:test_hook)).to eq 0
     end
   end
@@ -415,6 +415,7 @@ describe Pry::Hooks do
             end
 
             hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
+
             redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
               Pry.start(self, :hooks => hooks, :commands => commands)
             end

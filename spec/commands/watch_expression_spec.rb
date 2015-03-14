@@ -14,7 +14,7 @@ describe "watch expression" do
 
   before do
     @tester = pry_tester
-    @tester.pry.hooks.clear :after_eval
+    @tester.pry.hooks.clear_event_hooks(:after_eval)
     eval "watch --delete"
   end
 
