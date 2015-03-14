@@ -182,12 +182,6 @@ class Pry
       @hooks[event_name] = []
     end
 
-    # Remove all events and hooks, clearing out the Pry::Hooks
-    # instance completely.
-    def clear_all
-      @hooks = {}
-    end
-
     # @param [Symbol] event_name Name of the event.
     # @param [Symbol] hook_name Name of the hook.
     # @return [Boolean] Whether the hook by the name `hook_name`
