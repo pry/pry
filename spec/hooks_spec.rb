@@ -415,6 +415,7 @@ describe Pry::Hooks do
             end
 
             hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
+
             redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
               Pry.start(self, :hooks => hooks, :commands => commands)
             end

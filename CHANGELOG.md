@@ -16,6 +16,7 @@
 * Fixed regression with `pry -e` when it messes the terminal ([#1387](https://github.com/pry/pry/issues/1387))
 * Fixed regression with space prefixes of expressions ([#1369](https://github.com/pry/pry/issues/1369))
 * Introduced the new way to define hooks for commands (with `Pry.hooks.add_hook("{before,after}_commandName")`). The old way is deprecated, but still supported (with `Pry.commands.{before,after}_command`) ([#651](https://github.com/pry/pry/issues/651))
+* Removed old API's using `Pry::Hooks.from_hash` altogether
 
 
 ### 0.10.1

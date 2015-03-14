@@ -10,21 +10,6 @@ class Pry
   #     puts "hello"
   #   end
   class Hooks
-    # Converts a hash to a `Pry::Hooks` instance. All hooks defined this way are
-    # anonymous. This functionality is primarily to provide backwards
-    # compatibility with the old hash-based hook system in Pry versions < 0.9.8
-    #
-    # @param [Hash] hash The hash to convert to `Pry::Hooks`.
-    # @return [Pry::Hooks] The resulting `Pry::Hooks` instance.
-    def self.from_hash(hash)
-      return hash if hash.instance_of?(self)
-      instance = new
-      hash.each do |k, v|
-        instance.add_hook(k, nil, v)
-      end
-      instance
-    end
-
     def initialize
       @hooks = Hash.new { |h, k| h[k] = [] }
     end
