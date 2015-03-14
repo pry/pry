@@ -174,11 +174,7 @@ class Pry
     # @param [Symbol] hook_name Name of the hook.
     # @return [Boolean] Whether the hook by the name `hook_name`.
     def hook_exists?(event_name, hook_name)
-      found = @hooks[event_name.to_s] && @hooks[event_name.to_s].find do |name, _|
-        name == hook_name
-      end
-
-      !!found
+      @hooks[event_name.to_s].map(&:first).include?(hook_name)
     end
 
     protected
