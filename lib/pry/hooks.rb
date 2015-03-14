@@ -1,18 +1,19 @@
 class Pry
-  # Implements a hooks system for Pry. A hook is a callable that is
-  # associated with an event. A number of events are currently
-  # provided by Pry, these include: `:when_started`, `:before_session`, `:after_session`.
-  # A hook must have a name, and is connected with an event by the
-  # `Pry::Hooks#add_hook` method.
+  # Implements a hooks system for Pry. A hook is a callable that is associated
+  # with an event. A number of events are currently provided by Pry, these
+  # include: `:when_started`, `:before_session`, `:after_session`.  A hook must
+  # have a name, and is connected with an event by the `Pry::Hooks#add_hook`
+  # method.
+  #
   # @example Adding a hook for the `:before_session` event.
   #   Pry.config.hooks.add_hook(:before_session, :say_hi) do
   #     puts "hello"
   #   end
   class Hooks
-    # Converts a hash to a `Pry::Hooks` instance. All hooks defined
-    # this way are anonymous. This functionality is primarily to
-    # provide backwards-compatibility with the old hash-based hook
-    # system in Pry versions < 0.9.8
+    # Converts a hash to a `Pry::Hooks` instance. All hooks defined this way are
+    # anonymous. This functionality is primarily to provide backwards
+    # compatibility with the old hash-based hook system in Pry versions < 0.9.8
+    #
     # @param [Hash] hash The hash to convert to `Pry::Hooks`.
     # @return [Pry::Hooks] The resulting `Pry::Hooks` instance.
     def self.from_hash(hash)
@@ -28,7 +29,7 @@ class Pry
       @hooks = {}
     end
 
-    # Ensure that duplicates have their @hooks object
+    # Ensure that duplicates have their @hooks object.
     def initialize_copy(orig)
       hooks_dup = @hooks.dup
       @hooks.each do |k, v|
@@ -45,7 +46,7 @@ class Pry
     # Destructively merge the contents of two `Pry:Hooks` instances.
     #
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
-    # @return [Pry:Hooks] Returns the receiver.
+    # @return [Pry:Hooks] The receiver.
     # @see {#merge}
     def merge!(other)
       @hooks.merge!(other.dup.hooks) do |key, array, other_array|
@@ -61,12 +62,12 @@ class Pry
       self
     end
 
-    # Return a new `Pry::Hooks` instance containing a merge of the contents of two `Pry:Hooks` instances,
-    # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
-    # @return [Pry::Hooks] The new hash.
     # @example
     #   hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   Pry::Hooks.new.merge(hooks)
+    # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
+    # @return [Pry::Hooks] a new `Pry::Hooks` instance containing a merge of the
+    #   contents of two `Pry:Hooks` instances.
     def merge(other)
       self.dup.tap do |v|
         v.merge!(other)
@@ -77,8 +78,8 @@ class Pry
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook.
     # @param [#call] callable The callable.
-    # @yield The block to use as the callable (if `callable` parameter not provided)
-    # @return [Pry:Hooks] Returns the receiver.
+    # @yield The block to use as the callable (if no `callable` provided).
+    # @return [Pry:Hooks] The receiver.
     def add_hook(event_name, hook_name, callable=nil, &block)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -123,7 +124,6 @@ class Pry
       end.last
     end
 
-    # Return the number of hook functions registered for the `event_name` event.
     # @param [Symbol] event_name The name of the event.
     # @return [Fixnum] The number of hook functions for `event_name`.
     def hook_count(event_name)
@@ -132,29 +132,28 @@ class Pry
       @hooks[event_name].size
     end
 
-    # Return a specific hook for a given event.
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook
-    # @return [#call] The requested hook.
+    # @return [#call] a specific hook for a given event.
     def get_hook(event_name, hook_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
-      hook = @hooks[event_name].find { |current_hook_name, callable| current_hook_name == hook_name }
+      hook = @hooks[event_name].find do |current_hook_name, callable|
+        current_hook_name == hook_name
+      end
       hook.last if hook
     end
 
-    # Return the hash of hook names / hook functions for a
-    # given event. (Note that modifying the returned hash does not
-    # alter the hooks, use add_hook/delete_hook for that).
     # @param [Symbol] event_name The name of the event.
     # @return [Hash] The hash of hook names / hook functions.
+    # @note Modifying the returned hash does not alter the hooks, use
+    # `add_hook`/`delete_hook` for that.
     def get_hooks(event_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
       Hash[@hooks[event_name]]
     end
 
-    # Delete a hook for an event.
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook.
     #   to delete.
@@ -176,7 +175,9 @@ class Pry
     end
 
     # Clear all hooks functions for a given event.
+    #
     # @param [String] event_name The name of the event.
+    # @return [void]
     def clear_event_hooks(event_name)
       event_name = event_name.to_s
       @hooks[event_name] = []
@@ -184,10 +185,14 @@ class Pry
 
     # @param [Symbol] event_name Name of the event.
     # @param [Symbol] hook_name Name of the hook.
-    # @return [Boolean] Whether the hook by the name `hook_name`
+    # @return [Boolean] Whether the hook by the name `hook_name`.
     def hook_exists?(event_name, hook_name)
       event_name = event_name.to_s
-      !!(@hooks[event_name] && @hooks[event_name].find { |name, _| name == hook_name })
+      found = @hooks[event_name] && @hooks[event_name].find do |name, _|
+        name == hook_name
+      end
+
+      !!found
     end
 
     protected
