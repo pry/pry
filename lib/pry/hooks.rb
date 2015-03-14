@@ -56,17 +56,12 @@ class Pry
     #   hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   Pry::Hooks.new.merge!(hooks)
     def merge!(other)
-      @hooks.merge!(other.dup.hooks) do |key, v1, v2|
-        merge_arrays(v1, v2)
+      @hooks.merge!(other.dup.hooks) do |key, array, other_array|
+        uniq_keeping_last(array + other_array, &:first)
       end
 
       self
     end
-
-    def merge_arrays(array1, array2)
-      uniq_keeping_last(array1 + array2, &:first)
-    end
-    private :merge_arrays
 
     def uniq_keeping_last(input, &block)
       hash, output = {}, []
