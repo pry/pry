@@ -26,7 +26,7 @@ class Pry
     end
 
     def initialize
-      @hooks = {}
+      @hooks = Hash.new { |h, k| h[k] = [] }
     end
 
     # Ensure that duplicates have their @hooks object.
@@ -82,7 +82,6 @@ class Pry
     # @return [Pry:Hooks] The receiver.
     def add_hook(event_name, hook_name, callable=nil, &block)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
 
       # do not allow duplicates, but allow multiple `nil` hooks
       # (anonymous hooks)
@@ -112,7 +111,6 @@ class Pry
     # @return [Object] The return value of the last executed hook.
     def exec_hook(event_name, *args, &block)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
 
       @hooks[event_name].map do |hook_name, callable|
         begin
@@ -128,7 +126,6 @@ class Pry
     # @return [Fixnum] The number of hook functions for `event_name`.
     def hook_count(event_name)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
       @hooks[event_name].size
     end
 
@@ -137,7 +134,6 @@ class Pry
     # @return [#call] a specific hook for a given event.
     def get_hook(event_name, hook_name)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
       hook = @hooks[event_name].find do |current_hook_name, callable|
         current_hook_name == hook_name
       end
@@ -150,7 +146,6 @@ class Pry
     # `add_hook`/`delete_hook` for that.
     def get_hooks(event_name)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
       Hash[@hooks[event_name]]
     end
 
@@ -160,7 +155,6 @@ class Pry
     # @return [#call] The deleted hook.
     def delete_hook(event_name, hook_name)
       event_name = event_name.to_s
-      @hooks[event_name] ||= []
       deleted_callable = nil
 
       @hooks[event_name].delete_if do |current_hook_name, callable|
