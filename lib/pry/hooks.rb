@@ -110,9 +110,7 @@ class Pry
     # @param [Array] args The arguments to pass to each hook function.
     # @return [Object] The return value of the last executed hook.
     def exec_hook(event_name, *args, &block)
-      event_name = event_name.to_s
-
-      @hooks[event_name].map do |hook_name, callable|
+      @hooks[event_name.to_s].map do |hook_name, callable|
         begin
           callable.call(*args, &block)
         rescue RescuableException => e
@@ -125,16 +123,14 @@ class Pry
     # @param [Symbol] event_name The name of the event.
     # @return [Fixnum] The number of hook functions for `event_name`.
     def hook_count(event_name)
-      event_name = event_name.to_s
-      @hooks[event_name].size
+      @hooks[event_name.to_s].size
     end
 
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook
     # @return [#call] a specific hook for a given event.
     def get_hook(event_name, hook_name)
-      event_name = event_name.to_s
-      hook = @hooks[event_name].find do |current_hook_name, callable|
+      hook = @hooks[event_name.to_s].find do |current_hook_name, callable|
         current_hook_name == hook_name
       end
       hook.last if hook
@@ -145,8 +141,7 @@ class Pry
     # @note Modifying the returned hash does not alter the hooks, use
     # `add_hook`/`delete_hook` for that.
     def get_hooks(event_name)
-      event_name = event_name.to_s
-      Hash[@hooks[event_name]]
+      Hash[@hooks[event_name.to_s]]
     end
 
     # @param [Symbol] event_name The name of the event.
@@ -154,10 +149,9 @@ class Pry
     #   to delete.
     # @return [#call] The deleted hook.
     def delete_hook(event_name, hook_name)
-      event_name = event_name.to_s
       deleted_callable = nil
 
-      @hooks[event_name].delete_if do |current_hook_name, callable|
+      @hooks[event_name.to_s].delete_if do |current_hook_name, callable|
         if current_hook_name == hook_name
           deleted_callable = callable
           true
@@ -173,16 +167,14 @@ class Pry
     # @param [String] event_name The name of the event.
     # @return [void]
     def clear_event_hooks(event_name)
-      event_name = event_name.to_s
-      @hooks[event_name] = []
+      @hooks[event_name.to_s] = []
     end
 
     # @param [Symbol] event_name Name of the event.
     # @param [Symbol] hook_name Name of the hook.
     # @return [Boolean] Whether the hook by the name `hook_name`.
     def hook_exists?(event_name, hook_name)
-      event_name = event_name.to_s
-      found = @hooks[event_name] && @hooks[event_name].find do |name, _|
+      found = @hooks[event_name.to_s] && @hooks[event_name.to_s].find do |name, _|
         name == hook_name
       end
 
