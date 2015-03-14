@@ -1,5 +1,4 @@
 class Pry
-
   # Implements a hooks system for Pry. A hook is a callable that is
   # associated with an event. A number of events are currently
   # provided by Pry, these include: `:when_started`, `:before_session`, `:after_session`.
@@ -10,7 +9,6 @@ class Pry
   #     puts "hello"
   #   end
   class Hooks
-
     # Converts a hash to a `Pry::Hooks` instance. All hooks defined
     # this way are anonymous. This functionality is primarily to
     # provide backwards-compatibility with the old hash-based hook
@@ -45,11 +43,10 @@ class Pry
     end
 
     # Destructively merge the contents of two `Pry:Hooks` instances.
+    #
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
     # @return [Pry:Hooks] Returns the receiver.
-    # @example
-    #   hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   Pry::Hooks.new.merge!(hooks)
+    # @see {#merge}
     def merge!(other)
       @hooks.merge!(other.dup.hooks) do |key, array, other_array|
         temp_hash, output = {}, []
@@ -82,8 +79,6 @@ class Pry
     # @param [#call] callable The callable.
     # @yield The block to use as the callable (if `callable` parameter not provided)
     # @return [Pry:Hooks] Returns the receiver.
-    # @example
-    #   Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     def add_hook(event_name, hook_name, callable=nil, &block)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -114,9 +109,6 @@ class Pry
     # @param [Symbol] event_name The name of the event.
     # @param [Array] args The arguments to pass to each hook function.
     # @return [Object] The return value of the last executed hook.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.exec_hook(:before_session) #=> OUTPUT: "hi!"
     def exec_hook(event_name, *args, &block)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -134,9 +126,6 @@ class Pry
     # Return the number of hook functions registered for the `event_name` event.
     # @param [Symbol] event_name The name of the event.
     # @return [Fixnum] The number of hook functions for `event_name`.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.count(:before_session) #=> 1
     def hook_count(event_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -147,9 +136,6 @@ class Pry
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook
     # @return [#call] The requested hook.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.get_hook(:before_session, :say_hi).call #=> "hi!"
     def get_hook(event_name, hook_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -162,9 +148,6 @@ class Pry
     # alter the hooks, use add_hook/delete_hook for that).
     # @param [Symbol] event_name The name of the event.
     # @return [Hash] The hash of hook names / hook functions.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.get_hooks(:before_session) #=> {:say_hi=>#<Proc:0x00000101645e18@(pry):9>}
     def get_hooks(event_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -176,9 +159,6 @@ class Pry
     # @param [Symbol] hook_name The name of the hook.
     #   to delete.
     # @return [#call] The deleted hook.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.delete_hook(:before_session, :say_hi)
     def delete_hook(event_name, hook_name)
       event_name = event_name.to_s
       @hooks[event_name] ||= []
@@ -197,9 +177,6 @@ class Pry
 
     # Clear all hooks functions for a given event.
     # @param [String] event_name The name of the event.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.delete_hook(:before_session)
     def clear_event_hooks(event_name)
       event_name = event_name.to_s
       @hooks[event_name] = []
@@ -207,9 +184,6 @@ class Pry
 
     # Remove all events and hooks, clearing out the Pry::Hooks
     # instance completely.
-    # @example
-    #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
-    #   my_hooks.clear_all
     def clear_all
       @hooks = {}
     end
