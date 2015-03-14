@@ -212,7 +212,7 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :my_name) { }
       @hooks.add_hook(:test_hook, :my_name2) { }
       @hooks.add_hook(:test_hook, :my_name3) { }
-      @hooks.clear(:test_hook)
+      @hooks.clear_event_hooks(:test_hook)
       expect(@hooks.hook_count(:test_hook)).to eq 0
     end
   end

@@ -200,12 +200,10 @@ class Pry
     # @example
     #   my_hooks = Pry::Hooks.new.add_hook(:before_session, :say_hi) { puts "hi!" }
     #   my_hooks.delete_hook(:before_session)
-    def delete_hooks(event_name)
+    def clear_event_hooks(event_name)
       event_name = event_name.to_s
       @hooks[event_name] = []
     end
-
-    alias_method :clear, :delete_hooks
 
     # Remove all events and hooks, clearing out the Pry::Hooks
     # instance completely.
