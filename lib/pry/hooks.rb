@@ -40,11 +40,6 @@ class Pry
       @hooks = hooks_dup
     end
 
-    def hooks
-      @hooks
-    end
-    protected :hooks
-
     def errors
       @errors ||= []
     end
@@ -227,6 +222,12 @@ class Pry
     def hook_exists?(event_name, hook_name)
       event_name = event_name.to_s
       !!(@hooks[event_name] && @hooks[event_name].find { |name, _| name == hook_name })
+    end
+
+    protected
+
+    def hooks
+      @hooks
     end
   end
 end
