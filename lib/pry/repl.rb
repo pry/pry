@@ -168,7 +168,7 @@ class Pry
     # @return [String?] The next line of input, or `nil` on <Ctrl-D>.
     def read_line(current_prompt)
       handle_read_errors do
-        if defined? Coolline and input.is_a? Coolline
+        if coolline_available?
           input.completion_proc = proc do |cool|
             completions = @pry.complete cool.completed_word
             completions.compact
@@ -179,12 +179,10 @@ class Pry
           end
         end
 
-        if defined?(Readline) and input == Readline
-          if !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
-            Readline.output = File.open('/dev/tty', 'w')
-          end
+        if readline_available?
+          set_readline_output
           input_readline(current_prompt, false) # false since we'll add it manually
-        elsif defined? Coolline and input.is_a? Coolline
+        elsif coolline_available?
           input_readline(current_prompt)
         else
           if input.method(:readline).arity == 1
@@ -199,6 +197,40 @@ class Pry
     def input_readline(*args)
       Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
+      end
+    end
+
+    def readline_available?
+      defined?(Readline) && input == Readline
+    end
+
+    def coolline_available?
+      defined?(Coolline) && input.is_a?(Coolline)
+    end
+
+    # If `$stdout` is not a tty, it's probably a pipe.
+    # @example
+    #   # `piping?` returns `false`
+    #   % pry
+    #   [1] pry(main)
+    #
+    #   # `piping?` returns `true`
+    #   % pry | tee log
+    def piping?
+      !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
+    end
+
+    # @return [void]
+    def set_readline_output
+      return if @readline_output
+      if piping?
+        @readline_output = (Readline.output = Pry.config.output)
+
+        # Foreman fix. Without this the output is slightly contaminated, because
+        # when Readline initialises, it overwrites current line (which already
+        # has some text from Foreman). One side effect is that it works every
+        # time you pipe output.
+        @readline_output.puts
       end
     end
   end
