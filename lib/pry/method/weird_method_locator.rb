@@ -104,8 +104,10 @@ class Pry
           # TODO: Fix up the exception handling so we don't need a bare rescue
           if normal_method?(guess)
             return guess
-          else
+          elsif guess != guess.super
             guess = guess.super
+          else
+            break
           end
         end
 

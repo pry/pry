@@ -41,6 +41,27 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
+  if RUBY_VERSION > "2.0.0"
+    it 'should work with prepended methods' do
+      module Cor2
+        def blimey!
+          super
+        end
+      end
+      class Cor
+        prepend Cor2
+        def blimey!
+          pry_eval(binding, 'whereami').should =~ /Cor2[#]blimey!/
+        end
+      end
+
+      Cor.new.blimey!
+
+      Object.remove_const(:Cor)
+      Object.remove_const(:Cor2)
+    end
+  end
+
   it 'should work in BasicObjects' do
     cor = Class.new(BasicObject) do
       def blimey!
@@ -230,4 +251,5 @@ describe "whereami" do
   it "should work inside an object" do
     expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
+
 end
