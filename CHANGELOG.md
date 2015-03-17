@@ -17,7 +17,8 @@
 * Fixed regression with space prefixes of expressions ([#1369](https://github.com/pry/pry/issues/1369))
 * Introduced the new way to define hooks for commands (with `Pry.hooks.add_hook("{before,after}_commandName")`). The old way is deprecated, but still supported (with `Pry.commands.{before,after}_command`) ([#651](https://github.com/pry/pry/issues/651))
 * Removed old API's using `Pry::Hooks.from_hash` altogether
-
+* Removed hints on Foreman support (see [this](https://github.com/ddollar/foreman/pull/536))
+* Fixed support for the tee command ([#1334](https://github.com/pry/pry/issues/1334))
 
 ### 0.10.1
 
