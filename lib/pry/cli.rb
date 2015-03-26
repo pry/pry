@@ -62,6 +62,9 @@ class Pry
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
 
+        # Load config files etc first, ensuring that cli options will take precedence.
+        Pry.initial_session_setup
+
         self.input_args = args
 
         begin
@@ -83,7 +86,31 @@ class Pry
           option_processors.each { |processor| processor.call(opts) }
         end
 
-        self
+        opts
+      end
+
+      def start(opts)
+        exit if opts.help?
+
+        # invoked via cli
+        Pry.cli = true
+
+        # create the actual context
+        if opts[:context]
+          Pry.initial_session_setup
+          context = Pry.binding_for(eval(opts[:context]))
+        else
+          context = Pry.toplevel_binding
+        end
+
+        if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
+          full_name = File.expand_path(Pry::CLI.input_args.first)
+          Pry.load_file_through_repl(full_name)
+          exit
+        end
+
+        # Start the session (running any code passed with -e, if there is any)
+        Pry.start(context, :input => StringIO.new(Pry.config.exec_string))
       end
 
     end
@@ -92,9 +119,6 @@ class Pry
   end
 end
 
-
-# String that is built to be executed on start (created by -e and -exec switches)
-exec_string = ""
 
 # Bring in options defined by plugins
 Slop.new do
@@ -116,7 +140,8 @@ Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
-    exec_string + input + "\n"
+    Pry.config.exec_string += "\n" if Pry.config.exec_string.length > 0
+    Pry.config.exec_string += input
   end
 
   on "no-pager", "Disable pager for long output" do
@@ -194,27 +219,4 @@ Copyright (c) 2013 John Mair (banisterfiend)
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
      :default => "Pry.toplevel_binding"
      )
-end.add_option_processor do |opts|
-
-  exit if opts.help?
-
-  # invoked via cli
-  Pry.cli = true
-
-  # create the actual context
-  if opts[:context]
-    Pry.initial_session_setup
-    context = Pry.binding_for(eval(opts[:context]))
-  else
-    context = Pry.toplevel_binding
-  end
-
-  if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
-    full_name = File.expand_path(Pry::CLI.input_args.first)
-    Pry.load_file_through_repl(full_name)
-    exit
-  end
-
-  # Start the session (running any code passed with -e, if there is any)
-  Pry.start(context, :input => StringIO.new(exec_string))
 end
