@@ -137,7 +137,8 @@ Copyright (c) 2013 John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
-    Pry.config.exec_string += input + "\n"
+    Pry.config.exec_string += "\n" if Pry.config.exec_string.length > 0
+    Pry.config.exec_string += input
   end
 
   on "no-pager", "Disable pager for long output" do
