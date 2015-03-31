@@ -193,5 +193,4 @@ class Pry
 
   Pry::Commands.add_command(Pry::Command::Whereami)
   Pry::Commands.alias_command '@', 'whereami'
-  Pry::Commands.alias_command 'pwd', 'whereami'
 end
