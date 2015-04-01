@@ -257,6 +257,8 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
 
     pry = Pry.new(:output   => output, :target   => target, :commands => options[:commands])
     pry.eval command_string
+    result = Pry.current[:pry_cmd_result].retval
+    result == Pry::Command::VOID_VALUE ? nil : result
   end
 
   def self.default_editor_for_platform
