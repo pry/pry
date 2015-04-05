@@ -23,6 +23,8 @@ class Pry
       @pry    = pry
       @indent = Pry::Indent.new
 
+      @readline_output = nil
+
       if options[:target]
         @pry.push_binding options[:target]
       end
