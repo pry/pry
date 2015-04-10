@@ -232,7 +232,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
   # @param [String] command_string The Pry command (including arguments,
   #   if any).
   # @param [Hash] options Optional named parameters.
-  # @return [Object] The return value of the Pry command.
+  # @return [nil]
   # @option options [Object, Binding] :target The object to run the
   #   command under. Defaults to `TOPLEVEL_BINDING` (main).
   # @option options [Boolean] :show_output Whether to show command
@@ -257,6 +257,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
 
     pry = Pry.new(:output   => output, :target   => target, :commands => options[:commands])
     pry.eval command_string
+    nil
   end
 
   def self.default_editor_for_platform
