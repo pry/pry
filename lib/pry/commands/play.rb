@@ -91,7 +91,7 @@ class Pry
     end
 
     def file_content
-      if default_file && File.exists?(default_file)
+      if default_file && File.exist?(default_file)
         @cc.restrict_to_lines(File.read(default_file), @cc.line_range)
       else
         raise CommandError, "File does not exist! File was: #{default_file.inspect}"

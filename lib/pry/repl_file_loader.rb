@@ -13,7 +13,7 @@ class Pry
   class REPLFileLoader
     def initialize(file_name)
       full_name = File.expand_path(file_name)
-      raise RuntimeError, "No such file: #{full_name}" if !File.exists?(full_name)
+      raise RuntimeError, "No such file: #{full_name}" if !File.exist?(full_name)
 
       define_additional_commands
       @content = File.read(full_name)
