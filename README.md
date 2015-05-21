@@ -314,10 +314,10 @@ We can also use `ri` in the normal way:
 
 ### Gist integration
 
-If the `gist` gem is installed then method source or documentation can be gisted to github with the
+If the `gist` gem is installed then method source or documentation can be gisted to GitHub with the
 `gist` command.  The `gist` command is capable of gisting [almost any REPL content](https://gist.github.com/cae143e4533416529726), including methods, documentation,
 input expressions, command source, and so on. In the example below we will gist the C source
-code for the `Symbol#to_proc` method to github:
+code for the `Symbol#to_proc` method to GitHub:
 
     pry(main)> gist -m Symbol#to_proc
     Gist created at https://gist.github.com/5332c38afc46d902ce46 and added to clipboard.
@@ -397,7 +397,7 @@ between commands and running commands in background
 
 ### Contact
 
-Problems or questions? file an issue at [github](https://github.com/pry/pry/issues)
+Problems or questions? File an issue at [GitHub](https://github.com/pry/pry/issues).
 
 ### Contributors
 
