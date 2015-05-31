@@ -5,12 +5,7 @@
 
 $0 = 'pry'
 
-begin
-  require 'pry'
-rescue LoadError
-  require 'rubygems'
-  require 'pry'
-end
+require 'pry'
 
 # Process command line options and run Pry
 opts = Pry::CLI.parse_options
