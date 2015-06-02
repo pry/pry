@@ -11,7 +11,7 @@ function test {
   export RUBY_ROOT=/opt/rubies/$version
 
   if [ ! -f $GEM_HOME/bin/bundle ]; then
-    gem install bundler --no-rdoc --no-ri
+    gem install bundler --no-document
   fi
 
   bundle install --quiet
