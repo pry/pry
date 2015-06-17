@@ -30,18 +30,39 @@ class Pry
 
     private
 
-      def parse_destination(dest)
-        return "~" if dest.empty?
-        return dest unless dest == "-"
-        state.old_pwd || raise(CommandError, "No prior directory available")
-      end
+    def parse_destination(dest)
+      return "~" if dest.empty?
+      return dest unless dest == "-"
+      state.old_pwd || raise(CommandError, "No prior directory available")
+    end
 
-      def process_cd(dest)
+    def cd_path
+      ENV[ 'CDPATH' ]
+    end
+
+    def process_cd(dest)
+      begin
         state.old_pwd = Dir.pwd
+  
+        # Don't do thinks for ".", "..", "-" and stuff starting with "/" and "~".
+        if dest && (!([ ".", "..", "-" ].include?(dest))) && (dest !~ /^[#{File::PATH_SEPARATOR}~]/)
+          cdpath = cd_path()
+          if cdpath && (cdpath.length > 0)
+            paths = cdpath.split(File::PATH_SEPARATOR)
+            paths.each do |next_path|
+              next_dest = "#{next_path}#{File::SEPARATOR}#{dest}"
+              if File.directory?(next_dest)
+                return Dir.chdir(File.expand_path(next_dest))
+              end
+            end
+          end
+        end
+
         Dir.chdir File.expand_path(dest)
       rescue Errno::ENOENT
         raise CommandError, "No such directory: #{dest}"
       end
+    end
   end
 
   Pry::Commands.add_command(Pry::Command::ShellCommand)
