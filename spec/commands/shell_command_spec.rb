@@ -1,6 +1,6 @@
 require_relative '../helper'
 
-describe "Command::ShellCommand" do
+describe Pry::Command::ShellCommand do
   describe 'cd' do
     before do
       @o = Object.new
@@ -58,16 +58,40 @@ describe "Command::ShellCommand" do
         end
       end
 
-      describe ".cd with CDPATH" do
-        it ".cd with finding location in CDPATH" do
-          allow_any_instance_of(Pry::Command::ShellCommand).to receive(:cd_path).and_return("#{File.dirname( __FILE__ )}#{File::SEPARATOR}..")
-          expect(Dir).to receive(:chdir).with(File.expand_path("#{File.dirname( __FILE__ )}#{File::SEPARATOR}..#{File::SEPARATOR}commands"))
-          @t.eval ".cd commands"
+      describe "with CDPATH" do
+        let(:cdpath) { File.expand_path(File.join('spec', 'fixtures', 'cdpathdir')) }
+        let(:nonexisting_path) { File.expand_path('nonexisting_path') }
+
+        let(:long_cdpath) { [nonexisting_path, cdpath].join(File::SEPARATOR) }
+        let(:bad_cdpath) { 'asdfgh' }
+
+        describe "when it is defined" do
+          before do
+            @stub = allow_any_instance_of(described_class).to receive(:cd_path)
+          end
+
+          describe "simple cdpath" do
+            it "cd's into the dir" do
+              @stub.and_return(cdpath)
+              expect(Dir).to receive(:chdir).with(cdpath)
+              pry_eval '.cd cdpathdir'
+            end
+          end
+
+          describe "complex cdpath" do
+            it "cd's into the dir" do
+              @stub.and_return(long_cdpath)
+              expect(Dir).to receive(:chdir).with(cdpath)
+              pry_eval '.cd cdpathdir'
+            end
+          end
         end
-        it ".cd without finding directory in CDPATH" do
-          allow_any_instance_of(Pry::Command::ShellCommand).to receive(:cd_path).and_return(".")
-          expect(Dir).to receive(:chdir).with(File.expand_path("commands"))
-          @t.eval ".cd commands"
+
+        describe "when it is missing" do
+          it "performs default directory lookup" do
+            expect(Dir).to receive(:chdir).with(nonexisting_path)
+            pry_eval '.cd nonexisting_path'
+          end
         end
       end
     end
