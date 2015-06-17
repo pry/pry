@@ -20,6 +20,8 @@
 * Removed hints on Foreman support (see [this](https://github.com/ddollar/foreman/pull/536))
 * Fixed support for the tee command ([#1334](https://github.com/pry/pry/issues/1334))
 * Implemented support for CDPATH for ShellCommand ([#1433](https://github.com/pry/pry/issues/1433), [#1434](https://github.com/pry/pry/issues/1434))
+* `Pry::CLI.parse_options` does not start Pry anymore ([#1393](https://github.com/pry/pry/pull/1393))
+* The gem uses CPU-less platforms for Windows now ([#1410](https://github.com/pry/pry/pull/1410))
 
 ### 0.10.1
 
