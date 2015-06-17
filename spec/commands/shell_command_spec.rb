@@ -57,6 +57,19 @@ describe "Command::ShellCommand" do
           end
         end
       end
+
+      describe ".cd with CDPATH" do
+        it ".cd with finding location in CDPATH" do
+          allow_any_instance_of(Pry::Command::ShellCommand).to receive(:cd_path).and_return("#{File.dirname( __FILE__ )}#{File::SEPARATOR}..")
+          expect(Dir).to receive(:chdir).with(File.expand_path("#{File.dirname( __FILE__ )}#{File::SEPARATOR}..#{File::SEPARATOR}commands"))
+          @t.eval ".cd commands"
+        end
+        it ".cd without finding directory in CDPATH" do
+          allow_any_instance_of(Pry::Command::ShellCommand).to receive(:cd_path).and_return(".")
+          expect(Dir).to receive(:chdir).with(File.expand_path("commands"))
+          @t.eval ".cd commands"
+        end
+      end
     end
   end
 end
