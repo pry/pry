@@ -4,7 +4,7 @@ class Pry
     group 'Input and Output'
     description "All text following a '.' is forwarded to the shell."
     command_options :listing => '.<shell command>', :use_prefix => false,
-      :takes_block => true
+                    :takes_block => true
 
     banner <<-'BANNER'
       Usage: .COMMAND_NAME
@@ -36,32 +36,37 @@ class Pry
       state.old_pwd || raise(CommandError, "No prior directory available")
     end
 
-    def cd_path
-      ENV[ 'CDPATH' ]
-    end
-
     def process_cd(dest)
       begin
         state.old_pwd = Dir.pwd
-  
-        # Don't do thinks for ".", "..", "-" and stuff starting with "/" and "~".
-        if dest && (!([ ".", "..", "-" ].include?(dest))) && (dest !~ /^[#{File::PATH_SEPARATOR}~]/)
-          cdpath = cd_path()
-          if cdpath && (cdpath.length > 0)
-            paths = cdpath.split(File::PATH_SEPARATOR)
-            paths.each do |next_path|
-              next_dest = "#{next_path}#{File::SEPARATOR}#{dest}"
-              if File.directory?(next_dest)
-                return Dir.chdir(File.expand_path(next_dest))
-              end
-            end
-          end
-        end
-
-        Dir.chdir File.expand_path(dest)
+        Dir.chdir(File.expand_path(path_from_cd_path(dest) || dest))
       rescue Errno::ENOENT
         raise CommandError, "No such directory: #{dest}"
       end
+    end
+
+    def cd_path_env
+      ENV['CDPATH']
+    end
+
+    def cd_path_exists?
+      cd_path_env && cd_path_env.length.nonzero?
+    end
+
+    def path_from_cd_path(dest)
+      return if !(dest && cd_path_exists?) || special_case_path?(dest)
+
+      cd_path_env.split(File::PATH_SEPARATOR).each do |path|
+        if File.directory?(path) && path.split(File::SEPARATOR).last == dest
+          return path
+        end
+      end
+
+      return nil
+    end
+
+    def special_case_path?(dest)
+      ['.', '..', '-'].include?(dest) || dest =~ /\A[#{File::PATH_SEPARATOR}~]/
     end
   end
 
