@@ -61,13 +61,13 @@ describe Pry::Command::ShellCommand do
       describe "with CDPATH" do
         let(:cdpath) { File.expand_path(File.join('spec', 'fixtures', 'cdpathdir')) }
         let(:nonexisting_path) { File.expand_path('nonexisting_path') }
-
-        let(:long_cdpath) { [nonexisting_path, cdpath].join(File::SEPARATOR) }
-        let(:bad_cdpath) { 'asdfgh' }
+        let(:long_cdpath) {
+          [nonexisting_path, cdpath].join(File::PATH_SEPARATOR)
+        }
 
         describe "when it is defined" do
           before do
-            @stub = allow_any_instance_of(described_class).to receive(:cd_path)
+            @stub = allow_any_instance_of(described_class).to receive(:cd_path_env)
           end
 
           describe "simple cdpath" do
@@ -84,13 +84,6 @@ describe Pry::Command::ShellCommand do
               expect(Dir).to receive(:chdir).with(cdpath)
               pry_eval '.cd cdpathdir'
             end
-          end
-        end
-
-        describe "when it is missing" do
-          it "performs default directory lookup" do
-            expect(Dir).to receive(:chdir).with(nonexisting_path)
-            pry_eval '.cd nonexisting_path'
           end
         end
       end
