@@ -81,6 +81,8 @@ class Pry
           exit
         end
 
+        Pry.final_session_setup
+
         # Option processors are optional.
         if option_processors
           option_processors.each { |processor| processor.call(opts) }

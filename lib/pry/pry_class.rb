@@ -124,6 +124,9 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
     load_rc_files
+  end
+
+  def self.final_session_setup
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
