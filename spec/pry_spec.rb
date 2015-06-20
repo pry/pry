@@ -102,7 +102,7 @@ describe Pry do
 
       # bug fix for https://github.com/pry/pry/issues/93
       it 'should not leak pry constants into Object namespace' do
-        expect { pry_eval(Object.new, "Command") }.to raise_error
+        expect { pry_eval(Object.new, "Command") }.to raise_error NameError
       end
 
       it 'should be able to operate inside the BasicObject class' do

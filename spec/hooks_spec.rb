@@ -15,7 +15,7 @@ describe Pry::Hooks do
     it 'should not allow adding of a hook with a duplicate name' do
       @hooks.add_hook(:test_hook, :my_name) {}
 
-      expect { @hooks.add_hook(:test_hook, :my_name) {} }.to raise_error
+      expect { @hooks.add_hook(:test_hook, :my_name) {} }.to raise_error ArgumentError
     end
 
     it 'should create a new hook with a block' do
