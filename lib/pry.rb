@@ -1,4 +1,4 @@
-# (C) John Mair (banisterfiend) 2013
+# (C) John Mair (banisterfiend) 2015
 # MIT License
 #
 require 'pp'
