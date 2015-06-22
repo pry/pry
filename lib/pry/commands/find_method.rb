@@ -20,7 +20,7 @@ class Pry
       find-method re Pry
 
       # Find all methods that contain the code:
-      # output.puts inside the Pry namepsace.
+      # output.puts inside the Pry namespace.
       find-method -c 'output.puts' Pry
     BANNER
 
