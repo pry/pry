@@ -12,6 +12,7 @@ class Pry
         comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan($1, :ruby).term }.
           gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{$1}\e[0m" }.
           gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { "\e[1m#{$1}\e[0m" }.
+          gsub(/<tt>(?:\s*\n)?(.*?)\s*<\/tt>/m) { CodeRay.scan($1, :ruby).term }.
           gsub(/\B\+(\w+?)\+\B/)  { "\e[32m#{$1}\e[0m" }.
           gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/)  { CodeRay.scan($1, :ruby).term }.
           gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{CodeRay.scan($1, :ruby).term}`" }

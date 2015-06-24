@@ -56,6 +56,10 @@ describe Pry::Helpers::DocumentationHelpers do
       expect(@helper.process_rdoc("for <code>Example</code>")).to match(/for \e.*Example\e.*/)
     end
 
+    it "should syntax highlight code in <tt>" do
+      expect(@helper.process_rdoc("for <tt>Example</tt>")).to match(/for \e.*Example\e.*/)
+    end
+
     it "should not double-highlight backticks inside indented code" do
       expect(@helper.process_rdoc("  `echo 5`")).to match(/echo 5/)
     end
