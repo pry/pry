@@ -59,7 +59,7 @@ class Pry
       end
     end
 
-    # Add a new hook to be executed for the `name` even.
+    # Add a new hook to be executed for the `event_name` event.
     # @param [Symbol] event_name The name of the event.
     # @param [Symbol] hook_name The name of the hook.
     # @param [#call] callable The callable.
