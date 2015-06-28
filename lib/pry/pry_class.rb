@@ -156,6 +156,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
 
     options[:target] = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
+    final_session_setup
 
     # Unless we were given a backtrace, save the current one
     if options[:backtrace].nil?
