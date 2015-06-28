@@ -312,6 +312,8 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @initial_session = true
+    @session_finalized = nil
+
     self.config = Pry::Config.new Pry::Config::Default.new
     self.cli = false
     self.current_line = 1
