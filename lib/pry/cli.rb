@@ -101,6 +101,7 @@ class Pry
         if opts[:context]
           Pry.initial_session_setup
           context = Pry.binding_for(eval(opts[:context]))
+          Pry.final_session_setup
         else
           context = Pry.toplevel_binding
         end
