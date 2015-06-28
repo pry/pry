@@ -127,6 +127,8 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
   end
 
   def self.final_session_setup
+    return if @session_finalized
+    @session_finalized = true
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
