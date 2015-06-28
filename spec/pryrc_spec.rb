@@ -37,6 +37,17 @@ describe Pry do
       end
     end
 
+    it "should not load the pryrc if pryrc's directory permissions do not allow this" do
+      Dir.mktmpdir do |dir|
+        FileUtils.chmod 0, dir
+        Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')
+        puts Pry::LOCAL_RC_FILE
+        Pry.config.should_load_rc = true
+        expect { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.to_not raise_error
+        FileUtils.chmod 777, dir
+      end
+    end
+
     it "should not load the pryrc if it cannot expand ENV[HOME]" do
       old_home = ENV['HOME']
       ENV['HOME'] = nil
