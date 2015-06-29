@@ -1,6 +1,7 @@
 ### HEAD
 
-* Syntax highlight <tt> tags in documentation output.
+* Don't raise when directory permissions don't allow file expansion ([#1432](https://github.com/pry/pry/issues/1432))
+* Syntax highlight &lt;tt&gt; tags in documentation output.
 * Add support for BasicObject subclasses who implement their own #inspect (#1341)
 * Fix 'include RSpec::Matchers' at the top-level (#1277)
 * Add 'gem-readme' command, prints the README file bundled with a rubygem

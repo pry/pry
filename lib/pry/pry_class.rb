@@ -81,7 +81,7 @@ class Pry
     expanded = Pathname.new(File.expand_path(file)).realpath.to_s
     # For rbx 1.9 mode [see rubinius issue #2165]
     File.exist?(expanded) ? expanded : nil
-  rescue Errno::ENOENT
+  rescue Errno::ENOENT, Errno::EACCES
     nil
   end
 
