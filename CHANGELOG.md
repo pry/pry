@@ -1,6 +1,6 @@
 ### HEAD
 
-* Syntax highlight <tt> tags in documentation output.
+* Syntax highlight &lt;tt&gt; tags in documentation output.
 * Add support for BasicObject subclasses who implement their own #inspect (#1341)
 * Fix 'include RSpec::Matchers' at the top-level (#1277)
 * Add 'gem-readme' command, prints the README file bundled with a rubygem
