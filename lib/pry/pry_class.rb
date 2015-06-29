@@ -124,6 +124,11 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
     # note these have to be loaded here rather than in pry_instance as
     # we only want them loaded once per entire Pry lifetime.
     load_rc_files
+  end
+
+  def self.final_session_setup
+    return if @session_finalized
+    @session_finalized = true
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
@@ -151,6 +156,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
 
     options[:target] = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
+    final_session_setup
 
     # Unless we were given a backtrace, save the current one
     if options[:backtrace].nil?
@@ -306,6 +312,8 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # Set all the configurable options back to their default values
   def self.reset_defaults
     @initial_session = true
+    @session_finalized = nil
+
     self.config = Pry::Config.new Pry::Config::Default.new
     self.cli = false
     self.current_line = 1

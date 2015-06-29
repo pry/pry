@@ -81,6 +81,8 @@ class Pry
           exit
         end
 
+        Pry.final_session_setup
+
         # Option processors are optional.
         if option_processors
           option_processors.each { |processor| processor.call(opts) }
@@ -99,6 +101,7 @@ class Pry
         if opts[:context]
           Pry.initial_session_setup
           context = Pry.binding_for(eval(opts[:context]))
+          Pry.final_session_setup
         else
           context = Pry.toplevel_binding
         end
