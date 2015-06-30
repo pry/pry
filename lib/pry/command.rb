@@ -427,8 +427,18 @@ class Pry
         raise CommandError, "The command '#{command_name}' requires an argument."
       end
 
-      ret = call_with_hooks(*args)
+      ret = use_unpatched_symbol do
+        call_with_hooks(*args)
+      end
       command_options[:keep_retval] ? ret : void
+    end
+
+    def use_unpatched_symbol
+      call_method = Symbol.method_defined?(:call) && Symbol.instance_method(:call)
+      Symbol.class_eval { undef :call } if call_method
+      yield
+    ensure
+      Symbol.instance_eval { define_method(:call, call_method) } if call_method
     end
 
     # Are all the gems required to use this command installed?
