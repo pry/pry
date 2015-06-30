@@ -14,6 +14,17 @@ describe "show-doc" do
 
   end
 
+  after do
+    if Symbol.method_defined? :call
+      Symbol.class_eval { undef :call }
+    end
+  end
+
+  it 'should work even if #call is defined on Symbol' do
+    class Symbol ; def call ; 5 ; end ; end
+    expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
+  end
+
   it 'should output a method\'s documentation' do
     expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
   end
