@@ -13,11 +13,6 @@ describe "test Pry defaults" do
   end
 
   describe "input" do
-    after do
-      Pry.reset_defaults
-      Pry.config.color = false
-    end
-
     it 'should set the input default, and the default should be overridable' do
       Pry.config.input = InputTester.new("5")
       Pry.config.output = @str_output
