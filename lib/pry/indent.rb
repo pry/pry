@@ -225,6 +225,8 @@ class Pry
 
         seen_for_at << add_after if OPTIONAL_DO_TOKENS.include?(token)
 
+        next if is_singleline_if
+
         if kind == :delimiter
           track_delimiter(token)
         elsif OPEN_TOKENS.keys.include?(token) && !is_optional_do && !is_singleline_if
