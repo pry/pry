@@ -146,18 +146,22 @@ describe "show-source" do
     expect { pry_eval(binding, "show-source --super @o.foo") }.to raise_error(Pry::CommandError, /No superclass found/)
   end
 
-  describe "when YARD Registry cannot locate source" do
+  describe "when source code cannot be located" do
     before do
-      @__save = YARD::Registry.at("Kernel#puts").source
-      YARD::Registry.at("Kernel#puts").instance_variable_set(:@source, nil)
+      class FooBar
+        def bar
+          :bar
+        end
+      end
     end
-    
+
     after do
-      YARD::Registry.at("Kernel#puts").source = @__save
+      Object.remove_const(:FooBar)
     end
 
     it "should not raise" do
-      expect { pry_eval(binding, "show-source Kernel#puts") }.not_to raise_error
+      allow_any_instance_of(Pry::Method).to receive(:source).and_return(nil)
+      expect { pry_eval(binding, "show-source FooBar#bar") }.not_to raise_error
     end
   end
 
