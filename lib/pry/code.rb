@@ -88,6 +88,7 @@ class Pry
       if lines.is_a? String
         lines = lines.lines
       end
+      lines = Array(lines)
       @lines = lines.each_with_index.map { |line, lineno|
         LOC.new(line, lineno + start_line.to_i) }
       @code_type = code_type

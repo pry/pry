@@ -146,6 +146,21 @@ describe "show-source" do
     expect { pry_eval(binding, "show-source --super @o.foo") }.to raise_error(Pry::CommandError, /No superclass found/)
   end
 
+  describe "when YARD Registry cannot locate source" do
+    before do
+      @__save = YARD::Registry.at("Kernel#puts").source
+      YARD::Registry.at("Kernel#puts").instance_variable_set(:@source, nil)
+    end
+    
+    after do
+      YARD::Registry.at("Kernel#puts").source = @__save
+    end
+
+    it "should not raise" do
+      expect { pry_eval(binding, "show-source Kernel#puts") }.not_to raise_error
+    end
+  end
+
   it "should output the source of a method defined inside Pry" do
     out = pry_eval("def dyn_method\n:test\nend", 'show-source dyn_method')
     expect(out).to match(/def dyn_method/)
