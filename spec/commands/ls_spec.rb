@@ -1,6 +1,15 @@
 require_relative '../helper'
 
 describe "ls" do
+  describe "bug #1407" do
+    it "behaves as usual when a method of the same name exists." do
+      expect(
+        pry_eval("def ls; 5; end", "ls")
+      ).to match(/self\.methods: /)
+      pry_eval("undef ls")
+    end
+  end
+
   describe "below ceiling" do
     it "should stop before Object by default" do
       expect(pry_eval("cd Class.new{ def goo; end }.new", "ls")).not_to match(/Object/)

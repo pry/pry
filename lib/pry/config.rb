@@ -1,4 +1,5 @@
-class Pry::Config
+require_relative 'basic_object'
+class Pry::Config < Pry::BasicObject
   require_relative 'config/behavior'
   require_relative 'config/default'
   require_relative 'config/convenience'
