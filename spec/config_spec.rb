@@ -1,5 +1,13 @@
 require_relative 'helper'
 describe Pry::Config do
+  describe "bug #1277" do
+    specify "a local key has precendence over a inherited method of the same name" do
+      local = Pry::Config.from_hash(output: 'foobar')
+      local.extend Module.new { def output(); 'broken'; end }
+      expect(local.output).to eq('foobar')
+    end
+  end
+
   describe "reserved keys" do
     it "raises Pry::Config::ReservedKeyError on assignment of a reserved key" do
       local = Pry::Config.new
@@ -35,15 +43,6 @@ describe Pry::Config do
       local.hooks.gsub! 'parent', 'local'
       expect(local.hooks).to eq 'local_hooks'
       expect(parent.hooks).to eq('parent_hooks')
-    end
-  end
-
-  describe "collision" do
-    # Testcase GH-1277
-    it "doesn't collide" do
-      local = Pry::Config.from_hash(output: 'foobar')
-      local.extend Module.new { def output(); 'broken'; end }
-      expect(local.output).to eq('foobar')
     end
   end
 
