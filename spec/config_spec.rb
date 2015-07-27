@@ -1,7 +1,7 @@
 require_relative 'helper'
 describe Pry::Config do
   describe "reserved keys" do
-    it "raises an ArgumentError on assignment of a reserved key" do
+    it "raises Pry::Config::ReservedKeyError on assignment of a reserved key" do
       local = Pry::Config.new
       local.instance_variable_get(:@reserved_keys).each do |key|
         expect { local[key] = 1 }.to raise_error(Pry::Config::ReservedKeyError)
@@ -189,10 +189,6 @@ describe Pry::Config do
       @local.foo = 1
       @local.clear
       expect(@local.to_hash).to eq({})
-    end
-
-    it "is aliased as #refresh" do
-      expect(@local.method(:clear)).to eq(@local.method(:refresh))
     end
   end
 

@@ -35,10 +35,20 @@ module Pry::Config::Behavior
     @lookup[key] or (@default and @default[key])
   end
 
+  #
+  # @param [String] key
+  #   A key (as a String).
+  #
+  # @param [Object,BasicObject] value
+  #   A value.
+  #
+  # @raise [Pry::Config::ReservedKeyError]
+  #   When 'key' is a reserved key name.
+  #
   def []=(key, value)
     key = key.to_s
     if @reserved_keys.include?(key)
-      raise ReservedKeyError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
+      raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name."
     end
     __push(key,value)
   end
@@ -89,7 +99,6 @@ module Pry::Config::Behavior
     @lookup.clear
     true
   end
-  alias_method :refresh, :clear
 
   def keys
     @lookup.keys
