@@ -32,7 +32,7 @@ class Pry
 
     # If _pry_.config.color is currently false, removes ansi escapes from the string.
     def decolorize_maybe(str)
-      if _pry_.config.color
+      if _pry_.config.respond_to?('color')
         str
       else
         Helpers::Text.strip_color str
