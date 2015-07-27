@@ -2,6 +2,7 @@ module Pry::Config::Behavior
   ASSIGNMENT     = "=".freeze
   NODUP          = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
   INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
+  ReservedKeyError = Class.new(RuntimeError)
 
   module Builder
     def from_hash(hash, default = nil)
@@ -12,15 +13,13 @@ module Pry::Config::Behavior
   end
 
   def self.included(klass)
-    unless defined?(RESERVED_KEYS)
-      const_set :RESERVED_KEYS, instance_methods(false).map(&:to_s).freeze
-    end
     klass.extend(Builder)
   end
 
   def initialize(default = Pry.config)
     @default = default
     @lookup = {}
+    @reserved_keys = methods.map(&:to_s).freeze
   end
 
   #
@@ -38,8 +37,8 @@ module Pry::Config::Behavior
 
   def []=(key, value)
     key = key.to_s
-    if RESERVED_KEYS.include?(key)
-      raise ArgumentError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
+    if @reserved_keys.include?(key)
+      raise ReservedKeyError, "few things are reserved by pry, but using '#{key}' as a configuration key is."
     end
     __push(key,value)
   end

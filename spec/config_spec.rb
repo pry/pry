@@ -3,8 +3,8 @@ describe Pry::Config do
   describe "reserved keys" do
     it "raises an ArgumentError on assignment of a reserved key" do
       local = Pry::Config.new
-      Pry::Config::RESERVED_KEYS.each do |key|
-        expect { local[key] = 1 }.to  raise_error ArgumentError
+      local.instance_variable_get(:@reserved_keys).each do |key|
+        expect { local[key] = 1 }.to raise_error(Pry::Config::ReservedKeyError)
       end
     end
   end
