@@ -5,9 +5,19 @@ module Pry::Config::Behavior
   ReservedKeyError = Class.new(RuntimeError)
 
   module Builder
-    def from_hash(hash, default = nil)
+    #
+    # @param [Hash] attributes
+    #   a hash to initialize an instance of self with.
+    #
+    # @param [Pry::Config, nil] default
+    #   a default, or nil for none.
+    #
+    # @return [Pry::Config]
+    #   returns an instance of self.
+    #
+    def from_hash(attributes, default = nil)
       new(default).tap do |config|
-        config.merge!(hash)
+        config.merge!(attributes)
       end
     end
   end
@@ -32,7 +42,7 @@ module Pry::Config::Behavior
 
   #
   # @param [String] key
-  #   A key (as a String)
+  #   a key (as a String)
   #
   # @return [Object, BasicObject]
   #   returns an object from self or one of its defaults.
@@ -44,13 +54,13 @@ module Pry::Config::Behavior
 
   #
   # @param [String] key
-  #   A key (as a String).
+  #   a key (as a String).
   #
   # @param [Object,BasicObject] value
-  #   A value.
+  #   a value.
   #
   # @raise [Pry::Config::ReservedKeyError]
-  #   When 'key' is a reserved key name.
+  #   when 'key' is a reserved key name.
   #
   def []=(key, value)
     key = key.to_s
@@ -73,6 +83,77 @@ module Pry::Config::Behavior
     __remove(key)
   end
 
+  #
+  # @param [Hash, #to_h, #to_hash] other
+  #   A hash to merge into self.
+  #
+  # @return [void]
+  #
+  def merge!(other)
+    other = __try_convert_to_hash(other)
+    raise TypeError, "unable to convert argument into a Hash" unless other
+    other.each do |key, value|
+      self[key] = value
+    end
+  end
+
+  #
+  # @param [Hash, #to_h, #to_hash] other
+  #   A hash to compare against the lookup table of self.
+  #
+  def ==(other)
+    @lookup == __try_convert_to_hash(other)
+  end
+  alias_method :eql?, :==
+
+  #
+  # @param [String] key
+  #   a key (as a String)
+  #
+  # @return [Boolean]
+  #   returns true when "key" is a member of self.
+  #
+  def key?(key)
+    key = key.to_s
+    @lookup.key?(key)
+  end
+
+  #
+  # Clear the lookup table of self.
+  #
+  # @return [void]
+  #
+  def clear
+    @lookup.clear
+    true
+  end
+
+  #
+  # @return [Array<String>]
+  #   returns an array of keys in self.
+  #
+  def keys
+    @lookup.keys
+  end
+
+  #
+  # @return [Hash]
+  #   returns a duplicate copy of the lookup table used by self.
+  #
+  def to_hash
+    @lookup.dup
+  end
+  alias_method :to_h, :to_hash
+
+  def inspect
+    key_str = keys.map { |key| "'#{key}'" }.join(",")
+    "#<#{__clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
+  end
+
+  def pretty_print(q)
+    q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
+  end
+
   def method_missing(name, *args, &block)
     key = name.to_s
     if key[-1] == ASSIGNMENT
@@ -88,50 +169,8 @@ module Pry::Config::Behavior
     end
   end
 
-  def merge!(other)
-    other = __try_convert_to_hash(other)
-    raise TypeError, "unable to convert argument into a Hash" unless other
-    other.each do |key, value|
-      self[key] = value
-    end
-  end
-
-  def ==(other)
-    @lookup == __try_convert_to_hash(other)
-  end
-  alias_method :eql?, :==
-
   def respond_to_missing?(key, include_private=false)
     key?(key) or @default.respond_to?(key) or super(key, include_private)
-  end
-
-  def key?(key)
-    key = key.to_s
-    @lookup.key?(key)
-  end
-
-  def clear
-    @lookup.clear
-    true
-  end
-
-  def keys
-    @lookup.keys
-  end
-
-  def to_hash
-    @lookup.dup
-  end
-  alias_method :to_h, :to_hash
-
-
-  def inspect
-    key_str = keys.map { |key| "'#{key}'" }.join(",")
-    "#<#{__clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
-  end
-
-  def pretty_print(q)
-    q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
   end
 
 private
