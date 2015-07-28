@@ -53,6 +53,8 @@ module Pry::Config::Behavior
   end
 
   #
+  # Add a key and value pair to self.
+  #
   # @param [String] key
   #   a key (as a String).
   #
@@ -74,7 +76,7 @@ module Pry::Config::Behavior
   # Removes a key from self.
   #
   # @param [String] key
-  #  A key (as a String)
+  #  a key (as a String)
   #
   # @return [void]
   #
@@ -85,7 +87,7 @@ module Pry::Config::Behavior
 
   #
   # @param [Hash, #to_h, #to_hash] other
-  #   A hash to merge into self.
+  #   a hash to merge into self.
   #
   # @return [void]
   #
@@ -99,7 +101,7 @@ module Pry::Config::Behavior
 
   #
   # @param [Hash, #to_h, #to_hash] other
-  #   A hash to compare against the lookup table of self.
+  #   a hash to compare against the lookup table of self.
   #
   def ==(other)
     @lookup == __try_convert_to_hash(other)
