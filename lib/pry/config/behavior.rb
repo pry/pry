@@ -24,12 +24,19 @@ module Pry::Config::Behavior
 
   #
   # @return [Pry::Config::Behavior]
-  #   returns the default used if a matching value for a key isn't found in self
+  #   returns the default used incase a key isn't found in self.
   #
   def default
     @default
   end
 
+  #
+  # @param [String] key
+  #   A key (as a String)
+  #
+  # @return [Object, BasicObject]
+  #   returns an object from self or one of its defaults.
+  #
   def [](key)
     key = key.to_s
     @lookup[key] or (@default and @default[key])
@@ -53,6 +60,14 @@ module Pry::Config::Behavior
     __push(key,value)
   end
 
+  #
+  # Removes a key from self.
+  #
+  # @param [String] key
+  #  A key (as a String)
+  #
+  # @return [void]
+  #
   def forget(key)
     key = key.to_s
     __remove(key)
@@ -112,7 +127,7 @@ module Pry::Config::Behavior
 
   def inspect
     key_str = keys.map { |key| "'#{key}'" }.join(",")
-    "#<#{__clip_inspect(self)} local_keys=[#{key_str}] default=#{@default.inspect}>"
+    "#<#{__clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
   end
 
   def pretty_print(q)
@@ -121,7 +136,7 @@ module Pry::Config::Behavior
 
 private
   def __clip_inspect(obj)
-    "#{obj.class}:0x%x" % obj.object_id << 1
+    "#{obj.class}:0x%x" % obj.object_id
   end
 
   def __try_convert_to_hash(obj)
