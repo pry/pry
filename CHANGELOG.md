@@ -1,5 +1,5 @@
 ### HEAD
-
+* Fix auto-indentation of code that uses a single-line rescue ([#1450](https://github.com/pry/pry/issues/1450))
 * Remove "Pry::Config#refresh", please use "Pry::Config#clear" instead.
 * Defining a method called "ls" no longer breaks the "ls" command ([#1407](https://github.com/pry/pry/issues/1407))
 * Don't raise when directory permissions don't allow file expansion ([#1432](https://github.com/pry/pry/issues/1432))
