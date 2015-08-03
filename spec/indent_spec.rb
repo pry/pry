@@ -243,6 +243,16 @@ OUTPUT
     expect(@indent.indent(input)).to eq output
   end
 
+  it "should not indent single-line rescue" do
+    input = <<INPUT.strip
+def test
+  puts "something" rescue "whatever"
+end
+INPUT
+    
+    expect(@indent.indent(input)).to eq input
+  end
+
   it "should not indent inside strings" do
     expect(@indent.indent(%(def a\n"foo\nbar"\n  end))).to eq %(def a\n  "foo\nbar"\nend)
     expect(@indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end))).to eq %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
