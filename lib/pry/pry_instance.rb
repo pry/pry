@@ -264,7 +264,6 @@ class Pry
     end
 
     ensure_correct_encoding!(line)
-    Pry.history << line unless options[:generated]
 
     @suppress_output = false
     inject_sticky_locals!
@@ -294,6 +293,8 @@ class Pry
     end
 
     if complete_expr
+      Pry.history << @eval_string.chomp unless options[:generated]
+
       if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
         @suppress_output = true
       end

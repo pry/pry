@@ -97,6 +97,15 @@ describe "The whole thing" do
         prompt(/> $/)
       end
     end
+
+    it "should push to history only complete commands" do
+      ReplTester.start do
+        input  'class Foo'
+        input  'end'
+      end
+
+      expect(Pry.history.to_a.last).to eq("class Foo\nend")
+    end
   end
 
   describe "space prefix" do
