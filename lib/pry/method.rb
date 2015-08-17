@@ -163,7 +163,7 @@ class Pry
 
       #
       # @deprecated
-      #  please use {#all_from_obj} instead.
+      #  please use {all_from_obj} instead.
       #  the `method_type` argument is ignored.
       #
       def all_from_common(obj, method_type = nil, include_super=true)

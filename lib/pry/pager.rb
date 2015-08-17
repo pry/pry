@@ -14,11 +14,12 @@ class Pry::Pager
   end
 
   # Send the given text through the best available pager (if `Pry.config.pager` is
-  # enabled).
-  # If you want to send text through in chunks as you generate it, use `open` to
-  # get a writable object instead.
-  # @param [String] text A piece of text to run through a pager.
-  # @param [IO] output (`$stdout`) An object to send output to.
+  # enabled). If you want to send text through in chunks as you generate it, use `open`
+  # to get a writable object instead.
+  #
+  # @param [String] text
+  #   Text to run through a pager.
+  #
   def page(text)
     open do |pager|
       pager << text
@@ -27,7 +28,6 @@ class Pry::Pager
 
   # Yields a pager object (`NullPager`, `SimplePager`, or `SystemPager`).  All
   # pagers accept output with `#puts`, `#print`, `#write`, and `#<<`.
-  # @param [IO] output (`$stdout`) An object to send output to.
   def open
     pager = best_available
     yield pager
@@ -48,7 +48,6 @@ class Pry::Pager
   # `#print`, `#write`, and `#<<`. You must call `#close` when you're done
   # writing output to a pager, and you must rescue `Pry::Pager::StopPaging`.
   # These requirements can be avoided by using `.open` instead.
-  # @param [#<<] output ($stdout) An object to send output to.
   def best_available
     if !_pry_.config.pager
       NullPager.new(_pry_.output)

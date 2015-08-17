@@ -42,9 +42,6 @@ class Pry
       # transation we make that not happen, which means that alias_method_chains, etc.
       # continue to work.
       #
-      # @param [String] meth_name  The method name before aliasing
-      # @param [Module] target  The owner of the method
-
       def with_method_transaction
         temp_name = "__pry_#{method.original_name}__"
         method = self.method

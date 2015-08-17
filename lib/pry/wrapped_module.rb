@@ -158,7 +158,6 @@ class Pry
     # format as Method#source_location. If the source location
     # cannot be found this method returns `nil`.
     #
-    # @param [Module] mod The module (or class).
     # @return [Array<String, Fixnum>, nil] The source location of the
     #   module (or class), or `nil` if no source location found.
     def source_location

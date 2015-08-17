@@ -124,7 +124,7 @@ class Pry
   #
   # Generate completions.
   #
-  # @param [String] input
+  # @param [String] str
   #   What the user has typed so far
   #
   # @return [Array<String>]
