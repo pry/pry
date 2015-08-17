@@ -12,6 +12,8 @@ rvm:
 script:
   - rake spec
 
+sudo: false
+
 matrix:
   allow_failures:
     - rvm: ruby-head
