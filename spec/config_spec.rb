@@ -57,6 +57,19 @@ describe Pry::Config do
       local = Pry::Config.from_hash({}, default)
       expect(local.default).to eq(local)
     end
+
+    it "recursively builds Pry::Config objects from a Hash" do
+      h = {
+        'foo1' => {
+          'foo2' => {
+            'foo3' => 'foobar'
+          }
+        }
+      }
+      default = Pry::Config.from_hash(h)
+      expect(default.foo1).to be_instance_of(described_class)
+      expect(default.foo1.foo2).to be_instance_of(described_class)
+    end
   end
 
 

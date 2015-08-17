@@ -17,7 +17,9 @@ module Pry::Config::Behavior
     #
     def from_hash(attributes, default = nil)
       new(default).tap do |config|
-        config.merge!(attributes)
+        attributes.each do |key,value|
+          config[key] = Hash === value ? from_hash(value, nil) : value
+        end
       end
     end
   end
