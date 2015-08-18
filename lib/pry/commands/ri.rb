@@ -14,6 +14,10 @@ class Pry
     BANNER
 
     def process(spec)
+      unless spec
+        return output.puts "Enter the method name you want to look up."
+      end
+
       # Lazily load RI
       require 'rdoc/ri/driver'
 
