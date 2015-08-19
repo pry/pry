@@ -15,7 +15,7 @@ class Pry
 
     def process(spec)
       unless spec
-        return output.puts "Enter the method name you want to look up."
+        return output.puts "Please provide a class, module, or method name (e.g: ri Array#push)"
       end
 
       # Lazily load RI
