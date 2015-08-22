@@ -219,7 +219,7 @@ class Pry
     #   # `piping?` returns `true`
     #   % pry | tee log
     def piping?
-      !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
+      !($stdout.respond_to?(:tty?) and $stdout.tty?) && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
     end
 
     # @return [void]

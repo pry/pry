@@ -47,7 +47,7 @@ class Pry::Terminal
         require 'io/console'
 
         begin
-          if $stdout.tty? && $stdout.respond_to?(:winsize)
+          if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
             $stdout.winsize
           end
         rescue Errno::EOPNOTSUPP
