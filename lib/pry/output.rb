@@ -36,7 +36,7 @@ class Pry::Output
   end
 
   def respond_to_missing?(*a)
-    _pry_.config.respond_to?(*a)
+    @boxed_io.respond_to?(*a)
   end
 
   private
