@@ -1,6 +1,5 @@
 require_relative 'helper'
-
-describe "The whole thing" do
+describe Pry::REPL do
   it "should let you run commands in the middle of multiline expressions" do
     ReplTester.start do
       input  'def a'
@@ -110,6 +109,16 @@ describe "The whole thing" do
       it "prioritizes commands over variables" do
         expect(mock_pry('    ls = 2+2')).to match(/SyntaxError.+unexpected '='/)
       end
+    end
+  end
+
+  describe "#piping?" do
+    it "returns false when $stdout is a non-IO object" do
+      repl = described_class.new(Pry.new, {})
+      old_stdout = $stdout
+      $stdout = Class.new { def write(*) end }.new
+      expect(repl.send(:piping?)).to eq(false)
+      $stdout = old_stdout
     end
   end
 end
