@@ -112,4 +112,14 @@ describe Pry do
       expect(mock_pry("# basic addition")).to eq("")
     end
   end
+
+  describe "custom non-IO object as $stdout" do
+    it "does not crash pry" do
+      old_stdout = $stdout
+      custom_io = Class.new { def write(*) end }.new
+      pry_eval = PryTester.new(binding)
+      expect(pry_eval.eval("$stdout = custom_io", ":ok")).to eq(:ok)
+      $stdout = old_stdout
+    end
+  end
 end
