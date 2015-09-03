@@ -39,7 +39,6 @@ class Pry::Output
     @boxed_io.respond_to?(*a)
   end
 
-  private
   def decolorize_maybe(str)
     if _pry_.config.color
       str
