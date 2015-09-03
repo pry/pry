@@ -15,6 +15,12 @@ describe "cat" do
     end
   end
 
+  describe "when invoked without arguments" do
+    it 'should display an error message' do
+      expect { @t.eval 'cat' }.to raise_error(Pry::CommandError, /Must provide a filename/)
+    end
+  end
+
   describe "on receiving a file that does not exist" do
     it 'should display an error message' do
       expect { @t.eval 'cat supercalifragilicious66' }.to raise_error(StandardError, /Cannot open/)
