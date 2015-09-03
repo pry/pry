@@ -6,6 +6,8 @@ class Pry
       attr_reader :_pry_
 
       def initialize(file_with_embedded_line, _pry_, opts)
+        raise CommandError, "Must provide a filename, --in, or --ex." if !file_with_embedded_line
+
         @file_with_embedded_line = file_with_embedded_line
         @opts = opts
         @_pry_ = _pry_
@@ -13,8 +15,6 @@ class Pry
       end
 
       def format
-        raise CommandError, "Must provide a filename, --in, or --ex." if !file_with_embedded_line
-
         set_file_and_dir_locals(file_name, _pry_, _pry_.current_context)
         decorate(@code_from_file)
       end
