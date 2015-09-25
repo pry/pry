@@ -52,6 +52,7 @@ class Pry
     def self.===(exception)
       ["can't modify frozen class/module",
        "can't modify frozen Class",
+       "can't modify frozen object"
       ].include?(exception.message)
     end
   end
