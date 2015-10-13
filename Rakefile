@@ -86,7 +86,7 @@ end
   namespace platform do
     spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')
-      s.platform = Gem::Platform.new [nil, platform, nil]
+      s.platform = Gem::Platform.new ['universal', platform, nil]
     end
 
     Gem::PackageTask.new(spec) do |pkg|
