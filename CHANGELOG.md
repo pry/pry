@@ -1,3 +1,8 @@
+### 0.10.2
+
+* cherry-pick c2ed9ec135bd791a32c70fbe05cc0508ea17c4040e from master (fix inf. loop with prepended methods source retrieval)
+* Update some specs for recent ruby versions  (2.2+)
+
 ### 0.10.1
 
 * Fix bugs with jruby
