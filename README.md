@@ -137,20 +137,22 @@ implementing developer consoles and applying hot patches.
 
 code:
 
-    # test.rb
-    require 'pry'
+```ruby
+# test.rb
+require 'pry'
 
-    class A
-      def hello() puts "hello world!" end
-    end
+class A
+  def hello() puts "hello world!" end
+end
 
-    a = A.new
+a = A.new
 
-    # start a REPL session
-    binding.pry
+# start a REPL session
+binding.pry
 
-    # program resumes here (after pry session)
-    puts "program resumes here."
+# program resumes here (after pry session)
+puts "program resumes here."
+```
 
 Pry session:
 
