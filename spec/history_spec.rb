@@ -151,6 +151,16 @@ describe Pry do
 
       expect(File.read(@histfile.path)).to eq "5\n6\n7\n"
     end
+
+    it "should not write histignore words to the history file" do
+      Pry.config.history.histignore = [ "ls", /hist*/, 'exit' ]
+      @history.push "ls"
+      @history.push "hist"
+      @history.push "kakaroto"
+      @history.push "exit"
+
+      expect(File.open(@histfile.path).entries.size).to eq 1
+    end
   end
 
   describe "expanding the history file path" do

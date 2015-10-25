@@ -196,5 +196,27 @@ describe "hist" do
       expect(output).to match(/1:\s:athos\n2:\s:porthos\n3:\s:aramis\n/)
       expect(output).to match(/4:\sgoodbye\n5:\sworld/)
     end
+
+    it "should not display histignore words in history" do
+      Pry.config.history.histignore = [
+        "well",
+        "hello",
+        "beautiful",
+        /show*/,
+        "exit"
+      ]
+
+      @hist.push("well")
+      @hist.push("hello")
+      @hist.push("beautiful")
+      @hist.push("why")
+      @hist.push("so")
+      @hist.push("serious?")
+      @hist.push("show-method")
+      @hist.push("exit")
+
+      output = @t.eval("hist")
+      expect(output).to match(/1:\swhy\n2:\sso\n3:\sserious\?\n/)
+    end
   end
 end
