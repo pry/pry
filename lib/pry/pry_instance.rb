@@ -246,6 +246,7 @@ class Pry
         # then popping all the bindings) we still exit immediately.
         return !@stopped
       end
+      exec_hook(:after_breakout, exit_value, self)
       exception = false
     end
 
