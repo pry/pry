@@ -445,6 +445,17 @@ describe Pry::Hooks do
         end
       end
     end
+
+    describe "after_breakout hook" do
+      it "should run after exit-all" do
+        hook_executed = false
+        hooks = Pry::Hooks.new.add_hook(:after_breakout, :hook_executed) { |exit_value, pry| hook_executed = true }
+        redirect_pry_io(InputTester.new("exit-all"), out = StringIO.new) do
+          Pry.start(self, :hooks => hooks)
+        end
+        expect(hook_executed).to eq(true)
+      end
+    end
   end
 
   describe "anonymous hooks" do
