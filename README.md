@@ -7,19 +7,19 @@
 
 © John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2015<br>
 
-**Please** [DONATE](http://www.pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
+**Please** [DONATE](http://pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
 
 **Sponsors**
 
 [Tealeaf Academy](http://www.gotealeaf.com)<br/>
-[Atomic Object](http://www.atomicobject.com/)<br/>
+[Atomic Object](https://atomicobject.com/)<br/>
 [Hashrocket](http://hashrocket.com/)<br/>
-[Intridea](http://intridea.com/)<br/>
-[Gaslight](http://gaslight.co/home)<br/>
+[Intridea](http://www.intridea.com)<br/>
+[Gaslight](https://teamgaslight.com/home)<br/>
 
 **Other Resources**
 
-[Skip to the website (recommended)](http://pry.github.com) <br />
+[Skip to the website (recommended)](http://pryrepl.org/) <br />
 [Skip to the wiki](https://github.com/pry/pry/wiki)
 </center>
 
@@ -44,7 +44,7 @@ including:
 
 Pry also aims to be more than an IRB replacement; it is an
 attempt to bring REPL driven programming to the Ruby language. It is
-currently not as powerful as tools like [SLIME](http://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
+currently not as powerful as tools like [SLIME](https://en.wikipedia.org/wiki/SLIME) for lisp, but that is the
 general direction Pry is heading.
 
 Pry is also fairly flexible and allows significant user
@@ -64,8 +64,8 @@ methods. The additional docs are accessed through the `show-doc` and
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Browse the comprehensive [documentation at the official Pry wiki](https://github.com/pry/pry/wiki)
-* Read the [YARD API documentation](http://rdoc.info/github/pry/pry/master/file/README.markdown)
-* See the [source code](http://github.com/pry/pry)
+* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/master/file/README.markdown)
+* See the [source code](https://github.com/pry/pry)
 
 ### Commands
 
@@ -403,6 +403,6 @@ Problems or questions? File an issue at [GitHub](https://github.com/pry/pry/issu
 
 ### Contributors
 
-Pry is primarily the work of [John Mair (banisterfiend)](http://github.com/banister), for full list
+Pry is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
 of contributors see the
 [CONTRIBUTORS](https://github.com/pry/pry/blob/master/CONTRIBUTORS) file.
