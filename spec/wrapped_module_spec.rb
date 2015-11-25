@@ -84,6 +84,15 @@ describe Pry::WrappedModule do
       it 'should return nil if no source_location can be found' do
         expect(Pry::WrappedModule(Host::PitifullyBlank).source_location).to eq nil
       end
+
+      context 'if class method "name" is overriden' do
+        before { allow(Host::CandidateTest).to receive(:name) { 'Noooo' } }
+
+        it 'should not break' do
+          wm = Pry::WrappedModule(Host::CandidateTest)
+          expect(File.expand_path(wm.source_location.first)).to match(/candidate_helper1/)
+        end
+      end
     end
 
     describe "source" do
@@ -130,6 +139,45 @@ describe Pry::WrappedModule do
 
       it 'should return docs for deeply nested class' do
         expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc).to match(/nested docs/)
+      end
+    end
+  end
+
+  describe '.nonblank_name' do
+    context 'when module is assigned to a constant' do
+      before do
+        Foo = Module.new
+      end
+
+      subject { Pry::WrappedModule(Foo) }
+
+      after do
+        Object.remove_const(:Foo)
+      end
+
+      it 'should return a name of constant' do
+        expect(subject.nonblank_name).to eq('Foo')
+      end
+
+      context 'when .name is overriden to Bar' do
+        before do
+          def Foo.name
+            'Barrrrrrr'
+          end
+        end
+
+        it 'still should Foo' do
+          expect(subject.nonblank_name).to eq('Foo')
+        end
+      end
+    end
+
+    context 'when module is not assigned to a constant' do
+      let(:mod) { Module.new }
+      subject { Pry::WrappedModule(mod) }
+
+      it 'should not be blank' do
+        expect(subject.nonblank_name).to_not be_empty
       end
     end
   end

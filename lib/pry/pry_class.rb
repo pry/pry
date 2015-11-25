@@ -206,8 +206,8 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
   def self.view_clip(obj, options = {})
     max = options.fetch :max_length, 60
     id = options.fetch :id, false
-    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
-      obj.name.to_s
+    if obj.kind_of?(Module) && (mod_name = Pry.mod_name(obj)) && mod_name.length <= max
+      mod_name
     elsif Pry.main == obj
       # special-case to support jruby.
       # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
@@ -377,6 +377,11 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     yield
   ensure
     Thread.current[:pry_critical_section] -= 1
+  end
+
+  def self.mod_name(mod)
+    @mod_name_method ||= ::Module.instance_method(:name)
+    @mod_name_method.bind(mod).call
   end
 end
 

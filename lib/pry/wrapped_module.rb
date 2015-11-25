@@ -93,11 +93,19 @@ class Pry
       end
     end
 
-    # The name of the Module if it has one, otherwise #<Class:0xf00>.
+    # The name of the Module if it has one
     #
     # @return [String]
+    def name
+      Pry.mod_name(wrapped)
+    end
+
+    # The name of the Module if it has one, otherwise #<Class:0xf00>.
+    #
+    # @return String
     def nonblank_name
-      if name.to_s == ""
+      name = self.name
+      unless name
         wrapped.inspect
       else
         name
