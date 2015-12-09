@@ -12,7 +12,7 @@ class Pry
 
       play --lines 149..153   # assumes current context
       play -i 20 --lines 1..3 # assumes lines of the input expression at 20
-      play -o 4               # the output of of an expression at 4
+      play -o 4               # the output of an expression at 4
       play Pry#repl -l 1..-1  # play the contents of Pry#repl method
       play -e 2               # play from specified line until end of valid expression
       play hello.rb           # play a file
