@@ -1,4 +1,6 @@
 ### HEAD
+* Remove Slop as a runtime dependency by vendoring v3.4 as Pry::Slop.
+  People can depend on Slop v4 and Pry at the same time without running into version conflicts. ([#1497](https://github.com/pry/pry/issues/1497))
 * Fix auto-indentation of code that uses a single-line rescue ([#1450](https://github.com/pry/pry/issues/1450))
 * Remove "Pry::Config#refresh", please use "Pry::Config#clear" instead.
 * Defining a method called "ls" no longer breaks the "ls" command ([#1407](https://github.com/pry/pry/issues/1407))
