@@ -7,13 +7,12 @@ describe "gem-list" do
 
   it 'should work arglessly' do
     list = pry_eval('gem-list')
-    expect(list).to match(/slop \(/)
     expect(list).to match(/rspec \(/)
   end
 
   it 'should find arg' do
-    prylist = pry_eval('gem-list slop')
-    expect(prylist).to match(/slop \(/)
+    prylist = pry_eval('gem-list method_source')
+    expect(prylist).to match(/method_source \(/)
     expect(prylist).not_to match(/rspec/)
   end
 
