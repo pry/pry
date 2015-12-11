@@ -3,7 +3,7 @@ class Pry
     module OptionsHelpers
       module_function
 
-      # Add method options to the Slop instance
+      # Add method options to the Pry::Slop instance
       def method_options(opt)
         @method_target = target
         opt.on :M, "instance-methods", "Operate on instance methods."

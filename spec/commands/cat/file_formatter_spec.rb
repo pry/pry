@@ -3,7 +3,7 @@ require_relative '../../helper'
 describe Pry::Command::Cat::FileFormatter do
   before do
     @p   = Pry.new
-    @opt = Slop.new
+    @opt = Pry::Slop.new
   end
 
   describe "#file_and_line" do
