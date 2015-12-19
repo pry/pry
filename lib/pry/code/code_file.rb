@@ -17,7 +17,7 @@ class Pry
       %w(.c .h)      => :c,
       %w(.rhtml)     => :rhtml,
       %w(.yaml .yml) => :yaml,
-      %w(.cpp .hpp .cc .h cxx) => :cpp,
+      %w(.cpp .hpp .cc .h .cxx) => :cpp,
       %w(.rb .ru .irbrc .gemspec .pryrc .rake) => :ruby,
     }
 
