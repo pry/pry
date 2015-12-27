@@ -353,7 +353,7 @@ Many other commands are available in Pry; to see the full list type
 with basic instructions for use; some commands have a more extensive
 help that can be accessed via typing `command_name --help`. A command
 will typically say in its description if the `--help` option is
-avaiable.
+available.
 
 ### Use Pry as your Rails Console
 

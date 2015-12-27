@@ -140,6 +140,19 @@ module Pry::Config::Behavior
     @lookup.keys
   end
 
+  def eager_load!
+    local_last_default = last_default
+    local_last_default.default_keys.each do |key|
+      self[key] = local_last_default.public_send(key)
+    end
+  end
+
+  def last_default
+    last = @default
+    last = last.default while last and last.default
+    last
+  end
+
   #
   # @return [Hash]
   #   returns a duplicate copy of the lookup table used by self.
