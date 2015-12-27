@@ -4,7 +4,6 @@ class Pry::Config < Pry::BasicObject
   require_relative 'config/default'
   require_relative 'config/convenience'
   include Pry::Config::Behavior
-
   def self.shortcuts
     Convenience::SHORTCUTS
   end

@@ -131,6 +131,8 @@ class Pry::Config::Default
     end
   end
 
+  define_method(:default_keys) { default.keys }
+
 private
   # TODO:
   # all of this configure_* stuff is a relic of old code.
