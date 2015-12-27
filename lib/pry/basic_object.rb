@@ -1,5 +1,5 @@
 class Pry::BasicObject < BasicObject
-  ::Object.constants.each do |constant|
+  [:Kernel, :Pry].each do |constant|
     const_set constant, ::Object.const_get(constant)
   end
   include Kernel
