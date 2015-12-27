@@ -32,6 +32,14 @@ class Pry
     def history
       @history ||= History.new
     end
+
+    #
+    # @return [void]
+    #   Yields a block with {Pry.config} as its argument.
+    #
+    def configure
+      yield config
+    end
   end
 
   #
