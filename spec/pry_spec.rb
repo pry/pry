@@ -5,8 +5,9 @@ describe Pry do
     @str_output = StringIO.new
   end
 
-  describe "Pry.configure" do
+  describe ".configure" do
     it "yields a block with Pry.config as its argument" do
+      Pry.config.foo = nil
       Pry.configure do |config|
         config.foo = "bar"
       end

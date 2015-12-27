@@ -34,7 +34,14 @@ class Pry
     end
 
     #
-    # @return [void]
+    # @example
+    #  Pry.configure do |config|
+    #     config.eager_load! # optional
+    #     config.input =     # ..
+    #     config.foo = 2
+    #  end
+    #
+    # @yield [config]
     #   Yields a block with {Pry.config} as its argument.
     #
     def configure
