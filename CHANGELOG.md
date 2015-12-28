@@ -1,4 +1,5 @@
 ### HEAD
+* Add `Pry.configure` as an alternative to the current way of changing configuration options in `.pryrc` files. [#1502](https://github.com/pry/pry/pull/1502)
 * Add `Pry::Config::Behavior#eager_load!` to add a possible workaround for issues like [#1501](https://github.com/pry/pry/issues/1501)
 * Remove Slop as a runtime dependency by vendoring v3.4 as Pry::Slop.
   People can depend on Slop v4 and Pry at the same time without running into version conflicts. ([#1497](https://github.com/pry/pry/issues/1497))
