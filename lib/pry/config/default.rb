@@ -1,5 +1,6 @@
 class Pry::Config::Default
   include Pry::Config::Behavior
+  include Pry::Config::Lazy
 
   default = {
     input: proc {
@@ -121,19 +122,9 @@ class Pry::Config::Default
     configure_gist
     configure_history
   end
+  lazy_implement(default)
 
-  default.each do |key, value|
-    define_method(key) do
-      if default[key].equal?(value)
-        default[key] = instance_eval(&value)
-      end
-      default[key]
-    end
-  end
-
-  define_method(:default_keys) { default.keys }
-
-private
+  private
   # TODO:
   # all of this configure_* stuff is a relic of old code.
   # we should try move this code to being command-local.
