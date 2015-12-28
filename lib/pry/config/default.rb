@@ -2,7 +2,7 @@ class Pry::Config::Default
   include Pry::Config::Behavior
   include Pry::Config::Lazy
 
-  default = {
+  lazy_implement({
     input: proc {
       lazy_readline
     },
@@ -115,14 +115,13 @@ class Pry::Config::Default
     exec_string: proc {
       ""
     }
-  }
+  })
 
   def initialize
     super(nil)
     configure_gist
     configure_history
   end
-  lazy_implement(default)
 
   private
   # TODO:
