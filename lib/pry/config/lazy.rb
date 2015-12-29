@@ -1,7 +1,7 @@
 module Pry::Config::Lazy
   LAZY_KEYS = Hash.new {|h,k| h[k] = [] }
 
-  module ExtendModule
+  module ClassMethods
     def lazy_implement(method_name_to_func)
       method_name_to_func.each do |method_name, func|
         define_method(method_name) do
@@ -16,7 +16,7 @@ module Pry::Config::Lazy
   end
 
   def self.included(includer)
-    includer.extend(ExtendModule)
+    includer.extend(ClassMethods)
   end
 
   def lazy_keys
