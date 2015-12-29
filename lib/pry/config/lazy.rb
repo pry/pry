@@ -1,6 +1,5 @@
 module Pry::Config::Lazy
-  LAZY_KEYS = {}
-  LAZY_KEYS.default_proc = lambda {|h,k| h[k] = [] }
+  LAZY_KEYS = Hash.new {|h,k| h[k] = [] }
 
   module ExtendModule
     def lazy_implement(method_name_to_func)
