@@ -142,7 +142,7 @@ module Pry::Config::Behavior
 
   def eager_load!
     local_last_default = last_default
-    local_last_default.default_keys.each do |key|
+    local_last_default.lazy_keys.each do |key|
       self[key] = local_last_default.public_send(key)
     end
   end
