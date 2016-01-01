@@ -31,6 +31,7 @@
 * `Pry::CLI.parse_options` does not start Pry anymore ([#1393](https://github.com/pry/pry/pull/1393))
 * The gem uses CPU-less platforms for Windows now ([#1410](https://github.com/pry/pry/pull/1410))
 * Add `Pry::Config::Lazy` to make it easier to reimplement `Pry::Config::Default` without knowing its implementation [#1503](https://github.com/pry/pry/pull/1503/)
+* Lazy load the config defaults for `Pry.config.history` and `Pry.config.gist`.
 
 ### 0.10.1
 
