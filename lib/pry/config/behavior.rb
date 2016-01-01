@@ -152,7 +152,7 @@ module Pry::Config::Behavior
     last = last.default while last and last.default
     last
   end
-
+  
   #
   # @return [Hash]
   #   returns a duplicate copy of the lookup table used by self.

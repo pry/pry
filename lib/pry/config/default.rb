@@ -112,6 +112,9 @@ class Pry::Config::Default
       require "pry/input_completer"
       Pry::InputCompleter
     },
+    gist: proc {
+      Pry::Config.from_hash(inspecter: proc(&:pretty_inspect))
+    },
     exec_string: proc {
       ""
     }
@@ -124,13 +127,6 @@ class Pry::Config::Default
   end
 
   private
-  # TODO:
-  # all of this configure_* stuff is a relic of old code.
-  # we should try move this code to being command-local.
-  def configure_gist
-    self["gist"] = Pry::Config.from_hash(inspecter: proc(&:pretty_inspect))
-  end
-
   def configure_history
     self["history"] = Pry::Config.from_hash "should_save" => true,
       "should_load" => true
