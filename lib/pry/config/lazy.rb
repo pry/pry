@@ -6,12 +6,12 @@ module Pry::Config::Lazy
       method_name_to_func.each do |method_name, func|
         define_method(method_name) do
           if method_name_to_func[method_name].equal?(func)
-            LAZY_KEYS[self.class] |= method_name_to_func.keys
             method_name_to_func[method_name] = instance_eval(&func)
           end
           method_name_to_func[method_name]
         end
       end
+      LAZY_KEYS[self] |= method_name_to_func.keys
     end
   end
 

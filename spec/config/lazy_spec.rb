@@ -15,7 +15,6 @@ RSpec.describe Pry::Config::Lazy do
 
   describe "#lazy_keys" do
     it "tracks a list of lazy keys" do
-      lazyobj.foo # at least one lazy method has to be called before #lazy_keys could return a non-empty array.
       expect(lazyobj.lazy_keys).to eq([:foo, :bar])
     end
   end
