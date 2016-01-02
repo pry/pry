@@ -139,7 +139,7 @@ Pry::CLI.add_options do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See http://pryrepl.org/ for more information.
-Copyright (c) 2015 John Mair (banisterfiend)
+Copyright (c) 2016 John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
