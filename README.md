@@ -64,7 +64,7 @@ methods. The additional docs are accessed through the `show-doc` and
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Browse the comprehensive [documentation at the official Pry wiki](https://github.com/pry/pry/wiki)
-* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/master/file/README.markdown)
+* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/)
 * See the [source code](https://github.com/pry/pry)
 
 ### Commands
