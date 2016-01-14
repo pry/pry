@@ -1,4 +1,5 @@
 ### HEAD
+* Use `less` or system pager pager on MS Windows if it is available. [#1512](https://github.com/pry/pry/pull/1512)
 * Add `Pry.configure` as an alternative to the current way of changing configuration options in `.pryrc` files. [#1502](https://github.com/pry/pry/pull/1502)
 * Add `Pry::Config::Behavior#eager_load!` to add a possible workaround for issues like [#1501](https://github.com/pry/pry/issues/1501)
 * Remove Slop as a runtime dependency by vendoring v3.4 as Pry::Slop.
@@ -31,6 +32,7 @@
 * `Pry::CLI.parse_options` does not start Pry anymore ([#1393](https://github.com/pry/pry/pull/1393))
 * The gem uses CPU-less platforms for Windows now ([#1410](https://github.com/pry/pry/pull/1410))
 * Add `Pry::Config::Lazy` to make it easier to reimplement `Pry::Config::Default` without knowing its implementation [#1503](https://github.com/pry/pry/pull/1503/)
+* Lazy load the config defaults for `Pry.config.history` and `Pry.config.gist`.
 
 ### 0.10.1
 
@@ -401,7 +403,7 @@
   * Fewer internal methods polluting output
 
 ### 0.9.8.4 (2012/6/3)
-* ~/.pry_history wasnt being created (if it did not exist)! FIXED
+* ~/.pry_history wasn't being created (if it did not exist)! FIXED
 * `hist --save` saved colors! FIXED
 * added Pry#add_sticky_local API for adding sticky locals to individual pry instances
 
@@ -409,7 +411,7 @@
 * various tweaks to improve rbx support
 * commands now support optional block arguments
 * much improved help command
-* updated method_source dependencya
+* updated method_source dependency
 * added wtf command
 * jruby should now work in windows (though without color)
 
@@ -437,7 +439,7 @@ MAJOR NEW FEATURES
 - added gist command (removed gist-method, new gist command is more general)
 
 complete CHANGELOG:
-* CommandError's no longer cause the current input to be disgarded
+* CommandError's no longer cause the current input to be discarded
 * Better syntax highlighting for rbx code code
 * added cat --in to show pry input history
 * prefixed temporary file names with 'pry'
@@ -450,7 +452,7 @@ complete CHANGELOG:
 * added CommandSet#{before_command,after_command} for enhancing builtin commands
 * added checking for namespace collisions with pry commands, set Pry.config.collision_warning
 * work around namespace collisions by ensuring lines starting with a space are executed as
-* ruby.work around namespace collisions by prensuring lines starting with a space are executed as ruby
+* ruby.work around namespace collisions by pressuring lines starting with a space are executed as ruby
 * added handlers for Ctrl+C (SIGINT) on jruby, these are now caught as in other ruby versions
 * removed dependency on ruby_parser
 * prevented colours leaking across the pry prompt
@@ -470,7 +472,7 @@ complete CHANGELOG:
 
 ### 0.9.7.4 (2011/11/5)
 * ls -M now works in modules (bugfix)
-* added exception msg for bad cd object/path
+* added exception message for bad cd object/path
 * no longer die when encounter exceptions in .pryrc
 * baked in CoolLine support
 * Pry.config.input in .pryrc now respected
@@ -487,7 +489,7 @@ complete CHANGELOG:
 * changed ^D so it no longer resets indent level automatically
 
 ### 0.9.7.1 (2011/10/26)
-* fixed gem dependecy issues
+* fixed gem dependency issues
 
 ### 0.9.7 (2011/10/25)
 
@@ -528,7 +530,7 @@ complete CHANGELOG:
 * play -m --open uses show-input to show play'd code
 * added "unindent" helper to make adding help to commands easier
 * local ./.pryrc now loaded after ~/.pryrc if it exists
-* cat --ex N and edit --ex N now can navigate through backtrace, where cat --ex (with no args) moves throuh successive levels of the backtrace automatically with state stored on the exceptino object itself
+* cat --ex N and edit --ex N now can navigate through backtrace, where cat --ex (with no args) moves through successive levels of the backtrace automatically with state stored on the exception object itself
 * new option Pry.config.exception_window_size determines window size for cat --ex
 * input_stack now implemented - pushing objects onto a pry instance's input_stack causes the instance to read from those objects in turn as it encounters EOF on the previous object. On finishing the input_stack the input object for the pry instance is set back to Pry.config.input, if this fails, pry breaks out of the REPL (throw(:breakout)) with an error message
 * Pry.config.system() defines how pry runs system commands
@@ -561,10 +563,10 @@ complete CHANGELOG:
 * fixed bug #200 ( https://github.com/pry/pry/issues/200 )- string interpolation bug (thanks to ryanf)
 * show-doc and stat now display method visibility (update WIKI)
 * got rid of warnings caused by stricter ruby 1.9.3 rules
-* remove interpolation of command names and fix interpolation error messag (update WIKI) (thanks ryanf!)
+* remove interpolation of command names and fix interpolation error message (update WIKI) (thanks ryanf!)
 * 'nested sessions' now use binding stacks (so each instance manages its own collection of bindings without spawning other instances)
 * 'cd ..' just pops a binding off the binding_stack with special behaviour when only one binding in stack - it breaks out of the repl loop
-* added switch-to command (like jump-to but doesnt unwind the stack)
+* added switch-to command (like jump-to but doesn't unwind the stack)
 * show-method and show-doc now accept multiple method names
 * control_d hook added (Pry.config.control_d_handler)
 * behaviour of ^d is now to break out of current expr if in multi-line expr, or break out of current context if nested, or break out of pry repl loop if at top-level
@@ -658,7 +660,7 @@ complete CHANGELOG:
 * -I mode for pry commandline
 * --color mode for pry commandline
 * clean up requires (put them all in one place)
-* simple-prompt command and toggle-color commandd.
+* simple-prompt command and toggle-color command.
 
 ### 0.6.3 (2011/2/28)
 * Using MethodSource 0.3.4 so 1.8 show-method support provided

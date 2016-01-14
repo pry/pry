@@ -5,7 +5,7 @@
 <center>
 ![The Pry Logo](https://dl.dropbox.com/u/26521875/pry%20stuff/logo/pry_logo_350.png)
 
-© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2015<br>
+© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2016<br>
 
 **Please** [DONATE](http://pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
 
@@ -64,7 +64,7 @@ methods. The additional docs are accessed through the `show-doc` and
 
 * Install the [gem](https://rubygems.org/gems/pry): `gem install pry`
 * Browse the comprehensive [documentation at the official Pry wiki](https://github.com/pry/pry/wiki)
-* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/master/file/README.markdown)
+* Read the [YARD API documentation](http://www.rubydoc.info/github/pry/pry/)
 * See the [source code](https://github.com/pry/pry)
 
 ### Commands

@@ -113,7 +113,17 @@ class Pry::Config::Default
       Pry::InputCompleter
     },
     gist: proc {
-      Pry::Config.from_hash(inspecter: proc(&:pretty_inspect))
+      Pry::Config.from_hash({inspecter: proc(&:pretty_inspect)}, nil)
+    },
+    history: proc {
+      Pry::Config.from_hash({should_save: true, should_load: true}, nil).tap do |history|
+        history.file = File.expand_path("~/.pry_history") rescue nil
+        if history.file.nil?
+          self.should_load_rc = false
+          history.should_save = false
+          history.should_load = false
+        end
+      end
     },
     exec_string: proc {
       ""
@@ -122,22 +132,9 @@ class Pry::Config::Default
 
   def initialize
     super(nil)
-    configure_gist
-    configure_history
   end
 
   private
-  def configure_history
-    self["history"] = Pry::Config.from_hash "should_save" => true,
-      "should_load" => true
-    history.file = File.expand_path("~/.pry_history") rescue nil
-    if history.file.nil?
-      self.should_load_rc = false
-      history.should_save = false
-      history.should_load = false
-    end
-  end
-
   def lazy_readline
     require 'readline'
     Readline
