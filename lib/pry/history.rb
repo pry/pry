@@ -47,7 +47,7 @@ class Pry
       unless line.empty? || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
-        unless exist_in_histignore?(line)
+        unless should_ignore?(line)
           @saver.call(line) if Pry.config.history.should_save
         end
       end
@@ -84,18 +84,18 @@ class Pry
     # @return [Array<String>] An array containing all the lines that are not included
     # in the histignore.
     def filter(history)
-      history.select { |l| l unless exist_in_histignore?(l) }
+      history.select { |l| l unless should_ignore?(l) }
     end
 
     private
 
     # Check if the line match any option in the histignore [Pry.config.history.histignore]
     # @return [Boolean] a boolean that notifies if the line was found in the histignore array.
-    def exist_in_histignore?(line)
-      hi = Pry.config.history.histignore
-      return false if hi.nil? || hi.empty?
+    def should_ignore?(line)
+      hist_ignore = Pry.config.history.histignore
+      return false if hist_ignore.nil? || hist_ignore.empty?
 
-      strings, regex = hi.partition { |w| w.class == String }
+      strings, regex = hist_ignore.partition { |w| w.is_a?(String) }
 
       regex.any? { |r| line =~ r } || strings.include?(line)
     end
