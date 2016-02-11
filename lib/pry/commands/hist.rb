@@ -170,8 +170,8 @@ class Pry
           else
             Pry.history.to_a.last(Pry.history.session_line_count)
           end
-      # The last value in history will be the 'hist' command itself.
-      Pry::Code(h[0..-2])
+
+      Pry::Code(Pry.history.filter(h[0..-2]))
     end
   end
 

@@ -47,7 +47,9 @@ class Pry
       unless line.empty? || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
-        @saver.call(line) if Pry.config.history.should_save
+        if !should_ignore?(line) && Pry.config.history.should_save
+          @saver.call(line)
+        end
       end
       line
     end
@@ -78,7 +80,25 @@ class Pry
       @history.dup
     end
 
+    # Filter the history with the histignore options
+    # @return [Array<String>] An array containing all the lines that are not
+    #   included in the histignore.
+    def filter(history)
+      history.select { |l| l unless should_ignore?(l) }
+    end
+
     private
+
+    # Check if the line match any option in the histignore
+    # [Pry.config.history.histignore]
+    # @return [Boolean] a boolean that notifies if the line was found in the
+    #   histignore array.
+    def should_ignore?(line)
+      hist_ignore = Pry.config.history.histignore
+      return false if hist_ignore.nil? || hist_ignore.empty?
+
+      hist_ignore.any? { |p| line.to_s.match(p) }
+    end
 
     # The default loader. Yields lines from `Pry.history.config.file`.
     def read_from_file
