@@ -56,7 +56,7 @@ class Pry
     alias << push
 
     # Clear this session's history. This won't affect the contents of the
-    # history file.
+    #   history file.
     def clear
       @clearer.call
       @original_lines = 0
@@ -81,16 +81,18 @@ class Pry
     end
 
     # Filter the history with the histignore options
-    # @return [Array<String>] An array containing all the lines that are not included
-    # in the histignore.
+    # @return [Array<String>] An array containing all the lines that are not
+    #   included in the histignore.
     def filter(history)
       history.select { |l| l unless should_ignore?(l) }
     end
 
     private
 
-    # Check if the line match any option in the histignore [Pry.config.history.histignore]
-    # @return [Boolean] a boolean that notifies if the line was found in the histignore array.
+    # Check if the line match any option in the histignore
+    #   [Pry.config.history.histignore]
+    # @return [Boolean] a boolean that notifies if the line was found in the
+    #   histignore array.
     def should_ignore?(line)
       hist_ignore = Pry.config.history.histignore
       return false if hist_ignore.nil? || hist_ignore.empty?
