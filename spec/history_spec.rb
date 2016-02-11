@@ -160,6 +160,7 @@ describe Pry do
       @history.push "exit"
 
       expect(File.open(@histfile.path).entries.size).to eq 1
+      expect(IO.readlines(@histfile.path).first).to eq "kakaroto\n"
     end
   end
 
