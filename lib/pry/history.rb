@@ -47,8 +47,8 @@ class Pry
       unless line.empty? || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
-        unless should_ignore?(line)
-          @saver.call(line) if Pry.config.history.should_save
+        if !should_ignore?(line) && Pry.config.history.should_save
+          @saver.call(line)
         end
       end
       line
@@ -96,8 +96,7 @@ class Pry
       return false if hist_ignore.nil? || hist_ignore.empty?
 
       strings, regex = hist_ignore.partition { |w| w.is_a?(String) }
-
-      regex.any? { |r| line =~ r } || strings.include?(line)
+      regex.any? { |r| line.to_s.match(r) } || strings.include?(line)
     end
 
     # The default loader. Yields lines from `Pry.history.config.file`.
