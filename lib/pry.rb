@@ -46,6 +46,15 @@ class Pry
     else
       output.puts "#{exception.class}: #{exception.message}"
       output.puts "from #{exception.backtrace.first}"
+
+      if exception.respond_to? :cause
+        cause = exception.cause
+        while cause
+          output.puts "Caused by #{cause.class}: #{cause}\n"
+          output.puts "from #{cause.backtrace.first}"
+          cause = cause.cause
+        end
+      end
     end
   end
 

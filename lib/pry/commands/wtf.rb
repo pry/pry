@@ -32,6 +32,19 @@ class Pry
       else
         output.puts with_line_numbers(backtrace.first(size_of_backtrace))
       end
+
+      if exception.respond_to? :cause
+        cause = exception.cause
+        while cause
+          output.puts "#{text.bold('Caused by:')} #{cause.class}: #{cause}\n--"
+          if opts.verbose?
+            output.puts with_line_numbers(cause.backtrace)
+          else
+            output.puts with_line_numbers(cause.backtrace.first(size_of_backtrace))
+          end
+          cause = cause.cause
+        end
+      end
     end
 
     private
