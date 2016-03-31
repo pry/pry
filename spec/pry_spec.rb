@@ -42,6 +42,24 @@ describe Pry do
     end
   end
 
+  describe 'FAIL_PRY' do
+    before do
+      ENV['FAIL_PRY'] = 'true'
+    end
+
+    after do
+      ENV.delete 'FAIL_PRY'
+    end
+
+    it 'should raise an error for binding.pry' do
+      expect{binding.pry}.to raise_error(RuntimeError)
+    end
+
+    it 'should raise an error for Pry.start' do
+      expect{Pry.start}.to raise_error(RuntimeError)
+    end
+  end
+
   describe "Pry.critical_section" do
     it "should prevent Pry being called" do
       output = StringIO.new
