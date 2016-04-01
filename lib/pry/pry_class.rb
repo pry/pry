@@ -161,6 +161,9 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target=nil, options={})
     return if ENV['DISABLE_PRY']
+    if ENV['FAIL_PRY']
+      raise 'You have FAIL_PRY set to true, which results in Pry calls failing'
+    end
     options = options.to_hash
 
     if in_critical_section?
