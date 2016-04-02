@@ -73,7 +73,7 @@ describe "show-source" do
 
   it "should not show the source and deliver an error message without exclamation point" do
     _c = Class.new
-    error_message = "Error: Couldn't locate a definition for _c#wrongmethod"
+    error_message = "Error: Couldn't locate a definition for _c#wrongmethod\n"
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to eq(error_message)
   end
 

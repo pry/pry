@@ -93,7 +93,7 @@ class Pry
     end
 
     def no_definition_message
-      "Couldn't locate a definition for #{obj_name}!"
+      "Couldn't locate a definition for #{obj_name}"
     end
 
     # Generate a header (meta-data information) for all the code
