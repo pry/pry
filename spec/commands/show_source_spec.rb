@@ -71,6 +71,13 @@ describe "show-source" do
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to match(/Couldn't locate/)
   end
 
+  it "should not show the source and deliver an error message without exclamation point" do
+    _c = Class.new
+    error_message = "Error: Couldn't locate a definition for _c#wrongmethod"
+    expect(mock_pry(binding, "show-source _c#wrongmethod")).to eq(error_message)
+  end
+
+
   it "should find instance_methods if the class overrides instance_method" do
     _c = Class.new{
       def method;
