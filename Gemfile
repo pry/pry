@@ -16,6 +16,7 @@ end
 
 group :development, :test do
   gem 'simplecov', '~> 0.8'
+  gem 'rubocop', '0.37.0'
 end
 
 platform :rbx do
