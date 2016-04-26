@@ -7,8 +7,11 @@ require 'pry/version'
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
 CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
 
-desc "Set up and run tests"
-task :default => [:test]
+require 'rubocop/rake_task'
+RuboCop::RakeTask.new
+
+desc "Set up and run rubocop and tests"
+task default: [:rubocop, :test]
 
 def run_specs paths
   format = ENV['VERBOSE'] ? '--format documentation ' : ''

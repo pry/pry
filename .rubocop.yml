@@ -1,0 +1,5 @@
+AllCops:
+  Exclude:
+    - bin/**/*
+
+inherit_from: .rubocop_todo.yml
