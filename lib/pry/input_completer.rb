@@ -1,5 +1,6 @@
 # taken from irb
 # Implements tab completion for Readline in Pry
+require 'thread'
 class Pry::InputCompleter
   NUMERIC_REGEXP            = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/
   ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/
@@ -42,7 +43,7 @@ class Pry::InputCompleter
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
   
   class << self
-    attr_accessor :obj_space_collection, :obj_space_count
+    attr_accessor :obj_space_collection, :obj_space_count, :obj_spase_mutex
   end
 
   def initialize(input, pry = nil)
@@ -228,26 +229,28 @@ class Pry::InputCompleter
   end
   
     private
-    
-    def self.fetch_obj_space_collection
-      count = ObjectSpace.each_object(Module).count
-      return self.obj_space_collection if count == self.obj_space_count
-      self.obj_space_collection  = []
-      buffer = {}
-      self.obj_space_count = ObjectSpace.each_object(Module) do |m|
-        begin
-          name = m.name.to_s
-        rescue Pry::RescuableException
-          name = ""
-        end
-        next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
 
-        # jruby doesn't always provide #instance_methods() on each
-        # object.
-        # this is the fastest way to make this collection uniq
-        m.instance_methods(false).each{|method| buffer[method] = nil }
+    def self.fetch_obj_space_collection
+      (self.obj_spase_mutex ||= Mutex.new).synchronize do
+        count = ObjectSpace.each_object(Module).count
+        return self.obj_space_collection if count == self.obj_space_count
+        self.obj_space_collection  = []
+        buffer = {}
+        self.obj_space_count = ObjectSpace.each_object(Module) do |m|
+          begin
+            name = m.name.to_s
+          rescue Pry::RescuableException
+            name = ""
+          end
+          next if name != "IRB::Context" and
+              /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+
+          # jruby doesn't always provide #instance_methods() on each
+          # object.
+          # this is the fastest way to make this collection uniq
+          m.instance_methods(false).each{|method| buffer[method] = nil }
+        end
+        self.obj_space_collection = buffer.keys.map(&:to_s).sort
       end
-      self.obj_space_collection = buffer.keys.map(&:to_s).sort
     end
 end
