@@ -40,6 +40,10 @@ class Pry::InputCompleter
               ]
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
+  
+  class << self
+    attr_accessor :obj_space_collection, :obj_space_count
+  end
 
   def initialize(input, pry = nil)
     @pry = pry
@@ -167,24 +171,7 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
-          candidates = []
-          ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-            # jruby doesn't always provide #instance_methods() on each
-            # object.
-            if m.respond_to?(:instance_methods)
-              candidates.concat m.instance_methods(false).collect(&:to_s)
-            end
-          }
-          candidates.sort!
-          candidates.uniq!
+          candidates = self.class.fetch_obj_space_collection
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -239,4 +226,28 @@ class Pry::InputCompleter
     end
     return path, input
   end
+  
+    private
+    
+    def self.fetch_obj_space_collection
+      count = ObjectSpace.each_object(Module).count
+      return self.obj_space_collection if count == self.obj_space_count
+      self.obj_space_collection  = []
+      buffer = {}
+      self.obj_space_count = ObjectSpace.each_object(Module) do |m|
+        begin
+          name = m.name.to_s
+        rescue Pry::RescuableException
+          name = ""
+        end
+        next if name != "IRB::Context" and
+            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+
+        # jruby doesn't always provide #instance_methods() on each
+        # object.
+        # this is the fastest way to make this collection uniq
+        m.instance_methods(false).each{|method| buffer[method] = nil }
+      end
+      self.obj_space_collection = buffer.keys.map(&:to_s).sort
+    end
 end
