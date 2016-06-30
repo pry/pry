@@ -398,4 +398,4 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   end
 end
 
-Pry.init
+Pry.init unless ENV['INIT_PRY_ON_LOAD'] == 'false'
