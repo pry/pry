@@ -251,6 +251,6 @@ class Pry::InputCompleter
           m.instance_methods(false).each{|method| buffer[method] = nil }
         end
         self.obj_space_collection = buffer.keys.map(&:to_s).sort
-      end
+      end.count
     end
 end
