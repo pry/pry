@@ -134,17 +134,12 @@ describe "show-doc" do
         # @param foo
         def initialize(foo); end
       }
-
-      begin
-        t = pry_tester(binding)
-        expect(t.eval("show-doc _c#initialize")).to match(/_c.new :foo/)
-        Pry.config.color = true
-        # I don't want the test to rely on which colour codes are there, just to
-        # assert that "something" is being colourized.
-        expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new :foo/)
-      ensure
-        Pry.config.color = false
-      end
+      t = pry_tester(binding)
+      expect(t.eval("show-doc _c#initialize")).to match(/_c.new :foo/)
+      # I don't want the test to rely on which colour codes are there, just to
+      # assert that "something" is being colourized.
+      t.eval("_pry_.color = true")
+      expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new :foo/)
     end
 
     it "should syntax highlight `code` in rdoc" do
@@ -155,17 +150,12 @@ describe "show-doc" do
         def initialize(foo); end
       }
 
-      begin
-        t = pry_tester(binding)
-        expect(t.eval("show-doc _c#initialize")).to match(/_c.new\(:foo\)/)
-        Pry.config.color = true
-        # I don't want the test to rely on which colour codes are there, just to
-        # assert that "something" is being colourized.
-        expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new\(:foo\)/)
-      ensure
-        Pry.config.color = false
-      end
-
+      t = pry_tester(binding)
+      expect(t.eval("show-doc _c#initialize")).to match(/_c.new\(:foo\)/)
+      # I don't want the test to rely on which colour codes are there, just to
+      # assert that "something" is being colourized.
+      t.eval("_pry_.color = true")
+      expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new\(:foo\)/)
     end
 
     it "should not syntax highlight `` inside code" do

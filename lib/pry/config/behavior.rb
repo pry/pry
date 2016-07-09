@@ -51,7 +51,7 @@ module Pry::Config::Behavior
   #
   def [](key)
     key = key.to_s
-    @lookup[key] or (@default and @default[key])
+    key?(key) ? @lookup[key] : (@default and @default[key])
   end
 
   #
@@ -152,7 +152,7 @@ module Pry::Config::Behavior
     last = last.default while last and last.default
     last
   end
-  
+
   #
   # @return [Hash]
   #   returns a duplicate copy of the lookup table used by self.
