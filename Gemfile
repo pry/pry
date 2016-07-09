@@ -11,11 +11,11 @@ group :development do
 end
 
 group :test do
-  gem 'rspec', '~> 3.0'
+  gem 'rspec', '~> 3.4.0'
 end
 
 group :development, :test do
-  gem 'simplecov', '~> 0.8'
+  gem 'simplecov', '~> 0.8.0'
 end
 
 platform :rbx do
