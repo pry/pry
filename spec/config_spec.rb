@@ -1,7 +1,15 @@
 require_relative 'helper'
 describe Pry::Config do
+  describe "bug #1552" do
+    specify "a local key has precendence over its default when the stored value is false" do
+      local = Pry::Config.from_hash({}, Pry::Config.from_hash('color' => true))
+      local.color = false
+      expect(local.color).to eq(false)
+    end
+  end
+
   describe "bug #1277" do
-    specify "a local key has precendence over a inherited method of the same name" do
+    specify "a local key has precendence over an inherited method of the same name" do
       local = Pry::Config.from_hash(output: 'foobar')
       local.extend Module.new { def output(); 'broken'; end }
       expect(local.output).to eq('foobar')
