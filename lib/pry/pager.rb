@@ -133,6 +133,8 @@ class Pry::Pager
       pager
     end
 
+    @system_pager = nil
+
     def self.available?
       if @system_pager.nil?
         @system_pager = begin
@@ -151,6 +153,7 @@ class Pry::Pager
       super
       @tracker = PageTracker.new(height, width)
       @buffer  = ""
+      @pager   = nil
     end
 
     def write(str)

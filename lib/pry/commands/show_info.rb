@@ -4,6 +4,12 @@ class Pry
 
     command_options :shellwords => false, :interpolate => false
 
+    def initialize(*)
+      super
+
+      @used_super = nil
+    end
+
     def options(opt)
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count
       opt.on :l, "line-numbers", "Show line numbers"

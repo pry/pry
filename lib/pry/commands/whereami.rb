@@ -1,6 +1,12 @@
 class Pry
   class Command::Whereami < Pry::ClassCommand
 
+    def initialize(*)
+      super
+
+      @method_code = nil
+    end
+
     class << self
       attr_accessor :method_size_cutoff
     end
