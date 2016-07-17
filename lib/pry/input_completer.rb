@@ -234,7 +234,7 @@ class Pry::InputCompleter
     (self.obj_space_mutex ||= Mutex.new).synchronize do
       all_modules = ObjectSpace.each_object(Module)
       count = all_modules.inject(0) do |a,e|
-        #we have a memory leak with Pry::Config, Class generates every time on autocomplete
+        # we have a memory leak with Pry::Config, Class generates every time on autocomplete
         # this checks are here for stubbing it.
           a+= e.is_a?(Class) && e.superclass == Pry::Config ? 0 : e.instance_methods(false).count
         end
