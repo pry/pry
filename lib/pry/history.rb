@@ -33,6 +33,8 @@ class Pry
     # Load the input history using `History.loader`.
     # @return [Integer] The number of lines loaded
     def load
+      remove_store_and_prepare_to_restore_irb_history if defined?(Readline)
+
       @loader.call do |line|
         @pusher.call(line.chomp)
         @history << line.chomp
@@ -143,6 +145,20 @@ class Pry
 
     def history_file_path
       File.expand_path(@file_path || Pry.config.history.file)
+    end
+
+    def remove_store_and_prepare_to_restore_irb_history
+      restore_irb_history_at_session_end Readline::HISTORY.to_a
+      clear_readline
+    end
+
+    def restore_irb_history_at_session_end(irb_history)
+      return if Pry.hooks.hook_exists?(:after_session, :restore_irb_history)
+
+      Pry.hooks.add_hook(:after_session, :restore_irb_history) do
+        Readline::HISTORY.shift until Readline::HISTORY.empty?
+        Readline::HISTORY << irb_history.shift until irb_history.empty?
+      end
     end
   end
 end
