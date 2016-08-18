@@ -13,7 +13,7 @@
 
 [Launch School](https://launchschool.com)<br/>
 [Atomic Object](https://atomicobject.com/)<br/>
-[Hashrocket](http://hashrocket.com/)<br/>
+[Hashrocket](https://hashrocket.com/)<br/>
 [Intridea](http://www.intridea.com)<br/>
 [Gaslight](https://teamgaslight.com/home)<br/>
 
