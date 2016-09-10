@@ -1,5 +1,5 @@
 # These tests are out of date.
-# THey need to be updated for the new 'gist' API, but im too sleepy to
+# They need to be updated for the new 'gist' API, but im too sleepy to
 # do that now.
 
 require_relative '../helper'
