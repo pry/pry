@@ -21,7 +21,7 @@ task :test do
     if explicit_list = ENV['run']
       explicit_list.split(',')
     else
-      Dir['spec/**/*_spec.rb'].shuffle!
+      Dir['spec/**/*_spec.rb']
     end
   run_specs paths
 end
