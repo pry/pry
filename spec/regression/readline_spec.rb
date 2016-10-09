@@ -30,15 +30,23 @@ describe "Readline" do
   it "causes the terminal to no longer echo commands" do
     skip "tty not present" unless $stdout.respond_to?(:tty?)
     skip "cannot fork" if RUBY_PLATFORM =~ /java/
+
     code = <<-RUBY
       require "pry"
       puts Process.pid
       binding.pry
     RUBY
+    tty_state_before = `stty -g`
     pid_that_will_eat_your_echo = fork do
       `#@ruby -I #@pry_dir -e '#{code}'`.chomp
     end
     Process.kill 'INT', pid_that_will_eat_your_echo
+    at_exit do
+      is_dev_tty_still_there = !open("/dev/tty", "w").closed?
+      expect(is_dev_tty_still_there).to eq(true)
+      tty_state_after = `stty -g`
+      expect(tty_state_after).to eq(tty_state_before)
+    end
   end
 
   it "is not loaded on invoking 'pry' if Pry.input is set" do
