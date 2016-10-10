@@ -6,7 +6,7 @@ class Pry
   # that threads to not conflict with each other. The latest thread to request
   # ownership of the input wins.
   class InputLock
-    class Interrupt < Exception; end
+    class ThreadInterrupt < Exception; end
 
     class << self
       attr_accessor :input_locks
@@ -45,14 +45,14 @@ class Pry
         #    the input since we are adding ourselves to the @owners list, which
         #    in turns makes us the current owner.
         # 3) The owner of the input is in the interruptible region, reading from
-        #    the input. It's safe to send an Interrupt exception to interrupt
+        #    the input. It's safe to send a ThreadInterrupt exception to interrupt
         #    the owner. It will then proceed like in case 2).
         #    We wait until the owner sets the interruptible flag back
         #    to false, meaning that he's out of the interruptible region.
         #    Note that the owner may receive multiple interrupts since, but that
         #    should be okay (and trying to avoid it is futile anyway).
         while @interruptible
-          @owners.last.raise Interrupt
+          @owners.last.raise ThreadInterrupt
           @cond.wait(@mutex)
         end
         @owners << Thread.current
@@ -87,7 +87,7 @@ class Pry
         @cond.wait(@mutex) until @owners.last == Thread.current
 
         # We are the legitimate owner of the input. We mark ourselves as
-        # interruptible, so other threads can send us an Interrupt exception
+        # interruptible, so other threads can send us a ThreadInterrupt exception
         # while we are blocking from reading the input.
         @interruptible = true
       end
@@ -95,12 +95,12 @@ class Pry
 
     def leave_interruptible_region
       @mutex.synchronize do
-        # We check if we are still the owner, because we could have received an
-        # Interrupt right after the following @cond.broadcast, making us retry.
+        # We check if we are still the owner, because we could have received a
+        # ThreadInterrupt right after the following @cond.broadcast, making us retry.
         @interruptible = false if @owners.last == Thread.current
         @cond.broadcast
       end
-    rescue Interrupt
+    rescue ThreadInterrupt
       # We need to guard against a spurious interrupt delivered while we are
       # trying to acquire the lock (the rescue block is no longer in our scope).
       retry
@@ -114,7 +114,7 @@ class Pry
       # call, discarding that piece of input.
       block.call
 
-    rescue Interrupt
+    rescue ThreadInterrupt
       # We were asked to back off. The one requesting the interrupt will be
       # waiting on the conditional for the interruptible flag to change to false.
       # Note that there can be some inefficiency, as we could immediately
