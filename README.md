@@ -15,7 +15,7 @@
 [Atomic Object](https://atomicobject.com/)<br/>
 [Hashrocket](https://hashrocket.com/)<br/>
 [Intridea](http://www.intridea.com)<br/>
-[Gaslight](https://teamgaslight.com/home)<br/>
+[Gaslight](https://teamgaslight.com)<br/>
 
 **Other Resources**
 
