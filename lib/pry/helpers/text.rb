@@ -34,6 +34,14 @@ class Pry
         text.to_s.gsub(/(\001)?\e\[.*?(\d)+m(\002)?/ , '')
       end
 
+      # Remove readline's prompt ignore codes from _text_.
+      #
+      # @param  [String, #to_s] text
+      # @return [String] _text_ stripped of prompt ignore codes.
+      def strip_readline_prompt_ignore_codes(text)
+        text.to_s.gsub(/\001(\e\[.*?\d+m)\002/ , '\1')
+      end
+
       # Returns _text_ as bold text for use on a terminal.
       #
       # @param [String, #to_s] text

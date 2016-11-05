@@ -41,7 +41,7 @@ class Pry::Output
 
   def decolorize_maybe(str)
     if _pry_.config.color
-      str
+      Pry::Helpers::Text.strip_readline_prompt_ignore_codes str
     else
       Pry::Helpers::Text.strip_color str
     end
