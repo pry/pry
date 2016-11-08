@@ -36,7 +36,7 @@ describe "Readline" do
       puts Process.pid
       binding.pry
     RUBY
-    tty_state_before = `stty -g`
+    tty_state_before = `stty -f /dev/tty -a`
     pid_that_will_eat_your_echo = fork do
       `#@ruby -I #@pry_dir -e '#{code}'`.chomp
     end
@@ -44,7 +44,7 @@ describe "Readline" do
     at_exit do
       is_dev_tty_still_there = !open("/dev/tty", "w").closed?
       expect(is_dev_tty_still_there).to eq(true)
-      tty_state_after = `stty -g`
+      tty_state_after = `stty -f /dev/tty -a`
       expect(tty_state_after).to eq(tty_state_before)
     end
   end
