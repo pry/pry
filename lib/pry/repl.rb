@@ -66,9 +66,11 @@ class Pry
     # @raise [Exception] If the session throws `:raise_up`, raise the exception
     #   thrown with it.
     def repl
-      save_tty
+      original_interrupt_handling = trap("SIGINT") do
+        throw :REPL_INTERRUPT, :control_c
+      end
       loop do
-        case val = read
+        case val = catch(:REPL_INTERRUPT) { read }
         when :control_c
           output.puts ""
           pry.reset_eval_string
@@ -81,7 +83,7 @@ class Pry
         end
       end
     ensure
-      restore_tty
+      trap('SIGINT', original_interrupt_handling)
     end
 
     # Clean up after the repl session.
@@ -232,26 +234,6 @@ class Pry
       if piping?
         @readline_output = (Readline.output = Pry.config.output)
       end
-    end
-
-    def save_tty
-      return unless has_stty?
-      @stty_save = `stty -g`.chomp
-    end
-
-    def restore_tty
-      return unless has_stty?
-      return if open("/dev/tty", "w").closed?
-      Process.spawn("stty", @stty_save, [:out, :err]=>null_device)
-    end
-
-    def has_stty?
-      return false if Pry::Helpers::BaseHelpers.windows?
-      File.exist?('/dev/tty')
-    end
-
-    def null_device
-      defined?(IO::NULL) ? IO::NULL : Pry::Helpers::BaseHelpers.windows? ? 'NUL' : '/dev/null'
     end
   end
 end
