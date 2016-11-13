@@ -224,17 +224,20 @@ describe Pry::InputCompleter do
   context 'for expressions' do
     let(:method_1) { :custom_method_for_test }
     let(:method_2) { :custom_method_for_test_other }
-    let!(:custom_module) do
-      described_class.all_available_methods_cached
+    let(:custom_module) do
       method = method_1
       Module.new { attr_reader method }
     end
     let(:custom_module_2) do
       method = method_2
-      # For jruby we must add more methods than in custom_module.
-      # Because module from previous example can  be gc'ed and we won't see
-      # any new methods.
       Module.new { attr_accessor method }
+    end
+    before do
+      # gc to reset method_cache_version in old rubies and jruby
+      GC.start
+      described_class.all_available_methods_cached
+      # preload module after clean-up
+      custom_module
     end
 
     it 'completes expressions with all all available methods' do
