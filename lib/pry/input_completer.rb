@@ -41,40 +41,6 @@ class Pry::InputCompleter
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
 
-  class << self
-    # For MRI we simply use RubyVM.stat, for other rubies we count
-    # all defined instance methods. While we still iterate over ObjectSpace
-    # we can have improvements from not sorting methods list.
-    def methods_cache_version
-      RubyVM.stat if defined?(RubyVM.stat)
-      ObjectSpace.each_object(Module).inject(0) do |s, m|
-        s + (m.respond_to?(:instance_methods) ? m.instance_methods(false).count : 0)
-      end
-    end
-
-    def all_available_methods
-      result = []
-      ObjectSpace.each_object(Module) do |m|
-        begin
-          name = m.name.to_s
-        rescue Pry::RescuableException
-          name = ""
-        end
-        next if name != "IRB::Context" and
-        /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-        # jruby doesn't always provide #instance_methods() on each
-        # object.
-        if m.respond_to?(:instance_methods)
-          result.concat m.instance_methods(false).collect(&:to_s)
-        end
-      end
-      result.sort!
-      result.uniq!
-      result
-    end
-  end
-
   def initialize(input, pry = nil)
     @pry = pry
     @input = input
@@ -201,7 +167,7 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
-          all_available_methods
+          all_available_methods_cached
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -259,12 +225,44 @@ class Pry::InputCompleter
 
   private
 
-  def all_available_methods
-    current_version = self.class.methods_cache_version
+  def all_available_methods_cached
+    current_version = methods_cache_version
     unless current_version && @methods_cache_version == current_version
-      @all_available_methods = self.class.all_available_methods
+      @all_available_methods_cached = all_available_methods
       @methods_cache_version = current_version
     end
-    @all_available_methods
+    @all_available_methods_cached
+  end
+
+  # For MRI we simply use RubyVM.stat, for other rubies we count
+  # all defined instance methods. While we still iterate over ObjectSpace
+  # we can have improvements from not sorting methods list.
+  def methods_cache_version
+    RubyVM.stat if defined?(RubyVM.stat)
+    ObjectSpace.each_object(Module).inject(0) do |s, m|
+      s + (m.respond_to?(:instance_methods) ? m.instance_methods(false).count : 0)
+    end
+  end
+
+  def all_available_methods
+    result = []
+    ObjectSpace.each_object(Module) do |m|
+      begin
+        name = m.name.to_s
+      rescue Pry::RescuableException
+        name = ""
+      end
+      next if name != "IRB::Context" and
+      /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+
+      # jruby doesn't always provide #instance_methods() on each
+      # object.
+      if m.respond_to?(:instance_methods)
+        result.concat m.instance_methods(false).collect(&:to_s)
+      end
+    end
+    result.sort!
+    result.uniq!
+    result
   end
 end
