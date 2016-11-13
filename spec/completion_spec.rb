@@ -20,14 +20,17 @@ describe Pry::InputCompleter do
       Object.remove_const :SymbolyName
     end
   end
+  let(:instance) { described_class.new(Readline) }
 
-  def completion_for(str, bind, input = Readline, pry = nil)
-    described_class.new(input, pry).call(str, :target => Pry.binding_for(bind))
+  def completion_for(str, bind, input = nil, pry = nil)
+    # Use default instance if input & pry are nil
+    instance = input || pry ? described_class.new(input || Readline, pry) : self.instance
+    instance.call(str, :target => Pry.binding_for(bind))
   end
 
   def completer_test(bind, pry = nil, assert_flag = true)
     test = proc do |symbol|
-      expect(completion_for(symbol[0..-2], bind, pry || Readline, pry)).
+      expect(completion_for(symbol[0..-2], bind, nil, pry)).
         public_send(assert_flag ? :to : :to_not, include(symbol))
     end
     proc { |*symbols| symbols.each(&test) }
@@ -224,7 +227,7 @@ describe Pry::InputCompleter do
   context 'for expressions' do
     let(:method_1) { :custom_method_for_test }
     let(:method_2) { :custom_method_for_test_other }
-    let(:custom_module) do
+    let!(:custom_module) do
       method = method_1
       Module.new { attr_reader method }
     end
@@ -232,13 +235,8 @@ describe Pry::InputCompleter do
       method = method_2
       Module.new { attr_accessor method }
     end
-    before do
-      # gc to reset method_cache_version in old rubies and jruby
-      GC.start
-      described_class.all_available_methods_cached
-      # preload module after clean-up
-      custom_module
-    end
+    # gc to reset method_cache_version in old rubies and jruby
+    before { GC.start }
 
     it 'completes expressions with all all available methods' do
       completer_test(self).call("[].size.#{method_1}")

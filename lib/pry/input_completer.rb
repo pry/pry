@@ -41,20 +41,7 @@ class Pry::InputCompleter
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
 
-  Mutex = ::Mutex.new
-
   class << self
-    def all_available_methods_cached
-      Mutex.synchronize do
-        current_version = methods_cache_version
-        unless current_version && @methods_cache_version == current_version
-          @all_available_methods_cached = all_available_methods
-          @methods_cache_version = current_version
-        end
-        @all_available_methods_cached
-      end
-    end
-
     # For MRI we simply use RubyVM.stat, for other rubies we count
     # all defined instance methods. While we still iterate over ObjectSpace
     # we can have improvements from not sorting methods list.
@@ -214,7 +201,7 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
-          self.class.all_available_methods_cached
+          all_available_methods
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -268,5 +255,16 @@ class Pry::InputCompleter
       p
     end
     return path, input
+  end
+
+  private
+
+  def all_available_methods
+    current_version = self.class.methods_cache_version
+    unless current_version && @methods_cache_version == current_version
+      @all_available_methods = self.class.all_available_methods
+      @methods_cache_version = current_version
+    end
+    @all_available_methods
   end
 end
