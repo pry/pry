@@ -221,12 +221,35 @@ describe Pry::InputCompleter do
     expect(completion_for('pry.', binding, Readline, Pry.new)).not_to include nil
   end
 
-  it 'completes expressions with all all available methods' do
-    method_name = :custom_method_for_test
-    m = Module.new { attr_reader method_name }
-    completer_test(self).call("[].size.#{method_name}")
-    completer_test(self, nil, false).call("[].size.#{method_name}_invalid")
-    # prevent being gc'ed
-    expect(m).to be
+  context 'for expressions' do
+    let(:method_1) { :custom_method_for_test }
+    let(:method_2) { :custom_method_for_test_other }
+    let!(:custom_module) do
+      described_class.all_available_methods_cached
+      method = method_1
+      Module.new { attr_reader method }
+    end
+    let(:custom_module_2) do
+      method = method_2
+      # For jruby we must add more methods than in custom_module.
+      # Because module from previous example can  be gc'ed and we won't see
+      # any new methods.
+      Module.new { attr_accessor method }
+    end
+
+    it 'completes expressions with all all available methods' do
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self, nil, false).call("[].size.#{method_2}")
+    end
+
+    it 'uses cached list of methods' do
+      expect(described_class).to receive(:all_available_methods).and_call_original
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self, nil, false).call("[].size.#{method_2}")
+      custom_module_2
+      expect(described_class).to receive(:all_available_methods).and_call_original
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self).call("[].size.#{method_2}")
+    end
   end
 end

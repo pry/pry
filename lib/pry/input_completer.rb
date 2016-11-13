@@ -41,6 +41,53 @@ class Pry::InputCompleter
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
 
+  Mutex = ::Mutex.new
+
+  class << self
+    def all_available_methods_cached
+      Mutex.synchronize do
+        current_version = methods_cache_version
+        unless current_version && @methods_cache_version == current_version
+          @all_available_methods_cached = all_available_methods
+          @methods_cache_version = current_version
+        end
+        @all_available_methods_cached
+      end
+    end
+
+    # For MRI we simply use RubyVM.stat, for other rubies we count
+    # all defined instance methods. While we still iterate over ObjectSpace
+    # we can have improvements from not sorting methods list.
+    def methods_cache_version
+      RubyVM.stat if defined?(RubyVM)
+      ObjectSpace.each_object(Module).inject(0) do |s, m|
+        s + (m.respond_to?(:instance_methods) ? m.instance_methods(false).count : 0)
+      end
+    end
+
+    def all_available_methods
+      result = []
+      ObjectSpace.each_object(Module) do |m|
+        begin
+          name = m.name.to_s
+        rescue Pry::RescuableException
+          name = ""
+        end
+        next if name != "IRB::Context" and
+        /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+
+        # jruby doesn't always provide #instance_methods() on each
+        # object.
+        if m.respond_to?(:instance_methods)
+          result.concat m.instance_methods(false).collect(&:to_s)
+        end
+      end
+      result.sort!
+      result.uniq!
+      result
+    end
+  end
+
   def initialize(input, pry = nil)
     @pry = pry
     @input = input
@@ -157,34 +204,17 @@ class Pry::InputCompleter
         lv = eval("local_variables", bind).collect(&:to_s)
         cv = eval("self.class.constants", bind).collect(&:to_s)
 
-        if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
+        candidates = if (gv | lv | cv).include?(receiver) || /^[A-Z][^.]*$/ =~ receiver
           # foo.func and foo is local var. OR
           # Foo::Bar.func
           begin
-            candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
+            eval("#{receiver}.methods", bind).collect(&:to_s)
           rescue Pry::RescuableException
-            candidates = []
+            []
           end
         else
           # func1.func2
-          candidates = []
-          ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-            # jruby doesn't always provide #instance_methods() on each
-            # object.
-            if m.respond_to?(:instance_methods)
-              candidates.concat m.instance_methods(false).collect(&:to_s)
-            end
-          }
-          candidates.sort!
-          candidates.uniq!
+          self.class.all_available_methods_cached
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
