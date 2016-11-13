@@ -1,41 +1,47 @@
 require_relative 'helper'
-require "readline" unless defined?(Readline)
-require "pry/input_completer"
-
-def completer_test(bind, pry=nil, assert_flag=true)
-  test = proc {|symbol|
-    expect(Pry::InputCompleter.new(pry || Readline, pry).call(symbol[0..-2], :target => Pry.binding_for(bind)).include?(symbol)).to  eq(assert_flag)}
-  return proc {|*symbols| symbols.each(&test) }
-end
-
+require 'readline' unless defined?(Readline)
+require 'pry/input_completer'
 
 describe Pry::InputCompleter do
-  before do
-    # The AMQP gem has some classes like this:
-    #  pry(main)> AMQP::Protocol::Test::ContentOk.name
-    #  => :content_ok
-    module SymbolyName
-      def self.name; :symboly_name; end
-    end
+  around do |ex|
+    begin
+      # The AMQP gem has some classes like this:
+      #  pry(main)> AMQP::Protocol::Test::ContentOk.name
+      #  => :content_ok
+      module SymbolyName
+        def self.name; :symboly_name; end
+      end
 
-    @before_completer = Pry.config.completer
-    Pry.config.completer = Pry::InputCompleter
+      old_completer = Pry.config.completer
+      Pry.config.completer = described_class
+      ex.run
+    ensure
+      Pry.config.completer = old_completer
+      Object.remove_const :SymbolyName
+    end
   end
 
-  after do
-    Pry.config.completer = @before_completer
-    Object.remove_const :SymbolyName
+  def completion_for(str, bind, input = Readline, pry = nil)
+    described_class.new(input, pry).call(str, :target => Pry.binding_for(bind))
+  end
+
+  def completer_test(bind, pry = nil, assert_flag = true)
+    test = proc do |symbol|
+      expect(completion_for(symbol[0..-2], bind, pry || Readline, pry)).
+        public_send(assert_flag ? :to : :to_not, include(symbol))
+    end
+    proc { |*symbols| symbols.each(&test) }
   end
 
   # another jruby hack :((
   if !Pry::Helpers::BaseHelpers.jruby?
-    it "should not crash if there's a Module that has a symbolic name." do
-      expect { Pry::InputCompleter.new(Readline).call "a.to_s.", :target => Pry.binding_for(Object.new) }.not_to raise_error
+    it 'should not crash if there`s a Module that has a symbolic name.' do
+      expect { completion_for('a.to_s.', Object.new) }.not_to raise_error
     end
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    expect { Pry::InputCompleter.new(Readline).call ":class)", :target => Pry.binding_for(Object.new) }.not_to raise_error
+    expect { completion_for(':class)', Object.new) }.not_to raise_error
   end
 
   it 'should complete instance variables' do
@@ -115,7 +121,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/')).to   eq(true)
+    expect(completion_for('Mod2/', Mod)).to include('Mod2/')
   end
 
   it 'should complete for arbitrary scopes' do
@@ -134,7 +140,7 @@ describe Pry::InputCompleter do
     pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
-    completer_test(b, pry).call("../@bazvar")
+    completer_test(b, pry).call('../@bazvar')
     completer_test(b, pry).call('/Con')
   end
 
@@ -188,7 +194,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/')).to   eq(true)
+    expect(completion_for('Mod2/', Mod)).to include('Mod2/')
   end
 
   it 'should complete for arbitrary scopes' do
@@ -207,12 +213,20 @@ describe Pry::InputCompleter do
     pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
-    completer_test(b, pry).call("../@bazvar")
+    completer_test(b, pry).call('../@bazvar')
     completer_test(b, pry).call('/Con')
   end
 
   it 'should not return nil in its output' do
-    pry = Pry.new
-    expect(Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding)).not_to include nil
+    expect(completion_for('pry.', binding, Readline, Pry.new)).not_to include nil
+  end
+
+  it 'completes expressions with all all available methods' do
+    method_name = :custom_method_for_test
+    m = Module.new { attr_reader method_name }
+    completer_test(self).call("[].size.#{method_name}")
+    completer_test(self, nil, false).call("[].size.#{method_name}_invalid")
+    # prevent being gc'ed
+    expect(m).to be
   end
 end
