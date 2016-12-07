@@ -57,8 +57,15 @@ describe "ls" do
   end
 
   describe "immediates" do
-    it "should work on Fixnum" do
-      expect(pry_eval("ls 5")).to match(/Fixnum#methods:.*modulo/m)
+    # Ruby 2.4+
+    if 5.class.name == 'Integer'
+      it "should work on Integer" do
+        expect(pry_eval("ls 5")).to match(/Integer#methods:.*modulo/m)
+      end
+    else
+      it "should work on Fixnum" do
+        expect(pry_eval("ls 5")).to match(/Fixnum#methods:.*modulo/m)
+      end
     end
   end
 
