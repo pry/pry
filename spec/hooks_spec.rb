@@ -445,6 +445,31 @@ describe Pry::Hooks do
         end
       end
     end
+
+    describe "after_breakout hook" do
+      it "should run after exit-all" do
+        hook_executed = false
+        hooks = Pry::Hooks.new.add_hook(:after_breakout, :hook_executed) { |exit_value, pry| hook_executed = true }
+        redirect_pry_io(InputTester.new("exit-all"), out = StringIO.new) do
+          Pry.start(self, :hooks => hooks)
+        end
+        expect(hook_executed).to eq(true)
+      end
+    end
+
+    describe "after_raise_up hook" do
+      it "should run after raise_up" do
+        raised_exception = nil
+        hooks = Pry::Hooks.new.add_hook(:after_raise_up, :raised_exception) { |exception, pry| raised_exception = exception }
+        begin
+          redirect_pry_io(InputTester.new("raise-up Exception"), out = StringIO.new) do
+            Pry.start(self, :hooks => hooks)
+          end
+        rescue Exception
+          expect(raised_exception).to be_a_kind_of(Exception)
+        end
+      end
+    end
   end
 
   describe "anonymous hooks" do
