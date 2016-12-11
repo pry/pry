@@ -238,7 +238,7 @@ class Pry::InputCompleter
   # all defined instance methods. While we still iterate over ObjectSpace
   # we can have improvements from not sorting methods list.
   def methods_cache_version
-    RubyVM.stat if defined?(RubyVM.stat)
+    return RubyVM.stat if defined?(RubyVM.stat)
     ObjectSpace.each_object(Module).inject(0) do |s, m|
       s + (m.respond_to?(:instance_methods) ? m.instance_methods(false).count : 0)
     end
