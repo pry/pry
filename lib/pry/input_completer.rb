@@ -235,22 +235,30 @@ class Pry::InputCompleter
   end
 
   def ignored_modules
-    @@ignored_modules ||=
-      begin
-        s = Set.new
+    # We could cache the result, but IRB is not loaded by default.
+    # And this is very fast anyway.
+    # By using this approach, we avoid Module#name calls, which are
+    # relatively slow when there are a lot of anonymous modules defined.
+    s = Set.new
 
-        ObjectSpace.each_object(Module) do |m|
-          begin
-            name = m.name.to_s
-          rescue Pry::RescuableException
-            next
-          end
-
-          next if name == "IRB::Context" || /^(IRB|SLex|RubyLex|RubyToken)/ !~ name
-          s << m
-        end
-
-        s
+    scanner = lambda do |m|
+      next if s.include?(m) # IRB::ExtendCommandBundle::EXCB recurses.
+      s << m
+      m.constants(false).each do |c|
+        value = m.const_get(c)
+        scanner.call(value) if value.is_a?(Module)
       end
+    end
+
+    # FIXME: Add Pry here as well?
+    %w(IRB SLEX RubyLex RubyToken).each do |module_name|
+      sym = module_name.to_sym
+      next unless Object.const_defined?(sym)
+      scanner.call(Object.const_get(sym))
+    end
+
+    s.delete(IRB::Context) if defined?(IRB::Context)
+
+    s
   end
 end
