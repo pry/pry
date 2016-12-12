@@ -222,6 +222,6 @@ describe Pry::InputCompleter do
 
   it 'does not offer methods from blacklisted modules' do
     require 'irb'
-    completer_test(self, nil, false).call("[].size.irb_exit")
+    completer_test(self, nil, false).call("[].size.parse_printf_format")
   end
 end
