@@ -215,4 +215,13 @@ describe Pry::InputCompleter do
     pry = Pry.new
     expect(Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding)).not_to include nil
   end
+
+  it 'completes expressions with all available methods' do
+    completer_test(self).call("[].size.chars")
+  end
+
+  it 'does not offer methods from blacklisted modules' do
+    require 'irb'
+    completer_test(self, nil, false).call("[].size.irb_exit")
+  end
 end

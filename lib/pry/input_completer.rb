@@ -169,13 +169,7 @@ class Pry::InputCompleter
           # func1.func2
           candidates = []
           ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+            next if ignored_modules.include?(m)
 
             # jruby doesn't always provide #instance_methods() on each
             # object.
@@ -238,5 +232,25 @@ class Pry::InputCompleter
       p
     end
     return path, input
+  end
+
+  def ignored_modules
+    @@ignored_modules ||=
+      begin
+        s = Set.new
+
+        ObjectSpace.each_object(Module) do |m|
+          begin
+            name = m.name.to_s
+          rescue Pry::RescuableException
+            next
+          end
+
+          next if name == "IRB::Context" || /^(IRB|SLex|RubyLex|RubyToken)/ !~ name
+          s << m
+        end
+
+        s
+      end
   end
 end
