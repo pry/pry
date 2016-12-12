@@ -178,8 +178,8 @@ class Pry::InputCompleter
               candidates.concat m.instance_methods(false).collect(&:to_s)
             end
           }
-          candidates.sort!
           candidates.uniq!
+          candidates.sort!
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
