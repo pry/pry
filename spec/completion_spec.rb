@@ -244,11 +244,13 @@ describe Pry::InputCompleter do
     end
 
     it 'uses cached list of methods' do
-      expect(instance).to receive(:all_available_methods).and_call_original
+      expect(Pry::Helpers::CompleterHelpers).
+        to receive(:all_available_methods).and_call_original
       completer_test(self).call("[].size.#{method_1}")
       completer_test(self, nil, false).call("[].size.#{method_2}")
       custom_module_2
-      expect(instance).to receive(:all_available_methods).and_call_original
+      expect(Pry::Helpers::CompleterHelpers).
+        to receive(:all_available_methods).and_call_original
       completer_test(self).call("[].size.#{method_1}")
       completer_test(self).call("[].size.#{method_2}")
     end
