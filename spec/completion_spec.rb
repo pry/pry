@@ -224,4 +224,16 @@ describe Pry::InputCompleter do
     require 'irb'
     completer_test(self, nil, false).call("[].size.parse_printf_format")
   end
+
+  it 'ignores methods from modules that override Object#hash incompatibly' do
+    _m = Module.new do
+      def self.hash(a, b)
+      end
+
+      def aaaa
+      end
+    end
+
+    completer_test(self, nil, false).call("[].size.aaaa")
+  end
 end

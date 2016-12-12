@@ -170,7 +170,7 @@ class Pry::InputCompleter
           candidates = []
           to_ignore = ignored_modules
           ObjectSpace.each_object(Module){|m|
-            next if to_ignore.include?(m) rescue true
+            next if (to_ignore.include?(m) rescue true)
 
             # jruby doesn't always provide #instance_methods() on each
             # object.
