@@ -248,7 +248,9 @@ class Pry::InputCompleter
     result = []
     to_ignore = ignored_modules
     ObjectSpace.each_object(Module) do |m|
-      next if to_ignore.include?(m)
+      # some gems overrides .hash method for their modules,
+      # so we rescue invalid invocations and ignore them
+      next if (to_ignore.include?(m) rescue true)
 
       # jruby doesn't always provide #instance_methods() on each
       # object.

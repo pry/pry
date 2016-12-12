@@ -257,5 +257,21 @@ describe Pry::InputCompleter do
       require 'irb'
       completer_test(self, nil, false).call("[].size.parse_printf_format")
     end
+
+    context 'when some module overrides .hash method' do
+      let(:method_3) { :custom_method_for_test_from_invalid_module }
+      let!(:custom_module_3) do
+        method = method_3
+        Module.new do
+          attr_reader method
+          def self.hash(x); end
+        end
+      end
+
+      it 'ignores this module' do
+        completer_test(self).call("[].size.#{method_1}")
+        completer_test(self, nil, false).call("[].size.#{method_3}")
+      end
+    end
   end
 end
