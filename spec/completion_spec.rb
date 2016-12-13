@@ -225,15 +225,18 @@ describe Pry::InputCompleter do
     completer_test(self, nil, false).call("[].size.parse_printf_format")
   end
 
-  it 'ignores methods from modules that override Object#hash incompatibly' do
-    _m = Module.new do
-      def self.hash(a, b)
+  if !Pry::Helpers::BaseHelpers.jruby?
+    # Classes that override .hash are still hashable in JRuby, for some reason.
+    it 'ignores methods from modules that override Object#hash incompatibly' do
+      _m = Module.new do
+        def self.hash(a, b)
+        end
+
+        def aaaa
+        end
       end
 
-      def aaaa
-      end
+      completer_test(self, nil, false).call("[].size.aaaa")
     end
-
-    completer_test(self, nil, false).call("[].size.aaaa")
   end
 end
