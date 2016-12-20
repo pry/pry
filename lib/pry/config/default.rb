@@ -116,12 +116,13 @@ class Pry::Config::Default
       Pry::Config.from_hash({inspecter: proc(&:pretty_inspect)}, nil)
     },
     history: proc {
-      Pry::Config.from_hash({should_save: true, should_load: true}, nil).tap do |history|
+      Pry::Config.from_hash({should_save: true, should_load: true, should_add_duplicates: false}, nil).tap do |history|
         history.file = File.expand_path("~/.pry_history") rescue nil
         if history.file.nil?
           self.should_load_rc = false
           history.should_save = false
           history.should_load = false
+          history.should_add_duplicates = false
         end
       end
     },
