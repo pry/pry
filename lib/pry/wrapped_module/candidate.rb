@@ -101,9 +101,10 @@ class Pry
 
       def class_regexes
         mod_type_string = wrapped.class.to_s.downcase
-        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
+        name = @wrapper.name.split(/::/).last
+        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{name}/,
+         /^\s*(::)?#{name}\s*?=\s*?#{wrapped.class}/,
+         /^\s*(::)?#{name}\.(class|instance)_eval/]
       end
 
       # This method is used by `Candidate#source_location` as a

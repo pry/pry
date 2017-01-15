@@ -32,7 +32,7 @@ class Pry
     def process
       if opts.present?(:e)
         obj = target.eval(args.first)
-        self.args = Array.new(1) { Module === obj ? obj.name : obj.class.name }
+        self.args = Array.new(1) { Module === obj ? Pry.mod_name(obj) : Pry.mod_name(obj.class) }
       end
       super
     end

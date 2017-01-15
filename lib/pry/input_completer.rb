@@ -170,7 +170,7 @@ class Pry::InputCompleter
           candidates = []
           ObjectSpace.each_object(Module){|m|
             begin
-              name = m.name.to_s
+              name = Pry.mod_name(m).to_s
             rescue Pry::RescuableException
               name = ""
             end

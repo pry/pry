@@ -108,7 +108,8 @@ class Pry
 
     class << self
       def name
-        super.to_s == "" ? "#<class(Pry::Command #{match.inspect})>" : super
+        orig = Pry.mod_name(self)
+        orig.nil? ? "#<class(Pry::Command #{match.inspect})>" : orig
       end
 
       def inspect

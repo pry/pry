@@ -326,12 +326,16 @@ describe "test Pry defaults" do
         describe "with a #name shorter than or equal to the maximum specified" do
           it "returns a string of the #<class name:object idish> format" do
             c, m = Class.new, Module.new
+            c_name, m_name = 'C' * MAX_LENGTH, 'M' * MAX_LENGTH
 
-            def c.name; "a" * MAX_LENGTH; end
-            def m.name; "a" * MAX_LENGTH; end
+            Object.const_set(c_name, c)
+            Object.const_set(m_name, m)
 
-            expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to eq c.name
-            expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to eq m.name
+            expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to eq c_name
+            expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to eq m_name
+
+            Object.remove_const(c_name)
+            Object.remove_const(m_name)
           end
         end
 

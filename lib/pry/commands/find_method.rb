@@ -79,7 +79,7 @@ class Pry
     # @param [Array<Method>] matches
     def print_matches(matches)
       grouped = matches.group_by(&:owner)
-      order = grouped.keys.sort_by{ |x| x.name || x.to_s }
+      order = grouped.keys.sort_by{ |x| Pry.mod_name(x) || x.to_s }
 
       order.each do |klass|
         print_matches_for_class(klass, grouped)
@@ -88,7 +88,7 @@ class Pry
 
     # Print matched methods for a class
     def print_matches_for_class(klass, grouped)
-      output.puts text.bold(klass.name)
+      output.puts text.bold(Pry.mod_name(klass))
       grouped[klass].each do |method|
         header = method.name_with_owner
         output.puts header + additional_info(header, method)
