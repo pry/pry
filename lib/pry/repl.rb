@@ -179,6 +179,12 @@ class Pry
           input.completion_proc = proc do |inp|
             @pry.complete inp
           end
+        elsif !input.respond_to? :completion_proc
+          def input.completion_proc
+            proc do |inp|
+              @pry.complete inp
+            end
+          end
         end
 
         if readline_available?
