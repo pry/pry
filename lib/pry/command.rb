@@ -197,21 +197,23 @@ class Pry
       # manually overridden if necessary.
       # Group should not be changed once it is initialized.
       def group(name=nil)
-        @group ||= if name
-                     name
+        @group = if name
+                   name
+                 elsif @group
+                   @group
+                 else
+                   case Pry::Method(block).source_file
+                   when %r{/pry/.*_commands/(.*).rb}
+                     $1.capitalize.gsub(/_/, " ")
+                   when %r{(pry-\w+)-([\d\.]+([\w\d\.]+)?)}
+                     name, version = $1, $2
+                     "#{name.to_s} (v#{version.to_s})"
+                   when /pryrc/
+                     "~/.pryrc"
                    else
-                     case Pry::Method(block).source_file
-                     when %r{/pry/.*_commands/(.*).rb}
-                       $1.capitalize.gsub(/_/, " ")
-                     when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
-                       name, version = $1, $2
-                       "#{name.to_s} (v#{version.to_s})"
-                     when /pryrc/
-                       "~/.pryrc"
-                     else
-                       "(other)"
-                     end
+                     "(other)"
                    end
+                 end
       end
     end
 
