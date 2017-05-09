@@ -2,7 +2,7 @@
 [![Code Climate](https://img.shields.io/codeclimate/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
 [![Inline docs](http://inch-ci.org/github/pry/pry.svg?style=shields)](http://inch-ci.org/github/pry/pry)
 <br><br>
-[![logo for Pry](https://dl.dropbox.com/u/26521875/pry%20stuff/logo/pry_logo_350.png)
+![logo for Pry](https://dl.dropbox.com/u/26521875/pry%20stuff/logo/pry_logo_350.png)
 
 © John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2016<br>
 
@@ -20,7 +20,7 @@
 
 [Skip to the website (recommended)](http://pryrepl.org/) <br />
 [Skip to the wiki](https://github.com/pry/pry/wiki)
-</center>
+
 
 Pry is a powerful alternative to the standard IRB shell for Ruby. It is
 written from scratch to provide a number of advanced features,
