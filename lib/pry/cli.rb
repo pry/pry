@@ -186,7 +186,9 @@ Copyright (c) 2016 John Mair (banisterfiend)
     exit
   end
 
-  on "simple-prompt", "Enable simple prompt mode" do
+  on :p, "simple-prompt", "Enable simple prompt mode" do
+    Pry.config.should_load_rc = false
+    Pry.config.should_load_local_rc = false
     Pry.config.prompt = Pry::SIMPLE_PROMPT
   end
 
