@@ -168,14 +168,9 @@ class Pry::InputCompleter
         else
           # func1.func2
           candidates = []
+          to_ignore = ignored_modules
           ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+            next if (to_ignore.include?(m) rescue true)
 
             # jruby doesn't always provide #instance_methods() on each
             # object.
@@ -183,8 +178,8 @@ class Pry::InputCompleter
               candidates.concat m.instance_methods(false).collect(&:to_s)
             end
           }
-          candidates.sort!
           candidates.uniq!
+          candidates.sort!
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -238,5 +233,33 @@ class Pry::InputCompleter
       p
     end
     return path, input
+  end
+
+  def ignored_modules
+    # We could cache the result, but IRB is not loaded by default.
+    # And this is very fast anyway.
+    # By using this approach, we avoid Module#name calls, which are
+    # relatively slow when there are a lot of anonymous modules defined.
+    s = Set.new
+
+    scanner = lambda do |m|
+      next if s.include?(m) # IRB::ExtendCommandBundle::EXCB recurses.
+      s << m
+      m.constants(false).each do |c|
+        value = m.const_get(c)
+        scanner.call(value) if value.is_a?(Module)
+      end
+    end
+
+    # FIXME: Add Pry here as well?
+    %w(IRB SLex RubyLex RubyToken).each do |module_name|
+      sym = module_name.to_sym
+      next unless Object.const_defined?(sym)
+      scanner.call(Object.const_get(sym))
+    end
+
+    s.delete(IRB::Context) if defined?(IRB::Context)
+
+    s
   end
 end

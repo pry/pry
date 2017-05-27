@@ -215,4 +215,28 @@ describe Pry::InputCompleter do
     pry = Pry.new
     expect(Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding)).not_to include nil
   end
+
+  it 'completes expressions with all available methods' do
+    completer_test(self).call("[].size.chars")
+  end
+
+  it 'does not offer methods from blacklisted modules' do
+    require 'irb'
+    completer_test(self, nil, false).call("[].size.parse_printf_format")
+  end
+
+  if !Pry::Helpers::BaseHelpers.jruby?
+    # Classes that override .hash are still hashable in JRuby, for some reason.
+    it 'ignores methods from modules that override Object#hash incompatibly' do
+      _m = Module.new do
+        def self.hash(a, b)
+        end
+
+        def aaaa
+        end
+      end
+
+      completer_test(self, nil, false).call("[].size.aaaa")
+    end
+  end
 end
