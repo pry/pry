@@ -1,41 +1,50 @@
 require_relative 'helper'
-require "readline" unless defined?(Readline)
-require "pry/input_completer"
-
-def completer_test(bind, pry=nil, assert_flag=true)
-  test = proc {|symbol|
-    expect(Pry::InputCompleter.new(pry || Readline, pry).call(symbol[0..-2], :target => Pry.binding_for(bind)).include?(symbol)).to  eq(assert_flag)}
-  return proc {|*symbols| symbols.each(&test) }
-end
-
+require 'readline' unless defined?(Readline)
+require 'pry/input_completer'
 
 describe Pry::InputCompleter do
-  before do
-    # The AMQP gem has some classes like this:
-    #  pry(main)> AMQP::Protocol::Test::ContentOk.name
-    #  => :content_ok
-    module SymbolyName
-      def self.name; :symboly_name; end
-    end
+  around do |ex|
+    begin
+      # The AMQP gem has some classes like this:
+      #  pry(main)> AMQP::Protocol::Test::ContentOk.name
+      #  => :content_ok
+      module SymbolyName
+        def self.name; :symboly_name; end
+      end
 
-    @before_completer = Pry.config.completer
-    Pry.config.completer = Pry::InputCompleter
+      old_completer = Pry.config.completer
+      Pry.config.completer = described_class
+      ex.run
+    ensure
+      Pry.config.completer = old_completer
+      Object.remove_const :SymbolyName
+    end
+  end
+  let(:instance) { described_class.new(Readline) }
+
+  def completion_for(str, bind, input = nil, pry = nil)
+    # Use default instance if input & pry are nil
+    instance = input || pry ? described_class.new(input || Readline, pry) : self.instance
+    instance.call(str, :target => Pry.binding_for(bind))
   end
 
-  after do
-    Pry.config.completer = @before_completer
-    Object.remove_const :SymbolyName
+  def completer_test(bind, pry = nil, assert_flag = true)
+    test = proc do |symbol|
+      expect(completion_for(symbol[0..-2], bind, nil, pry)).
+        public_send(assert_flag ? :to : :to_not, include(symbol))
+    end
+    proc { |*symbols| symbols.each(&test) }
   end
 
   # another jruby hack :((
   if !Pry::Helpers::BaseHelpers.jruby?
-    it "should not crash if there's a Module that has a symbolic name." do
-      expect { Pry::InputCompleter.new(Readline).call "a.to_s.", :target => Pry.binding_for(Object.new) }.not_to raise_error
+    it 'should not crash if there`s a Module that has a symbolic name.' do
+      expect { completion_for('a.to_s.', Object.new) }.not_to raise_error
     end
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    expect { Pry::InputCompleter.new(Readline).call ":class)", :target => Pry.binding_for(Object.new) }.not_to raise_error
+    expect { completion_for(':class)', Object.new) }.not_to raise_error
   end
 
   it 'should complete instance variables' do
@@ -115,7 +124,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/')).to   eq(true)
+    expect(completion_for('Mod2/', Mod)).to include('Mod2/')
   end
 
   it 'should complete for arbitrary scopes' do
@@ -134,7 +143,7 @@ describe Pry::InputCompleter do
     pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
-    completer_test(b, pry).call("../@bazvar")
+    completer_test(b, pry).call('../@bazvar')
     completer_test(b, pry).call('/Con')
   end
 
@@ -188,7 +197,7 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/')).to   eq(true)
+    expect(completion_for('Mod2/', Mod)).to include('Mod2/')
   end
 
   it 'should complete for arbitrary scopes' do
@@ -207,12 +216,67 @@ describe Pry::InputCompleter do
     pry.push_binding(Bar)
 
     b = Pry.binding_for(Bar)
-    completer_test(b, pry).call("../@bazvar")
+    completer_test(b, pry).call('../@bazvar')
     completer_test(b, pry).call('/Con')
   end
 
   it 'should not return nil in its output' do
-    pry = Pry.new
-    expect(Pry::InputCompleter.new(Readline, pry).call("pry.", :target => binding)).not_to include nil
+    expect(completion_for('pry.', binding, Readline, Pry.new)).not_to include nil
+  end
+
+  context 'for expressions' do
+    let(:method_1) { :custom_method_for_test }
+    let(:method_2) { :custom_method_for_test_other }
+    let!(:custom_module) do
+      method = method_1
+      Module.new { attr_reader method }
+    end
+    let(:custom_module_2) do
+      method = method_2
+      Module.new { attr_accessor method }
+    end
+    # gc to reset method_cache_version in old rubies and jruby
+    before { GC.start }
+
+    it 'completes expressions with all all available methods' do
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self, nil, false).call("[].size.#{method_2}")
+    end
+
+    it 'uses cached list of methods' do
+      expect(Pry::Helpers::CompleterHelpers).
+        to receive(:all_available_methods).and_call_original
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self, nil, false).call("[].size.#{method_2}")
+      custom_module_2
+      expect(Pry::Helpers::CompleterHelpers).
+        to receive(:all_available_methods).and_call_original
+      completer_test(self).call("[].size.#{method_1}")
+      completer_test(self).call("[].size.#{method_2}")
+    end
+
+    it 'does not offer methods from blacklisted modules' do
+      require 'irb'
+      completer_test(self, nil, false).call("[].size.parse_printf_format")
+    end
+
+    context 'when some module overrides .hash method' do
+      let(:method_3) { :custom_method_for_test_from_invalid_module }
+      let!(:custom_module_3) do
+        method = method_3
+        Module.new do
+          attr_reader method
+          def self.hash(x); end
+        end
+      end
+
+      # jruby seems to not use .hash for lookup in the Set
+      unless Pry::Helpers::BaseHelpers.jruby?
+        it 'ignores this module' do
+          completer_test(self).call("[].size.#{method_1}")
+          completer_test(self, nil, false).call("[].size.#{method_3}")
+        end
+      end
+    end
   end
 end

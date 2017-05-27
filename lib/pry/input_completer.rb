@@ -157,34 +157,17 @@ class Pry::InputCompleter
         lv = eval("local_variables", bind).collect(&:to_s)
         cv = eval("self.class.constants", bind).collect(&:to_s)
 
-        if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
+        candidates = if (gv | lv | cv).include?(receiver) || /^[A-Z][^.]*$/ =~ receiver
           # foo.func and foo is local var. OR
           # Foo::Bar.func
           begin
-            candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
+            eval("#{receiver}.methods", bind).collect(&:to_s)
           rescue Pry::RescuableException
-            candidates = []
+            []
           end
         else
           # func1.func2
-          candidates = []
-          ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-            # jruby doesn't always provide #instance_methods() on each
-            # object.
-            if m.respond_to?(:instance_methods)
-              candidates.concat m.instance_methods(false).collect(&:to_s)
-            end
-          }
-          candidates.sort!
-          candidates.uniq!
+          all_available_methods_cached
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -238,5 +221,16 @@ class Pry::InputCompleter
       p
     end
     return path, input
+  end
+
+  private
+
+  def all_available_methods_cached
+    current_version = Pry::Helpers::CompleterHelpers.methods_cache_version
+    unless current_version && @methods_cache_version == current_version
+      @all_available_methods_cached = Pry::Helpers::CompleterHelpers.all_available_methods
+      @methods_cache_version = current_version
+    end
+    @all_available_methods_cached
   end
 end
