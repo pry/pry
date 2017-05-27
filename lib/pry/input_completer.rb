@@ -1,5 +1,6 @@
 # taken from irb
 # Implements tab completion for Readline in Pry
+require 'thread'
 class Pry::InputCompleter
   NUMERIC_REGEXP            = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/
   ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/
@@ -40,6 +41,10 @@ class Pry::InputCompleter
               ]
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
+
+  class << self
+    attr_accessor :obj_space_collection, :obj_space_count, :obj_space_mutex
+  end
 
   def initialize(input, pry = nil)
     @pry = pry
@@ -167,24 +172,7 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
-          candidates = []
-          ObjectSpace.each_object(Module){|m|
-            begin
-              name = m.name.to_s
-            rescue Pry::RescuableException
-              name = ""
-            end
-            next if name != "IRB::Context" and
-            /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
-
-            # jruby doesn't always provide #instance_methods() on each
-            # object.
-            if m.respond_to?(:instance_methods)
-              candidates.concat m.instance_methods(false).collect(&:to_s)
-            end
-          }
-          candidates.sort!
-          candidates.uniq!
+          candidates = self.class.fetch_obj_space_collection
         end
         select_message(path, receiver, message, candidates)
       when /^\.([^.]*)$/
@@ -238,5 +226,40 @@ class Pry::InputCompleter
       p
     end
     return path, input
+  end
+
+  private
+
+  def self.fetch_obj_space_collection
+    (self.obj_space_mutex ||= Mutex.new).synchronize do
+      all_modules = ObjectSpace.each_object(Module)
+      count = all_modules.inject(0) do |a,e|
+        # we have a memory leak with Pry::Config, Class generates every time on autocomplete
+        # this checks are here for stubbing it.
+          a+= e.is_a?(Class) && e.superclass == Pry::Config ? 0 : e.instance_methods(false).count
+        end
+      return self.obj_space_collection if count == self.obj_space_count
+      self.obj_space_count = 0
+      buffer = {}
+      all_modules.each do |m|
+        begin
+          name = m.name.to_s
+        rescue Pry::RescuableException
+          name = ""
+        end
+
+        if name != "IRB::Context" and /^(IRB|SLex|RubyLex|RubyToken)/ =~ name
+          self.obj_space_count += m.instance_methods(false).count
+          next
+        end
+        next if m.is_a?(Class) && m.superclass == Pry::Config
+
+        # jruby doesn't always provide #instance_methods() on each
+        # object.
+        # this is the fastest way to make this collection uniq
+        self.obj_space_count += m.instance_methods(false).each{ |method| buffer[method] = nil }.count
+      end
+      self.obj_space_collection = buffer.keys.map(&:to_s).sort
+    end
   end
 end
