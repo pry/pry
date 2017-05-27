@@ -18,11 +18,11 @@ class Pry
 
       COLORS.each_pair do |color, value|
         define_method color do |text|
-          "\001\033[0;#{30+value}m\002#{text}\001\033[0m\002"
+          "\033[0;#{30+value}m#{text}\033[0m"
         end
 
         define_method "bright_#{color}" do |text|
-          "\001\033[1;#{30+value}m\002#{text}\001\033[0m\002"
+          "\033[1;#{30+value}m#{text}\033[0m"
         end
       end
 
@@ -98,3 +98,4 @@ class Pry
     end
   end
 end
+
