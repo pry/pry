@@ -189,7 +189,7 @@ class Pry::Pager
     end
 
     def invoked_pager?
-      @pager
+      @pager || nil
     end
 
     def pager
