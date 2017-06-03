@@ -167,21 +167,18 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
-          candidates = []
+          candidates = Set.new
           to_ignore = ignored_modules
           ObjectSpace.each_object(Module){|m|
             next if (to_ignore.include?(m) rescue true)
-
             # jruby doesn't always provide #instance_methods() on each
             # object.
             if m.respond_to?(:instance_methods)
-              candidates.concat m.instance_methods(false).collect(&:to_s)
+              candidates.merge m.instance_methods(false).collect(&:to_s)
             end
           }
-          candidates.uniq!
-          candidates.sort!
         end
-        select_message(path, receiver, message, candidates)
+        select_message(path, receiver, message, candidates.sort)
       when /^\.([^.]*)$/
         # Unknown(maybe String)
         receiver = ""
