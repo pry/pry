@@ -252,14 +252,12 @@ class Pry::InputCompleter
     end
 
     # FIXME: Add Pry here as well?
-    %w(IRB SLex RubyLex RubyToken).each do |module_name|
-      sym = module_name.to_sym
-      next unless Object.const_defined?(sym)
-      scanner.call(Object.const_get(sym))
+    [:IRB, :SLex, :RubyLex, :RubyToken].each do |module_name|
+      next unless Object.const_defined?(module_name)
+      scanner.call(Object.const_get(module_name))
     end
 
     s.delete(IRB::Context) if defined?(IRB::Context)
-
     s
   end
 end
