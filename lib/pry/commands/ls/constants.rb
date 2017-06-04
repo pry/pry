@@ -3,7 +3,7 @@ require 'pry/commands/ls/interrogatable'
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
-      DEPRECATED_CONSTANTS = [:Fixnum, :Bignum, :NIL, :FALSE, :TRUE]
+      DEPRECATED_CONSTANTS = [:Fixnum, :Bignum, :TimeoutError, :NIL, :FALSE, :TRUE]
       include Pry::Command::Ls::Interrogatable
 
       def initialize(interrogatee, no_user_opts, opts, _pry_)
