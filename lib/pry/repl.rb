@@ -1,5 +1,3 @@
-require 'forwardable'
-
 class Pry
   class REPL
     extend Pry::Forwardable
