@@ -3,8 +3,8 @@ require 'pry/commands/ls/interrogatable'
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
+      DEPRECATED_CONSTANTS = [:Fixnum, :Bignum, :NIL, :FALSE, :TRUE]
       include Pry::Command::Ls::Interrogatable
-
 
       def initialize(interrogatee, no_user_opts, opts, _pry_)
         super(_pry_)
@@ -12,6 +12,7 @@ class Pry
         @no_user_opts = no_user_opts
         @default_switch = opts[:constants]
         @verbose_switch = opts[:verbose]
+        @dconstants = opts.dconstants?
       end
 
       def correct_opts?
@@ -26,8 +27,17 @@ class Pry
 
       private
 
+      def show_deprecated_constants?
+        @dconstants == true
+      end
+
       def format(mod, constants)
         constants.sort_by(&:downcase).map do |name|
+          if Object.respond_to?(:deprecate_constant) and
+            DEPRECATED_CONSTANTS.include?(name)      and
+            !show_deprecated_constants?
+            next
+          end
           if const = (!mod.autoload?(name) && (mod.const_get(name) || true) rescue nil)
             if (const < Exception rescue false)
               color(:exception_constant, name)
