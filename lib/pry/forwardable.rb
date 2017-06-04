@@ -17,7 +17,7 @@ class Pry
           instance_variable_get(target).__send__(private_delegate, *a, &b)
         end
       end
-      class_eval { private *private_delegates }
+      class_eval { private(*private_delegates) }
     end
   end
 end
