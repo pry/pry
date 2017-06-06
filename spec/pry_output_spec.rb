@@ -90,6 +90,19 @@ describe Pry do
       # We add an extra \e[0m to prevent color leak
       expect(accumulator.string).to eq("=> \e[1;31mFoo\e[0m\e[0m\n")
     end
+
+    it "should strip readline prompt ignore codes from strings that already include color" do
+      pry = Pry.new
+      f = Object.new
+      def f.inspect
+        Pry::Helpers::Text.bright_red("Foo")
+      end
+      accumulator = StringIO.new
+      pry.config.output = accumulator
+      pry.config.print.call(accumulator, f, pry)
+      # We add an extra \e[0m to prevent color leak
+      expect(accumulator.string).to eq("=> \e[1;31mFoo\e[0m\e[0m\n")
+    end
   end
 
   describe "output suppression" do
