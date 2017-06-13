@@ -1,10 +1,13 @@
 ### HEAD
 
-* Improve completion speed in large applications. [#1588](https://github.com/pry/pry/pull/1588)
-* Pry::ColorPrinter.pp: add `newline` argument and pass it on to PP. [#1603](https://github.com/pry/pry/pull/1603)
-* Use `less` or system pager pager on MS Windows if it is available. [#1512](https://github.com/pry/pry/pull/1512)
-* Add `Pry.configure` as an alternative to the current way of changing configuration options in `.pryrc` files. [#1502](https://github.com/pry/pry/pull/1502)
-* Add `Pry::Config::Behavior#eager_load!` to add a possible workaround for issues like [#1501](https://github.com/pry/pry/issues/1501)
+* Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
+  * Deprecated constants are hidden from `ls` output by default, use the `-d` switch to see them.
+  * Fix warnings that originate in Pry while using the repl.
+* Improve completion speed in large applications. ([#1588](https://github.com/pry/pry/pull/1588))
+* Pry::ColorPrinter.pp: add `newline` argument and pass it on to PP. ([#1603](https://github.com/pry/pry/pull/1603))
+* Use `less` or system pager pager on MS Windows if it is available. ([#1512](https://github.com/pry/pry/pull/1512))
+* Add `Pry.configure` as an alternative to the current way of changing configuration options in `.pryrc` files. ([#1502](https://github.com/pry/pry/pull/1502))
+* Add `Pry::Config::Behavior#eager_load!` to add a possible workaround for issues like ([#1501](https://github.com/pry/pry/issues/1501))
 * Remove Slop as a runtime dependency by vendoring v3.4 as Pry::Slop.
   People can depend on Slop v4 and Pry at the same time without running into version conflicts. ([#1497](https://github.com/pry/pry/issues/1497))
 * Fix auto-indentation of code that uses a single-line rescue ([#1450](https://github.com/pry/pry/issues/1450))
@@ -34,7 +37,7 @@
 * Implemented support for CDPATH for ShellCommand ([#1433](https://github.com/pry/pry/issues/1433), [#1434](https://github.com/pry/pry/issues/1434))
 * `Pry::CLI.parse_options` does not start Pry anymore ([#1393](https://github.com/pry/pry/pull/1393))
 * The gem uses CPU-less platforms for Windows now ([#1410](https://github.com/pry/pry/pull/1410))
-* Add `Pry::Config::Lazy` to make it easier to reimplement `Pry::Config::Default` without knowing its implementation [#1503](https://github.com/pry/pry/pull/1503/)
+* Add `Pry::Config::Lazy` to make it easier to reimplement `Pry::Config::Default` without knowing its implementation ([#1503](https://github.com/pry/pry/pull/1503/))
 * Lazy load the config defaults for `Pry.config.history` and `Pry.config.gist`.
 
 ### 0.10.1

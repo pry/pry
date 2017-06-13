@@ -5,7 +5,7 @@ class Pry
   LOCAL_RC_FILE = "./.pryrc"
 
   class << self
-    extend Forwardable
+    extend Pry::Forwardable
     attr_accessor :custom_completions
     attr_accessor :current_line
     attr_accessor :line_buffer

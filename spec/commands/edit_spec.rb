@@ -388,8 +388,8 @@ describe "edit" do
     end
 
     it "should edit a multi-line expression as it occupies one line of _in_" do
-      pry_eval "class Fixnum\n  def invert; -self; end\nend", "edit -i 1"
-      expect(@contents).to eq "class Fixnum\n  def invert; -self; end\nend\n"
+      pry_eval "class #{1.class}\n  def invert; -self; end\nend", "edit -i 1"
+      expect(@contents).to eq "class #{1.class}\n  def invert; -self; end\nend\n"
     end
 
     it "should not work with a filename" do

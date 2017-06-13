@@ -332,7 +332,7 @@ class Pry::Slop
   # Override this method so we can check if an option? method exists.
   #
   # Returns true if this option key exists in our list of options.
-  def respond_to_missing?(method_name, include_private = false)
+  def respond_to_missing?(method_name, include_all=false)
     options.any? { |o| o.key == method_name.to_s.chop } || super
   end
 
