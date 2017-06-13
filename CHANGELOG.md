@@ -1,5 +1,8 @@
 ### HEAD
 
+* Improve Ruby 2.4 support:
+  * Deprecated constants are hidden from `ls` output by default, use the `-d` switch to see them.
+  * Fix warnings that originate in Pry while using the repl.
 * Improve completion speed in large applications. [#1588](https://github.com/pry/pry/pull/1588)
 * Pry::ColorPrinter.pp: add `newline` argument and pass it on to PP. [#1603](https://github.com/pry/pry/pull/1603)
 * Use `less` or system pager pager on MS Windows if it is available. [#1512](https://github.com/pry/pry/pull/1512)
