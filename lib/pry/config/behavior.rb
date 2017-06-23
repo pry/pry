@@ -142,6 +142,7 @@ module Pry::Config::Behavior
 
   def eager_load!
     local_last_default = last_default
+    return if ! local_last_default.respond_to?(:memoized_methods)
     local_last_default.memoized_methods.each do |key|
       self[key] = local_last_default.public_send(key)
     end
