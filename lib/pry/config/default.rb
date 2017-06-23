@@ -1,8 +1,8 @@
 class Pry::Config::Default
   include Pry::Config::Behavior
-  include Pry::Config::Lazy
+  include Pry::Config::Memoization
 
-  lazy_implement({
+  def_memoized({
     input: proc {
       lazy_readline
     },
