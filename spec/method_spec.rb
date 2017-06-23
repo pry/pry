@@ -415,7 +415,8 @@ describe Pry::Method do
       end
 
       it "should not include singleton classes of numbers" do
-        expect(Pry::Method.resolution_order(4)).to eq Pry::Method.instance_resolution_order(Fixnum)
+        target_class = 4.class
+        expect(Pry::Method.resolution_order(4)).to eq Pry::Method.instance_resolution_order(target_class)
       end
 
       it "should include singleton classes for classes" do

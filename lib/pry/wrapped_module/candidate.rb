@@ -1,5 +1,4 @@
 require 'pry/helpers/documentation_helpers'
-require 'forwardable'
 
 class Pry
   class WrappedModule
@@ -10,7 +9,7 @@ class Pry
     class Candidate
       include Pry::Helpers::DocumentationHelpers
       include Pry::CodeObject::Helpers
-      extend Forwardable
+      extend Pry::Forwardable
 
       # @return [String] The file where the module definition is located.
       attr_reader :file
@@ -22,15 +21,12 @@ class Pry
 
       # Methods to delegate to associated `Pry::WrappedModule
       # instance`.
-      private_delegates = [:lines_for_file, :method_candidates,
-                           :yard_docs?]
-
-      public_delegates = [:wrapped, :module?, :class?, :name, :nonblank_name,
+      private_delegates = [:lines_for_file, :method_candidates, :yard_docs?, :name]
+      public_delegates = [:wrapped, :module?, :class?, :nonblank_name,
                           :number_of_candidates]
 
-      def_delegators :@wrapper, *(private_delegates + public_delegates)
-      private(*private_delegates)
-      public(*public_delegates)
+      def_delegators :@wrapper, *public_delegates
+      def_private_delegators :@wrapper, *private_delegates
 
       # @raise [Pry::CommandError] If `rank` is out of bounds.
       # @param [Pry::WrappedModule] wrapper The associated

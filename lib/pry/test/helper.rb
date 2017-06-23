@@ -102,7 +102,7 @@ def pry_eval(*eval_strs)
 end
 
 class PryTester
-  extend Forwardable
+  extend Pry::Forwardable
 
   attr_reader :pry, :out
 

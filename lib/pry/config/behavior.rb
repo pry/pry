@@ -186,8 +186,8 @@ module Pry::Config::Behavior
     end
   end
 
-  def respond_to_missing?(key, include_private=false)
-    key?(key) or @default.respond_to?(key) or super(key, include_private)
+  def respond_to_missing?(key, include_all=false)
+    key?(key) or @default.respond_to?(key) or super(key, include_all)
   end
 
 private

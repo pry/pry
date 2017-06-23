@@ -157,7 +157,7 @@ class Pry
       case opts[:i]
       when Range
         (_pry_.input_array[opts[:i]] || []).join
-      when Fixnum
+      when Integer
         _pry_.input_array[opts[:i]] || ""
       else
         raise Pry::CommandError, "Not a valid range: #{opts[:i]}"

@@ -150,8 +150,8 @@ class Pry
       wrapped.send(method_name, *args, &block)
     end
 
-    def respond_to?(method_name)
-      super || wrapped.respond_to?(method_name)
+    def respond_to?(method_name, include_all=false)
+      super || wrapped.respond_to?(method_name, include_all)
     end
 
     # Retrieve the source location of a module. Return value is in same

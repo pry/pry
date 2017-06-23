@@ -2,12 +2,11 @@
 # MIT License
 #
 require 'pp'
-
+require 'pry/forwardable'
 require 'pry/input_lock'
 require 'pry/exceptions'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
-require 'forwardable'
 
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.

@@ -338,7 +338,7 @@ class Pry
     undef =~
 
     # Check whether String responds to missing methods.
-    def respond_to_missing?(name, include_all = false)
+    def respond_to_missing?(name, include_all=false)
       ''.respond_to?(name, include_all)
     end
 

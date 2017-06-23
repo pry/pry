@@ -461,8 +461,8 @@ class Pry
 
     # @param [String, Symbol] method_name
     # @return [Boolean]
-    def respond_to?(method_name)
-      super or @method.respond_to?(method_name)
+    def respond_to?(method_name, include_all=false)
+      super or @method.respond_to?(method_name, include_all)
     end
 
     # Delegate any unknown calls to the wrapped method.

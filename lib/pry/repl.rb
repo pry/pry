@@ -1,8 +1,6 @@
-require 'forwardable'
-
 class Pry
   class REPL
-    extend Forwardable
+    extend Pry::Forwardable
     def_delegators :@pry, :input, :output
 
     # @return [Pry] The instance of {Pry} that the user is controlling.
