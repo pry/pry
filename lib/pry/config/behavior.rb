@@ -143,8 +143,7 @@ module Pry::Config::Behavior
   def eager_load!
     default = @default
     while default
-      next if not default.respond_to?(:memoized_methods)
-      default.memoized_methods.each {|method| self[key] = default.public_send(key) }
+      default.memoized_methods.each {|method| self[key] = default.public_send(key)} if default.respond_to?(:memoized_methods)
       default = @default.default
     end
   end
