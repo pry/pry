@@ -85,6 +85,13 @@ describe Pry::InputCompleter do
 
     # Absolute Constant
     completer_test(o).call('::IndexError')
+
+    # String
+    completer_test(Object.new).call('"".size')
+    completer_test(Object.new).call('abcd".size')
+
+    # Chain of calls starting with a string
+    completer_test(Object.new).call('abcd".size.times')
   end
 
   it 'should complete for target symbols' do
