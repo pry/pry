@@ -1,5 +1,6 @@
 ### HEAD
 
+* Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
 * Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
   * Deprecated constants are hidden from `ls` output by default, use the `-d` switch to see them.
   * Fix warnings that originate in Pry while using the repl.
