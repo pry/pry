@@ -35,6 +35,17 @@ describe Pry::WrappedModule do
           end
         end
       end
+
+      module ModuleNameOverride
+        def self.name; 'Not a good idea, but it happens in the wild.' end
+      end
+    end
+
+    describe 'overidden Module#name' do
+      it 'should resolve correct name' do
+        wm = Pry::WrappedModule(Host::ModuleNameOverride)
+        expect(wm.candidate(0).source_location).not_to be_nil
+      end
     end
 
     describe "number_of_candidates" do
