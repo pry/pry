@@ -24,6 +24,16 @@ class Pry
         define_method "bright_#{color}" do |text|
           "\033[1;#{30+value}m#{text}\033[0m"
         end
+
+        COLORS.each_pair do |bg_color, bg_value|
+          define_method "#{color}_on_#{bg_color}" do |text|
+            "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+          end
+
+          define_method "bright_#{color}_on_#{bg_color}" do |text|
+            "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+          end
+        end
       end
 
       # Remove any color codes from _text_.
