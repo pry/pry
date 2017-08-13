@@ -12,7 +12,8 @@ class Pry::InputCompleter
   CONSTANT_OR_METHOD_REGEXP = /^([A-Z].*)::([^:.]*)$/
   HEX_REGEXP                = /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/
   GLOBALVARIABLE_REGEXP     = /^(\$[^.]*)$/
-  VARIABLE_REGEXP           = /^([^."].*)\.([^.]*)$/
+  VARIABLE_REGEXP           = /^(.*[^.'"])\.([^.]*)$/
+  STRING_REGEXP             = /^(.*["'])\.([^.]*)$/
 
   ReservedWords = [
                    "BEGIN", "END",
@@ -39,12 +40,9 @@ class Pry::InputCompleter
                "[]", "[]=", "^", "!", "!=", "!~"
               ]
 
-  WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
-
   def initialize(input, pry = nil)
     @pry = pry
     @input = input
-    @input.basic_word_break_characters = WORD_ESCAPE_STR if @input.respond_to?(:basic_word_break_characters=)
     @input.completion_append_character = nil if @input.respond_to?(:completion_append_character=)
   end
 
@@ -179,12 +177,13 @@ class Pry::InputCompleter
           }
         end
         select_message(path, receiver, message, candidates.sort)
-      when /^\.([^.]*)$/
-        # Unknown(maybe String)
-        receiver = ""
-        message = Regexp.quote($1)
+      when STRING_REGEXP
+        receiver = $1
+        message = Regexp.quote($2)
         candidates = String.instance_methods(true).collect(&:to_s)
         select_message(path, receiver, message, candidates)
+      # TODO: Handle the target-less calls (e.g. with a space before the dot).
+      # when /^\.([^.]*)$/
       else
         candidates = eval(
                           "methods | private_methods | local_variables | " \

@@ -239,4 +239,18 @@ describe Pry::Config do
       expect(local['output']).to eq(nil)
     end
   end
+
+  describe "#input=" do
+    it 'assigns a value on the key' do
+      local = Pry::Config.from_hash({})
+      local.input = :foo
+      expect(local.input).to eq(:foo)
+    end
+
+    it 'modifies input itself' do
+      input = OpenStruct.new(completer_word_break_characters: 'asdf')
+      local = Pry::Config.from_hash(input: input)
+      expect(input.completer_word_break_characters).to eq(Pry::Config::READLINE_WORD_ESCAPE_STR)
+    end
+  end
 end

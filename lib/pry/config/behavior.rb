@@ -219,9 +219,11 @@ private
   def __push(key,value)
     unless singleton_class.method_defined? key
       define_singleton_method(key) { self[key] }
+    end
+    unless singleton_class.method_defined? "#{key}="
       define_singleton_method("#{key}=") { |val| @lookup[key] = val }
     end
-    @lookup[key] = value
+    send("#{key}=", value)
   end
 
   def __remove(key)
