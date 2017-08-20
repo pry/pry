@@ -1,6 +1,7 @@
 ### HEAD
 
 * Include Pry::Helpers::Text into Pry::Command, and deprecate `Pry::Command#text`. ([#1629](https://github.com/pry/pry/pull/1629))
+* Add text helpers for background colors ([#1624](https://github.com/pry/pry/pull/1624))
 * Fix string literal methods completion. ([#1590](https://github.com/pry/pry/pull/1590))
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
 * Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
