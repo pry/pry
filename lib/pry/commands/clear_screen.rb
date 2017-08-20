@@ -6,9 +6,9 @@ class Pry::Command::ClearScreen < Pry::ClassCommand
 
   def process
     if windows?
-      _pry_.config.system.call(_pry_.output, 'cls')
+      _pry_.config.system.call(_pry_.output, 'cls', _pry_)
     else
-      _pry_.config.system.call(_pry_.output, 'clear')
+      _pry_.config.system.call(_pry_.output, 'clear', _pry_)
     end
   end
   Pry::Commands.add_command(self)
