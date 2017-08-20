@@ -19,9 +19,9 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
     end
   end
 
-private
+  private
   def prompt_map
-    Pry::Prompt::MAP
+    Pry::Prompt::PROMPT_MAP
   end
 
   def selected_text
