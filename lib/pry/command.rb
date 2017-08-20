@@ -254,6 +254,14 @@ class Pry
       command_set.to_hash
     end
 
+    #
+    # @deprecated {Pry::Helpers::Text} is included into {Pry::Command}.
+    # This method is no longer neccessary, as 'text.black("foo")' can be written as
+    # 'black("foo")' instead.
+    #
+    # @return [Module]
+    #   returns Pry::Helpers::Text
+    #
     def text
       Pry::Helpers::Text
     end
@@ -264,6 +272,7 @@ class Pry
 
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Text
 
     # Instantiate a command, in preparation for calling it.
     # @param [Hash] context The runtime context to use with this command.
