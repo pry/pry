@@ -42,9 +42,11 @@ describe Pry::WrappedModule do
     end
 
     describe 'overidden Module#name' do
-      it 'should resolve correct name' do
-        wm = Pry::WrappedModule(Host::ModuleNameOverride)
-        expect(wm.candidate(0).source_location).not_to be_nil
+      specify '#source_location does not return nil' do
+        c = Pry::WrappedModule(Host::ModuleNameOverride).candidate(0)
+        expect(c.wrapped).to eq(Host::ModuleNameOverride)
+        expect(c.nonblank_name).to eq(Host::ModuleNameOverride.name)
+        expect(c.source_location).not_to be_nil
       end
     end
 
