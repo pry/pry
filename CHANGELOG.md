@@ -1,5 +1,7 @@
 ### HEAD
 
+* Reduce the number of failed syscalls and potentially improve performance of `require "pry"`
+by preferring `require_relative` for files belonging to Pry ([#1627](https://github.com/pry/pry/pull/1627))
 * Add text helpers for background colors ([#1624](https://github.com/pry/pry/pull/1624))
 * Fix string literal methods completion. ([#1590](https://github.com/pry/pry/pull/1590))
 * Make sure Pry::WrappedModule::Candidate#source_location returns non-nil value when `.name` has
