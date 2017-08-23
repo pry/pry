@@ -1,5 +1,6 @@
 ### HEAD
 
+* Provide better fakefs integration by default. ([#1631](https://github.com/pry/pry/1631))
 * Add text helpers for background colors ([#1624](https://github.com/pry/pry/pull/1624))
 * Fix string literal methods completion. ([#1590](https://github.com/pry/pry/pull/1590))
 * Make sure Pry::WrappedModule::Candidate#source_location returns non-nil value when `.name` has
