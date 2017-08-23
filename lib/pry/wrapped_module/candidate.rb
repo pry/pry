@@ -97,9 +97,13 @@ class Pry
 
       def class_regexes
         mod_type_string = wrapped.class.to_s.downcase
-        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
+
+        # workaround for things that redefine Module.name - yes, they're out there.
+        wrapped_name = Pry::Helpers::BaseHelpers.safe_send wrapped, :name
+
+        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped_name.split(/::/).last}/,
+         /^\s*(::)?#{wrapped_name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
+         /^\s*(::)?#{wrapped_name.split(/::/).last}\.(class|instance)_eval/]
       end
 
       # This method is used by `Candidate#source_location` as a
