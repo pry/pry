@@ -1,5 +1,6 @@
 ### HEAD
 
+* Add 'alias-prompt' command.
 * Add `Pry::Prompt.add_prompt()`, `Pry::Prompt.get_prompt()`, `Pry::Prompt.alias_prompt` and
   `Pry::Prompt.remove_prompt()`, for integrating custom prompts with Pry
   ([#1628](https://github.com/pry/pry/pull/1628))
