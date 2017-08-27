@@ -11,16 +11,13 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
   BANNER
 
   def process(prompt)
-    if prompt_map.key?(prompt)
-      _pry_.prompt = prompt_map[prompt][:value]
+    if new_prompt = Pry::Prompt.get_prompt(prompt)
+      _pry_.prompt = new_prompt.proc_array
     else
       raise Pry::CommandError, "'#{prompt}' isn't a known prompt!"
     end
   end
 
   private
-  def prompt_map
-    Pry::Prompt::PROMPT_MAP
-  end
   Pry::Commands.add_command(self)
 end

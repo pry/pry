@@ -16,10 +16,9 @@ RSpec.describe Pry::Prompt do
   describe ".add_prompt" do
     specify "it adds a new prompt to Pry" do
       new_prompt = described_class::PROMPT_MAP['prompt-name']
-      expect(new_prompt).to eq(description: "prompt description", value: prompt_value)
       expect(pry_eval("list-prompts")).to include("prompt-name")
       expect(pry_eval("list-prompts")).to include("prompt description")
-      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(prompt_value)
+      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(new_prompt.proc_array)
     end
   end
 
@@ -28,6 +27,15 @@ RSpec.describe Pry::Prompt do
       described_class.remove_prompt 'prompt-name'
       expect(pry_eval("list-prompts")).to_not include("prompt-name")
       expect(pry_eval("list-prompts")).to_not include("prompt description")
+    end
+  end
+
+  describe ".alias_prompt" do
+    specify "creates alias" do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+      expect(described_class.aliases_for("prompt-name").map(&:name)).to eq(["prompt-alias"])
+      expect(pry_eval("list-prompts")).to include("Aliases: prompt-alias")
+      expect(pry_eval("change-prompt prompt-alias", "_pry_.prompt")).to eq(prompt_value)
     end
   end
 end

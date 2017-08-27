@@ -1,6 +1,43 @@
 module Pry::Prompt
   extend self
   PROMPT_MAP = {}
+  AliasError = Class.new(RuntimeError)
+  PromptInfo = Struct.new(:name, :description, :proc_array, :alias_for) do
+    #
+    # @return [Boolean]
+    #   Returns true if the prompt is an alias of another prompt.
+    #
+    def alias?
+      alias_for != nil
+    end
+  end
+
+  #
+  # @return [Array<PromptInfo>]
+  #   Returns an Array of {PromptInfo} objects.
+  #
+  def all_prompts
+    PROMPT_MAP.values
+  end
+
+  #
+  # @param [String] prompt
+  #   The name of a prompt.
+  #
+  # @return [Array<PromptInfo>]
+  #   Returns an array of aliases for _prompt_, as {PromptInfo} objects.
+  #
+  def aliases_for(prompt)
+    all_prompts.select{|prompt_info| prompt_info.alias_for == prompt.to_s}
+  end
+
+  #
+  # @return [Array<PromptInfo>]
+  #   Returns an array of all prompt aliases, as {PromptInfo} objects.
+  #
+  def aliased_prompts
+    all_prompts.select(&:alias?)
+  end
 
   #
   # Integrate a custom prompt with Pry.
@@ -17,29 +54,29 @@ module Pry::Prompt
   #  A prompt in the form of [proc {}, proc {}].
   #
   def add_prompt(name, description, value)
-    PROMPT_MAP[name.to_s] = {
-      value: value,
-      description: description
-    }
+    PROMPT_MAP[name.to_s] = PromptInfo.new(name, description, value, nil)
   end
 
   #
   # @example
   #
   #   # .pryrc
-  #   Pry.config.prompt = Pry::Prompt.get_prompt('simple')
+  #   Pry.config.prompt = Pry::Prompt.get_prompt('simple').proc_array
   #
-  # @return [Array<Proc,Proc>]
-  #   Returns a prompt in the form of [proc{}, proc{}]
+  # @return [PromptInfo]
+  #   Returns a prompt in the form of a PromptInfo object.
   #
   def get_prompt(name)
-    PROMPT_MAP.key?(name.to_s) and PROMPT_MAP[name.to_s][:value]
+    PROMPT_MAP.key?(name.to_s) and PROMPT_MAP[name.to_s]
   end
 
   #
   # Remove a prompt from Pry.
   # It will no longer be visible in the output of "list-prompts" or usable with the
   # "change-prompt" command.
+  #
+  # @note
+  #   Aliases are also removed.
   #
   # @param [String] name
   #   The name of a prompt.
@@ -48,7 +85,30 @@ module Pry::Prompt
   #   Returns truthy if a prompt was deleted, otherwise nil.
   #
   def remove_prompt(name)
-    PROMPT_MAP.delete name.to_s if PROMPT_MAP.key?(name.to_s)
+    name = name.to_s
+    if PROMPT_MAP.key?(name)
+      aliases_for(name).each{|_alias| PROMPT_MAP.delete(_alias.name)}
+      PROMPT_MAP.delete name
+    end
+  end
+
+  #
+  # Provide alternative name for a prompt, which can be used from the list-prompts
+  # and change-prompt commands.
+  #
+  # @param [String] prompt_name
+  #   The name of the prompt to alias.
+  #
+  # @param [String] aliased_prompt
+  #   The name of the aliased prompt.
+  #
+  def alias_prompt(prompt_name, aliased_prompt)
+    if prompt = get_prompt(prompt_name)
+      PROMPT_MAP[aliased_prompt] = PromptInfo.new *[aliased_prompt, prompt.description,
+                                                    prompt.proc_array, prompt_name]
+    else
+      raise AliasError, "prompt '#{prompt}' cannot be aliased because it doesn't exist"
+    end
   end
 
   add_prompt "default",
