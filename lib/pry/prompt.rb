@@ -17,7 +17,7 @@ module Pry::Prompt
   #   Returns an Array of {PromptInfo} objects.
   #
   def all_prompts
-    PROMPT_MAP.values
+    PROMPT_MAP.values.flatten
   end
 
   #
@@ -54,7 +54,7 @@ module Pry::Prompt
   #  A prompt in the form of [proc {}, proc {}].
   #
   def add_prompt(name, description, value)
-    PROMPT_MAP[name.to_s] = PromptInfo.new(name, description, value, nil)
+    PROMPT_MAP[name.to_s] = [PromptInfo.new(name, description, value, nil)]
   end
 
   #
@@ -67,7 +67,9 @@ module Pry::Prompt
   #   Returns a prompt in the form of a PromptInfo object.
   #
   def get_prompt(name)
-    PROMPT_MAP.key?(name.to_s) and PROMPT_MAP[name.to_s]
+    all_prompts.find do |prompt|
+      prompt.name == name.to_s
+    end
   end
 
   #
@@ -85,11 +87,8 @@ module Pry::Prompt
   #   Returns truthy if a prompt was deleted, otherwise nil.
   #
   def remove_prompt(name)
-    name = name.to_s
-    if PROMPT_MAP.key?(name)
-      aliases_for(name).each{|_alias| PROMPT_MAP.delete(_alias.name)}
-      PROMPT_MAP.delete name
-    end
+    prompt = get_prompt(name.to_s)
+    PROMPT_MAP.delete name if prompt
   end
 
   #
@@ -109,7 +108,7 @@ module Pry::Prompt
     elsif prompt.alias?
       prompt_name = prompt.alias_for
     end
-    PROMPT_MAP[aliased_prompt] = PromptInfo.new *[aliased_prompt, prompt.description,
+    PROMPT_MAP[prompt_name].push PromptInfo.new *[aliased_prompt, prompt.description,
                                                   prompt.proc_array, prompt_name]
   end
 
