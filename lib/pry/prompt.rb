@@ -103,12 +103,14 @@ module Pry::Prompt
   #   The name of the aliased prompt.
   #
   def alias_prompt(prompt_name, aliased_prompt)
-    if prompt = get_prompt(prompt_name)
-      PROMPT_MAP[aliased_prompt] = PromptInfo.new *[aliased_prompt, prompt.description,
-                                                    prompt.proc_array, prompt_name]
-    else
+    prompt = get_prompt(prompt_name)
+    if not prompt
       raise AliasError, "prompt '#{prompt}' cannot be aliased because it doesn't exist"
+    elsif prompt.alias?
+      prompt_name = prompt.alias_for
     end
+    PROMPT_MAP[aliased_prompt] = PromptInfo.new *[aliased_prompt, prompt.description,
+                                                  prompt.proc_array, prompt_name]
   end
 
   add_prompt "default",

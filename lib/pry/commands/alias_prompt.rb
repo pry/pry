@@ -16,7 +16,7 @@ class Pry
       if not args_ok?([prompt_name, alias_name])
         return output.puts help
       end
-      if prompt = Pry::Prompt.get_prompt(prompt_name)
+      if Pry::Prompt.get_prompt(prompt_name)
         Pry::Prompt.alias_prompt prompt_name, alias_name
         output.puts "Alias '#{alias_name}' created"
       else
