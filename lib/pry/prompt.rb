@@ -1,3 +1,4 @@
+require 'set'
 module Pry::Prompt
   extend self
   PROMPT_MAP = {}
@@ -11,6 +12,16 @@ module Pry::Prompt
     def alias?
       alias_for != nil
     end
+
+    def <=>(other)
+      name == other.alias_for ? 1 : 0
+    end
+
+    def eql?(other)
+      return false if not Pry::Prompt::PromptInfo === other
+      # Aliases are eql?
+      [:name, :description, :proc_array].all? {|m|  public_send(m) == other.public_send(m) }
+    end
   end
 
   #
@@ -18,7 +29,7 @@ module Pry::Prompt
   #   Returns an Array of {PromptInfo} objects.
   #
   def all_prompts
-    PROMPT_MAP.values.flatten
+    PROMPT_MAP.values.map{|s| s.to_a}.flatten
   end
 
   #
@@ -55,7 +66,7 @@ module Pry::Prompt
   #  A prompt in the form of [proc {}, proc {}].
   #
   def add_prompt(name, description, value)
-    PROMPT_MAP[name.to_s] = [PromptInfo.new(name, description, value, nil)]
+    PROMPT_MAP[name.to_s] = SortedSet.new [PromptInfo.new(name, description, value, nil)]
   end
 
   #
@@ -109,8 +120,8 @@ module Pry::Prompt
     elsif prompt.alias?
       prompt_name = prompt.alias_for
     end
-    PROMPT_MAP[prompt_name].push PromptInfo.new *[aliased_prompt, prompt.description,
-                                                  prompt.proc_array, prompt_name]
+    PROMPT_MAP[prompt_name].add PromptInfo.new *[aliased_prompt, prompt.description,
+                                                 prompt.proc_array, prompt_name]
   end
 
   add_prompt "default",
