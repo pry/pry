@@ -1,6 +1,7 @@
 module Pry::Prompt
   extend self
   PROMPT_MAP = {}
+  private_constant :PROMPT_MAP
   AliasError = Class.new(RuntimeError)
   PromptInfo = Struct.new(:name, :description, :proc_array, :alias_for) do
     #
@@ -61,15 +62,13 @@ module Pry::Prompt
   # @example
   #
   #   # .pryrc
-  #   Pry.config.prompt = Pry::Prompt.get_prompt('simple').proc_array
+  #   Pry.config.prompt = Pry::Prompt['simple'].proc_array
   #
   # @return [PromptInfo]
   #   Returns a prompt in the form of a PromptInfo object.
   #
-  def get_prompt(name)
-    all_prompts.find do |prompt|
-      prompt.name == name.to_s
-    end
+  def [](name)
+    all_prompts.find {|prompt| prompt.name == name.to_s }
   end
 
   #
@@ -87,8 +86,8 @@ module Pry::Prompt
   #   Returns truthy if a prompt was deleted, otherwise nil.
   #
   def remove_prompt(name)
-    prompt = get_prompt(name.to_s)
-    PROMPT_MAP.delete name if prompt
+    prompt = self[name.to_s]
+    PROMPT_MAP.delete name.to_s if prompt
   end
 
   #
@@ -102,7 +101,7 @@ module Pry::Prompt
   #   The name of the aliased prompt.
   #
   def alias_prompt(prompt_name, aliased_prompt)
-    prompt = get_prompt(prompt_name)
+    prompt = self[prompt_name.to_s]
     if not prompt
       raise AliasError, "prompt '#{prompt}' cannot be aliased because it doesn't exist"
     elsif prompt.alias?

@@ -15,7 +15,7 @@ RSpec.describe Pry::Prompt do
 
   describe ".add_prompt" do
     specify "it adds a new prompt to Pry" do
-      new_prompt = described_class::PROMPT_MAP['prompt-name']
+      new_prompt = described_class['prompt-name']
       expect(pry_eval("list-prompts")).to include("prompt-name")
       expect(pry_eval("list-prompts")).to include("prompt description")
       expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(new_prompt.proc_array)

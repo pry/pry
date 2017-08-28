@@ -11,7 +11,7 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
   BANNER
 
   def process(prompt)
-    if new_prompt = Pry::Prompt.get_prompt(prompt)
+    if new_prompt = Pry::Prompt[prompt]
       _pry_.prompt = new_prompt.proc_array
     else
       raise Pry::CommandError, "'#{prompt}' isn't a known prompt!"
