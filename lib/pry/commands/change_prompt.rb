@@ -29,7 +29,7 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
     end
     output.write "Choice: "
     reply = (_pry_.input.respond_to?(:gets) ? _pry_.input.gets : _pry_.input.readline).strip
-    if reply =~ /^[1-9]+$/ and reply.to_i <= prompts.size
+    if reply =~ /^[1-9][0-9]*$/ and reply.to_i <= prompts.size
       _pry_.prompt = prompts[reply.to_i-1].proc_array
     else
       multiple_choice(prompts)
