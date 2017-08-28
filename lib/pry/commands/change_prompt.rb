@@ -28,7 +28,7 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
       _pry_.pager.page "#{i}) #{prompt.name} => #{prompt.alias_for}"
     end
     output.write "Choice: "
-    reply = _pry_.input.respond_to?(:gets) ? _pry_.input.gets : _pry_.input.readline
+    reply = (_pry_.input.respond_to?(:gets) ? _pry_.input.gets : _pry_.input.readline).strip
     if reply =~ /^[1-9]+$/ and reply.to_i <= prompts.size
       _pry_.prompt = prompts[reply.to_i-1].proc_array
     else
