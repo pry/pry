@@ -17,6 +17,10 @@ module Pry::Prompt
       name == other.alias_for ? 1 : 0
     end
 
+    def to_a
+      proc_array
+    end
+
     def eql?(other)
       return false if not Pry::Prompt::PromptInfo === other
       # Aliases are eql?

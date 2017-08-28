@@ -94,8 +94,9 @@ class Pry
   end
 
   def prompt=(new_prompt)
+    new_prompt = new_prompt.to_a
     if prompt_stack.empty?
-      push_prompt new_prompt
+      push_prompt(new_prompt)
     else
       prompt_stack[-1] = new_prompt
     end
