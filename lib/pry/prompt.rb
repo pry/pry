@@ -20,7 +20,7 @@ module Pry::Prompt
     def eql?(other)
       return false if not Pry::Prompt::PromptInfo === other
       # Aliases are eql?
-      [:name, :description, :proc_array].all? {|m|  public_send(m) == other.public_send(m) }
+      [:proc_array].all? {|m|  public_send(m) == other.public_send(m) }
     end
   end
 
