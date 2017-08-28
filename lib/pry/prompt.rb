@@ -57,7 +57,7 @@ module Pry::Prompt
 
   def find_by_proc_array(proc_array)
     all_prompts.find do |prompt|
-      prompt.proc_array == proc_array and prompt.alias_for.nil?
+      prompt.proc_array == proc_array and not prompt.alias?
     end
   end
 
