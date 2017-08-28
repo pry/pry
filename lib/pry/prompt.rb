@@ -66,7 +66,7 @@ module Pry::Prompt
   #  A prompt in the form of [proc {}, proc {}].
   #
   def add_prompt(name, description, value)
-    PROMPT_MAP[name.to_s] = SortedSet.new [PromptInfo.new(name, description, value, nil)]
+    PROMPT_MAP[name.to_s] = SortedSet.new [PromptInfo.new(name.to_s, description.to_s, value, nil)]
   end
 
   #
@@ -126,13 +126,14 @@ module Pry::Prompt
   #   The name of the aliased prompt.
   #
   def alias_prompt(prompt_name, aliased_prompt)
-    prompt = self[prompt_name.to_s]
+    prompt_name = prompt_name.to_s
+    prompt = self[prompt_name]
     if not prompt
       raise AliasError, "prompt '#{prompt}' cannot be aliased because it doesn't exist"
     elsif prompt.alias?
       prompt_name = prompt.alias_for
     end
-    PROMPT_MAP[prompt_name].add PromptInfo.new *[aliased_prompt, prompt.description,
+    PROMPT_MAP[prompt_name].add PromptInfo.new *[aliased_prompt.to_s, prompt.description,
                                                  prompt.proc_array, prompt_name]
   end
 
