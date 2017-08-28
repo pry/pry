@@ -62,7 +62,9 @@ module Pry::Prompt
   # @example
   #
   #   # .pryrc
-  #   Pry.config.prompt = Pry::Prompt['simple'].proc_array
+  #   Pry.configure do |config|
+  #     config.prompt = Pry::Prompt['simple'].proc_array
+  #   end
   #
   # @return [PromptInfo]
   #   Returns a prompt in the form of a PromptInfo object.
