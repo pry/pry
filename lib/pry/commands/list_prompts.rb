@@ -29,7 +29,7 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
   end
 
   def selected_prompt?(prompt)
-    _pry_.prompt == prompt
+    _pry_.prompt == prompt or _pry_.prompt == prompt.proc_array
   end
   Pry::Commands.add_command(self)
 end
