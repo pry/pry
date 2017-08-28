@@ -18,7 +18,7 @@ RSpec.describe Pry::Prompt do
       new_prompt = described_class['prompt-name']
       expect(pry_eval("list-prompts")).to include("prompt-name")
       expect(pry_eval("list-prompts")).to include("prompt description")
-      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(new_prompt.proc_array)
+      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(new_prompt)
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.describe Pry::Prompt do
       described_class.alias_prompt "prompt-name", "prompt-alias"
       expect(described_class.aliases_for("prompt-name").map(&:name)).to eq(["prompt-alias"])
       expect(pry_eval("list-prompts")).to include("Aliases: prompt-alias")
-      expect(pry_eval("change-prompt prompt-alias", "_pry_.prompt")).to eq(prompt_value)
+      expect(pry_eval("change-prompt prompt-alias", "_pry_.prompt")).to eq(described_class["prompt-name"])
     end
   end
 end

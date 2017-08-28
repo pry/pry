@@ -55,6 +55,12 @@ module Pry::Prompt
     all_prompts.select(&:alias?)
   end
 
+  def find_by_proc_array(proc_array)
+    all_prompts.find do |prompt|
+      prompt.proc_array == proc_array and prompt.alias_for.nil?
+    end
+  end
+
   #
   # Integrate a custom prompt with Pry.
   # The prompt will be visible in the output of the "list-prompts" command, and
