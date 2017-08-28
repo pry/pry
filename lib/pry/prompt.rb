@@ -85,6 +85,18 @@ module Pry::Prompt
   end
 
   #
+  # @param [String] name
+  #   The name of a prompt.
+  #
+  # @return [Array<PromptInfo>]
+  #   An array of {PromptInfo} objects.
+  #
+  def all(name)
+    name = name.to_s
+    all_prompts.select{|prompt| prompt.name == name}
+  end
+
+  #
   # Remove a prompt from Pry.
   # It will no longer be visible in the output of "list-prompts" or usable with the
   # "change-prompt" command.
