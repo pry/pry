@@ -1,0 +1,1 @@
+Pry.config.prompt = Pry::Prompt['☃']
