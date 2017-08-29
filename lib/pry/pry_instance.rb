@@ -91,7 +91,7 @@ class Pry
   # @return [Pry::Prompt::PromptInfo, Array<Proc, Proc>] Current prompt.
   def prompt
     proc_array = prompt_stack.last
-    Pry::Prompt.find_by_proc_array(proc_array) or proc_array
+    Pry::Prompt.first_matching_proc_array(proc_array) or proc_array
   end
 
   def prompt=(new_prompt)
