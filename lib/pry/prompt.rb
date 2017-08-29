@@ -57,7 +57,14 @@ module Pry::Prompt
     all_prompts.select(&:alias?)
   end
 
-  def find_by_proc_array(proc_array)
+  #
+  #  @param [Array<Proc,Proc>] proc_array
+  #    An array in the form of [proc{}, proc{}]
+  #
+  #  @return [PromptInfo]
+  #    Returns the first {PromptInfo} object who holds value eql? to `proc_array`.
+  #
+  def first_matching_proc_array(proc_array)
     all_prompts.find do |prompt|
       prompt.proc_array == proc_array and not prompt.alias?
     end
@@ -103,7 +110,7 @@ module Pry::Prompt
   # @return [Array<PromptInfo>]
   #   An array of {PromptInfo} objects.
   #
-  def all(name)
+  def all_by_name(name)
     name = name.to_s
     all_prompts.select{|prompt| prompt.name == name}
   end
@@ -147,6 +154,20 @@ module Pry::Prompt
     end
     PROMPT_MAP[prompt_name].add PromptInfo.new *[aliased_prompt.to_s, prompt.description,
                                                  prompt.proc_array, prompt_name]
+  end
+
+  #
+  # @param [String] alias_name
+  #   Name of a prompt alias.
+  #
+  # @return [Integer]
+  #   Returns the number of removed aliases.
+  #
+  def remove_alias(alias_name)
+    alias_name = alias_name.to_s
+    all_prompts.count do |prompt|
+      PROMPT_MAP[prompt.alias_for].delete(prompt) if prompt.alias? and prompt.name == alias_name
+    end
   end
 
   add_prompt "default",
