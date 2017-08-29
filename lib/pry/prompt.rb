@@ -154,6 +154,20 @@ module Pry::Prompt
                                                  prompt.proc_array, prompt_name]
   end
 
+  #
+  # @param [String] alias_name
+  #   Name of a prompt alias.
+  #
+  # @return [Integer]
+  #   Returns the number of removed aliases.
+  #
+  def remove_alias(alias_name)
+    alias_name = alias_name.to_s
+    all_prompts.count do |prompt|
+      PROMPT_MAP[prompt.alias_for].delete(prompt) if prompt.alias? and prompt.name == alias_name
+    end
+  end
+
   add_prompt "default",
              "The default Pry prompt. Includes information about the\n" \
              "current expression number, evaluation context, and nesting\n" \

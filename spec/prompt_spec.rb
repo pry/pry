@@ -42,6 +42,12 @@ RSpec.describe Pry::Prompt do
       described_class.remove_prompt 'prompt-name'
       expect(pry_eval("list-prompts")).to_not include("prompt-name")
     end
+
+    specify "does not remove aliases" do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+      described_class.remove_prompt 'prompt-alias'
+      expect(described_class['prompt-alias']).to_not be_nil
+    end
   end
 
   describe ".alias_prompt" do
@@ -59,6 +65,21 @@ RSpec.describe Pry::Prompt do
 
     specify "alias is changed to via change-prompt" do
       expect(pry_eval("change-prompt prompt-alias", "_pry_.prompt")).to eq(described_class['prompt-name'])
+    end
+  end
+
+  describe ".remove_alias" do
+    before do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+    end
+
+    specify "returns number of removed aliases" do
+      expect(described_class.remove_alias("prompt-alias")).to eq(1)
+    end
+
+    specify "removes alias from Pry::Prompt" do
+      expect(described_class.remove_alias("prompt-alias")).to eq(1)
+      expect(described_class['prompt-alias']).to eq(nil)
     end
   end
 end
