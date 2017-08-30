@@ -81,6 +81,17 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @return [Module]
+  #   Returns a module that includes basic utility helper functions.
+  #
+  def helpers
+    @helpers ||= Module.new {
+      extend Pry::Helpers::Text
+      extend Pry::Helpers::BaseHelpers
+    }
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #
