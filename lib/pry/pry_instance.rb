@@ -87,8 +87,9 @@ class Pry
   #
   def helpers
     @helpers ||= Module.new {
-      extend Pry::Helpers::Text
-      extend Pry::Helpers::BaseHelpers
+      include Pry::Helpers::Text
+      include Pry::Helpers::BaseHelpers
+      extend self
     }
   end
 
