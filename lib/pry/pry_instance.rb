@@ -82,8 +82,15 @@ class Pry
   end
 
   #
+  # @example
+  #
+  #   Pry.hooks.add_hook(:before_session, "hook_name") do |_, _, pry|
+  #     puts pry.helpers.green("Starting new session.")
+  #   end
+  #
   # @return [Module]
-  #   Returns a module that includes basic utility helper functions.
+  #   Returns a module that includes utility helper functions from
+  #   {Pry::Helpers::Text}, and {Pry::Helpers::BaseHelpers}.
   #
   def helpers
     @helpers ||= lambda {
