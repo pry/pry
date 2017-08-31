@@ -86,11 +86,15 @@ class Pry
   #   Returns a module that includes basic utility helper functions.
   #
   def helpers
-    @helpers ||= Module.new {
-      include Pry::Helpers::Text
-      include Pry::Helpers::BaseHelpers
-      extend self
-    }
+    @helpers ||= lambda {
+      this = self
+      Module.new do
+        include Pry::Helpers::Text
+        include Pry::Helpers::BaseHelpers
+        define_method(:_pry_) { this }
+        extend self
+      end
+    }.call
   end
 
   # The current prompt.
