@@ -10,7 +10,7 @@ class Pry
       # Use this instead of "black" or "white" when you mean absence of colour.
       #
       # @deprecated
-      #   Please use {#strip_color} instead.
+      #   Please use {Colors#strip_color} instead.
       #
       # @param [String, #to_s] text
       # @return [String]
@@ -24,12 +24,12 @@ class Pry
       # Executes the block with `Pry.config.pager` set to false.
       # @yield
       # @return [void]
-      def no_pager(&block)
-        boolean = Pry.config.pager
-        Pry.config.pager = false
+      def no_pager pry=(defined?(_pry_) && _pry_) || Pry, &block
+        boolean = pry.config.pager
+        pry.config.pager = false
         yield
       ensure
-        Pry.config.pager = boolean
+        pry.config.pager = boolean
       end
 
       # Returns _text_ in a numbered list, beginning at _offset_.
