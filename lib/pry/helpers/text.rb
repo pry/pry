@@ -17,7 +17,7 @@ class Pry
       }
 
       color_enabled = lambda do |pry|
-        (pry and pry.color) or (defined?(_pry_) and _pry_.color)
+        (pry and pry.color) or (defined?(_pry_) and _pry_.color) or Pry.color
       end
 
       COLORS.each_pair do |color, value|
