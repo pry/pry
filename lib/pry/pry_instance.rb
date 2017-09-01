@@ -88,14 +88,16 @@ class Pry
   #    self.prompt = Pry::SIMPLE_PROMPT
   #    self.prompt # => Pry::SIMPLE_PROMPT
   #
-  # @return [Array<Proc>] Current prompt.
+  # @return [Pry::Prompt::PromptInfo, Array<Proc, Proc>] Current prompt.
   def prompt
-    prompt_stack.last
+    proc_array = prompt_stack.last
+    Pry::Prompt.first_matching_proc_array(proc_array) or proc_array
   end
 
   def prompt=(new_prompt)
+    new_prompt = new_prompt.to_a
     if prompt_stack.empty?
-      push_prompt new_prompt
+      push_prompt(new_prompt)
     else
       prompt_stack[-1] = new_prompt
     end

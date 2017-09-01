@@ -1,8 +1,16 @@
 ### HEAD
 
 * Include Pry::Helpers::Text into Pry::Command, and deprecate `Pry::Command#text`. ([#1629](https://github.com/pry/pry/pull/1629))
+* Add 'alias-prompt' command.
+
+* Add `Pry::Prompt.[]`, `Pry::Prompt.add_prompt()`, `Pry::Prompt.alias_prompt()` and
+  `Pry::Prompt.remove_prompt()`, plus more, for integrating custom prompts with Pry
+  ([#1628](https://github.com/pry/pry/pull/1628)). See Pry::Prompt for complete details.
+
 * Add text helpers for background colors ([#1624](https://github.com/pry/pry/pull/1624))
 * Fix string literal methods completion. ([#1590](https://github.com/pry/pry/pull/1590))
+* Make sure Pry::WrappedModule::Candidate#source_location returns non-nil value when `.name` has
+  been redefined on a Class/Module ([#1623](https://github.com/pry/pry/pull/1623))
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
 * Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
   * Deprecated constants are hidden from `ls` output by default, use the `-d` switch to see them.

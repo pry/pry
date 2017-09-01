@@ -2,11 +2,9 @@ source 'https://rubygems.org'
 gemspec
 gem 'rake',  '~> 10.0'
 
-# For Guard
 group :development do
   gem 'gist'
   gem 'yard'
-  gem 'rb-inotify', :require => false
   gem 'rb-fsevent', :require => false
 end
 
