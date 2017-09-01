@@ -1,6 +1,7 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Formatter
+      COLOR_METHODS = Pry::Helpers::Text.instance_methods(false)
       attr_writer :grep
       attr_reader :_pry_
 
@@ -18,7 +19,12 @@ class Pry
       private
 
       def color(type, str)
-        Pry::Helpers::Text.send _pry_.config.ls["#{type}_color"], str
+        target = _pry_.config.ls["#{type}_color"]
+        if COLOR_METHODS.include?(target)
+          Pry::Helpers::Text.public_send target, str
+        else
+          str
+        end
       end
 
       # Add a new section to the output.
