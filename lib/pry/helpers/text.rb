@@ -55,10 +55,15 @@ class Pry
       # Returns `text` in the default foreground colour.
       # Use this instead of "black" or "white" when you mean absence of colour.
       #
+      # @deprecated
+      #   Please use {#strip_color} instead.
+      #
       # @param [String, #to_s] text
       # @return [String]
-      def default(text)
-        text.to_s
+      def default text, pry=(defined?(_pry_) && _pry_) || Pry
+        pry.output.puts "DEPRECATED: Pry::Helpers::Text#default is deprecated, " \
+                        "please use Pry::Helpers::Text#strip_color instead"
+        strip_color text.to_s
       end
       alias_method :bright_default, :bold
 
@@ -108,4 +113,3 @@ class Pry
     end
   end
 end
-
