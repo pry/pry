@@ -5,8 +5,12 @@ RSpec.describe Pry::Prompt do
     [proc{},proc{}]
   end
 
+  let(:prompt_desc) do
+    "$my custom prompt description$"
+  end
+
   before do
-    described_class.add_prompt "prompt-name", "prompt description", prompt_value
+    described_class.add_prompt "prompt-name", prompt_desc, prompt_value
   end
 
   after do
@@ -14,20 +18,68 @@ RSpec.describe Pry::Prompt do
   end
 
   describe ".add_prompt" do
-    specify "it adds a new prompt to Pry" do
-      new_prompt = described_class::PROMPT_MAP['prompt-name']
-      expect(new_prompt).to eq(description: "prompt description", value: prompt_value)
+    specify "adds new Prompt" do
+      expect(described_class['prompt-name']).to be_instance_of(Pry::Prompt::PromptInfo)
+    end
+
+    specify "prompt appears in list-prompts" do
       expect(pry_eval("list-prompts")).to include("prompt-name")
-      expect(pry_eval("list-prompts")).to include("prompt description")
-      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(prompt_value)
+      expect(pry_eval("list-prompts")).to include(prompt_desc)
+    end
+
+    specify "prompt is changed to via change-prompt" do
+      expect(pry_eval("change-prompt prompt-name", "_pry_.prompt")).to eq(described_class['prompt-name'])
     end
   end
 
   describe ".remove_prompt" do
-    specify "it removes a prompt from Pry" do
+    specify "removes a prompt" do
+      described_class.remove_prompt 'prompt-name'
+      expect(described_class['prompt-name']).to eq(nil)
+    end
+
+    specify "prompt disappears from list-prompts" do
       described_class.remove_prompt 'prompt-name'
       expect(pry_eval("list-prompts")).to_not include("prompt-name")
-      expect(pry_eval("list-prompts")).to_not include("prompt description")
+    end
+
+    specify "does not remove aliases" do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+      described_class.remove_prompt 'prompt-alias'
+      expect(described_class['prompt-alias']).to_not be_nil
+    end
+  end
+
+  describe ".alias_prompt" do
+    before do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+    end
+
+    specify "creates alias" do
+      expect(described_class.aliases_for("prompt-name")).to eq([described_class['prompt-alias']])
+    end
+
+    specify "alias appears in list-prompts" do
+      expect(pry_eval("list-prompts")).to include("Aliases: prompt-alias")
+    end
+
+    specify "alias is changed to via change-prompt" do
+      expect(pry_eval("change-prompt prompt-alias", "_pry_.prompt")).to eq(described_class['prompt-name'])
+    end
+  end
+
+  describe ".remove_alias" do
+    before do
+      described_class.alias_prompt "prompt-name", "prompt-alias"
+    end
+
+    specify "returns number of removed aliases" do
+      expect(described_class.remove_alias("prompt-alias")).to eq(1)
+    end
+
+    specify "removes alias from Pry::Prompt" do
+      expect(described_class.remove_alias("prompt-alias")).to eq(1)
+      expect(described_class['prompt-alias']).to eq(nil)
     end
   end
 end

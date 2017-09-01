@@ -16,7 +16,7 @@ class Pry::Config::Default
       Pry::DEFAULT_PROMPT_NAME
     },
     prompt: proc {
-      Pry::DEFAULT_PROMPT
+      Pry::Prompt['default']
     },
     prompt_safe_objects: proc {
       Pry::DEFAULT_PROMPT_SAFE_OBJECTS

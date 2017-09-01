@@ -81,6 +81,29 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @example
+  #
+  #   Pry.hooks.add_hook(:before_session, "hook_name") do |_, _, pry|
+  #     puts pry.helpers.green("Starting new session.")
+  #   end
+  #
+  # @return [Module]
+  #   Returns a module that includes utility helper functions from
+  #   {Pry::Helpers::Text}, and {Pry::Helpers::BaseHelpers}.
+  #
+  def helpers
+    @helpers ||= lambda {
+      this = self
+      Module.new do
+        include Pry::Helpers::Text
+        include Pry::Helpers::BaseHelpers
+        define_method(:_pry_) { this }
+        extend self
+      end
+    }.call
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #
@@ -88,14 +111,16 @@ class Pry
   #    self.prompt = Pry::SIMPLE_PROMPT
   #    self.prompt # => Pry::SIMPLE_PROMPT
   #
-  # @return [Array<Proc>] Current prompt.
+  # @return [Pry::Prompt::PromptInfo, Array<Proc, Proc>] Current prompt.
   def prompt
-    prompt_stack.last
+    proc_array = prompt_stack.last
+    Pry::Prompt.first_matching_proc_array(proc_array) or proc_array
   end
 
   def prompt=(new_prompt)
+    new_prompt = new_prompt.to_a
     if prompt_stack.empty?
-      push_prompt new_prompt
+      push_prompt(new_prompt)
     else
       prompt_stack[-1] = new_prompt
     end
