@@ -54,7 +54,7 @@ module Pry::Helpers::Colors
   #    Returns a string with _effect_ applied, or _str_ if the effect is unknown.
   #
   def paint(str, effect)
-    (Pry::Helpers::Colors.instance_methods(false) - [__method__]).include?(effect) ?
+    (Pry::Helpers::Colors.instance_methods(false) - [__method__, :no_color]).include?(effect) ?
       public_send(effect, str) : str
   end
 
