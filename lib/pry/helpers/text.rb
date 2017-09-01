@@ -16,22 +16,26 @@ class Pry
         "white"   => 7
       }
 
+      color_enabled = lambda do |pry|
+        (pry and pry.color) or (defined?(_pry_) and _pry_.color)
+      end
+
       COLORS.each_pair do |color, value|
-        define_method color do |text|
-          "\033[0;#{30+value}m#{text}\033[0m"
+        define_method(color) do |text, pry=nil|
+           instance_exec(pry, &color_enabled) ? "\033[0;#{30+value}m#{text}\033[0m" : text
         end
 
-        define_method "bright_#{color}" do |text|
-          "\033[1;#{30+value}m#{text}\033[0m"
+        define_method("bright_#{color}") do |text, pry=nil|
+           instance_exec(pry, &color_enabled) ? "\033[1;#{30+value}m#{text}\033[0m" : text
         end
 
         COLORS.each_pair do |bg_color, bg_value|
-          define_method "#{color}_on_#{bg_color}" do |text|
-            "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+          define_method "#{color}_on_#{bg_color}" do |text, pry=nil|
+            instance_exec(pry, &color_enabled) ? "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
           end
 
-          define_method "bright_#{color}_on_#{bg_color}" do |text|
-            "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+          define_method "bright_#{color}_on_#{bg_color}" do |text, pry=nil|
+            instance_exec(pry, &color_enabled) ? "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
           end
         end
       end
@@ -48,8 +52,8 @@ class Pry
       #
       # @param [String, #to_s] text
       # @return [String] _text_
-      def bold(text)
-        "\e[1m#{text}\e[0m"
+      def bold text, pry=defined?(_pry_) && _pry_
+        (pry and pry.color) ? "\e[1m#{text}\e[0m" : text
       end
 
       # Returns `text` in the default foreground colour.
@@ -57,7 +61,7 @@ class Pry
       #
       # @param [String, #to_s] text
       # @return [String]
-      def default(text)
+      def default(text, pry=nil)
         text.to_s
       end
       alias_method :bright_default, :bold
@@ -65,23 +69,23 @@ class Pry
       # Executes the block with `Pry.config.color` set to false.
       # @yield
       # @return [void]
-      def no_color(&block)
-        boolean = Pry.config.color
-        Pry.config.color = false
+      def no_color pry=(defined?(_pry_) && _pry_) || Pry, &block
+        boolean = pry.color
+        pry.config.color = false
         yield
       ensure
-        Pry.config.color = boolean
+        pry.config.color = boolean
       end
 
       # Executes the block with `Pry.config.pager` set to false.
       # @yield
       # @return [void]
-      def no_pager(&block)
-        boolean = Pry.config.pager
-        Pry.config.pager = false
+      def no_pager pry=(defined?(_pry_) && _pry_) || Pry, &block
+        boolean = pry.config.pager
+        pry.config.pager = false
         yield
       ensure
-        Pry.config.pager = boolean
+        pry.config.pager = boolean
       end
 
       # Returns _text_ in a numbered list, beginning at _offset_.
@@ -108,4 +112,3 @@ class Pry
     end
   end
 end
-
