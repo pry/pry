@@ -13,7 +13,7 @@ module Pry::Prompt::Snowman
   COFFEE = "☕"
 
   def prompt(obj, nest_level, pry, wait)
-    extend pry.helpers
+    extend pry.helpers if not pry.helpers === self
     e = wait ? "*" : ">"
     input_size = pry.input_array.size
     [
