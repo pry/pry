@@ -1,5 +1,6 @@
 ### HEAD
 
+* Add clear-screen command ([#1630](https://github.com/pry/pry/pull/1630))
 * Fix [#1636](https://github.com/pry/pry/issues/1636)
 * Add 'alias-prompt' command.
 
