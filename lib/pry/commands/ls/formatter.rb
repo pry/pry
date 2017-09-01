@@ -18,7 +18,7 @@ class Pry
       private
 
       def color(type, str)
-        Pry::Helpers::Text.send _pry_.config.ls["#{type}_color"], str
+        Pry::Helpers::Text.paint str, _pry_.config.ls["#{type}_color"]
       end
 
       # Add a new section to the output.
