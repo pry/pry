@@ -45,7 +45,7 @@ class Pry
           r.each_with_index do |e,i|
             next unless e
             item = e.ljust(widths[i])
-            item.sub! e, _recall_color_for(e) if :color_on == style
+            item.sub! e, _recall_color_for(e).to_s if :color_on == style
             padded << item
           end
           padded.join(Pry.config.ls.separator)

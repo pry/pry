@@ -1,6 +1,13 @@
 ### HEAD
 
+
 * Add snowman prompt ([#1632](https://github.com/pry/pry/pull/1632))
+* Coloring functions such as `black()` etc respect `_pry_.color` automatically, see [#1637](https://github.com/pry/pry/pull/1637).
+* Add `Pry#helpers`, see [#1635](https://github.com/pry/pry/pull/1635)
+* Add `Pry::Helpers::Colors`, and a new `#paint` function.
+* Add clear-screen command ([#1630](https://github.com/pry/pry/pull/1630))
+* Fix [#1636](https://github.com/pry/pry/issues/1636)
+>>>>>>> pry/master
 * Add 'alias-prompt' command.
 
 * Add `Pry::Prompt.[]`, `Pry::Prompt.add_prompt()`, `Pry::Prompt.alias_prompt()` and

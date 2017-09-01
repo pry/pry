@@ -81,6 +81,29 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @example
+  #
+  #   Pry.hooks.add_hook(:before_session, "hook_name") do |_, _, pry|
+  #     puts pry.helpers.green("Starting new session.")
+  #   end
+  #
+  # @return [Module]
+  #   Returns a module that includes utility helper functions from
+  #   {Pry::Helpers::Text}, and {Pry::Helpers::BaseHelpers}.
+  #
+  def helpers
+    @helpers ||= lambda {
+      this = self
+      Module.new do
+        include Pry::Helpers::Text
+        include Pry::Helpers::BaseHelpers
+        define_method(:_pry_) { this }
+        extend self
+      end
+    }.call
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #

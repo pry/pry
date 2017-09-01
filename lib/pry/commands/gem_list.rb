@@ -24,7 +24,7 @@ class Pry
           index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s)
         end
 
-        output.puts "#{text.default gem} (#{versions.join ', '})"
+        output.puts "#{text.strip_color gem} (#{versions.join ', '})"
       end
     end
   end
