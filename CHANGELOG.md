@@ -1,5 +1,6 @@
 ### HEAD
 
+* Fix [#1636](https://github.com/pry/pry/issues/1636)
 * Add 'alias-prompt' command.
 
 * Add `Pry::Prompt.[]`, `Pry::Prompt.add_prompt()`, `Pry::Prompt.alias_prompt()` and
