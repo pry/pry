@@ -77,7 +77,7 @@ module Pry::Helpers::Colors
   # Executes the block with `Pry.config.color` set to false.
   # @yield
   # @return [void]
-  def no_color pry=(defined?(_pry_) && _pry_) || Pry, &block
+  def no_color pry=(defined?(_pry_) && _pry_) || Pry
     boolean = pry.config.color
     pry.config.color = false
     yield
