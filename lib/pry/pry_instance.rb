@@ -100,6 +100,8 @@ class Pry
         include Pry::Helpers::BaseHelpers
         define_method(:_pry_) { this }
         extend self
+        public_class_method *Pry::Helpers::BaseHelpers.methods(false)
+        public *Pry::Helpers::BaseHelpers.methods(false)
       end
     }.call
   end
