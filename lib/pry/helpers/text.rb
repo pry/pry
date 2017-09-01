@@ -10,7 +10,7 @@ class Pry
       # Use this instead of "black" or "white" when you mean absence of colour.
       #
       # @deprecated
-      #   Please use {#strip_color} instead.
+      #   Please use {Colors#strip_color} instead.
       #
       # @param [String, #to_s] text
       # @return [String]
