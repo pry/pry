@@ -52,7 +52,7 @@ class Pry
       #
       # @param [String, #to_s] text
       # @return [String] _text_
-      def bold text, pry=defined?(_pry_) && _pry_
+      def bold text, pry=(defined?(_pry_) && _pry_) || Pry
         (pry and pry.color) ? "\e[1m#{text}\e[0m" : text
       end
 
