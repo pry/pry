@@ -14,7 +14,7 @@ module Pry::Helpers::Colors
     }
 
   color_enabled = lambda do |pry|
-    (pry and pry.color) or (defined?(_pry_) ? _pry_.color : Pry.color)
+    (pry and return pry.color) or (defined?(_pry_) ? _pry_.color : Pry.color)
   end
 
   COLORS.each_pair do |color, value|
