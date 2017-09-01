@@ -17,7 +17,7 @@ module Pry::Prompt::Snowman
     e = wait ? "*" : ">"
     input_size = pry.input_array.size
     [
-      h.bright_yellow(" #{input_size} "),
+      h.paint(" #{input_size} ", :bright_yellow),
       " #{ruby_info(pry, h)} ",
       "#{PICK} (#{h.bold(Pry.view_clip(obj))})#{':%s' % nest_level if not nest_level.zero?}#{e}",
     ].compact.join
@@ -27,10 +27,10 @@ module Pry::Prompt::Snowman
     case
     when h.jruby?
       str = " #{COFFEE}  #{RUBY_ENGINE}-#{RUBY_VERSION} "
-      h.bright_white_on_red(str)
+      h.paint(str, :bright_white_on_red)
     else
       str = " #{GEM_STONE}  #{RUBY_ENGINE}-#{RUBY_VERSION} "
-      h.bright_white_on_red(str)
+      h.paint(str, :bright_white_on_red)
     end
   end
   private :ruby_info
