@@ -18,8 +18,7 @@ class Pry
       private
 
       def color(type, str)
-        # Pass 'Pry' because global state programmers...
-        Pry::Helpers::Text.public_send _pry_.config.ls["#{type}_color"], str, Pry
+        Pry::Helpers::Text.paint str, _pry_.config.ls["#{type}_color"]
       end
 
       # Add a new section to the output.
