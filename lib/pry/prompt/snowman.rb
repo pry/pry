@@ -1,8 +1,6 @@
 # coding: utf-8
 module Pry::Prompt::Snowman
   extend self
-  extend Pry::Helpers::Text
-  extend Pry::Helpers::BaseHelpers
 
   # https://unicode-table.com/en/1F48E/
   GEM_STONE = "💎"
@@ -15,10 +13,11 @@ module Pry::Prompt::Snowman
   COFFEE = "☕"
 
   def prompt(obj, nest_level, pry, wait)
+    extend pry.helpers
     e = wait ? "*" : ">"
     input_size = pry.input_array.size
     [
-      pry.color ? bright_yellow(" #{input_size} ") : input_size,
+      bright_yellow(" #{input_size} "),
       " #{ruby_info(pry)} ",
       "#{PICK} (#{bold(Pry.view_clip(obj))})#{':%s' % nest_level if not nest_level.zero?}#{e}",
     ].compact.join
@@ -28,10 +27,10 @@ module Pry::Prompt::Snowman
     case
     when jruby?
       str = " #{COFFEE}  #{RUBY_ENGINE}-#{RUBY_VERSION} "
-      pry.color ? bright_white_on_red(str) : str
+      bright_white_on_red(str)
     else
       str = " #{GEM_STONE}  #{RUBY_ENGINE}-#{RUBY_VERSION} "
-      pry.color ? bright_white_on_red(str) : str
+      bright_white_on_red(str)
     end
   end
   private :ruby_info

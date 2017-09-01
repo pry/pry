@@ -7,7 +7,6 @@
 * Add `Pry::Helpers::Colors`, and a new `#paint` function.
 * Add clear-screen command ([#1630](https://github.com/pry/pry/pull/1630))
 * Fix [#1636](https://github.com/pry/pry/issues/1636)
->>>>>>> pry/master
 * Add 'alias-prompt' command.
 
 * Add `Pry::Prompt.[]`, `Pry::Prompt.add_prompt()`, `Pry::Prompt.alias_prompt()` and
