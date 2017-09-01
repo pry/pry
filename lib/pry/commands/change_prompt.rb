@@ -1,6 +1,6 @@
 class Pry::Command::ChangePrompt < Pry::ClassCommand
   match 'change-prompt'
-  group 'Input and Output'
+  group 'Prompts'
   description 'Change the current prompt.'
   command_options argument_required: true
   banner <<-BANNER

@@ -1,7 +1,7 @@
 class Pry::Command::ListPrompts < Pry::ClassCommand
   match 'list-prompts'
-  group 'Input and Output'
-  description 'List the prompts available for use.'
+  group 'Prompts'
+  description 'List all prompts that are available to use.'
   banner <<-BANNER
     Usage: list-prompts
 

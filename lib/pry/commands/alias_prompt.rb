@@ -1,13 +1,13 @@
 class Pry
   class Command::AliasPrompt < Pry::ClassCommand
     match "alias-prompt"
-    group 'Input and Output'
-    description "Create an alternative alias for a prompt"
+    group 'Prompts'
+    description "Create an alias for a prompt visible in 'list-prompts'."
     banner <<-BANNER
     alias-prompt PROMPT_NAME ALIAS_PROMPT
 
-    Create an alternative alias for a prompt that can be seen from list-prompts and
-    used by the change-prompt commands.
+    Create an alias for a prompt. See list-prompts for a complete list of available
+    prompts.
     BANNER
 
     command_options argument_required: true
