@@ -1,5 +1,6 @@
 ### HEAD
 
+* Include Pry::Helpers::Text into Pry::Command, and deprecate `Pry::Command#text`. ([#1629](https://github.com/pry/pry/pull/1629))
 * Add 'alias-prompt' command.
 
 * Add `Pry::Prompt.[]`, `Pry::Prompt.add_prompt()`, `Pry::Prompt.alias_prompt()` and
