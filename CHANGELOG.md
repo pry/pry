@@ -1,5 +1,6 @@
 ### HEAD
 
+* Add snowman prompt ([#1632](https://github.com/pry/pry/pull/1632))
 * `Pry::Helpers::Text#default` is deprecated in favor of `Pry::Helpers::Colors#strip_color`.
 * Coloring functions such as `black()` etc respect `_pry_.color` automatically, see [#1637](https://github.com/pry/pry/pull/1637).
 * Add `Pry#helpers`, see [#1635](https://github.com/pry/pry/pull/1635)

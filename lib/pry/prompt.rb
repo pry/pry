@@ -1,5 +1,7 @@
+# coding: utf-8
 require 'set'
 module Pry::Prompt
+  require_relative "prompt/snowman"
   extend self
   PROMPT_MAP = {}
   private_constant :PROMPT_MAP
@@ -91,7 +93,7 @@ module Pry::Prompt
   #
   #   # .pryrc
   #   Pry.configure do |config|
-  #     config.prompt = Pry::Prompt['simple'].proc_array
+  #     config.prompt = Pry::Prompt['☃']
   #   end
   #
   # @return [PromptInfo]
@@ -178,6 +180,18 @@ module Pry::Prompt
              "A prompt that displays the binding stack as a path and\n" \
              "includes information about _in_ and _out_.",
              Pry::NAV_PROMPT
+
+  add_prompt "snowman",
+             "First Pry prompt to use unicode characters. It includes\n" \
+             "the same information as the default prompt, plus Ruby \n" \
+             "platform information. Originally authored by \n" \
+             "https://github.com/SaladFork as a Powerline-like prompt \n" \
+             "then adapted to Pry.",
+             [
+               proc{|*args| "%s " % Snowman.prompt(*args, false) },
+               proc{|*args| "%s " % Snowman.prompt(*args, true) }
+             ]
+  alias_prompt "snowman", "☃"
 
   add_prompt "simple", "A simple '>>'.", Pry::SIMPLE_PROMPT
   add_prompt "none", "Wave goodbye to the Pry prompt.", Pry::NO_PROMPT
