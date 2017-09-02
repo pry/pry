@@ -112,7 +112,7 @@ module Pry::Prompt
   def [](name)
     all_prompts.find {|prompt| prompt.name == name.to_s }
   end
-
+  alias_method :get_prompt, :[]
   #
   # @param [String] name
   #   The name of a prompt.

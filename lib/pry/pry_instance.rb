@@ -98,6 +98,7 @@ class Pry
       Module.new do
         include Pry::Helpers::Text
         include Pry::Helpers::BaseHelpers
+        include Pry::Prompt
         define_method(:_pry_) { this }
         extend self
         public_class_method *Pry::Helpers::BaseHelpers.methods(false)
