@@ -105,6 +105,7 @@ class Pry
       end
     }.call
   end
+  alias_method :h, :helpers
 
   # The current prompt.
   # This is the prompt at the top of the prompt stack.

@@ -1,9 +1,9 @@
 ### HEAD
 
-* Add `Pry::Helpers::Text#displayable_character?`, and `Pry::Helpers::Text#snowman_ready?`.
+* Add `Pry::Helpers::Text#{displayable_character?,displayable_string?,snowman_ready?}`.
 * `Pry::Helpers::Text#default` is deprecated in favor of `Pry::Helpers::Colors#strip_color`.
 * Coloring functions such as `black()` etc respect `_pry_.color` automatically, see [#1637](https://github.com/pry/pry/pull/1637).
-* Add `Pry#helpers`, see [#1635](https://github.com/pry/pry/pull/1635)
+* Add `Pry#helpers`, see [#1635](https://github.com/pry/pry/pull/1635). Aliased as `Pry#h`.
 * Add `Pry::Helpers::Colors`, and a new `#paint` function.
 * Add clear-screen command ([#1630](https://github.com/pry/pry/pull/1630))
 * Fix [#1636](https://github.com/pry/pry/issues/1636)

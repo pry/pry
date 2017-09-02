@@ -13,7 +13,7 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
     output.puts heading("Available prompts") + "\n\n"
     all_prompts.each do |prompt|
       next if prompt.alias?
-      aliases = Pry::Prompt.aliases_for(prompt.name)
+      aliases = Pry::Prompt.aliases_for(prompt.name, _pry_)
       output.write "Name: #{text.bold(prompt.name)}"
       output.puts selected_prompt?([prompt].concat(aliases)) ? text.green(" [active]") : ""
       output.puts "Aliases: #{aliases.map {|s| text.bold(s.name) }.join(',')}" if aliases.any?

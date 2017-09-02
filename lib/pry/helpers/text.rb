@@ -69,12 +69,22 @@ class Pry
       #   to deal with unicode characters (like MS Windows+cmd.exe).
       #
       def displayable_character?(char)
+        displayable_string? char.to_s[0]
+      end
+
+      #
+      # Same as {#displayable_character?} but operates on entire String instead of single
+      # character.
+      #
+      # @see #displayable_character?
+      #
+      def displayable_string?(str)
         require 'open3' if not defined?(Open3)
-        Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby, char: char.to_s[0]} do |_, stdout, stderr|
-          SNOWMAN == stdout.gets.chomp
+        Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby, str: str} do |_, stdout, _|
+          str == stdout.gets.chomp
         end
       end
-      DISPLAY_CMD = %q("%{ruby}" -e 'print "%{char}"').freeze
+      DISPLAY_CMD = %q("%{ruby}" -e 'print "%{str}"').freeze
       SNOWMAN = "☃".freeze
       private_constant :DISPLAY_CMD, :SNOWMAN
 

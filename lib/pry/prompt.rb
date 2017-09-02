@@ -37,14 +37,26 @@ module Pry::Prompt
   end
 
   #
+  # @note
+  #   When '_pry_' is in scope or explicitly passed as a second argument, aliases that cannot
+  #   be displayed in a terminal are not returned by this method. See
+  #   {Pry::Helpers::Text#displayable_string?}.
+  #
   # @param [String] prompt
   #   The name of a prompt.
+  #
+  # @param [Pry] pry
+  #   An instance of `Pry`.
   #
   # @return [Array<PromptInfo>]
   #   Returns an array of aliases for _prompt_, as {PromptInfo} objects.
   #
-  def aliases_for(prompt)
-    all_prompts.select{|prompt_info| prompt_info.alias_for == prompt.to_s}
+  def aliases_for(prompt_name, pry=defined?(_pry_) && _pry_)
+    prompt_name = prompt_name.to_s
+    all_prompts.select do |prompt_info|
+      prompt_info.alias_for == prompt_name and
+      (pry ? pry.h.displayable_string?(prompt_info.name) : true)
+    end
   end
 
   #
