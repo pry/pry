@@ -56,6 +56,9 @@ class Pry
       end
 
       #
+      # @param [String] char
+      #   A string consisting of a single character. Other characters are ignored.
+      #
       # @return [Boolean]
       #   Returns true if the terminal Pry is running from displays
       #   _char_ as-is (not as  "?" or other malformed character). This
