@@ -1,3 +1,4 @@
+# coding: utf-8
 class Pry
   module Helpers
     require_relative "colors"
@@ -52,6 +53,31 @@ class Pry
       # @param [Fixnum] chars
       def indent(text, chars)
         text.lines.map { |l| "#{' ' * chars}#{l}" }.join
+      end
+
+      #
+      # @return [Boolean]
+      #   Returns true if the terminal Pry is running from displays
+      #   _char_ as-is (not as  "?" or other malformed character). This
+      #   method is useful when dealing with older terminals not configured
+      #   to deal with unicode characters (like MS Windows+cmd.exe).
+      #
+      def displayable_character?(char)
+        require 'open3' if not defined?(Open3)
+        Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby, char: char.to_s[0]} do |_, stdout, stderr|
+          SNOWMAN == stdout.gets.chomp
+        end
+      end
+      DISPLAY_CMD = %Q("%{ruby}" -e 'print "%{char}"')
+      SNOWMAN = "☃".freeze
+      private_constant :DISPLAY_CMD, :SNOWMAN
+
+      #
+      #  @return [Boolean]
+      #    Returns true if terminal Pry is running from can display "☃" properly.
+      #
+      def snowman_ready?
+        displayable_character? SNOWMAN
       end
     end
   end
