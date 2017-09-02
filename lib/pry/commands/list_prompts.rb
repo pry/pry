@@ -10,16 +10,18 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
   BANNER
 
   def process
+    buf = StringIO.new
     output.puts heading("Available prompts") + "\n\n"
     all_prompts.each do |prompt|
       next if prompt.alias?
       aliases = _pry_.h.aliases_for(prompt.name)
-      output.write "Name: #{text.bold(prompt.name)}"
-      output.puts selected_prompt?([prompt].concat(aliases)) ? text.green(" [active]") : ""
-      output.puts "Aliases: #{aliases.map {|s| text.bold(s.name) }.join(',')}" if aliases.any?
-      output.puts prompt.description
-      output.puts
+      buf.write "Name: #{text.bold(prompt.name)}"
+      buf.puts selected_prompt?([prompt].concat(aliases)) ? text.green(" [active]") : ""
+      buf.puts "Aliases: #{aliases.map {|s| text.bold(s.name) }.join(',')}" if aliases.any?
+      buf.puts prompt.description
+      buf.puts
     end
+    _pry_.pager.page(buf.string)
   end
 
   private
