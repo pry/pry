@@ -56,6 +56,9 @@ class Pry
       end
 
       #
+      # @note
+      #   On JRuby, this method can be slow due to the slow boot times of JRuby.
+      #
       # @param [String] char
       #   A string consisting of a single character. Other characters are ignored.
       #
@@ -71,7 +74,7 @@ class Pry
           SNOWMAN == stdout.gets.chomp
         end
       end
-      DISPLAY_CMD = %Q("%{ruby}" -e 'print "%{char}"')
+      DISPLAY_CMD = %q("%{ruby}" -e 'print "%{char}"').freeze
       SNOWMAN = "☃".freeze
       private_constant :DISPLAY_CMD, :SNOWMAN
 
