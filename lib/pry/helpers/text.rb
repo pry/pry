@@ -80,11 +80,13 @@ class Pry
       #
       def displayable_string?(str)
         require 'open3' if not defined?(Open3)
-        Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby, str: str} do |_, stdout, _|
-          str == stdout.gets.chomp
+        Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby,
+                                    str: str,
+                                    impl_specific_options: jruby? ? "--dev --client" : ""} do |_,out,_|
+          str == out.gets.chomp
         end
       end
-      DISPLAY_CMD = %q("%{ruby}" -e 'print "%{str}"').freeze
+      DISPLAY_CMD = %q("%{ruby}" %{impl_specific_options} --disable-gems -e 'print "%{str}"').freeze
       SNOWMAN = "☃".freeze
       private_constant :DISPLAY_CMD, :SNOWMAN
 
