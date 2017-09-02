@@ -1,3 +1,4 @@
 --markup markdown
+--markup-provider kramdown
 --private
 --hide-void-return
