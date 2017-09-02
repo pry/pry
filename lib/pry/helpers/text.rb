@@ -82,7 +82,7 @@ class Pry
         require 'open3' if not defined?(Open3)
         Open3.popen3 DISPLAY_CMD % {ruby: RbConfig.ruby,
                                     str: str,
-                                    impl_specific_options: jruby? ? "--dev --client" : ""} do |_,out,_|
+                                    impl_specific_options: jruby? ? "--dev --client --disable=gems --disable=did_you_mean" : ""} do |_,out,_|
           str == out.gets.chomp
         end
       end
