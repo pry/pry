@@ -79,17 +79,20 @@ class Pry
       # @see #displayable_character?
       #
       def displayable_string?(str)
-        require 'open3' if not defined?(Open3)
-        variables = {
-          str: str,
-          impl_specific_options: jruby? ? "--dev --client --disable=gems --disable=did_you_mean" : ""
-        }
-        args = Shellwords.shellsplit(DISPLAY_CMD % variables)
-        Open3.popen3({}, [RbConfig.ruby, "pry-#{__method__}"], *args) do |_,out,_,_|
-          str == out.gets.chomp
+        str = str.to_s
+        case
+        # Assume all terminals support ASCII, mostly an optimisation for JRuby.
+        when str.ascii_only? then true
+        else
+          variables = {str: Base64.strict_encode64(Marshal.dump(str)), # make sure "str" is not eval'ed.
+                       impl_opts: jruby? ? "--dev --client --disable=gems --disable=did_you_mean" : ""}
+          args = Shellwords.shellsplit(DISPLAY_CMD % variables)
+          Open3.popen3({}, [RbConfig.ruby, "pry-#{__method__}"], *args) {|_,out,_,_| str == out.gets.to_s.chomp}
         end
       end
-      DISPLAY_CMD = %q(%{impl_specific_options} --disable-gems -e 'print "%{str}"').freeze
+      require 'base64'
+      require 'open3'
+      DISPLAY_CMD = %q(%{impl_opts} --disable-gems -rbase64 -e 'print Marshal.load(Base64.strict_decode64("%{str}"))').freeze
       SNOWMAN = "☃".freeze
       private_constant :DISPLAY_CMD, :SNOWMAN
 
