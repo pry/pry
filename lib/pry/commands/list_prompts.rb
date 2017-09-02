@@ -11,7 +11,7 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
 
   def process
     buf = StringIO.new
-    output.puts heading("Available prompts") + "\n\n"
+    buf.puts heading("Available prompts") + "\n\n"
     all_prompts.each do |prompt|
       next if prompt.alias?
       aliases = _pry_.h.aliases_for(prompt.name)
