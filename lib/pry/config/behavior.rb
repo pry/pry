@@ -1,6 +1,6 @@
 module Pry::Config::Behavior
   ASSIGNMENT     = "=".freeze
-  NODUP          = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+  NODUP          = [StringIO, IO, TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
   INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
   ReservedKeyError = Class.new(RuntimeError)
 
@@ -133,6 +133,16 @@ module Pry::Config::Behavior
   end
 
   #
+  # @deprecated
+  #   Use {#clear} instead.
+  #
+  # @see #clear
+  #
+  def refresh
+    clear
+  end
+
+  #
   # @return [Array<String>]
   #   returns an array of keys in self.
   #
@@ -188,10 +198,12 @@ module Pry::Config::Behavior
   end
 
   def respond_to_missing?(key, include_all=false)
+    key = key.to_s
+    key = key[0..-2] if key.end_with? ASSIGNMENT
     key?(key) or @default.respond_to?(key) or super(key, include_all)
   end
 
-private
+  private
   def __clip_inspect(obj)
     "#{obj.class}:0x%x" % obj.object_id
   end
@@ -216,14 +228,14 @@ private
     end
   end
 
-  def __push(key,value)
-    unless singleton_class.method_defined? key
-      define_singleton_method(key) { self[key] }
-    end
-    unless singleton_class.method_defined? "#{key}="
-      define_singleton_method("#{key}=") { |val| @lookup[key] = val }
-    end
-    send("#{key}=", value)
+  def __push(key, value)
+    define_singleton_method(key) {
+      self[key]
+    } if not singleton_class.method_defined? key
+    define_singleton_method("#{key}=") {|value|
+      @lookup[key] = value
+    } if not singleton_class.method_defined? "#{key}="
+    @lookup[key] = value
   end
 
   def __remove(key)

@@ -37,6 +37,7 @@ class Pry
   attr_reader :input_array
   attr_reader :output_array
   attr_reader :config
+  attr_reader :created_at
 
   extend Pry::Config::Convenience
   config_shortcut(*Pry::Config.shortcuts)
@@ -68,9 +69,11 @@ class Pry
     @command_state = {}
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
+    @created_at = Time.now
     target = options.delete(:target)
     @config = Pry::Config.new
     config.merge!(options)
+    init_readline(@config.input)
     push_prompt(config.prompt)
     @input_array  = Pry::HistoryArray.new config.memory_size
     @output_array = Pry::HistoryArray.new config.memory_size
@@ -78,6 +81,7 @@ class Pry
     set_last_result nil
     @input_array << nil
     push_initial_binding(target)
+    register_deprecations!
     exec_hook(:when_started, target, options, self)
   end
 
@@ -99,6 +103,7 @@ class Pry
         include Pry::Helpers::Text
         include Pry::Helpers::BaseHelpers
         include Pry::Prompt
+        include Pry::Deprecate
         define_method(:_pry_) { this }
         extend self
         public_class_method *Pry::Helpers::BaseHelpers.methods(false)
@@ -691,5 +696,79 @@ class Pry
   # @return [Boolean]
   def quiet?
     config.quiet
+  end
+
+  #
+  # Pry#<=> allows Pry instances to be sorted.
+  # Useful for cases where a collection of Pry instances require sorting,
+  # such as with a SortedSet. Sort is based on the creation time of Pry
+  # instance (see {Pry#created_at}).
+  #
+  # @param [Pry] other
+  #   An instance of Pry.
+  #
+  # @return [Integer]
+  #   Returns -1 if self started before  _other_, returns 0 if
+  #   self and _other_ started at same time, and returns 1 if self
+  #   started after _other_.
+  #
+  def <=>(other)
+    return 0 if not self.class === other
+    if created_at > other.created_at
+      1
+    elsif created_at == other.created_at
+      0
+    else
+      -1
+    end
+  end
+
+  private
+  def register_deprecations!
+    h.deprecate_config! [:refresh],
+                        "Pry::Config#refresh is deprecated. Use #clear instead."
+    h.deprecate_config! [:exception_whitelist],
+                        "Pry::Config#exception_whitelist is deprecated. " \
+                        "Use Pry::Config#unrescuable_exceptions instead."
+# Can of worms, fix later.
+#    h.deprecate_method! ["Pry::Command.options", "Pry::Command.options="],
+#                        'Pry::Command.{options,options}= are deprecated. ' \
+#                        "Use command_options and command_options= instead."
+    h.deprecate_method! ["Pry::Helpers::Text#bright_default"],
+                        "Pry::Helpers::Text#bright_default is deprecated. " \
+                        "Use #bold instead."
+    h.deprecate_method! ["Pry::Helpers::Text#default"],
+                        "Pry::Helpers::Text#default is deprecated. " \
+                        "Use #strip_color instead."
+    h.deprecate_method! ["Pry::Command#text"],
+                        "Pry::Command#text is deprecated. " \
+                        "Remove 'text.' prefix from Pry command."
+    h.deprecate_method! ["Pry::Helpers::BaseHelpers#stagger_output"],
+                        "#stagger_output is deprecated. " \
+                        "Use _pry_.pager.page(str) instead"
+    h.deprecate_method! ["Pry::Slop::Commands#initialize"],
+                        "Pry::Slop::Commands is deprecated. It will be removed in the future, " \
+                        "with no replacement."
+    h.deprecate_method! ["Pry::CommandSet#before_command"],
+                        "Pry::CommandSet#before_command is deprecated. " \
+                        "Use Pry::Hooks#add_hook instead."
+    h.deprecate_method! ["Pry::CommandSet#after_command"],
+                        "Pry::CommandSet#after_command is deprecated. " \
+                        "Use Pry::Hooks#add_hook instead."
+    h.deprecate_method! ["Pry::Command#hooks"],
+                        "Pry::Command#hooks is deprecated. " \
+                        "Use Pry#hooks instead (eg _pry_.hooks)"
+  end
+
+  READLINE_BREAK_CHARS = " \t\n`><=;|&{("
+  def init_readline(input)
+    if input.respond_to?(:completer_word_break_characters=)
+      begin
+        input.completer_word_break_characters = READLINE_BREAK_CHARS
+      rescue ArgumentError
+        # Hi JRuby
+        input.basic_word_break_characters = READLINE_BREAK_CHARS
+      end
+    end
   end
 end

@@ -1,9 +1,18 @@
 class Pry::Output
-  attr_reader :_pry_
+  attr_reader :_pry_, :boxed_io
 
   def initialize(_pry_)
     @_pry_ = _pry_
     @boxed_io = _pry_.config.output
+  end
+
+  def eql?(other)
+    return true if @boxed_io.eql?(other)
+    self.class === other and @boxed_io.eql?(other.boxed_io)
+  end
+
+  def hash
+    @boxed_io.hash
   end
 
   def puts(*objs)

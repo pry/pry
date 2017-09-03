@@ -16,8 +16,6 @@ class Pry
       # @param [String, #to_s] text
       # @return [String]
       def default text, pry=(defined?(_pry_) && _pry_) || Pry
-        pry.output.puts "DEPRECATED: Pry::Helpers::Text#default is deprecated, " \
-                        "please use Pry::Helpers::Text#strip_color instead"
         strip_color text.to_s
       end
       alias_method :bright_default, :bold

@@ -1,13 +1,19 @@
-# These specs ensure that Pry doesn't require readline until the first time a
-# REPL is started.
-
 require "helper"
 require "shellwords"
-
 describe "Readline" do
   before do
     @ruby    = RbConfig.ruby.shellescape
     @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib')).shellescape
+  end
+
+  it "is initialized properly" do
+    code = <<-RUBY
+    require "readline"
+    require "pry"
+    pry = Pry.new(input: Readline)
+    Kernel.print pry.input.completer_word_break_characters
+    RUBY
+    expect(`#@ruby -I#@pry_dir -e'#{code}'`).to eq(Pry::READLINE_BREAK_CHARS)
   end
 
   it "is not loaded on requiring 'pry'" do

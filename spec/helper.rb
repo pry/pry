@@ -33,5 +33,14 @@ RSpec.configure do |config|
     c.syntax = [:should, :expect]
   end
 
+  config.before :each do
+    # A large number of specs are written in such a way that 'after_session' hooks are not
+    # executed. The 'after_session' hook is used by 'Pry::Deprecate' for the removal of stale
+    # Pry instances. Eventually the hook not being run causes a big slowdown as a spec run
+    # progresses. So, we have to manually clear 'DEPRECATE_PRYS'.
+    Pry::Deprecate.__deprecate_yay_bad_tests
+    Pry.config.print_deprecations = false
+  end
+
   config.include PryTestHelpers
 end
