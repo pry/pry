@@ -338,6 +338,8 @@ class Pry
       #
       # This workaround has a side effect: java exceptions specified
       # in `Pry.config.exception_whitelist` are ignored.
+      #
+      #
       jruby_exceptions = []
       if Pry::Helpers::BaseHelpers.jruby?
         jruby_exceptions << Java::JavaLang::Exception
@@ -397,7 +399,7 @@ class Pry
     else
       # nothin'
     end
-  rescue Pry.Rescuable => e
+  rescue Pry.Rescuable(self) => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
     # serialize something in the user's program, let's not assume we can serialize
     # the exception either.
