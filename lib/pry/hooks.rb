@@ -98,7 +98,7 @@ class Pry
       @hooks[event_name.to_s].map do |hook_name, callable|
         begin
           callable.call(*args, &block)
-        rescue RescuableException => e
+        rescue Pry.Rescueable => e
           errors << e
           e
         end

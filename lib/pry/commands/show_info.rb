@@ -195,7 +195,7 @@ class Pry
         prefix, search = [$1, $2]
         methods = begin
                     Pry::Method.all_from_class(binding.eval(prefix))
-                  rescue RescuableException
+                  rescue Pry.Rescueable
                     return super
                   end
         methods.map do |method|
