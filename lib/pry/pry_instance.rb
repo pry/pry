@@ -301,7 +301,7 @@ class Pry
       if !process_command_safely(line)
         @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
-    rescue Pry::Rescueable(self) => e
+    rescue Pry.Rescueable(self) => e
       self.last_exception = e
       result = e
 
@@ -350,7 +350,7 @@ class Pry
         reset_eval_string
 
         result = evaluate_ruby(eval_string)
-      rescue Pry::Rescueable(self), *jruby_exceptions => e
+      rescue Pry.Rescueable(self), *jruby_exceptions => e
         # Eliminate following warning:
         # warning: singleton on non-persistent Java type X
         # (http://wiki.jruby.org/Persistence)
@@ -403,7 +403,7 @@ class Pry
     # the exception either.
     begin
       output.puts "(pry) output error: #{e.inspect}\n#{e.backtrace.join("\n")}"
-    rescue Pry::Rescueable(self) => e
+    rescue Pry.Rescueable(self) => e
       if last_result_is_exception?
         output.puts "(pry) output error: failed to show exception"
       else
