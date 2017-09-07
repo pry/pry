@@ -1,4 +1,4 @@
-def Pry.Rescueable(pry = nil)
+def Pry.Rescuable(pry = nil)
   Module.new do
     define_singleton_method(:===) do |e|
       case e

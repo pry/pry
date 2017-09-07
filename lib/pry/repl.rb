@@ -146,7 +146,7 @@ class Pry
       # If we get a random error when trying to read a line we don't want to
       # automatically retry, as the user will see a lot of error messages
       # scroll past and be unable to do anything about it.
-      rescue Pry.Rescueable => e
+      rescue Pry.Rescuable => e
         puts "Error: #{e.message}"
         output.puts e.backtrace
         exception_count += 1

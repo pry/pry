@@ -69,7 +69,7 @@ class Pry
   # @param [String] file The unexpanded file path.
   def self.load_file_at_toplevel(file)
     toplevel_binding.eval(File.read(file), file)
-  rescue Pry.Rescueable => e
+  rescue Pry.Rescuable => e
     puts "Error loading #{file}: #{e}\n#{e.backtrace.first}"
   end
 
@@ -236,7 +236,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
     else
       id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
     end
-  rescue Pry.Rescueable
+  rescue Pry.Rescuable
     "unknown"
   end
 

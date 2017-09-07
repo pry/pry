@@ -2,7 +2,7 @@ class Pry
 
   #
   # @deprecated
-  #   Use {Pry.Rescueable()} instead.
+  #   Use {Pry.Rescuable()} instead.
   #
   module RescuableException
     def self.===(exception)
