@@ -188,10 +188,12 @@ module Pry::Config::Behavior
   end
 
   def respond_to_missing?(key, include_all=false)
+    key = key.to_s
+    key = key[0..-2] if key.end_with? ASSIGNMENT
     key?(key) or @default.respond_to?(key) or super(key, include_all)
   end
 
-private
+  private
   def __clip_inspect(obj)
     "#{obj.class}:0x%x" % obj.object_id
   end
@@ -216,13 +218,9 @@ private
     end
   end
 
-  def __push(key,value)
-    unless singleton_class.method_defined? key
-      define_singleton_method(key) { self[key] }
-    end
-    unless singleton_class.method_defined? "#{key}="
-      define_singleton_method("#{key}=") { |val| @lookup[key] = val }
-    end
+  def __push(key, value)
+    define_singleton_method(key) { self[key] } if not singleton_class.method_defined? key
+    define_singleton_method("#{key}=") {|value| @lookup[key] = value } if not singleton_class.method_defined? "#{key}="
     send("#{key}=", value)
   end
 

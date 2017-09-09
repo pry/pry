@@ -82,15 +82,16 @@ describe Pry::Config do
 
 
   describe "#respond_to_missing?" do
-    before do
-      @config = Pry::Config.new(nil)
+    let(:config) { Pry::Config.new(Pry::Config::Default.new) }
+
+    it "returns setter Method for attribute of Default" do
+      setter = config.method(:exception_whitelist=)
+      expect(setter.name).to eq(:exception_whitelist=)
     end
 
-    it "returns a Method object for a dynamic key" do
-      @config["key"] = 1
-      method_obj = @config.method(:key)
-      expect(method_obj.name).to eq :key
-      expect(method_obj.call).to eq(1)
+    it "returns getter Method" do
+      c = described_class.from_hash({foo: 1}, nil)
+      expect(c.method(:foo).name).to eq(:foo)
     end
   end
 
