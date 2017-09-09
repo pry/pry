@@ -10,8 +10,11 @@ rvm:
   - jruby
   - jruby-head
 
+install:
+  - bundle install --without docs
+
 script:
-  - rake spec
+  - bundle exec rspec
 
 sudo: false
 
