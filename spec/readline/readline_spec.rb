@@ -11,7 +11,8 @@ describe "Readline" do
     require "readline"
     require "pry"
     pry = Pry.new(input: Readline)
-    Kernel.print pry.input.completer_word_break_characters
+    pry.h.jruby? ? Kernel.print(pry.input.basic_word_break_characters) :
+                   Kernel.print(pry.input.completer_word_break_characters)
     RUBY
     expect(`#@ruby -I#@pry_dir -e'#{code}'`).to eq(Pry::READLINE_BREAK_CHARS)
   end
