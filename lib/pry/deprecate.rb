@@ -79,6 +79,20 @@ module Pry::Deprecate
       next if method.source_location.to_a[0] == __FILE__
       this = self
       mod.send :define_method, method.name do |*a, &b|
+        # This is subtle, but very nice for the use case at hand.
+        # 'method' is binded to this Proc, as a local, through outer scope.
+        # It is not rebinded again, unless this method is also redefined at
+        # the same time. This means that when 'method' is reassigned
+        # in the outer scope, it is unknown to this method, unless redefinition
+        # of the method also takes place.
+        #
+        # L79('next if ..') prevents deprecate.rb from defining same method twice,
+        # by querying the most recent 'source_location' information of this method, and yet
+        # what we end up with inside this Proc/method is still an untouched copy of the
+        # original method, with the old `source_location` information. This is very useful
+        # if we want to show the source code of the original method, and not the deprecate.rb
+        # monkeypatch.
+        #
         result = method.bind(self).call(*a, &b)
         # No active Pry's? Don't acquire lock for no-op filter.
         return result if DEPRECATE_PRY_SET.empty?
