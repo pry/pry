@@ -49,5 +49,13 @@ RSpec.describe Pry::Deprecate do
       io.puts ""
       expect(pry.output.string).to_not include("salmon is tasty but trout is delicious")
     end
+
+    specify "deprecated method is bound to a new self, at every call" do
+      io = StringIO.new
+      pry.h.deprecate_method! [io.method(:puts)], "trout is delicious"
+      io2 = StringIO.new
+      io2.puts "foo"
+      expect(io2.string).to eq("foo\n")
+    end
   end
 end
