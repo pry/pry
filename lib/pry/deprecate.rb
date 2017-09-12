@@ -91,7 +91,8 @@ module Pry::Deprecate
           this.__deprecate_filter(DEPRECATE_PRY_SET).each do |pry|
             io = pry.output
             io.puts("%s %s\n%s\n" \
-                    "Run 'toggle-pry-deprecations' or '_pry_.config.print_deprecations = false' to stop printing this message.\n\n" %
+                    "Run 'toggle-pry-deprecations' or '_pry_.config.print_deprecations = false' " \
+                    "to stop printing this message.\n\n" %
                     [
                       pry.h.bright_white_on_red(" DEPRECATED "),
                       message,
