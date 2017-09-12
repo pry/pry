@@ -35,7 +35,7 @@ module Pry::Deprecate
 
   #
   # Similar to {#deprecate_method!} but specialised to {Pry::Config}.
-  # Exists for convenience but also to implement another workaround for JRuby.
+  # Exists for convenience.
   #
   #  @param [Array<Symbol>]
   #    Array of Symbols that identify the name of each config attribute that
@@ -58,10 +58,10 @@ module Pry::Deprecate
   def deprecate_config! attrs, message, pry=((defined?(_pry_) and _pry_) or raise)
     DEPRECATE_LOCK.synchronize &proc {
       sigs = attrs.flat_map do |attr|
-        # Bring the method into existence, for JRuby. Pry::Config lazy defines.
-        # It's not required for CRuby, so JRuby is likely not being compliant
-        # with Ruby (respond_to_missing? or similar) behaviour here.
-        pry.config.public_send(attr) if pry.h.jruby?
+        # Bring the method into existence.
+        # This appears required, because UnboundMethod's cannot be created via
+        # respond_to_missing?().
+        pry.config.public_send(attr)
         [Pry.config.method(attr), Pry.config.method(:"#{attr}="),
          pry.config.method(attr), pry.config.method(:"#{attr}=")]
       end
@@ -79,7 +79,7 @@ module Pry::Deprecate
       next if method.source_location.to_a[0] == __FILE__
       this = self
       mod.send :define_method, method.name do |*a, &b|
-        result = (::UnboundMethod === method ? method.bind(self) : method).call(*a, &b)
+        result = method.bind(self).call(*a, &b)
         # No active Pry's? Don't acquire lock for no-op filter.
         return result if DEPRECATE_PRY_SET.empty?
         # Although '__deprecate_method' is within a lock (imposed by caller),
@@ -159,15 +159,15 @@ module Pry::Deprecate
     scope = path[-1].include?('#') ? :instance : :module
     path[-1], method = path[-1].split /[.#]/, 2
     mod = path.inject(Object) { |m,s| m.const_get(s) }
-    method = scope == :instance ? mod.instance_method(method) : mod.method(method)
-    [scope == :instance ? mod : class<<mod; self; end, method]
+    mod = class<<mod; self; end if scope == :module
+    [mod, mod.instance_method(method)]
   end
 
   #
   # @api private
   #
   def __deprecate_method_sig(m)
-   [m.owner, m]
+   [m.owner, m.owner.instance_method(m.name)]
   end
 
   private :__deprecate_string_sig, :__deprecate_method_sig, :__deprecate_gc_hook, :__deprecate_method

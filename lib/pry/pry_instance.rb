@@ -725,7 +725,7 @@ class Pry
 
   private
   def register_deprecations!
-    h.deprecate_config! [:refresh],
+    h.deprecate_method! ["Pry::Config#refresh"],
                         "Pry::Config#refresh is deprecated. Use #clear instead."
     h.deprecate_config! [:exception_whitelist],
                         "Pry::Config#exception_whitelist is deprecated. " \
