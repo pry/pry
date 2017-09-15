@@ -28,9 +28,9 @@ module Pry::Deprecate
   # @return [nil]
   #
   def deprecate_method! sigs, message, pry=((defined?(_pry_) and _pry_) or raise)
-    DEPRECATE_LOCK.synchronize &proc {
-      method(:__deprecate_method).call(sigs, message, pry)
-    }
+    DEPRECATE_LOCK.synchronize do
+      __deprecate_method(sigs, message, pry)
+    end
   end
 
   #
@@ -56,7 +56,7 @@ module Pry::Deprecate
   #    deprecate_config! [:foo], "Pry::Config#foo is deprecated, use #bar instead"
   #
   def deprecate_config! attrs, message, pry=((defined?(_pry_) and _pry_) or raise)
-    DEPRECATE_LOCK.synchronize &proc {
+    DEPRECATE_LOCK.synchronize do
       sigs = attrs.flat_map do |attr|
         # Bring the method into existence.
         # This appears required, because UnboundMethod's cannot be created via
@@ -65,8 +65,8 @@ module Pry::Deprecate
         [Pry.config.method(attr), Pry.config.method(:"#{attr}="),
          pry.config.method(attr), pry.config.method(:"#{attr}=")]
       end
-      method(:__deprecate_method).call(sigs, message, pry)
-    }
+      __deprecate_method(sigs, message, pry)
+    end
   end
 
   #
