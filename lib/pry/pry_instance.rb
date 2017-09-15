@@ -730,10 +730,9 @@ class Pry
     h.deprecate_config! [:exception_whitelist],
                         "Pry::Config#exception_whitelist is deprecated. " \
                         "Use Pry::Config#unrescuable_exceptions instead."
-# Can of worms, fix later.
-#    h.deprecate_method! ["Pry::Command.options", "Pry::Command.options="],
-#                        'Pry::Command.{options,options}= are deprecated. ' \
-#                        "Use command_options and command_options= instead."
+    h.deprecate_method! ["Pry::Command.options", "Pry::Command.options="],
+                        'Pry::Command.{options,options}= are deprecated. ' \
+                        "Use command_options and command_options= instead."
     h.deprecate_method! ["Pry::Helpers::Text#bright_default"],
                         "Pry::Helpers::Text#bright_default is deprecated. " \
                         "Use #bold instead."
