@@ -42,5 +42,15 @@ RSpec.configure do |config|
     Pry.config.print_deprecations = false
   end
 
+  config.include Module.new {
+    # Pry instances created by the tests don't exec hooks.
+    # This works ok, but not best solution to the problem.
+    # See '__deprecate_yay_bad_tests' as to why.
+    # It's a FIXME, since it would be nice to remove '__deprecate_yay_bad_tests'.
+    def simulate_exit(pry)
+      pry.eval("exit")
+      pry.hooks.exec_hook(:after_session)
+    end
+  }
   config.include PryTestHelpers
 end

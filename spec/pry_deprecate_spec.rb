@@ -42,10 +42,7 @@ RSpec.describe Pry::Deprecate do
     specify "deprecations vanish once the repl exits" do
       io = StringIO.new
       pry.h.deprecate_method! [io.method(:puts)], "salmon is tasty but trout is delicious"
-      # Manual simulation of exit is required, since hooks don't naturally run
-      # in test environment. It's a FIXME.
-      pry.eval("exit")
-      pry.hooks.exec_hook(:after_session)
+      simulate_exit(pry)
       io.puts ""
       expect(pry.output.string).to_not include("salmon is tasty but trout is delicious")
     end
