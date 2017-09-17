@@ -123,6 +123,9 @@ module Pry::Deprecate
     nil
   end
 
+  #
+  # @api private
+  #
   def __deprecate_yay_bad_tests
     DEPRECATE_PRY_SET.clear
   end
