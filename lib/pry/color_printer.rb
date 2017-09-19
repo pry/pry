@@ -10,6 +10,12 @@ class Pry
       end
     end
 
+    class NoInspectErrorMatcher
+      def self.===(error)
+        error.is_a?(NoMethodError) && error.message =~ /undefined method `inspect'/
+      end
+    end
+
     CodeRay::Encoders::Terminal::TOKEN_COLORS[:comment][:self] = "\e[1;34m"
 
     def self.pp(obj, out = $>, width = 79, newline = "\n")
@@ -42,12 +48,12 @@ class Pry
       raise if e.is_a? Pry::Pager::StopPaging
       begin
         str = obj.inspect
-      rescue Exception 
+      rescue NoInspectErrorMatcher
         # Read the class name off of the singleton class to provide a default
         # inspect.
         singleton = class << obj; self; end
         ancestors = Pry::Method.safe_send(singleton, :ancestors)
-        klass  = ancestors.reject { |k| k == singleton }.first
+        klass  = ancestors.find { |k| k != singleton }
         obj_id = obj.__id__.to_s(16) rescue 0
         str    = "#<#{klass}:0x#{obj_id}>"
       end

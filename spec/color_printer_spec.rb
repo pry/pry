@@ -21,8 +21,8 @@ describe Pry::ColorPrinter do
         end
 
         class ObjectG < Object
-          def inspect 
-            raise 
+          def inspect
+            raise 'oops'
           end
         end
       end
@@ -37,9 +37,10 @@ describe Pry::ColorPrinter do
         expect(str).to eq('foo')
       end 
 
-      it 'prints a string, even when an exception is raised' do 
-        Pry::ColorPrinter.pp(ObjectG.new, io)
-        expect(str).to match(/\A#<ObjectG:0x\w+>\z/)
+      it 'raises an exception from #inspect' do
+        expect {
+          Pry::ColorPrinter.pp(ObjectG.new, io)
+        }.to raise_error(RuntimeError, 'oops')
       end
     end
 
@@ -60,7 +61,7 @@ describe Pry::ColorPrinter do
 
         class BasicG < BasicObject
           def inspect
-            raise
+            raise 'oops'
           end
         end
       end
@@ -75,9 +76,10 @@ describe Pry::ColorPrinter do
         expect(str).to eq("foo")
       end
 
-      it 'prints a string, even when an exception is raised' do
-        Pry::ColorPrinter.pp(BasicG.new, io)
-        expect(str).to match(/\A#<BasicG:0x\w+>\z/)
+      it 'raises an exception from #inspect' do
+        expect {
+          Pry::ColorPrinter.pp(BasicG.new, io)
+        }.to raise_error(NoMethodError, /undefined method `raise'/)
       end
     end
   end
