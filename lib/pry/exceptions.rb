@@ -30,6 +30,12 @@ class Pry
     end
   end
 
+  module Pry::InspectException
+    def self.===(error)
+      !error.is_a?(NoMethodError) || !(error.message =~ /undefined method `inspect'/)
+    end
+  end
+
   # An Exception Tag (cf. Exceptional Ruby) that instructs Pry to show the error
   # in a more user-friendly manner. This should be used when the exception
   # happens within Pry itself as a direct consequence of the user typing
