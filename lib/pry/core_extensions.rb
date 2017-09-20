@@ -68,12 +68,22 @@ class Object
   def __binding__
     # If you ever feel like changing this method, be careful about variables
     # that you use. They shouldn't be inserted into the binding that will
-    # eventually be returning.
+    # eventually be returned.
 
     # When you're cd'd into a class, methods you define should be added to it.
     if is_a?(Module)
+      # A special case, for JRuby.
+      # Module.new.class_eval("binding") has different behaviour than CRuby,
+      # where this is not needed: class_eval("binding") vs class_eval{binding}.
+      # Using a block works around the difference of behaviour on JRuby.
+      # The scope is clear of local variabless. Don't add any.
+      #
+      # This fixes the following two spec failures, at https://travis-ci.org/pry/pry/jobs/274470002
+      # 1) ./spec/pry_spec.rb:360:in `block in (root)'
+      # 2) ./spec/pry_spec.rb:366:in `block in (root)'
+      return class_eval {binding} if Pry::Helpers::BaseHelpers.jruby? and self.name == nil
       # class_eval sets both self and the default definee to this class.
-      return class_eval "binding"
+      return class_eval("binding")
     end
 
     unless respond_to?(:__pry__)
