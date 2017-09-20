@@ -1,22 +1,21 @@
 class Pry
   class Command::SimplePrompt < Pry::ClassCommand
     match 'simple-prompt'
-    group 'prompts'
+    group 'Prompts'
     description 'Toggle the simple prompt.'
 
     banner <<-'BANNER'
-      Toggle the simple prompt.
+      Toggle between current prompt and the 'simple' prompt.
     BANNER
 
     def process
       case _pry_.prompt
-      when Pry::SIMPLE_PROMPT
+      when Pry::Prompt['simple']
         _pry_.pop_prompt
       else
-        _pry_.push_prompt Pry::SIMPLE_PROMPT
+        _pry_.push_prompt Pry::Prompt['simple']
       end
     end
+    Pry::Commands.add_command(self)
   end
-
-  Pry::Commands.add_command(Pry::Command::SimplePrompt)
 end

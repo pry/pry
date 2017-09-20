@@ -1,12 +1,12 @@
 class Pry::Command::ListInspectors < Pry::ClassCommand
   match 'list-inspectors'
-  group 'Input and Output'
-  description 'List the inspector procs available for use.'
+  group 'Inspectors'
+  description 'List the inspector that are available to use.'
   banner <<-BANNER
     Usage: list-inspectors
 
-    List the inspector procs available to print return values. You can use
-    change-inspector to switch between them.
+    List the inspectors available for displaying an object that's returned
+    by Kernel.eval().
   BANNER
 
   def process

@@ -1,7 +1,7 @@
 class Pry::Command::ListPrompts < Pry::ClassCommand
   match 'list-prompts'
-  group 'Input and Output'
-  description 'List the prompts available for use.'
+  group 'Prompts'
+  description 'List all prompts that are available to use.'
   banner <<-BANNER
     Usage: list-prompts
 
@@ -10,26 +10,30 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
   BANNER
 
   def process
-    output.puts heading("Available prompts") + "\n"
-    prompt_map.each do |name, prompt|
-      output.write "Name: #{text.bold(name)}"
-      output.puts selected_prompt?(prompt) ? selected_text : ""
-      output.puts prompt[:description]
-      output.puts
+    buf = StringIO.new
+    buf.puts heading("Available prompts") + "\n\n"
+    all_prompts.each do |prompt|
+      next if prompt.alias?
+      aliases = _pry_.h.aliases_for(prompt.name)
+      buf.write "Name: #{text.bold(prompt.name)}"
+      buf.puts selected_prompt?([prompt].concat(aliases)) ? text.green(" [active]") : ""
+      buf.puts "Aliases: #{aliases.map {|s| text.bold(s.name) }.join(',')}" if aliases.any?
+      buf.puts prompt.description
+      buf.puts
     end
+    _pry_.pager.page(buf.string)
   end
 
-private
-  def prompt_map
-    Pry::Prompt::MAP
+  private
+
+  def all_prompts
+    Pry::Prompt.all_prompts
   end
 
-  def selected_text
-    text.red " (selected) "
-  end
-
-  def selected_prompt?(prompt)
-    _pry_.prompt == prompt[:value]
+  def selected_prompt?(prompts)
+    prompts.any? do |prompt|
+      _pry_.prompt == prompt or _pry_.prompt == prompt.proc_array
+    end
   end
   Pry::Commands.add_command(self)
 end

@@ -85,6 +85,13 @@ describe Pry::InputCompleter do
 
     # Absolute Constant
     completer_test(o).call('::IndexError')
+
+    # String
+    completer_test(Object.new).call('"".size')
+    completer_test(Object.new).call('abcd".size')
+
+    # Chain of calls starting with a string
+    completer_test(Object.new).call('abcd".size.times')
   end
 
   it 'should complete for target symbols' do
@@ -136,59 +143,6 @@ describe Pry::InputCompleter do
     b = Pry.binding_for(Bar)
     completer_test(b, pry).call("../@bazvar")
     completer_test(b, pry).call('/Con')
-  end
-
-  it 'should complete for stdlib symbols' do
-
-    o = Object.new
-    # Regexp
-    completer_test(o).call('/foo/.extend')
-
-    # Array
-    completer_test(o).call('[1].push')
-
-    # Hash
-    completer_test(o).call('{"a" => "b"}.keys')
-
-    # Proc
-    completer_test(o).call('{2}.call')
-
-    # Symbol
-    completer_test(o).call(':symbol.to_s')
-
-    # Absolute Constant
-    completer_test(o).call('::IndexError')
-  end
-
-  it 'should complete for target symbols' do
-    o = Object.new
-
-    # Constant
-    module Mod
-      remove_const :Con if defined? Con
-      Con = 'Constant'
-      module Mod2
-      end
-    end
-
-    completer_test(Mod).call('Con')
-
-    # Constants or Class Methods
-    completer_test(o).call('Mod::Con')
-
-    # Symbol
-    _foo = :symbol
-    completer_test(o).call(':symbol')
-
-    # Variables
-    class << o
-      attr_accessor :foo
-    end
-    o.foo = 'bar'
-    completer_test(binding).call('o.foo')
-
-    # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', :target => Pry.binding_for(Mod)).include?('Mod2/')).to   eq(true)
   end
 
   it 'should complete for arbitrary scopes' do
