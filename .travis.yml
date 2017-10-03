@@ -8,10 +8,15 @@ rvm:
   - ruby-head
   - rbx-2
   - jruby-9.1.13.0
+  - jruby
   - jruby-head
 
+install:
+  - ruby -S gem install bundler --version 1.15.4
+  - ruby -S bundle _1.15.4_ install --without docs
+
 script:
-  - rake spec
+  - ruby -S bundle _1.15.4_ exec rspec
 
 sudo: false
 
