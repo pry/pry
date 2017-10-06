@@ -127,7 +127,7 @@ class Pry::Config::Default
     },
     exec_string: proc {
       ""
-    },
+    },    
     media_player: proc {
       if not Pry::Helpers::BaseHelpers.windows?
         "open"
