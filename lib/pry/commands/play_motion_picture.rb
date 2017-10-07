@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 class Pry::Command::PlayMotionPicture < Pry::ClassCommand
+  #
+  # Note that Pry doesn't own the rights to any of these motion pictures.
+  # Links to official sources are given preference. The artists who created these
+  # videos should receive royalities in cases where the links use official sources.
+  #
   MOTION_PICTURES = [
-    #
-    # Pry doesn't own the rights to any of these motion pictures.
-    #
     ['https://www.youtube.com/watch?v=lk5iMgG-WJI', 'Kasbian - ClubFoot'],
     ['https://www.youtube.com/watch?v=svJvT6ruolA', 'The Prodigy - No Good (Start The Dance)'],
     ['https://www.youtube.com/watch?v=l-L3zeCNzH8', 'Michael Collins eliminates "Cairo Gang"'],
