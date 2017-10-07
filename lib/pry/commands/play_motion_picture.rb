@@ -135,30 +135,45 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   def process
     case
     when opts.count?
-      _pry_.pager.page '%s motion pictures available' % MOTION_PICTURES.size
+      process_count MOTION_PICTURES.size
     when opts.index?
-      play MOTION_PICTURES[Integer(opts[:index])][0]
-    when opts[:sequential]
-      begin
-        play MOTION_PICTURES_SEQ.next[0]
-      rescue Pry::RescuableException
-        MOTION_PICTURES_SEQ.rewind
-        retry
-      end
-    when opts[:match]
-      result = MOTION_PICTURES.find {|(_, title)| title =~ /#{opts[:m]}/i}
-      return _pry_.pager.page "No matches :(" if not result
-      play result[0]
-    else
+      process_index opts[:i]
+    when opts.sequential?
+      process_seq MOTION_PICTURES_SEQ
+    when opts.match?
+      process_fuzz_match opts[:m]
+    else # Play motion picture at random.
       play
     end
   end
 
   private
+  def process_count(count)
+    _pry_.pager.page '%s motion pictures available' % count
+  end
+
+  def process_index(int)
+    play MOTION_PICTURES[Integer(int)][0]
+  end
+
+  def process_seq(seq)
+    play seq.next[0]
+  rescue Pry::RescuableException
+    seq.rewind
+    retry
+  end
+
+  def process_fuzz_match(pattern)
+    result = MOTION_PICTURES.find {|(_, title)| title =~ /#{pattern}/i}
+    return _pry_.pager.page "No matches :(" if not result
+    play result[0]
+  end
+
   def play(motion_picture=nil)
     motion_picture ||= begin
       require 'securerandom'
-      SecureRandom.random_number(MOTION_PICTURES.size)[0]
+      randint = SecureRandom.random_number(MOTION_PICTURES.size)
+      MOTION_PICTURES[randint][0]
     end
     syscall = _pry_.config.system
     syscall.call _pry_.output, "%s %s" % [_pry_.config.media_player, motion_picture].map {|input|
