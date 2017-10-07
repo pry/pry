@@ -113,6 +113,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
+  private_constant :MOTION_PICTURES, :MOTION_PICTURES_SEQ
 
   match 'play-motion-picture'
   group 'Misc'
