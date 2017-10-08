@@ -163,7 +163,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   end
 
   def process_index(int)
-    raise IndexError, "unsigned integer required" if int.to_i < 0
+    raise IndexError, "unsigned integer required (>= 0)" if int.to_i < 0
     play MOTION_PICTURES[Integer(int)][0]
   end
 
