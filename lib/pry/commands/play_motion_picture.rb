@@ -164,6 +164,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     [
       'https://www.youtube.com/watch?v=gLDYtH1RH-U',
       'Shanghai Tower (650 meters)'
+    ],
+    [
+      'https://www.youtube.com/watch?v=Fhskvloj1gE',
+      'Dream Jump - Dubai 4K'
     ]
   ].freeze
 
