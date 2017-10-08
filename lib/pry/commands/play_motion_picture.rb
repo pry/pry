@@ -213,11 +213,13 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   end
 
   def process_count(count)
-    _pry_.pager.page "#{_pry_.h.bold(count)} motion pictures available."
+    _pry_.pager.page "#{_pry_.h.bold(count-1)} motion pictures available."
   end
 
   def process_index(int)
-    raise IndexError, "unsigned integer required (>= 0)" if int.to_i < 0
+    if not int.to_i.between?(0, MOTION_PICTURES.size-1)
+      raise IndexError, "out of bounds (0..#{MOTION_PICTURES.size-1})"
+    end
     play MOTION_PICTURES[Integer(int)][0]
   end
 
