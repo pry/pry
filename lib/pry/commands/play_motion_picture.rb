@@ -23,7 +23,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=jyrawwOwdH4', 'Dream Letter - Tim Buckley'],
     ['https://www.youtube.com/watch?v=bDjREVKAvq4', '1916 Easter Rising'],
     ['https://www.youtube.com/watch?v=n_yRvxy9HVs', 'Pink Floyd - Mother'],
-    ['https://www.youtube.com/watch?v=MT9yNzCCDhU', 'Blood Diamond clip'],
+    [
+      'https://www.youtube.com/watch?v=MT9yNzCCDhU',
+      'Blood Diamond That´s alright, I am exactly where i am supposed to be'
+    ],
     ['https://www.youtube.com/watch?v=T38v3-SSGcM', 'Johnny B Goode (1959)'],
     ['https://www.youtube.com/watch?v=79vCiXg3njY', 'Blues Brothers - Sweet Home Chicago'],
     ['https://www.youtube.com/watch?v=Q8Tiz6INF7I', 'Hit the road Jack!'],
