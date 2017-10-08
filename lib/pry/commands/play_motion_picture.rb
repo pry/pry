@@ -146,6 +146,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     [
       'https://www.youtube.com/watch?v=7ogBRXHGexo',
       'The Lady who made President Ahmadinejad Cry [HQ]'
+    ],
+    [
+      'https://www.youtube.com/watch?v=iyFijjikkeM',
+      'E.T. Phone Home.flv'
     ]
   ].freeze
 
