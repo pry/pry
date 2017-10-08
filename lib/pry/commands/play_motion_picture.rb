@@ -150,6 +150,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     [
       'https://www.youtube.com/watch?v=iyFijjikkeM',
       'E.T. Phone Home.flv'
+    ],
+    [
+      'https://www.youtube.com/watch?v=3J8p-NMMI3E',
+      'Billy Connolly Introduces Bob, Jo and Margaret'
     ]
   ].freeze
 
