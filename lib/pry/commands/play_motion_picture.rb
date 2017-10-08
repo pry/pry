@@ -134,6 +134,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ],
     ['https://www.youtube.com/watch?v=iSHy01D_DEg', 'Billy Connolly - Men and Women'],
     ['https://www.youtube.com/watch?v=gqSzDJGFCgI', 'Thin Lizzy - Bad Reputation'],
+    ['https://www.youtube.com/watch?v=aIXyKmElvv8', 'The Fugees - Ready or Not'],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
