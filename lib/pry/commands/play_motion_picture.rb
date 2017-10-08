@@ -172,6 +172,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'https://www.youtube.com/watch?v=ejwrxGs_Y_I',
       'Toy Story - Buzz Lightyear - To infinity and Beyond'
     ],
+    ['https://www.youtube.com/watch?v=GsF05B8TFWg', 'Axwell Λ Ingrosso - More Than You Know']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
