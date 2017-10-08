@@ -117,6 +117,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=oofSnsGkops', 'James Blunt - You\'re Beautiful (Video)'],
     ['https://www.youtube.com/watch?v=AeXOlgA-XuM', 'Surah Yasin, Surah Ar-Rahman & ' \
                                                     'Surah Al-Waqiah Full - Abdul Rahman Al Ossi'],
+    ['https://www.youtube.com/watch?v=-MUotqxKSRs', 'Vlog 42 - Palliative Care']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
