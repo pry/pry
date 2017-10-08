@@ -112,7 +112,8 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=0pBOLdZZT6s', 'Blood Diamond Leo Accents'],
     ['https://www.youtube.com/watch?v=LHCob76kigA', 'Lukas Graham - 7 Years [OFFICIAL MUSIC VIDEO]'],
     ['https://www.youtube.com/watch?v=dPPi2D6GK7A', 'Oasis - The Masterplan'],
-    ['https://www.youtube.com/watch?v=oofSnsGkops', 'James Blunt - You\'re Beautiful (Video)']
+    ['https://www.youtube.com/watch?v=oofSnsGkops', 'James Blunt - You\'re Beautiful (Video)'],
+    ['https://www.youtube.com/watch?v=AeXOlgA-XuM', 'Surah Yasin, Surah Ar-Rahman & Surah Al-Waqiah Full - Abdul Rahman Al Ossi'],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
