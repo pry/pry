@@ -158,7 +158,9 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=gLDYtH1RH-U', 'Shanghai Tower (650 meters)'],
     ['https://www.youtube.com/watch?v=Fhskvloj1gE', 'Dream Jump - Dubai 4K'],
     ['https://www.youtube.com/watch?v=NYZVMK7wpSs',
-     'ONE ROOT FREEMAN dans HIT\'S TIME avec RAGUS et JEAN MI']
+     'ONE ROOT FREEMAN dans HIT\'S TIME avec RAGUS et JEAN MI'],
+    ['https://www.youtube.com/watch?v=BMinKDEkUWk',
+     'مرگ هاشمي رفسنجاني و نوحه خنده دار هاشمي منتظر ماست با حضور خامنه اي و قاسم سليماني']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
