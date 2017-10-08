@@ -110,6 +110,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=i9nnnM-__JQ', 'Billy Connelly : National Anthem'],
     ['https://www.youtube.com/watch?v=1TO48Cnl66w', 'Dido - Thank You'],
     ['https://www.youtube.com/watch?v=0pBOLdZZT6s', 'Blood Diamond Leo Accents'],
+    ['https://www.youtube.com/watch?v=LHCob76kigA', 'Lukas Graham - 7 Years [OFFICIAL MUSIC VIDEO]']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
