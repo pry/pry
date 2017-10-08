@@ -47,17 +47,23 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=yaS3vaNUYgs', 'Foggy Dew.'],
     ['https://www.youtube.com/watch?v=lbQCf8F1JsE', 'Wamdue Project - King Of My Castle'],
     ['https://www.youtube.com/watch?v=foE1mO2yM04', 'Mike Posner - I Took A Pill In Ibiza'],
-    ['https://www.youtube.com/watch?v=Z_ut1L7NH30', 'In the name of the Father - Giuseppe is dead,
-                                                    man.'],
+    [
+      'https://www.youtube.com/watch?v=Z_ut1L7NH30',
+      'In the name of the Father - Giuseppe is dead, man.'
+    ],
     ['https://www.youtube.com/watch?v=NoOhnrjdYOc', 'English Rose - Elton John.'],
     ['https://www.youtube.com/watch?v=Xu3FTEmN-eg', 'The Chemical Brothers - Galvanize'],
     ['https://www.youtube.com/watch?v=gCYcHz2k5x0', 'Martin Garrix - Animals'],
     ['https://www.youtube.com/watch?v=kn15BUFBvu8', 'Fa-fa-fa-fire! - Fawlty Towers'],
     ['https://www.youtube.com/watch?v=qEYueRVuqmg', 'Tiesto - Just Be'],
-    ['https://www.youtube.com/watch?v=WlBiLNN1NhQ', "Always Look on the Bright Side of Life -
-                                                     Monty Python's Life of Brian"],
-    ['https://www.youtube.com/watch?v=7gMJBQoHJ4E', 'Billy Connolly - Terrorist Attack
-                                                    At Glasgow Airport'],
+    [
+      'https://www.youtube.com/watch?v=WlBiLNN1NhQ',
+      "Always Look on the Bright Side of Life - Monty Python's Life of Brian"
+    ],
+    [
+      'https://www.youtube.com/watch?v=7gMJBQoHJ4E',
+      'Billy Connolly - Terrorist Attack At Glasgow Airport'
+    ],
     ['https://www.youtube.com/watch?v=JqZo07Ot-uA', 'Billy Connolly - Algebra'],
     ['https://www.youtube.com/watch?v=zs8QKXtCN9w', 'The Mad Irishman - Braveheart'],
     ['https://www.youtube.com/watch?v=UzWHE32IxUc', 'Lenny Kravitz - American Woman'],
@@ -178,10 +184,15 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     o.on :c, :count,
          'Print the number of motion pictures available to play.',
          argument: false
+    o.on :l, :list,
+         'Print a list of all available motion pictures.',
+         argument: false
   end
 
   def process
     case
+    when opts.list?
+      process_list MOTION_PICTURES
     when opts.count?
       process_count MOTION_PICTURES.size
     when opts.index?
@@ -196,8 +207,13 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   end
 
   private
+  def process_list(motion_pictures)
+    stringified = motion_pictures.map{|mp| mp[1] }.join("\n")
+    _pry_.pager.page _pry_.h.with_line_numbers(stringified, 0, :green)
+  end
+
   def process_count(count)
-    _pry_.pager.page '%s motion pictures available' % count
+    _pry_.pager.page "#{_pry_.h.bold(count)} motion pictures available."
   end
 
   def process_index(int)
