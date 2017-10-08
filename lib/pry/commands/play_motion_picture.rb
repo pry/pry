@@ -28,7 +28,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=79vCiXg3njY', 'Blues Brothers - Sweet Home Chicago'],
     ['https://www.youtube.com/watch?v=Q8Tiz6INF7I', 'Hit the road Jack!'],
     ['https://www.youtube.com/watch?v=HAfFfqiYLp0', 'All Of The Lights. Kanye West.'],
-    ['https://www.youtube.com/watch?v=Ag3Rv9FzQb0', 'Zayeed Song&Dance'],
+    [
+      'https://www.youtube.com/watch?v=Ag3Rv9FzQb0',
+      'SHEIKH MOHAMED BIN ZAYED DANCING ON ARAB ZAYED SONG'
+    ],
     ['https://www.youtube.com/watch?v=8ZcmTl_1ER8', 'Epic Sax Guy 10 hours.'],
     ['https://www.youtube.com/watch?v=A_MjCqQoLLA', 'Hey Jude - Beatles.'],
     ['https://www.youtube.com/watch?v=QA1VGVp6FHg', 'One Root - Bun Up The Sess.'],
