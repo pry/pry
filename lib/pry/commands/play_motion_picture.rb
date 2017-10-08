@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 class Pry::Command::PlayMotionPicture < Pry::ClassCommand
   #
@@ -123,7 +124,8 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'The Sound of Silence (Original Version from 1964)'
     ],
     ['https://www.youtube.com/watch?v=3Bv27OcVlMQ', 'Chezidek - Call Pon Dem'],
-    ['https://www.youtube.com/watch?v=co6WMzDOh1o', 'U2 - Beautiful Day']
+    ['https://www.youtube.com/watch?v=co6WMzDOh1o', 'U2 - Beautiful Day'],
+    ['https://www.youtube.com/watch?v=OP-A16Uybaw', 'Michael Collins 1996 - pułapka']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
