@@ -223,7 +223,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
 
   def process_seq(seq)
     play seq.next[0]
-  rescue Pry::RescuableException
+  rescue StopIteration
     seq.rewind
     retry
   end
