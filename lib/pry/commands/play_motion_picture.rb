@@ -126,7 +126,8 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=3Bv27OcVlMQ', 'Chezidek - Call Pon Dem'],
     ['https://www.youtube.com/watch?v=co6WMzDOh1o', 'U2 - Beautiful Day'],
     ['https://www.youtube.com/watch?v=OP-A16Uybaw', 'Michael Collins 1996 - pułapka'],
-    ['https://www.youtube.com/watch?v=1OEAYjo606A', 'Sway - Still Speedin']
+    ['https://www.youtube.com/watch?v=1OEAYjo606A', 'Sway - Still Speedin'],
+    ['https://www.youtube.com/watch?v=1IeLb87K-so', 'Aslan - Angie (live in Vicar Steet - Dublin)'],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
