@@ -133,6 +133,7 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'U2 - I Still Haven\'t Found What I\'m Looking For'
     ],
     ['https://www.youtube.com/watch?v=iSHy01D_DEg', 'Billy Connolly - Men and Women'],
+    ['https://www.youtube.com/watch?v=gqSzDJGFCgI', 'Thin Lizzy - Bad Reputation'],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
