@@ -167,7 +167,11 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'https://www.youtube.com/watch?v=lAl_1FHWlsE',
       'Nabeel Qureshi Tribute'
     ],
-    ['https://www.youtube.com/watch?v=rCYJchah3kY', 'King Hussein of Jordan - Interview - Jordan']
+    ['https://www.youtube.com/watch?v=rCYJchah3kY', 'King Hussein of Jordan - Interview - Jordan'],
+    [
+      'https://www.youtube.com/watch?v=ejwrxGs_Y_I',
+      'Toy Story - Buzz Lightyear - To infinity and Beyond'
+    ],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
