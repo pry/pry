@@ -160,6 +160,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     [
       'https://www.youtube.com/watch?v=3J8p-NMMI3E',
       'Billy Connolly Introduces Bob, Jo and Margaret'
+    ],
+    [
+      'https://www.youtube.com/watch?v=gLDYtH1RH-U',
+      'Shanghai Tower (650 meters)'
     ]
   ].freeze
 
