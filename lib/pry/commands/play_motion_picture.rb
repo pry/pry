@@ -139,6 +139,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'https://www.youtube.com/watch?v=YIizdazLTeU',
       'The Beatles - With a Little Help From My Friends'
     ],
+    [
+      'https://www.youtube.com/watch?v=k2C5TjS2sh4',
+      'Roxette - It Must Have Been Love'
+    ]    
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
