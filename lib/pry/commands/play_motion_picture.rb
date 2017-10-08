@@ -128,6 +128,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=OP-A16Uybaw', 'Michael Collins 1996 - pułapka'],
     ['https://www.youtube.com/watch?v=1OEAYjo606A', 'Sway - Still Speedin'],
     ['https://www.youtube.com/watch?v=1IeLb87K-so', 'Aslan - Angie (live in Vicar Steet - Dublin)'],
+    [
+      'https://www.youtube.com/watch?v=e3-5YC_oHjE',
+      'U2 - I Still Haven\'t Found What I\'m Looking For'
+    ]
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
