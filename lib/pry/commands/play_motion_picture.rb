@@ -145,30 +145,20 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
       'https://www.youtube.com/watch?v=YIizdazLTeU',
       'The Beatles - With a Little Help From My Friends'
     ],
-    [
-      'https://www.youtube.com/watch?v=k2C5TjS2sh4',
-      'Roxette - It Must Have Been Love'
-    ],
+    ['https://www.youtube.com/watch?v=k2C5TjS2sh4', 'Roxette - It Must Have Been Love'],
     [
       'https://www.youtube.com/watch?v=7ogBRXHGexo',
       'The Lady who made President Ahmadinejad Cry [HQ]'
     ],
-    [
-      'https://www.youtube.com/watch?v=iyFijjikkeM',
-      'E.T. Phone Home.flv'
-    ],
+    ['https://www.youtube.com/watch?v=iyFijjikkeM','E.T. Phone Home.flv'],
     [
       'https://www.youtube.com/watch?v=3J8p-NMMI3E',
-      'Billy Connolly Introduces Bob, Jo and Margaret'
+     'Billy Connolly Introduces Bob, Jo and Margaret'
     ],
-    [
-      'https://www.youtube.com/watch?v=gLDYtH1RH-U',
-      'Shanghai Tower (650 meters)'
-    ],
-    [
-      'https://www.youtube.com/watch?v=Fhskvloj1gE',
-      'Dream Jump - Dubai 4K'
-    ]
+    ['https://www.youtube.com/watch?v=gLDYtH1RH-U', 'Shanghai Tower (650 meters)'],
+    ['https://www.youtube.com/watch?v=Fhskvloj1gE', 'Dream Jump - Dubai 4K'],
+    ['https://www.youtube.com/watch?v=NYZVMK7wpSs',
+     'ONE ROOT FREEMAN dans HIT\'S TIME avec RAGUS et JEAN MI']
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
