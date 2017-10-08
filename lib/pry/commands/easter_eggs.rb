@@ -1,3 +1,4 @@
+# coding: utf-8
 class Pry
   Pry::Commands.instance_eval do
     command "nyan-cat", "", :requires_gem => ["nyancat"] do
