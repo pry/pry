@@ -72,8 +72,10 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=TLV4_xaYynY', 'The Jimi Hendrix Experience ' \
                                                     '- All Along The Watchtower'],
     ['https://www.youtube.com/watch?v=YTBC7ckTWpo', 'Luke Kelly - Scorn Not His Simplicity'],
-    ['http://sayyidali.com/leading-iran/o-leader-please-dont-talk-about-leaving.html',
-     'free to disagree, doesn\'t make us enemies'],
+    [
+      'http://sayyidali.com/leading-iran/o-leader-please-dont-talk-about-leaving.html',
+      'O Leader, please don\'t talk about leaving'
+    ],
     ['https://www.youtube.com/watch?v=eFTLKWw542g', 'Billy Joel - We Didn\'t Start the Fire'],
     ['https://www.youtube.com/watch?v=QE3yMEfpk6E', 'The Last Samurai - They are not ready'],
     ['https://www.youtube.com/watch?v=cIJOSSVqqVc', 'Johnny Cash - Hurt (Official Video) HD'],
@@ -113,7 +115,8 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     ['https://www.youtube.com/watch?v=LHCob76kigA', 'Lukas Graham - 7 Years [OFFICIAL MUSIC VIDEO]'],
     ['https://www.youtube.com/watch?v=dPPi2D6GK7A', 'Oasis - The Masterplan'],
     ['https://www.youtube.com/watch?v=oofSnsGkops', 'James Blunt - You\'re Beautiful (Video)'],
-    ['https://www.youtube.com/watch?v=AeXOlgA-XuM', 'Surah Yasin, Surah Ar-Rahman & Surah Al-Waqiah Full - Abdul Rahman Al Ossi'],
+    ['https://www.youtube.com/watch?v=AeXOlgA-XuM', 'Surah Yasin, Surah Ar-Rahman & ' \
+                                                    'Surah Al-Waqiah Full - Abdul Rahman Al Ossi'],
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
