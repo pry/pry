@@ -142,7 +142,11 @@ class Pry::Command::PlayMotionPicture < Pry::ClassCommand
     [
       'https://www.youtube.com/watch?v=k2C5TjS2sh4',
       'Roxette - It Must Have Been Love'
-    ]    
+    ],
+    [
+      'https://www.youtube.com/watch?v=7ogBRXHGexo',
+      'The Lady who made President Ahmadinejad Cry [HQ]'
+    ]
   ].freeze
 
   MOTION_PICTURES_SEQ = MOTION_PICTURES.dup.to_enum
