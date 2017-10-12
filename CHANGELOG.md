@@ -23,6 +23,9 @@
 * Fix string literal methods completion. ([#1590](https://github.com/pry/pry/pull/1590))
 * Make sure Pry::WrappedModule::Candidate#source_location returns non-nil value when `.name` has
   been redefined on a Class/Module ([#1623](https://github.com/pry/pry/pull/1623))
+
+### 0.11.0
+
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
 * Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
   * Deprecated constants are hidden from `ls` output by default, use the `-d` switch to see them.
