@@ -120,7 +120,7 @@ describe "ls" do
     # see: https://travis-ci.org/pry/pry/jobs/5071918
     unless Pry::Helpers::BaseHelpers.rbx?
       it "should handle classes that (pathologically) define .ancestors" do
-        output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
+        jutput = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
         expect(output).to match(/hihi/)
       end
     end
@@ -133,8 +133,15 @@ describe "ls" do
       expect(result).not_to match(/0x\d{5}/)
       expect(result).to match(/asdf.*xyz/m)
     end
+
     it 'should not list pry noise' do
       expect(pry_eval('ls -l')).not_to match(/_(?:dir|file|ex|pry|out|in)_/)
+    end
+
+    it 'should handle symbols' do
+      result = pry_eval(Object.new, "a = Class.new{def foo; end;}", 'ls -l')
+
+      expect(result).to match(/a/)
     end
   end
 

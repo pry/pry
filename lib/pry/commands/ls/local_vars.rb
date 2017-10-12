@@ -29,7 +29,7 @@ class Pry
 
       def colorized_assignment_style(lhs, rhs, desired_width = 7)
         colorized_lhs = color(:local_var, lhs)
-        color_escape_padding = colorized_lhs.size - lhs.size
+        color_escape_padding = colorized_lhs.to_s.size - lhs.size
         pad = desired_width + color_escape_padding
         "%-#{pad}s = %s" % [color(:local_var, colorized_lhs), rhs]
       end
