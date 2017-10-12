@@ -120,7 +120,7 @@ describe "ls" do
     # see: https://travis-ci.org/pry/pry/jobs/5071918
     unless Pry::Helpers::BaseHelpers.rbx?
       it "should handle classes that (pathologically) define .ancestors" do
-        jutput = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
+        output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
         expect(output).to match(/hihi/)
       end
     end
