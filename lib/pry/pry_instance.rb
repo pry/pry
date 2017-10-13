@@ -301,7 +301,7 @@ class Pry
       if !process_command_safely(line)
         @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
-    rescue RescuableException => e
+    rescue Pry.Rescuable(self) => e
       self.last_exception = e
       result = e
 
@@ -338,6 +338,8 @@ class Pry
       #
       # This workaround has a side effect: java exceptions specified
       # in `Pry.config.exception_whitelist` are ignored.
+      #
+      #
       jruby_exceptions = []
       if Pry::Helpers::BaseHelpers.jruby?
         jruby_exceptions << Java::JavaLang::Exception
@@ -350,7 +352,7 @@ class Pry
         reset_eval_string
 
         result = evaluate_ruby(eval_string)
-      rescue RescuableException, *jruby_exceptions => e
+      rescue Pry.Rescuable(self), *jruby_exceptions => e
         # Eliminate following warning:
         # warning: singleton on non-persistent Java type X
         # (http://wiki.jruby.org/Persistence)
@@ -397,13 +399,13 @@ class Pry
     else
       # nothin'
     end
-  rescue RescuableException => e
+  rescue Pry.Rescuable(self) => e
     # Being uber-paranoid here, given that this exception arose because we couldn't
     # serialize something in the user's program, let's not assume we can serialize
     # the exception either.
     begin
       output.puts "(pry) output error: #{e.inspect}\n#{e.backtrace.join("\n")}"
-    rescue RescuableException => e
+    rescue Pry.Rescuable(self) => e
       if last_result_is_exception?
         output.puts "(pry) output error: failed to show exception"
       else

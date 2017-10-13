@@ -25,10 +25,10 @@ class Pry
 
   # may be convenient when working with enormous objects and
   # pretty_print is too slow
-  SIMPLE_PRINT = proc do |output, value|
+  SIMPLE_PRINT = proc do |output, value, pry|
     begin
       output.puts value.inspect
-    rescue RescuableException
+    rescue Pry.Rescuable(pry)
       output.puts "unknown"
     end
   end
@@ -130,6 +130,7 @@ require 'rbconfig'
 require 'tempfile'
 require 'pathname'
 
+require "pry/rescueable"
 require 'pry/version'
 require 'pry/repl'
 require 'pry/rbx_path'

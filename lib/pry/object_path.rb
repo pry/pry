@@ -54,7 +54,7 @@ class Pry
         else
           stack.push(Pry.binding_for(stack.last.eval(next_segment)))
         end
-      rescue RescuableException => e
+      rescue Pry.Rescuable => e
         return handle_failure(next_segment, e)
       end until scanner.eos?
 

@@ -32,7 +32,7 @@ class Pry
       else
         nil
       end
-    rescue RescuableException
+    rescue Pry.Rescuable
       nil
     end
 
