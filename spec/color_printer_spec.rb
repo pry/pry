@@ -21,8 +21,8 @@ describe Pry::ColorPrinter do
         end
 
         class ObjectG < Object
-          def inspect 
-            raise 
+          def inspect
+            raise 'oops'
           end
         end
       end
@@ -37,9 +37,22 @@ describe Pry::ColorPrinter do
         expect(str).to eq('foo')
       end 
 
-      it 'prints a string, even when an exception is raised' do 
+      it 'prints a string, even when an exception is raised' do
         Pry::ColorPrinter.pp(ObjectG.new, io)
         expect(str).to match(/\A#<ObjectG:0x\w+>\z/)
+      end
+
+      it 'raises an exception from #inspect' do
+        old_exception_whitelist = Pry.config.exception_whitelist
+        Pry.config.exception_whitelist = old_exception_whitelist + [Pry::InspectException]
+
+        begin
+          expect {
+            Pry::ColorPrinter.pp(ObjectG.new, io)
+          }.to raise_error(RuntimeError, 'oops')
+        ensure
+          Pry.config.exception_whitelist = old_exception_whitelist
+        end
       end
     end
 
@@ -78,6 +91,19 @@ describe Pry::ColorPrinter do
       it 'prints a string, even when an exception is raised' do
         Pry::ColorPrinter.pp(BasicG.new, io)
         expect(str).to match(/\A#<BasicG:0x\w+>\z/)
+      end
+
+      it 'raises an exception from #inspect with configured exception_whitelist' do
+        old_exception_whitelist = Pry.config.exception_whitelist
+        Pry.config.exception_whitelist = old_exception_whitelist + [Pry::InspectException]
+
+        begin
+          expect {
+            Pry::ColorPrinter.pp(BasicG.new, io)
+          }.to raise_error(NameError, /undefined local variable or method `raise'/)
+        ensure
+          Pry.config.exception_whitelist = old_exception_whitelist
+        end
       end
     end
   end
