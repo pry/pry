@@ -138,7 +138,13 @@ describe "ls" do
       expect(pry_eval('ls -l')).not_to match(/_(?:dir|file|ex|pry|out|in)_/)
     end
 
+  end
+
+  describe 'when in rails console environment' do
     it 'should handle symbols' do
+      # remove the size method from symbol class to mirror rails console env
+      Symbol.class_eval { remove_method :size }
+
       result = pry_eval(Object.new, "a = Class.new{def foo; end;}", 'ls -l')
 
       expect(result).to match(/a/)
