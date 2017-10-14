@@ -2,10 +2,13 @@ source 'https://rubygems.org'
 gemspec
 gem 'rake',  '~> 10.0'
 
-group :development do
-  gem 'gist'
+group :docs do
   gem 'yard'
   gem 'kramdown'
+end
+
+group :development do
+  gem 'gist'
 end
 
 group :test do

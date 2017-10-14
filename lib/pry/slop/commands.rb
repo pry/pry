@@ -38,11 +38,6 @@ class Pry::Slop
       @commands = {}
       @banner = nil
       @triggered_command = nil
-
-      warn "[DEPRECATED] Slop::Commands is deprecated and will be removed in "\
-        "Slop version 4. Check out http://injekt.github.com/slop/#commands for "\
-        "a new implementation of commands."
-
       if block_given?
         block.arity == 1 ? yield(self) : instance_eval(&block)
       end

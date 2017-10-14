@@ -1,5 +1,11 @@
 ### HEAD
 
+* Fix a bug where Method objects were not returned for setters inherited
+  via a default (Pry::Config::Default). Eg, this is no longer an error:
+
+      pry(main)> d = Pry::Config.from_hash({}, Pry::Config::Default.new)
+      pry(main)> d.method(:exception_whitelist=) # Error
+
 * Add `Pry::Helpers::Text#{displayable_character?,displayable_string?,snowman_ready?}`.
 * `Pry::Helpers::Text#default` is deprecated in favor of `Pry::Helpers::Colors#strip_color`.
 * Coloring functions such as `black()` etc respect `_pry_.color` automatically, see [#1637](https://github.com/pry/pry/pull/1637).

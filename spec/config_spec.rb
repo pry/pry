@@ -82,15 +82,16 @@ describe Pry::Config do
 
 
   describe "#respond_to_missing?" do
-    before do
-      @config = Pry::Config.new(nil)
+    let(:config) { Pry::Config.new(Pry::Config::Default.new) }
+
+    it "returns setter Method for attribute of Default" do
+      setter = config.method(:exception_whitelist=)
+      expect(setter.name).to eq(:exception_whitelist=)
     end
 
-    it "returns a Method object for a dynamic key" do
-      @config["key"] = 1
-      method_obj = @config.method(:key)
-      expect(method_obj.name).to eq :key
-      expect(method_obj.call).to eq(1)
+    it "returns getter Method" do
+      c = described_class.from_hash({foo: 1}, nil)
+      expect(c.method(:foo).name).to eq(:foo)
     end
   end
 
@@ -245,12 +246,6 @@ describe Pry::Config do
       local = Pry::Config.from_hash({})
       local.input = :foo
       expect(local.input).to eq(:foo)
-    end
-
-    it 'modifies input itself' do
-      input = OpenStruct.new(completer_word_break_characters: 'asdf')
-      local = Pry::Config.from_hash(input: input)
-      expect(input.completer_word_break_characters).to eq(Pry::Config::READLINE_WORD_ESCAPE_STR)
     end
   end
 end

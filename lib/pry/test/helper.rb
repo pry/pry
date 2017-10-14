@@ -97,7 +97,6 @@ def pry_eval(*eval_strs)
   else
     binding = Pry.binding_for(eval_strs.shift)
   end
-
   pry_tester(binding).eval(*eval_strs)
 end
 

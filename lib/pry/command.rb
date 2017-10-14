@@ -101,7 +101,7 @@ class Pry
     def match; self.class.match; end
     def description; self.class.description; end
     def block; self.class.block; end
-    def command_options; self.class.options; end
+    def command_options; self.class.command_options; end
     def command_name; self.class.command_name; end
     def source; self.class.source; end
     def source_location; self.class.source_location; end
@@ -116,7 +116,7 @@ class Pry
       end
 
       def command_name
-        self.options[:listing]
+        self.command_options[:listing]
       end
 
       # Create a new command with the given properties.
@@ -176,9 +176,10 @@ class Pry
       end
 
       def command_regex
+        # Kill it with fire. Pry.config laziness, use local state.
         pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
         prefix = convert_to_regex(pr)
-        prefix = "(?:#{prefix})?" unless options[:use_prefix]
+        prefix = "(?:#{prefix})?" unless command_options[:use_prefix]
 
         /^#{prefix}#{convert_to_regex(match)}(?!\S)/
       end

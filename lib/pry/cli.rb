@@ -139,7 +139,7 @@ Pry::CLI.add_options do
   banner %{Usage: pry [OPTIONS]
 Start a Pry session.
 See http://pryrepl.org/ for more information.
-Copyright (c) 2016 John Mair (banisterfiend)
+Copyright (c) #{Time.now.year} John Mair (banisterfiend)
 --
 }
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
@@ -214,7 +214,7 @@ Copyright (c) 2016 John Mair (banisterfiend)
   end
 
   on :v, :version, "Display the Pry version" do
-    puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
+    puts "Pry version #{Pry::VERSION} (codename: #{Pry::VERSION_CODENAME}) on Ruby #{RUBY_VERSION}"
     exit
   end
 

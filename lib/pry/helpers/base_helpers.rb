@@ -94,9 +94,14 @@ class Pry
         mri? && RUBY_VERSION =~ /^2/
       end
 
+      #
+      # @deprecated
+      #   Use `_pry_.pager.page()` instead.
+      #
       # Send the given text through the best available pager (if Pry.config.pager is
       # enabled). Infers where to send the output if used as a mixin.
       # DEPRECATED.
+      #
       def stagger_output(text, out = nil)
         if defined?(_pry_) && _pry_
           _pry_.pager.page text

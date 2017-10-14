@@ -30,8 +30,11 @@ class Pry::Config::Default
     exception_handler: proc {
       Pry::DEFAULT_EXCEPTION_HANDLER
     },
-    exception_whitelist: proc {
+    unrescuable_exceptions: proc {
       Pry::DEFAULT_EXCEPTION_WHITELIST
+    },
+    exception_whitelist: proc {
+      unrescuable_exceptions
     },
     hooks: proc {
       Pry::DEFAULT_HOOKS
@@ -127,6 +130,9 @@ class Pry::Config::Default
     },
     exec_string: proc {
       ""
+    },
+    print_deprecations: proc {
+      true
     }
   })
 

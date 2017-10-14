@@ -367,8 +367,8 @@ describe Pry do
         end
 
         it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
-          # JRuby behaves differently than CRuby here.
-          # It appears it always has, to some extent. See 'unless' below.
+          # JRuby behaves different than CRuby here (seems it always has to some extent, see 'unless' below).
+          # It didn't seem trivial to work around. Skip for now.
           skip "JRuby incompatibility" if Pry::Helpers::BaseHelpers.jruby?
           [:test, 0, true, false, nil,
               (0.0 unless Pry::Helpers::BaseHelpers.jruby?)].each do |val|

@@ -1,12 +1,12 @@
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 1.9
+  - 2.0
   - 2.1
   - 2.2
-  - 2.3.1
-  - 2.4.1
+  - 2.3
+  - 2.4
   - ruby-head
-  - rbx-2
+  - rbx-3.69
   - jruby-9.1.13.0
   - jruby
   - jruby-head
@@ -25,8 +25,8 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby
     - rvm: jruby-head
-    - rvm: rbx-2
-    - rvm: 2.4.1 # because of https://bugs.ruby-lang.org/issues/13537
+    - rvm: rbx-3.69
+    - rvm: 2.4 # https://bugs.ruby-lang.org/issues/13537
 
 notifications:
   irc: "irc.freenode.org#pry"
