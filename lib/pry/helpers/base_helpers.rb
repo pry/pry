@@ -103,7 +103,7 @@ class Pry
       # DEPRECATED.
       #
       def stagger_output(text, out = nil)
-        if _pry_
+        if defined?(_pry_) && _pry_
           _pry_.pager.page text
         else
           Pry.new.pager.page text
