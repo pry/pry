@@ -225,8 +225,8 @@ class Pry
     attr_accessor :command_set
     attr_accessor :hooks
     attr_accessor :_pry_
-    alias :pry :_pry_
-    alias :pry= :_pry_=
+    alias_method :pry :_pry_
+    alias_method :pry= :_pry_=
     # The block we pass *into* a command so long as `:takes_block` is
     # not equal to `false`
     # @example
