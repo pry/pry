@@ -225,8 +225,8 @@ class Pry
     attr_accessor :command_set
     attr_accessor :hooks
     attr_accessor :_pry_
-    alias_method :pry :_pry_
-    alias_method :pry= :_pry_=
+    alias_method :_pry, :_pry_
+    alias_method :_pry=, :_pry_=
     # The block we pass *into* a command so long as `:takes_block` is
     # not equal to `false`
     # @example
@@ -245,7 +245,7 @@ class Pry
     # @example
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
-      command_string = pry.config.command_prefix.to_s + command_string
+      command_string = _pry.config.command_prefix.to_s + command_string
       complete_string = "#{command_string} #{args.join(" ")}".rstrip
       command_set.process_line(complete_string, context)
     end
@@ -288,7 +288,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      pry.command_state[match] ||= Pry::Config.from_hash({})
+      _pry.command_state[match] ||= Pry::Config.from_hash({})
     end
 
     # Revaluate the string (str) and perform interpolation.
@@ -391,7 +391,7 @@ class Pry
       prime_string = "proc #{block_init_string}\n"
 
       if !Pry::Code.complete_expression?(prime_string)
-        block_string = pry.r(target, prime_string)
+        block_string = _pry.r(target, prime_string)
       else
         block_string = prime_string
       end
