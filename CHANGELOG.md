@@ -1,4 +1,4 @@
-### HEAD
+### 0.11.0
 
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
 * Improve Ruby 2.4 support ([#1611](https://github.com/pry/pry/pull/1611)):
