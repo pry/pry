@@ -60,9 +60,20 @@ class Pry
         "\e[1m#{text}\e[0m"
       end
 
-      # have fun on the Windows platform.
+      #
+      # @return [Boolean]
+      #   Returns true if Pry is running on Linux.
+      #
+      def linux?
+        !!(RbConfig::CONFIG['host_os'] =~ /linux/i)
+      end
+
+      #
+      # @return [Boolean]
+      #   Returns true if Pry is running on Windows.
+      #
       def windows?
-        RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+        !!(RbConfig::CONFIG['host_os'] =~ /mswin|mingw/)
       end
 
       # are we able to use ansi on windows?
