@@ -1,3 +1,10 @@
+### HEAD
+
+__Features:__
+
+* Add mac_osx? and linux? utility functions to Pry::Helpers::BaseHelpers. 
+[#1668](https://github.com/pry/pry/pull/1668)
+
 ### 0.11.0
 
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
