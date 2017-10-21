@@ -62,6 +62,14 @@ class Pry
 
       #
       # @return [Boolean]
+      #  Returns true if Pry is running on Mac OSX.
+      #
+      def mac_osx?
+        !!(RbConfig::CONFIG['host_os'] =~ /\Adarwin/i)
+      end
+
+      #
+      # @return [Boolean]
       #   Returns true if Pry is running on Linux.
       #
       def linux?
