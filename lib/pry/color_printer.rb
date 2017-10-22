@@ -34,7 +34,7 @@ class Pry
       if String === obj
         # Avoid calling Ruby 2.4+ String#pretty_print that prints multiline
         # Strings prettier
-        Object.instance_method(:pretty_print).bind(obj).call
+        text(obj.inspect)
       else
         super
       end
