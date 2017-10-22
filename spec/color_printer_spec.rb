@@ -80,5 +80,21 @@ describe Pry::ColorPrinter do
         expect(str).to match(/\A#<BasicG:0x\w+>\z/)
       end
     end
+
+    describe 'String' do
+      context 'with a single-line string' do
+        it 'pretty prints the string' do
+          Pry::ColorPrinter.pp('hello world', io)
+          expect(str).to eq('"hello world"')
+        end
+      end
+
+      context 'with a multi-line string' do
+        it 'pretty prints the string' do
+          Pry::ColorPrinter.pp("hello\nworld", io)
+          expect(str).to eq('"hello\nworld"')
+        end
+      end
+    end
   end
 end
