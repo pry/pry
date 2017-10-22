@@ -1,10 +1,11 @@
 ### HEAD
 
-__Features:__
-
-* Add mac_osx? and linux? utility functions to Pry::Helpers::BaseHelpers. 
+#### Features
+* Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
 [#1668](https://github.com/pry/pry/pull/1668)
-* Fix String#pp output color. [#1674](https://github.com/pry/pry/pull/1674)
+
+#### Bug fixes
+* Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
 
 ### 0.11.0
 
@@ -54,7 +55,6 @@ __Features:__
 * Fix bugs with jruby
 * Move to rspec for testing (from bacon)
 * Clean up ruby warnings
-
 
 ### 0.10.0
 
