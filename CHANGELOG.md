@@ -4,6 +4,9 @@
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
 [#1668](https://github.com/pry/pry/pull/1668)
 
+* Add utility functions for drawing colorised text on a colorised background.
+[#1673](https://github.com/pry/pry/pull/1673)
+
 #### Bug fixes
 * Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
 
