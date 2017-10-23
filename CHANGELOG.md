@@ -1,3 +1,12 @@
+### HEAD
+
+#### Features
+* Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
+[#1668](https://github.com/pry/pry/pull/1668)
+
+#### Bug fixes
+* Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
+
 ### 0.11.0
 
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
@@ -46,7 +55,6 @@
 * Fix bugs with jruby
 * Move to rspec for testing (from bacon)
 * Clean up ruby warnings
-
 
 ### 0.10.0
 
