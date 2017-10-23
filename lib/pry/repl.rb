@@ -64,8 +64,11 @@ class Pry
     # @raise [Exception] If the session throws `:raise_up`, raise the exception
     #   thrown with it.
     def repl
+      original_interrupt_handling = trap("SIGINT") do
+        throw :REPL_INTERRUPT, :control_c
+      end
       loop do
-        case val = read
+        case val = catch(:REPL_INTERRUPT) { read }
         when :control_c
           output.puts ""
           pry.reset_eval_string
@@ -77,6 +80,8 @@ class Pry
           return pry.exit_value unless pry.eval(val)
         end
       end
+    ensure
+      trap('SIGINT', original_interrupt_handling)
     end
 
     # Clean up after the repl session.
