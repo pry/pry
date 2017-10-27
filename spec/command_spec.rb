@@ -461,7 +461,7 @@ describe "Pry::Command" do
     before do
       @context = Object.new
       @set.command "walking-spanish", "down the hall", :takes_block => true do
-        inject_var(:@x, command_block.call, target)
+        insert_variable(:@x, command_block.call, target)
       end
       @set.import Pry::Commands
 
@@ -482,9 +482,9 @@ describe "Pry::Command" do
       @set.block_command "walking-spanish",
           "litella's been screeching for a blind pig.",
           :takes_block => true do |x, y|
-        inject_var(:@x, x, target)
-        inject_var(:@y, y, target)
-        inject_var(:@block_var, command_block.call, target)
+        insert_variable(:@x, x, target)
+        insert_variable(:@y, y, target)
+        insert_variable(:@block_var, command_block.call, target)
       end
 
       @t.eval 'walking-spanish john carl| { :jesus }'
@@ -516,8 +516,8 @@ describe "Pry::Command" do
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do |x, y|
-            inject_var(:@arg_string, arg_string, target)
-            inject_var(:@x, x, target)
+            insert_variable(:@arg_string, arg_string, target)
+            insert_variable(:@x, x, target)
           end
 
           @t.eval 'walking-spanish john| { :jesus }'
@@ -527,7 +527,7 @@ describe "Pry::Command" do
 
         it 'should remove block-related content from arg_string (with no normal args)' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
-            inject_var(:@arg_string, arg_string, target)
+            insert_variable(:@arg_string, arg_string, target)
           end
 
           @t.eval 'walking-spanish | { :jesus }'
@@ -538,7 +538,7 @@ describe "Pry::Command" do
         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
           block_string = "| { :jesus }"
           @set.block_command "walking-spanish", "homemade special", :takes_block => false do
-            inject_var(:@arg_string, arg_string, target)
+            insert_variable(:@arg_string, arg_string, target)
           end
 
           @t.eval "walking-spanish #{block_string}"
@@ -551,8 +551,8 @@ describe "Pry::Command" do
         describe "block_command" do
           it "should remove block-related content from arguments" do
             @set.block_command "walking-spanish", "glass is full of sand", :takes_block => true do |x, y|
-              inject_var(:@x, x, target)
-              inject_var(:@y, y, target)
+              insert_variable(:@x, x, target)
+              insert_variable(:@y, y, target)
             end
 
             @t.eval 'walking-spanish | { :jesus }'
@@ -563,8 +563,8 @@ describe "Pry::Command" do
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
             @set.block_command "walking-spanish", "litella screeching for a blind pig", :takes_block => false do |x, y|
-              inject_var(:@x, x, target)
-              inject_var(:@y, y, target)
+              insert_variable(:@x, x, target)
+              insert_variable(:@y, y, target)
             end
 
             @t.eval 'walking-spanish | { :jesus }'
@@ -578,8 +578,8 @@ describe "Pry::Command" do
           it "should remove block-related content from arguments" do
             @set.create_command "walking-spanish", "punk sanders carved one out of wood", :takes_block => true do
               def process(x, y)
-                inject_var(:@x, x, target)
-                inject_var(:@y, y, target)
+                insert_variable(:@x, x, target)
+                insert_variable(:@y, y, target)
               end
             end
 
@@ -592,8 +592,8 @@ describe "Pry::Command" do
           it "should NOT remove block-related content from arguments if :takes_block => false" do
             @set.create_command "walking-spanish", "down the hall", :takes_block => false do
               def process(x, y)
-                inject_var(:@x, x, target)
-                inject_var(:@y, y, target)
+                insert_variable(:@x, x, target)
+                insert_variable(:@y, y, target)
               end
             end
 
@@ -610,7 +610,7 @@ describe "Pry::Command" do
       describe "{} style blocks" do
         it 'should accept multiple parameters' do
           @set.block_command "walking-spanish", "down the hall", :takes_block => true do
-            inject_var(:@x, command_block.call(1, 2), target)
+            insert_variable(:@x, command_block.call(1, 2), target)
           end
 
           @t.eval 'walking-spanish | { |x, y| [x, y] }'
@@ -623,7 +623,7 @@ describe "Pry::Command" do
         it 'should accept multiple parameters' do
           @set.create_command "walking-spanish", "litella", :takes_block => true do
             def process
-              inject_var(:@x, command_block.call(1, 2), target)
+              insert_variable(:@x, command_block.call(1, 2), target)
             end
           end
 
@@ -649,7 +649,7 @@ describe "Pry::Command" do
       describe "block_command" do
         it "should expose block in command_block method" do
           @set.block_command "walking-spanish", "glass full of sand", :takes_block => true do
-            inject_var(:@x, command_block.call, target)
+            insert_variable(:@x, command_block.call, target)
           end
 
           @t.eval 'walking-spanish | { :jesus }'
@@ -673,7 +673,7 @@ describe "Pry::Command" do
         it "should expose block in command_block method" do
           @set.create_command "walking-spanish", "homemade special", :takes_block => true do
             def process
-              inject_var(:@x, command_block.call, target)
+              insert_variable(:@x, command_block.call, target)
             end
           end
 

@@ -1,21 +1,5 @@
 module Pry::Testable::Utility
   #
-  # @param [String] name
-  #   The name of a variable.
-  #
-  # @param [String] value
-  #   Its value.
-  #
-  # @return [void]
-  #
-  def inject_var(name, value, b)
-    Pry.current[:pry_local] = value
-    b.eval("#{name} = ::Pry.current[:pry_local]")
-  ensure
-    Pry.current[:pry_local] = nil
-  end
-
-  #
   # Creates a Tempfile then unlinks it after the block has yielded.
   #
   # @yieldparam [String] file

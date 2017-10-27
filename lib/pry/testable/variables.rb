@@ -24,4 +24,20 @@ module Pry::Testable::Variables
       Object.remove_const name if Object.const_defined?(name)
     end
   end
+
+  #
+  # @param [String] name
+  #   The name of a variable.
+  #
+  # @param [String] value
+  #   Its value.
+  #
+  # @return [void]
+  #
+  def insert_variable(name, value, b)
+    Pry.current[:pry_local] = value
+    b.eval("#{name} = ::Pry.current[:pry_local]")
+  ensure
+    Pry.current[:pry_local] = nil   
+  end
 end
