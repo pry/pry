@@ -30,14 +30,18 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = [:should, :expect]
   end
-  
+
   config.before(:each) do
     Pry::Testable.set_testenv_variables
   end
+
   config.after(:each) do
     Pry::Testable.unset_testenv_variables
-  end  
-  include Pry::Testable
+  end
+  config.include Pry::Testable::Mockable
+  config.include Pry::Testable::Utility
+  include Pry::Testable::Evalable
+  include Pry::Testable::Variables
 end
 
 puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Pry::Slop v#{Pry::Slop::VERSION}"
