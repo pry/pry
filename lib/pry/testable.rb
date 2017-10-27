@@ -7,12 +7,14 @@ module Pry::Testable
   require_relative "testable/pry_tester"
   require_relative "testable/evalable"
   require_relative "testable/mockable"
+  require_relative "testable/variables"
   require_relative "testable/utility"
 
   def self.included(mod)
     mod.module_eval do
       include Pry::Testable::Mockable
       include Pry::Testable::Evalable
+      include Pry::Testable::Variables
       include Pry::Testable::Utility
     end
   end

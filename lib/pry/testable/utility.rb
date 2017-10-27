@@ -16,34 +16,12 @@ module Pry::Testable::Utility
   end
 
   #
-  # @example
-  #   constant_scope(:Bar) do
-  #     Bar = Class.new(RuntimeError)
-  #   end
-  #   Bar # => NameError
-  #
-  # @param [Array<Symbol>] *names
-  #   An array of constant names that shouldn't exist while
-  #   block is yielding, and after the block has yielded.
-  #
-  # @return [void]
-  #
-  def constant_scope(*names)
-    names.each do |name|
-      Object.remove_const name if Object.const_defined?(name)
-    end
-    yield
-  ensure
-    names.each do |name|
-      Object.remove_const name if Object.const_defined?(name)
-    end
-  end
-
-  #
   # Creates a Tempfile then unlinks it after the block has yielded.
   #
   # @yieldparam [String] file
   #   The path of the temp file
+  #
+  # @return [void]
   #
   def temp_file(ext='.rb')
     file = Tempfile.open(['pry', ext])
