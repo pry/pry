@@ -17,16 +17,37 @@ module Pry::Testable
     end
   end
 
-  def prepare_config!
-    Pry.config.color = false
-    Pry.config.pager = false
-    Pry.config.should_load_rc       = false
-    Pry.config.should_load_local_rc = false
-    Pry.config.should_load_plugins  = false
-    Pry.config.history.should_load  = false
-    Pry.config.history.should_save  = false
-    Pry.config.correct_indent       = false
-    Pry.config.hooks                = Pry::Hooks.new
-    Pry.config.collision_warning    = false
+  TEST_DEFAULTS = {
+    color: false,
+    pager: false,
+    should_load_rc: false,
+    should_load_local_rc: false,
+    correct_indent: false,
+    collison_warning: false,
+    history: {
+      should_load: false,
+      should_save: false
+    }
+  }
+  private_constant :TEST_DEFAULTS
+
+  #
+  # Sets various configuration options that make Pry optimal for a test
+  # environment, see source code for complete details.
+  #
+  # @return [void]
+  #
+  def self.set_testenv_variables
+    Pry.config = Pry::Config.from_hash(TEST_DEFAULTS, Pry::Config::Default.new)
+    Pry.config.hooks = Pry::Hooks.new
+  end
+
+  #
+  # Reset the Pry configuration to their default values.
+  #
+  # @return [void]
+  #
+  def self.unset_testenv_variables
+    Pry.config = Pry::Config.from_hash({}, Pry::Config::Default.new)
   end
 end

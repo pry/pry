@@ -30,7 +30,13 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = [:should, :expect]
   end
-  config.before(:each) { Pry::Testable.prepare_config! }
+  
+  config.before(:each) do
+    Pry::Testable.set_testenv_variables
+  end
+  config.after(:each) do
+    Pry::Testable.unset_testenv_variables
+  end  
   include Pry::Testable
 end
 
