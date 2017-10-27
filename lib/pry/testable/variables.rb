@@ -32,6 +32,9 @@ module Pry::Testable::Variables
   # @param [String] value
   #   Its value.
   #
+  # @param [Binding] b
+  #   The binding object to insert a variable into.
+  #
   # @return [void]
   #
   def insert_variable(name, value, b)
