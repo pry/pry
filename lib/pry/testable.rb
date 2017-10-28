@@ -10,6 +10,21 @@ module Pry::Testable
   require_relative "testable/variables"
   require_relative "testable/utility"
 
+  #
+  # When {Pry::Testable} is included into another module or class,
+  # the following modules are also included: {Pry::Testable::Mockable},
+  # {Pry::Testable::Evalable}, {Pry::Testable::Variables}, and
+  # {Pry::Testable::Utility}.
+  #
+  # @note
+  #   Each of the included modules mentioned above may also be used
+  #   standalone or in a pick-and-mix fashion.
+  #
+  # @param [Module] mod
+  #   A class or module.
+  #
+  # @return [void]
+  #
   def self.included(mod)
     mod.module_eval do
       include Pry::Testable::Mockable
