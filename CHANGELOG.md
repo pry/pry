@@ -10,6 +10,9 @@
 #### Bug fixes
 * Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
 
+#### Dev-facing changes
+* Fix repetitive helper module suffix ([#1682](https://github.com/pry/pry/pull/1682))
+
 ### 0.11.0
 
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
