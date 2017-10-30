@@ -43,7 +43,7 @@ class Pry::Config::Default
       Pry::DEFAULT_SYSTEM
     },
     color: proc {
-      Pry::Helpers::BaseHelpers.use_ansi_codes?
+      Pry::Helpers::Base.use_ansi_codes?
     },
     default_window_size: proc {
       5
@@ -58,7 +58,7 @@ class Pry::Config::Default
       true
     },
     should_trap_interrupts: proc {
-      Pry::Helpers::BaseHelpers.jruby?
+      Pry::Helpers::Base.jruby?
     }, # TODO: Pry::Platform.jruby?
     disable_auto_reload: proc {
       false
@@ -67,7 +67,7 @@ class Pry::Config::Default
       ""
     },
     auto_indent: proc {
-      Pry::Helpers::BaseHelpers.use_ansi_codes?
+      Pry::Helpers::Base.use_ansi_codes?
     },
     correct_indent: proc {
       true

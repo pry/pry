@@ -370,7 +370,7 @@ describe "test Pry defaults" do
     end
 
     # https://github.com/rubinius/rubinius/issues/1779
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Pry::Helpers::Base.rbx?
       it 'should define private methods on Object' do
         TOPLEVEL_BINDING.eval 'def gooey_fooey; end'
         expect(method(:gooey_fooey).owner).to eq Object

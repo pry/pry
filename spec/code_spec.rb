@@ -95,7 +95,7 @@ describe Pry::Code do
 
   describe '#initialize' do
     before do
-      @str = Pry::Helpers::CommandHelpers.unindent <<-CODE
+      @str = Pry::Helpers::Command.unindent <<-CODE
         def hay
           :guys
         end
@@ -119,7 +119,7 @@ describe Pry::Code do
 
   describe 'filters and formatters' do
     before do
-      @code = Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
+      @code = Pry::Code(Pry::Helpers::Command.unindent <<-STR)
         class MyProgram
           def self.main
             puts 'Hello, world!'

@@ -51,7 +51,7 @@ class Pry::Pager
   def best_available
     if !_pry_.config.pager
       NullPager.new(_pry_.output)
-    elsif !SystemPager.available? || Pry::Helpers::BaseHelpers.jruby?
+    elsif !SystemPager.available? || Pry::Helpers::Base.jruby?
       SimplePager.new(_pry_.output)
     else
       SystemPager.new(_pry_.output)
@@ -138,7 +138,7 @@ class Pry::Pager
       if @system_pager.nil?
         @system_pager = begin
           pager_executable = default_pager.split(' ').first
-          if Pry::Helpers::BaseHelpers.windows? || Pry::Helpers::BaseHelpers.windows_ansi?
+          if Pry::Helpers::Base.windows? || Pry::Helpers::Base.windows_ansi?
             `where #{pager_executable}`
           else
             `which #{pager_executable}`

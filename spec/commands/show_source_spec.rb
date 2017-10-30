@@ -744,7 +744,7 @@ describe "show-source" do
     end
   end
 
-  unless Pry::Helpers::BaseHelpers.rbx?
+  unless Pry::Helpers::Base.rbx?
     describe "can't find class/module code" do
       describe "for classes" do
         before do

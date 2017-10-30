@@ -196,7 +196,7 @@ describe "whereami" do
     end
 
     # https://github.com/rubinius/rubinius/pull/2247
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Pry::Helpers::Base.rbx?
       it 'should show class when -c option used, and binding is outside a method' do
         class Cor
           def blimey;end

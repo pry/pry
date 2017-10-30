@@ -119,7 +119,7 @@ describe Pry::Method do
     end
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Pry::Helpers::Base.rbx?
        it 'should find the super method correctly' do
         a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
         b = Class.new(a){ def gag33; super; end }
@@ -145,7 +145,7 @@ describe Pry::Method do
     end
 
     # Temporarily disabled to work around rubinius/rubinius#2871.
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Pry::Helpers::Base.rbx?
       it "should find the right method from a BasicObject" do
         a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
 
