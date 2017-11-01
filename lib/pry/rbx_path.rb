@@ -2,7 +2,7 @@ class Pry
   module RbxPath
     module_function
     def is_core_path?(path)
-      Pry::Helpers::BaseHelpers.rbx? && (path.start_with?("kernel") || path.start_with?("lib")) && File.exist?(convert_path_to_full(path))
+      Pry::Helpers::Base.rbx? && (path.start_with?("kernel") || path.start_with?("lib")) && File.exist?(convert_path_to_full(path))
     end
 
     def convert_path_to_full(path)

@@ -49,7 +49,7 @@ class Pry
 
       # Clear the line before starting Pry. This fixes issue #566.
       if pry.config.correct_indent
-        Kernel.print Pry::Helpers::BaseHelpers.windows_ansi? ? "\e[0F" : "\e[0G"
+        Kernel.print Pry::Helpers::Base.windows_ansi? ? "\e[0F" : "\e[0G"
       end
     end
 
@@ -104,7 +104,7 @@ class Pry
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
-        if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
+        if output.tty? && pry.config.correct_indent && Pry::Helpers::Base.use_ansi_codes?
           output.print @indent.correct_indentation(
             current_prompt, indented_val,
             original_val.length - indented_val.length
@@ -218,7 +218,7 @@ class Pry
     #   % pry | tee log
     def piping?
       return false unless $stdout.respond_to?(:tty?)
-      !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
+      !$stdout.tty? && $stdin.tty? && !Pry::Helpers::Base.windows?
     end
 
     # @return [void]

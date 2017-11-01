@@ -1,6 +1,6 @@
 class Pry
   class Command::ShowInfo < Pry::ClassCommand
-    extend Pry::Helpers::BaseHelpers
+    extend Pry::Helpers::Base
 
     command_options :shellwords => false, :interpolate => false
 

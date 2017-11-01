@@ -77,7 +77,7 @@ describe "cat" do
       end
     end
 
-    if !Pry::Helpers::BaseHelpers.rbx?
+    if !Pry::Helpers::Base.rbx?
       it 'cat --ex should display repl code that generated exception' do
         @t.eval unindent(<<-EOS)
           begin

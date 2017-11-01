@@ -7,7 +7,7 @@ class Pry
     # It provides access to the source, documentation, line and file
     # for a monkeypatch (reopening) of a class/module.
     class Candidate
-      include Pry::Helpers::DocumentationHelpers
+      include Pry::Helpers::Documentation
       include Pry::CodeObject::Helpers
       extend Pry::Forwardable
 

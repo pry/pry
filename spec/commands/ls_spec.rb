@@ -118,7 +118,7 @@ describe "ls" do
 
 
     # see: https://travis-ci.org/pry/pry/jobs/5071918
-    unless Pry::Helpers::BaseHelpers.rbx?
+    unless Pry::Helpers::Base.rbx?
       it "should handle classes that (pathologically) define .ancestors" do
         output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
         expect(output).to match(/hihi/)
@@ -212,7 +212,7 @@ describe "ls" do
   describe "when no arguments given" do
     describe "when at the top-level" do
       # rubinius has a bug that means local_variables of "main" aren't reported inside eval()
-      unless Pry::Helpers::BaseHelpers.rbx?
+      unless Pry::Helpers::Base.rbx?
         it "should show local variables" do
           expect(pry_eval("ls")).to match(/_pry_/)
           expect(pry_eval("arbitrar = 1", "ls")).to match(/arbitrar/)
@@ -245,7 +245,7 @@ describe "ls" do
     end
   end
 
-  if Pry::Helpers::BaseHelpers.jruby?
+  if Pry::Helpers::Base.jruby?
     describe 'on java objects' do
       it 'should omit java-esque aliases by default' do
         expect(pry_eval('ls java.lang.Thread.current_thread')).to match(/\bthread_group\b/)

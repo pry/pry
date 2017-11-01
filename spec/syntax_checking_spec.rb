@@ -28,7 +28,7 @@ describe Pry do
     ["puts )("],
     ["1 1"],
     ["puts :"]
-  ] + (Pry::Helpers::BaseHelpers.rbx? ? [] : [
+  ] + (Pry::Helpers::Base.rbx? ? [] : [
     ["def", "method(1"], # in this case the syntax error is "expecting ')'".
     ["o = Object.new.tap{ def o.render;","'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
   ])).compact.each do |foo|

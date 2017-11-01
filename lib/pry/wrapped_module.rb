@@ -14,7 +14,7 @@ class Pry
   end
 
   class WrappedModule
-    include Helpers::BaseHelpers
+    include Helpers::Base
     include CodeObject::Helpers
 
     attr_reader :wrapped
@@ -138,7 +138,7 @@ class Pry
     def singleton_instance
       raise ArgumentError, "tried to get instance of non singleton class" unless singleton_class?
 
-      if Helpers::BaseHelpers.jruby?
+      if Helpers::Base.jruby?
         wrapped.to_java.attached
       else
         @singleton_instance ||= ObjectSpace.each_object(wrapped).detect{ |x| (class << x; self; end) == wrapped }
@@ -253,7 +253,7 @@ class Pry
                  y.yield candidate(num)
                end
              end
-      Pry::Helpers::BaseHelpers.jruby_19? ? enum.to_a : enum
+      Pry::Helpers::Base.jruby_19? ? enum.to_a : enum
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.

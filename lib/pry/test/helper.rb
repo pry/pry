@@ -58,7 +58,7 @@ module PryTestHelpers
   end
 
   def unindent(*args)
-    Pry::Helpers::CommandHelpers.unindent(*args)
+    Pry::Helpers::Command.unindent(*args)
   end
 
   def mock_command(cmd, args=[], opts={})

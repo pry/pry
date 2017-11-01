@@ -1,7 +1,7 @@
 class Pry
   module Helpers
 
-    module BaseHelpers
+    module Base
 
       module_function
 

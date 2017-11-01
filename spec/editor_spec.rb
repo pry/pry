@@ -10,7 +10,7 @@ describe Pry::Editor do
     # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
     # something "Temp".
     @tf_dir =
-      if Pry::Helpers::BaseHelpers.mri_19?
+      if Pry::Helpers::Base.mri_19?
         Pathname.new(Dir::Tmpname.tmpdir)
       else
         Pathname.new(Dir.tmpdir)
@@ -21,7 +21,7 @@ describe Pry::Editor do
     @editor = Pry::Editor.new(Pry.new)
   end
 
-  unless Pry::Helpers::BaseHelpers.windows?
+  unless Pry::Helpers::Base.windows?
     describe "build_editor_invocation_string" do
       it 'should shell-escape files' do
         invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
