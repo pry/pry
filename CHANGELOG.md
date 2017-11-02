@@ -1,6 +1,10 @@
 ### HEAD
 
 #### Features
+
+* Add a new category module: "Pry::Platform". Loosely related to #1668 below.
+[#1670](https://github.com/pry/pry/pull/1670)
+
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
 [#1668](https://github.com/pry/pry/pull/1668)
 
@@ -8,7 +12,9 @@
 [#1673](https://github.com/pry/pry/pull/1673)
 
 #### Bug fixes
-* Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
+
+* Fix `String#pp` output color.
+[#1674](https://github.com/pry/pry/pull/1674)
 
 ### 0.11.0
 
