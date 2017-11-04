@@ -1,5 +1,5 @@
 require 'bundler/setup'
-require 'pry/test/helper'
+require 'pry/testable'
 Bundler.require :default, :test
 require_relative 'spec_helpers/mock_pry'
 require_relative 'spec_helpers/repl_tester'
@@ -26,12 +26,22 @@ if ENV["SET_TRACE_FUNC"]
   }
 end
 
-puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Pry::Slop v#{Pry::Slop::VERSION}"
-
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = [:should, :expect]
   end
 
-  config.include PryTestHelpers
+  config.before(:each) do
+    Pry::Testable.set_testenv_variables
+  end
+
+  config.after(:each) do
+    Pry::Testable.unset_testenv_variables
+  end
+  config.include Pry::Testable::Mockable
+  config.include Pry::Testable::Utility
+  include Pry::Testable::Evalable
+  include Pry::Testable::Variables
 end
+
+puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Pry::Slop v#{Pry::Slop::VERSION}"

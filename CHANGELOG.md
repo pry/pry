@@ -2,14 +2,17 @@
 
 #### Features
 
+* Add Pry::Testable, an improved modular replacement for PryTestHelpers.
+  **breaking change**. [#1679](https://github.com/pry/pry/pull/1679).
+
 * Add a new category module: "Pry::Platform". Loosely related to #1668 below.
 [#1670](https://github.com/pry/pry/pull/1670)
 
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
-[#1668](https://github.com/pry/pry/pull/1668)
+[#1668](https://github.com/pry/pry/pull/1668).
 
 * Add utility functions for drawing colorised text on a colorised background.
-[#1673](https://github.com/pry/pry/pull/1673)
+[#1673](https://github.com/pry/pry/pull/1673).
 
 #### Bug fixes
 
