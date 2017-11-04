@@ -58,8 +58,8 @@ class Pry::Config::Default
       true
     },
     should_trap_interrupts: proc {
-      Pry::Helpers::BaseHelpers.jruby?
-    }, # TODO: Pry::Platform.jruby?
+      Pry::Platform.jruby?
+    },
     disable_auto_reload: proc {
       false
     },
