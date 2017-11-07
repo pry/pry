@@ -116,7 +116,7 @@ describe Pry do
   describe "custom non-IO object as $stdout" do
     it "does not crash pry" do
       old_stdout = $stdout
-      pry_eval = PryTester.new(binding)
+      pry_eval = pry_tester(binding)
       expect(pry_eval.eval("$stdout = Class.new { def write(*) end }.new", ":ok")).to eq(:ok)
       $stdout = old_stdout
     end
