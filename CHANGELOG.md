@@ -8,6 +8,13 @@
 [#1673](https://github.com/pry/pry/pull/1673)
 
 #### Bug fixes
+
+* Fix a bug where Method objects were not returned for setters inherited
+  from a default (Pry::Config::Default). Eg, this is no longer an error:
+
+      pry(main)> d = Pry::Config.from_hash({}, Pry::Config::Default.new)
+      pry(main)> d.method(:exception_whitelist=) # Error
+
 * Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
 
 ### 0.11.0
