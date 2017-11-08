@@ -429,7 +429,7 @@ describe "show-source" do
 
       it 'should lookup module name with respect to current context' do
 
-        constant_scope(:AlphaClass, :BetaClass) do
+        temporary_constants(:AlphaClass, :BetaClass) do
           class BetaClass
             def alpha
             end
@@ -447,7 +447,7 @@ describe "show-source" do
       end
 
       it 'should lookup nested modules' do
-        constant_scope(:AlphaClass) do
+        temporary_constants(:AlphaClass) do
           class AlphaClass
             class BetaClass
               def beta
