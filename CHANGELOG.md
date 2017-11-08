@@ -16,8 +16,14 @@
 
 #### Bug fixes
 
+* Fix a case of infinite recursion in `Pry::Method::WeirdMethodLocator#find_method_in_superclass`
+  that users of the [Hanami](http://hanamirb.org/) web framework experienced and
+  reported since 2015.
+
+[1639](https://github.com/pry/pry/pull/1689).
+
 * Fix `String#pp` output color.
-[#1674](https://github.com/pry/pry/pull/1674)
+[#1674](https://github.com/pry/pry/pull/1674).
 
 ### 0.11.0
 
