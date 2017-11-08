@@ -3,16 +3,21 @@
 #### Features
 
 * Add Pry::Testable, an improved modular replacement for PryTestHelpers.
-  **breaking change**. [#1679](https://github.com/pry/pry/pull/1679).
+  **breaking change**.
+
+See pull request [#1679](https://github.com/pry/pry/pull/1679).
 
 * Add a new category module: "Pry::Platform". Loosely related to #1668 below.
-[#1670](https://github.com/pry/pry/pull/1670)
+
+See pull request [#1670](https://github.com/pry/pry/pull/1670)
 
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
-[#1668](https://github.com/pry/pry/pull/1668).
+
+See pull request [#1668](https://github.com/pry/pry/pull/1668).
 
 * Add utility functions for drawing colorised text on a colorised background.
-[#1673](https://github.com/pry/pry/pull/1673).
+
+See pull request [#1673](https://github.com/pry/pry/pull/1673).
 
 #### Bug fixes
 
@@ -20,10 +25,11 @@
   that users of the [Hanami](http://hanamirb.org/) web framework experienced and
   reported since 2015.
 
-[1639](https://github.com/pry/pry/pull/1689).
+See pull request [#1639](https://github.com/pry/pry/pull/1689).
 
 * Fix `String#pp` output color.
-[#1674](https://github.com/pry/pry/pull/1674).
+
+See pull request [#1674](https://github.com/pry/pry/pull/1674).
 
 ### 0.11.0
 
