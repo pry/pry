@@ -263,7 +263,7 @@ describe "show-doc" do
     end
 
     it 'should lookup module name with respect to current context' do
-      constant_scope(:AlphaClass, :BetaClass) do
+      temporary_constants(:AlphaClass, :BetaClass) do
         # top-level beta
         class BetaClass
           def alpha
@@ -283,7 +283,7 @@ describe "show-doc" do
     end
 
     it 'should look up nested modules' do
-      constant_scope(:AlphaClass) do
+      temporary_constants(:AlphaClass) do
         class AlphaClass
           # nested beta
           class BetaClass

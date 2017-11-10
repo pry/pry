@@ -1,11 +1,18 @@
 ### HEAD
 
 #### Features
+
+* Add Pry::Testable, an improved modular replacement for PryTestHelpers.
+  **breaking change**. [#1679](https://github.com/pry/pry/pull/1679).
+
+* Add a new category module: "Pry::Platform". Loosely related to #1668 below.
+[#1670](https://github.com/pry/pry/pull/1670)
+
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
-[#1668](https://github.com/pry/pry/pull/1668)
+[#1668](https://github.com/pry/pry/pull/1668).
 
 * Add utility functions for drawing colorised text on a colorised background.
-[#1673](https://github.com/pry/pry/pull/1673)
+[#1673](https://github.com/pry/pry/pull/1673).
 
 #### Bug fixes
 
@@ -15,7 +22,16 @@
       pry(main)> d = Pry::Config.from_hash({}, Pry::Config::Default.new)
       pry(main)> d.method(:exception_whitelist=) # Error
 
-* Fix `String#pp` output color. [#1674](https://github.com/pry/pry/pull/1674)
+See pull request [#1688](https://github.com/pry/pry/pull/1688).
+
+* Do not capture unused Proc objects in Text helper methods `no_color` and `no_paging`,
+  for performance reasons. Improve the documentation of both methods.
+
+See pull request [#1691](https://github.com/pry/pry/pull/1691).
+
+* Fix `String#pp` output color.
+
+See pull request [#1674](https://github.com/pry/pry/pull/1674).
 
 ### 0.11.0
 
