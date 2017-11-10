@@ -45,7 +45,7 @@ describe Pry::Config do
       expect(local3.foo).to eq(21)
     end
 
-    it "stores a local copy of the parent's hooks upon accessing them" do
+    it "stores a local copy of the parents hooks upon accessing them" do
       parent = Pry::Config.from_hash(hooks: "parent_hooks")
       local  = Pry::Config.new parent
       local.hooks.gsub! 'parent', 'local'
@@ -67,13 +67,7 @@ describe Pry::Config do
     end
 
     it "recursively builds Pry::Config objects from a Hash" do
-      h = {
-        'foo1' => {
-          'foo2' => {
-            'foo3' => 'foobar'
-          }
-        }
-      }
+      h = {'foo1' => {'foo2' => {'foo3' => 'foobar'}}}
       default = Pry::Config.from_hash(h)
       expect(default.foo1).to be_instance_of(described_class)
       expect(default.foo1.foo2).to be_instance_of(described_class)
@@ -91,6 +85,11 @@ describe Pry::Config do
       method_obj = @config.method(:key)
       expect(method_obj.name).to eq :key
       expect(method_obj.call).to eq(1)
+    end
+
+    it "returns a Method object for a setter on a parent" do
+      config = described_class.from_hash({}, described_class.from_hash(foo: 1))
+      expect(config.method(:foo=)).to be_an_instance_of(Method)
     end
   end
 
