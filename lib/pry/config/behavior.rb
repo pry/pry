@@ -188,8 +188,7 @@ module Pry::Config::Behavior
   end
 
   def respond_to_missing?(key, include_all=false)
-    key = key.to_s
-    key = key[0..-2] if key.end_with? ASSIGNMENT
+    key = key.to_s.chomp(ASSIGNMENT)
     key?(key) or @default.respond_to?(key) or super(key, include_all)
   end
 
