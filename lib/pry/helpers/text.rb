@@ -44,23 +44,16 @@ class Pry
         text.to_s.gsub(/(\001)?\e\[.*?(\d)+m(\002)?/ , '')
       end
 
-      # Returns _text_ as bold text for use on a terminal.
       #
       # @param [String, #to_s] text
-      # @return [String] _text_
+      #   A string.
+      #
+      # @return [String]
+      #   Returns a bold string
+      #
       def bold(text)
         "\e[1m#{text}\e[0m"
       end
-
-      # Returns `text` in the default foreground colour.
-      # Use this instead of "black" or "white" when you mean absence of colour.
-      #
-      # @param [String, #to_s] text
-      # @return [String]
-      def default(text)
-        text.to_s
-      end
-      alias_method :bright_default, :bold
 
       #
       # @yield

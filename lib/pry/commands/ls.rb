@@ -3,18 +3,18 @@ class Pry
   class Command::Ls < Pry::ClassCommand
     DEFAULT_OPTIONS = {
       :heading_color            => :bright_blue,
-      :public_method_color      => :default,
+      :public_method_color      => :strip_color,
       :private_method_color     => :blue,
       :protected_method_color   => :blue,
       :method_missing_color     => :bright_red,
       :local_var_color          => :yellow,
-      :pry_var_color            => :default,     # e.g. _, _pry_, _file_
+      :pry_var_color            => :strip_color, # e.g. _, _pry_, _file_
       :instance_var_color       => :blue,        # e.g. @foo
       :class_var_color          => :bright_blue, # e.g. @@foo
-      :global_var_color         => :default,     # e.g. $CODERAY_DEBUG, $eventmachine_library
+      :global_var_color         => :strip_color, # e.g. $CODERAY_DEBUG, $eventmachine_library
       :builtin_global_color     => :cyan,        # e.g. $stdin, $-w, $PID
       :pseudo_global_color      => :cyan,        # e.g. $~, $1..$9, $LAST_MATCH_INFO
-      :constant_color           => :default,     # e.g. VERSION, ARGF
+      :constant_color           => :strip_color, # e.g. VERSION, ARGF
       :class_constant_color     => :blue,        # e.g. Object, Kernel
       :exception_constant_color => :magenta,     # e.g. Exception, RuntimeError
       :unloaded_constant_color  => :yellow,      # Any constant that is still in .autoload? state

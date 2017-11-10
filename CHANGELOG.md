@@ -16,6 +16,15 @@
 
 #### Bug fixes
 
+* Remove the "default" method from `Pry::Helpers::Text`, it does not do what it describes
+  itself as doing in the documentation and its name is too generic. **breaking change**
+
+  See pull request [#1692](https://github.com/pry/pry/pull/1692).
+
+* Remove "bright_default" alias of "bold". Use "bold" instead. **breaking change**.
+
+  See pull request [#1692](https://github.com/pry/pry/pull/1692).
+
 * Do not capture unused Proc objects in Text helper methods `no_color` and `no_paging`,
   for performance reasons. Improve the documentation of both methods.
 
