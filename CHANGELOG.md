@@ -16,8 +16,14 @@
 
 #### Bug fixes
 
+* Do not capture unused Proc objects in Text helper methods `no_color` and `no_paging`,
+  for performance reasons. Improve the documentation of both methods.
+
+See pull request [#1691](https://github.com/pry/pry/pull/1691).
+
 * Fix `String#pp` output color.
-[#1674](https://github.com/pry/pry/pull/1674)
+
+See pull request [#1674](https://github.com/pry/pry/pull/1674).
 
 ### 0.11.0
 
