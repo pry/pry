@@ -1,3 +1,10 @@
+### 0.11.3
+
+* Do not capture unused Proc objects in Text helper methods `no_color` and `no_paging`,
+  for performance reasons. Improve the documentation of both methods.
+
+See pull request [#1691](https://github.com/pry/pry/pull/1691).
+
 ### 0.11.2
 
 * Fix a NoMethodError in the deprecated method stagger_output.

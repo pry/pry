@@ -52,10 +52,13 @@ class Pry
       end
       alias_method :bright_default, :bold
 
-      # Executes the block with `Pry.config.color` set to false.
+      #
       # @yield
+      #   Yields a block with color turned off.
+      #
       # @return [void]
-      def no_color(&block)
+      #
+      def no_color
         boolean = Pry.config.color
         Pry.config.color = false
         yield
@@ -63,10 +66,13 @@ class Pry
         Pry.config.color = boolean
       end
 
-      # Executes the block with `Pry.config.pager` set to false.
+      #
       # @yield
+      #   Yields a block with paging turned off.
+      #
       # @return [void]
-      def no_pager(&block)
+      #
+      def no_pager
         boolean = Pry.config.pager
         Pry.config.pager = false
         yield
@@ -98,4 +104,3 @@ class Pry
     end
   end
 end
-
