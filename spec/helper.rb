@@ -42,6 +42,17 @@ RSpec.configure do |config|
   config.include Pry::Testable::Utility
   include Pry::Testable::Evalable
   include Pry::Testable::Variables
+
+  # Optionally skip a test on specific Ruby engine(s).
+  # Please use this feature sparingly! It is better that a feature works than not.
+  # Inapplicable features are OK.
+  config.before(:each) do |example|
+    Pry::Platform.known_engines.each do |engine|
+      example.metadata[:expect_failure].to_a.include?(engine) and
+      Pry::Platform.public_send(:"#{engine}?")                and
+      skip("This spec is failing or inapplicable on #{engine}.")
+    end
+  end
 end
 
 puts "Ruby v#{RUBY_VERSION} (#{defined?(RUBY_ENGINE) ? RUBY_ENGINE : "ruby"}), Pry v#{Pry::VERSION}, method_source v#{MethodSource::VERSION}, CodeRay v#{CodeRay::VERSION}, Pry::Slop v#{Pry::Slop::VERSION}"
