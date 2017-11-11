@@ -1,5 +1,11 @@
 ### 0.11.3
 
+* Fix a case of infinite recursion in `Pry::Method::WeirdMethodLocator#find_method_in_superclass`
+  that users of the [Hanami](http://hanamirb.org/) web framework experienced and reported
+  since 2015.
+
+See pull request [#1639](https://github.com/pry/pry/pull/1689).
+
 * Fix a bug where Method objects were not returned for setters inherited
   from a default (Pry::Config::Default). Eg, this is no longer an error:
 
