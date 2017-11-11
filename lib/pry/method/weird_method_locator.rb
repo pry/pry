@@ -26,13 +26,17 @@ class Pry
         # @param [Binding] b
         # @return [Boolean]
         def normal_method?(method, b)
-          method && (method.source_file && method.source_range rescue false) &&
-          File.expand_path(method.source_file) == File.expand_path(b.eval('__FILE__')) &&
-          method.source_range.include?(b.eval('__LINE__'))
+          if method and method.source_file and method.source_range
+            binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
+            File.expand_path(method.source_file) == File.expand_path(binding_file) and
+            method.source_range.include?(binding_line)
+          end
+        rescue
+          false
         end
 
         def weird_method?(method, b)
-          !normal_method?(method, b)
+          not normal_method?(method, b)
         end
       end
 
@@ -60,6 +64,11 @@ class Pry
       end
 
       private
+
+      def skip_superclass_search?
+        target_mod = @target.eval('self').class
+        target_mod.ancestors.take_while {|mod| mod != target_mod }.any?
+      end
 
       def normal_method?(method)
         self.class.normal_method?(method, target)
@@ -98,7 +107,9 @@ class Pry
       #   superclass method.
       def find_method_in_superclass
         guess = method
-
+        if skip_superclass_search?
+          return guess
+        end
         while guess
           # needs rescue if this is a Disowned method or a C method or something...
           # TODO: Fix up the exception handling so we don't need a bare rescue

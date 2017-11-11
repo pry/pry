@@ -3,18 +3,29 @@
 #### Features
 
 * Add Pry::Testable, an improved modular replacement for PryTestHelpers.
-  **breaking change**. [#1679](https://github.com/pry/pry/pull/1679).
+  **breaking change**.
+
+See pull request [#1679](https://github.com/pry/pry/pull/1679).
 
 * Add a new category module: "Pry::Platform". Loosely related to #1668 below.
-[#1670](https://github.com/pry/pry/pull/1670)
+
+See pull request [#1670](https://github.com/pry/pry/pull/1670)
 
 * Add `mac_osx?` and `linux?` utility functions to Pry::Helpers::BaseHelpers.
-[#1668](https://github.com/pry/pry/pull/1668).
+
+See pull request [#1668](https://github.com/pry/pry/pull/1668).
 
 * Add utility functions for drawing colorised text on a colorised background.
-[#1673](https://github.com/pry/pry/pull/1673).
+
+See pull request [#1673](https://github.com/pry/pry/pull/1673).
 
 #### Bug fixes
+
+* Fix a case of infinite recursion in `Pry::Method::WeirdMethodLocator#find_method_in_superclass`
+  that users of the [Hanami](http://hanamirb.org/) web framework experienced and
+  reported since 2015.
+
+See pull request [#1639](https://github.com/pry/pry/pull/1689).
 
 * Fix a bug where Method objects were not returned for setters inherited
   from a default (Pry::Config::Default). Eg, this is no longer an error:
