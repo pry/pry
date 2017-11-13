@@ -8,7 +8,7 @@ See pull request [#1661](https://github.com/pry/pry/pull/1661).
 
 * Upgrade the method_source dependency from `~> 0.8.1` to `~> 0.9.0` for Ruby 2.4+ support.
 
-See commit [c281638b7749b00ded4bca7c15604f6717636b70](https://github.com/pry/pry/commit/c281638b7749b00ded4bca7c15604f6717636b70)
+See commit [c281638b7749b00ded4bca7c15604f6717636b70](https://github.com/pry/pry/commit/c281638b7749b00ded4bca7c15604f6717636b70).
 
 ### 0.11.0
 
