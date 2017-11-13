@@ -1,3 +1,15 @@
+### 0.11.2
+
+* Fix a NoMethodError in the deprecated method stagger_output.
+
+See pull request [#1661](https://github.com/pry/pry/pull/1661).
+
+### 0.11.1
+
+* Upgrade the method_source dependency from `~> 0.8.1` to `~> 0.9.0` for Ruby 2.4+ support.
+
+See commit [c281638b7749b00ded4bca7c15604f6717636b70](https://github.com/pry/pry/commit/c281638b7749b00ded4bca7c15604f6717636b70)
+
 ### 0.11.0
 
 * Add alias 'whereami[?!]+' for 'whereami' command. ([#1597](https://github.com/pry/pry/pull/1597))
@@ -28,7 +40,6 @@
 * Fixed error when Pry was trying to load incompatible versions of plugins ([#1312](https://github.com/pry/pry/issues/1312))
 * Fixed bug when `hist --clear` led to ArgumentError ([#1340](https://github.com/pry/pry/pull/1340))
 * Fixed the "uninitialized constant Pry::ObjectPath::StringScanner" exception during autocomplete ([#1330](https://github.com/pry/pry/issues/1330))
-* Secured usage of colours with special characters (RL_PROMPT_START_IGNORE and RL_PROMPT_END_IGNORE) in Pry::Helpers::Text ([#493](https://github.com/pry/pry/issues/493#issuecomment-39232771))
 * Fixed regression with `pry -e` when it messes the terminal ([#1387](https://github.com/pry/pry/issues/1387))
 * Fixed regression with space prefixes of expressions ([#1369](https://github.com/pry/pry/issues/1369))
 * Introduced the new way to define hooks for commands (with `Pry.hooks.add_hook("{before,after}_commandName")`). The old way is deprecated, but still supported (with `Pry.commands.{before,after}_command`) ([#651](https://github.com/pry/pry/issues/651))
