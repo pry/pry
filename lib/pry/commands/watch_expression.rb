@@ -70,7 +70,7 @@ class Pry
           pager.puts "Listing all watched expressions:"
           pager.puts ""
           expressions.each_with_index do |expr, index|
-            pager.print text.with_line_numbers(expr.to_s, index+1)
+            pager.print with_line_numbers(expr.to_s, index+1)
           end
           pager.puts ""
         end
@@ -81,7 +81,7 @@ class Pry
       expressions.each do |expr|
         expr.eval!
         if expr.changed?
-          output.puts "#{text.blue "watch"}: #{expr.to_s}"
+          output.puts "#{blue "watch"}: #{expr.to_s}"
         end
       end
     end

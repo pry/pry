@@ -12,7 +12,7 @@ class Pry::Command::ListInspectors < Pry::ClassCommand
   def process
     output.puts heading("Available inspectors") + "\n"
     inspector_map.each do |name, inspector|
-      output.write "Name: #{text.bold(name)}"
+      output.write "Name: #{bold(name)}"
       output.puts selected_inspector?(inspector) ? selected_text : ""
       output.puts inspector[:description]
       output.puts
@@ -25,7 +25,7 @@ private
   end
 
   def selected_text
-    text.red " (selected) "
+    red " (selected) "
   end
 
   def selected_inspector?(inspector)

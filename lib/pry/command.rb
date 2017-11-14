@@ -254,6 +254,14 @@ class Pry
       command_set.to_hash
     end
 
+    #
+    # @deprecated
+    #   Please use black(), white(), etc directly instead (as you would with helper
+    #   functions from BaseHelpers and CommandHelpers)
+    #
+    # @return [Module]
+    #   Returns Pry::Helpers::Text
+    #
     def text
       Pry::Helpers::Text
     end
@@ -264,6 +272,7 @@ class Pry
 
     include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Text
 
     # Instantiate a command, in preparation for calling it.
     # @param [Hash] context The runtime context to use with this command.
