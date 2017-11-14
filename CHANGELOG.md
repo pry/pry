@@ -1,3 +1,12 @@
+### HEAD
+
+#### Performance tweaks
+
+* Use require_relative for pry/* files, remove duplicate requires, and
+  remove unneccessary requires.
+
+See pull request [#1704](https://github.com/pry/pry/pull/1704).
+
 ### 0.11.3
 
 #### Features
