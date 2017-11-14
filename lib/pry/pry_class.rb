@@ -1,4 +1,3 @@
-require 'pry/config'
 class Pry
 
   HOME_RC_FILE = ENV["PRYRC"] || "~/.pryrc"

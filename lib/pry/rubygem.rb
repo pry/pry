@@ -1,5 +1,3 @@
-require 'rubygems'
-
 class Pry
   module Rubygem
 
