@@ -2,6 +2,11 @@
 
 #### Features
 
+* Add a new command, "gem-stat", inspired by the rubygem of a similar
+  name (gem-stats) by [@dnyy](https://github.com/dnyy).
+
+See pull request [#1705](https://github.com/pry/pry/pull/1705].
+
 * Deprecate Pry::Command#text. Please use black(), white(), etc directly
   instead (as you would with helper functions from BaseHelpers and
   CommandHelpers)
