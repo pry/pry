@@ -75,16 +75,21 @@ module Pry::Config::Behavior
   end
 
   #
-  # Removes a key from self.
+  # Removes a key from self, and its parents excluding
+  # the last default.
   #
-  # @param [String] key
-  #  a key (as a String)
+  # @param [Array<String, #to_s>] *keys
+  #   One or more key names.
   #
   # @return [void]
   #
-  def forget(key)
-    key = key.to_s
-    __remove(key)
+  def forget(*keys)
+    keys.each do |key|
+      key = key.to_s
+      __remove(key)           and
+      default != last_default and
+      default.forget(key)
+    end
   end
 
   #
