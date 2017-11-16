@@ -1,9 +1,9 @@
-### HEAD
+### 0.11.3
 
 #### Features
 
 * Add a new command, "gem-stat", inspired by the rubygem of a similar
-  name (gem-stats) by [@dnyy](https://github.com/dnyy).
+  name (gem-stats) by [@dannytatom](https://github.com/dannytatom).
 
 See pull request [#1705](https://github.com/pry/pry/pull/1705].
 

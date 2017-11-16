@@ -12,7 +12,7 @@ task :default => [:test]
 
 def run_specs paths
   format = ENV['VERBOSE'] ? '--format documentation ' : ''
-  sh "rspec -w #{format}#{paths.join ' '}"
+  sh "bundle exec rspec #{format}#{paths.join ' '}"
 end
 
 desc "Run tests"
