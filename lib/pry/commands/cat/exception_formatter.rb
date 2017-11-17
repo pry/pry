@@ -4,6 +4,7 @@ class Pry
       attr_reader :ex
       attr_reader :opts
       attr_reader :_pry_
+      include Pry::Helpers::Text
 
       def initialize(exception, _pry_, opts)
         @ex = exception
@@ -66,9 +67,9 @@ class Pry
 
       def header
         unindent %{
-        #{Helpers::Text.bold 'Exception:'} #{ex.class}: #{ex.message}
+        #{bold 'Exception:'} #{ex.class}: #{ex.message}
         --
-        #{Helpers::Text.bold('From:')} #{backtrace_file} @ line #{backtrace_line} @ #{Helpers::Text.bold("level: #{backtrace_level}")} of backtrace (of #{ex.backtrace.size - 1}).
+        #{bold('From:')} #{backtrace_file} @ line #{backtrace_line} @ #{bold("level: #{backtrace_level}")} of backtrace (of #{ex.backtrace.size - 1}).
 
       }
       end

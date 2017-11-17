@@ -94,7 +94,7 @@ class Pry
 
       set_file_and_dir_locals(@file)
 
-      out = "\n#{text.bold('From:')} #{location}:\n\n" <<
+      out = "\n#{bold('From:')} #{location}:\n\n" <<
         code.with_line_numbers(use_line_numbers?).with_marker(marker).highlighted << "\n"
 
       _pry_.pager.page out

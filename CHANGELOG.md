@@ -7,6 +7,12 @@
 
 See pull request [#1694](https://github.com/pry/pry/pull/1694).
 
+* Deprecate Pry::Command#text. Please use black(), white(), etc directly
+  instead (as you would with helper functions from BaseHelpers and
+  CommandHelpers)
+
+See pull request [#1701](https://github.com/pry/pry/pull/1701).
+
 * Add Pry::Testable, an improved modular replacement for PryTestHelpers.
   **breaking change**.
 
