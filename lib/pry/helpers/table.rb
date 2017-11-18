@@ -6,7 +6,7 @@ class Pry
       if attempt.fits_on_line?(Terminal.width! - plain_heading.size - 2)
         "#{heading}: #{attempt}\n"
       else
-        "#{heading}: \n#{tablify_to_screen_width(things, {:indent => '  '}, pry)}\n"
+        "#{heading}: \n#{tablify_to_screen_width(things, {indent:'  '}, pry)}\n"
       end
     end
 
