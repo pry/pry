@@ -33,7 +33,7 @@ private
   def list_as_string(gems, limit = 10)
     gems[0..limit-1].map do |gem|
       name, version, info = gem.values_at 'name', 'version', 'info'
-      "#{text.bold(name)} #{text.bold('v'+version)} \n#{info}\n\n"
+      "#{bold(name)} #{bold('v'+version)} \n#{info}\n\n"
     end.join
   end
   Pry::Commands.add_command(self)

@@ -623,13 +623,13 @@ describe "show-source" do
             end
 
             describe "when current context is a C object" do
-              it "should display a warning, and not monkey-patched definition" do
+              it "should display a warning, and not monkey-patched definition", expect_failure: [:rbx] do
                 out = pry_eval([1, 2, 3], 'show-source')
                 expect(out).not_to match(/doge/)
                 expect(out).to match(/warning/i)
               end
 
-              it "recommends to use the --all switch when other candidates are found" do
+              it "recommends to use the --all switch when other candidates are found", expect_failure: [:rbx] do
                 out = pry_eval([], 'show-source')
                 expect(out).to match(/'--all' switch/i)
               end

@@ -175,13 +175,13 @@ describe Pry::Hooks do
   describe "getting hooks" do
     describe "get_hook" do
       it 'should return the correct requested hook' do
-        run = false
-        fun = false
-        @hooks.add_hook(:test_hook, :my_name) { run = true }
-        @hooks.add_hook(:test_hook, :my_name2) { fun = true }
+        run1 = false
+        run2 = false
+        @hooks.add_hook(:test_hook, :my_name) { run1 = true }
+        @hooks.add_hook(:test_hook, :my_name2) { run2 = true }
         @hooks.get_hook(:test_hook, :my_name).call
-        expect(run).to eq true
-        expect(fun).to eq false
+        expect(run1).to eq true
+        expect(run2).to eq false
       end
 
       it 'should return nil if hook does not exist' do

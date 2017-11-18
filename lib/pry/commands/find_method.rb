@@ -54,7 +54,7 @@ class Pry
     # @param [Array] matches
     def show_search_results(matches)
       if matches.empty?
-        output.puts text.bold("No Methods Matched")
+        output.puts bold("No Methods Matched")
       else
         print_matches(matches)
       end
@@ -88,7 +88,7 @@ class Pry
 
     # Print matched methods for a class
     def print_matches_for_class(klass, grouped)
-      output.puts text.bold(klass.name)
+      output.puts bold(klass.name)
       grouped[klass].each do |method|
         header = method.name_with_owner
         output.puts header + additional_info(header, method)

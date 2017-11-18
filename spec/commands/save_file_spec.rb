@@ -20,7 +20,7 @@ describe "save-file" do
 
         @t.eval("save-file '#{path}' --to '#{@path}'")
 
-       
+
         expect(File.read(@path)).to eq(File.read(path))
       end
     end
@@ -141,7 +141,7 @@ describe "save-file" do
   end
 
   describe "saving commands" do
-    it 'should save a command to a file' do
+    it 'should save a command to a file', expect_failure: [:rbx] do
       @t.eval "save-file --to '#{@path}' show-source"
       cmd_source = Pry.config.commands["show-source"].source
       expect(File.read(@path)).to eq(cmd_source)

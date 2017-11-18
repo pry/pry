@@ -21,10 +21,10 @@ class Pry
         end
 
         versions = specs.each_with_index.map do |spec, index|
-          index == 0 ? text.bright_green(spec.version.to_s) : text.green(spec.version.to_s)
+          index == 0 ? bright_green(spec.version.to_s) : green(spec.version.to_s)
         end
 
-        output.puts "#{text.default gem} (#{versions.join ', '})"
+        output.puts "#{default gem} (#{versions.join ', '})"
       end
     end
   end

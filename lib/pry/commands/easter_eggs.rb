@@ -86,7 +86,7 @@ TEXT
       prev_color = _pry_.config.color
       _pry_.config.color = true
 
-      picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| text.red(s) }
+      picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| red(s) }
          ____      _______________________
         /    \    |  A         W     G    |
        / O  O \   |   N    I    O   N !   |

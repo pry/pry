@@ -100,11 +100,11 @@ class Pry
     # object types: methods, modules, commands, procs...
     def header(code_object)
       file_name, line_num = file_and_line_for(code_object)
-      h = "\n#{Pry::Helpers::Text.bold('From:')} #{file_name} "
+      h = "\n#{bold('From:')} #{file_name} "
       h << code_object_header(code_object, line_num)
-      h << "\n#{Pry::Helpers::Text.bold('Number of lines:')} " <<
+      h << "\n#{bold('Number of lines:')} " <<
         "#{content_for(code_object).lines.count}\n\n"
-      h << Helpers::Text.bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
+      h << bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
       h
     end
 
@@ -133,11 +133,11 @@ class Pry
     def module_header(code_object, line_num)
       h = ""
       h << "@ line #{line_num}:\n"
-      h << text.bold(code_object.module? ? "Module" : "Class")
-      h << " #{text.bold('name:')} #{code_object.nonblank_name}"
+      h << bold(code_object.module? ? "Module" : "Class")
+      h << " #{bold('name:')} #{code_object.nonblank_name}"
 
       if code_object.number_of_candidates > 1
-        h << (text.bold("\nNumber of monkeypatches: ") << code_object.number_of_candidates.to_s)
+        h << (bold("\nNumber of monkeypatches: ") << code_object.number_of_candidates.to_s)
         h << ". Use the `-a` option to display all available monkeypatches"
       end
       h
@@ -145,9 +145,9 @@ class Pry
 
     def method_sections(code_object)
       {
-        :owner => "\n#{text.bold("Owner:")} #{code_object.owner || "N/A"}\n",
-        :visibility => "#{text.bold("Visibility:")} #{code_object.visibility}",
-        :signature => "\n#{text.bold("Signature:")} #{code_object.signature}"
+        :owner => "\n#{bold("Owner:")} #{code_object.owner || "N/A"}\n",
+        :visibility => "#{bold("Visibility:")} #{code_object.visibility}",
+        :signature => "\n#{bold("Signature:")} #{code_object.signature}"
       }.merge(header_options) { |key, old, new| (new && old).to_s }
     end
 

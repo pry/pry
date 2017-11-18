@@ -30,7 +30,6 @@ See pull request [#1701](https://github.com/pry/pry/pull/1701).
    The "Pry::Helpers::Table" class also takes the same required third argument.
    **Breaking change**
 
-
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`

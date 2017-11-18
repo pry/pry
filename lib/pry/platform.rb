@@ -90,4 +90,12 @@ module Pry::Platform
   def mri_2?
     !!(mri? and RUBY_VERSION =~ /\A2/)
   end
+
+  #
+  #  @return [Array<Symbol>]
+  #    Returns an Array of Ruby engines that Pry is known to run on.
+  #
+  def known_engines
+    [:jruby, :rbx, :mri]
+  end
 end
