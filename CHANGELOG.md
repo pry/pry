@@ -28,7 +28,13 @@ See pull request [#1701](https://github.com/pry/pry/pull/1701).
   * Pry::Helpers.tablify\_or\_one\_line
 
    The "Pry::Helpers::Table" class also takes the same required third argument.
+
    **Breaking change**
+   Although a breaking change, it brings this code in line with how the rest of Pry
+   works, where session-local configuration queries are made to `_pry_.config` and
+   not `Pry.config` (which sets defaults, normally from ~/.pryrc or plugin code)
+
+   See pull request [#1713](https://github.com/pry/pry/pull/1713).
 
 #### Pry developers
 
