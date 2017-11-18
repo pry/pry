@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
-    t = Pry::Helpers::Table.new %w(hihi), :column_count => 1
+    t = Pry::Helpers::Table.new %w(hihi), {:column_count => 1}, Pry.new
     expect(t.fits_on_line?(4)).to eq true
     t.items = []
     expect(t.fits_on_line?(4)).to eq true
@@ -24,7 +24,7 @@ describe 'Formatting Table' do
     FAKE_COLUMNS = 62
     def try_round_trip(expected)
       things = expected.split(/\s+/).sort
-      actual = Pry::Helpers.tablify(things, FAKE_COLUMNS).to_s.strip
+      actual = Pry::Helpers.tablify(things, FAKE_COLUMNS, Pry.new).to_s.strip
       [expected, actual].each{|e| e.gsub!(/\s+$/, '')}
       if actual != expected
         bar = '-'*25
@@ -88,17 +88,17 @@ asfadsssaaad    fasfaafdssd     s
     end
 
     it 'should not raise error' do
-      expect { Pry::Helpers.tablify(@out, @elem_len - 1) }.not_to raise_error
+      expect { Pry::Helpers.tablify(@out, @elem_len - 1, Pry.new) }.not_to raise_error
 
     end
 
     it 'should format output as one column' do
-      table = Pry::Helpers.tablify(@out, @elem_len - 1).to_s
+      table = Pry::Helpers.tablify(@out, @elem_len - 1, Pry.new).to_s
       expect(table).to eq "swizzle\ncrime  \nfun    "
     end
   end
 
   specify 'decide between one-line or indented output' do
-    expect(Pry::Helpers.tablify_or_one_line('head', %w(ing))).to eq "head: ing\n"
+    expect(Pry::Helpers.tablify_or_one_line('head', %w(ing), Pry.new)).to eq "head: ing\n"
   end
 end
