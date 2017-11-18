@@ -2,6 +2,11 @@
 
 #### Features
 
+* Add Pry::Platform#known_engines, returns an Array of Ruby engines
+  (MRI, JRuby, Rubinius) that Pry is known to run on.
+
+See pull request [#1694](https://github.com/pry/pry/pull/1694).
+
 * Deprecate Pry::Command#text. Please use black(), white(), etc directly
   instead (as you would with helper functions from BaseHelpers and
   CommandHelpers)
@@ -49,6 +54,14 @@ See pull request [#1691](https://github.com/pry/pry/pull/1691).
 * Fix `String#pp` output color.
 
 See pull request [#1674](https://github.com/pry/pry/pull/1674).
+
+
+#### Pry developers
+
+* Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
+  as a metadata Hash to the example group.
+
+See pull request [#1694](https://github.com/pry/pry/pull/1694).
 
 ### 0.11.0
 
