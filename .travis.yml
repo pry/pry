@@ -5,10 +5,9 @@ rvm:
   - 2.2
   - 2.3
   - 2.4
-  - ruby-head
-  - rbx-3.69
+  - rbx-3.86
   - jruby-9.1.14.0
-  - jruby
+  - ruby-head
   - jruby-head
 
 install:
@@ -23,9 +22,7 @@ sudo: false
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby
     - rvm: jruby-head
-    - rvm: rbx-3.69
     - rvm: 2.4 # https://bugs.ruby-lang.org/issues/13537
 
 notifications:
