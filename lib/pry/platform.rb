@@ -8,7 +8,7 @@ module Pry::Platform
   # @note
   #   Queries RbConfig::CONFIG['host_os'] with a best guess.
   #
-  def mac_osx?
+  def mac_osx? pry=(defined?(_pry_) and _pry_)
     !!(RbConfig::CONFIG['host_os'] =~ /\Adarwin/i)
   end
 
@@ -19,7 +19,7 @@ module Pry::Platform
   # @note
   #   Queries RbConfig::CONFIG['host_os'] with a best guess.
   #
-  def linux?
+  def linux? pry=(defined?(_pry_) and _pry_)
     !!(RbConfig::CONFIG['host_os'] =~ /linux/i)
   end
 
@@ -30,7 +30,7 @@ module Pry::Platform
   # @note
   #   Queries RbConfig::CONFIG['host_os'] with a best guess.
   #
-  def windows?
+  def windows? pry=(defined?(_pry_) and _pry_)
     !!(RbConfig::CONFIG['host_os'] =~ /mswin|mingw/)
   end
 
@@ -38,7 +38,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is running on Windows with ANSI support.
   #
-  def windows_ansi?
+  def windows_ansi? pry=(defined?(_pry_) and _pry_)
     return false if not windows?
     !!(defined?(Win32::Console) or ENV['ANSICON'] or mri_2?)
   end
@@ -47,7 +47,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from JRuby.
   #
-  def jruby?
+  def jruby? pry=(defined?(_pry_) and _pry_)
     RbConfig::CONFIG['ruby_install_name'] == 'jruby'
   end
 
@@ -55,7 +55,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from JRuby in 1.9 mode.
   #
-  def jruby_19?
+  def jruby_19? pry=(defined?(_pry_) and _pry_)
     jruby? and RbConfig::CONFIG['ruby_version'] == '1.9'
   end
 
@@ -63,7 +63,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from Rubinius.
   #
-  def rbx?
+  def rbx? pry=(defined?(_pry_) and _pry_)
     RbConfig::CONFIG['ruby_install_name'] == 'rbx'
   end
 
@@ -71,7 +71,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from MRI (CRuby).
   #
-  def mri?
+  def mri? pry=(defined?(_pry_) and _pry_)
     RbConfig::CONFIG['ruby_install_name'] == 'ruby'
   end
 
@@ -79,7 +79,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from MRI v1.9+ (CRuby).
   #
-  def mri_19?
+  def mri_19? pry=(defined?(_pry_) and _pry_)
     !!(mri? and RUBY_VERSION =~ /\A1\.9/)
   end
 
@@ -87,7 +87,7 @@ module Pry::Platform
   # @return [Boolean]
   #   Returns true when Pry is being run from MRI v2+ (CRuby).
   #
-  def mri_2?
+  def mri_2? pry=(defined?(_pry_) and _pry_)
     !!(mri? and RUBY_VERSION =~ /\A2/)
   end
 

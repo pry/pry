@@ -81,6 +81,30 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @example
+  #
+  #   _pry_.hooks.add_hook(:after_session, :on_exit) do |_, _, pry|
+  #     pry.pager.page pry.h.yellow("You take your boy home, yeah?")
+  #   end
+  #
+  # @return [Module]
+  #   Returns a Module that provides methods normally available to Pry commands and who
+  #   are also aware of this Pry instance.
+  #
+  def h
+    @h ||= lambda {
+      this = self
+      Module.new do
+        include Pry::Platform
+        include Pry::Helpers::BaseHelpers
+        include Pry::Helpers::Text
+        extend self
+        define_method(:_pry_) { this }
+      end
+    }.call
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #
