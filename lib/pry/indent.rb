@@ -1,5 +1,3 @@
-require 'coderay'
-
 class Pry
   ##
   # Pry::Indent is a class that can be used to indent a number of lines

@@ -1,4 +1,4 @@
-require 'pry/helpers/documentation_helpers'
+
 
 class Pry
   class << self
@@ -16,9 +16,10 @@ class Pry
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
   class Method
-    require 'pry/method/weird_method_locator'
-    require 'pry/method/disowned'
-    require 'pry/method/patcher'
+    require_relative 'helpers/documentation_helpers'
+    require_relative 'method/weird_method_locator'
+    require_relative 'method/disowned'
+    require_relative 'method/patcher'
 
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers

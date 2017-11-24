@@ -18,6 +18,13 @@ See pull request [#1694](https://github.com/pry/pry/pull/1694).
 
 See pull request [#1701](https://github.com/pry/pry/pull/1701).
 
+#### Performance tweaks
+
+* Use require_relative for pry/* files, remove duplicate requires, and
+  remove unneccessary requires.
+
+See pull request [#1704](https://github.com/pry/pry/pull/1704).
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
