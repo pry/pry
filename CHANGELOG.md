@@ -2,6 +2,16 @@
 
 #### Features
 
+* Add `Pry#h` method thats returns a Module that has access to the same methods
+  as Pry commands, such `black()` and `yellow()`. These methods also
+  respect the configuration of the Pry instance they are associated with through
+  `Pry#h`. It is useful for passing 'pry' into a scope that doesn't want or need
+  to inherit one or more helper modules, and better than using the singleton
+  methods of Pry helper modules because Pry configuration is automatically
+  respected.
+
+See pull request [#1693]https://github.com/pry/pry/pull/1693)
+
 * Add a new command, "gem-stat", inspired by the rubygem of a similar
   name (gem-stats) by [@dannytatom](https://github.com/dannytatom).
 
