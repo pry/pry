@@ -37,7 +37,7 @@ describe Pry do
       end
     end
 
-    it "should not load the pryrc if pryrc's directory permissions do not allow this" do
+    it "should not load the pryrc if pryrc's directory permissions do not allow this", expect_failure: [:rbx] do
       Dir.mktmpdir do |dir|
         File.chmod 0000, dir
         Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')

@@ -26,7 +26,7 @@ class Pry
     def process
       raise Pry::CommandError, "No most-recent exception" unless exception
 
-      output.puts "#{text.bold('Exception:')} #{exception.class}: #{exception}\n--"
+      output.puts "#{bold('Exception:')} #{exception.class}: #{exception}\n--"
       if opts.verbose?
         output.puts with_line_numbers(backtrace)
       else
