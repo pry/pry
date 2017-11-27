@@ -15,20 +15,20 @@ module Pry::Helpers::Text
 
   COLORS.each_pair do |color, value|
     define_method color do |text, pry=((defined?(_pry_) and _pry_) or Pry)|
-      (pry and pry.color) ? "\033[0;#{30+value}m#{text}\033[0m" : text
+      pry.color ? "\033[0;#{30+value}m#{text}\033[0m" : text
     end
 
     define_method "bright_#{color}" do |text, pry=((defined?(_pry_) and _pry_) or Pry)|
-      (pry.color) ? "\033[1;#{30+value}m#{text}\033[0m" : text
+      pry.color ? "\033[1;#{30+value}m#{text}\033[0m" : text
     end
 
     COLORS.each_pair do |bg_color, bg_value|
       define_method "#{color}_on_#{bg_color}" do |text, pry=((defined?(_pry_) and _pry_) or Pry)|
-        (pry.color) ? "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
+        pry.color ? "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
       end
 
       define_method "bright_#{color}_on_#{bg_color}" do |text, pry=((defined?(_pry_) and _pry_) or Pry)|
-        (pry.color) ? "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
+        pry.color ? "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m" : text
       end
     end
   end
@@ -114,5 +114,4 @@ module Pry::Helpers::Text
     text.to_s
   end
   alias_method :bright_default, :bold
-
 end
