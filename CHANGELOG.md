@@ -2,6 +2,16 @@
 
 #### Features
 
+* Add `Pry#h` method thats returns a Module that has access to the same methods
+  as Pry commands, such `black()` and `yellow()`. These methods also
+  respect the configuration of the Pry instance they are associated with through
+  `Pry#h`. It is useful for passing 'pry' into a scope that doesn't want or need
+  to inherit one or more helper modules, and better than using the singleton
+  methods of Pry helper modules because Pry configuration is automatically
+  respected.
+
+See pull request [#1693]https://github.com/pry/pry/pull/1693)
+
 * Add a new command, "gem-stat", inspired by the rubygem of a similar
   name (gem-stats) by [@dannytatom](https://github.com/dannytatom).
 
@@ -18,13 +28,30 @@ See pull request [#1694](https://github.com/pry/pry/pull/1694).
 
 See pull request [#1701](https://github.com/pry/pry/pull/1701).
 
+#### Bug fixes
+
+* The following methods take a third required argument, an instance of Pry, in order to fulfil
+  queries to `_pry_.config`.
+
+  * Pry::Helpers.tablify
+  * Pry::Helpers.tablify\_to\_screen\_width
+  * Pry::Helpers.tablify\_or\_one\_line
+
+   The "Pry::Helpers::Table" class also takes the same required third argument.
+
+   **Breaking change**
+   Although a breaking change, it brings this code in line with how the rest of Pry
+   works, where session-local configuration queries are made to `_pry_.config` and
+   not `Pry.config` (which sets defaults, normally from ~/.pryrc or plugin code)
+
+   See pull request [#1713](https://github.com/pry/pry/pull/1713).
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
   as a metadata Hash to the example group.
 
 See pull request [#1694](https://github.com/pry/pry/pull/1694).
-
 
 ### 0.11.3
 

@@ -26,7 +26,7 @@ class Pry
       def output_section(heading, body)
         return '' if body.compact.empty?
         fancy_heading = Pry::Helpers::Text.bold(color(:heading, heading))
-        Pry::Helpers.tablify_or_one_line(fancy_heading, body)
+        Pry::Helpers.tablify_or_one_line(fancy_heading, body, @_pry_)
       end
 
       def format_value(value)
