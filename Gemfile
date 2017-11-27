@@ -1,3 +1,7 @@
+$LOAD_PATH.unshift './lib'
+require 'pry/version'
+require 'pry/platform'
+
 source 'https://rubygems.org'
 gemspec
 gem 'rake',  '~> 10.0'
@@ -5,9 +9,15 @@ gem 'rake',  '~> 10.0'
 # For Guard
 group :development do
   gem 'gist'
-  gem 'yard'
   gem 'rb-inotify', :require => false
   gem 'rb-fsevent', :require => false
+  if Pry::Platform.mri_19? # 1.9 compatible.
+    gem 'yard', '= 0.8'
+    gem 'kramdown', "= 1.14"
+  else
+    gem 'kramdown', '~> 1.16'
+    gem 'yard', '~> 0.9'
+  end
 end
 
 group :test do

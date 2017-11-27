@@ -20,7 +20,7 @@ end.new(nil)
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
-  require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?
+  require 'set_trace' if Pry::Platform.rbx?
   set_trace_func proc { |event, file, line, id, binding, classname|
      STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
   }
@@ -51,6 +51,17 @@ RSpec.configure do |config|
       example.metadata[:expect_failure].to_a.include?(engine) and
       Pry::Platform.public_send(:"#{engine}?")                and
       skip("This spec is failing or inapplicable on #{engine}.")
+    end
+  end
+
+  #
+  # Given a spec that should only run on a specific Ruby engine (eg the
+  # integration tests for yardoc) this filter can be used.
+  #
+  config.before(:each) do |example|
+    only_ruby = example.metadata[:only_ruby].to_a
+    if only_ruby.any? and only_ruby.none? {|engine| Pry::Platform.public_send(:"#{engine}?")}
+      skip "This spec is disabled on #{RUBY_ENGINE} (#{RUBY_DESCRIPTION})"
     end
   end
 end

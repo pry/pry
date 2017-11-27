@@ -8,7 +8,7 @@ module Pry::Testable::Variables
   #   Foo # => NameError
   #   Bar # => NameError
   #
-  # @param [Array<Symbol>] *names
+  # @param [Array<Symbol>] names
   #   An array of constant names that be defined by a block,
   #   and removed by this method afterwards.
   #
@@ -41,6 +41,6 @@ module Pry::Testable::Variables
     Pry.current[:pry_local] = value
     b.eval("#{name} = ::Pry.current[:pry_local]")
   ensure
-    Pry.current[:pry_local] = nil   
+    Pry.current[:pry_local] = nil
   end
 end
