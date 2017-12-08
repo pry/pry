@@ -31,6 +31,15 @@ describe "Prompts" do
       expect(config._pry_.is_a?(Pry)).to eq true
       expect(config.object).to eq self
     end
+
+    specify "object is Hash when current binding is a Hash" do
+      config = nil
+      h = {}
+      redirect_pry_io(InputTester.new("exit-all")) do
+        Pry.start(h, prompt: proc{|v| config = v })
+      end
+      expect(config.object).to be(h)
+    end
   end
 
   describe "BACKWARDS COMPATIBILITY: 3 parameter prompt proc" do
