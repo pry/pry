@@ -6,6 +6,23 @@ module Pry::Config::Behavior
 
   module Builder
     #
+    # Returns a new Behavior, non-recursively (unlike {#from_hash}).
+    #
+    # @param
+    #   (see #from_hash)
+    #
+    # @return
+    #   (see #from_hash)
+    #
+    def assign(attributes, default = nil)
+      new(default).tap do |behavior|
+        behavior.merge!(attributes)
+      end
+    end
+
+    #
+    # Returns a new Behavior, recursively walking attributes.
+    #
     # @param [Hash] attributes
     #   a hash to initialize an instance of self with.
     #
