@@ -1,27 +1,28 @@
 class Pry
   module Helpers
-    def self.tablify_or_one_line(heading, things)
+    def self.tablify_or_one_line(heading, things, pry)
       plain_heading = Pry::Helpers::Text.strip_color(heading)
-      attempt = Table.new(things, :column_count => things.size)
+      attempt = Table.new(things,{column_count: things.size}, pry)
       if attempt.fits_on_line?(Terminal.width! - plain_heading.size - 2)
         "#{heading}: #{attempt}\n"
       else
-        "#{heading}: \n#{tablify_to_screen_width(things, :indent => '  ')}\n"
+        "#{heading}: \n#{tablify_to_screen_width(things, {indent:'  '}, pry)}\n"
       end
     end
 
-    def self.tablify_to_screen_width(things, options = {})
+    def self.tablify_to_screen_width(things, options, pry)
+      options ||= {}
       things = things.compact
       if indent = options[:indent]
         usable_width = Terminal.width! - indent.size
-        tablify(things, usable_width).to_s.gsub(/^/, indent)
+        tablify(things, usable_width, pry).to_s.gsub(/^/, indent)
       else
-        tablify(things, Terminal.width!).to_s
+        tablify(things, Terminal.width!, pry).to_s
       end
     end
 
-    def self.tablify(things, line_length)
-      table = Table.new(things, :column_count => things.size)
+    def self.tablify(things, line_length, pry)
+      table = Table.new(things, {column_count: things.size}, pry)
       table.column_count -= 1 until 1 == table.column_count or
         table.fits_on_line?(line_length)
       table
@@ -29,8 +30,9 @@ class Pry
 
     class Table
       attr_reader :items, :column_count
-      def initialize items, args = {}
+      def initialize items, args, pry
         @column_count = args[:column_count]
+        @pry = pry
         self.items = items
       end
 
@@ -48,7 +50,7 @@ class Pry
             item.sub! e, _recall_color_for(e) if :color_on == style
             padded << item
           end
-          padded.join(Pry.config.ls.separator)
+          padded.join(@pry.config.ls.separator)
         end
       end
 
