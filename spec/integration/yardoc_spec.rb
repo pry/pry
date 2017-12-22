@@ -9,8 +9,8 @@ RSpec.describe "YARD documentation generation", only_ruby: [:mri_19, :mri_23] do
     File.expand_path(File.join(__FILE__, "..", "..", "..", ".yardoc"))
   end
 
-  before(:each) { FileUtils.rm_rf yard_dir }
-  after(:each) { FileUtils.rm_rf yard_dir }
+  before(:example) { FileUtils.rm_rf yard_dir }
+  after(:example) { FileUtils.rm_rf yard_dir }
 
   specify "no warnings are generated" do
     warn "[notice]: Generating documentation. Please wait."

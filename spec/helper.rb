@@ -31,11 +31,11 @@ RSpec.configure do |config|
     c.syntax = [:should, :expect]
   end
 
-  config.before(:each) do
+  config.before(:example) do
     Pry::Testable.set_testenv_variables
   end
 
-  config.after(:each) do
+  config.after(:example) do
     Pry::Testable.unset_testenv_variables
   end
   config.include Pry::Testable::Mockable
@@ -46,7 +46,7 @@ RSpec.configure do |config|
   # Optionally skip a test on specific Ruby engine(s).
   # Please use this feature sparingly! It is better that a feature works than not.
   # Inapplicable features are OK.
-  config.before(:each) do |example|
+  config.before(:example) do |example|
     Pry::Platform.known_engines.each do |engine|
       example.metadata[:expect_failure].to_a.include?(engine) and
       Pry::Platform.public_send(:"#{engine}?")                and
@@ -58,7 +58,7 @@ RSpec.configure do |config|
   # Given a spec that should only run on a specific Ruby engine (eg the
   # integration tests for yardoc) this filter can be used.
   #
-  config.before(:each) do |example|
+  config.before(:example) do |example|
     only_ruby = example.metadata[:only_ruby].to_a
     if only_ruby.any? and only_ruby.none? {|engine| Pry::Platform.public_send(:"#{engine}?")}
       skip "This spec is disabled on #{RUBY_ENGINE} (#{RUBY_DESCRIPTION})"
