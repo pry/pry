@@ -404,4 +404,4 @@ Problems or questions? File an issue at [GitHub](https://github.com/pry/pry/issu
 
 Pry is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
 of contributors see the
-[CONTRIBUTORS](https://github.com/pry/pry/blob/master/CONTRIBUTORS) file.
+[contributors graph](https://github.com/pry/pry/graphs/contributors).
