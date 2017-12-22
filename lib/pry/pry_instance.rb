@@ -532,8 +532,7 @@ class Pry
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
-    c = Pry::Config.new(nil)
-    c.merge!({
+    c = Pry::Config.assign({
         :object         => object,
         :nesting_level  => binding_stack.size - 1,
         :open_token     => open_token,
