@@ -529,28 +529,27 @@ class Pry
   # @return [String] The prompt.
   def select_prompt
     object = current_binding.eval('self')
-
     open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
       @indent.stack.last
 
-    c = Pry::Config.from_hash({
-                       :object         => object,
-                       :nesting_level  => binding_stack.size - 1,
-                       :open_token     => open_token,
-                       :session_line   => Pry.history.session_line_count + 1,
-                       :history_line   => Pry.history.history_line_count + 1,
-                       :expr_number    => input_array.count,
-                       :_pry_          => self,
-                       :binding_stack  => binding_stack,
-                       :input_array    => input_array,
-                       :eval_string    => @eval_string,
-                       :cont           => !@eval_string.empty?})
+    c = Pry::Config.assign({
+        :object         => object,
+        :nesting_level  => binding_stack.size - 1,
+        :open_token     => open_token,
+        :session_line   => Pry.history.session_line_count + 1,
+        :history_line   => Pry.history.history_line_count + 1,
+        :expr_number    => input_array.count,
+        :_pry_          => self,
+        :binding_stack  => binding_stack,
+        :input_array    => input_array,
+        :eval_string    => @eval_string,
+        :cont           => !@eval_string.empty?
+      })
 
     Pry.critical_section do
       # If input buffer is empty then use normal prompt
       if eval_string.empty?
         generate_prompt(Array(prompt).first, c)
-
       # Otherwise use the wait prompt (indicating multi-line expression)
       else
         generate_prompt(Array(prompt).last, c)

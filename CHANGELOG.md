@@ -21,6 +21,17 @@ See pull request [#1694](https://github.com/pry/pry/pull/1694).
 
 See pull request [#1701](https://github.com/pry/pry/pull/1701).
 
+* Add new method Pry::Config.assign(), for creating a Config non-recursively.
+
+See pull request [#1723](https://github.com/pry/pry/pull/1723)
+
+#### Bug fixes
+
+* Fix a bug where 'cd Hash.new' reported self as an instance of Pry::Config
+  in the prompt.
+
+See pull request [#1723](https://github.com/pry/pry/pull/1723)
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
