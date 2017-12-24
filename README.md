@@ -6,8 +6,6 @@
 
 © John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2016<br>
 
-**Please** [DONATE](http://pledgie.com/campaigns/15899) to the Pry project - Pry was a **huge** amount of work and every donation received is encouraging and supports Pry's continued development!
-
 **Sponsors**
 
 [Launch School](https://launchschool.com)<br/>
