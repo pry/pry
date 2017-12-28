@@ -2,6 +2,9 @@
 
 #### Features
 
+* Add a new command, "clear-screen", that clears the content of the
+  screen Pry is running in regardless of platform (Windows or UNIX-like).
+
 * Add a new command, "gem-stat", inspired by the rubygem of a similar
   name (gem-stats) by [@dannytatom](https://github.com/dannytatom).
 
