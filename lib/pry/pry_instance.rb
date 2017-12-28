@@ -341,6 +341,18 @@ class Pry
   end
   private :handle_line
 
+  def h
+    @h ||= begin
+             this = self
+             Module.new do
+               include Pry::Color
+               extend Pry::Color
+               extend self
+               define_method(:_pry_) { this }
+             end
+           end
+  end
+
   # Potentially deprecated — Use `Pry::REPL.new(pry, :target => target).start`
   # (If nested sessions are going to exist, this method is fine, but a goal is
   # to come up with an alternative to nested sessions altogether.)
