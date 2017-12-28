@@ -81,6 +81,27 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @example
+  #   _pry_.h.paint "it black", :black
+  #
+  #
+  # @return [Module]
+  #   Returns a module with the same methods as the command scope.
+  #
+  #
+  def h
+    @h ||= begin
+             this = self
+             Module.new do
+               include Pry::Color
+               extend Pry::Color
+               extend self
+               define_method(:_pry_) { this }
+             end
+           end
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #
@@ -340,18 +361,6 @@ class Pry
     throw(:breakout) if current_binding.nil?
   end
   private :handle_line
-
-  def h
-    @h ||= begin
-             this = self
-             Module.new do
-               include Pry::Color
-               extend Pry::Color
-               extend self
-               define_method(:_pry_) { this }
-             end
-           end
-  end
 
   # Potentially deprecated — Use `Pry::REPL.new(pry, :target => target).start`
   # (If nested sessions are going to exist, this method is fine, but a goal is
