@@ -2,6 +2,10 @@
 
 #### Features
 
+* Add Pry::Color, and add "paint" function to command scope.
+
+See pull request [#1733](https://github.com/pry/pry/pull/1733).
+
 * Add a new command, "clear-screen", that clears the content of the
   screen Pry is running in regardless of platform (Windows or UNIX-like).
 

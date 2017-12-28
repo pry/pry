@@ -132,6 +132,7 @@ require 'tempfile'
 require 'pathname'
 
 require 'pry/version'
+require 'pry/color'
 require 'pry/repl'
 require 'pry/rbx_path'
 require 'pry/code'
