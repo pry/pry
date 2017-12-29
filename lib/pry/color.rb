@@ -55,20 +55,6 @@ module Pry::Color
     end
   end
 
-  #
-  # @example
-  #   Pry::Color["hello", :green]
-  #
-  # @param
-  #   (see #paint)
-  #
-  # @return
-  #   (see #paint)
-  #
-  def self.[] str, brush, pry=((defined?(_pry_) and _pry_) or Pry)
-    paint str, brush, pry
-  end
-
   # Remove any color codes from _text_.
   #
   # @param  [String, #to_s] text
