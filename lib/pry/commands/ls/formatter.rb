@@ -18,14 +18,14 @@ class Pry
       private
 
       def color(type, str)
-        Pry::Color.paint str, _pry_.config.ls["#{type}_color"]
+        Pry::Color.paint str, _pry_.config.ls["#{type}_color"], _pry_
       end
 
       # Add a new section to the output.
       # Outputs nothing if the section would be empty.
       def output_section(heading, body)
         return '' if body.compact.empty?
-        fancy_heading = Pry::Color.bold(color(:heading, heading))
+        fancy_heading = Pry::Color.bold color(:heading, heading), _pry_
         Pry::Helpers.tablify_or_one_line(fancy_heading, body)
       end
 
