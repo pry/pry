@@ -95,7 +95,6 @@ class Pry
              this = self
              Module.new do
                include Pry::Color
-               extend Pry::Color
                extend self
                define_method(:_pry_) { this }
              end
