@@ -88,10 +88,10 @@ module Pry::Color
   # @return [void]
   #
   def no_color pry=((defined?(_pry_) and _pry_) or Pry)
-    boolean = Pry.config.color
-    Pry.config.color = false
+    boolean = pry.config.color
+    pry.config.color = false
     yield
   ensure
-    Pry.config.color = boolean
+    pry.config.color = boolean
   end
 end
