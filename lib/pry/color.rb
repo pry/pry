@@ -11,7 +11,7 @@ module Pry::Color
     "cyan"    => 6,
     "white"   => 7
   }
-  BRUSH_METHODS = [*COLORS.keys, *["bold", "default", "bright_default", "strip_color"]]
+  BRUSH_METHODS = COLORS.keys + ["bold", "default", "bright_default", "strip_color"]
   UnknownBrushError = Class.new(RuntimeError)
 
   COLORS.each_pair do |color, value|
