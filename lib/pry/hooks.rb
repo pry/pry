@@ -32,7 +32,7 @@ class Pry
     #
     # @param [Pry::Hooks] other The `Pry::Hooks` instance to merge
     # @return [Pry:Hooks] The receiver.
-    # @see {#merge}
+    # @see #merge
     def merge!(other)
       @hooks.merge!(other.dup.hooks) do |key, array, other_array|
         temp_hash, output = {}, []
