@@ -8,7 +8,7 @@ module Pry::Testable::Variables
   #   Foo # => NameError
   #   Bar # => NameError
   #
-  # @param [Array<Symbol>] *names
+  # @param [Array<Symbol>] names
   #   An array of constant names that be defined by a block,
   #   and removed by this method afterwards.
   #
