@@ -1,6 +1,6 @@
 require 'bundler/setup'
-require 'pry/testable'
 Bundler.require :default, :test
+require 'pry/testable'
 require_relative 'spec_helpers/mock_pry'
 require_relative 'spec_helpers/repl_tester'
 
