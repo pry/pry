@@ -192,12 +192,12 @@ module Pry::Config::Behavior
 
   def method_missing(name, *args, &block)
     key = name.to_s
-    if key[-1] == ASSIGNMENT
-      short_key = key[0..-2]
+    if key.end_with?(ASSIGNMENT)
+      short_key = key.chomp(ASSIGNMENT)
       self[short_key] = args[0]
-    elsif key[-6..-1] == VALUE_SUFFIX
+    elsif key.end_with?(VALUE_SUFFIX)
       return self[key] if self[key]
-      short_key = key[0..-7]
+      short_key = key.chomp(VALUE_SUFFIX)
       value = @default.public_send(short_key, *args, &block)
       value.respond_to?(:call) ? value.call : self[key] = value
     elsif key?(key)
