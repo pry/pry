@@ -107,8 +107,8 @@ class Pry
       if File.exist?(path)
         File.foreach(path) { |line| yield(line) }
       end
-    rescue => error
-      warn "History file not loaded: #{error.message}"
+    rescue SystemCallError => error
+      warn "Unable to read history file: #{error.message}"
     end
 
     # The default pusher. Appends the given line to Readline::HISTORY.
@@ -136,8 +136,8 @@ class Pry
           file.sync = true
         end
       end
-    rescue Errno::EACCES
-      warn 'History not saved; unable to open your history file for writing.'
+    rescue SystemCallError => error
+      warn "Unable to write history file: #{error.message}"
       @history_file = false
     end
 
