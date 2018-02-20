@@ -354,8 +354,8 @@ class Pry
 
     # @return [String] A representation of the method's signature, including its
     #   name and parameters. Optional and "rest" parameters are marked with `*`
-    #   and block parameters with `&`. If the parameter names are unavailable,
-    #   they're given numbered names instead.
+    #   and block parameters with `&`. Keyword arguments are shown qith `={}`
+    #   If the parameter names are unavailable, they're given numbered names instead.
     #   Paraphrased from `awesome_print` gem.
     def signature
       if respond_to?(:parameters)
@@ -366,6 +366,7 @@ class Pry
                  when :opt   then "#{nam}=?"
                  when :rest  then "*#{nam}"
                  when :block then "&#{nam}"
+                 when :key   then "#{nam}={}"
                  else '?'
                  end
         end
