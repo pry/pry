@@ -6,7 +6,6 @@ rvm:
   - 2.3
   - 2.4.3
   - 2.5
-  - rbx-3.86
   - jruby-9.1.15.0
   - ruby-head
   - jruby-head
