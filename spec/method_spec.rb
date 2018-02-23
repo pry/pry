@@ -120,7 +120,7 @@ describe Pry::Method do
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
     unless Pry::Helpers::BaseHelpers.rbx?
-       it 'should find the super method correctly' do
+      it 'should find the super method correctly' do
         a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
         b = Class.new(a){ def gag33; super; end }
 
@@ -437,9 +437,9 @@ describe Pry::Method do
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
         expect(Pry::Method.resolution_order(LS::Top)).to eq(
-          [eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
-           *Pry::Method.instance_resolution_order(Class)]
-        )
+                                                           [eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
+                                                            *Pry::Method.instance_resolution_order(Class)]
+                                                         )
       end
     end
   end
@@ -536,19 +536,22 @@ describe Pry::Method do
       expect(signature).to eq("rest(*splat)")
     end
 
-    it 'should print the name of keyword args, with :? after the arg name' do
-      signature = Pry::Method.new(@class.method(:keyword)).signature
-      expect(signature).to eq("keyword(keyword_arg:?)")
-    end
-
-    it 'should print the name of keyword args, with : after the arg name' do
-      signature = Pry::Method.new(@class.method(:required_keyword)).signature
-      expect(signature).to eq("required_keyword(required_key:)")
-    end
-
     it 'should print the name of optional args, with =? after the arg name' do
       signature = Pry::Method.new(@class.method(:optional)).signature
       expect(signature).to eq("optional(option=?)")
+    end
+
+    # keyword args are only on >= Ruby 2.1
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.1")
+      it 'should print the name of keyword args, with :? after the arg name' do
+        signature = Pry::Method.new(@class.method(:keyword)).signature
+        expect(signature).to eq("keyword(keyword_arg:?)")
+      end
+
+      it 'should print the name of keyword args, with : after the arg name' do
+        signature = Pry::Method.new(@class.method(:required_keyword)).signature
+        expect(signature).to eq("required_keyword(required_key:)")
+      end
     end
   end
 end
