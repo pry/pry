@@ -67,7 +67,7 @@ See pull request [#1673](https://github.com/pry/pry/pull/1673).
   that users of the [Hanami](http://hanamirb.org/) web framework experienced and
   reported since 2015.
 
-See pull request [#1639](https://github.com/pry/pry/pull/1689).
+See pull request [#1689](https://github.com/pry/pry/pull/1689).
 
 * Fix a bug where Method objects were not returned for setters inherited
   from a default (Pry::Config::Default). Eg, this is no longer an error:
