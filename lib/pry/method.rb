@@ -354,18 +354,20 @@ class Pry
 
     # @return [String] A representation of the method's signature, including its
     #   name and parameters. Optional and "rest" parameters are marked with `*`
-    #   and block parameters with `&`. If the parameter names are unavailable,
-    #   they're given numbered names instead.
+    #   and block parameters with `&`. Keyword arguments are shown with `:`
+    #   If the parameter names are unavailable, they're given numbered names instead.
     #   Paraphrased from `awesome_print` gem.
     def signature
       if respond_to?(:parameters)
-        args = parameters.inject([]) do |arr, (typ, nam)|
-          nam ||= (typ == :block ? 'block' : "arg#{arr.size + 1}")
-          arr << case typ
-                 when :req   then nam.to_s
-                 when :opt   then "#{nam}=?"
-                 when :rest  then "*#{nam}"
-                 when :block then "&#{nam}"
+        args = parameters.inject([]) do |args_array, (arg_type, name)|
+          name ||= (arg_type == :block ? 'block' : "arg#{args_array.size + 1}")
+          args_array << case arg_type
+                 when :req    then name.to_s
+                 when :opt    then "#{name}=?"
+                 when :rest   then "*#{name}"
+                 when :block  then "&#{name}"
+                 when :key    then "#{name}:?"
+                 when :keyreq then "#{name}:"
                  else '?'
                  end
         end

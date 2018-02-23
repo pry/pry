@@ -508,4 +508,47 @@ describe Pry::Method do
       expect(aliases).to eq Set.new(["include?", "member?", "has_key?"])
     end
   end
+
+  describe '.signature' do
+    before do
+      @class = Class.new {
+        def self.standard_arg(arg) end
+        def self.block_arg(&block) end
+        def self.rest(*splat) end
+        def self.keyword(keyword_arg: "") end
+        def self.required_keyword(required_key:) end
+        def self.optional(option=nil) end
+      }
+    end
+
+    it 'should print the name of regular args' do
+      signature = Pry::Method.new(@class.method(:standard_arg)).signature
+      expect(signature).to eq("standard_arg(arg)")
+    end
+
+    it 'should print the name of block args, with an & label' do
+      signature = Pry::Method.new(@class.method(:block_arg)).signature
+      expect(signature).to eq("block_arg(&block)")
+    end
+
+    it 'should print the name of additional args, with an * label' do
+      signature = Pry::Method.new(@class.method(:rest)).signature
+      expect(signature).to eq("rest(*splat)")
+    end
+
+    it 'should print the name of keyword args, with :? after the arg name' do
+      signature = Pry::Method.new(@class.method(:keyword)).signature
+      expect(signature).to eq("keyword(keyword_arg:?)")
+    end
+
+    it 'should print the name of keyword args, with : after the arg name' do
+      signature = Pry::Method.new(@class.method(:required_keyword)).signature
+      expect(signature).to eq("required_keyword(required_key:)")
+    end
+
+    it 'should print the name of optional args, with =? after the arg name' do
+      signature = Pry::Method.new(@class.method(:optional)).signature
+      expect(signature).to eq("optional(option=?)")
+    end
+  end
 end
