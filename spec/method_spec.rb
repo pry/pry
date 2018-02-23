@@ -515,8 +515,6 @@ describe Pry::Method do
         def self.standard_arg(arg) end
         def self.block_arg(&block) end
         def self.rest(*splat) end
-        def self.keyword(keyword_arg: "") end
-        def self.required_keyword(required_key:) end
         def self.optional(option=nil) end
       }
     end
@@ -544,11 +542,13 @@ describe Pry::Method do
     # keyword args are only on >= Ruby 2.1
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.1")
       it 'should print the name of keyword args, with :? after the arg name' do
+        def @class.keyword(keyword_arg: "") end
         signature = Pry::Method.new(@class.method(:keyword)).signature
         expect(signature).to eq("keyword(keyword_arg:?)")
       end
 
       it 'should print the name of keyword args, with : after the arg name' do
+        def @class.required_keyword(required_key:) end
         signature = Pry::Method.new(@class.method(:required_keyword)).signature
         expect(signature).to eq("required_keyword(required_key:)")
       end
