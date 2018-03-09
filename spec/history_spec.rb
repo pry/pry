@@ -12,6 +12,9 @@ describe Pry do
     end
 
     Pry.load_history
+
+    # @todo make this a context, instead
+    Pry.config.history.should_add_duplicates = false
   end
 
   after do

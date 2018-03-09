@@ -44,7 +44,7 @@ class Pry
     # @param [String] line
     # @return [String] The same line that was passed in
     def push(line)
-      unless line.empty? || (@history.last && line == @history.last)
+      unless line.empty?
         @pusher.call(line)
         @history << line
         if !should_ignore?(line) && Pry.config.history.should_save
@@ -54,6 +54,10 @@ class Pry
       line
     end
     alias << push
+
+    def should_add_duplicates?
+      Pry.config.history.should_add_duplicates || false
+    end
 
     # Clear this session's history. This won't affect the contents of the
     # history file.
@@ -97,6 +101,7 @@ class Pry
       hist_ignore = Pry.config.history.histignore
       return false if hist_ignore.nil? || hist_ignore.empty?
 
+      return true if should_add_duplicates? || ( @history.last && line == @history.last )
       hist_ignore.any? { |p| line.to_s.match(p) }
     end
 
