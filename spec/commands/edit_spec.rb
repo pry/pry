@@ -393,7 +393,7 @@ describe "edit" do
     end
 
     it "should not work with a filename" do
-      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(Pry::CommandError, /Only one of --ex, --temp, --in, --method and FILE/)
+      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(Pry::CommandError, /Only one of --ex, --temp, --in, --method, --history and FILE/)
     end
 
     it "should not work with nonsense" do
