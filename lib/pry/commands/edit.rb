@@ -35,16 +35,26 @@ class Pry
       opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
       opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
       opt.on :m, :method,  "Explicitly edit the _current_ method (when inside a method context)."
+      opt.on :s, :history,    "Edit a given history entry",
+                           :argument => true, :as => Integer
     end
 
     def process
       if bad_option_combination?
-        raise CommandError, "Only one of --ex, --temp, --in, --method and FILE may be specified."
+        raise CommandError, "Only one of --ex, --temp, --in, --method, --history and FILE may be specified."
       end
 
       if repl_edit?
-        # code defined in pry, eval'd within pry.
-        repl_edit
+        if opts.present?(:history)
+          if opts[:history].abs > Pry.history.to_a.size-1 || opts[:history] >= 0
+            raise CommandError, "You must provide a valid negative index."
+          else
+            repl_edit Pry.history.to_a[opts[:history]-1]
+          end
+        else
+          # code defined in pry, eval'd within pry.
+          repl_edit initial_temp_file_content
+        end
       elsif runtime_patch?
         # patch code without persisting changes, implies future changes are patches
         apply_runtime_patch
@@ -55,16 +65,16 @@ class Pry
     end
 
     def repl_edit?
-      !opts.present?(:ex) && !opts.present?(:current) && !opts.present?(:method) &&
-        filename_argument.empty?
+      !opts.present?(:ex) && !opts.present?(:current) &&
+        !opts.present?(:method) && filename_argument.empty?
     end
 
-    def repl_edit
-      content = Pry::Editor.new(_pry_).edit_tempfile_with_content(initial_temp_file_content,
-                                                       initial_temp_file_content.lines.count)
+    def repl_edit to_edit
+      content = Pry::Editor.new(_pry_).edit_tempfile_with_content(to_edit, to_edit.lines.count)
       silence_warnings do
         eval_string.replace content
       end
+      Pry.history.push content
     end
 
     def file_based_exception?
@@ -150,7 +160,8 @@ class Pry
 
     def bad_option_combination?
       [opts.present?(:ex), opts.present?(:temp),
-       opts.present?(:in), opts.present?(:method), !filename_argument.empty?].count(true) > 1
+       opts.present?(:in), opts.present?(:method),
+       opts.present?(:history), !filename_argument.empty?].count(true) > 1
     end
 
     def input_expression
