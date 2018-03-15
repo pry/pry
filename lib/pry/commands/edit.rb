@@ -35,7 +35,6 @@ class Pry
       opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
       opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
       opt.on :m, :method,  "Explicitly edit the _current_ method (when inside a method context)."
-
       opt.on :s, :history,    "Edit a given history entry",
                            :argument => true, :as => Integer
     end
@@ -50,13 +49,11 @@ class Pry
           if opts[:history].abs > Pry.history.to_a.size-1 || opts[:history] >= 0
             raise CommandError, "You must provide a valid negative index."
           else
-            tmp = Pry.history.to_a[opts[:history]-1]
-            puts "Replaying: #{tmp}"
-            repl_edit_ tmp
+            repl_edit Pry.history.to_a[opts[:history]-1]
           end
         else
           # code defined in pry, eval'd within pry.
-          repl_edit
+          repl_edit initial_temp_file_content
         end
       elsif runtime_patch?
         # patch code without persisting changes, implies future changes are patches
@@ -72,17 +69,12 @@ class Pry
         !opts.present?(:method) && filename_argument.empty?
     end
 
-    def repl_edit
-      repl_edit_ initial_temp_file_content
-    end
-
-    def repl_edit_ to_edit
+    def repl_edit to_edit
       content = Pry::Editor.new(_pry_).edit_tempfile_with_content(to_edit, to_edit.lines.count)
       silence_warnings do
         eval_string.replace content
       end
-
-      Pry.history.push content.chomp
+      Pry.history.push content
     end
 
     def file_based_exception?
