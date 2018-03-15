@@ -47,7 +47,7 @@ class Pry
 
       if repl_edit?
         if opts.present?(:history)
-          if opts[:history].abs > Pry.history.to_a.size || opts[:history] >= 0
+          if opts[:history].abs > Pry.history.to_a.size-1 || opts[:history] >= 0
             raise CommandError, "You must provide a valid negative index."
           else
             tmp = Pry.history.to_a[opts[:history]-1]
