@@ -1,10 +1,12 @@
 class Pry
   class Code
 
-    # Represents a line of code. A line of code is a tuple, which consists of a
-    # line and a line number. A `LOC` object's state (namely, the line
-    # parameter) can be changed via instance methods. `Pry::Code` heavily uses
-    # this class.
+    # Represents a line of code (which may, in fact, contain multiple lines if the
+    # entirety was eval'd as a single unit following the `edit` command).
+    #
+    # A line of code is a tuple, which consists of a line and a line number. A
+    # `LOC` object's state (namely, the line parameter) can be changed via
+    # instance methods.  `Pry::Code` heavily uses this class.
     #
     # @api private
     # @example
@@ -62,7 +64,8 @@ class Pry
       def add_line_number(max_width = 0, color = false)
         padded = lineno.to_s.rjust(max_width)
         colorized_lineno = color ? Pry::Helpers::BaseHelpers.colorize_code(padded) : padded
-        tuple[0] = "#{ colorized_lineno }: #{ line }"
+        properly_padded_line = handle_multiline_entries_from_edit_command(line, max_width)
+        tuple[0] = "#{ colorized_lineno }: #{ properly_padded_line }"
       end
 
       # Prepends a marker "=>" or an empty marker to the +line+.
@@ -85,6 +88,12 @@ class Pry
       # @return [void]
       def indent(distance)
         tuple[0] = "#{ ' ' * distance }#{ line }"
+      end
+
+      def handle_multiline_entries_from_edit_command(line, max_width)
+        line.split("\n").map.with_index do |inner_line, i|
+          i.zero? ? inner_line : "#{' '* (max_width + 2)}#{inner_line}"
+        end.join("\n")
       end
     end
 
