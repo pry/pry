@@ -65,6 +65,7 @@ class Pry
       silence_warnings do
         eval_string.replace content
       end
+      Pry.history.push(content)
     end
 
     def file_based_exception?
