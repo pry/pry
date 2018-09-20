@@ -373,8 +373,8 @@ describe "edit" do
     it "should write the evaluated command to history" do
       quote = 'history repeats itself, first as tradegy...'
       Pry.config.editor = lambda {|file, line|
-        File.open(file, 'w'){
-          |f| f << quote
+        File.open(file, 'w') { |f| 
+          f << quote
         }
         nil
       }
