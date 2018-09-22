@@ -139,7 +139,7 @@ class Pry::Pager
         @system_pager = begin
           pager_executable = default_pager.split(' ').first
           if Pry::Helpers::BaseHelpers.windows? || Pry::Helpers::BaseHelpers.windows_ansi?
-            `where #{pager_executable}`
+            `where /Q #{pager_executable}`
           else
             `which #{pager_executable}`
           end
