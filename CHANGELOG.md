@@ -32,6 +32,10 @@ See pull request [#1723](https://github.com/pry/pry/pull/1723)
 
 See pull request [#1723](https://github.com/pry/pry/pull/1723)
 
+* Silenced the `Could not find files for the given pattern(s)` error message
+  coming from `where` on Windows, when `less` or another pager is not installed
+  ([#1767](https://github.com/pry/pry/pull/1767))
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
