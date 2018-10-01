@@ -167,6 +167,7 @@ class Pry::InputCompleter
           end
         else
           # func1.func2
+          require 'set'
           candidates = Set.new
           to_ignore = ignored_modules
           ObjectSpace.each_object(Module){|m|

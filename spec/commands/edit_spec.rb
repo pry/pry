@@ -369,6 +369,18 @@ describe "edit" do
         FileUtils.rm "spec/fixtures/foo.rb"
       end
     end
+
+    it "should write the evaluated command to history" do
+      quote = 'history repeats itself, first as tradegy...'
+      Pry.config.editor = lambda {|file, line|
+        File.open(file, 'w') { |f| 
+          f << quote
+        }
+        nil
+      }
+      @t.process_command 'edit'
+      expect(Pry.history.to_a.last).to eq quote
+    end
   end
 
   describe "with --in" do

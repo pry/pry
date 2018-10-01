@@ -36,6 +36,14 @@ See pull request [#1731](https://github.com/pry/pry/pull/1731)
 
 See pull request [#1723](https://github.com/pry/pry/pull/1723)
 
+* Silenced the `Could not find files for the given pattern(s)` error message
+  coming from `where` on Windows, when `less` or another pager is not installed
+  ([#1767](https://github.com/pry/pry/pull/1767))
+* Fixed possible double loading of Pry plugins' `cli.rb` on Ruby (>= 2.4) due to
+  [the `realpath` changes while invoking
+  `require`](https://bugs.ruby-lang.org/issues/10222)
+  ([#1762](https://github.com/pry/pry/pull/1762))
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
@@ -71,7 +79,7 @@ See pull request [#1673](https://github.com/pry/pry/pull/1673).
   that users of the [Hanami](http://hanamirb.org/) web framework experienced and
   reported since 2015.
 
-See pull request [#1639](https://github.com/pry/pry/pull/1689).
+See pull request [#1689](https://github.com/pry/pry/pull/1689).
 
 * Fix a bug where Method objects were not returned for setters inherited
   from a default (Pry::Config::Default). Eg, this is no longer an error:

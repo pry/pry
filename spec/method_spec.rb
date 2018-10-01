@@ -120,7 +120,7 @@ describe Pry::Method do
 
     # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
     unless Pry::Helpers::BaseHelpers.rbx?
-       it 'should find the super method correctly' do
+      it 'should find the super method correctly' do
         a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
         b = Class.new(a){ def gag33; super; end }
 
@@ -437,9 +437,9 @@ describe Pry::Method do
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
         expect(Pry::Method.resolution_order(LS::Top)).to eq(
-          [eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
-           *Pry::Method.instance_resolution_order(Class)]
-        )
+                                                           [eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
+                                                            *Pry::Method.instance_resolution_order(Class)]
+                                                         )
       end
     end
   end
@@ -506,6 +506,52 @@ describe Pry::Method do
       aliases = Set.new(meth.aliases)
 
       expect(aliases).to eq Set.new(["include?", "member?", "has_key?"])
+    end
+  end
+
+  describe '.signature' do
+    before do
+      @class = Class.new {
+        def self.standard_arg(arg) end
+        def self.block_arg(&block) end
+        def self.rest(*splat) end
+        def self.optional(option=nil) end
+      }
+    end
+
+    it 'should print the name of regular args' do
+      signature = Pry::Method.new(@class.method(:standard_arg)).signature
+      expect(signature).to eq("standard_arg(arg)")
+    end
+
+    it 'should print the name of block args, with an & label' do
+      signature = Pry::Method.new(@class.method(:block_arg)).signature
+      expect(signature).to eq("block_arg(&block)")
+    end
+
+    it 'should print the name of additional args, with an * label' do
+      signature = Pry::Method.new(@class.method(:rest)).signature
+      expect(signature).to eq("rest(*splat)")
+    end
+
+    it 'should print the name of optional args, with =? after the arg name' do
+      signature = Pry::Method.new(@class.method(:optional)).signature
+      expect(signature).to eq("optional(option=?)")
+    end
+
+    # keyword args are only on >= Ruby 2.1
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.1")
+      it 'should print the name of keyword args, with :? after the arg name' do
+        eval %{def @class.keyword(keyword_arg: "") end}
+        signature = Pry::Method.new(@class.method(:keyword)).signature
+        expect(signature).to eq("keyword(keyword_arg:?)")
+      end
+
+      it 'should print the name of keyword args, with : after the arg name' do
+        eval %{def @class.required_keyword(required_key:) end}
+        signature = Pry::Method.new(@class.method(:required_keyword)).signature
+        expect(signature).to eq("required_keyword(required_key:)")
+      end
     end
   end
 end
