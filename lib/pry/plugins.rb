@@ -35,6 +35,7 @@ class Pry
       # Load the Command line options defined by this plugin (if they exist)
       def load_cli_options
         cli_options_file = File.join(spec.full_gem_path, "lib/#{spec.name}/cli.rb")
+        cli_options_file = File.realpath(cli_options_file) if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.4.4")
         require cli_options_file if File.exist?(cli_options_file)
       end
       # Activate the plugin (require the gem - enables/loads the
