@@ -27,6 +27,10 @@ See pull request [#1723](https://github.com/pry/pry/pull/1723)
 
 #### Bug fixes
 
+* Add 'Data' as a deprecated constant for Ruby 2.5 (ls command).
+
+See pull request [#1731](https://github.com/pry/pry/pull/1731)
+
 * Fix a bug where 'cd Hash.new' reported self as an instance of Pry::Config
   in the prompt.
 

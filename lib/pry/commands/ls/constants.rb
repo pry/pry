@@ -3,7 +3,7 @@ require 'pry/commands/ls/interrogatable'
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
-      DEPRECATED_CONSTANTS = [:Fixnum, :Bignum, :TimeoutError, :NIL, :FALSE, :TRUE]
+      DEPRECATED_CONSTANTS = [:Data, :Fixnum, :Bignum, :TimeoutError, :NIL, :FALSE, :TRUE]
       DEPRECATED_CONSTANTS << :JavaPackageModuleTemplate if Pry::Helpers::BaseHelpers.jruby?
       include Pry::Command::Ls::Interrogatable
 
