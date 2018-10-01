@@ -153,6 +153,25 @@ describe "show-source" do
     expect { pry_eval(binding, "show-source --super @o.foo") }.to raise_error(Pry::CommandError, /No superclass found/)
   end
 
+  describe "when source code cannot be located" do
+    before do
+      class FooBar
+        def bar
+          :bar
+        end
+      end
+    end
+
+    after do
+      Object.remove_const(:FooBar)
+    end
+
+    it "should not raise" do
+      allow_any_instance_of(Pry::Method).to receive(:source).and_return(nil)
+      expect { pry_eval(binding, "show-source FooBar#bar") }.not_to raise_error
+    end
+  end
+
   it "should output the source of a method defined inside Pry" do
     out = pry_eval("def dyn_method\n:test\nend", 'show-source dyn_method')
     expect(out).to match(/def dyn_method/)
