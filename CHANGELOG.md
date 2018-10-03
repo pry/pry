@@ -44,6 +44,8 @@ See pull request [#1723](https://github.com/pry/pry/pull/1723)
   `require`](https://bugs.ruby-lang.org/issues/10222)
   ([#1762](https://github.com/pry/pry/pull/1762),
   [#1774](https://github.com/pry/pry/pull/1762))
+* Fixed `NoMethodError` on code objects that have a comment but no source when
+  invoking `show-source` ([#1779](https://github.com/pry/pry/pull/1779))
 
 #### Pry developers
 

@@ -100,11 +100,17 @@ class Pry
     # object types: methods, modules, commands, procs...
     def header(code_object)
       file_name, line_num = file_and_line_for(code_object)
+      content = content_for(code_object)
+
       h = "\n#{bold('From:')} #{file_name} "
       h << code_object_header(code_object, line_num)
-      h << "\n#{bold('Number of lines:')} " <<
-        "#{content_for(code_object).lines.count}\n\n"
+      h << "\n#{bold('Number of lines:')} " << "#{content.lines.count}\n\n"
       h << bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
+
+      if content.lines.none?
+        h << bold('** Warning:') << " Cannot find code for '#{code_object.name}' (source_location is nil)"
+      end
+
       h
     end
 
