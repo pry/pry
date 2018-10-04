@@ -184,6 +184,32 @@ describe "show-source" do
     Pry.config.commands.delete "hubba-hubba"
   end
 
+  context "when there's no source code but the comment exists" do
+    before do
+      class Foo
+        # Bingo.
+        def bar; end
+      end
+
+      allow_any_instance_of(Pry::Method).to receive(:source).and_return(nil)
+    end
+
+    after do
+      Object.remove_const(:Foo)
+    end
+
+    it "outputs zero line numbers" do
+      out = pry_eval('show-source Foo#bar')
+      expect(out).to match(/
+        Owner:\sFoo
+        .+
+        Number\sof\slines:\s0
+        .+
+        \*\*\sWarning:\sCannot\sfind\scode\sfor\s'bar'\s\(source_location\sis\snil\)
+      /mx)
+    end
+  end
+
   describe "finding super methods with help of `--super` switch" do
     before do
       class Foo
