@@ -127,7 +127,6 @@ require 'stringio'
 require 'strscan'
 require 'coderay'
 require 'pry/slop'
-require 'rbconfig'
 require 'tempfile'
 require 'pathname'
 

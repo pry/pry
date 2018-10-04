@@ -1,4 +1,5 @@
 module Pry::Platform
+  require 'rbconfig'
   extend self
 
   #
@@ -89,6 +90,10 @@ module Pry::Platform
   #
   def mri_2?
     !!(mri? and RUBY_VERSION =~ /\A2/)
+  end
+
+  def mri_23?
+    !!(mri? and RUBY_VERSION =~ /\A2\.3/)
   end
 
   #
