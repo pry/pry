@@ -65,8 +65,6 @@ describe "cat" do
     end
   end
 
-  # this doesnt work so well on rbx due to differences in backtrace
-  # so we currently skip rbx until we figure out a workaround
   describe "with --ex" do
     before do
       @o = Object.new
@@ -77,26 +75,24 @@ describe "cat" do
       end
     end
 
-    if !Pry::Helpers::BaseHelpers.rbx?
-      it 'cat --ex should display repl code that generated exception' do
-        @t.eval unindent(<<-EOS)
-          begin
-            this raises error
-          rescue => e
-            _pry_.last_exception = e
-          end
-        EOS
-        expect(@t.eval('cat --ex')).to match(/\d+:(\s*) this raises error/)
-      end
-
-      it 'cat --ex should correctly display code that generated exception' do
+    it 'cat --ex should display repl code that generated exception' do
+      @t.eval unindent(<<-EOS)
         begin
-          @o.broken_method
+          this raises error
         rescue => e
-          @t.last_exception = e
+          _pry_.last_exception = e
         end
-        expect(@t.eval('cat --ex')).to match(/this method is broken/)
+      EOS
+      expect(@t.eval('cat --ex')).to match(/\d+:(\s*) this raises error/)
+    end
+
+    it 'cat --ex should correctly display code that generated exception' do
+      begin
+        @o.broken_method
+      rescue => e
+        @t.last_exception = e
       end
+      expect(@t.eval('cat --ex')).to match(/this method is broken/)
     end
   end
 

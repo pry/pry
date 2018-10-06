@@ -118,19 +118,16 @@ describe Pry::Method do
       expect(m.name).to eq "bar"
     end
 
-    # Our source_location trick doesn't work, due to https://github.com/rubinius/rubinius/issues/953
-    unless Pry::Helpers::BaseHelpers.rbx?
-      it 'should find the super method correctly' do
-        a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
-        b = Class.new(a){ def gag33; super; end }
+    it 'should find the super method correctly' do
+      a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
+      b = Class.new(a){ def gag33; super; end }
 
-        g = b.new.gag33
-        m = Pry::Method.from_binding(g)
+      g = b.new.gag33
+      m = Pry::Method.from_binding(g)
 
-        expect(m.owner).to eq a
-        expect(m.source_line).to eq a.line
-        expect(m.name).to eq "gag33"
-      end
+      expect(m.owner).to eq a
+      expect(m.source_line).to eq a.line
+      expect(m.name).to eq "gag33"
     end
 
     it 'should find the right method if a super method exists' do
@@ -144,16 +141,13 @@ describe Pry::Method do
       expect(m.name).to eq "gag"
     end
 
-    # Temporarily disabled to work around rubinius/rubinius#2871.
-    unless Pry::Helpers::BaseHelpers.rbx?
-      it "should find the right method from a BasicObject" do
-        a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
+    it "should find the right method from a BasicObject" do
+      a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
 
-        m = Pry::Method.from_binding(a.new.gag)
-        expect(m.owner).to eq a
-        expect(m.source_file).to eq __FILE__
-        expect(m.source_line).to eq a.line
-      end
+      m = Pry::Method.from_binding(a.new.gag)
+      expect(m.owner).to eq a
+      expect(m.source_file).to eq __FILE__
+      expect(m.source_line).to eq a.line
     end
 
     it 'should find the right method even if it was renamed and replaced' do

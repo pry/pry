@@ -100,8 +100,7 @@ class Pry
       # __FILE__ and __LINE__ the binding is at, we can hope to disambiguate these cases.
       #
       # This obviously won't work if the source is unavaiable for some reason, or if both
-      # methods have the same __FILE__ and __LINE__, or if we're in rbx where b.eval('__LINE__')
-      # is broken.
+      # methods have the same __FILE__ and __LINE__.
       #
       # @return [Pry::Method, nil] The Pry::Method representing the
       #   superclass method.
@@ -122,9 +121,9 @@ class Pry
           end
         end
 
-        # Uhoh... none of the methods in the chain had the right __FILE__ and __LINE__
-        # This may be caused by rbx https://github.com/rubinius/rubinius/issues/953,
-        # or other unknown circumstances (TODO: we should warn the user when this happens)
+        # Uhoh... none of the methods in the chain had the right `__FILE__` and
+        # `__LINE__` due to unknown circumstances.
+        # TODO: we should warn the user when this happens.
         nil
       end
 

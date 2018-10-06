@@ -18,7 +18,7 @@ describe Pry::Command::ShellCommand do
       end
 
       it "saves the current working directory" do
-        expect(Dir).to receive(:pwd).at_least(:once).and_return("initial_path") # called once in MRI, 2x in RBX
+        expect(Dir).to receive(:pwd).and_return("initial_path")
 
         @t.eval ".cd new_path"
         expect(@t.command_state.old_pwd).to eq("initial_path")
@@ -47,7 +47,7 @@ describe Pry::Command::ShellCommand do
 
         describe "given a prior directory" do
           it "sends the user's last pry working directory to File.expand_path" do
-            expect(Dir).to receive(:pwd).at_least(:twice).and_return("initial_path") # called 2x in MRI, 3x in RBX
+            expect(Dir).to receive(:pwd).twice.and_return("initial_path")
 
             expect(Dir).to receive(:chdir).with(File.expand_path("new_path"))
             @t.eval ".cd new_path"

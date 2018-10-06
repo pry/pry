@@ -116,13 +116,9 @@ describe "ls" do
       expect { pry_eval("ls -M String.new") }.to raise_error(Pry::CommandError, /-M only makes sense with a Module or a Class/)
     end
 
-
-    # see: https://travis-ci.org/pry/pry/jobs/5071918
-    unless Pry::Helpers::BaseHelpers.rbx?
-      it "should handle classes that (pathologically) define .ancestors" do
-        output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
-        expect(output).to match(/hihi/)
-      end
+    it "should handle classes that (pathologically) define .ancestors" do
+      output = pry_eval("ls Class.new{ def self.ancestors; end; def hihi; end }")
+      expect(output).to match(/hihi/)
     end
   end
 
@@ -211,12 +207,9 @@ describe "ls" do
 
   describe "when no arguments given" do
     describe "when at the top-level" do
-      # rubinius has a bug that means local_variables of "main" aren't reported inside eval()
-      unless Pry::Helpers::BaseHelpers.rbx?
-        it "should show local variables" do
-          expect(pry_eval("ls")).to match(/_pry_/)
-          expect(pry_eval("arbitrar = 1", "ls")).to match(/arbitrar/)
-        end
+      it "should show local variables" do
+        expect(pry_eval("ls")).to match(/_pry_/)
+        expect(pry_eval("arbitrar = 1", "ls")).to match(/arbitrar/)
       end
     end
 

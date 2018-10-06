@@ -28,10 +28,10 @@ describe Pry do
     ["puts )("],
     ["1 1"],
     ["puts :"]
-  ] + (Pry::Helpers::BaseHelpers.rbx? ? [] : [
+  ] + [
     ["def", "method(1"], # in this case the syntax error is "expecting ')'".
     ["o = Object.new.tap{ def o.render;","'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
-  ])).compact.each do |foo|
+  ]).compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start

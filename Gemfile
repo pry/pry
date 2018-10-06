@@ -22,9 +22,3 @@ end
 group :development, :test do
   gem 'simplecov', '~> 0.8.0'
 end
-
-platform :rbx do
-  gem 'rubysl-singleton'
-  gem 'rubysl-prettyprint'
-  gem 'rb-readline'
-end

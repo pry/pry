@@ -195,18 +195,15 @@ describe "whereami" do
       expect(out).to match(/blimey/)
     end
 
-    # https://github.com/rubinius/rubinius/pull/2247
-    unless Pry::Helpers::BaseHelpers.rbx?
-      it 'should show class when -c option used, and binding is outside a method' do
-        class Cor
-          def blimey;end
+    it 'should show class when -c option used, and binding is outside a method' do
+      class Cor
+        def blimey;end
 
-          out = pry_eval(binding, 'whereami -c')
-          out.should =~ /class Cor/
-          out.should =~ /blimey/
-        end
-        Object.remove_const(:Cor)
+        out = pry_eval(binding, 'whereami -c')
+        out.should =~ /class Cor/
+        out.should =~ /blimey/
       end
+      Object.remove_const(:Cor)
     end
   end
 

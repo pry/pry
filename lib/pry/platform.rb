@@ -61,14 +61,6 @@ module Pry::Platform
 
   #
   # @return [Boolean]
-  #   Returns true when Pry is being run from Rubinius.
-  #
-  def rbx?
-    RbConfig::CONFIG['ruby_install_name'] == 'rbx'
-  end
-
-  #
-  # @return [Boolean]
   #   Returns true when Pry is being run from MRI (CRuby).
   #
   def mri?
@@ -96,6 +88,6 @@ module Pry::Platform
   #    Returns an Array of Ruby engines that Pry is known to run on.
   #
   def known_engines
-    [:jruby, :rbx, :mri]
+    [:jruby, :mri]
   end
 end

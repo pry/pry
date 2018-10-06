@@ -369,13 +369,10 @@ describe "test Pry defaults" do
       expect(Pry.toplevel_binding.eval('self')).to equal(TOPLEVEL_BINDING.eval('self'))
     end
 
-    # https://github.com/rubinius/rubinius/issues/1779
-    unless Pry::Helpers::BaseHelpers.rbx?
-      it 'should define private methods on Object' do
-        TOPLEVEL_BINDING.eval 'def gooey_fooey; end'
-        expect(method(:gooey_fooey).owner).to eq Object
-        expect(Pry::Method(method(:gooey_fooey)).visibility).to eq :private
-      end
+    it 'should define private methods on Object' do
+      TOPLEVEL_BINDING.eval 'def gooey_fooey; end'
+      expect(method(:gooey_fooey).owner).to eq Object
+      expect(Pry::Method(method(:gooey_fooey)).visibility).to eq :private
     end
   end
 

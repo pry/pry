@@ -133,7 +133,6 @@ require 'pathname'
 
 require 'pry/version'
 require 'pry/repl'
-require 'pry/rbx_path'
 require 'pry/code'
 require 'pry/history_array'
 require 'pry/helpers'

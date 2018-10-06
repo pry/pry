@@ -20,7 +20,6 @@ end.new(nil)
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]
-  require 'set_trace' if Pry::Helpers::BaseHelpers.rbx?
   set_trace_func proc { |event, file, line, id, binding, classname|
      STDERR.printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
   }
