@@ -109,10 +109,6 @@ class Pry
     def singleton_class?
       if Pry::Method.safe_send(wrapped, :respond_to?, :singleton_class?)
         Pry::Method.safe_send(wrapped, :singleton_class?)
-      elsif defined?(Rubinius)
-        # https://github.com/rubinius/rubinius/commit/2e71722dba53d1a92c54d5e3968d64d1042486fe singleton_class? added 30 Jul 2014
-        # https://github.com/rubinius/rubinius/commit/4310f6b2ef3c8fc88135affe697db4e29e4621c4 has been around since 2011
-        !!Rubinius::Type.singleton_class_object(wrapped)
       else
         wrapped != Pry::Method.safe_send(wrapped, :ancestors).first
       end
@@ -323,11 +319,11 @@ class Pry
 
     # We only want methods that have a non-nil `source_location`. We also
     # skip some spooky internal methods.
-    # (i.e we skip `__class_init__` because it's an odd rbx specific thing that causes tests to fail.)
+    #
     # @return [Array<Pry::Method>]
     def all_relevant_methods_for(mod)
       methods = all_methods_for(mod).select(&:source_location).
-        reject{ |x| x.name == '__class_init__' || method_defined_by_forwardable_module?(x) }
+        reject { |x| method_defined_by_forwardable_module?(x) }
 
       return methods unless methods.empty?
 

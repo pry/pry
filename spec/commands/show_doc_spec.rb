@@ -467,110 +467,108 @@ describe "show-doc" do
     end
   end
 
-  unless Pry::Helpers::BaseHelpers.rbx?
-    describe "can't find class docs" do
-      describe "for classes" do
-        before do
-          module Jesus
-            class Brian; end
+  describe "can't find class docs" do
+    describe "for classes" do
+      before do
+        module Jesus
+          class Brian; end
 
-            # doink-doc
-            class Jingle
-              def a; :doink; end
-            end
-
-            class Jangle < Jingle; end
-            class Bangle < Jangle; end
+          # doink-doc
+          class Jingle
+            def a; :doink; end
           end
-        end
 
-        after do
-          Object.remove_const(:Jesus)
-        end
-
-        it 'shows superclass doc' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Jangle"
-          expect(t.last_output).to match(/doink-doc/)
-        end
-
-        it 'errors when class has no superclass to show' do
-          t = pry_tester
-          expect { t.process_command "show-doc Jesus::Brian" }.to raise_error(Pry::CommandError, /Couldn't locate/)
-        end
-
-        it 'shows warning when reverting to superclass docs' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Jangle"
-          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/)
-        end
-
-        it 'shows nth level superclass docs (when no intermediary superclasses have code either)' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Bangle"
-          expect(t.last_output).to match(/doink-doc/)
-        end
-
-        it 'shows correct warning when reverting to nth level superclass' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Bangle"
-          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/)
+          class Jangle < Jingle; end
+          class Bangle < Jangle; end
         end
       end
 
-      describe "for modules" do
-        before do
-          module Jesus
+      after do
+        Object.remove_const(:Jesus)
+      end
 
-            # alpha-doc
-            module Alpha
-              def alpha; :alpha; end
-            end
+      it 'shows superclass doc' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Jangle"
+        expect(t.last_output).to match(/doink-doc/)
+      end
 
-            module Zeta; end
+      it 'errors when class has no superclass to show' do
+        t = pry_tester
+        expect { t.process_command "show-doc Jesus::Brian" }.to raise_error(Pry::CommandError, /Couldn't locate/)
+      end
 
-            module Beta
-              include Alpha
-            end
+      it 'shows warning when reverting to superclass docs' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Jangle"
+        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/)
+      end
 
-            module Gamma
-              include Beta
-            end
+      it 'shows nth level superclass docs (when no intermediary superclasses have code either)' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Bangle"
+        expect(t.last_output).to match(/doink-doc/)
+      end
+
+      it 'shows correct warning when reverting to nth level superclass' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Bangle"
+        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/)
+      end
+    end
+
+    describe "for modules" do
+      before do
+        module Jesus
+
+          # alpha-doc
+          module Alpha
+            def alpha; :alpha; end
+          end
+
+          module Zeta; end
+
+          module Beta
+            include Alpha
+          end
+
+          module Gamma
+            include Beta
           end
         end
+      end
 
-        after do
-          Object.remove_const(:Jesus)
-        end
+      after do
+        Object.remove_const(:Jesus)
+      end
 
-        it 'shows included module doc' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Beta"
-          expect(t.last_output).to match(/alpha-doc/)
-        end
+      it 'shows included module doc' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Beta"
+        expect(t.last_output).to match(/alpha-doc/)
+      end
 
-        it 'shows warning when reverting to included module doc' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Beta"
-          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/)
-        end
+      it 'shows warning when reverting to included module doc' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Beta"
+        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/)
+      end
 
-        it 'errors when module has no included module to show' do
-          t = pry_tester
-          expect { t.process_command "show-source Jesus::Zeta" }.to raise_error(Pry::CommandError, /Couldn't locate/)
-        end
+      it 'errors when module has no included module to show' do
+        t = pry_tester
+        expect { t.process_command "show-source Jesus::Zeta" }.to raise_error(Pry::CommandError, /Couldn't locate/)
+      end
 
-        it 'shows nth level included module doc (when no intermediary modules have code either)' do
-          t = pry_tester
-          t.process_command "show-doc Jesus::Gamma"
-          expect(t.last_output).to match(/alpha-doc/)
-        end
+      it 'shows nth level included module doc (when no intermediary modules have code either)' do
+        t = pry_tester
+        t.process_command "show-doc Jesus::Gamma"
+        expect(t.last_output).to match(/alpha-doc/)
+      end
 
-        it 'shows correct warning when reverting to nth level included module' do
-          t = pry_tester
-          t.process_command "show-source Jesus::Gamma"
-          expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/)
-        end
+      it 'shows correct warning when reverting to nth level included module' do
+        t = pry_tester
+        t.process_command "show-source Jesus::Gamma"
+        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/)
       end
     end
   end

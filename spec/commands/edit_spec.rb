@@ -77,10 +77,6 @@ describe "edit" do
         Pry.config.editor = lambda { |file, line|
           File.open(file, 'w'){ |f| f << 'require_relative "baz.rb"' }
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w'){ |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
-
-          if defined?(Rubinius::Compiler)
-            File.unlink Rubinius::Compiler.compiled_name file
-          end
           nil
         }
         pry_eval "edit #@tf_path"
@@ -186,15 +182,12 @@ describe "edit" do
 
       after do
         @tf.close(true)
-        File.unlink("#{@path}c") if File.exist?("#{@path}c") #rbx
+        File.unlink("#{@path}c") if File.exist?("#{@path}c")
       end
 
       it "should reload the file" do
         Pry.config.editor = lambda {|file, line|
           File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
-          if defined?(Rubinius::Compiler)
-            File.unlink Rubinius::Compiler.compiled_name file
-          end
           nil
         }
 
@@ -373,7 +366,7 @@ describe "edit" do
     it "should write the evaluated command to history" do
       quote = 'history repeats itself, first as tradegy...'
       Pry.config.editor = lambda {|file, line|
-        File.open(file, 'w') { |f| 
+        File.open(file, 'w') { |f|
           f << quote
         }
         nil

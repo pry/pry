@@ -317,7 +317,7 @@ class Pry
     #   `nil` if the filename is unavailable.
     def source_file
       if source_location.nil?
-        if !rbx? and source_type == :c
+        if source_type == :c
           info = pry_doc_info
           info.file if info
         end
@@ -531,9 +531,9 @@ class Pry
     end
 
     def ruby_source
-      # clone of MethodSource.source_helper that knows to use our
-      # hacked version of source_location for rbx core methods, and
-      # our input buffer for methods defined in (pry)
+      # Clone of `MethodSource.source_helper` that knows to use our
+      # hacked version of `source_location` for our input buffer for methods
+      # defined in `(pry)`.
       file, line = *source_location
       raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!" unless file
 
