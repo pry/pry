@@ -23,6 +23,10 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
+  include:
+    - rvm: 2.5
+      name: "Run RuboCop linting"
+      script: ruby -S bundle _1.15.4_ exec rubocop --parallel
 
 notifications:
   irc: "irc.freenode.org#pry"
