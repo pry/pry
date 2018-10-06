@@ -7,31 +7,9 @@ require 'pry/version'
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
 CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
 
-desc "Set up and run tests"
-task :default => [:test]
-
-def run_specs paths
-  format = ENV['VERBOSE'] ? '--format documentation ' : ''
-  sh "bundle exec rspec #{format}#{paths.join ' '}"
-end
-
-desc "Run tests"
-task :test do
-  paths =
-    if explicit_list = ENV['run']
-      explicit_list.split(',')
-    else
-      Dir['spec/**/*_spec.rb'].shuffle!
-    end
-  run_specs paths
-end
-task :spec => :test
-
-task :recspec do
-  all = Dir['spec/**/*_spec.rb'].sort_by{|path| File.mtime(path)}.reverse
-  warn "Running all, sorting by mtime: #{all[0..2].join(' ')} ...etc."
-  run_specs all
-end
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec)
+task :default => :spec
 
 desc "Run pry (you can pass arguments using _ in place of -)"
 task :pry do
