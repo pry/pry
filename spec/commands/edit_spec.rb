@@ -182,7 +182,6 @@ describe "edit" do
 
       after do
         @tf.close(true)
-        File.unlink("#{@path}c") if File.exist?("#{@path}c")
       end
 
       it "should reload the file" do
