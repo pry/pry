@@ -1,6 +1,8 @@
 [![Build Status](https://travis-ci.org/pry/pry.svg?branch=master)](https://travis-ci.org/pry/pry)
 [![Code Climate](https://codeclimate.com/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
+[![Gem Version](https://badge.fury.io/rb/pry.svg)](http://badge.fury.io/rb/pry)
 [![Documentation Status](http://inch-ci.org/github/pry/pry.svg?branch=master)](http://inch-ci.org/github/pry/pry)
+[![Downloads](https://img.shields.io/gem/dt/pry.svg?style=flat)](https://rubygems.org/gems/pry)
 <br><br>
 ![logo for Pry](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
