@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/pry/pry.svg?branch=master)](https://travis-ci.org/pry/pry)
-[![Code Climate](https://img.shields.io/codeclimate/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
+[![Code Climate](https://codeclimate.com/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
 [![Inline docs](http://inch-ci.org/github/pry/pry.svg?style=shields)](http://inch-ci.org/github/pry/pry)
 <br><br>
 ![logo for Pry](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
