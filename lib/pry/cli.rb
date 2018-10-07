@@ -122,6 +122,15 @@ class Pry
   end
 end
 
+# RC files may disable loading of plugins, so load before trying to bring in options from plugins
+Slop.new do
+  on :f, "Suppress loading of ~/.pryrc and ./.pryrc" do
+    Pry.config.should_load_rc = false
+    Pry.config.should_load_local_rc = false
+  end
+end
+
+Pry.load_rc_files
 
 # Bring in options defined by plugins
 Pry::Slop.new do
@@ -157,11 +166,6 @@ Copyright (c) 2016 John Mair (banisterfiend)
 
   on "no-color", "Disable syntax highlighting for session" do
     Pry.config.color = false
-  end
-
-  on :f, "Suppress loading of ~/.pryrc and ./.pryrc" do
-    Pry.config.should_load_rc = false
-    Pry.config.should_load_local_rc = false
   end
 
   on :s, "select-plugin=", "Only load specified plugin (and no others)." do |plugin_name|
