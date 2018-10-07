@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/pry/pry.svg)](https://travis-ci.org/pry/pry)
+[![Build Status](https://travis-ci.org/pry/pry.svg?branch=master)](https://travis-ci.org/pry/pry)
 [![Code Climate](https://img.shields.io/codeclimate/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
 [![Inline docs](http://inch-ci.org/github/pry/pry.svg?style=shields)](http://inch-ci.org/github/pry/pry)
 <br><br>
