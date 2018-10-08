@@ -21,12 +21,9 @@ class Pry
 
     # Switch to interactive mode, i.e take input from the user
     # and use the regular print and exception handlers.
-    # @param [Pry] _pry_ the Pry instance to make interactive.
-    def interactive_mode(_pry_)
-      _pry_.config.input = Pry.config.input
-      _pry_.config.print = Pry.config.print
-      _pry_.config.exception_handler = Pry.config.exception_handler
-      Pry::REPL.new(_pry_).start
+    # @param [Pry] pry the Pry instance to make interactive.
+    def interactive_mode(pry)
+      Pry::REPL.new(pry).start
     end
 
     # Switch to non-interactive mode. Essentially
