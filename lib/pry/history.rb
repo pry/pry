@@ -34,6 +34,8 @@ class Pry
     # @return [Integer] The number of lines loaded
     def load
       @loader.call do |line|
+        next if invalid_readline_line?(line)
+
         @pusher.call(line.chomp)
         @history << line.chomp
         @original_lines += 1
@@ -44,7 +46,9 @@ class Pry
     # @param [String] line
     # @return [String] The same line that was passed in
     def push(line)
-      unless line.empty? || (@history.last && line == @history.last)
+      empty_or_invalid_line = line.empty? || invalid_readline_line?(line)
+
+      unless empty_or_invalid_line || (@history.last && line == @history.last)
         @pusher.call(line)
         @history << line
         if !should_ignore?(line) && Pry.config.history.should_save
@@ -143,6 +147,12 @@ class Pry
 
     def history_file_path
       File.expand_path(@file_path || Pry.config.history.file)
+    end
+
+    def invalid_readline_line?(line)
+      # `Readline::HISTORY << line` raises an `ArgumentError` if `line`
+      # includes a null byte
+      line.include?("\0")
     end
   end
 end
