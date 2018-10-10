@@ -81,6 +81,26 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
+  #
+  # @example
+  #   _pry_.h.paint "it black", :black
+  #
+  #
+  # @return [Module]
+  #   Returns a module with the same methods as the command scope.
+  #
+  #
+  def h
+    @h ||= begin
+             this = self
+             Module.new do
+               include Pry::Color
+               extend self
+               define_method(:_pry_) { this }
+             end
+           end
+  end
+
   # The current prompt.
   # This is the prompt at the top of the prompt stack.
   #

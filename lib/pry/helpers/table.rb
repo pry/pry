@@ -101,7 +101,7 @@ class Pry
       end
 
       def _recall_color_for thing
-        @colorless_cache[thing]
+        @colorless_cache[thing].to_s
       end
     end
 

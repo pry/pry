@@ -141,6 +141,7 @@ require 'tempfile'
 require 'pathname'
 
 require 'pry/version'
+require 'pry/color'
 require 'pry/repl'
 require 'pry/code'
 require 'pry/history_array'
