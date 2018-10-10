@@ -8,14 +8,6 @@
 
 © John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2018<br>
 
-**Sponsors**
-
-[Launch School](https://launchschool.com)<br/>
-[Atomic Object](https://atomicobject.com/)<br/>
-[Hashrocket](https://hashrocket.com/)<br/>
-[Intridea](http://www.intridea.com)<br/>
-[Gaslight](https://teamgaslight.com)<br/>
-
 **Other Resources**
 
 [Skip to the website (recommended)](http://pryrepl.org/) <br />

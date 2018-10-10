@@ -27,6 +27,9 @@ matrix:
     - rvm: 2.5
       name: "Run RuboCop linting"
       script: ruby -S bundle _1.15.4_ exec rubocop --parallel
+    - rvm: 2.5
+      name: "Run YARD linting"
+      script: ruby -S bundle _1.15.4_ exec yardoc --fail-on-warning --no-progress
 
 notifications:
   irc: "irc.freenode.org#pry"
