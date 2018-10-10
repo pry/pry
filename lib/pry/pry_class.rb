@@ -11,7 +11,7 @@ class Pry
       # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
       ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
     else
-      '~/.config/pry/config'
+      '~/.config/pry/pryrc'
     end
   LOCAL_RC_FILE = "./.pryrc"
 
@@ -133,14 +133,13 @@ class Pry
 For a better Pry experience on Windows, please use ansicon:
   https://github.com/adoxa/ansicon
 If you use an alternative to ansicon and don't want to see this warning again,
-you can add "Pry.config.windows_console_warning = false" to your .pryrc.
+you can add "Pry.config.windows_console_warning = false" to your pryrc.
       WARNING
     end
   end
 
-  # Do basic setup for initial session.
-  # Including: loading .pryrc, loading plugins, loading requires, and
-  # loading history.
+  # Do basic setup for initial session including: loading pryrc, plugins,
+  # requires, and history.
   def self.initial_session_setup
     return unless initial_session?
     @initial_session = false
@@ -161,8 +160,7 @@ you can add "Pry.config.windows_console_warning = false" to your .pryrc.
   end
 
   # Start a Pry REPL.
-  # This method also loads `~/.pryrc` and `./.pryrc` as necessary the
-  # first time it is invoked.
+  # This method also loads `pryrc` as necessary the first time it is invoked.
   # @param [Object, Binding] target The receiver of the Pry session
   # @param [Hash] options
   # @option options (see Pry#initialize)

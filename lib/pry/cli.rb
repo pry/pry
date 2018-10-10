@@ -159,7 +159,7 @@ Copyright (c) 2016 John Mair (banisterfiend)
     Pry.config.color = false
   end
 
-  on :f, "Suppress loading of ~/.pryrc and ./.pryrc" do
+  on :f, "Suppress loading of pryrc" do
     Pry.config.should_load_rc = false
     Pry.config.should_load_local_rc = false
   end
