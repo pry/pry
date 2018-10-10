@@ -1,5 +1,37 @@
 require_relative 'helper'
 require 'tempfile'
+require 'readline'
+
+describe 'Pry.load_history' do
+  let(:irb_history) { %w(a b c) }
+  let(:pry_history) { %w(x y z) }
+
+  before do
+    Readline::HISTORY.shift until Readline::HISTORY.empty?
+    Pry.hooks.delete_hook :after_session, :restore_irb_history
+    Pry.history.loader = proc {|&blk|}
+    irb_history.each {|line| Readline::HISTORY << line }
+  end
+
+  after { Pry.history.restore_default_behavior }
+
+  it 'removes IRB history before loading Pry history' do
+    expect { Pry.load_history }.to change { Readline::HISTORY.to_a.size }.from(irb_history.size).to(0)
+  end
+
+  it 'loads Pry history' do
+    Pry.history.loader = proc {|&blk| pry_history.each {|line| blk.call(line) } }
+
+    expect { Pry.load_history }.to change { Readline::HISTORY.to_a }.from(irb_history).to(pry_history)
+  end
+
+  it 'restores IRB history with an :after_session hook' do
+    Pry.load_history
+    Pry.hooks.get_hook(:after_session, :restore_irb_history).call
+
+    expect(Readline::HISTORY.to_a).to eq(irb_history)
+  end
+end
 
 describe Pry do
   before do
