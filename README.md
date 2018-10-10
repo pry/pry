@@ -52,10 +52,10 @@ is trivial to set it to read from any object that has a `readline` method and wr
 `puts` method - many other aspects of Pry are also configurable making
 it a good choice for implementing custom shells.
 
-Pry comes with an executable so it can be invoked at the command line.
-Just enter `pry` to start. A `.pryrc` file in the user's home directory will
-be loaded if it exists. Type `pry --help` at the command line for more
-information.
+Pry comes with an executable so it can be invoked at the command line.  Just
+enter `pry` to start. A `pryrc` file in `$XDG_CONFIG_HOME/pry/` or the user's
+home directory will be loaded if it exists. Type `pry --help` at the command
+line for more information.
 
 Try `gem install pry-doc` for additional documentation on Ruby Core
 methods. The additional docs are accessed through the `show-doc` and
@@ -180,9 +180,8 @@ present working directory into the Pry prompt and bring in (limited at this stag
 We can also interpolate Ruby code directly into the shell by
 using the normal `#{}` string interpolation syntax.
 
-In the code below we're going to switch to `shell-mode` and edit the
-`.pryrc` file in the home directory. We'll then cat its contents and
-reload the file.
+In the code below we're going to switch to `shell-mode` and edit the `pryrc`
+file. We'll then cat its contents and reload the file.
 
     pry(main)> shell-mode
     pry main:/home/john/ruby/projects/pry $ .cd ~
@@ -383,7 +382,7 @@ gem.
 
 You can toggle the syntax highlighting on and off in a session by
 using the `toggle-color` command. Alternatively, you can turn it off
-permanently by putting the line `Pry.color = false` in your `~/.pryrc`
+permanently by putting the line `Pry.color = false` in your `pryrc`
 file.
 
 ### Future Directions

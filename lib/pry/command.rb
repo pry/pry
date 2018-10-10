@@ -207,7 +207,7 @@ class Pry
                        name, version = $1, $2
                        "#{name.to_s} (v#{version.to_s})"
                      when /pryrc/
-                       "~/.pryrc"
+                       "pryrc"
                      else
                        "(other)"
                      end
