@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 gemspec
-gem 'rake',  '~> 10.0'
+gem 'rake', '~> 10.0'
 
 # For Guard
 group :development do

@@ -46,14 +46,14 @@ class Pry
           end
         end
 
-        RDoc::RI.const_set :PryDriver, subclass   # hook it up!
+        RDoc::RI.const_set :PryDriver, subclass # hook it up!
       end
 
       # Spin-up an RI insance.
       ri = RDoc::RI::PryDriver.new _pry_.pager, :use_stdout => true, :interactive => false
 
       begin
-        ri.display_names [spec]  # Get the documentation (finally!)
+        ri.display_names [spec] # Get the documentation (finally!)
       rescue RDoc::RI::Driver::NotFoundError => e
         output.puts "error: '#{e.name}' not found"
       end

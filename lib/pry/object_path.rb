@@ -28,7 +28,7 @@ class Pry
       stack   = @current_stack.dup
 
       begin
-        next_segment  = ""
+        next_segment = ""
 
         loop do
           # Scan for as long as we don't see a slash

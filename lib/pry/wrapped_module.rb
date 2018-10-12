@@ -298,7 +298,7 @@ class Pry
     #   speed up source code extraction.
     def method_candidates
       @method_candidates ||= all_source_locations_by_popularity.map do |group|
-        methods_sorted_by_source_line  = group.last.sort_by(&:source_line)
+        methods_sorted_by_source_line = group.last.sort_by(&:source_line)
         [methods_sorted_by_source_line.first, methods_sorted_by_source_line.last]
       end
     end

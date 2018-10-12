@@ -550,8 +550,8 @@ class Pry
       # Ensure that subclasses inherit the options, description and
       # match from a ClassCommand super class.
       def inherited(klass)
-        klass.match  match
-        klass.description  description
+        klass.match match
+        klass.description description
         klass.command_options options
       end
 

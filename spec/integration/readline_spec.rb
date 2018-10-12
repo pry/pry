@@ -6,7 +6,7 @@ require "shellwords"
 
 RSpec.describe "Readline" do
   before :all do
-    @ruby  = RbConfig.ruby.shellescape
+    @ruby = RbConfig.ruby.shellescape
     @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib')).shellescape
   end
 

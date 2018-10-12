@@ -30,11 +30,12 @@ class Pry
       def backtrace_level
         @backtrace_level ||=
           begin
-            bl =  if opts[:ex].nil?
-                    ex.bt_index
-                  else
-                    ex.bt_index = absolute_index_number(opts[:ex], ex.backtrace.size)
-                  end
+            bl =
+              if opts[:ex].nil?
+                ex.bt_index
+              else
+                ex.bt_index = absolute_index_number(opts[:ex], ex.backtrace.size)
+              end
 
             increment_backtrace_level
             bl

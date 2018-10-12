@@ -286,7 +286,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     target = options[:context] || options[:target]
     output = options[:show_output] ? options[:output] : StringIO.new
 
-    pry = Pry.new(:output   => output, :target   => target, :commands => options[:commands])
+    pry = Pry.new(:output => output, :target => target, :commands => options[:commands])
     pry.eval command_string
     nil
   end
