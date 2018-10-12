@@ -3,7 +3,7 @@ require "shellwords"
 
 RSpec.describe "Hanami integration" do
   before :all do
-    @ruby  = RbConfig.ruby.shellescape
+    @ruby = RbConfig.ruby.shellescape
     @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib')).shellescape
   end
 

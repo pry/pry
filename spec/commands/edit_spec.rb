@@ -787,7 +787,7 @@ describe "edit" do
       end
 
       t = pry_tester(BinkyWink.new.m1)
-      expect { t.process_command "edit -m -n" }.to  raise_error(Pry::CommandError, /Cannot find a file for/)
+      expect { t.process_command "edit -m -n" }.to raise_error(Pry::CommandError, /Cannot find a file for/)
     end
 
     it 'errors when a filename arg is passed with --method' do

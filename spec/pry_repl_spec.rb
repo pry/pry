@@ -17,10 +17,10 @@ describe Pry::REPL do
       output(/^RuntimeError: lorum/)
 
       if defined?(java)
-        input  'raise java.lang.Exception.new("foo")'
+        input 'raise java.lang.Exception.new("foo")'
         output(/Exception: foo/)
 
-        input  'raise java.io.IOException.new("bar")'
+        input 'raise java.io.IOException.new("bar")'
         output(/IOException: bar/)
       end
     end
@@ -67,11 +67,11 @@ describe Pry::REPL do
         output ''
         prompt(/10.*> $/)
 
-        input  '_pry_.binding_stack.pop'
+        input '_pry_.binding_stack.pop'
         output(/^=> #<Binding/)
         prompt(/main.*> $/)
 
-        input  '_pry_.binding_stack.pop'
+        input '_pry_.binding_stack.pop'
         output(/^=> #<Binding/)
         assert_exited
       end
@@ -127,7 +127,7 @@ describe Pry::REPL do
       ReplTester.start(correct_indent: true, auto_indent: true) do
         output=@pry.config.output
         def output.tty?; true; end
-        input  <<EOS
+        input <<EOS
 loop do
 	break #note the tab here
 end

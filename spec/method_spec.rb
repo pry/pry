@@ -21,7 +21,7 @@ describe Pry::Method do
     end
 
     it 'should look up instance methods first even if methods available and no options provided' do
-      klass = Class.new { def hello; end; def self.hello; end  }
+      klass = Class.new { def hello; end; def self.hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
       expect(meth).to eq klass.instance_method(:hello)
     end
@@ -33,7 +33,7 @@ describe Pry::Method do
     end
 
     it 'should look up methods if :methods  option provided' do
-      klass = Class.new { def hello; end; def self.hello; end  }
+      klass = Class.new { def hello; end; def self.hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {:methods => true})
       expect(meth).to eq klass.method(:hello)
     end
@@ -51,13 +51,13 @@ describe Pry::Method do
     end
 
     it 'should NOT look up instance methods using the Class#method syntax if no instance methods defined' do
-      _klass = Class.new { def self.hello; end  }
+      _klass = Class.new { def self.hello; end }
       meth = Pry::Method.from_str("_klass#hello", Pry.binding_for(binding))
       expect(meth).to eq nil
     end
 
     it 'should NOT look up methods using the object.method syntax if no methods defined' do
-      _klass = Class.new { def hello; end  }
+      _klass = Class.new { def hello; end }
       meth = Pry::Method.from_str("_klass.hello", Pry.binding_for(binding))
       expect(meth).to eq nil
     end

@@ -272,12 +272,6 @@ Layout/EndAlignment:
     - 'lib/pry/editor.rb'
     - 'lib/pry/method.rb'
 
-# Offense count: 53
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Enabled: false
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

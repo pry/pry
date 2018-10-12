@@ -76,7 +76,7 @@ class Pry
         file, line = first_method_source_location
         return nil if !file.is_a?(String)
 
-        @source_location = [file,  first_line_of_module_definition(file, line)]
+        @source_location = [file, first_line_of_module_definition(file, line)]
       rescue Pry::RescuableException
         nil
       end

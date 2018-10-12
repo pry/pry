@@ -76,11 +76,11 @@ describe "test Pry defaults" do
     Object.new.pry
     expect(@str_output.string).to match(/5/)
 
-    Pry.config.input  = InputTester.new("6")
+    Pry.config.input = InputTester.new("6")
     Object.new.pry
     expect(@str_output.string).to match(/5\n.*6/)
 
-    Pry.config.input  = InputTester.new("7")
+    Pry.config.input = InputTester.new("7")
     @str_output = StringIO.new
     Object.new.pry :output => @str_output
     expect(@str_output.string).not_to match(/5\n.*6/)
@@ -89,7 +89,7 @@ describe "test Pry defaults" do
 
   it "should set the print default, and the default should be overridable" do
     new_print = proc { |out, value| out.puts "=> LOL" }
-    Pry.config.print =  new_print
+    Pry.config.print = new_print
 
     expect(Pry.new.print).to eq Pry.config.print
     Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
@@ -147,16 +147,16 @@ describe "test Pry defaults" do
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ",  "test prompt> "]
+      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
 
 
       pry = Pry.new(:prompt => new_prompt)
       expect(pry.prompt).to eq new_prompt
-      expect(get_prompts(pry)).to eq ["A",  "A"]
+      expect(get_prompts(pry)).to eq ["A", "A"]
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ",  "test prompt> "]
+      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
@@ -165,16 +165,16 @@ describe "test Pry defaults" do
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ",  "test prompt* "]
+      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
 
 
       pry = Pry.new(:prompt => new_prompt)
       expect(pry.prompt).to eq new_prompt
-      expect(get_prompts(pry)).to eq ["A",  "B"]
+      expect(get_prompts(pry)).to eq ["A", "B"]
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ",  "test prompt* "]
+      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
     end
 
     describe 'storing and restoring the prompt' do
@@ -239,7 +239,7 @@ describe "test Pry defaults" do
   end
 
   describe "view_clip used for displaying an object in a truncated format" do
-    DEFAULT_OPTIONS =  {
+    DEFAULT_OPTIONS = {
       max_length: 60
     }
     MAX_LENGTH = DEFAULT_OPTIONS[:max_length]
@@ -379,7 +379,7 @@ describe "test Pry defaults" do
   it 'should set the hooks default, and the default should be overridable' do
     Pry.config.input = InputTester.new("exit-all")
     Pry.config.hooks = Pry::Hooks.new.
-      add_hook(:before_session, :my_name) { |out,_,_|  out.puts "HELLO" }.
+      add_hook(:before_session, :my_name) { |out,_,_| out.puts "HELLO" }.
       add_hook(:after_session, :my_name) { |out,_,_| out.puts "BYE" }
 
     Object.new.pry :output => @str_output

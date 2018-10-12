@@ -204,16 +204,16 @@ describe Pry::WrappedModule do
         @c = Class.new(@b)
       end
 
-      it 'should return superclass for a wrapped class'  do
+      it 'should return superclass for a wrapped class' do
         expect(Pry::WrappedModule(@c).super.wrapped).to eq @b
       end
 
-      it 'should return nth superclass for a wrapped class'  do
+      it 'should return nth superclass for a wrapped class' do
         d = Class.new(@c)
         expect(Pry::WrappedModule(d).super(2).wrapped).to eq @b
       end
 
-      it 'should ignore modules when retrieving nth superclass'  do
+      it 'should ignore modules when retrieving nth superclass' do
         expect(Pry::WrappedModule(@c).super(2).wrapped).to eq @a
       end
 

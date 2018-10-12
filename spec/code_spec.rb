@@ -198,7 +198,7 @@ describe Pry::Code do
         specify 'pad multiline units created with edit command' do
           multiline_unit = "def am_i_pretty?\n  'yes i am'\n  end"
           code = Pry::Code.new(multiline_unit).with_line_numbers
-          middle_line  = code.split("\n")[1]
+          middle_line = code.split("\n")[1]
           expect(middle_line).to match(/2:   'yes i am'/)
         end
 

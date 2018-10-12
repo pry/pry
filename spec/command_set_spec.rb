@@ -202,7 +202,7 @@ describe Pry::CommandSet do
       expect(@set['bar'].options[:interpolate]).to eq @set['foo'].options[:interpolate]
 
       # however some options should not be inherited
-      expect(@set['bar'].options[:listing]).not_to eq  @set['foo'].options[:listing]
+      expect(@set['bar'].options[:listing]).not_to eq @set['foo'].options[:listing]
       expect(@set['bar'].options[:listing]).to eq "bar"
     end
 
