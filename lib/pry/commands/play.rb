@@ -31,7 +31,7 @@ class Pry
                     ' "open". `amend-line` can then be used to' \
                     ' modify the method.'
 
-      opt.on :e, :expression=, 'Executes until end of valid expression', :as => Integer
+      opt.on :e, :expression=, 'Executes until end of valid expression', as: Integer
       opt.on :p, :print, 'Prints executed code'
     end
 

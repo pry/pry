@@ -24,15 +24,15 @@ class Pry::Slop
 
   # Returns a default Hash of configuration options this Slop instance uses.
   DEFAULT_OPTIONS = {
-    :strict => false,
-    :help => false,
-    :banner => nil,
-    :ignore_case => false,
-    :autocreate => false,
-    :arguments => false,
-    :optional_arguments => false,
-    :multiple_switches => true,
-    :longest_flag => 0
+    strict: false,
+    help: false,
+    banner: nil,
+    ignore_case: false,
+    autocreate: false,
+    arguments: false,
+    optional_arguments: false,
+    multiple_switches: true,
+    longest_flag: 0
   }
 
   class << self
@@ -135,7 +135,7 @@ class Pry::Slop
     end
 
     if config[:help]
-      on('-h', '--help', 'Display this help message.', :tail => true) do
+      on('-h', '--help', 'Display this help message.', tail: true) do
         $stderr.puts help
       end
     end

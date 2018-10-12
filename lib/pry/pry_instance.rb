@@ -345,7 +345,7 @@ class Pry
   # (If nested sessions are going to exist, this method is fine, but a goal is
   # to come up with an alternative to nested sessions altogether.)
   def repl(target = nil)
-    Pry::REPL.new(self, :target => target).start
+    Pry::REPL.new(self, target: target).start
   end
 
   def evaluate_ruby(code)
@@ -403,11 +403,11 @@ class Pry
     val = val.lstrip if /^\s\S/ !~ val
     val = val.chomp
     result = commands.process_line(val,
-      :target => current_binding,
-      :output => output,
-      :eval_string => @eval_string,
-      :pry_instance => self,
-      :hooks => hooks
+      target: current_binding,
+      output: output,
+      eval_string: @eval_string,
+      pry_instance: self,
+      hooks: hooks
     )
 
     # set a temporary (just so we can inject the value we want into eval_string)
@@ -448,10 +448,10 @@ class Pry
   #   pry_instance.run_command("ls -m")
   def run_command(val)
     commands.process_line(val,
-      :eval_string => @eval_string,
-      :target => current_binding,
-      :pry_instance => self,
-      :output => output
+      eval_string: @eval_string,
+      target: current_binding,
+      pry_instance: self,
+      output: output
     )
     Pry::Command::VOID_VALUE
   end
@@ -533,17 +533,17 @@ class Pry
       @indent.stack.last
 
     c = Pry::Config.assign({
-        :object         => object,
-        :nesting_level  => binding_stack.size - 1,
-        :open_token     => open_token,
-        :session_line   => Pry.history.session_line_count + 1,
-        :history_line   => Pry.history.history_line_count + 1,
-        :expr_number    => input_array.count,
-        :_pry_          => self,
-        :binding_stack  => binding_stack,
-        :input_array    => input_array,
-        :eval_string    => @eval_string,
-        :cont           => !@eval_string.empty?
+        object: object,
+        nesting_level: binding_stack.size - 1,
+        open_token: open_token,
+        session_line: Pry.history.session_line_count + 1,
+        history_line: Pry.history.history_line_count + 1,
+        expr_number: input_array.count,
+        _pry_: self,
+        binding_stack: binding_stack,
+        input_array: input_array,
+        eval_string: @eval_string,
+        cont: !@eval_string.empty?
       })
 
     Pry.critical_section do

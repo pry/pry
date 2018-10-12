@@ -3,7 +3,7 @@ class Pry
     match 'gist'
     group 'Misc'
     description 'Upload code, docs, history to https://gist.github.com/.'
-    command_options :requires_gem => "gist"
+    command_options requires_gem: "gist"
 
     banner <<-'BANNER'
       Usage: gist [OPTIONS] [--help]
@@ -22,8 +22,8 @@ class Pry
     def options(opt)
       CodeCollector.inject_options(opt)
       opt.on :login, "Authenticate the gist gem with GitHub"
-      opt.on :p, :public, "Create a public gist (default: false)", :default => false
-      opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it", :default => false
+      opt.on :p, :public, "Create a public gist (default: false)", default: false
+      opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it", default: false
     end
 
     def process
@@ -81,7 +81,7 @@ class Pry
     end
 
     def gist_content(content, filename)
-      response = ::Gist.gist(content, :filename => filename || "pry_gist.rb", :public => !!opts[:p])
+      response = ::Gist.gist(content, filename: filename || "pry_gist.rb", public: !!opts[:p])
       if response
         url = response['html_url']
         message = "Gist created at URL #{url}"

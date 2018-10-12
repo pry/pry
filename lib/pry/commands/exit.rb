@@ -3,7 +3,7 @@ class Pry
     match 'exit'
     group 'Navigating Pry'
     description 'Pop the previous binding.'
-    command_options :keep_retval => true
+    command_options keep_retval: true
 
     banner <<-'BANNER'
       Usage:   exit [OPTIONS] [--help]

@@ -135,7 +135,7 @@ describe Pry do
   describe "saving to a file" do
     before do
       @histfile = Tempfile.new(["pryhistory", "txt"])
-      @history = Pry::History.new(:file_path => @histfile.path)
+      @history = Pry::History.new(file_path: @histfile.path)
       Pry.config.history.should_save = true
       @history.pusher = proc{ }
     end

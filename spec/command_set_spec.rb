@@ -7,9 +7,9 @@ describe Pry::CommandSet do
     end
 
     @ctx = {
-      :target => binding,
-      :command_set => @set,
-      :pry_instance => Pry.new(output: StringIO.new)
+      target: binding,
+      command_set: @set,
+      pry_instance: Pry.new(output: StringIO.new)
     }
   end
 
@@ -77,7 +77,7 @@ describe Pry::CommandSet do
   end
 
   it 'should be able to remove its own commands, by listing name' do
-    @set.command(/^foo1/, 'desc', :listing => 'foo') {}
+    @set.command(/^foo1/, 'desc', listing: 'foo') {}
     @set.delete 'foo'
 
     expect { @set.run_command @ctx, /^foo1/ }.to raise_error Pry::NoCommandError
@@ -125,7 +125,7 @@ describe Pry::CommandSet do
     run = false
 
     other_set = Pry::CommandSet.new do
-      command(/^foo1/, 'desc', :listing => 'foo') { run = true }
+      command(/^foo1/, 'desc', listing: 'foo') { run = true }
     end
 
     @set.import_from(other_set, 'foo')
@@ -195,7 +195,7 @@ describe Pry::CommandSet do
 
     it 'should inherit options from original command' do
       run = false
-      @set.command('foo', 'stuff', :shellwords => true, :interpolate => false) { run = true }
+      @set.command('foo', 'stuff', shellwords: true, interpolate: false) { run = true }
 
       @set.alias_command 'bar', 'foo'
       expect(@set['bar'].options[:shellwords]).to eq @set['foo'].options[:shellwords]
@@ -210,7 +210,7 @@ describe Pry::CommandSet do
       run = false
       @set.command('foo', 'stuff') { run = true }
 
-      @set.alias_command 'bar', 'foo', :desc => "tobina"
+      @set.alias_command 'bar', 'foo', desc: "tobina"
       expect(@set['bar'].match).to eq 'bar'
       expect(@set['bar'].description).to eq "tobina"
 
@@ -220,7 +220,7 @@ describe Pry::CommandSet do
 
     it "should be able to alias a command by its invocation line" do
       run = false
-      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+      @set.command(/^foo1/, 'stuff', listing: 'foo') { run = true }
 
       @set.alias_command 'bar', 'foo1'
       expect(@set['bar'].match).to eq 'bar'
@@ -232,15 +232,15 @@ describe Pry::CommandSet do
 
     it "should be able to specify options when creating alias" do
       run = false
-      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+      @set.command(/^foo1/, 'stuff', listing: 'foo') { run = true }
 
-      @set.alias_command(/^b.r/, 'foo1', :listing => "bar")
+      @set.alias_command(/^b.r/, 'foo1', listing: "bar")
       expect(@set.to_hash[/^b.r/].options[:listing]).to eq "bar"
     end
 
     it "should set description to default if description parameter is nil" do
       run = false
-      @set.command(/^foo1/, 'stuff', :listing => 'foo') { run = true }
+      @set.command(/^foo1/, 'stuff', listing: 'foo') { run = true }
 
       @set.alias_command "bar", 'foo1'
       expect(@set["bar"].description).to eq "Alias for `foo1`"
@@ -260,7 +260,7 @@ describe Pry::CommandSet do
   end
 
   it 'should get the descriptions of commands, by listing' do
-    @set.command(/^foo1/, 'bar', :listing => 'foo') {}
+    @set.command(/^foo1/, 'bar', listing: 'foo') {}
     expect(@set.desc('foo')).to eq 'bar'
   end
 
@@ -270,12 +270,12 @@ describe Pry::CommandSet do
   end
 
   it 'should be able to keep return values' do
-    @set.command('foo', '', :keep_retval => true) { 3 }
+    @set.command('foo', '', keep_retval: true) { 3 }
     expect(@set.run_command(@ctx, 'foo')).to eq 3
   end
 
   it 'should be able to keep return values, even if return value is nil' do
-    @set.command('foo', '', :keep_retval => true) { nil }
+    @set.command('foo', '', keep_retval: true) { nil }
     expect(@set.run_command(@ctx, 'foo')).to eq nil
   end
 
@@ -285,7 +285,7 @@ describe Pry::CommandSet do
 
     @set.run_command(@ctx, 'foo')
     expect(Pry::Command.subclass('foo', '', {}, Module.new)
-                .new({:target => binding}))
+                .new({target: binding}))
                 .not_to(respond_to :my_helper)
   end
 
@@ -338,7 +338,7 @@ describe Pry::CommandSet do
   end
 
   it 'should provide a :listing for a command that differs from its name' do
-    @set.command 'foo', "", :listing => 'bar' do;end
+    @set.command 'foo', "", listing: 'bar' do;end
     expect(@set['foo'].options[:listing]).to eq 'bar'
   end
 
@@ -361,7 +361,7 @@ describe Pry::CommandSet do
 
     it 'should accept listing name when renaming a command' do
       run = false
-      @set.command('foo', "", :listing => 'love') { run = true }
+      @set.command('foo', "", listing: 'love') { run = true }
       @set.rename_command('bar', 'love')
       @set.run_command(@ctx, 'bar')
       expect(run).to eq true
@@ -381,7 +381,7 @@ describe Pry::CommandSet do
       desc    = "hello"
       listing = "bing"
       @set.command('foo') { }
-      @set.rename_command('bar', 'foo', :description => desc, :listing => listing, :keep_retval => true)
+      @set.rename_command('bar', 'foo', description: desc, listing: listing, keep_retval: true)
       expect(@set['bar'].description).to           eq desc
       expect(@set['bar'].options[:listing]).to     eq listing
       expect(@set['bar'].options[:keep_retval]).to eq true
@@ -401,7 +401,7 @@ describe Pry::CommandSet do
 
       it 'should be called before the original command, using listing name' do
         foo = []
-        @set.command(/^foo1/, '', :listing => 'foo') { foo << 1 }
+        @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
         @set.before_command('foo') { foo << 2 }
         @set.run_command(@ctx, /^foo1/)
 
@@ -445,7 +445,7 @@ describe Pry::CommandSet do
 
       it 'should be called after the original command, using listing name' do
         foo = []
-        @set.command(/^foo1/, '', :listing => 'foo') { foo << 1 }
+        @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
         @set.after_command('foo') { foo << 2 }
         @set.run_command(@ctx, /^foo1/)
 
@@ -465,7 +465,7 @@ describe Pry::CommandSet do
       end
 
       it 'should determine the return value for the command' do
-        @set.command('foo', 'bar', :keep_retval => true) { 1 }
+        @set.command('foo', 'bar', keep_retval: true) { 1 }
         @set.after_command('foo') { 2 }
         expect(@set.run_command(@ctx, 'foo')).to eq 2
       end
@@ -529,7 +529,7 @@ describe Pry::CommandSet do
     end
 
     it 'should not find commands by listing' do
-      @set.command(/werewol(f|ve)s?/, 'only once a month', :listing => "angua"){ }
+      @set.command(/werewol(f|ve)s?/, 'only once a month', listing: "angua"){ }
       expect(@set.find_command('angua')).to eq nil
     end
 
@@ -546,7 +546,7 @@ describe Pry::CommandSet do
     it "should find commands that don't use the prefix" do
       begin
         Pry.config.command_prefix = '%'
-        cmd = @set.command('colon', 'Sergeant Fred', :use_prefix => false){ }
+        cmd = @set.command('colon', 'Sergeant Fred', use_prefix: false){ }
         expect(@set.find_command('colon')).to eq cmd
       ensure
         Pry.config.command_prefix = ''
@@ -603,7 +603,7 @@ describe Pry::CommandSet do
     end
 
     it 'should return Result.new(true, retval) if the command is keep_retval' do
-      @set.create_command('magrat', 'the maiden', :keep_retval => true) do
+      @set.create_command('magrat', 'the maiden', keep_retval: true) do
         def process; 42; end
       end
 
@@ -615,10 +615,10 @@ describe Pry::CommandSet do
 
     it 'should pass through context' do
       ctx = {
-        :eval_string => "bloomers",
-        :pry_instance => Object.new,
-        :output => StringIO.new,
-        :target => binding
+        eval_string: "bloomers",
+        pry_instance: Object.new,
+        output: StringIO.new,
+        target: binding
       }
 
       inside = inner_scope do |probe|

@@ -3,7 +3,7 @@ class Pry
     match 'gem-cd'
     group 'Gems'
     description "Change working directory to specified gem's directory."
-    command_options :argument_required => true
+    command_options argument_required: true
 
     banner <<-'BANNER'
       Usage: gem-cd GEM_NAME

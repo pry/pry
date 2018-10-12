@@ -2,7 +2,7 @@ class Pry
   class Command::ShowInfo < Pry::ClassCommand
     extend Pry::Helpers::BaseHelpers
 
-    command_options :shellwords => false, :interpolate => false
+    command_options shellwords: false, interpolate: false
 
     def initialize(*)
       super
@@ -11,14 +11,14 @@ class Pry
     end
 
     def options(opt)
-      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", :as => :count
+      opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors", as: :count
       opt.on :l, "line-numbers", "Show line numbers"
       opt.on :b, "base-one", "Show line numbers but start numbering at 1 (useful for `amend-line` and `play` commands)"
       opt.on :a, :all, "Show all definitions and monkeypatches of the module/class"
     end
 
     def process
-      code_object = Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
+      code_object = Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
       raise CommandError, no_definition_message if !code_object
       @original_code_object = code_object
 
@@ -151,17 +151,17 @@ class Pry
 
     def method_sections(code_object)
       {
-        :owner => "\n#{bold("Owner:")} #{code_object.owner || "N/A"}\n",
-        :visibility => "#{bold("Visibility:")} #{code_object.visibility}",
-        :signature => "\n#{bold("Signature:")} #{code_object.signature}"
+        owner: "\n#{bold("Owner:")} #{code_object.owner || "N/A"}\n",
+        visibility: "#{bold("Visibility:")} #{code_object.visibility}",
+        signature: "\n#{bold("Signature:")} #{code_object.signature}"
       }.merge(header_options) { |key, old, new| (new && old).to_s }
     end
 
     def header_options
       {
-        :owner => true,
-        :visibility => true,
-        :signature => nil
+        owner: true,
+        visibility: true,
+        signature: nil
       }
     end
 

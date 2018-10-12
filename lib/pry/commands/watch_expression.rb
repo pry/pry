@@ -5,7 +5,7 @@ class Pry
     match 'watch'
     group 'Context'
     description 'Watch the value of an expression and print a notification whenever it changes.'
-    command_options :use_prefix => false
+    command_options use_prefix: false
 
     banner <<-'BANNER'
       Usage: watch [EXPRESSION]
@@ -29,7 +29,7 @@ class Pry
     def options(opt)
       opt.on :d, :delete,
         "Delete the watch expression with the given index. If no index is given; clear all watch expressions.",
-        :optional_argument => true, :as => Integer
+        optional_argument: true, as: Integer
       opt.on :l, :list,
         "Show all current watch expressions and their values.  Calling watch with no expressions or options will also show the watch expressions."
     end

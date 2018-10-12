@@ -3,7 +3,7 @@ class Pry
     match(/wtf([?!]*)/)
     group 'Context'
     description 'Show the backtrace of the most recent exception.'
-    options :listing => 'wtf?'
+    options listing: 'wtf?'
 
     banner <<-'BANNER'
       Usage: wtf[?|!]

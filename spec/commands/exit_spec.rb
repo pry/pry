@@ -1,7 +1,7 @@
 require_relative '../helper'
 
 describe "exit" do
-  before { @pry = Pry.new(:target => :outer, :output => StringIO.new) }
+  before { @pry = Pry.new(target: :outer, output: StringIO.new) }
 
   it "should pop a binding" do
     @pry.eval "cd :inner"

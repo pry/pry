@@ -86,7 +86,7 @@ describe Pry::REPL do
         end
       end
 
-      ReplTester.start(:commands => set) do
+      ReplTester.start(commands: set) do
         input  'def x'
         output ''
         prompt(/\*   $/)

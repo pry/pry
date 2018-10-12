@@ -291,7 +291,7 @@ class Pry
     # @param [Integer] line_number (1-based)
     # @return [String] the code.
     def expression_at(line_number, consume = 0)
-      self.class.expression_at(raw, line_number, :consume => consume)
+      self.class.expression_at(raw, line_number, consume: consume)
     end
 
     # Get the (approximate) Module.nesting at the give line number.

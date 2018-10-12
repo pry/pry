@@ -4,7 +4,7 @@ class Pry
     match(/raise-up(!?\b.*)/)
     group 'Context'
     description 'Raise an exception out of the current pry instance.'
-    command_options :listing => 'raise-up'
+    command_options listing: 'raise-up'
 
     banner <<-BANNER
       Raise up, like exit, allows you to quit pry. Instead of returning a value

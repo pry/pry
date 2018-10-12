@@ -9,7 +9,7 @@ CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
-task :default => :spec
+task default: :spec
 
 desc "Run pry (you can pass arguments using _ in place of -)"
 task :pry do
@@ -29,7 +29,7 @@ desc "Profile pry's startup time"
 task :profile do
   require 'profile'
   require 'pry'
-  Pry.start(TOPLEVEL_BINDING, :input => StringIO.new('exit'))
+  Pry.start(TOPLEVEL_BINDING, input: StringIO.new('exit'))
 end
 
 def modify_base_gemspec
@@ -77,23 +77,23 @@ end
 end
 
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, 'ruby:gem', 'jruby:gem']
+task gems: [:clean, :rmgems, 'ruby:gem', 'jruby:gem']
 
 desc "remove all platform gems"
-task :rmgems => ['ruby:clobber_package']
-task :rm_gems => :rmgems
-task :rm_pkgs => :rmgems
+task rmgems: ['ruby:clobber_package']
+task rm_gems: :rmgems
+task rm_pkgs: :rmgems
 
 desc "reinstall gem"
-task :reinstall => :gems do
+task reinstall: :gems do
   sh "gem uninstall pry" rescue nil
   sh "gem install #{File.dirname(__FILE__)}/pkg/pry-#{Pry::VERSION}.gem"
 end
 
-task :install => :reinstall
+task install: :reinstall
 
 desc "build and push latest gems"
-task :pushgems => :gems do
+task pushgems: :gems do
   chdir("#{File.dirname(__FILE__)}/pkg") do
     Dir["*.gem"].each do |gemfile|
       sh "gem push #{gemfile}"
@@ -108,7 +108,7 @@ namespace :docker do
   end
 
   desc "test pry on multiple ruby versions"
-  task :test => :build do
+  task test: :build do
     system "docker run -i -t -v /tmp/prytmp:/tmp/prytmp pry/pry ./multi_test_inside_docker.sh"
   end
 end

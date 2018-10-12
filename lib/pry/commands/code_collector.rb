@@ -29,17 +29,17 @@ class Pry
       @output_result_ranges = []
 
       opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number or range",
-                         :optional_argument => true, :as => Range, :default => 1..-1
+                         optional_argument: true, as: Range, default: 1..-1
       opt.on :o, :out,   "Select lines from Pry's output result history. Takes an index or range",
-      :optional_argument => true, :as => Range, :default => -5..-1 do |r|
+      optional_argument: true, as: Range, default: -5..-1 do |r|
         output_result_ranges << (r || (-5..-1))
       end
       opt.on :i, :in,    "Select lines from Pry's input expression history. Takes an index or range",
-      :optional_argument => true, :as => Range, :default => -5..-1 do |r|
+      optional_argument: true, as: Range, default: -5..-1 do |r|
         input_expression_ranges << (r || (-5..-1))
       end
       opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors",
-                         :as => :count
+                         as: :count
       opt.on :d, :doc,   "Select lines from the code object's documentation"
     end
 
@@ -74,7 +74,7 @@ class Pry
     #
     # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
     def code_object
-      Pry::CodeObject.lookup(obj_name, _pry_, :super => opts[:super])
+      Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
     end
 
     # Given a string and a range, return the `range` lines of that

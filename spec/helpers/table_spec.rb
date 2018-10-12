@@ -2,7 +2,7 @@ require_relative '../helper'
 
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
-    t = Pry::Helpers::Table.new %w(hihi), :column_count => 1
+    t = Pry::Helpers::Table.new %w(hihi), column_count: 1
     expect(t.fits_on_line?(4)).to eq true
     t.items = []
     expect(t.fits_on_line?(4)).to eq true

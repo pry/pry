@@ -314,7 +314,7 @@ describe Pry::Hooks do
         Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| options = opt }
 
         redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-          Pry.start binding, :hello => :baby
+          Pry.start binding, hello: :baby
         end
 
         expect(options[:hello]).to eq :baby
@@ -329,7 +329,7 @@ describe Pry::Hooks do
           Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-            Pry.start 5, :hello => :baby
+            Pry.start 5, hello: :baby
           end
 
           expect(b.is_a?(Binding)).to eq true
@@ -341,7 +341,7 @@ describe Pry::Hooks do
           Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
-            Pry.start 5, :hello => :baby
+            Pry.start 5, hello: :baby
           end
 
           expect(b.eval('self')).to eq 5
@@ -356,7 +356,7 @@ describe Pry::Hooks do
         Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
 
         redirect_pry_io(InputTester.new("@value = true","exit-all")) do
-          Pry.start binding, :hello => :baby
+          Pry.start binding, hello: :baby
         end
 
         expect(o.value).to eq true
@@ -377,7 +377,7 @@ describe Pry::Hooks do
 
         begin
           redirect_pry_io(StringIO.new("raise great_escape"), StringIO.new) do
-            Pry.start o, :hooks => Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
+            Pry.start o, hooks: Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
           end
         rescue => ex
           exception = ex
@@ -399,7 +399,7 @@ describe Pry::Hooks do
           it 'should replace input code with code determined by hook' do
             hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
             redirect_pry_io(InputTester.new(":jemima", "exit-all"), out = StringIO.new) do
-              Pry.start(self, :hooks => hooks)
+              Pry.start(self, hooks: hooks)
             end
             expect(out.string).to match(/little_duck/)
             expect(out.string).not_to match(/jemima/)
@@ -417,7 +417,7 @@ describe Pry::Hooks do
             hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
 
             redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
-              Pry.start(self, :hooks => hooks, :commands => commands)
+              Pry.start(self, hooks: hooks, commands: commands)
             end
             expect(out.string).to match(/in hours of bitterness i imagine balls of sapphire, of metal/)
             expect(out.string).not_to match(/little_duck/)
