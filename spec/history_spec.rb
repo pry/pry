@@ -5,7 +5,7 @@ describe Pry do
   before do
     Pry.history.clear
 
-    @saved_history = "1\n2\n3\n"
+    @saved_history = "1\n2\n3\ninvalid\0 line\n"
 
     Pry.history.loader = proc do |&blk|
       @saved_history.lines.each { |l| blk.call(l) }
@@ -26,6 +26,12 @@ describe Pry do
       Pry.history << '_ += 1'
       Pry.history << '_ += 1'
       expect(Pry.history.to_a.grep('_ += 1').count).to eq 1
+    end
+
+    it "does not record lines that contain a NULL byte" do
+      c = Pry.history.to_a.count
+      Pry.history << "a\0b"
+      expect(Pry.history.to_a.count).to eq c
     end
 
     it "does not record empty lines" do
