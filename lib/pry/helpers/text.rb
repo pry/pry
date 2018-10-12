@@ -60,7 +60,6 @@ class Pry
       def default(text)
         text.to_s
       end
-      alias_method :bright_default, :bold
 
       #
       # @yield
