@@ -261,17 +261,6 @@ Layout/EmptyLinesAroundModuleBody:
     - 'spec/commands/show_doc_spec.rb'
     - 'spec/commands/show_source_spec.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Layout/EndAlignment:
-  Exclude:
-    - 'lib/pry/commands/find_method.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/editor.rb'
-    - 'lib/pry/method.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

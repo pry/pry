@@ -43,12 +43,7 @@ class Pry
         args = [file, line, blocking][0...(_pry_.config.editor.arity)]
         _pry_.config.editor.call(*args)
       else
-        sanitized_file = if windows?
-                            file
-                          else
-                            Shellwords.escape(file)
-                          end
-
+        sanitized_file = windows? ? file : Shellwords.escape(file)
         "#{_pry_.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(sanitized_file, line)}"
       end
     end

@@ -43,7 +43,8 @@ class Pry
         @history = @history.grep(opts[:grep])
       end
 
-      @history = case
+      @history =
+        case
         when opts.present?(:head)
           @history.take_lines(1, opts[:head] || 10)
         when opts.present?(:tail)
