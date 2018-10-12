@@ -104,7 +104,7 @@ describe "Sticky locals (_file_ and friends)" do
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
-          Pry.start(o, :extra_sticky_locals => { :test_local => :john } )
+          Pry.start(o, extra_sticky_locals: { test_local: :john } )
         end
 
         expect(o.instance_variable_get(:@value)).to eq :john
@@ -115,8 +115,8 @@ describe "Sticky locals (_file_ and friends)" do
         redirect_pry_io(InputTester.new("@value1 = test_local1",
                                         "@value2 = test_local2",
                                         "exit-all")) do
-          Pry.start(o, :extra_sticky_locals => { :test_local1 => :john ,
-                      :test_local2 => :carl} )
+          Pry.start(o, extra_sticky_locals: { test_local1: :john ,
+                      test_local2: :carl} )
         end
 
         expect(o.instance_variable_get(:@value1)).to eq :john
@@ -128,7 +128,7 @@ describe "Sticky locals (_file_ and friends)" do
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
-          Pry.start(o, :extra_sticky_locals => { :test_local => proc { :john }} )
+          Pry.start(o, extra_sticky_locals: { test_local: proc { :john }} )
         end
 
         expect(o.instance_variable_get(:@value)).to eq :john
@@ -142,7 +142,7 @@ describe "Sticky locals (_file_ and friends)" do
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
-          Pry.start(o, :extra_sticky_locals => { :test_local => :carl })
+          Pry.start(o, extra_sticky_locals: { test_local: :carl })
         end
 
         expect(o.instance_variable_get(:@value)).to eq :carl

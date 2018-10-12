@@ -3,7 +3,7 @@ class Pry
     match 'gem-open'
     group 'Gems'
     description 'Opens the working directory of the gem in your editor.'
-    command_options :argument_required => true
+    command_options argument_required: true
 
     banner <<-'BANNER'
       Usage: gem-open GEM_NAME

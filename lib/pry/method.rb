@@ -56,8 +56,8 @@ class Pry
         elsif options[:methods]
           from_obj(target.eval("self"), name, target)
         else
-          from_str(name, target, :instance => true) or
-            from_str(name, target, :methods => true)
+          from_str(name, target, instance: true) or
+            from_str(name, target, methods: true)
         end
 
       rescue Pry::RescuableException
@@ -142,7 +142,7 @@ class Pry
       def all_from_class(klass, include_super=true)
         %w(public protected private).flat_map do |visibility|
           safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
-            new(safe_send(klass, :instance_method, method_name), :visibility => visibility.to_sym)
+            new(safe_send(klass, :instance_method, method_name), visibility: visibility.to_sym)
           end
         end
       end

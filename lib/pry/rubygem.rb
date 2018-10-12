@@ -67,7 +67,7 @@ class Pry
                       else
                         Gem.user_dir
                       end
-        installer = Gem::DependencyInstaller.new(:install_dir => destination)
+        installer = Gem::DependencyInstaller.new(install_dir: destination)
         installer.install(name)
       rescue Errno::EACCES
         raise CommandError,

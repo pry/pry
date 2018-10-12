@@ -214,8 +214,8 @@ class Pry
       original_options = cmd.options.dup
 
       options = original_options.merge!({
-                                          :desc => "Alias for `#{action}`",
-                                          :listing => match
+                                          desc: "Alias for `#{action}`",
+                                          listing: match
                                         }).merge!(options)
 
       # ensure default description is used if desc is nil
@@ -249,8 +249,8 @@ class Pry
       cmd = find_command_by_match_or_listing(search)
 
       options = {
-        :listing     => new_match,
-        :description => cmd.description
+        listing: new_match,
+        description: cmd.description
       }.merge!(options)
 
       @commands[new_match] = cmd.dup
@@ -396,7 +396,7 @@ class Pry
     # @return [CommandSet::Result]
     def process_line(val, context={})
       if command = find_command(val)
-        context = context.merge(:command_set => self)
+        context = context.merge(command_set: self)
         retval = command.new(context).process_line(val)
         Result.new(true, retval)
       else

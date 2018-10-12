@@ -5,7 +5,7 @@ class Pry
     match 'find-method'
     group 'Context'
     description 'Recursively search for a method within a Class/Module or the current namespace.'
-    command_options :shellwords => false
+    command_options shellwords: false
 
     banner <<-'BANNER'
       Usage: find-method  [-n|-c] METHOD [NAMESPACE]

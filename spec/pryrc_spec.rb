@@ -18,10 +18,10 @@ describe Pry do
     end
 
     it "should never run the rc file twice" do
-      Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
+      Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
       expect(TEST_RC).to eq [0]
 
-      Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
+      Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
       expect(TEST_RC).to eq [0]
     end
 
@@ -31,7 +31,7 @@ describe Pry do
         Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
         Pry::LOCAL_RC_FILE.replace "spec/fixtures/testlinkrc"
 
-        Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
+        Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
 
         expect(TEST_RC).to eq [0]
       end
@@ -42,7 +42,7 @@ describe Pry do
         File.chmod 0000, dir
         Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')
         Pry.config.should_load_rc = true
-        expect { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.to_not raise_error
+        expect { Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new) }.to_not raise_error
         File.chmod 0777, dir
       end
     end
@@ -51,7 +51,7 @@ describe Pry do
       old_home = ENV['HOME']
       ENV['HOME'] = nil
       Pry.config.should_load_rc = true
-      expect { Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new) }.to_not raise_error
+      expect { Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new) }.to_not raise_error
 
       ENV['HOME'] = old_home
     end
@@ -59,7 +59,7 @@ describe Pry do
     it "should not run the rc file at all if Pry.config.should_load_rc is false" do
       Pry.config.should_load_rc = false
       Pry.config.should_load_local_rc = false
-      Pry.start(self, :input => StringIO.new("exit-all\n"), :output => StringIO.new)
+      Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
       expect(Object.const_defined?(:TEST_RC)).to eq false
     end
 
@@ -77,7 +77,7 @@ describe Pry do
         }
 
         @doing_it = lambda{
-          Pry.start(self, :input => StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), :output => StringIO.new)
+          Pry.start(self, input: StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), output: StringIO.new)
           putsed
         }
       end

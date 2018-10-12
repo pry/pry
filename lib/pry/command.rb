@@ -84,14 +84,14 @@ class Pry
 
       def default_options(match)
         {
-          :requires_gem      => [],
-          :keep_retval       => false,
-          :argument_required => false,
-          :interpolate       => true,
-          :shellwords        => true,
-          :listing           => (String === match ? match : match.inspect),
-          :use_prefix        => true,
-          :takes_block       => false
+          requires_gem: [],
+          keep_retval: false,
+          argument_required: false,
+          interpolate: true,
+          shellwords: true,
+          listing: (String === match ? match : match.inspect),
+          use_prefix: true,
+          takes_block: false
         }
       end
     end

@@ -419,7 +419,7 @@ describe "show-doc" do
     end
 
     it 'should display help for a regex command with a "listing"' do
-      @set.command(/bar(.*)/, "Test listing", :listing => "foo") do; end
+      @set.command(/bar(.*)/, "Test listing", listing: "foo") do; end
       expect(pry_eval('show-doc foo')).to match(/Test listing/)
     end
 

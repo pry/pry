@@ -34,7 +34,7 @@ describe Pry::Method do
 
     it 'should look up methods if :methods  option provided' do
       klass = Class.new { def hello; end; def self.hello; end }
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {:methods => true})
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {methods: true})
       expect(meth).to eq klass.method(:hello)
     end
 

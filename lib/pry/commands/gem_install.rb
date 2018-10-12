@@ -3,7 +3,7 @@ class Pry
     match 'gem-install'
     group 'Gems'
     description 'Install a gem and refresh the gem cache.'
-    command_options :argument_required => true
+    command_options argument_required: true
 
     banner <<-'BANNER'
       Usage: gem-install GEM_NAME

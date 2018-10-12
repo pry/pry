@@ -4,7 +4,7 @@ class Pry::Testable::PryTester
   def_delegators :@pry, :eval_string, :eval_string=
 
   def initialize(target = TOPLEVEL_BINDING, options = {})
-    @pry = Pry.new(options.merge(:target => target))
+    @pry = Pry.new(options.merge(target: target))
     @history = options[:history]
     @pry.inject_sticky_locals!
     reset_output

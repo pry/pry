@@ -62,7 +62,7 @@ class Pry
     # Which sections to include in the 'header', can toggle: :owner,
     # :signature and visibility.
     def header_options
-      super.merge :signature => true
+      super.merge signature: true
     end
 
     # figure out start line of docs by back-calculating based on

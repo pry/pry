@@ -42,7 +42,7 @@ class Pry
       end
 
       content.lines.each do |line|
-        break unless _pry_.eval line, :generated => true
+        break unless _pry_.eval line, generated: true
       end
 
       unless _pry_.eval_string.empty?

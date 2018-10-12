@@ -276,17 +276,17 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   #   Pry.run_command "ls -av", :show_output => true
   def self.run_command(command_string, options={})
     options = {
-      :target => TOPLEVEL_BINDING,
-      :show_output => true,
-      :output => Pry.config.output,
-      :commands => Pry.config.commands
+      target: TOPLEVEL_BINDING,
+      show_output: true,
+      output: Pry.config.output,
+      commands: Pry.config.commands
     }.merge!(options)
 
     # :context for compatibility with <= 0.9.11.4
     target = options[:context] || options[:target]
     output = options[:show_output] ? options[:output] : StringIO.new
 
-    pry = Pry.new(:output => output, :target => target, :commands => options[:commands])
+    pry = Pry.new(output: output, target: target, commands: options[:commands])
     pry.eval command_string
     nil
   end

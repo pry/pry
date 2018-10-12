@@ -70,9 +70,9 @@ class Pry
         begin
           opts = Pry::Slop.parse!(
             args,
-            :help => true,
-            :multiple_switches => false,
-            :strict => true,
+            help: true,
+            multiple_switches: false,
+            strict: true,
             &options
           )
         rescue Pry::Slop::InvalidOptionError
@@ -113,7 +113,7 @@ class Pry
         end
 
         # Start the session (running any code passed with -e, if there is any)
-        Pry.start(context, :input => StringIO.new(Pry.config.exec_string))
+        Pry.start(context, input: StringIO.new(Pry.config.exec_string))
       end
 
     end
@@ -198,7 +198,7 @@ Copyright (c) 2016 John Mair (banisterfiend)
     Pry.config.requires << file
   end
 
-  on :I=, "Add a path to the $LOAD_PATH", :as => Array, :delimiter => ":" do |load_path|
+  on :I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":" do |load_path|
     load_path.map! do |path|
       /\A\.\// =~ path ? path : File.expand_path(path)
     end
@@ -220,6 +220,6 @@ Copyright (c) 2016 John Mair (banisterfiend)
 
   on(:c, :context=,
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
-     :default => "Pry.toplevel_binding"
+     default: "Pry.toplevel_binding"
      )
 end

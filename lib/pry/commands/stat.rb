@@ -3,7 +3,7 @@ class Pry
     match 'stat'
     group 'Introspection'
     description 'View method information and set _file_ and _dir_ locals.'
-    command_options :shellwords => false
+    command_options shellwords: false
 
     banner <<-'BANNER'
         Usage: stat [OPTIONS] [METH]

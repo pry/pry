@@ -20,7 +20,7 @@ describe "test Pry defaults" do
       expect(@str_output.string).to match(/5/)
 
       Pry.config.output = @str_output
-      Object.new.pry :input => InputTester.new("6")
+      Object.new.pry input: InputTester.new("6")
       expect(@str_output.string).to match(/6/)
     end
 
@@ -35,7 +35,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      Pry.start(self, :input => arity_one_input, :output => StringIO.new)
+      Pry.start(self, input: arity_one_input, output: StringIO.new)
       expect(arity_one_input.prompt).to eq Pry.prompt.call
     end
 
@@ -48,7 +48,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      expect { Pry.start(self, :input => arity_zero_input, :output => StringIO.new) }.to_not raise_error
+      expect { Pry.start(self, input: arity_zero_input, output: StringIO.new) }.to_not raise_error
     end
 
     it 'should not pass in the prompt if the arity is -1' do
@@ -63,7 +63,7 @@ describe "test Pry defaults" do
         end
       end.new
 
-      Pry.start(self, :input => arity_multi_input, :output => StringIO.new)
+      Pry.start(self, input: arity_multi_input, output: StringIO.new)
       expect(arity_multi_input.prompt).to eq nil
     end
 
@@ -82,7 +82,7 @@ describe "test Pry defaults" do
 
     Pry.config.input = InputTester.new("7")
     @str_output = StringIO.new
-    Object.new.pry :output => @str_output
+    Object.new.pry output: @str_output
     expect(@str_output.string).not_to match(/5\n.*6/)
     expect(@str_output.string).to match(/7/)
   end
@@ -92,39 +92,39 @@ describe "test Pry defaults" do
     Pry.config.print = new_print
 
     expect(Pry.new.print).to eq Pry.config.print
-    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
+    Object.new.pry input: InputTester.new("\"test\""), output: @str_output
     expect(@str_output.string).to eq "=> LOL\n"
 
     @str_output = StringIO.new
-    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output,
-                   :print => proc { |out, value| out.puts value.reverse }
+    Object.new.pry input: InputTester.new("\"test\""), output: @str_output,
+                   print: proc { |out, value| out.puts value.reverse }
     expect(@str_output.string).to eq "tset\n"
 
     expect(Pry.new.print).to eq Pry.config.print
     @str_output = StringIO.new
-    Object.new.pry :input => InputTester.new("\"test\""), :output => @str_output
+    Object.new.pry input: InputTester.new("\"test\""), output: @str_output
     expect(@str_output.string).to eq "=> LOL\n"
   end
 
   describe "pry return values" do
     it 'should return nil' do
-      expect(Pry.start(self, :input => StringIO.new("exit-all"), :output => StringIO.new)).to eq nil
+      expect(Pry.start(self, input: StringIO.new("exit-all"), output: StringIO.new)).to eq nil
     end
 
     it 'should return the parameter given to exit-all' do
-      expect(Pry.start(self, :input => StringIO.new("exit-all 10"), :output => StringIO.new)).to eq 10
+      expect(Pry.start(self, input: StringIO.new("exit-all 10"), output: StringIO.new)).to eq 10
     end
 
     it 'should return the parameter (multi word string) given to exit-all' do
-      expect(Pry.start(self, :input => StringIO.new("exit-all \"john mair\""), :output => StringIO.new)).to eq "john mair"
+      expect(Pry.start(self, input: StringIO.new("exit-all \"john mair\""), output: StringIO.new)).to eq "john mair"
     end
 
     it 'should return the parameter (function call) given to exit-all' do
-      expect(Pry.start(self, :input => StringIO.new("exit-all 'abc'.reverse"), :output => StringIO.new)).to eq 'cba'
+      expect(Pry.start(self, input: StringIO.new("exit-all 'abc'.reverse"), output: StringIO.new)).to eq 'cba'
     end
 
     it 'should return the parameter (self) given to exit-all' do
-      expect(Pry.start("carl", :input => StringIO.new("exit-all self"), :output => StringIO.new)).to eq "carl"
+      expect(Pry.start("carl", input: StringIO.new("exit-all self"), output: StringIO.new)).to eq "carl"
     end
   end
 
@@ -150,7 +150,7 @@ describe "test Pry defaults" do
       expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
 
 
-      pry = Pry.new(:prompt => new_prompt)
+      pry = Pry.new(prompt: new_prompt)
       expect(pry.prompt).to eq new_prompt
       expect(get_prompts(pry)).to eq ["A", "A"]
 
@@ -168,7 +168,7 @@ describe "test Pry defaults" do
       expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
 
 
-      pry = Pry.new(:prompt => new_prompt)
+      pry = Pry.new(prompt: new_prompt)
       expect(pry.prompt).to eq new_prompt
       expect(get_prompts(pry)).to eq ["A", "B"]
 
@@ -185,7 +185,7 @@ describe "test Pry defaults" do
           prompt
         end
         @a , @b , @c = make[:a,0] , make[:b,1] , make[:c,2]
-        @pry = Pry.new :prompt => @a
+        @pry = Pry.new prompt: @a
       end
       it 'should have a prompt stack' do
         @pry.push_prompt @b
@@ -198,7 +198,7 @@ describe "test Pry defaults" do
       end
 
       it 'should restore overridden prompts when returning from file-mode' do
-        pry = Pry.new(:prompt => [ proc { 'P>' } ] * 2)
+        pry = Pry.new(prompt: [ proc { 'P>' } ] * 2)
         expect(pry.select_prompt).to eq "P>"
         pry.process_command('shell-mode')
         expect(pry.select_prompt).to match(/\Apry .* \$ \z/)
@@ -343,18 +343,18 @@ describe "test Pry defaults" do
 
   describe 'quiet' do
     it 'should show whereami by default' do
-      Pry.start(binding, :input => InputTester.new("1", "exit-all"),
-              :output => @str_output,
-              :hooks => Pry::DEFAULT_HOOKS)
+      Pry.start(binding, input: InputTester.new("1", "exit-all"),
+              output: @str_output,
+              hooks: Pry::DEFAULT_HOOKS)
 
       expect(@str_output.string).to match(/[w]hereami by default/)
     end
 
     it 'should hide whereami if quiet is set' do
-      Pry.new(:input => InputTester.new("exit-all"),
-              :output => @str_output,
-              :quiet => true,
-              :hooks => Pry::DEFAULT_HOOKS)
+      Pry.new(input: InputTester.new("exit-all"),
+              output: @str_output,
+              quiet: true,
+              hooks: Pry::DEFAULT_HOOKS)
 
       expect(@str_output.string).to eq ""
     end
@@ -382,15 +382,15 @@ describe "test Pry defaults" do
       add_hook(:before_session, :my_name) { |out,_,_| out.puts "HELLO" }.
       add_hook(:after_session, :my_name) { |out,_,_| out.puts "BYE" }
 
-    Object.new.pry :output => @str_output
+    Object.new.pry output: @str_output
     expect(@str_output.string).to match(/HELLO/)
     expect(@str_output.string).to match(/BYE/)
 
     Pry.config.input.rewind
 
     @str_output = StringIO.new
-    Object.new.pry :output => @str_output,
-                   :hooks => Pry::Hooks.new.
+    Object.new.pry output: @str_output,
+                   hooks: Pry::Hooks.new.
                    add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }.
                    add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
 
@@ -400,16 +400,16 @@ describe "test Pry defaults" do
     # try below with just defining one hook
     Pry.config.input.rewind
     @str_output = StringIO.new
-    Object.new.pry :output => @str_output,
-                   :hooks => Pry::Hooks.new.
+    Object.new.pry output: @str_output,
+                   hooks: Pry::Hooks.new.
                    add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
 
     expect(@str_output.string).to match(/OPEN/)
 
     Pry.config.input.rewind
     @str_output = StringIO.new
-    Object.new.pry :output => @str_output,
-                   :hooks => Pry::Hooks.new.
+    Object.new.pry output: @str_output,
+                   hooks: Pry::Hooks.new.
                    add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
 
     expect(@str_output.string).to match(/CLOSE/)

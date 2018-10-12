@@ -705,7 +705,7 @@ describe "show-source" do
         end
 
         it 'should show source for a command by listing name' do
-          @set.command(/foo(.*)/, :body_of_foo_bar_regex, :listing => "bar") do; end
+          @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") do; end
 
           expect(pry_eval('show-source bar')).to match(/:body_of_foo_bar_regex/)
         end

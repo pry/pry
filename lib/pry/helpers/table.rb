@@ -2,11 +2,11 @@ class Pry
   module Helpers
     def self.tablify_or_one_line(heading, things)
       plain_heading = Pry::Helpers::Text.strip_color(heading)
-      attempt = Table.new(things, :column_count => things.size)
+      attempt = Table.new(things, column_count: things.size)
       if attempt.fits_on_line?(Terminal.width! - plain_heading.size - 2)
         "#{heading}: #{attempt}\n"
       else
-        "#{heading}: \n#{tablify_to_screen_width(things, :indent => '  ')}\n"
+        "#{heading}: \n#{tablify_to_screen_width(things, indent: '  ')}\n"
       end
     end
 
@@ -21,7 +21,7 @@ class Pry
     end
 
     def self.tablify(things, line_length)
-      table = Table.new(things, :column_count => things.size)
+      table = Table.new(things, column_count: things.size)
       table.column_count -= 1 until 1 == table.column_count or
         table.fits_on_line?(line_length)
       table

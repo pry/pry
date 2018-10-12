@@ -21,13 +21,13 @@ class Pry
 
     def options(opt)
       opt.on :a, :all,    "Display all history"
-      opt.on :H, :head,   "Display the first N items", :optional_argument => true, :as => Integer
-      opt.on :T, :tail,   "Display the last N items", :optional_argument => true, :as => Integer
-      opt.on :s, :show,   "Show the given range of lines", :optional_argument => true, :as => Range
-      opt.on :G, :grep,   "Show lines matching the given pattern", :argument => true, :as => String
+      opt.on :H, :head,   "Display the first N items", optional_argument: true, as: Integer
+      opt.on :T, :tail,   "Display the last N items", optional_argument: true, as: Integer
+      opt.on :s, :show,   "Show the given range of lines", optional_argument: true, as: Range
+      opt.on :G, :grep,   "Show lines matching the given pattern", argument: true, as: String
       opt.on :c, :clear , "Clear the current session's history"
-      opt.on :r, :replay, "Replay a line or range of lines", :argument => true, :as => Range
-      opt.on     :save,   "Save history to a file", :argument => true, :as => Range
+      opt.on :r, :replay, "Replay a line or range of lines", argument: true, as: Range
+      opt.on     :save,   "Save history to a file", argument: true, as: Range
       opt.on :e, :'exclude-pry', "Exclude Pry commands from the history"
       opt.on :n, :'no-numbers',  "Omit line numbers"
     end
@@ -120,7 +120,7 @@ class Pry
       check_for_juxtaposed_replay(replay_sequence)
 
       replay_sequence.lines.each do |line|
-        _pry_.eval line, :generated => true
+        _pry_.eval line, generated: true
       end
     end
 

@@ -1,6 +1,6 @@
 class Pry
   Pry::Commands.instance_eval do
-    command "nyan-cat", "", :requires_gem => ["nyancat"] do
+    command "nyan-cat", "", requires_gem: ["nyancat"] do
       run ".nyancat"
     end
 

@@ -91,7 +91,7 @@ describe Pry::CodeObject do
       end
 
       it 'looks up commands by :listing name as well' do
-        @p.commands.command(/jeremy-.*/, "", :listing => "jeremy-baby") do
+        @p.commands.command(/jeremy-.*/, "", listing: "jeremy-baby") do
           "lobster"
         end
         m = Pry::CodeObject.lookup("jeremy-baby", @p)
@@ -196,13 +196,13 @@ describe Pry::CodeObject do
     end
 
     it 'should lookup original class with :super => 0' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 0)
+      m = Pry::CodeObject.lookup("CuteSubclass", @p, super: 0)
       expect(m.is_a?(Pry::WrappedModule)).to eq true
       expect(m.wrapped).to eq CuteSubclass
     end
 
     it 'should lookup immediate super class with :super => 1' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, :super => 1)
+      m = Pry::CodeObject.lookup("CuteSubclass", @p, super: 1)
       expect(m.is_a?(Pry::WrappedModule)).to eq true
       expect(m.wrapped).to eq MyClassyWassy
     end
@@ -213,7 +213,7 @@ describe Pry::CodeObject do
         "lobster"
       end
       p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("jeremy-jones", p, :super => 10)
+      m = Pry::CodeObject.lookup("jeremy-jones", p, super: 10)
       expect(m.source).to match(/lobster/)
     end
   end

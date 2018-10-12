@@ -10,7 +10,7 @@ describe "Pry::Command" do
   describe 'call_safely' do
 
     it 'should display a message if gems are missing' do
-      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", :requires_gem => %w(ghijkl) do
+      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w(ghijkl) do
         #
       end
 
@@ -18,7 +18,7 @@ describe "Pry::Command" do
     end
 
     it 'should abort early if arguments are required' do
-      cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", :argument_required => true do
+      cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", argument_required: true do
         #
       end
 
@@ -36,7 +36,7 @@ describe "Pry::Command" do
     end
 
     it 'should return the return value with keep_retval' do
-      cmd = @set.create_command 'tricia-mcmillian', "a.k.a Trillian", :keep_retval => true do
+      cmd = @set.create_command 'tricia-mcmillian', "a.k.a Trillian", keep_retval: true do
         def process
           5
         end
@@ -109,7 +109,7 @@ describe "Pry::Command" do
 
     # TODO: This strikes me as rather silly...
     it 'should return the value from the last hook with keep_retval' do
-      cmd = @set.create_command 'slartibartfast', "Designs Fjords", :keep_retval => true do
+      cmd = @set.create_command 'slartibartfast', "Designs Fjords", keep_retval: true do
         def process
           22
         end
@@ -129,7 +129,7 @@ describe "Pry::Command" do
         #
       end
 
-      expect(mock_command(@set['help'], %w(oolon-colluphid), :command_set => @set).output).to match(/Raving Atheist/)
+      expect(mock_command(@set['help'], %w(oolon-colluphid), command_set: @set).output).to match(/Raving Atheist/)
     end
 
     it 'should use slop to generate the help for classy commands' do
@@ -139,7 +139,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(@set['help'], %w(eddie), :command_set => @set).output).to match(/Over-cheerful/)
+      expect(mock_command(@set['help'], %w(eddie), command_set: @set).output).to match(/Over-cheerful/)
     end
 
     it 'should provide --help for classy commands' do
@@ -176,11 +176,11 @@ describe "Pry::Command" do
   describe 'context' do
     let(:context) {
       {
-        :target => binding,
-        :output => StringIO.new,
-        :eval_string => "eval-string",
-        :command_set => @set,
-        :pry_instance => Pry.new
+        target: binding,
+        output: StringIO.new,
+        eval_string: "eval-string",
+        command_set: @set,
+        pry_instance: Pry.new
       }
     }
 
@@ -253,7 +253,7 @@ describe "Pry::Command" do
     end
 
     it 'should work if neither options, nor setup is overridden' do
-      cmd = @set.create_command 'wowbagger', "Immortal, insulting.", :keep_retval => true do
+      cmd = @set.create_command 'wowbagger', "Immortal, insulting.", keep_retval: true do
         def process
           5
         end
@@ -265,7 +265,7 @@ describe "Pry::Command" do
     it 'should provide opts and args as provided by slop' do
       cmd = @set.create_command 'lintilla', "One of 800,000,000 clones" do
         def options(opt)
-          opt.on :f, :four, "A numeric four", :as => Integer, :optional_argument => true
+          opt.on :f, :four, "A numeric four", as: Integer, optional_argument: true
         end
 
         def process
@@ -279,9 +279,9 @@ describe "Pry::Command" do
     end
 
     it 'should allow overriding options after definition' do
-      cmd = @set.create_command(/number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", :shellwords => false) do
+      cmd = @set.create_command(/number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", shellwords: false) do
 
-        command_options :listing => 'number-one'
+        command_options listing: 'number-one'
       end
 
       expect(cmd.command_options[:shellwords]).to eq false
@@ -340,7 +340,7 @@ describe "Pry::Command" do
     describe "explicit classes" do
       before do
         @x = Class.new(Pry::ClassCommand) do
-          options :baby => :pig
+          options baby: :pig
           match(/goat/)
           description "waaaninngggiiigygygygygy"
         end
@@ -361,7 +361,7 @@ describe "Pry::Command" do
         cmd = @set.command('random-dent', &probe)
 
         _foo = 5
-        cmd.new(:target => binding).process_line 'random-dent #{1 + 2} #{3 + _foo}'
+        cmd.new(target: binding).process_line 'random-dent #{1 + 2} #{3 + _foo}'
       }.to yield_with_args('3', '8')
     end
 
@@ -375,7 +375,7 @@ describe "Pry::Command" do
 
     it 'should not interpolate commands with :interpolate => false' do
       expect { |probe|
-        cmd = @set.command('thor', 'norse god', :interpolate => false, &probe)
+        cmd = @set.command('thor', 'norse god', interpolate: false, &probe)
 
         cmd.new.process_line 'thor %(#{foo})'
       }.to yield_with_args('%(#{foo})')
@@ -391,7 +391,7 @@ describe "Pry::Command" do
 
     it 'should split on spaces if shellwords is not used' do
       expect { |probe|
-        cmd = @set.command('bugblatter-beast', 'would eat its grandmother', :shellwords => false, &probe)
+        cmd = @set.command('bugblatter-beast', 'would eat its grandmother', shellwords: false, &probe)
 
         cmd.new.process_line %(bugblatter-beast "of traal")
       }.to yield_with_args('"of', 'traal"')
@@ -417,7 +417,7 @@ describe "Pry::Command" do
 
       _frankie = 'boyle'
       output = StringIO.new
-      cmd.new(:target => binding, :output => output).process_line %(_frankie mouse)
+      cmd.new(target: binding, output: output).process_line %(_frankie mouse)
 
       expect(output.string).to match(/command .* conflicts/)
 
@@ -433,7 +433,7 @@ describe "Pry::Command" do
       end
 
       output = StringIO.new
-      cmd.new(:target => binding, :output => output).process_line %(frankie = mouse)
+      cmd.new(target: binding, output: output).process_line %(frankie = mouse)
 
       expect(output.string).to match(/command .* conflicts/)
 
@@ -460,12 +460,12 @@ describe "Pry::Command" do
   describe "block parameters" do
     before do
       @context = Object.new
-      @set.command "walking-spanish", "down the hall", :takes_block => true do
+      @set.command "walking-spanish", "down the hall", takes_block: true do
         insert_variable(:@x, command_block.call, target)
       end
       @set.import Pry::Commands
 
-      @t = pry_tester(@context, :commands => @set)
+      @t = pry_tester(@context, commands: @set)
     end
 
     it 'should accept multiline blocks' do
@@ -481,7 +481,7 @@ describe "Pry::Command" do
     it 'should accept normal parameters along with block' do
       @set.block_command "walking-spanish",
           "litella's been screeching for a blind pig.",
-          :takes_block => true do |x, y|
+          takes_block: true do |x, y|
         insert_variable(:@x, x, target)
         insert_variable(:@y, y, target)
         insert_variable(:@block_var, command_block.call, target)
@@ -515,7 +515,7 @@ describe "Pry::Command" do
 
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
-          @set.block_command "walking-spanish", "down the hall", :takes_block => true do |x, y|
+          @set.block_command "walking-spanish", "down the hall", takes_block: true do |x, y|
             insert_variable(:@arg_string, arg_string, target)
             insert_variable(:@x, x, target)
           end
@@ -526,7 +526,7 @@ describe "Pry::Command" do
         end
 
         it 'should remove block-related content from arg_string (with no normal args)' do
-          @set.block_command "walking-spanish", "down the hall", :takes_block => true do
+          @set.block_command "walking-spanish", "down the hall", takes_block: true do
             insert_variable(:@arg_string, arg_string, target)
           end
 
@@ -537,7 +537,7 @@ describe "Pry::Command" do
 
         it 'should NOT remove block-related content from arg_string when :takes_block => false' do
           block_string = "| { :jesus }"
-          @set.block_command "walking-spanish", "homemade special", :takes_block => false do
+          @set.block_command "walking-spanish", "homemade special", takes_block: false do
             insert_variable(:@arg_string, arg_string, target)
           end
 
@@ -550,7 +550,7 @@ describe "Pry::Command" do
       describe "args" do
         describe "block_command" do
           it "should remove block-related content from arguments" do
-            @set.block_command "walking-spanish", "glass is full of sand", :takes_block => true do |x, y|
+            @set.block_command "walking-spanish", "glass is full of sand", takes_block: true do |x, y|
               insert_variable(:@x, x, target)
               insert_variable(:@y, y, target)
             end
@@ -562,7 +562,7 @@ describe "Pry::Command" do
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
-            @set.block_command "walking-spanish", "litella screeching for a blind pig", :takes_block => false do |x, y|
+            @set.block_command "walking-spanish", "litella screeching for a blind pig", takes_block: false do |x, y|
               insert_variable(:@x, x, target)
               insert_variable(:@y, y, target)
             end
@@ -576,7 +576,7 @@ describe "Pry::Command" do
 
         describe "create_command" do
           it "should remove block-related content from arguments" do
-            @set.create_command "walking-spanish", "punk sanders carved one out of wood", :takes_block => true do
+            @set.create_command "walking-spanish", "punk sanders carved one out of wood", takes_block: true do
               def process(x, y)
                 insert_variable(:@x, x, target)
                 insert_variable(:@y, y, target)
@@ -590,7 +590,7 @@ describe "Pry::Command" do
           end
 
           it "should NOT remove block-related content from arguments if :takes_block => false" do
-            @set.create_command "walking-spanish", "down the hall", :takes_block => false do
+            @set.create_command "walking-spanish", "down the hall", takes_block: false do
               def process(x, y)
                 insert_variable(:@x, x, target)
                 insert_variable(:@y, y, target)
@@ -609,7 +609,7 @@ describe "Pry::Command" do
     describe "blocks can take parameters" do
       describe "{} style blocks" do
         it 'should accept multiple parameters' do
-          @set.block_command "walking-spanish", "down the hall", :takes_block => true do
+          @set.block_command "walking-spanish", "down the hall", takes_block: true do
             insert_variable(:@x, command_block.call(1, 2), target)
           end
 
@@ -621,7 +621,7 @@ describe "Pry::Command" do
 
       describe "do/end style blocks" do
         it 'should accept multiple parameters' do
-          @set.create_command "walking-spanish", "litella", :takes_block => true do
+          @set.create_command "walking-spanish", "litella", takes_block: true do
             def process
               insert_variable(:@x, command_block.call(1, 2), target)
             end
@@ -648,7 +648,7 @@ describe "Pry::Command" do
     describe "exposing block parameter" do
       describe "block_command" do
         it "should expose block in command_block method" do
-          @set.block_command "walking-spanish", "glass full of sand", :takes_block => true do
+          @set.block_command "walking-spanish", "glass full of sand", takes_block: true do
             insert_variable(:@x, command_block.call, target)
           end
 
@@ -660,7 +660,7 @@ describe "Pry::Command" do
 
       describe "create_command" do
         it "should NOT expose &block in create_command's process method" do
-          @set.create_command "walking-spanish", "down the hall", :takes_block => true do
+          @set.create_command "walking-spanish", "down the hall", takes_block: true do
             def process(&block)
               block.call
             end
@@ -671,7 +671,7 @@ describe "Pry::Command" do
         end
 
         it "should expose block in command_block method" do
-          @set.create_command "walking-spanish", "homemade special", :takes_block => true do
+          @set.create_command "walking-spanish", "homemade special", takes_block: true do
             def process
               insert_variable(:@x, command_block.call, target)
             end
@@ -692,7 +692,7 @@ describe "Pry::Command" do
         match(/my-*test/)
         description 'So just how many sound technicians does it take to' \
           'change a lightbulb? 1? 2? 3? 1-2-3? Testing?'
-        options :shellwords => false, :listing => 'my-test'
+        options shellwords: false, listing: 'my-test'
 
         undef process if method_defined? :process
 
@@ -719,14 +719,14 @@ describe "Pry::Command" do
     describe "command options hash" do
       it "is always present" do
         options_hash = {
-          :requires_gem      => [],
-          :keep_retval       => false,
-          :argument_required => false,
-          :interpolate       => true,
-          :shellwords        => false,
-          :listing           => 'my-test',
-          :use_prefix        => true,
-          :takes_block       => false
+          requires_gem: [],
+          keep_retval: false,
+          argument_required: false,
+          interpolate: true,
+          shellwords: false,
+          listing: 'my-test',
+          use_prefix: true,
+          takes_block: false
         }
         expect(MyTestCommand.options).to eq options_hash
       end
@@ -748,7 +748,7 @@ describe "Pry::Command" do
           class MerryChristmas < Pry::ClassCommand
             match 'merry-christmas'
             description 'Merry Christmas!'
-            command_options :listing => 'happy-holidays'
+            command_options listing: 'happy-holidays'
           end
           Pry.config.commands.add_command MerryChristmas
 
@@ -798,7 +798,7 @@ describe "Pry::Command" do
 
       end.import Pry::Commands
 
-      @t = pry_tester(:commands => @set)
+      @t = pry_tester(commands: @set)
     end
 
     it 'should save state for the command on the Pry#command_state hash' do

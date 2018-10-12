@@ -3,18 +3,18 @@ class Pry::Slop
 
     # The default Hash of configuration options this class uses.
     DEFAULT_OPTIONS = {
-      :argument => false,
-      :optional_argument => false,
-      :tail => false,
-      :default => nil,
-      :callback => nil,
-      :delimiter => ',',
-      :limit => 0,
-      :match => nil,
-      :optional => true,
-      :required => false,
-      :as => String,
-      :autocreated => false
+      argument: false,
+      optional_argument: false,
+      tail: false,
+      default: nil,
+      callback: nil,
+      delimiter: ',',
+      limit: 0,
+      match: nil,
+      optional: true,
+      required: false,
+      as: String,
+      autocreated: false
     }
 
     attr_reader :short, :long, :description, :config, :types
@@ -41,12 +41,12 @@ class Pry::Slop
       @value = nil
 
       @types = {
-        :string  => proc { |v| v.to_s },
-        :symbol  => proc { |v| v.to_sym },
-        :integer => proc { |v| value_to_integer(v) },
-        :float   => proc { |v| value_to_float(v) },
-        :range   => proc { |v| value_to_range(v) },
-        :count   => proc { |v| @count }
+        string: proc { |v| v.to_s },
+        symbol: proc { |v| v.to_sym },
+        integer: proc { |v| value_to_integer(v) },
+        float: proc { |v| value_to_float(v) },
+        range: proc { |v| value_to_range(v) },
+        count: proc { |v| @count }
       }
 
       if long && long.size > @slop.config[:longest_flag]

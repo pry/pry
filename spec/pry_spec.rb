@@ -171,13 +171,13 @@ describe Pry do
 
       it 'should be able to evaluate exceptions normally' do
         was_called = false
-        mock_pry("RuntimeError.new", :exception_handler => proc{ was_called = true })
+        mock_pry("RuntimeError.new", exception_handler: proc{ was_called = true })
         expect(was_called).to eq false
       end
 
       it 'should notice when exceptions are raised' do
         was_called = false
-        mock_pry("raise RuntimeError", :exception_handler => proc{ was_called = true })
+        mock_pry("raise RuntimeError", exception_handler: proc{ was_called = true })
         expect(was_called).to eq true
       end
 
@@ -243,7 +243,7 @@ describe Pry do
 
           o = Object.new
 
-          Pry.start(o, :input => input, :output => StringIO.new)
+          Pry.start(o, input: input, output: StringIO.new)
 
           expect(o.instance_variable_get(:@x)).to eq 10
         end
@@ -292,7 +292,7 @@ describe Pry do
         end
 
         it 'can change the size of the history arrays' do
-          expect(pry_tester(:memory_size => 1000).eval("[_out_, _in_].map(&:max_size)")).to eq [1000, 1000]
+          expect(pry_tester(memory_size: 1000).eval("[_out_, _in_].map(&:max_size)")).to eq [1000, 1000]
         end
 
         it 'store exceptions' do
@@ -312,7 +312,7 @@ describe Pry do
         # replacing the eval_string, so _ won't be modified without Pry doing
         # a REPL loop.
         it "should be set to the result of a command with :keep_retval" do
-          Pry::Commands.block_command '++', '', :keep_retval => true do |a|
+          Pry::Commands.block_command '++', '', keep_retval: true do |a|
             a.to_i + 1
           end
 
@@ -408,7 +408,7 @@ describe Pry do
         end
 
         it "should raise if more than two arguments are passed to Object#pry" do
-          expect { pry(20, :quiet, :input => Readline) }.to raise_error ArgumentError
+          expect { pry(20, :quiet, input: Readline) }.to raise_error ArgumentError
         end
       end
 
@@ -425,11 +425,11 @@ describe Pry do
 
   describe 'setting custom options' do
     it 'does not raise for unrecognized options' do
-      expect { Pry.new(:custom_option => 'custom value') }.to_not raise_error
+      expect { Pry.new(custom_option: 'custom value') }.to_not raise_error
     end
 
     it 'correctly handles the :quiet option (#1261)' do
-      instance = Pry.new(:quiet => true)
+      instance = Pry.new(quiet: true)
       expect(instance.quiet?).to eq true
     end
   end

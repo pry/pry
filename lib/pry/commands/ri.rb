@@ -50,7 +50,7 @@ class Pry
       end
 
       # Spin-up an RI insance.
-      ri = RDoc::RI::PryDriver.new _pry_.pager, :use_stdout => true, :interactive => false
+      ri = RDoc::RI::PryDriver.new _pry_.pager, use_stdout: true, interactive: false
 
       begin
         ri.display_names [spec] # Get the documentation (finally!)

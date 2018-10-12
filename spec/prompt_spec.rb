@@ -5,7 +5,7 @@ describe "Prompts" do
     it 'should get full config object' do
       config = nil
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(self, :prompt => proc { |v| config = v })
+        Pry.start(self, prompt: proc { |v| config = v })
       end
       expect(config.is_a?(Pry::Config)).to eq true
     end
@@ -13,7 +13,7 @@ describe "Prompts" do
     it 'should get full config object, when using a proc array' do
       config1 = nil
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(self, :prompt => [proc { |v| config1 = v }, proc { |v| _config2 = v }])
+        Pry.start(self, prompt: [proc { |v| config1 = v }, proc { |v| _config2 = v }])
       end
       expect(config1.is_a?(Pry::Config)).to eq true
     end
@@ -21,7 +21,7 @@ describe "Prompts" do
     it 'should receive correct data in the config object' do
       config = nil
       redirect_pry_io(InputTester.new("def hello", "exit-all")) do
-        Pry.start(self, :prompt => proc { |v| config = v })
+        Pry.start(self, prompt: proc { |v| config = v })
       end
 
       expect(config.eval_string).to match(/def hello/)
@@ -46,7 +46,7 @@ describe "Prompts" do
     it 'should get 3 parameters' do
       o = n = p = nil
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(:test, :prompt => proc { |obj, nesting, _pry_|
+        Pry.start(:test, prompt: proc { |obj, nesting, _pry_|
                     o, n, p = obj, nesting, _pry_ })
       end
       expect(o).to eq :test
@@ -57,10 +57,10 @@ describe "Prompts" do
     it 'should get 3 parameters, when using proc array' do
       o1 = n1 = p1 = nil
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(:test, :prompt => [proc { |obj, nesting, _pry_|
+        Pry.start(:test, prompt: [proc { |obj, nesting, _pry_|
                                        o1, n1, p1 = obj, nesting, _pry_ },
-                                     proc { |obj, nesting, _pry_|
-                                       _o2, _n2, _p2 = obj, nesting, _pry_ }])
+                                  proc { |obj, nesting, _pry_|
+                                    _o2, _n2, _p2 = obj, nesting, _pry_ }])
       end
       expect(o1).to eq :test
       expect(n1).to eq 0
