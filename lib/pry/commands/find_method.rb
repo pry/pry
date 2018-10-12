@@ -33,12 +33,7 @@ class Pry
       return if args.size < 1
       klass = search_class
 
-      matches = if opts.content?
-        content_search(klass)
-      else
-        name_search(klass)
-      end
-
+      matches = opts.content? ? content_search(klass) : name_search(klass)
       show_search_results(matches)
     end
 

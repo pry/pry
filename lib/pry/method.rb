@@ -298,7 +298,8 @@ class Pry
     # @return [String, nil] The documentation for the method, or `nil` if it's
     #   unavailable.
     def doc
-      @doc ||= case source_type
+      @doc ||=
+        case source_type
         when :c
           info = pry_doc_info
           info.docstring if info
@@ -361,15 +362,17 @@ class Pry
       if respond_to?(:parameters)
         args = parameters.inject([]) do |args_array, (arg_type, name)|
           name ||= (arg_type == :block ? 'block' : "arg#{args_array.size + 1}")
-          args_array << case arg_type
-                 when :req    then name.to_s
-                 when :opt    then "#{name}=?"
-                 when :rest   then "*#{name}"
-                 when :block  then "&#{name}"
-                 when :key    then "#{name}:?"
-                 when :keyreq then "#{name}:"
-                 else '?'
-                 end
+          args_array.push(
+            case arg_type
+            when :req    then name.to_s
+            when :opt    then "#{name}=?"
+            when :rest   then "*#{name}"
+            when :block  then "&#{name}"
+            when :key    then "#{name}:?"
+            when :keyreq then "#{name}:"
+            else '?'
+            end
+          )
         end
       else
         args = (1..arity.abs).map { |i| "arg#{i}" }
