@@ -20,6 +20,9 @@ references:
     run:
       name: Run unit tests
       command: bundle exec rake
+      environment:
+        # Make sure TERM is set so Pry can indent correctly inside tests.
+        TERM: screen-256color
 
   install_alpine_nano: &install_alpine_nano
     run:
