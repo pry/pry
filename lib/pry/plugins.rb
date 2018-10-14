@@ -8,7 +8,7 @@ class Pry
         @name = name
       end
 
-      def method_missing(*args)
+      def method_missing(*_args)
         warn "Warning: The plugin '#{@name}' was not found! (no gem found)"
       end
     end

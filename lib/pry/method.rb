@@ -166,7 +166,7 @@ class Pry
       #  please use {all_from_obj} instead.
       #  the `method_type` argument is ignored.
       #
-      def all_from_common(obj, method_type = nil, include_super=true)
+      def all_from_common(obj, _method_type = nil, include_super=true)
         all_from_obj(obj, include_super)
       end
 

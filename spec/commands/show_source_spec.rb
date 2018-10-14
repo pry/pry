@@ -47,7 +47,7 @@ describe "show-source" do
   end
 
   it "should find methods even if there are spaces in the arguments" do
-    def @o.foo(*bars)
+    def @o.foo(*_bars)
       @foo = "Mr flibble"
       self
     end
@@ -213,7 +213,7 @@ describe "show-source" do
   describe "finding super methods with help of `--super` switch" do
     before do
       class Foo
-        def foo(*bars)
+        def foo(*_bars)
           :super_wibble
         end
       end
@@ -226,7 +226,7 @@ describe "show-source" do
     it "finds super methods with explicit method argument" do
 
       o = Foo.new
-      def o.foo(*bars)
+      def o.foo(*_bars)
         :wibble
       end
 

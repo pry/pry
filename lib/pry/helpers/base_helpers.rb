@@ -61,7 +61,7 @@ module Pry::Helpers::BaseHelpers
   # Send the given text through the best available pager (if Pry.config.pager is
   # enabled). Infers where to send the output if used as a mixin.
   # DEPRECATED.
-  def stagger_output(text, out = nil)
+  def stagger_output(text, _out = nil)
     if defined?(_pry_) && _pry_
       _pry_.pager.page text
     else

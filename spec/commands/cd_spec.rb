@@ -222,7 +222,7 @@ describe 'cd' do
   end
 
   it 'should cd into complex input (with spaces)' do
-    def @o.hello(x, y, z)
+    def @o.hello(_x, _y, _z)
       :mon_ouie
     end
 

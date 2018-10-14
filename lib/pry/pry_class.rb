@@ -396,7 +396,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     Thread.current[:pry_critical_section] > 0
   end
 
-  def self.critical_section(&block)
+  def self.critical_section
     Thread.current[:pry_critical_section] ||= 0
     Thread.current[:pry_critical_section] += 1
     yield

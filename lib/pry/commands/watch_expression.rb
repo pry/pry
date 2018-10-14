@@ -86,7 +86,9 @@ class Pry
       end
     end
 
-    def add_expression(arguments)
+    # TODO: fix arguments.
+    # https://github.com/pry/pry/commit/b031df2f2f5850ee6e9018f33d35f3485a9b0423
+    def add_expression(_arguments)
       expressions << Expression.new(_pry_, target, arg_string)
       output.puts "Watching #{Code.new(arg_string).highlighted}"
     end
