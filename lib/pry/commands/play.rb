@@ -53,7 +53,6 @@ class Pry
       end
     end
 
-
     def content_after_options
       if opts.present?(:open)
         restrict_to_lines(content, (0..-2))

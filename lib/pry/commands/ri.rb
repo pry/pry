@@ -31,6 +31,7 @@ class Pry
             @pager = pager
             super opts
           end
+
           def page
             paging_text = StringIO.new
             yield paging_text

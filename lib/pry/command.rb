@@ -98,12 +98,19 @@ class Pry
 
     # Make those properties accessible to instances
     def name; self.class.name; end
+
     def match; self.class.match; end
+
     def description; self.class.description; end
+
     def block; self.class.block; end
+
     def command_options; self.class.options; end
+
     def command_name; self.class.command_name; end
+
     def source; self.class.source; end
+
     def source_location; self.class.source_location; end
 
     class << self

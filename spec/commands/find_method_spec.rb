@@ -5,12 +5,15 @@ describe "find-method" do
     def hello
       "timothy"
     end
+
     def goodbye
       "jenny"
     end
+
     def tea_tim?
       "timothy"
     end
+
     def tea_time?
       "polly"
     end

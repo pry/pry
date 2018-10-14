@@ -316,6 +316,7 @@ describe "test Pry defaults" do
 
 
             def c.name; "a" * (MAX_LENGTH + 1); end
+
             def m.name; "a" * (MAX_LENGTH + 1); end
 
             expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to match(/#<Class/)
@@ -328,6 +329,7 @@ describe "test Pry defaults" do
             c, m = Class.new, Module.new
 
             def c.name; "a" * MAX_LENGTH; end
+
             def m.name; "a" * MAX_LENGTH; end
 
             expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to eq c.name

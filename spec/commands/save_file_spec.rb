@@ -58,6 +58,7 @@ describe "save-file" do
       def @o.baby
         :baby
       end
+
       def @o.bang
         :bang
       end
