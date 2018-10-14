@@ -466,7 +466,7 @@ class Pry
 
     # Generate completions for this command
     #
-    # @param [String] search  The line typed so far
+    # @param [String] _search The line typed so far
     # @return [Array<String>]  Completion words
     def complete(_search)
       []
