@@ -61,6 +61,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_alpine_nano
       - <<: *unit
   "ruby-2.0":
     docker:
@@ -69,6 +70,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_alpine_nano
       - <<: *unit
   "ruby-2.1":
     docker:
@@ -77,6 +79,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
   "ruby-2.2":
     docker:
@@ -85,6 +88,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
   "ruby-2.3":
     docker:
@@ -93,6 +97,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
   "ruby-2.4":
     docker:
@@ -101,6 +106,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
   "ruby-2.5":
     docker:
@@ -109,6 +115,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
   "jruby-9.1-jdk":
     docker:
@@ -117,6 +124,7 @@ jobs:
     steps:
       - <<: *repo_restore_cache
       - <<: *bundle_install
+      - <<: *install_ubuntu_nano
       - <<: *unit
 
 workflows:
