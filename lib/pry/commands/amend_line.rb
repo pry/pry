@@ -19,16 +19,15 @@ class Pry
     def process
       raise CommandError, "No input to amend." if eval_string.empty?
 
-      eval_string.replace amended_input(eval_string)
+      eval_string.replace(amend_input)
       run "fix-indent"
       run "show-input"
     end
 
     private
 
-    # @param [String] string The string to amend.
     # @return [String] A new string with the amendments applied to it.
-    def amended_input(_string)
+    def amend_input
       input_array = eval_string.each_line.to_a
 
       if arg_string == "!"
