@@ -297,9 +297,8 @@ class Pry
     # Get the (approximate) Module.nesting at the give line number.
     #
     # @param [Integer] line_number line number starting from 1
-    # @param [Module] top_module the module in which this code exists
     # @return [Array<Module>] a list of open modules.
-    def nesting_at(line_number, _top_module = Object)
+    def nesting_at(line_number)
       Pry::Indent.nesting_at(raw, line_number)
     end
 
