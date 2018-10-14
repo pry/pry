@@ -86,7 +86,7 @@ class Pry
       end
     end
 
-    def add_expression(arguments)
+    def add_expression(_arguments)
       expressions << Expression.new(_pry_, target, arg_string)
       output.puts "Watching #{Code.new(arg_string).highlighted}"
     end

@@ -656,7 +656,7 @@ describe Pry::CommandSet do
       end
 
       it "should delegate to commands" do
-        @set.create_command('susan'){ def complete(search); ['--foo']; end }
+        @set.create_command('susan'){ def complete(_search); ['--foo']; end }
         expect(@set.complete('susan ')).to eq ['--foo']
       end
     end

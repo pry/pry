@@ -226,11 +226,11 @@ describe "Pry::Command" do
           output.puts "setup"
         end
 
-        def subcommands(cmd)
+        def subcommands(_cmd)
           output.puts "subcommands"
         end
 
-        def options(opt)
+        def options(_opt)
           output.puts "options"
         end
 

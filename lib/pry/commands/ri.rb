@@ -38,7 +38,7 @@ class Pry
             @pager.page(paging_text.string)
           end
 
-          def formatter(io)
+          def formatter(_io)
             if @formatter_klass
               @formatter_klass.new
             else

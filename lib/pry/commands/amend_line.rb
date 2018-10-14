@@ -28,7 +28,7 @@ class Pry
 
     # @param [String] string The string to amend.
     # @return [String] A new string with the amendments applied to it.
-    def amended_input(string)
+    def amended_input(_string)
       input_array = eval_string.each_line.to_a
 
       if arg_string == "!"

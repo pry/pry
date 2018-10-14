@@ -15,7 +15,7 @@ class Pry
     end
 
     # Ensure that duplicates have their @hooks object.
-    def initialize_copy(orig)
+    def initialize_copy(_orig)
       hooks_dup = @hooks.dup
       @hooks.each do |k, v|
         hooks_dup[k] = v.dup

@@ -76,7 +76,7 @@ describe Pry do
     # regression test for burg's bug (see git history)
     it "Should not error when object doesn't have a valid == method" do
       o = Object.new
-      def o.==(other)
+      def o.==(_other)
         raise
       end
 

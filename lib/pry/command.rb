@@ -468,7 +468,7 @@ class Pry
     #
     # @param [String] search  The line typed so far
     # @return [Array<String>]  Completion words
-    def complete(search)
+    def complete(_search)
       []
     end
 

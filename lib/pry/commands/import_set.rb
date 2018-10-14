@@ -10,7 +10,7 @@ class Pry
       Import a Pry command set.
     BANNER
 
-    def process(command_set_name)
+    def process(_command_set_name)
       raise CommandError, "Provide a command set name" if command_set.nil?
 
       set = target.eval(arg_string)
