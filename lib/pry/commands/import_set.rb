@@ -10,6 +10,7 @@ class Pry
       Import a Pry command set.
     BANNER
 
+    # TODO: resolve unused parameter.
     def process(_command_set_name)
       raise CommandError, "Provide a command set name" if command_set.nil?
 
