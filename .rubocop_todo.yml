@@ -179,12 +179,6 @@ Layout/EmptyLineAfterMagicComment:
     - 'lib/pry/terminal.rb'
     - 'pry.gemspec'
 
-# Offense count: 44
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Enabled: false
-
 # Offense count: 24
 # Cop supports --auto-correct.
 Layout/EmptyLines:

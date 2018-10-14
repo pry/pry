@@ -37,7 +37,6 @@ class Pry
         super || @instance_methods_switch || @ppp_switch || @no_user_opts
       end
 
-
       # Get a lambda that can be used with `take_while` to prevent over-eager
       # traversal of the Object's ancestry graph.
       def below_ceiling

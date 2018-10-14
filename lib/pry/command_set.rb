@@ -305,7 +305,6 @@ class Pry
       helper_module.class_eval(&block)
     end
 
-
     # @return [Array]
     #   The list of commands provided by the command set.
     def list_commands

@@ -40,6 +40,7 @@ class Pry
         cli_options_file = File.realpath(cli_options_file) if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.4.4")
         require cli_options_file
       end
+
       # Activate the plugin (require the gem - enables/loads the
       # plugin immediately at point of call, even if plugin is
       # disabled)

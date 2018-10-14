@@ -355,6 +355,7 @@ describe "show-doc" do
           # hello there froggy
           module M
             def d; end
+
             def e; end
           end
         end
@@ -384,6 +385,7 @@ describe "show-doc" do
           # goodbye
           module M
             def d; end
+
             def e; end
           end
         end

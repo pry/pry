@@ -559,6 +559,7 @@ describe "show-source" do
           module TestHost
             class M
               def alpha; end
+
               def beta; end
             end
 
@@ -621,6 +622,7 @@ describe "show-source" do
 
                 module Muesli
                   def d; end
+
                   def e; end
                 end
               end

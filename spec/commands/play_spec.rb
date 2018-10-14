@@ -40,12 +40,14 @@ describe "play" do
     it 'should play a file' do
       @t.process_command 'play spec/fixtures/whereami_helper.rb'
       expect(@t.eval_string).to eq unindent(<<-STR)
+        # rubocop:disable Layout/EmptyLineBetweenDefs
         class Cor
           def a; end
           def b; end
           def c; end
           def d; end
         end
+        # rubocop:enable Layout/EmptyLineBetweenDefs
       STR
     end
 
@@ -53,12 +55,14 @@ describe "play" do
     it 'should output file contents with print option' do
       @t.process_command 'play --print spec/fixtures/whereami_helper.rb'
       expect(@t.last_output).to eq unindent(<<-STR)
-        1: class Cor
-        2:   def a; end
-        3:   def b; end
-        4:   def c; end
-        5:   def d; end
-        6: end
+        1: # rubocop:disable Layout/EmptyLineBetweenDefs
+        2: class Cor
+        3:   def a; end
+        4:   def b; end
+        5:   def c; end
+        6:   def d; end
+        7: end
+        8: # rubocop:enable Layout/EmptyLineBetweenDefs
       STR
     end
   end

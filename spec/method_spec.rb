@@ -21,31 +21,51 @@ describe Pry::Method do
     end
 
     it 'should look up instance methods first even if methods available and no options provided' do
-      klass = Class.new { def hello; end; def self.hello; end }
+      klass = Class.new do
+        def hello; end
+
+        def self.hello; end
+      end
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
       expect(meth).to eq klass.instance_method(:hello)
     end
 
     it 'should look up instance methods if "instance-methods"  option provided' do
-      klass = Class.new { def hello; end; def self.hello; end  }
+      klass = Class.new do
+        def hello; end
+
+        def self.hello; end
+      end
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {"instance-methods" => true})
       expect(meth).to eq klass.instance_method(:hello)
     end
 
     it 'should look up methods if :methods  option provided' do
-      klass = Class.new { def hello; end; def self.hello; end }
+      klass = Class.new do
+        def hello; end
+
+        def self.hello; end
+      end
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {methods: true})
       expect(meth).to eq klass.method(:hello)
     end
 
     it 'should look up instance methods using the Class#method syntax' do
-      klass = Class.new { def hello; end; def self.hello; end  }
+      klass = Class.new do
+        def hello; end
+
+        def self.hello; end
+      end
       meth = Pry::Method.from_str("klass#hello", Pry.binding_for(binding))
       expect(meth).to eq klass.instance_method(:hello)
     end
 
     it 'should look up methods using the object.method syntax' do
-      klass = Class.new { def hello; end; def self.hello; end  }
+      klass = Class.new do
+        def hello; end
+
+        def self.hello; end
+      end
       meth = Pry::Method.from_str("klass.hello", Pry.binding_for(binding))
       expect(meth).to eq klass.method(:hello)
     end
@@ -119,7 +139,10 @@ describe Pry::Method do
     end
 
     it 'should find the super method correctly' do
-      a = Class.new{ def gag33; binding; end; def self.line; __LINE__; end }
+      # rubocop:disable Layout/EmptyLineBetweenDefs
+      a = Class.new { def gag33; binding; end; def self.line; __LINE__; end }
+      # rubocop:enable Layout/EmptyLineBetweenDefs
+
       b = Class.new(a){ def gag33; super; end }
 
       g = b.new.gag33
@@ -132,7 +155,10 @@ describe Pry::Method do
 
     it 'should find the right method if a super method exists' do
       a = Class.new{ def gag; binding; end; }
-      b = Class.new(a){ def gag; super; binding; end; def self.line; __LINE__; end }
+
+      # rubocop:disable Layout/EmptyLineBetweenDefs
+      b = Class.new(a) { def gag; super; binding; end; def self.line; __LINE__; end }
+      # rubocop:enable Layout/EmptyLineBetweenDefs
 
       m = Pry::Method.from_binding(b.new.gag)
 
@@ -142,7 +168,11 @@ describe Pry::Method do
     end
 
     it "should find the right method from a BasicObject" do
-      a = Class.new(BasicObject) { def gag; ::Kernel.binding; end; def self.line; __LINE__; end }
+      # rubocop:disable Layout/EmptyLineBetweenDefs
+      a = Class.new(BasicObject) do
+        def gag; ::Kernel.binding; end; def self.line; __LINE__; end
+      end
+      # rubocop:enable Layout/EmptyLineBetweenDefs
 
       m = Pry::Method.from_binding(a.new.gag)
       expect(m.owner).to eq a
@@ -311,7 +341,11 @@ describe Pry::Method do
       end
 
       it "should work in the face of an overridden send" do
-        @obj = Class.new{ def meth; 1; end; def send; raise EOFError; end }.new
+        @obj = Class.new {
+          def meth; 1; end
+
+          def send; raise EOFError; end
+        }.new
         should_find_method('meth')
       end
     end
@@ -507,8 +541,11 @@ describe Pry::Method do
     before do
       @class = Class.new {
         def self.standard_arg(arg) end
+
         def self.block_arg(&block) end
+
         def self.rest(*splat) end
+
         def self.optional(option=nil) end
       }
     end

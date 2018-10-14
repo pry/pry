@@ -162,6 +162,7 @@ describe "edit" do
         def last_exception=(exception)
           @pry.last_exception = exception
         end
+
         def last_exception; @pry.last_exception; end
       end
     end
