@@ -2,12 +2,9 @@ source 'https://rubygems.org'
 gemspec
 gem 'rake', '~> 10.0'
 
-# For Guard
 group :development do
   gem 'gist'
   gem 'yard'
-  gem 'rb-inotify', require: false
-  gem 'rb-fsevent', require: false
 
   # Rubocop supports only >=2.2.0
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.2.0')
