@@ -351,6 +351,7 @@ class Pry
       unless Class === command && command < Pry::Command
         raise TypeError, "command is not a subclass of Pry::Command"
       end
+
       bind_command_to_pattern = pattern != command.match
       if bind_command_to_pattern
         command_copy = command.dup

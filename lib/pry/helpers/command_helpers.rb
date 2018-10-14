@@ -144,6 +144,7 @@ class Pry
 
       def set_file_and_dir_locals(file_name, _pry_=_pry_(), target=target())
         return if !target or !file_name
+
         _pry_.last_file = File.expand_path(file_name)
         _pry_.inject_local("_file_", _pry_.last_file, target)
 

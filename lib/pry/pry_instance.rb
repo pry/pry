@@ -132,6 +132,7 @@ class Pry
   #
   def complete(str)
     return EMPTY_COMPLETIONS unless config.completer
+
     Pry.critical_section do
       completer = config.completer.new(config.input, self)
       completer.call str, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
@@ -254,6 +255,7 @@ class Pry
 
     # TODO: make this configurable?
     raise exception if exception
+
     return false
   end
 

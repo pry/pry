@@ -39,6 +39,7 @@ class Pry
             !show_deprecated_constants?
             next
           end
+
           if const = (!mod.autoload?(name) && (mod.const_get(name) || true) rescue nil)
             if (const < Exception rescue false)
               color(:exception_constant, name)

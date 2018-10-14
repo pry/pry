@@ -47,6 +47,7 @@ class Pry
       # Raise a more useful error message instead of trying to forward to nil.
       def method_missing(meth_name, *args, &block)
         raise "Cannot call '#{meth_name}' on an undef'd method." if method(:name).respond_to?(meth_name)
+
         Object.instance_method(:method_missing).bind(self).call(meth_name, *args, &block)
       end
     end

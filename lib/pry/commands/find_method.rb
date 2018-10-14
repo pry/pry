@@ -31,6 +31,7 @@ class Pry
 
     def process
       return if args.size < 1
+
       klass = search_class
 
       matches = opts.content? ? content_search(klass) : name_search(klass)
@@ -119,6 +120,7 @@ class Pry
 
       klass.constants.each do |name|
         next if klass.autoload?(name)
+
         begin
           const = klass.const_get(name)
         rescue RescuableException
@@ -146,6 +148,7 @@ class Pry
       recurse_namespace(namespace) do |klass|
         (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).each do |method|
           next if done[method.owner][method.name]
+
           done[method.owner][method.name] = true
 
           matches << method if yield method

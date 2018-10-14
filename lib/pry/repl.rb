@@ -218,12 +218,14 @@ class Pry
     #   % pry | tee log
     def piping?
       return false unless $stdout.respond_to?(:tty?)
+
       !$stdout.tty? && $stdin.tty? && !Pry::Helpers::BaseHelpers.windows?
     end
 
     # @return [void]
     def set_readline_output
       return if @readline_output
+
       if piping?
         @readline_output = (Readline.output = Pry.config.output)
       end

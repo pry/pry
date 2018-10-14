@@ -12,6 +12,7 @@ class Pry
 
       def write_out
         return false unless correct_opts?
+
         output_self
       end
 
@@ -25,6 +26,7 @@ class Pry
       # Outputs nothing if the section would be empty.
       def output_section(heading, body)
         return '' if body.compact.empty?
+
         fancy_heading = Pry::Helpers::Text.bold(color(:heading, heading))
         Pry::Helpers.tablify_or_one_line(fancy_heading, body)
       end

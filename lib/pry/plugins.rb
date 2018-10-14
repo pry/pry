@@ -84,6 +84,7 @@ class Pry
     def locate_plugins
       gem_list.each do |gem|
         next if gem.name !~ PRY_PLUGIN_PREFIX
+
         plugin_name = gem.name.split('-', 2).last
         plugin = Plugin.new(plugin_name, gem.name, gem, false)
         @plugins << plugin.tap(&:enable!) if plugin.supported? && !plugin_located?(plugin)

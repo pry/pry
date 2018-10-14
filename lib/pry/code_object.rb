@@ -170,6 +170,7 @@ class Pry
     def safe_to_evaluate?(str)
       return true if str.strip == "self"
       return false if str =~ /%/
+
       kind = target.eval("defined?(#{str})")
       kind =~ /variable|constant/
     end

@@ -30,6 +30,7 @@ class Pry
 
       gems_to_install.each do |g|
         next if Rubygem.installed?(g)
+
         output.puts "Installing #{ green(g) } gem..."
         Rubygem.install(g)
       end

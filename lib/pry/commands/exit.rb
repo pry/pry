@@ -33,6 +33,7 @@ class Pry
 
       # return a user-specified value if given otherwise return the object
       return target.eval(arg_string) unless arg_string.empty?
+
       popped_object
     end
   end

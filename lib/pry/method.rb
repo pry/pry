@@ -398,6 +398,7 @@ class Pry
     #   before any aliasing, or `nil` if it can't be determined.
     def original_name
       return nil if source_type != :ruby
+
       method_name_from_first_line(source.lines.first)
     end
 

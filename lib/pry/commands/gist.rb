@@ -28,6 +28,7 @@ class Pry
 
     def process
       return ::Gist.login! if opts.present?(:login)
+
       cc = CodeCollector.new(args, opts, _pry_)
 
       if cc.content =~ /\A\s*\z/

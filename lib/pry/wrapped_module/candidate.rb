@@ -64,6 +64,7 @@ class Pry
       # @return [String] The documentation for the candidate.
       def doc
         return nil if file.nil?
+
         @doc ||= get_comment_content(Pry::Code.from_file(file).comment_describing(line))
       end
 

@@ -35,6 +35,7 @@ module Pry::Helpers::BaseHelpers
 
   def command_dependencies_met?(options)
     return true if !options[:requires_gem]
+
     Array(options[:requires_gem]).all? do |g|
       Pry::Rubygem.installed?(g)
     end

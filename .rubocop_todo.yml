@@ -167,11 +167,6 @@ Layout/EmptyComment:
   Exclude:
     - 'spec/command_spec.rb'
 
-# Offense count: 57
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterGuardClause:
-  Enabled: false
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterMagicComment:

@@ -465,6 +465,7 @@ class Pry::Slop
   # Returns nothing.
   def process_item(items, index, &block)
     return unless item = items[index]
+
     option, argument = extract_option(item) if item.start_with?('-')
 
     if option
@@ -514,6 +515,7 @@ class Pry::Slop
       if config[:multiple_switches] && strict?
         raise InvalidOptionError, "Unknown option -#{item}"
       end
+
       return
     end
 
@@ -545,6 +547,7 @@ class Pry::Slop
     execute_option(option, nil, index)
     argument.split('').each do |key|
       next unless opt = fetch_option(key)
+
       opt.count += 1
       execute_option(opt, nil, index, key)
     end

@@ -40,6 +40,7 @@ module Pry::Platform
   #
   def windows_ansi?
     return false if not windows?
+
     !!(defined?(Win32::Console) or ENV['ANSICON'] or mri_2?)
   end
 

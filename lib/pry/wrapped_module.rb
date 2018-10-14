@@ -49,6 +49,7 @@ class Pry
       def safe_to_evaluate?(str, target)
         return true if str.strip == "self"
         return false if str =~ /%/
+
         kind = target.eval("defined?(#{str})")
         kind =~ /variable|constant/
       end
@@ -58,6 +59,7 @@ class Pry
     # @param [Module] mod
     def initialize(mod)
       raise ArgumentError, "Tried to initialize a WrappedModule with a non-module #{mod.inspect}" unless ::Module === mod
+
       @wrapped = mod
       @memoized_candidates = []
       @host_file_lines = nil
@@ -345,9 +347,11 @@ class Pry
 
     def nested_module?(parent, name)
       return if safe_send(parent, :autoload?, name)
+
       child = safe_send(parent, :const_get, name)
       return unless Module === child
       return unless safe_send(child, :name) == "#{safe_send(parent, :name)}::#{name}"
+
       child
     end
 
