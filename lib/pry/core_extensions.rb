@@ -82,6 +82,7 @@ class Object
       # 1) ./spec/pry_spec.rb:360:in `block in (root)'
       # 2) ./spec/pry_spec.rb:366:in `block in (root)'
       return class_eval {binding} if Pry::Helpers::BaseHelpers.jruby? and self.name == nil
+
       # class_eval sets both self and the default definee to this class.
       return class_eval("binding")
     end

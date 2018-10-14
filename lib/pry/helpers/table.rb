@@ -44,6 +44,7 @@ class Pry
           padded = []
           r.each_with_index do |e,i|
             next unless e
+
             item = e.ljust(widths[i])
             item.sub! e, _recall_color_for(e) if :color_on == style
             padded << item
@@ -94,6 +95,7 @@ class Pry
       def _recolumn
         @rows_without_colors = []
         return if items.size.zero?
+
         row_count = (items.size.to_f/column_count).ceil
         row_count.times do |i|
           row_indices = (0...column_count).map{|e| row_count*e+i}

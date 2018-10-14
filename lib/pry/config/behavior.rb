@@ -88,6 +88,7 @@ module Pry::Config::Behavior
     if @reserved_keys.include?(key)
       raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name."
     end
+
     __push(key,value)
   end
 
@@ -113,6 +114,7 @@ module Pry::Config::Behavior
   def merge!(other)
     other = __try_convert_to_hash(other)
     raise TypeError, "unable to convert argument into a Hash" unless other
+
     other.each do |key, value|
       self[key] = value
     end

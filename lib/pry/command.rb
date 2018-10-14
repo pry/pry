@@ -354,6 +354,7 @@ class Pry
 
       # please call Command.matches? before Command#call_safely
       raise CommandError, "fatal: called a command which didn't match?!" unless Regexp.last_match
+
       captures = Regexp.last_match.captures
       pos = Regexp.last_match.end(0)
 

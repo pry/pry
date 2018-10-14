@@ -109,6 +109,7 @@ class Pry
         if skip_superclass_search?
           return guess
         end
+
         while guess
           # needs rescue if this is a Disowned method or a C method or something...
           # TODO: Fix up the exception handling so we don't need a bare rescue
@@ -135,6 +136,7 @@ class Pry
       #   renamed method
       def find_renamed_method
         return if !valid_file?(target_file)
+
         alias_name = all_methods_for(target_self).find do |v|
           expanded_source_location(target_self.method(v).source_location) == renamed_method_source_location
         end

@@ -40,6 +40,7 @@ class Pry
       end
     rescue => e
       raise if e.is_a? Pry::Pager::StopPaging
+
       begin
         str = obj.inspect
       rescue Exception 

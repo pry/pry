@@ -172,6 +172,7 @@ class Pry::InputCompleter
           to_ignore = ignored_modules
           ObjectSpace.each_object(Module){|m|
             next if (to_ignore.include?(m) rescue true)
+
             # jruby doesn't always provide #instance_methods() on each
             # object.
             if m.respond_to?(:instance_methods)
@@ -222,6 +223,7 @@ class Pry::InputCompleter
   def build_path(input)
     # check to see if the input is a regex
     return proc {|i| i.to_s }, input if input[/\/\./]
+
     trailing_slash = input.end_with?('/')
     contexts = input.chomp('/').split(/\//)
     input = contexts[-1]
@@ -242,6 +244,7 @@ class Pry::InputCompleter
 
     scanner = lambda do |m|
       next if s.include?(m) # IRB::ExtendCommandBundle::EXCB recurses.
+
       s << m
       m.constants(false).each do |c|
         value = m.const_get(c)
@@ -252,6 +255,7 @@ class Pry::InputCompleter
     # FIXME: Add Pry here as well?
     [:IRB, :SLex, :RubyLex, :RubyToken].each do |module_name|
       next unless Object.const_defined?(module_name)
+
       scanner.call(Object.const_get(module_name))
     end
 

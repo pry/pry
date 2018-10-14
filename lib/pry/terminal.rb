@@ -77,6 +77,7 @@ class Pry::Terminal
 
     def screen_size_according_to_ansicon_env
       return unless ENV['ANSICON'] =~ /\((.*)x(.*)\)/
+
       size = [$2, $1]
       size if nonzero_column?(size)
     end

@@ -142,6 +142,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   # requires, and history.
   def self.initial_session_setup
     return unless initial_session?
+
     @initial_session = false
 
     # note these have to be loaded here rather than in pry_instance as
@@ -151,6 +152,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
 
   def self.final_session_setup
     return if @session_finalized
+
     @session_finalized = true
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
@@ -171,6 +173,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     if ENV['FAIL_PRY']
       raise 'You have FAIL_PRY set to true, which results in Pry calls failing'
     end
+
     options = options.to_hash
 
     if in_critical_section?
@@ -294,6 +297,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   def self.default_editor_for_platform
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+
     if Helpers::BaseHelpers.windows?
       'notepad'
     else

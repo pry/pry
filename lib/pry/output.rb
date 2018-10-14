@@ -8,6 +8,7 @@ class Pry::Output
 
   def puts(*objs)
     return print "\n" if objs.empty?
+
     objs.each do |obj|
       if ary = Array.try_convert(obj)
         puts(*ary)

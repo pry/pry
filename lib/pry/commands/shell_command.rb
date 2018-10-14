@@ -33,6 +33,7 @@ class Pry
     def parse_destination(dest)
       return "~" if dest.empty?
       return dest unless dest == "-"
+
       state.old_pwd || raise(CommandError, "No prior directory available")
     end
 

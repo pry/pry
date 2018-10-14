@@ -20,6 +20,7 @@ class Pry
     def process
       code_object = Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
       raise CommandError, no_definition_message if !code_object
+
       @original_code_object = code_object
 
       if !obj_name && code_object.c_module? && !opts[:all]
