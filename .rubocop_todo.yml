@@ -648,13 +648,6 @@ Lint/StringConversionInInterpolation:
 Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Lint/UnneededRequireStatement:
-  Exclude:
-    - 'lib/pry/input_lock.rb'
-    - 'spec/spec_helpers/repl_tester.rb'
-
 # Offense count: 46
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.

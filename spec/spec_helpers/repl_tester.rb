@@ -1,6 +1,5 @@
 # This is for super-high-level integration testing.
 
-require 'thread'
 require 'delegate'
 
 class ReplTester
