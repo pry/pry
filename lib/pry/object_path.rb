@@ -74,9 +74,10 @@ class Pry
         "Exception: #{err.inspect}"
       ].join("\n")
 
-      raise CommandError.new(msg).tap { |e|
-        e.set_backtrace err.backtrace
-      }
+      command_error = CommandError.new(msg)
+      command_error.set_backtrace(err.backtrace)
+
+      raise command_error
     end
   end
 end

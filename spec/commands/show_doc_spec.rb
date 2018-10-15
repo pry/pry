@@ -108,11 +108,13 @@ describe "show-doc" do
     it "finds super method docs without `--super` but with the `super` keyword" do
       fatty = Grungy.new
 
-      fatty.extend Module.new {
-        def initialize
-          :nibble
+      fatty.extend(
+        Module.new do
+          def initialize
+            :nibble
+          end
         end
-      }
+      )
 
       # fatty initialize!
       def fatty.initialize

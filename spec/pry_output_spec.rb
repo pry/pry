@@ -20,7 +20,11 @@ describe Pry do
 
     it "should catch errors serializing exceptions" do
       Pry.config.print = lambda do |*a|
-        raise Exception.new("catch-22").tap{ |e| class << e; def inspect; raise e; end; end }
+        ex = Exception.new("catch-22")
+        class << ex
+          def inspect; raise ex; end
+        end
+        raise ex
       end
 
       expect(mock_pry("1")).to match(/\(pry\) output error: failed to show result/)

@@ -563,17 +563,6 @@ Layout/TrailingWhitespace:
     - 'spec/commands/edit_spec.rb'
     - 'spec/indent_spec.rb'
 
-# Offense count: 13
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - 'lib/pry/object_path.rb'
-    - 'spec/commands/show_doc_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/config_spec.rb'
-    - 'spec/helper.rb'
-    - 'spec/method_spec.rb'
-    - 'spec/pry_output_spec.rb'
-
 # Offense count: 15
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
