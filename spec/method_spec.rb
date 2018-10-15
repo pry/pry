@@ -277,17 +277,25 @@ describe Pry::Method do
     end
 
     it 'should be able to find instance methods defined in modules included into this class' do
-      @class = Class.new{ include Module.new{ def meth; 1; end; } }
+      @class = Class.new do
+        include(Module.new { def meth; 1; end })
+      end
       should_find_method('meth')
     end
 
     it 'should be able to find instance methods defined in modules included into super-classes' do
-      @class = Class.new(Class.new{ include Module.new{ def meth; 1; end; } })
+      super_class = Class.new do
+        include(Module.new { def meth; 1; end })
+      end
+      @class = Class.new(super_class)
       should_find_method('meth')
     end
 
     it 'should attribute overridden methods to the sub-class' do
-      @class = Class.new(Class.new{ include Module.new{ def meth; 1; end; } }) { def meth; 2; end }
+      super_class = Class.new do
+        include(Module.new { def meth; 1; end })
+      end
+      @class = Class.new(super_class) { def meth; 2; end }
       expect(Pry::Method.all_from_class(@class).detect{ |x| x.name == 'meth' }.owner).to eq @class
     end
 
@@ -314,7 +322,9 @@ describe Pry::Method do
       end
 
       it "should find methods defined in modules included into the object's class" do
-        @obj = Class.new{ include Module.new{ def meth; 1; end } }.new
+        @obj = Class.new {
+          include(Module.new { def meth; 1; end })
+        }.new
         should_find_method('meth')
       end
 
@@ -326,7 +336,7 @@ describe Pry::Method do
 
       it "should find methods in modules included into the object's singleton class" do
         @obj = Object.new
-        @obj.extend Module.new{ def meth; 1; end }
+        @obj.extend(Module.new { def meth; 1; end })
         should_find_method('meth')
       end
 
@@ -361,7 +371,9 @@ describe Pry::Method do
       end
 
       it "should find methods defined on modules extended into the class" do
-        @class = Class.new{ extend Module.new{ def meth; 1; end; } }
+        @class = Class.new do
+          extend(Module.new { def meth; 1; end })
+        end
         should_find_method('meth')
       end
 
@@ -391,7 +403,12 @@ describe Pry::Method do
       end
 
       it "should attrbute overridden methods to the class not the module" do
-        @class = Class.new { class << self; def meth; 1; end; end; extend Module.new{ def meth; 1; end; } }
+        @class = Class.new do
+          class << self
+            def meth; 1; end
+          end
+          extend(Module.new { def meth; 1; end })
+        end
         expect(Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
       end
 

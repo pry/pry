@@ -246,11 +246,13 @@ describe "show-source" do
     it "finds super methods with multiple --super " do
       o = Foo.new
 
-      o.extend Module.new {
-        def foo
-          :nibble
+      o.extend(
+        Module.new do
+          def foo
+            :nibble
+          end
         end
-      }
+      )
 
       def o.foo(*bars)
         @foo = :wibble

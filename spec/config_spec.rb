@@ -11,7 +11,7 @@ describe Pry::Config do
   describe "bug #1277" do
     specify "a local key has precendence over an inherited method of the same name" do
       local = Pry::Config.from_hash(output: 'foobar')
-      local.extend Module.new { def output(); 'broken'; end }
+      local.extend(Module.new { def output(); 'broken'; end })
       expect(local.output).to eq('foobar')
     end
   end
