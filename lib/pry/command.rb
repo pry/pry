@@ -212,7 +212,7 @@ class Pry
                        $1.capitalize.gsub(/_/, " ")
                      when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
                        name, version = $1, $2
-                       "#{name.to_s} (v#{version.to_s})"
+                       "#{name} (v#{version})"
                      when /pryrc/
                        "pryrc"
                      else

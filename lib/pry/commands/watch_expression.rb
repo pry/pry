@@ -81,7 +81,7 @@ class Pry
       expressions.each do |expr|
         expr.eval!
         if expr.changed?
-          output.puts "#{blue "watch"}: #{expr.to_s}"
+          output.puts "#{blue "watch"}: #{expr}"
         end
       end
     end
