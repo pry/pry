@@ -246,6 +246,11 @@ describe 'cd' do
     expect(@t.eval('self')).to eq false
   end
 
+  # test for #1596
+  it 'can cd into an object that naively reports it responds to __pry__' do
+    expect { @t.eval 'cd Class.new { def respond_to?(m) true ; end }.new' }.to_not raise_error
+  end
+
   # Regression test for ticket #516.
   it 'should be able to cd into the Object BasicObject' do
     expect { @t.eval 'cd BasicObject.new' }.to_not raise_error

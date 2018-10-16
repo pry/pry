@@ -87,7 +87,9 @@ class Object
       return class_eval("binding")
     end
 
-    unless respond_to?(:__pry__)
+    begin
+      __pry__
+    rescue
       # The easiest way to check whether an object has a working singleton class
       # is to try and define a method on it. (just checking for the presence of
       # the singleton class gives false positives for `true` and `false`).
@@ -104,9 +106,9 @@ class Object
         # class_eval sets the default definee to self.class
         self.class.class_eval(*Pry::BINDING_METHOD_IMPL)
       end
+      retry
     end
 
-    __pry__
   end
 end
 
