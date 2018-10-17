@@ -145,12 +145,13 @@ describe Pry::Config do
   end
 
   describe "#forget" do
-    it "forgets a local key" do
-      local = Pry::Config.new Pry::Config.from_hash(foo: 1)
-      local.foo = 2
-      expect(local.foo).to eq 2
-      local.forget(:foo)
-      expect(local.foo).to eq(1)
+    it "forgets a key from self and all parents excluding the last parent" do
+      parent1 = Pry::Config.from_hash({foo: 42}, nil)
+      parent2 = Pry::Config.from_hash({foo: 2}, parent1)
+      config = Pry::Config.from_hash({foo: 3}, parent2)
+      expect(config.foo).to eq(3)
+      config.forget(:foo)
+      expect(config.foo).to eq(42)
     end
   end
 
