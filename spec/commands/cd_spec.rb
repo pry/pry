@@ -250,4 +250,10 @@ describe 'cd' do
   it 'should be able to cd into the Object BasicObject' do
     expect { @t.eval 'cd BasicObject.new' }.to_not raise_error
   end
+
+  # https://github.com/pry/pry/issues/1596
+  it "can cd into objects that redefine #respond_to? to return true" do
+    expect { @t.eval('cd Class.new { def respond_to?(m) true end }.new') }
+      .to_not raise_error
+  end
 end
