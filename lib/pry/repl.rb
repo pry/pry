@@ -105,9 +105,16 @@ class Pry
         indented_val = @indent.indent(val)
 
         if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
+          suffix_whites = if readline_available? && Readline.vi_editing_mode?
+                            _, cols = Terminal.screen_size
+                            cols - indented_val.length
+                          else
+                            false
+                          end
+
           output.print @indent.correct_indentation(
             current_prompt, indented_val,
-            [ original_val.length - indented_val.length, 0 ].max
+            suffix_whites || [ original_val.length - indented_val.length, 0 ].max
           )
           output.flush
         end
