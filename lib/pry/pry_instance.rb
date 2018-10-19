@@ -531,8 +531,7 @@ class Pry
   # @return [String] The prompt.
   def select_prompt
     object = current_binding.eval('self')
-    open_token = @indent.open_delimiters.any? ? @indent.open_delimiters.last :
-      @indent.stack.last
+    open_token = @indent.open_delimiters.last || @indent.stack.last
 
     c = Pry::Config.assign({
         object: object,

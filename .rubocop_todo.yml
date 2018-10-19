@@ -1187,16 +1187,6 @@ Style/MultilineBlockChain:
     - 'lib/pry/commands/ls/local_vars.rb'
     - 'spec/cli_spec.rb'
 
-# Offense count: 6
-Style/MultilineTernaryOperator:
-  Exclude:
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/commands/show_doc.rb'
-    - 'lib/pry/commands/whereami.rb'
-    - 'lib/pry/history_array.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/syntax_checking_spec.rb'
-
 # Offense count: 2
 Style/MultipleComparison:
   Exclude:

@@ -154,8 +154,9 @@ class Pry
     # or it returns the class of `target_self` if `target_self` is not a class.
     # @return [Pry::WrappedModule]
     def target_class
-      target_self.is_a?(Module) ? Pry::WrappedModule(target_self) :
-        Pry::WrappedModule(target_self.class)
+      return Pry::WrappedModule(target_self) if target_self.is_a?(Module)
+
+      Pry::WrappedModule(target_self.class)
     end
 
     def class_code
