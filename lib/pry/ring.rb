@@ -1,19 +1,19 @@
 class Pry
-  # A history array is an array to which you can only add elements. Older
-  # entries are removed progressively, so that the array never contains more than
-  # N elements.
+  # A ring is an array to which you can only add elements. Older entries are
+  # removed progressively, so that the array never contains more than N
+  # elements.
   #
-  # History arrays are used by Pry to store the output of the last commands.
+  # Rings are used by Pry to store the output of the last commands.
   #
   # @example
-  #   ary = Pry::HistoryArray.new 10
-  #   ary << 1 << 2 << 3
-  #   ary[0] # => 1
-  #   ary[1] # => 2
-  #   10.times { |n| ary << n }
-  #   ary[0] # => nil
-  #   ary[-1] # => 9
-  class HistoryArray
+  #   ring = Pry::Ring.new(10)
+  #   ring << 1 << 2 << 3
+  #   ring[0] # => 1
+  #   ring[1] # => 2
+  #   10.times { |n| ring << n }
+  #   ring[0] # => nil
+  #   ring[-1] # => 9
+  class Ring
     include Enumerable
 
     # @param [Integer] size Maximum amount of objects in the array

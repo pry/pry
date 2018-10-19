@@ -72,8 +72,8 @@ class Pry
     @config = Pry::Config.new
     config.merge!(options)
     push_prompt(config.prompt)
-    @input_array  = Pry::HistoryArray.new config.memory_size
-    @output_array = Pry::HistoryArray.new config.memory_size
+    @input_array  = Pry::Ring.new(config.memory_size)
+    @output_array = Pry::Ring.new(config.memory_size)
     @custom_completions = config.command_completions
     set_last_result nil
     @input_array << nil
@@ -177,8 +177,8 @@ class Pry
 
   undef :memory_size= if method_defined? :memory_size=
   def memory_size=(size)
-    @input_array  = Pry::HistoryArray.new(size)
-    @output_array = Pry::HistoryArray.new(size)
+    @input_array  = Pry::Ring.new(size)
+    @output_array = Pry::Ring.new(size)
   end
 
   # Inject all the sticky locals into the current binding.
