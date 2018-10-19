@@ -106,8 +106,9 @@ class Pry
 
         if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
           output.print @indent.correct_indentation(
-            current_prompt, indented_val,
-            [ original_val.length - indented_val.length, 0 ].max
+            current_prompt,
+            indented_val,
+            calculate_overhang(original_val, indented_val)
           )
           output.flush
         end
@@ -230,5 +231,20 @@ class Pry
         @readline_output = (Readline.output = Pry.config.output)
       end
     end
+
+    def calculate_overhang(original_val, indented_val)
+      if readline_available?
+        # Readline is able to display current mode indicator as prefix for the
+        # current line. That causes some characters being left in the terminal
+        # after we indent. So let's overwrite whole line to be sure.
+        #
+        # See: https://github.com/pry/pry/issues/1812
+        _rows, cols = Terminal.screen_size
+        cols - indented_val.length
+      else
+        [ original_val.length - indented_val.length, 0 ].max
+      end
+    end
+
   end
 end
