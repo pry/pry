@@ -87,22 +87,22 @@ class Pry
       Array(content.lines.to_a[range]).join
     end
 
-    # The selected `_pry_.output_array` as a string, as specified by
+    # The selected `_pry_.output_ring` as a string, as specified by
     # the `-o` switch.
     #
     # @return [String]
     def pry_output_content
-      pry_array_content_as_string(_pry_.output_array, self.class.output_result_ranges) do |v|
+      pry_array_content_as_string(_pry_.output_ring, self.class.output_result_ranges) do |v|
         _pry_.config.gist.inspecter.call(v)
       end
     end
 
-    # The selected `_pry_.input_array` as a string, as specified by
+    # The selected `_pry_.input_ring` as a string, as specified by
     # the `-i` switch.
     #
     # @return [String]
     def pry_input_content
-      pry_array_content_as_string(_pry_.input_array, self.class.input_expression_ranges) { |v| v }
+      pry_array_content_as_string(_pry_.input_ring, self.class.input_expression_ranges) { |v| v }
     end
 
     # The line range passed to `--lines`, converted to a 0-indexed range.

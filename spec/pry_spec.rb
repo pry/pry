@@ -273,7 +273,7 @@ describe Pry do
           t.eval "42"
           res = t.eval "_out_"
 
-          expect(res).to be_a_kind_of Pry::HistoryArray
+          expect(res).to be_a_kind_of(Pry::Ring)
           expect(res[1..2]).to eq [:foo, 42]
         end
 
@@ -283,7 +283,7 @@ describe Pry do
           t.eval "42"
           res = t.eval "_in_"
 
-          expect(res).to be_a_kind_of Pry::HistoryArray
+          expect(res).to be_a_kind_of(Pry::Ring)
           expect(res[1..2]).to eq [":foo\n", "42\n"]
         end
 
