@@ -16,3 +16,4 @@ Gemfile.lock
 *.swp
 **/*~
 .idea/
+.ackrc
