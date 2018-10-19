@@ -21,6 +21,7 @@
 # * the IRC channel, which is #pry on the Freenode network
 #
 
+# rubocop:disable Metrics/ClassLength
 class Pry
   attr_accessor :binding_stack
   attr_accessor :custom_completions
@@ -34,8 +35,13 @@ class Pry
   attr_reader :last_exception
   attr_reader :command_state
   attr_reader :exit_value
+
+  # @since v0.12.0
   attr_reader :input_ring
+
+  # @since v0.12.0
   attr_reader :output_ring
+
   attr_reader :config
 
   extend Pry::Config::Convenience
@@ -79,6 +85,20 @@ class Pry
     @input_ring << nil
     push_initial_binding(target)
     exec_hook(:when_started, target, options, self)
+  end
+
+  # @deprecated Use {#input_ring} instead.
+  def input_array
+    warn "[DEPRECATED] '#{self.class.name}##{__method__}' is deprecated. " \
+         "Use '#{self.class.name}#input_ring' instead."
+    @input_ring
+  end
+
+  # @deprecated Use {#output_ring} instead.
+  def output_array
+    warn "[DEPRECATED] '#{self.class.name}##{__method__}' is deprecated. " \
+         "Use '#{self.class.name}#output_ring' instead"
+    @output_ring
   end
 
   # The current prompt.
@@ -666,3 +686,4 @@ class Pry
     config.quiet
   end
 end
+# rubocop:enable Metrics/ClassLength
