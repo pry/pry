@@ -1257,22 +1257,6 @@ Style/NumericLiteralPrefix:
     - 'spec/history_spec.rb'
     - 'spec/pryrc_spec.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle, IgnoredMethods.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/commands/gem_list.rb'
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/commands/nesting.rb'
-    - 'lib/pry/history_array.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/testable/evalable.rb'
-
 # Offense count: 31
 # Cop supports --auto-correct.
 Style/ParallelAssignment:
