@@ -234,6 +234,11 @@ class Pry
 
     def calculate_overhang(original_val, indented_val)
       if readline_available?
+        # Readline is able to display current mode indicator as prefix for the
+        # current line. That causes some characters being left in the terminal
+        # after we indent. So let's overwrite whole line to be sure.
+        #
+        # See: https://github.com/pry/pry/issues/1812
         _rows, cols = Terminal.screen_size
         cols - indented_val.length
       else
