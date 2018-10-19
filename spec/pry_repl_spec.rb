@@ -136,40 +136,4 @@ EOS
       end
     end
   end
-
-  describe '#calculate_overhang' do
-    it 'is called' do
-      expect_any_instance_of(Pry::REPL)
-        .to receive(:calculate_overhang)
-        .with(' x = 1', 'x = 1')
-        .and_return(1)
-      # needed to exit repl thread
-      expect_any_instance_of(Pry::REPL)
-        .to receive(:calculate_overhang)
-        .with('exit-all', 'exit-all')
-        .and_return(0)
-      ReplTester.start(correct_indent: true, auto_indent: true) do
-        output=@pry.config.output
-        def output.tty?; true; end
-        input ' x = 1'
-      end
-    end
-
-    it 'uses indented_val if not readline' do
-      ReplTester.start(correct_indent: true, auto_indent: true) do
-        def @repl.readline_available?; false; end
-        overhang = @repl.send(:calculate_overhang, '  foo', 'foo')
-        raise "Test failed" unless overhang == 2
-      end
-    end
-
-    it 'fills whole line if readline' do
-      expect(Pry::Terminal).to receive(:screen_size).and_return([5, 10])
-      ReplTester.start(correct_indent: true, auto_indent: true) do
-        def @repl.readline_available?; true; end
-        overhang = @repl.send(:calculate_overhang, '  foo', 'foo')
-        raise "Test failed" unless overhang == 7
-      end
-    end
-  end
 end
