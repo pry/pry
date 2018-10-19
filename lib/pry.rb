@@ -64,11 +64,11 @@ class Pry
   # The default prompt; includes the target and nesting level
   DEFAULT_PROMPT = [
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+                      "[#{pry.input_ring.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
                     },
 
                     proc { |target_self, nest_level, pry|
-                      "[#{pry.input_array.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+                      "[#{pry.input_ring.size}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
                     }
                    ]
 
@@ -89,11 +89,11 @@ class Pry
   NAV_PROMPT = [
                 proc do |_, _, _pry_|
                   tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{_pry_.input_array.count}] (#{_pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}> "
+                  "[#{_pry_.input_ring.count}] (#{_pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}> "
                 end,
                 proc do |_, _, _pry_|
                   tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval("self")) }.join " / "
-                  "[#{_pry_.input_array.count}] (#{ _pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}* "
+                  "[#{_pry_.input_ring.count}] (#{ _pry_.config.prompt_name}) #{tree}: #{_pry_.binding_stack.size - 1}* "
                 end,
                ]
 

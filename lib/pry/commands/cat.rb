@@ -36,7 +36,7 @@ class Pry
                when opts.present?(:ex)
                  ExceptionFormatter.new(_pry_.last_exception, _pry_, opts).format
                when opts.present?(:in)
-                 InputExpressionFormatter.new(_pry_.input_array, opts).format
+                 InputExpressionFormatter.new(_pry_.input_ring, opts).format
                else
                  FileFormatter.new(args.first, _pry_, opts).format
                end

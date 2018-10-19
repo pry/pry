@@ -157,9 +157,9 @@ class Pry
     def input_expression
       case opts[:i]
       when Range
-        (_pry_.input_array[opts[:i]] || []).join
+        (_pry_.input_ring[opts[:i]] || []).join
       when Integer
-        _pry_.input_array[opts[:i]] || ""
+        _pry_.input_ring[opts[:i]] || ""
       else
         raise Pry::CommandError, "Not a valid range: #{opts[:i]}"
       end
@@ -186,7 +186,7 @@ class Pry
       when eval_string.strip != ""
         eval_string
       else
-        _pry_.input_array.reverse_each.find { |x| x && x.strip != "" } || ""
+        _pry_.input_ring.reverse_each.find { |x| x && x.strip != "" } || ""
       end
     end
 

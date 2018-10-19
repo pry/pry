@@ -34,8 +34,8 @@ class Pry
   attr_reader :last_exception
   attr_reader :command_state
   attr_reader :exit_value
-  attr_reader :input_array
-  attr_reader :output_array
+  attr_reader :input_ring
+  attr_reader :output_ring
   attr_reader :config
 
   extend Pry::Config::Convenience
@@ -72,11 +72,11 @@ class Pry
     @config = Pry::Config.new
     config.merge!(options)
     push_prompt(config.prompt)
-    @input_array  = Pry::Ring.new(config.memory_size)
-    @output_array = Pry::Ring.new(config.memory_size)
+    @input_ring = Pry::Ring.new(config.memory_size)
+    @output_ring = Pry::Ring.new(config.memory_size)
     @custom_completions = config.command_completions
     set_last_result nil
-    @input_array << nil
+    @input_ring << nil
     push_initial_binding(target)
     exec_hook(:when_started, target, options, self)
   end
@@ -172,13 +172,13 @@ class Pry
   # @return [Integer] The maximum amount of objects remembered by the inp and
   #   out arrays. Defaults to 100.
   def memory_size
-    @output_array.max_size
+    @output_ring.max_size
   end
 
   undef :memory_size= if method_defined? :memory_size=
   def memory_size=(size)
-    @input_array  = Pry::Ring.new(size)
-    @output_array = Pry::Ring.new(size)
+    @input_ring = Pry::Ring.new(size)
+    @output_ring = Pry::Ring.new(size)
   end
 
   # Inject all the sticky locals into the current binding.
@@ -198,14 +198,14 @@ class Pry
   end
 
   def sticky_locals
-    { _in_: input_array,
-      _out_: output_array,
+    { _in_: input_ring,
+      _out_: output_ring,
       _pry_: self,
       _ex_: last_exception && last_exception.wrapped_exception,
       _file_: last_file,
       _dir_: last_dir,
       _: proc { last_result },
-      __: proc { output_array[-2] }
+      __: proc { output_ring[-2] }
     }.merge(config.extra_sticky_locals)
   end
 
@@ -483,7 +483,7 @@ class Pry
   # @param [String] code The code that was run.
   def set_last_result(result, code="")
     @last_result_is_exception = false
-    @output_array << result
+    @output_ring << result
 
     self.last_result = result unless code =~ /\A\s*\z/
   end
@@ -497,7 +497,7 @@ class Pry
   def last_exception=(e)
     last_exception = Pry::LastException.new(e)
     @last_result_is_exception = true
-    @output_array << last_exception
+    @output_ring << last_exception
     @last_exception = last_exception
   end
 
@@ -505,8 +505,8 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [String] code The code we just eval'd
   def update_input_history(code)
-    # Always push to the @input_array as the @output_array is always pushed to.
-    @input_array << code
+    # Always push to the @input_ring as the @output_ring is always pushed to.
+    @input_ring << code
     if code
       Pry.line_buffer.push(*code.each_line)
       Pry.current_line += code.lines.count
@@ -539,10 +539,10 @@ class Pry
         open_token: open_token,
         session_line: Pry.history.session_line_count + 1,
         history_line: Pry.history.history_line_count + 1,
-        expr_number: input_array.count,
+        expr_number: input_ring.count,
         _pry_: self,
         binding_stack: binding_stack,
-        input_array: input_array,
+        input_ring: input_ring,
         eval_string: @eval_string,
         cont: !@eval_string.empty?
       })

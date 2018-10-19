@@ -103,6 +103,7 @@ class Pry
     attr_reader :max_size
 
     private
+
     def convert_index(n)
       n >= 0 ? n : @count + n
     end

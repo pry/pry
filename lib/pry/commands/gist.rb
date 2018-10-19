@@ -53,13 +53,13 @@ class Pry
     def input_content
       content = ""
       CodeCollector.input_expression_ranges.each do |range|
-        input_expressions = _pry_.input_array[range] || []
+        input_expressions = _pry_.input_ring[range] || []
         Array(input_expressions).each_with_index do |code, index|
           corrected_index = index + range.first
           if code && code != ""
             content << code
             if code !~ /;\Z/
-              content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_array[corrected_index]))}"
+              content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index]))}"
             end
           end
         end
