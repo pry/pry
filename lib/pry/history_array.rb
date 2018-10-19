@@ -51,21 +51,17 @@ class Pry
     #   @return [Array, nil] The selected items. Nil if index is greater than
     #     the size of the array.
     def [](index_or_range, size = nil)
-      if index_or_range.is_a? Integer
-        index = convert_index(index_or_range)
-
-        if size
-          end_index = index + size
-          index > @count ? nil : (index...[end_index, @count].min).map do |n|
-            @hash[n]
-          end
-        else
-          @hash[index]
-        end
-      else
+      unless index_or_range.is_a?(Integer)
         range = convert_range(index_or_range)
-        range.begin > @count ? nil : range.map { |n| @hash[n] }
+        return range.begin > @count ? nil : range.map { |n| @hash[n] }
       end
+
+      index = convert_index(index_or_range)
+      return @hash[index] unless size
+      return if index > @count
+
+      end_index = index + size
+      (index...[end_index, @count].min).map { |n| @hash[n] }
     end
 
     # @return [Integer] Amount of objects in the array

@@ -69,12 +69,10 @@ class Pry
     # number of lines in the comment and the start line of the code_object
     # @return [Fixnum] start line of docs
     def start_line_for(code_object)
-      if code_object.command? || opts.present?(:'base-one')
-         1
-      else
-        code_object.source_line.nil? ? 1 :
-          (code_object.source_line - code_object.doc.lines.count)
-      end
+      return 1 if code_object.command? || opts.present?(:'base-one')
+      return 1 unless code_object.source_line
+
+      code_object.source_line - code_object.doc.lines.count
     end
   end
 

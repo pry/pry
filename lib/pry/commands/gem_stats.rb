@@ -71,11 +71,13 @@ FAILWHALE
   end
 
   def format_dependencies(rdeps)
-    rdeps.empty? ?
-      bold("None") :
-      with_line_numbers(rdeps.map {|h|
-        "%{name} (%{requirements})" % {name: h["name"], requirements: h["requirements"]}
-      }.join($/), 1, :bold)
+    return bold('None') if rdeps.empty?
+
+    with_line_numbers(
+      rdeps.map { |h| "#{h['name']} (#{h['requirements']})" }.join("\n"),
+      1,
+      :bold
+    )
   end
   Pry::Commands.add_command(self)
 end
