@@ -105,16 +105,10 @@ class Pry
         indented_val = @indent.indent(val)
 
         if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
-          suffix_whites = if readline_available? && Readline.vi_editing_mode?
-                            _, cols = Terminal.screen_size
-                            cols - indented_val.length
-                          else
-                            false
-                          end
-
           output.print @indent.correct_indentation(
-            current_prompt, indented_val,
-            suffix_whites || [ original_val.length - indented_val.length, 0 ].max
+            current_prompt,
+            indented_val,
+            calculate_overhang(original_val, indented_val)
           )
           output.flush
         end
@@ -237,5 +231,15 @@ class Pry
         @readline_output = (Readline.output = Pry.config.output)
       end
     end
+
+    def calculate_overhang(original_val, indented_val)
+      if readline_available?
+        _rows, cols = Terminal.screen_size
+        cols - indented_val.length
+      else
+        [ original_val.length - indented_val.length, 0 ].max
+      end
+    end
+
   end
 end
