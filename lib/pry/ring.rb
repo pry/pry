@@ -8,7 +8,7 @@ class Pry
   #   ring << 1 << 2 << 3
   #   ring.to_a #=> [1, 2, 3]
   #   ring << 4
-  #   ring.to_a #=> [4, 2, 3]
+  #   ring.to_a #=> [2, 3, 4]
   #
   #   ring[0] #=> 2
   #   ring[-1] #=> 4
