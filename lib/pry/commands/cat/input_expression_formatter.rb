@@ -36,7 +36,7 @@ class Pry
       end
 
       def normalized_expression_range
-        absolute_index_range(opts[:i], input_expressions.length)
+        absolute_index_range(opts[:i], input_expressions.count)
       end
     end
   end
