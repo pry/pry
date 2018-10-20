@@ -82,7 +82,7 @@ class Pry
     #
     # @param [String] search  The string to search for.
     def display_search(search)
-      if command = command_set.find_command_for_help(search)
+      if (command = command_set.find_command_for_help(search))
         display_command(command)
       else
         display_filtered_search_results(search)
