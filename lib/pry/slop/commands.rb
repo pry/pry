@@ -133,13 +133,13 @@ class Pry::Slop
     #
     # Returns the original Array of items with options removed.
     def parse!(items = ARGV)
-      if opts = commands[items[0].to_s]
+      if (opts = commands[items[0].to_s])
         @triggered_command = items.shift
         execute_arguments! items
         opts.parse! items
         execute_global_opts! items
       else
-        if opts = commands['default']
+        if (opts = commands['default'])
           opts.parse! items
         else
           if config[:strict] && items[0]
@@ -187,7 +187,7 @@ class Pry::Slop
 
     # Returns nothing.
     def execute_global_opts!(items)
-      if global_opts = commands['global']
+      if (global_opts = commands['global'])
         global_opts.parse! items
       end
     end

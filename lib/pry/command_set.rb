@@ -395,7 +395,7 @@ class Pry
     # @param [Hash] context The context to execute the commands with
     # @return [CommandSet::Result]
     def process_line(val, context={})
-      if command = find_command(val)
+      if (command = find_command(val))
         context = context.merge(command_set: self)
         retval = command.new(context).process_line(val)
         Result.new(true, retval)
@@ -415,7 +415,7 @@ class Pry
     # @param [Hash] context  The context to create the command with
     # @return [Array<String>]
     def complete(search, context={})
-      if command = find_command(search)
+      if (command = find_command(search))
         command.new(context).complete(search)
       else
         @commands.keys.select do |key|

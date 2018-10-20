@@ -217,7 +217,7 @@ class Pry::Slop
       return items
     end
 
-    if cmd = @commands[items[0]]
+    if (cmd = @commands[items[0]])
       return cmd.parse! items[1..-1]
     end
 
@@ -464,7 +464,7 @@ class Pry::Slop
   #
   # Returns nothing.
   def process_item(items, index, &block)
-    return unless item = items[index]
+    return unless (item = items[index])
 
     option, argument = extract_option(item) if item.start_with?('-')
 
@@ -546,7 +546,7 @@ class Pry::Slop
   def execute_multiple_switches(option, argument, index)
     execute_option(option, nil, index)
     argument.split('').each do |key|
-      next unless opt = fetch_option(key)
+      next unless (opt = fetch_option(key))
 
       opt.count += 1
       execute_option(opt, nil, index, key)

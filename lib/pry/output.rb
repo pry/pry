@@ -10,7 +10,7 @@ class Pry::Output
     return print "\n" if objs.empty?
 
     objs.each do |obj|
-      if ary = Array.try_convert(obj)
+      if (ary = Array.try_convert(obj))
         puts(*ary)
       else
         print "#{obj.to_s.chomp}\n"

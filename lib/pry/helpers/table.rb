@@ -13,7 +13,7 @@ class Pry
     def self.tablify_to_screen_width(things, options, config = Pry.config)
       options ||= {}
       things = things.compact
-      if indent = options[:indent]
+      if (indent = options[:indent])
         usable_width = Terminal.width! - indent.size
         tablify(things, usable_width, config).to_s.gsub(/^/, indent)
       else

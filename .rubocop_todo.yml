@@ -563,21 +563,6 @@ Layout/TrailingWhitespace:
     - 'spec/commands/edit_spec.rb'
     - 'spec/indent_spec.rb'
 
-# Offense count: 15
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/commands/ls/constants.rb'
-    - 'lib/pry/helpers/table.rb'
-    - 'lib/pry/output.rb'
-    - 'lib/pry/slop.rb'
-    - 'lib/pry/slop/commands.rb'
-    - 'lib/pry/slop/option.rb'
-    - 'lib/pry/wrapped_module.rb'
-
 # Offense count: 3
 Lint/Debugger:
   Exclude:

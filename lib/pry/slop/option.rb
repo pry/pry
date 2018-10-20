@@ -114,7 +114,7 @@ class Pry::Slop
       if type.respond_to?(:call)
         type.call(value)
       else
-        if callable = types[type.to_s.downcase.to_sym]
+        if (callable = types[type.to_s.downcase.to_sym])
           callable.call(value)
         else
           value
