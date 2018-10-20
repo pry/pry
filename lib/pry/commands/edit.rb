@@ -186,7 +186,7 @@ class Pry
       when eval_string.strip != ""
         eval_string
       else
-        _pry_.input_ring.reverse_each.find { |x| x && x.strip != "" } || ""
+        _pry_.input_ring.to_a.reverse_each.find { |x| x && x.strip != "" } || ""
       end
     end
 

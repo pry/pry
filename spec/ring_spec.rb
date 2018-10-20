@@ -1,71 +1,107 @@
 require_relative 'helper'
 
 describe Pry::Ring do
-  before do
-    @ring = Pry::Ring.new(10)
-    @populated = @ring.dup << 1 << 2 << 3 << 4
+  let(:ring) { described_class.new(3) }
+
+  describe "#<<" do
+    it "adds elements as is when the ring is not full" do
+      ring << 1 << 2 << 3
+      expect(ring.to_a).to eq([1, 2, 3])
+    end
+
+    it "overwrites elements when the ring is full" do
+      ring << 1 << 2 << 3 << 4 << 5
+      expect(ring.to_a).to eq([3, 4, 5])
+    end
   end
 
-  it 'should have a maximum size specifed at creation time' do
-    expect(@ring.max_size).to eq 10
+  describe "#[]" do
+    context "when the ring is empty" do
+      it "returns nil" do
+        expect(ring[0]).to be_nil
+      end
+    end
+
+    context "when the ring is not full" do
+      before { ring << 1 << 2 << 3 }
+
+      it "reads elements" do
+        expect(ring[0]).to eq(1)
+        expect(ring[1]).to eq(2)
+        expect(ring[2]).to eq(3)
+
+        expect(ring[-1]).to eq(3)
+        expect(ring[-2]).to eq(2)
+        expect(ring[-3]).to eq(1)
+      end
+
+      it "reads elements via range" do
+        expect(ring[1..2]).to eq([2, 3])
+        expect(ring[-2..-1]).to eq([2, 3])
+      end
+    end
+
+    context "when the ring is full" do
+      before { ring << 1 << 2 << 3 << 4 << 5 }
+
+      it "reads elements" do
+        expect(ring[0]).to eq(3)
+        expect(ring[1]).to eq(4)
+        expect(ring[2]).to eq(5)
+
+        expect(ring[-1]).to eq(5)
+        expect(ring[-2]).to eq(4)
+        expect(ring[-3]).to eq(3)
+      end
+
+      it "reads elements via inclusive range" do
+        expect(ring[1..2]).to eq([4, 5])
+        expect(ring[-2..-1]).to eq([4, 5])
+        expect(ring[-2..3]).to eq([4, 5])
+
+        expect(ring[0..-1]).to eq([3, 4, 5])
+
+        expect(ring[2..-1]).to eq([5])
+        expect(ring[-1..10]).to eq([5])
+
+        expect(ring[-1..0]).to eq([])
+        expect(ring[-1..1]).to eq([])
+      end
+
+      it "reads elements via exclusive range" do
+        expect(ring[1...2]).to eq([4])
+        expect(ring[-2...-1]).to eq([4])
+        expect(ring[-2...3]).to eq([4, 5])
+
+        expect(ring[0...-1]).to eq([3, 4])
+
+        expect(ring[2...-1]).to eq([])
+        expect(ring[-1...10]).to eq([5])
+
+        expect(ring[-1...0]).to eq([])
+        expect(ring[-1...1]).to eq([])
+      end
+    end
   end
 
-  it 'should be able to be added objects to' do
-    expect(@populated.size).to eq 4
-    expect(@populated.to_a).to eq [1, 2, 3, 4]
+  describe "#to_a" do
+    it "returns a duplicate of internal buffer" do
+      array = ring.to_a
+      ring << 1
+      expect(array.count).to eq(0)
+      expect(ring.count).to eq(1)
+    end
   end
 
-  it 'should be able to access single elements' do
-    expect(@populated[2]).to eq 3
-  end
+  describe "#clear" do
+    it "resets ring to initial state" do
+      ring << 1
+      expect(ring.count).to eq(1)
+      expect(ring.to_a).to eq([1])
 
-  it 'should be able to access negative indices' do
-    expect(@populated[-1]).to eq 4
-  end
-
-  it 'should be able to access ranges' do
-    expect(@populated[1..2]).to eq [2, 3]
-  end
-
-  it 'should be able to access ranges starting from a negative index' do
-    expect(@populated[-2..3]).to eq [3, 4]
-  end
-
-  it 'should be able to access ranges ending at a negative index' do
-    expect(@populated[2..-1]).to eq [3, 4]
-  end
-
-  it 'should be able to access ranges using only negative indices' do
-    expect(@populated[-2..-1]).to eq [3, 4]
-  end
-
-  it 'should be able to use range where end is excluded' do
-    expect(@populated[-2...-1]).to eq [3]
-  end
-
-  it 'should be able to access slices using a size' do
-    expect(@populated[-3, 2]).to eq [2, 3]
-  end
-
-  it 'should remove older entries' do
-    11.times { |n| @ring << n }
-
-    expect(@ring[0]).to  eq nil
-    expect(@ring[1]).to  eq 1
-    expect(@ring[10]).to eq 10
-  end
-
-  it 'should not be larger than specified maximum size' do
-    12.times { |n| @ring << n }
-    expect(@ring.entries.compact.size).to eq 10
-  end
-
-  it 'should pop!' do
-    @populated.pop!
-    expect(@populated.to_a).to eq [1, 2, 3]
-  end
-
-  it 'should return an indexed hash' do
-    expect(@populated.to_h[0]).to eq @populated[0]
+      ring.clear
+      expect(ring.count).to eq(0)
+      expect(ring.to_a).to eq([])
+    end
   end
 end

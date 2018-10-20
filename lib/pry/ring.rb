@@ -1,118 +1,83 @@
 class Pry
-  # A ring is an array to which you can only add elements. Older entries are
-  # removed progressively, so that the array never contains more than N
-  # elements.
-  #
-  # Rings are used by Pry to store the output of the last commands.
+  # A ring is a thread-safe fixed-capacity array to which you can only add
+  # elements. Older entries are overwritten as you add new elements, so that the
+  # ring can never contain more than `max_size` elemens.
   #
   # @example
-  #   ring = Pry::Ring.new(10)
+  #   ring = Pry::Ring.new(3)
   #   ring << 1 << 2 << 3
-  #   ring[0] # => 1
-  #   ring[1] # => 2
-  #   10.times { |n| ring << n }
-  #   ring[0] # => nil
-  #   ring[-1] # => 9
+  #   ring.to_a #=> [1, 2, 3]
+  #   ring << 4
+  #   ring.to_a #=> [4, 2, 3]
+  #
+  #   ring[0] #=> 2
+  #   ring[-1] #=> 4
+  #   ring.clear
+  #   ring[0] #=> nil
+  #
+  # @api public
+  # @since v0.12.0
   class Ring
-    include Enumerable
-
-    # @param [Integer] size Maximum amount of objects in the array
-    def initialize(size)
-      @max_size = size
-
-      @hash  = {}
-      @count = 0
-    end
-
-    # Pushes an object at the end of the array
-    # @param [Object] value Object to be added
-    def <<(value)
-      @hash[@count] = value
-
-      if @hash.size > max_size
-        @hash.delete(@count - max_size)
-      end
-
-      @count += 1
-
-      self
-    end
-
-    # @overload [](index)
-    #   @param [Integer] index Index of the item to access.
-    #   @return [Object, nil] Item at that index or nil if it has been removed.
-    # @overload [](index, size)
-    #   @param [Integer] index Index of the first item to access.
-    #   @param [Integer] size Amount of items to access
-    #   @return [Array, nil] The selected items. Nil if index is greater than
-    #     the size of the array.
-    # @overload [](range)
-    #   @param [Range<Integer>] range Range of indices to access.
-    #   @return [Array, nil] The selected items. Nil if index is greater than
-    #     the size of the array.
-    def [](index_or_range, size = nil)
-      unless index_or_range.is_a?(Integer)
-        range = convert_range(index_or_range)
-        return range.begin > @count ? nil : range.map { |n| @hash[n] }
-      end
-
-      index = convert_index(index_or_range)
-      return @hash[index] unless size
-      return if index > @count
-
-      end_index = index + size
-      (index...[end_index, @count].min).map { |n| @hash[n] }
-    end
-
-    # @return [Integer] Amount of objects in the array
-    def size
-      @count
-    end
-    alias count size
-    alias length size
-
-    def empty?
-      size == 0
-    end
-
-    def each
-      ((@count - size)...@count).each do |n|
-        yield @hash[n]
-      end
-    end
-
-    def to_a
-      ((@count - size)...@count).map { |n| @hash[n] }
-    end
-
-    # @return [Hash] copy of the internal @hash history
-    def to_h
-      @hash.dup
-    end
-
-    def pop!
-      @hash.delete @count - 1
-      @count -= 1
-    end
-
-    def inspect
-      "#<#{self.class} size=#{size} first=#{@count - size} max_size=#{max_size}>"
-    end
-
-    # @return [Integer] Maximum amount of objects in the array
+    # @return [Integer] maximum buffer size
     attr_reader :max_size
 
-    private
+    # @return [Integer] how many objects were added during the lifetime of the
+    #   ring
+    attr_reader :count
 
-    def convert_index(n)
-      n >= 0 ? n : @count + n
+    # @param [Integer] max_size Maximum buffer size. The buffer will start
+    #   overwriting elements once its reaches its maximum capacity
+    def initialize(max_size)
+      @max_size = max_size
+      @mutex = Mutex.new
+      clear
     end
 
-    def convert_range(range)
-      end_index = convert_index(range.end)
-      end_index += 1 unless range.exclude_end?
+    # Push `value` to the current index.
+    #
+    # @param [Object] value
+    # @return [self]
+    def <<(value)
+      @mutex.synchronize do
+        @buffer[count % max_size] = value
+        @count += 1
+        self
+      end
+    end
 
-      Range.new(convert_index(range.begin), [end_index, @count].min, true)
+    # Read the value stored at `index`.
+    #
+    # @param [Integer, Range] index The element (if Integer) or elements
+    #   (if Range) associated with `index`
+    # @return [Object, Array<Object>, nil] element(s) at `index`, `nil` if none
+    #   exist
+    def [](index)
+      @mutex.synchronize do
+        return @buffer[(count + index) % max_size] if index.is_a?(Integer)
+        return @buffer[index] if count <= max_size
+
+        # Swap parts of array when the array turns page and starts overwriting
+        # from the beginning, then apply the range.
+        last_part = @buffer.slice([index.end, max_size - 1].min, count % max_size)
+        (last_part + (@buffer - last_part))[index]
+      end
+    end
+
+    # @return [Array<Object>] the buffer as unwinded array
+    def to_a
+      return @buffer.dup if count <= max_size
+
+      last_part = @buffer.slice(count % max_size, @buffer.size)
+      last_part + (@buffer - last_part)
+    end
+
+    # Clear the buffer and reset count.
+    # @return [void]
+    def clear
+      @mutex.synchronize do
+        @buffer = []
+        @count = 0
+      end
     end
   end
 end
