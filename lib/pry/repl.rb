@@ -108,7 +108,7 @@ class Pry
           output.print @indent.correct_indentation(
             current_prompt,
             indented_val,
-            calculate_overhang(original_val, indented_val)
+            calculate_overhang(current_prompt, original_val, indented_val)
           )
           output.flush
         end
@@ -232,19 +232,19 @@ class Pry
       end
     end
 
-    def calculate_overhang(original_val, indented_val)
-      if readline_available?
-        # Readline is able to display current mode indicator as prefix for the
-        # current line. That causes some characters being left in the terminal
-        # after we indent. So let's overwrite whole line to be sure.
-        #
-        # See: https://github.com/pry/pry/issues/1812
-        _rows, cols = Terminal.screen_size
-        cols - indented_val.length
-      else
-        [ original_val.length - indented_val.length, 0 ].max
+    # Calculates correct overhang for current line. Supports vi Readline
+    # mode and its indicators such as "(ins)" or "(cmd)".
+    #
+    # @return [Integer]
+    # @note This doesn't calculate overhang for Readline's emacs mode with an
+    #   indicator because emacs is the default mode and it doesn't use
+    #   indicators in 99% of cases.
+    def calculate_overhang(current_prompt, original_val, indented_val)
+      overhang = original_val.length - indented_val.length
+      if readline_available? && Readline.vi_editing_mode?
+        overhang += current_prompt.length - indented_val.length
       end
+      [0, overhang].max
     end
-
   end
 end
