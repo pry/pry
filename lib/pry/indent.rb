@@ -382,25 +382,24 @@ class Pry
     # the correct indentation. Mostly useful for fixing 'end'.
     #
     # @param [String] prompt The user's prompt
-    # @param [String] code   The code the user just typed in.
-    # @param [Fixnum] overhang (0) The number of chars to erase afterwards (i.e.,
-    #   the difference in length between the old line and the new one).
-    # @return [String]
-    def correct_indentation(prompt, code, overhang=0)
+    # @param [String] code The code the user just typed in
+    # @param [Integer] overhang The number of characters to erase afterwards (the
+    #   the difference in length between the old line and the new one)
+    #
+    # @return [String] correctly indented line
+    def correct_indentation(prompt, code, overhang = 0)
       prompt = prompt.delete("\001\002")
       line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
       whitespace = ' ' * overhang
 
-      _, cols = Terminal.screen_size
-
-      cols = cols.to_i
-      lines = (cols != 0 ? (line_to_measure.length / cols + 1) : 1).to_i
+      cols = Terminal.width!
+      lines = cols == 0 ? 1 : (line_to_measure.length / cols + 1).to_i
 
       if Pry::Helpers::BaseHelpers.windows_ansi?
-        move_up   = "\e[#{lines}F"
+        move_up = "\e[#{lines}F"
         move_down = "\e[#{lines}E"
       else
-        move_up   = "\e[#{lines}A\e[0G"
+        move_up = "\e[#{lines}A\e[0G"
         move_down = "\e[#{lines}B\e[0G"
       end
 
