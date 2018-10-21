@@ -62,9 +62,6 @@ class Pry
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
 
-        # Load config files etc first, ensuring that cli options will take precedence.
-        Pry.initial_session_setup
-
         self.input_args = args
 
         begin
@@ -81,6 +78,7 @@ class Pry
           exit
         end
 
+        Pry.initial_session_setup
         Pry.final_session_setup
 
         # Option processors are optional.
