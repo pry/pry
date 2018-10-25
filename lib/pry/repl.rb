@@ -241,7 +241,11 @@ class Pry
     #   indicators in 99% of cases.
     def calculate_overhang(current_prompt, original_val, indented_val)
       overhang = original_val.length - indented_val.length
-      if readline_available? && Readline.vi_editing_mode?
+      if readline_available? &&
+         # rb-readline doesn't support this method:
+         # https://github.com/ConnorAtherton/rb-readline/issues/152
+         Readline.respond_to?(:vi_editing_mode?) &&
+         Readline.vi_editing_mode?
         overhang += current_prompt.length - indented_val.length
       end
       [0, overhang].max
