@@ -105,8 +105,8 @@ class Pry
   # This is the prompt at the top of the prompt stack.
   #
   # @example
-  #    self.prompt = Pry::SIMPLE_PROMPT
-  #    self.prompt # => Pry::SIMPLE_PROMPT
+  #    self.prompt = Pry::Prompt::SIMPLE
+  #    self.prompt # => Pry::Prompt::SIMPLE
   #
   # @return [Array<Proc>] Current prompt.
   def prompt

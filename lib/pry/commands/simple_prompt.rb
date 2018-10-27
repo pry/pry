@@ -10,10 +10,10 @@ class Pry
 
     def process
       case _pry_.prompt
-      when Pry::SIMPLE_PROMPT
+      when Pry::Prompt::SIMPLE
         _pry_.pop_prompt
       else
-        _pry_.push_prompt Pry::SIMPLE_PROMPT
+        _pry_.push_prompt Pry::Prompt::SIMPLE
       end
     end
   end

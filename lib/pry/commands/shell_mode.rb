@@ -10,11 +10,11 @@ class Pry
 
     def process
       case _pry_.prompt
-      when Pry::SHELL_PROMPT
+      when Pry::Prompt::SHELL
         _pry_.pop_prompt
         _pry_.custom_completions = _pry_.config.file_completions
       else
-        _pry_.push_prompt Pry::SHELL_PROMPT
+        _pry_.push_prompt Pry::Prompt::SHELL
         _pry_.custom_completions = _pry_.config.command_completions
       end
     end

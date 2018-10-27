@@ -13,13 +13,13 @@ class Pry::Config::Default
       Pry::Commands
     },
     prompt_name: proc {
-      Pry::DEFAULT_PROMPT_NAME
+      Pry::Prompt::DEFAULT_NAME
     },
     prompt: proc {
-      Pry::DEFAULT_PROMPT
+      Pry::Prompt::DEFAULT
     },
     prompt_safe_objects: proc {
-      Pry::DEFAULT_PROMPT_SAFE_OBJECTS
+      Pry::Prompt::SAFE_OBJECTS
     },
     print: proc {
       Pry::DEFAULT_PRINT
