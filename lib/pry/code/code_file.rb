@@ -25,6 +25,10 @@ class Pry
       %w(Gemfile Rakefile Guardfile Capfile) => :ruby
     }
 
+    # Store the current working directory. This allows show-source etc. to work if
+    # your process has changed directory since boot. [Issue #675]
+    INITIAL_PWD = Dir.pwd
+
     # @return [Symbol] The type of code stored in this wrapper.
     attr_reader :code_type
 
@@ -95,7 +99,7 @@ class Pry
 
     # @return [String]
     def from_pry_init_pwd
-      File.expand_path(@filename, Pry::INITIAL_PWD)
+      File.expand_path(@filename, INITIAL_PWD)
     end
 
     # @return [String]
