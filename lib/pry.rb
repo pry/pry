@@ -122,10 +122,6 @@ class Pry
     end
   end
 
-  # Store the current working directory. This allows show-source etc. to work if
-  # your process has changed directory since boot. [Issue #675]
-  INITIAL_PWD = Dir.pwd
-
   # This is to keep from breaking under Rails 3.2 for people who are doing that
   # IRB = Pry thing.
   module ExtendCommandBundle; end
