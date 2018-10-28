@@ -6,8 +6,6 @@
 <br><br>
 ![logo for Pry](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
-© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2018<br>
-
 **Other Resources**
 
 [Skip to the website (recommended)](http://pryrepl.org/) <br />
@@ -390,9 +388,3 @@ between commands and running commands in background
 ### Contact
 
 Problems or questions? File an issue at [GitHub](https://github.com/pry/pry/issues).
-
-### Contributors
-
-Pry is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
-of contributors see the
-[contributors graph](https://github.com/pry/pry/graphs/contributors).

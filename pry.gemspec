@@ -7,8 +7,18 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.3'
 
-  s.authors = ["John Mair (banisterfiend)", "Conrad Irwin", "Ryan Fitzgerald"]
-  s.email = ["jrmair@gmail.com", "conrad.irwin@gmail.com", "rwfitzge@gmail.com"]
+  s.authors = [
+    'John Mair (banisterfiend)',
+    'Conrad Irwin',
+    'Ryan Fitzgerald',
+    'Kyrylo Silin'
+  ]
+  s.email = [
+    'jrmair@gmail.com',
+    'conrad.irwin@gmail.com',
+    'rwfitzge@gmail.com',
+    'silin@kyrylo.org'
+  ]
   s.summary = "An IRB alternative and runtime developer console"
   s.description = s.summary
   s.homepage = "http://pryrepl.org"
