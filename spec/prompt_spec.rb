@@ -1,6 +1,6 @@
 require_relative 'helper'
 
-describe "Prompts" do
+describe Pry::Prompt do
   describe "one-parameter prompt proc" do
     it 'should get full config object' do
       config = nil
@@ -66,5 +66,22 @@ describe "Prompts" do
       expect(n1).to eq 0
       expect(p1.is_a?(Pry)).to eq true
     end
+  end
+
+  it "can compute prompt name dynamically" do
+    config = nil
+    redirect_pry_io(InputTester.new("def hello", "exit-all")) do
+      Pry.start(self, prompt: proc { |v| config = v })
+    end
+
+    enum = Enumerator.new do |y|
+      count = 100
+      loop { y << count += 1 }
+    end
+    config._pry_.config.prompt_name = Pry.lazy { enum.next }
+
+    proc = subject::DEFAULT.first
+    expect(proc.call(Object.new, 1, config._pry_)).to eq('[1] 101(#<Object>):1> ')
+    expect(proc.call(Object.new, 1, config._pry_)).to eq('[1] 102(#<Object>):1> ')
   end
 end
