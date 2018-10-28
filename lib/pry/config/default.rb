@@ -18,8 +18,8 @@ class Pry::Config::Default
     prompt: proc {
       Pry::Prompt::DEFAULT
     },
-    prompt_safe_objects: proc {
-      Pry::Prompt::SAFE_OBJECTS
+    prompt_safe_contexts: proc {
+      Pry::Prompt::SAFE_CONTEXTS
     },
     print: proc {
       Pry::DEFAULT_PRINT

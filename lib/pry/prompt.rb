@@ -2,7 +2,7 @@ class Pry
   class Prompt
     DEFAULT_NAME = 'pry'.freeze
 
-    SAFE_OBJECTS = [String, Numeric, Symbol, nil, true, false].freeze
+    SAFE_CONTEXTS = [String, Numeric, Symbol, nil, true, false].freeze
 
     # @return [String]
     DEFAULT_TEMPLATE =

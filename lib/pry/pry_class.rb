@@ -241,7 +241,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
       # we can drop in the future.
       obj.to_s
-    elsif Pry.config.prompt_safe_objects.any? { |v| v === obj } && obj.inspect.length <= max
+    elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } && obj.inspect.length <= max
       obj.inspect
     else
       id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
