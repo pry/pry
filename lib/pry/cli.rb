@@ -134,12 +134,12 @@ end
 
 # The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do
-  banner %{Usage: pry [OPTIONS]
-Start a Pry session.
-See http://pryrepl.org/ for more information.
-Copyright (c) 2016 John Mair (banisterfiend)
---
-}
+  banner(
+    "Usage: pry [OPTIONS]\n" \
+    "Start a Pry session.\n" \
+    "See http://pryrepl.org/ for more information.\n"
+  )
+
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
     Pry.config.exec_string += "\n" if Pry.config.exec_string.length > 0
     Pry.config.exec_string += input

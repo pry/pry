@@ -1,8 +1,4 @@
 #!/usr/bin/env ruby
-
-# (C) John Mair (banisterfiend)
-# MIT license
-
 $0 = 'pry'
 
 require 'pry'

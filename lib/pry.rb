@@ -1,6 +1,3 @@
-# (C) John Mair (banisterfiend) 2016
-# MIT License
-#
 require 'pp'
 require 'pry/forwardable'
 require 'pry/input_lock'
