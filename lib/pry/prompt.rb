@@ -31,7 +31,7 @@ class Pry
           format(
             DEFAULT_TEMPLATE,
             in_count: _pry_.input_ring.count,
-            name: _pry_.config.prompt_name,
+            name: prompt_name(_pry_.config.prompt_name),
             context: Pry.view_clip(context),
             nesting: (nesting > 0 ? ":#{nesting}" : ''),
             separator: separator
@@ -44,7 +44,7 @@ class Pry
         proc do |context, _nesting, _pry_|
           format(
             SHELL_TEMPLATE,
-            name: _pry_.config.prompt_name,
+            name: prompt_name(_pry_.config.prompt_name),
             context: Pry.view_clip(context),
             pwd: Dir.pwd,
             separator: separator
@@ -59,11 +59,17 @@ class Pry
           format(
             NAV_TEMPLATE,
             in_count: _pry_.input_ring.count,
-            name: _pry_.config.prompt_name,
+            name: prompt_name(_pry_.config.prompt_name),
             tree: tree.join(' / '),
             stack_size: _pry_.binding_stack.size - 1
           )
         end
+      end
+
+      def prompt_name(name)
+        return name unless name.is_a?(Pry::Config::Lazy)
+
+        name.call
       end
     end
 

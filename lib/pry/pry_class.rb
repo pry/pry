@@ -406,6 +406,24 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   ensure
     Thread.current[:pry_critical_section] -= 1
   end
+
+  # Wraps a block in a named block called `Pry::Config::Lazy`. This is used for
+  # dynamic config values, which are calculated every time
+  # {Pry::Config::Lazy#call} is called.
+  #
+  # @example
+  #   # pryrc
+  #   Pry.config.prompt_name = Pry.lazy { rand(100) }
+  #
+  #   # Session
+  #   [1] 96(main)>
+  #   [2] 19(main)>
+  #   [3] 80(main)>
+  #
+  # @return [#call]
+  def self.lazy(&block)
+    Pry::Config::Lazy.new(&block)
+  end
 end
 
 Pry.init
