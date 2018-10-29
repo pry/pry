@@ -26,7 +26,7 @@ describe Pry do
     end
 
     # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
-    unless Pry::Helpers::BaseHelpers.jruby_19?
+    unless Pry::Helpers::Base.jruby_19?
       it "should not load the rc file twice if it's symlinked differently" do
         Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
         Pry::LOCAL_RC_FILE.replace "spec/fixtures/testlinkrc"

@@ -1,6 +1,6 @@
 class Pry
   class Command::CodeCollector
-    include Helpers::CommandHelpers
+    include Helpers::Command
 
     attr_reader :args
     attr_reader :opts

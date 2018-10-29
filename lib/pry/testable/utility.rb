@@ -15,7 +15,7 @@ module Pry::Testable::Utility
   end
 
   def unindent(*args)
-    Pry::Helpers::CommandHelpers.unindent(*args)
+    Pry::Helpers::Command.unindent(*args)
   end
 
   def inner_scope

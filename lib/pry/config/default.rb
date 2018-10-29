@@ -45,7 +45,7 @@ class Pry
           Pry::DEFAULT_SYSTEM
         },
         color: proc {
-          Pry::Helpers::BaseHelpers.use_ansi_codes?
+          Pry::Helpers::Base.use_ansi_codes?
         },
         default_window_size: proc {
           5
@@ -69,7 +69,7 @@ class Pry
           ""
         },
         auto_indent: proc {
-          Pry::Helpers::BaseHelpers.use_ansi_codes?
+          Pry::Helpers::Base.use_ansi_codes?
         },
         correct_indent: proc {
           true

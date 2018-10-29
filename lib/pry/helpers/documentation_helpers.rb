@@ -69,7 +69,7 @@ class Pry
       # @param [String] text
       # @return [String]
       def strip_leading_whitespace(text)
-        Pry::Helpers::CommandHelpers.unindent(text)
+        Pry::Helpers::Command.unindent(text)
       end
     end
   end

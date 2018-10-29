@@ -1,8 +1,8 @@
 require_relative 'helper'
 
-describe Pry::Helpers::DocumentationHelpers do
+describe Pry::Helpers::Documentation do
   before do
-    @helper = Pry::Helpers::DocumentationHelpers
+    @helper = Pry::Helpers::Documentation
   end
 
   describe "get_comment_content" do

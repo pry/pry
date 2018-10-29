@@ -9,7 +9,7 @@ class Pry
   # different sets, aliased, removed, etc.
   class CommandSet
     include Enumerable
-    include Pry::Helpers::BaseHelpers
+    include Pry::Helpers::Base
     attr_reader :helper_module
 
     # @param [Array<Commandset>] imported_sets
@@ -194,7 +194,7 @@ class Pry
     # @return [Command] The command object matched.
     def find_command_by_match_or_listing(match_or_listing)
       cmd = (@commands[match_or_listing] ||
-        Pry::Helpers::BaseHelpers.find_command(match_or_listing, @commands))
+        Pry::Helpers::Base.find_command(match_or_listing, @commands))
       cmd or raise ArgumentError, "Cannot find a command: '#{match_or_listing}'!"
     end
 

@@ -61,7 +61,7 @@ class Pry
       end
     end
 
-    include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Command
 
     class << self
       def lookup(str, _pry_, options={})

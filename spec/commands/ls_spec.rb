@@ -238,7 +238,7 @@ describe "ls" do
     end
   end
 
-  if Pry::Helpers::BaseHelpers.jruby?
+  if Pry::Helpers::Base.jruby?
     describe 'on java objects' do
       it 'should omit java-esque aliases by default' do
         expect(pry_eval('ls java.lang.Thread.current_thread')).to match(/\bthread_group\b/)

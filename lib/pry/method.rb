@@ -20,9 +20,9 @@ class Pry
     require 'pry/method/disowned'
     require 'pry/method/patcher'
 
-    extend Helpers::BaseHelpers
-    include Helpers::BaseHelpers
-    include Helpers::DocumentationHelpers
+    extend Helpers::Base
+    include Helpers::Base
+    include Helpers::Documentation
     include CodeObject::Helpers
 
     class << self

@@ -9,7 +9,7 @@ class Pry
   # will be indented or un-indented by correctly.
   #
   class Indent
-    include Helpers::BaseHelpers
+    include Helpers::Base
 
     # Raised if {#module_nesting} would not work.
     class UnparseableNestingError < StandardError; end
@@ -395,7 +395,7 @@ class Pry
       cols = Terminal.width!
       lines = cols == 0 ? 1 : (line_to_measure.length / cols + 1).to_i
 
-      if Pry::Helpers::BaseHelpers.windows_ansi?
+      if Pry::Helpers::Base.windows_ansi?
         move_up = "\e[#{lines}F"
         move_down = "\e[#{lines}E"
       else

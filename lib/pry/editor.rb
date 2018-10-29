@@ -1,7 +1,7 @@
 class Pry
   class Editor
-    include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Base
+    include Pry::Helpers::Command
 
     attr_reader :_pry_
 

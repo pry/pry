@@ -1,8 +1,8 @@
 class Pry
   class Command::Cat
     class AbstractFormatter
-      include Pry::Helpers::CommandHelpers
-      include Pry::Helpers::BaseHelpers
+      include Pry::Helpers::Command
+      include Pry::Helpers::Base
 
       private
       def decorate(content)

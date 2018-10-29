@@ -2,7 +2,7 @@ require 'pry/commands/show_info'
 
 class Pry
   class Command::ShowDoc < Command::ShowInfo
-    include Pry::Helpers::DocumentationHelpers
+    include Pry::Helpers::Documentation
 
     match 'show-doc'
     group 'Introspection'

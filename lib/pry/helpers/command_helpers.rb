@@ -2,7 +2,7 @@ class Pry
   module Helpers
 
     module Command
-      include OptionsHelpers
+      include Options
 
       module_function
 

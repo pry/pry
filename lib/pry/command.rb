@@ -7,7 +7,7 @@ class Pry
   # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#create_command}
   # which creates a ClassCommand. Please don't use this class directly.
   class Command
-    extend Helpers::DocumentationHelpers
+    extend Helpers::Documentation
     extend CodeObject::Helpers
 
     # represents a void return value for a command
@@ -264,7 +264,7 @@ class Pry
     #
     # @deprecated
     #   Please use black(), white(), etc directly instead (as you would with helper
-    #   functions from BaseHelpers and CommandHelpers)
+    #   functions from Helpers::Base and Helpers::Command)
     #
     # @return [Module]
     #   Returns Pry::Helpers::Text
@@ -277,8 +277,8 @@ class Pry
       VOID_VALUE
     end
 
-    include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Base
+    include Pry::Helpers::Command
     include Pry::Helpers::Text
 
     # Instantiate a command, in preparation for calling it.

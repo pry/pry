@@ -28,7 +28,7 @@ describe Pry::InputCompleter do
   end
 
   # another jruby hack :((
-  if !Pry::Helpers::BaseHelpers.jruby?
+  if !Pry::Helpers::Base.jruby?
     it "should not crash if there's a Module that has a symbolic name." do
       expect { Pry::InputCompleter.new(Readline).call "a.to_s.", target: Pry.binding_for(Object.new) }.not_to raise_error
     end
@@ -225,7 +225,7 @@ describe Pry::InputCompleter do
     completer_test(self, nil, false).call("[].size.parse_printf_format")
   end
 
-  if !Pry::Helpers::BaseHelpers.jruby?
+  if !Pry::Helpers::Base.jruby?
     # Classes that override .hash are still hashable in JRuby, for some reason.
     it 'ignores methods from modules that override Object#hash incompatibly' do
       _m = Module.new do
