@@ -47,6 +47,9 @@ See pull request [#1723](https://github.com/pry/pry/pull/1723)
 * Fixed `NoMethodError` on code objects that have a comment but no source when
   invoking `show-source` ([#1779](https://github.com/pry/pry/pull/1779))
 
+#### Dev-facing changes
+* Remove repetitive helper module suffix ([#1835](https://github.com/pry/pry/pull/1835))
+
 #### Pry developers
 
 * Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
