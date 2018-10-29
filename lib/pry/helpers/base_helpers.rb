@@ -1,5 +1,5 @@
 module Pry::Helpers; end
-module Pry::Helpers::BaseHelpers
+module Pry::Helpers::Base
   include Pry::Platform
   extend self
 

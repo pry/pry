@@ -1,6 +1,6 @@
 class Pry
   module Helpers
-    module OptionsHelpers
+    module Options
       module_function
 
       # Add method options to the Pry::Slop instance
