@@ -68,10 +68,6 @@ class Pry
         new.help
       end
 
-      def source_location
-        block.source_location
-      end
-
       def source_file
         Array(block.source_location).first
       end
@@ -110,8 +106,6 @@ class Pry
     def command_name; self.class.command_name; end
 
     def source; self.class.source; end
-
-    def source_location; self.class.source_location; end
 
     class << self
       def name
