@@ -157,7 +157,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history.should_load
     load_traps if Pry.config.should_trap_interrupts
-    load_win32console if Pry::Helpers::BaseHelpers.windows? && !Pry::Helpers::BaseHelpers.windows_ansi?
+    load_win32console if Helpers::Platform.windows? && !Helpers::Platform.windows_ansi?
   end
 
   # Start a Pry REPL.
@@ -296,13 +296,10 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   def self.default_editor_for_platform
     return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
     return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+    return 'notepad' if Helpers::Platform.windows?
 
-    if Helpers::BaseHelpers.windows?
-      'notepad'
-    else
-      %w(editor nano vi).detect do |editor|
-        system("which #{editor} > /dev/null 2>&1")
-      end
+    %w(editor nano vi).detect do |editor|
+      system("which #{editor} > /dev/null 2>&1")
     end
   end
 

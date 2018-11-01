@@ -14,7 +14,7 @@ module Pry::Command::Ls::MethodsHelper
                 Pry::Method.all_from_obj(@interrogatee)
               end
 
-    if Pry::Helpers::BaseHelpers.jruby? && !@jruby_switch
+    if Pry::Helpers::Platform.jruby? && !@jruby_switch
       methods = trim_jruby_aliases(methods)
     end
 

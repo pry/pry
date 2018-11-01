@@ -238,17 +238,15 @@ describe "ls" do
     end
   end
 
-  if Pry::Helpers::BaseHelpers.jruby?
-    describe 'on java objects' do
-      it 'should omit java-esque aliases by default' do
-        expect(pry_eval('ls java.lang.Thread.current_thread')).to match(/\bthread_group\b/)
-        expect(pry_eval('ls java.lang.Thread.current_thread')).not_to match(/\bgetThreadGroup\b/)
-      end
+  describe 'on java objects', skip: !Pry::Helpers::Platform.jruby? do
+    it 'should omit java-esque aliases by default' do
+      expect(pry_eval('ls java.lang.Thread.current_thread')).to match(/\bthread_group\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread')).not_to match(/\bgetThreadGroup\b/)
+    end
 
-      it 'should include java-esque aliases if requested' do
-        expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bthread_group\b/)
-        expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bgetThreadGroup\b/)
-      end
+    it 'should include java-esque aliases if requested' do
+      expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bthread_group\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bgetThreadGroup\b/)
     end
   end
 end

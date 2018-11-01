@@ -20,7 +20,7 @@ describe "edit" do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
       @tf_dir =
-        if Pry::Helpers::BaseHelpers.mri_19?
+        if Pry::Helpers::Platform.mri_19?
           Pathname.new(Dir::Tmpname.tmpdir)
         else
           Pathname.new(Dir.tmpdir)

@@ -1,6 +1,5 @@
 module Pry::Helpers; end
 module Pry::Helpers::BaseHelpers
-  include Pry::Platform
   extend self
 
   def silence_warnings
@@ -42,7 +41,7 @@ module Pry::Helpers::BaseHelpers
   end
 
   def use_ansi_codes?
-    windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
+    Pry::Helpers::Platform.windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
   end
 
   def colorize_code(code)

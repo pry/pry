@@ -369,9 +369,9 @@ describe Pry do
         it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
           # JRuby behaves different than CRuby here (seems it always has to some extent, see 'unless' below).
           # It didn't seem trivial to work around. Skip for now.
-          skip "JRuby incompatibility" if Pry::Helpers::BaseHelpers.jruby?
+          skip "JRuby incompatibility" if Pry::Helpers::Platform.jruby?
           [:test, 0, true, false, nil,
-              (0.0 unless Pry::Helpers::BaseHelpers.jruby?)].each do |val|
+              (0.0 unless Pry::Helpers::Platform.jruby?)].each do |val|
             pry_eval(val, "def hello; end");
             expect(val.class.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
           end

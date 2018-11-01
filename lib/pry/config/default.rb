@@ -52,7 +52,7 @@ class Pry
         },
         editor: proc {
           Pry.default_editor_for_platform
-        }, # TODO: Pry::Platform.editor
+        },
         should_load_rc: proc {
           true
         },
@@ -60,7 +60,7 @@ class Pry
           true
         },
         should_trap_interrupts: proc {
-          Pry::Platform.jruby?
+          Pry::Helpers::Platform.jruby?
         },
         disable_auto_reload: proc {
           false

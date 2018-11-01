@@ -27,11 +27,9 @@ describe Pry::InputCompleter do
     Object.remove_const :SymbolyName
   end
 
-  # another jruby hack :((
-  if !Pry::Helpers::BaseHelpers.jruby?
-    it "should not crash if there's a Module that has a symbolic name." do
-      expect { Pry::InputCompleter.new(Readline).call "a.to_s.", target: Pry.binding_for(Object.new) }.not_to raise_error
-    end
+  it "should not crash if there's a Module that has a symbolic name." do
+    skip unless Pry::Helpers::Platform.jruby?
+    expect { Pry::InputCompleter.new(Readline).call "a.to_s.", target: Pry.binding_for(Object.new) }.not_to raise_error
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
@@ -225,10 +223,12 @@ describe Pry::InputCompleter do
     completer_test(self, nil, false).call("[].size.parse_printf_format")
   end
 
-  if !Pry::Helpers::BaseHelpers.jruby?
+  unless Pry::Helpers::Platform.jruby?
     # Classes that override .hash are still hashable in JRuby, for some reason.
     it 'ignores methods from modules that override Object#hash incompatibly' do
-      _m = Module.new do
+      # skip unless Pry::Helpers::Platform.jruby?
+
+      m = Module.new do
         def self.hash(a, b)
         end
 
@@ -236,7 +236,7 @@ describe Pry::InputCompleter do
         end
       end
 
-      completer_test(self, nil, false).call("[].size.aaaa")
+      completer_test(m, nil, false).call("[].size.aaaa")
     end
   end
 end

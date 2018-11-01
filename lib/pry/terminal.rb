@@ -41,7 +41,7 @@ class Pry::Terminal
     end
 
     def screen_size_according_to_io_console
-      return if Pry::Helpers::BaseHelpers.jruby?
+      return if Pry::Helpers::Platform.jruby?
 
       begin
         require 'io/console'

@@ -64,7 +64,7 @@ class Pry
       if Object.respond_to?(:deprecate_constant)
         opt.on :d, :dconstants, "Show deprecated constants"
       end
-      if jruby?
+      if Helpers::Platform.jruby?
         opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)"
       end
     end
