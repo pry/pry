@@ -388,113 +388,110 @@ describe Pry::CommandSet do
     end
   end
 
-  describe "command decorators - before_command and after_command" do
-    describe "before_command" do
-      it 'should be called before the original command' do
-        foo = []
-        @set.command('foo') { foo << 1 }
-        @set.before_command('foo') { foo << 2 }
-        @set.run_command(@ctx, 'foo')
+  describe "before_* hook" do
+    it 'should be called before the original command' do
+      foo = []
+      @set.command('foo') { foo << 1 }
+      @set['foo'].hooks.add_hook('before_foo', 'name') { foo << 2 }
+      @set.run_command(@ctx, 'foo')
 
-        expect(foo).to eq [2, 1]
-      end
-
-      it 'should be called before the original command, using listing name' do
-        foo = []
-        @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
-        @set.before_command('foo') { foo << 2 }
-        @set.run_command(@ctx, /^foo1/)
-
-        expect(foo).to eq [2, 1]
-      end
-
-      it 'should share the context with the original command' do
-        @ctx[:target] = "test target string".__binding__
-        before_val  = nil
-        orig_val    = nil
-        @set.command('foo') { orig_val = target }
-        @set.before_command('foo') { before_val = target }
-        @set.run_command(@ctx, 'foo')
-
-        expect(before_val).to eq @ctx[:target]
-        expect(orig_val).to eq @ctx[:target]
-      end
-
-      it 'should work when applied multiple times' do
-        foo = []
-        @set.command('foo') { foo << 1 }
-        @set.before_command('foo') { foo << 2 }
-        @set.before_command('foo') { foo << 3 }
-        @set.before_command('foo') { foo << 4 }
-        @set.run_command(@ctx, 'foo')
-
-        expect(foo).to eq [2, 3, 4, 1]
-      end
-
+      expect(foo).to eq [2, 1]
     end
 
-    describe "after_command" do
-      it 'should be called after the original command' do
-        foo = []
-        @set.command('foo') { foo << 1 }
-        @set.after_command('foo') { foo << 2 }
-        @set.run_command(@ctx, 'foo')
+    it 'should be called before the original command, using listing name' do
+      foo = []
+      @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
+      cmd = @set.find_command_by_match_or_listing('foo')
+      cmd.hooks.add_hook('before_foo', 'name') { foo << 2 }
+      @set.run_command(@ctx, /^foo1/)
 
-        expect(foo).to eq [1, 2]
-      end
-
-      it 'should be called after the original command, using listing name' do
-        foo = []
-        @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
-        @set.after_command('foo') { foo << 2 }
-        @set.run_command(@ctx, /^foo1/)
-
-        expect(foo).to eq [1, 2]
-      end
-
-      it 'should share the context with the original command' do
-        @ctx[:target] = "test target string".__binding__
-        after_val   = nil
-        orig_val    = nil
-        @set.command('foo') { orig_val = target }
-        @set.after_command('foo') { after_val = target }
-        @set.run_command(@ctx, 'foo')
-
-        expect(after_val).to eq @ctx[:target]
-        expect(orig_val).to eq @ctx[:target]
-      end
-
-      it 'should determine the return value for the command' do
-        @set.command('foo', 'bar', keep_retval: true) { 1 }
-        @set.after_command('foo') { 2 }
-        expect(@set.run_command(@ctx, 'foo')).to eq 2
-      end
-
-      it 'should work when applied multiple times' do
-        foo = []
-        @set.command('foo') { foo << 1 }
-        @set.after_command('foo') { foo << 2 }
-        @set.after_command('foo') { foo << 3 }
-        @set.after_command('foo') { foo << 4 }
-        @set.run_command(@ctx, 'foo')
-
-        expect(foo).to eq [1, 2, 3, 4]
-      end
+      expect(foo).to eq [2, 1]
     end
 
-    describe "before_command and after_command" do
-      it 'should work when combining both before_command and after_command' do
-        foo = []
-        @set.command('foo') { foo << 1 }
-        @set.after_command('foo') { foo << 2 }
-        @set.before_command('foo') { foo << 3 }
-        @set.run_command(@ctx, 'foo')
+    it 'should share the context with the original command' do
+      @ctx[:target] = "test target string".__binding__
+      before_val  = nil
+      orig_val    = nil
+      @set.command('foo') { orig_val = target }
+      @set['foo'].hooks.add_hook('before_foo', 'name') { before_val = target }
+      @set.run_command(@ctx, 'foo')
 
-        expect(foo).to eq [3, 1, 2]
-      end
-
+      expect(before_val).to eq @ctx[:target]
+      expect(orig_val).to eq @ctx[:target]
     end
 
+    it 'should work when applied multiple times' do
+      foo = []
+      @set.command('foo') { foo << 1 }
+      @set['foo'].hooks.add_hook('before_foo', 'name1') { foo << 2 }
+      @set['foo'].hooks.add_hook('before_foo', 'name2') { foo << 3 }
+      @set['foo'].hooks.add_hook('before_foo', 'name3') { foo << 4 }
+      @set.run_command(@ctx, 'foo')
+
+      expect(foo).to eq [2, 3, 4, 1]
+    end
+  end
+
+  describe "after_* hooks" do
+    it 'should be called after the original command' do
+      foo = []
+      @set.command('foo') { foo << 1 }
+      @set['foo'].hooks.add_hook('after_foo', 'name') { foo << 2 }
+      @set.run_command(@ctx, 'foo')
+
+      expect(foo).to eq [1, 2]
+    end
+
+    it 'should be called after the original command, using listing name' do
+      foo = []
+      @set.command(/^foo1/, '', listing: 'foo') { foo << 1 }
+      cmd = @set.find_command_by_match_or_listing('foo')
+      cmd.hooks.add_hook('after_foo', 'name') { foo << 2 }
+      @set.run_command(@ctx, /^foo1/)
+
+      expect(foo).to eq [1, 2]
+    end
+
+    it 'should share the context with the original command' do
+      @ctx[:target] = "test target string".__binding__
+      after_val   = nil
+      orig_val    = nil
+      @set.command('foo') { orig_val = target }
+      @set['foo'].hooks.add_hook('after_foo', 'name') { after_val = target }
+      @set.run_command(@ctx, 'foo')
+
+      expect(after_val).to eq @ctx[:target]
+      expect(orig_val).to eq @ctx[:target]
+    end
+
+    it 'should determine the return value for the command' do
+      @set.command('foo', 'bar', keep_retval: true) { 1 }
+      @set['foo'].hooks.add_hook('after_foo', 'name') { 2 }
+      expect(@set.run_command(@ctx, 'foo')).to eq 2
+    end
+
+    it 'should work when applied multiple times' do
+      foo = []
+      @set.command('foo') { foo << 1 }
+      @set['foo'].hooks.add_hook('after_foo', 'name1') { foo << 2 }
+      @set['foo'].hooks.add_hook('after_foo', 'name2') { foo << 3 }
+      @set['foo'].hooks.add_hook('after_foo', 'name3') { foo << 4 }
+      @set.run_command(@ctx, 'foo')
+
+      expect(foo).to eq [1, 2, 3, 4]
+    end
+  end
+
+  describe "before_command and after_command" do
+    it 'should work when combining both before_command and after_command' do
+      foo = []
+      @set.command('foo') { foo << 1 }
+      @set['foo'].hooks.add_hook('after_foo', 'name') { foo << 2 }
+      @set['foo'].hooks.add_hook('before_foo', 'name') { foo << 3 }
+      @set.run_command(@ctx, 'foo')
+
+      expect(foo).to eq [3, 1, 2]
+    end
   end
 
   describe 'find_command' do
