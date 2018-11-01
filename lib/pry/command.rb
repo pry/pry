@@ -170,8 +170,6 @@ class Pry
 
       # @deprecated Replaced with {Pry::Hooks#add_hook}. Left for compatibility.
       # Store hooks to be run before or after the command body.
-      # @see Pry::CommandSet#before_command
-      # @see Pry::CommandSet#after_command
       def hooks
         Pry.hooks
       end

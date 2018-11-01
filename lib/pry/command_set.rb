@@ -116,41 +116,6 @@ class Pry
       @commands[match]
     end
 
-    # Execute a block of code before a command is invoked. The block also
-    # gets access to parameters that will be passed to the command and
-    # is evaluated in the same context.
-    # @param [String, Regexp] search The match or listing of the command.
-    # @yield The block to be run before the command.
-    # @example Display parameter before invoking command
-    #   Pry.config.commands.before_command("whereami") do |n|
-    #     output.puts "parameter passed was #{n}"
-    #   end
-    # @deprecated Use {Pry::Hooks#add_hook} instead.
-    def before_command(search, &block)
-      cmd = find_command_by_match_or_listing(search)
-      cmd.hooks.add_hook("before_#{cmd.command_name}", random_hook_name, block)
-    end
-
-    # Execute a block of code after a command is invoked. The block also
-    # gets access to parameters that will be passed to the command and
-    # is evaluated in the same context.
-    # @param [String, Regexp] search The match or listing of the command.
-    # @yield The block to be run after the command.
-    # @example Display text 'command complete' after invoking command
-    #   Pry.config.commands.after_command("whereami") do |n|
-    #     output.puts "command complete!"
-    #   end
-    # @deprecated Use {Pry::Hooks#add_hook} instead.
-    def after_command(search, &block)
-      cmd = find_command_by_match_or_listing(search)
-      cmd.hooks.add_hook("after_#{cmd.command_name}", random_hook_name, block)
-    end
-
-    def random_hook_name
-      (0...8).map { ('a'..'z').to_a[rand(26)] }.join
-    end
-    private :random_hook_name
-
     def each(&block)
       @commands.each(&block)
     end

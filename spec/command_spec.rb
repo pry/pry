@@ -45,34 +45,6 @@ describe "Pry::Command" do
       expect(mock_command(cmd).return).to eq 5
     end
 
-    context "deprecated API" do
-      it "should call hooks in the right order" do
-        cmd = @set.create_command 'marvin', "Pained by the diodes in his left side" do
-          def process
-            output.puts 1 + args[0].to_i
-          end
-        end
-
-        @set.before_command 'marvin' do |i|
-          output.puts 3 - i.to_i
-        end
-
-        @set.before_command 'marvin' do |i|
-          output.puts 4 - i.to_i
-        end
-
-        @set.after_command 'marvin' do |i|
-          output.puts 2 + i.to_i
-        end
-
-        @set.after_command 'marvin' do |i|
-          output.puts 3 + i.to_i
-        end
-
-        expect(mock_command(cmd, %w(2)).output).to eq "1\n2\n3\n4\n5\n"
-      end
-    end
-
     context "hooks API" do
       before do
         @set.create_command 'jamaica', 'Out of Many, One People' do
@@ -105,21 +77,6 @@ describe "Pry::Command" do
         out = pry_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
         expect(out).to eq("1\n2\n3\n4\n5\n")
       end
-    end
-
-    # TODO: This strikes me as rather silly...
-    it 'should return the value from the last hook with keep_retval' do
-      cmd = @set.create_command 'slartibartfast', "Designs Fjords", keep_retval: true do
-        def process
-          22
-        end
-      end
-
-      @set.after_command 'slartibartfast' do
-        10
-      end
-
-      expect(mock_command(cmd).return).to eq 10
     end
   end
 
