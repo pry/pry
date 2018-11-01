@@ -4,7 +4,7 @@ class Pry
   class Command::Ls < Pry::ClassCommand
     class Constants < Pry::Command::Ls::Formatter
       DEPRECATED_CONSTANTS = [:Data, :Fixnum, :Bignum, :TimeoutError, :NIL, :FALSE, :TRUE]
-      DEPRECATED_CONSTANTS << :JavaPackageModuleTemplate if Pry::Helpers::BaseHelpers.jruby?
+      DEPRECATED_CONSTANTS << :JavaPackageModuleTemplate if Helpers::Platform.jruby?
       include Pry::Command::Ls::Interrogatable
 
       def initialize(interrogatee, no_user_opts, opts, _pry_)

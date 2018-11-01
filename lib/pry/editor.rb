@@ -1,6 +1,5 @@
 class Pry
   class Editor
-    include Pry::Helpers::BaseHelpers
     include Pry::Helpers::CommandHelpers
 
     attr_reader :_pry_
@@ -25,7 +24,7 @@ class Pry
       editor_invocation = build_editor_invocation_string(file, line, blocking)
       return nil unless editor_invocation
 
-      if jruby?
+      if Helpers::Platform.jruby?
         open_editor_on_jruby(editor_invocation)
       else
         open_editor(editor_invocation)
@@ -43,7 +42,7 @@ class Pry
         args = [file, line, blocking][0...(_pry_.config.editor.arity)]
         _pry_.config.editor.call(*args)
       else
-        sanitized_file = windows? ? file : Shellwords.escape(file)
+        sanitized_file = Helpers::Platform.windows? ? file : Shellwords.escape(file)
         "#{_pry_.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(sanitized_file, line)}"
       end
     end
@@ -104,7 +103,7 @@ class Pry
       when /^redcar/
         "-l#{line_number} #{file_name}"
       else
-        if windows?
+        if Helpers::Platform.windows?
           "#{file_name}"
         else
           "+#{line_number} #{file_name}"

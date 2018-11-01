@@ -332,7 +332,7 @@ class Pry
       # This workaround has a side effect: java exceptions specified
       # in `Pry.config.exception_whitelist` are ignored.
       jruby_exceptions = []
-      if Pry::Helpers::BaseHelpers.jruby?
+      if Helpers::Platform.jruby?
         jruby_exceptions << Java::JavaLang::Exception
       end
 
@@ -347,7 +347,7 @@ class Pry
         # Eliminate following warning:
         # warning: singleton on non-persistent Java type X
         # (http://wiki.jruby.org/Persistence)
-        if Pry::Helpers::BaseHelpers.jruby? && e.class.respond_to?('__persistent__')
+        if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
           e.class.__persistent__ = true
         end
         self.last_exception = e
