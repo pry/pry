@@ -129,6 +129,15 @@ jobs:
       - <<: *bundle_install
       - <<: *install_ubuntu_nano
       - <<: *unit
+  "jruby-9.2-jdk":
+    docker:
+      - image: circleci/jruby:9.2-jdk
+    working_directory: ~/pry
+    steps:
+      - <<: *repo_restore_cache
+      - <<: *bundle_install
+      - <<: *install_ubuntu_nano
+      - <<: *unit
 
 workflows:
   version: 2
@@ -165,6 +174,10 @@ workflows:
             - rubocop_lint
             - yard_lint
       - "jruby-9.1-jdk":
+          requires:
+            - rubocop_lint
+            - yard_lint
+      - "jruby-9.2-jdk":
           requires:
             - rubocop_lint
             - yard_lint
