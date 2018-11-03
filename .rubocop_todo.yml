@@ -289,18 +289,6 @@ Layout/IndentHash:
     - 'lib/pry/prompt.rb'
     - 'lib/pry/pry_instance.rb'
 
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: auto_detection, squiggly, active_support, powerpack, unindent
-Layout/IndentHeredoc:
-  Exclude:
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'spec/helpers/table_spec.rb'
-    - 'spec/indent_spec.rb'
-    - 'spec/pry_repl_spec.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

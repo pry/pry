@@ -117,14 +117,8 @@ class Pry
     @output_ring
   end
 
-  # The current prompt.
   # This is the prompt at the top of the prompt stack.
-  #
-  # @example
-  #    self.prompt = Pry::Prompt::SIMPLE
-  #    self.prompt # => Pry::Prompt::SIMPLE
-  #
-  # @return [Array<Proc>] Current prompt.
+  # @return [Array<Proc>] the current prompt
   def prompt
     prompt_stack.last
   end

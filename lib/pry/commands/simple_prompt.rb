@@ -9,11 +9,13 @@ class Pry
     BANNER
 
     def process
-      case _pry_.prompt
-      when Pry::Prompt::SIMPLE
-        _pry_.pop_prompt
+      state.disabled ^= true
+
+      if state.disabled
+        state.prev_prompt = _pry_.prompt
+        _pry_.prompt = Pry::Prompt[:simple][:value]
       else
-        _pry_.push_prompt Pry::Prompt::SIMPLE
+        _pry_.prompt = state.prev_prompt
       end
     end
   end
