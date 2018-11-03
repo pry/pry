@@ -24,6 +24,7 @@ class Pry
     # @return [Integer] how many objects were added during the lifetime of the
     #   ring
     attr_reader :count
+    alias size count
 
     # @param [Integer] max_size Maximum buffer size. The buffer will start
     #   overwriting elements once its reaches its maximum capacity
