@@ -136,6 +136,9 @@ class Pry
       if defined?(@history_file)
         @history_file
       else
+        unless File.exist?(history_file_path)
+          FileUtils.mkdir_p(File.dirname(history_file_path))
+        end
         @history_file = File.open(history_file_path, 'a', 0600).tap do |file|
           file.sync = true
         end
