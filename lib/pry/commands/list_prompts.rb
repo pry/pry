@@ -11,7 +11,7 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
 
   def process
     output.puts heading("Available prompts") + "\n"
-    prompt_map.each do |name, prompt|
+    Pry::Prompt.all.each do |name, prompt|
       output.write "Name: #{bold(name)}"
       output.puts selected_prompt?(prompt) ? selected_text : ""
       output.puts prompt[:description]
@@ -19,10 +19,7 @@ class Pry::Command::ListPrompts < Pry::ClassCommand
     end
   end
 
-private
-  def prompt_map
-    Pry::Prompt::MAP
-  end
+  private
 
   def selected_text
     red " (selected) "

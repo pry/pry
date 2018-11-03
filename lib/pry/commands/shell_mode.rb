@@ -9,13 +9,13 @@ class Pry
     BANNER
 
     def process
-      case _pry_.prompt
-      when Pry::Prompt::SHELL
-        _pry_.pop_prompt
-        _pry_.custom_completions = _pry_.config.file_completions
+      state.disabled ^= true
+
+      if state.disabled
+        state.prev_prompt = _pry_.prompt
+        _pry_.prompt = Pry::Prompt[:shell][:value]
       else
-        _pry_.push_prompt Pry::Prompt::SHELL
-        _pry_.custom_completions = _pry_.config.command_completions
+        _pry_.prompt = state.prev_prompt
       end
     end
   end
