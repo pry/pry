@@ -27,6 +27,10 @@ class Pry
     #   1-line #inspect output suitable for prompt
     SAFE_CONTEXTS = [String, Numeric, Symbol, nil, true, false].freeze
 
+    # @deprecated Use {Pry::Prompt.add} instead.
+    MAP = {}
+    deprecate_constant(:MAP) if respond_to?(:deprecate_constant)
+
     # A Hash that holds all prompts. The keys of the Hash are prompt
     # names, the values are Hash instances of the format {:description, :value}.
     @prompts = {}
