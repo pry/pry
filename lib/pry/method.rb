@@ -489,7 +489,7 @@ class Pry
         Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
       else
         fail_msg = "Cannot locate this method: #{name}."
-        if mri?
+        if Helpers::Platform.mri?
           fail_msg += " Invoke the 'gem-install pry-doc' Pry command to get access to Ruby Core documentation.\n"
         end
         raise CommandError, fail_msg
