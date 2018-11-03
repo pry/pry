@@ -95,9 +95,9 @@ class Pry
     end
 
     add(:default, <<DESC) do |context, nesting, _pry_, sep|
-The default Pry prompt. Includes information about the
-current expression number, evaluation context, and nesting
-level, plus a reminder that you're using Pry.
+The default Pry prompt. Includes information about the current expression
+number, evaluation context, and nesting level, plus a reminder that you're
+using Pry.
 DESC
       format(
         "[%<in_count>s] %<name>s(%<context>s)%<nesting>s%<separator>s ",
@@ -109,13 +109,13 @@ DESC
       )
     end
 
-    add(:simple, "A simple '>>'.", ['>> ', ' | ']) do |_, _, _, sep|
+    add(:simple, "A simple `>>`.\n", ['>> ', ' | ']) do |_, _, _, sep|
       sep
     end
 
     add(:nav, <<DESC, %w[> *]) do |context, nesting, _pry_, sep|
-A prompt that displays the binding stack as a path and
-includes information about _in_ and _out_.
+A prompt that displays the binding stack as a path and includes information
+about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.
 DESC
       tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }
       format(
@@ -129,8 +129,7 @@ DESC
     end
 
     add(:shell, <<DESC, %w[$ *]) do |context, nesting, _pry_, sep|
-A prompt that displays the binding stack as a path and
-includes information about _in_ and _out_.
+A prompt that displays `$PWD` as you change it.
 DESC
       format(
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
