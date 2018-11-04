@@ -5,3 +5,10 @@ Style/NumericPredicate:
 
 Layout/IndentHeredoc:
   Enabled: false
+
+Naming/MethodName:
+  Exclude:
+    - 'spec/code_object_spec.rb'
+    - 'lib/pry/method.rb'
+    - 'lib/pry/wrapped_module.rb'
+    - 'lib/pry/code.rb'
