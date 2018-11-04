@@ -8,7 +8,6 @@ def completer_test(bind, pry=nil, assert_flag=true)
   return proc {|*symbols| symbols.each(&test) }
 end
 
-
 describe Pry::InputCompleter do
   before do
     # The AMQP gem has some classes like this:
@@ -61,7 +60,6 @@ describe Pry::InputCompleter do
     completer_test(b).call('@@number', '@@number.class')
 
   end
-
 
   it 'should complete for stdlib symbols' do
 

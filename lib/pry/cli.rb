@@ -120,7 +120,6 @@ class Pry
   end
 end
 
-
 # Bring in options defined by plugins
 Pry::Slop.new do
   on "no-plugins" do

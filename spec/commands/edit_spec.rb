@@ -722,7 +722,6 @@ describe "edit" do
           $x = :bebe
           pry_eval 'edit -p X#c'
 
-
           expect(Pry::Method.from_str("X#c").alias?).to eq true
 
           expect(X.new.b).to eq :kinda

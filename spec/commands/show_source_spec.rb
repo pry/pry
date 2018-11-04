@@ -77,7 +77,6 @@ describe "show-source" do
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to eq(error_message)
   end
 
-
   it "should find instance_methods if the class overrides instance_method" do
     _c = Class.new{
       def method;

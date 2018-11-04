@@ -74,7 +74,6 @@ describe Pry::Config do
     end
   end
 
-
   describe "#respond_to_missing?" do
     before do
       @config = Pry::Config.new(nil)

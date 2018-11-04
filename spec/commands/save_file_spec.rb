@@ -20,7 +20,6 @@ describe "save-file" do
 
         @t.eval("save-file '#{path}' --to '#{@path}'")
 
-
         expect(File.read(@path)).to eq(File.read(path))
       end
     end

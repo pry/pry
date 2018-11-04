@@ -22,7 +22,6 @@ class Pry
       ceiling: [Object, Module, Class]
     }
 
-
     match 'ls'
     group 'Context'
     description 'Show the list of vars and methods in the current scope.'
@@ -47,7 +46,6 @@ class Pry
 
       Also check out `find-method` command (run `help find-method`).
     BANNER
-
 
     def options(opt)
       opt.on :m, :methods, "Show public methods defined on the Object"
