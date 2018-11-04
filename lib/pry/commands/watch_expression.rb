@@ -54,8 +54,8 @@ class Pry
 
     def delete(index)
       if index
-        output.puts "Deleting watch expression ##{index}: #{expressions[index-1]}"
-        expressions.delete_at(index-1)
+        output.puts "Deleting watch expression ##{index}: #{expressions[index - 1]}"
+        expressions.delete_at(index - 1)
       else
         output.puts "Deleting all watched expressions"
         expressions.clear
@@ -70,7 +70,7 @@ class Pry
           pager.puts "Listing all watched expressions:"
           pager.puts ""
           expressions.each_with_index do |expr, index|
-            pager.print with_line_numbers(expr.to_s, index+1)
+            pager.print with_line_numbers(expr.to_s, index + 1)
           end
           pager.puts ""
         end

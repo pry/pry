@@ -1,5 +1,5 @@
 module Pry::Testable::Mockable
-  def mock_command(cmd, args=[], opts={})
+  def mock_command(cmd, args = [], opts = {})
     output = StringIO.new
     pry = Pry.new(output: output)
     ret = cmd.new(opts.merge(pry_instance: pry, output: output)).call_safely(*args)

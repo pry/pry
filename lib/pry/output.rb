@@ -36,7 +36,7 @@ class Pry::Output
     @boxed_io.__send__(name, *args, &block)
   end
 
-  def respond_to_missing?(m, include_all=false)
+  def respond_to_missing?(m, include_all = false)
     @boxed_io.respond_to?(m, include_all)
   end
 

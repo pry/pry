@@ -7,7 +7,7 @@ module Pry::Testable::Utility
   #
   # @return [void]
   #
-  def temp_file(ext='.rb')
+  def temp_file(ext = '.rb')
     file = Tempfile.open(['pry', ext])
     yield file
   ensure
@@ -20,7 +20,7 @@ module Pry::Testable::Utility
 
   def inner_scope
     catch(:inner_scope) do
-      yield ->{ throw(:inner_scope, self) }
+      yield -> { throw(:inner_scope, self) }
     end
   end
 end

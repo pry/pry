@@ -92,7 +92,7 @@ class Pry::InputCompleter
       when SYMBOL_REGEXP # Symbol
         if Symbol.respond_to?(:all_symbols)
           sym        = Regexp.quote($1)
-          candidates = Symbol.all_symbols.collect{|s| ":" << s.id2name}
+          candidates = Symbol.all_symbols.collect { |s| ":" << s.id2name }
           candidates.grep(/^#{sym}/)
         else
           []
@@ -100,7 +100,7 @@ class Pry::InputCompleter
       when TOPLEVEL_LOOKUP_REGEXP # Absolute Constant or class methods
         receiver = $1
         candidates = Object.constants.collect(&:to_s)
-        candidates.grep(/^#{receiver}/).collect{|e| "::" << e}
+        candidates.grep(/^#{receiver}/).collect { |e| "::" << e }
       when CONSTANT_REGEXP # Constant
         message = $1
         begin
@@ -120,7 +120,7 @@ class Pry::InputCompleter
         rescue Pry::RescuableException
           candidates = []
         end
-        candidates.grep(/^#{message}/).collect{|e| receiver + "::" + e}
+        candidates.grep(/^#{message}/).collect { |e| receiver + "::" + e }
       when SYMBOL_METHOD_CALL_REGEXP # method call on a Symbol
         receiver = $1
         message = Regexp.quote($2)
@@ -170,7 +170,7 @@ class Pry::InputCompleter
           require 'set'
           candidates = Set.new
           to_ignore = ignored_modules
-          ObjectSpace.each_object(Module){|m|
+          ObjectSpace.each_object(Module) { |m|
             next if (to_ignore.include?(m) rescue true)
 
             # jruby doesn't always provide #instance_methods() on each
@@ -197,7 +197,7 @@ class Pry::InputCompleter
         if eval("respond_to?(:class_variables)", bind)
           candidates += eval("class_variables", bind).collect(&:to_s)
         end
-        candidates = (candidates|ReservedWords|custom_completions).grep(/^#{Regexp.quote(input)}/)
+        candidates = (candidates | ReservedWords | custom_completions).grep(/^#{Regexp.quote(input)}/)
         candidates.collect(&path)
       end
     rescue Pry::RescuableException
@@ -222,7 +222,7 @@ class Pry::InputCompleter
   # path is a proc that takes an input and builds a full path.
   def build_path(input)
     # check to see if the input is a regex
-    return proc {|i| i.to_s }, input if input[/\/\./]
+    return proc { |i| i.to_s }, input if input[/\/\./]
 
     trailing_slash = input.end_with?('/')
     contexts = input.chomp('/').split(/\//)

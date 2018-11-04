@@ -25,13 +25,13 @@ describe 'Formatting Table' do
     def try_round_trip(expected)
       things = expected.split(/\s+/).sort
       actual = Pry::Helpers.tablify(things, FAKE_COLUMNS).to_s.strip
-      [expected, actual].each{|e| e.gsub!(/\s+$/, '')}
+      [expected, actual].each { |e| e.gsub!(/\s+$/, '') }
       if actual != expected
-        bar = '-'*25
+        bar = '-' * 25
         puts \
-          bar+'expected'+bar,
+          bar + 'expected' + bar,
           expected,
-          bar+'actual'+bar,
+          bar + 'actual' + bar,
           actual
       end
       expect(actual).to eq expected

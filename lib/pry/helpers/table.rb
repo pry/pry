@@ -41,7 +41,7 @@ class Pry
       end
 
       def rows_to_s style = :color_on
-        widths = columns.map{|e| _max_width(e)}
+        widths = columns.map { |e| _max_width(e) }
         @rows_without_colors.map do |r|
           padded = []
           r.each_with_index do |e,i|
@@ -98,10 +98,10 @@ class Pry
         @rows_without_colors = []
         return if items.size.zero?
 
-        row_count = (items.size.to_f/column_count).ceil
+        row_count = (items.size.to_f / column_count).ceil
         row_count.times do |i|
-          row_indices = (0...column_count).map{|e| row_count*e+i}
-          @rows_without_colors << row_indices.map{|e| @plain_items[e]}
+          row_indices = (0...column_count).map { |e| row_count * e + i }
+          @rows_without_colors << row_indices.map { |e| @plain_items[e] }
         end
       end
 

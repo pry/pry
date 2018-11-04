@@ -23,7 +23,7 @@ class Pry
                   Gem.source_index.find_name(name)
                 end
 
-        first_spec = specs.sort_by{ |spec| Gem::Version.new(spec.version) }.last
+        first_spec = specs.sort_by { |spec| Gem::Version.new(spec.version) }.last
 
         first_spec or raise CommandError, "Gem `#{name}` not found"
       end
@@ -34,9 +34,9 @@ class Pry
       # @return [Array<Gem::Specification>]
       def list(pattern = /.*/)
         if Gem::Specification.respond_to?(:each)
-          Gem::Specification.select{|spec| spec.name =~ pattern }
+          Gem::Specification.select { |spec| spec.name =~ pattern }
         else
-          Gem.source_index.gems.values.select{|spec| spec.name =~ pattern }
+          Gem.source_index.gems.values.select { |spec| spec.name =~ pattern }
         end
       end
 

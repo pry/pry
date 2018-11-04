@@ -145,7 +145,7 @@ class Pry
       input.lines.each do |line|
         if in_string?
           tokens = tokenize("#{open_delimiters_line}\n#{line}")
-          tokens = tokens.drop_while{ |token, type| !(String === token && token.include?("\n")) }
+          tokens = tokens.drop_while { |token, type| !(String === token && token.include?("\n")) }
           previously_in_string = true
         else
           tokens = tokenize(line)
@@ -154,7 +154,7 @@ class Pry
 
         before, after = indentation_delta(tokens)
 
-        before.times{ prefix.sub! SPACES, '' }
+        before.times { prefix.sub! SPACES, '' }
         new_prefix = prefix + SPACES * after
 
         line = prefix + line.lstrip unless previously_in_string
@@ -357,7 +357,7 @@ class Pry
     #
     # @param [String] token  a token from Coderay
     # @param [Symbol] kind  the kind of that token
-    def track_module_nesting_end(token, kind=:keyword)
+    def track_module_nesting_end(token, kind = :keyword)
       if kind == :keyword && (token == "class" || token == "module")
         @module_nesting.pop
       end

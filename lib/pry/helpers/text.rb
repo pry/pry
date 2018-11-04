@@ -18,11 +18,11 @@ class Pry
 
       COLORS.each_pair do |color, value|
         define_method color do |text|
-          "\033[0;#{30+value}m#{text}\033[0m"
+          "\033[0;#{30 + value}m#{text}\033[0m"
         end
 
         define_method "bright_#{color}" do |text|
-          "\033[1;#{30+value}m#{text}\033[0m"
+          "\033[1;#{30 + value}m#{text}\033[0m"
         end
 
         COLORS.each_pair do |bg_color, bg_value|
@@ -94,7 +94,7 @@ class Pry
       # @param  [#each_line] text
       # @param  [Fixnum] offset
       # @return [String]
-      def with_line_numbers(text, offset, color=:blue)
+      def with_line_numbers(text, offset, color = :blue)
         lines = text.each_line.to_a
         max_width = (offset + lines.count).to_s.length
         lines.each_with_index.map do |line, index|

@@ -176,7 +176,7 @@ module Pry::Helpers::BaseHelpers
     CodeRay.scan(code, :ruby).term
   end
 
-  def highlight(string, regexp, highlight_color=:bright_yellow)
+  def highlight(string, regexp, highlight_color = :bright_yellow)
     string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
   end
 

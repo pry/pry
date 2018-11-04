@@ -10,7 +10,7 @@ describe "commands" do
     @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
     @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
 
-    @self  = "Pad.self = self"
+    @self = "Pad.self = self"
 
     @command_tester = Pry::CommandSet.new do
       command "command1", "command 1 test" do

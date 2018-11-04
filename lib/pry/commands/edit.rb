@@ -173,7 +173,7 @@ class Pry
       opts.present?(:'no-reload') || _pry_.config.disable_auto_reload
     end
 
-    def reload?(file_name="")
+    def reload?(file_name = "")
       (reloadable? || file_name.end_with?(".rb")) && !never_reload?
     end
 

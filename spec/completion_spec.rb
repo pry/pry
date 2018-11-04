@@ -2,10 +2,10 @@ require_relative 'helper'
 require "readline" unless defined?(Readline)
 require "pry/input_completer"
 
-def completer_test(bind, pry=nil, assert_flag=true)
-  test = proc {|symbol|
+def completer_test(bind, pry = nil, assert_flag = true)
+  test = proc { |symbol|
     expect(Pry::InputCompleter.new(pry || Readline, pry).call(symbol[0..-2], target: Pry.binding_for(bind)).include?(symbol)).to eq(assert_flag)}
-  return proc {|*symbols| symbols.each(&test) }
+  return proc { |*symbols| symbols.each(&test) }
 end
 
 describe Pry::InputCompleter do

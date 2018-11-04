@@ -90,7 +90,7 @@ class Pry
 
       def handle_multiline_entries_from_edit_command(line, max_width)
         line.split("\n").map.with_index do |inner_line, i|
-          i.zero? ? inner_line : "#{' '* (max_width + 2)}#{inner_line}"
+          i.zero? ? inner_line : "#{' ' * (max_width + 2)}#{inner_line}"
         end.join("\n")
       end
     end

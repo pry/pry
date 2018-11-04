@@ -8,7 +8,7 @@ class Pry
       @_pry_ = _pry_
     end
 
-    def edit_tempfile_with_content(initial_content, line=1)
+    def edit_tempfile_with_content(initial_content, line = 1)
       temp_file do |f|
         f.puts(initial_content)
         f.flush
@@ -18,7 +18,7 @@ class Pry
       end
     end
 
-    def invoke_editor(file, line, blocking=true)
+    def invoke_editor(file, line, blocking = true)
       raise CommandError, "Please set Pry.config.editor or export $VISUAL or $EDITOR" unless _pry_.config.editor
 
       editor_invocation = build_editor_invocation_string(file, line, blocking)

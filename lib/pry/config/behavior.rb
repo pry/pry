@@ -164,7 +164,7 @@ class Pry
       def eager_load!
         default = @default
         while default
-          default.memoized_methods.each {|method| self[key] = default.public_send(key)} if default.respond_to?(:memoized_methods)
+          default.memoized_methods.each { |method| self[key] = default.public_send(key) } if default.respond_to?(:memoized_methods)
           default = @default.default
         end
       end
@@ -208,7 +208,7 @@ class Pry
         end
       end
 
-      def respond_to_missing?(key, include_all=false)
+      def respond_to_missing?(key, include_all = false)
         key = key.to_s.chomp(ASSIGNMENT)
         key?(key) or @default.respond_to?(key) or super(key, include_all)
       end
