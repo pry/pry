@@ -84,14 +84,6 @@ class Pry
     def mri_2?
       !!(mri? and RUBY_VERSION =~ /\A2/)
     end
-
-    #
-    #  @return [Array<Symbol>]
-    #    Returns an Array of Ruby engines that Pry is known to run on.
-    #
-    def known_engines
-      [:jruby, :mri]
-    end
   end
 
   # Not supported on MRI 2.2 and lower.

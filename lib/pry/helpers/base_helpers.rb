@@ -130,20 +130,6 @@ module Pry::Helpers::BaseHelpers
     Pry::Helpers::Platform.mri_2?
   end
 
-  @known_engines_warn = false
-  # @deprecated This will be removed in the next release.
-  def known_engines
-    unless @known_engines_warn
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: BaseHelpers.#{__method__} is " \
-        "deprecated and will be removed in the next Pry release"
-      )
-      @known_engines_warn = true
-    end
-    [:jruby, :mri]
-  end
-
   def silence_warnings
     old_verbose = $VERBOSE
     $VERBOSE = nil
