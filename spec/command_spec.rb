@@ -1,14 +1,12 @@
 require_relative 'helper'
 
 describe "Pry::Command" do
-
   before do
     @set = Pry::CommandSet.new
     @set.import Pry::Commands
   end
 
   describe 'call_safely' do
-
     it 'should display a message if gems are missing' do
       cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w(ghijkl) do
         #
@@ -176,7 +174,6 @@ describe "Pry::Command" do
   end
 
   describe 'classy api' do
-
     it 'should call setup, then subcommands, then options, then process' do
       cmd = @set.create_command 'rooster', "Has a tasty towel" do
         def setup
@@ -237,7 +234,6 @@ describe "Pry::Command" do
 
     it 'should allow overriding options after definition' do
       cmd = @set.create_command(/number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", shellwords: false) do
-
         command_options listing: 'number-one'
       end
 
@@ -369,7 +365,6 @@ describe "Pry::Command" do
       Pry.config.collision_warning = true
 
       cmd = @set.command '_frankie' do
-
       end
 
       _frankie = 'boyle'
@@ -386,7 +381,6 @@ describe "Pry::Command" do
       Pry.config.collision_warning = true
 
       cmd = @set.command 'frankie' do
-
       end
 
       output = StringIO.new
@@ -469,7 +463,6 @@ describe "Pry::Command" do
     end
 
     describe "block-related content removed from arguments" do
-
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
           @set.block_command "walking-spanish", "down the hall", takes_block: true do |x, y|
@@ -643,7 +636,6 @@ describe "Pry::Command" do
   end
 
   describe "a command made with a custom sub-class" do
-
     before do
       class MyTestCommand < Pry::ClassCommand
         match(/my-*test/)
@@ -727,7 +719,6 @@ describe "Pry::Command" do
         end
       end
     end
-
   end
 
   describe "commands can save state" do
@@ -752,7 +743,6 @@ describe "Pry::Command" do
             state.my_state += 2
           end
         end
-
       end.import Pry::Commands
 
       @t = pry_tester(commands: @set)

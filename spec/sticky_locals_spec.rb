@@ -96,7 +96,6 @@ describe "Sticky locals (_file_ and friends)" do
         expect(o.instance_variable_get(:@value)).to eq :john
         Pry.config.extra_sticky_locals = {}
       end
-
     end
 
     describe "passing in as hash option when creating pry instance" do
@@ -171,5 +170,4 @@ describe "Sticky locals (_file_ and friends)" do
       expect(value1).not_to eq(value2)
     end
   end
-
 end

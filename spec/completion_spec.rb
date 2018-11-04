@@ -58,11 +58,9 @@ describe Pry::InputCompleter do
     # Complete class variables.
     b = Pry.binding_for(object.class)
     completer_test(b).call('@@number', '@@number.class')
-
   end
 
   it 'should complete for stdlib symbols' do
-
     o = Object.new
     # Regexp
     completer_test(o).call('/foo/.extend')
@@ -135,7 +133,6 @@ describe Pry::InputCompleter do
   end
 
   it 'should complete for stdlib symbols' do
-
     o = Object.new
     # Regexp
     completer_test(o).call('/foo/.extend')

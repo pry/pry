@@ -1,9 +1,7 @@
 require_relative 'helper'
 
 describe Pry::DEFAULT_CONTROL_D_HANDLER do
-
   describe "control-d press" do
-
     before do
       # Simulates a ^D press.
       @control_d = "Pry::DEFAULT_CONTROL_D_HANDLER.call('', _pry_)"
@@ -56,7 +54,5 @@ describe Pry::DEFAULT_CONTROL_D_HANDLER do
         end
       end
     end
-
   end
-
 end

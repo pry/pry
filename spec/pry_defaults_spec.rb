@@ -66,7 +66,6 @@ describe "test Pry defaults" do
       Pry.start(self, input: arity_multi_input, output: StringIO.new)
       expect(arity_multi_input.prompt).to eq nil
     end
-
   end
 
   it 'should set the output default, and the default should be overridable' do
@@ -288,7 +287,6 @@ describe "test Pry defaults" do
     end
 
     describe "given a regular object with an #inspect string longer than the maximum specified" do
-
       describe "when the object is a regular one" do
         it "returns a string of the #<class name:object idish> format" do
           o = Object.new
@@ -333,11 +331,8 @@ describe "test Pry defaults" do
             expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to eq m.name
           end
         end
-
       end
-
     end
-
   end
 
   describe 'quiet' do

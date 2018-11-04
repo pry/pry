@@ -248,5 +248,4 @@ describe "whereami" do
   it "should work inside an object" do
     expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
-
 end

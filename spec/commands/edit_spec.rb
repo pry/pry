@@ -526,7 +526,6 @@ describe "edit" do
 
           expect(@file).to eq @tempfile_path
           expect(@line).to eq 14
-
         end
 
         it "should correctly find an instance method" do
@@ -718,7 +717,6 @@ describe "edit" do
         end
 
         it "should change the alias, but not the original, without breaking super" do
-
           $x = :bebe
           pry_eval 'edit -p X#c'
 

@@ -579,7 +579,6 @@ describe Pry::CommandSet do
   end
 
   describe '.process_line' do
-
     it 'should return Result.new(false) if there is no matching command' do
      result = @set.process_line('1 + 42')
      expect(result.command?).to eq false
