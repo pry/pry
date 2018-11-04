@@ -71,7 +71,7 @@ describe Pry::Prompt do
       config = nil
       h = {}
       redirect_pry_io(InputTester.new("exit-all")) do
-        Pry.start(h, prompt: proc{|v| config = v })
+        Pry.start(h, prompt: proc { |v| config = v })
       end
       expect(config.object).to be(h)
     end

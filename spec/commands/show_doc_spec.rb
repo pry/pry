@@ -127,7 +127,7 @@ describe "show-doc" do
 
   describe "rdoc highlighting" do
     it "should syntax highlight code in rdoc" do
-      _c = Class.new{
+      _c = Class.new {
         # This can initialize your class:
         #
         #   a = _c.new :foo
@@ -144,7 +144,7 @@ describe "show-doc" do
     end
 
     it "should syntax highlight `code` in rdoc" do
-      _c = Class.new{
+      _c = Class.new {
         # After initializing your class with `_c.new(:foo)`, go have fun!
         #
         # @param foo
@@ -160,7 +160,7 @@ describe "show-doc" do
     end
 
     it "should not syntax highlight `` inside code" do
-      _c = Class.new{
+      _c = Class.new {
         # Convert aligned output (from many shell commands) into nested arrays:
         #
         #   a = decolumnize `ls -l $HOME`

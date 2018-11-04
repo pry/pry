@@ -3,7 +3,7 @@ RSpec.describe Pry::Config::Memoization do
   let(:config) do
     Class.new do
       include Pry::Config::Memoization
-      def_memoized({foo: proc {"foo"}, bar: proc {"bar"}})
+      def_memoized({foo: proc { "foo" }, bar: proc { "bar" }})
     end.new
   end
 

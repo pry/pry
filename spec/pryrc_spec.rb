@@ -76,7 +76,7 @@ describe Pry do
           putsed = str
         }
 
-        @doing_it = lambda{
+        @doing_it = lambda {
           Pry.start(self, input: StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), output: StringIO.new)
           putsed
         }

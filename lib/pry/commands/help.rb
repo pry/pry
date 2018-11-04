@@ -75,7 +75,7 @@ class Pry
     # @param [Array<Pry::Command>] commands The commands to sort
     # @return [Array<Pry::Command>] commands sorted by listing name.
     def sorted_commands(commands)
-      commands.sort_by{ |command| command.options[:listing].to_s }
+      commands.sort_by { |command| command.options[:listing].to_s }
     end
 
     # Display help for an individual command or group.

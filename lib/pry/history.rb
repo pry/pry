@@ -7,7 +7,7 @@ class Pry
     # @return [Fixnum] Number of lines in history when Pry first loaded.
     attr_reader :original_lines
 
-    def initialize(options={})
+    def initialize(options = {})
       @history = []
       @original_lines = 0
       @file_path = options[:file_path]
@@ -25,8 +25,8 @@ class Pry
         @pusher  = method(:push_to_readline)
         @clearer = method(:clear_readline)
       else
-        @pusher  = proc { }
-        @clearer = proc { }
+        @pusher  = proc {}
+        @clearer = proc {}
       end
     end
 

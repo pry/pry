@@ -81,7 +81,7 @@ class Pry
       mod.number_of_candidates.times do |v|
         candidate = mod.candidate(v)
         begin
-          result << "\nCandidate #{v+1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
+          result << "\nCandidate #{v + 1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
           content = content_for(candidate)
 
           result << "Number of lines: #{content.lines.count}\n\n" << content

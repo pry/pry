@@ -137,7 +137,7 @@ describe Pry do
       @histfile = Tempfile.new(["pryhistory", "txt"])
       @history = Pry::History.new(file_path: @histfile.path)
       Pry.config.history.should_save = true
-      @history.pusher = proc{ }
+      @history.pusher = proc {}
     end
 
     after do
@@ -152,7 +152,7 @@ describe Pry do
 
     it "interleaves lines from many places" do
       @history.push "5"
-      File.open(@histfile.path, 'a'){ |f| f.puts "6" }
+      File.open(@histfile.path, 'a') { |f| f.puts "6" }
       @history.push "7"
 
       expect(File.read(@histfile.path)).to eq "5\n6\n7\n"

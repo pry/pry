@@ -75,8 +75,8 @@ describe "edit" do
     if respond_to?(:require_relative, true)
       it "should work with require relative" do
         Pry.config.editor = lambda { |file, line|
-          File.open(file, 'w'){ |f| f << 'require_relative "baz.rb"' }
-          File.open(file.gsub('bar.rb', 'baz.rb'), 'w'){ |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
+          File.open(file, 'w') { |f| f << 'require_relative "baz.rb"' }
+          File.open(file.gsub('bar.rb', 'baz.rb'), 'w') { |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
           nil
         }
         pry_eval "edit #@tf_path"
@@ -186,8 +186,8 @@ describe "edit" do
       end
 
       it "should reload the file" do
-        Pry.config.editor = lambda {|file, line|
-          File.open(file, 'w'){|f| f << "FOO = 'BAR'" }
+        Pry.config.editor = lambda { |file, line|
+          File.open(file, 'w') { |f| f << "FOO = 'BAR'" }
           nil
         }
 
@@ -202,7 +202,7 @@ describe "edit" do
       # of the exception)
       it 'edits the exception even when in a patched method context' do
         source_location = nil
-        Pry.config.editor = lambda {|file, line|
+        Pry.config.editor = lambda { |file, line|
           source_location = [file, line]
           nil
         }
@@ -220,8 +220,8 @@ describe "edit" do
       end
 
       it "should not reload the file if -n is passed" do
-        Pry.config.editor = lambda {|file, line|
-          File.open(file, 'w'){|f| f << "FOO2 = 'BAZ'" }
+        Pry.config.editor = lambda { |file, line|
+          File.open(file, 'w') { |f| f << "FOO2 = 'BAZ'" }
           nil
         }
 
@@ -235,8 +235,8 @@ describe "edit" do
       describe "with --patch" do
         # Original source code must be untouched.
         it "should apply changes only in memory (monkey patching)" do
-          Pry.config.editor = lambda {|file, line|
-            File.open(file, 'w'){|f| f << "FOO3 = 'PIYO'" }
+          Pry.config.editor = lambda { |file, line|
+            File.open(file, 'w') { |f| f << "FOO3 = 'PIYO'" }
             @patched_def = File.open(file, 'r').read
             nil
           }
@@ -332,8 +332,8 @@ describe "edit" do
     end
 
     it "should evaluate the expression" do
-      Pry.config.editor = lambda {|file, line|
-        File.open(file, 'w'){|f| f << "'FOO'\n" }
+      Pry.config.editor = lambda { |file, line|
+        File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
       @t.process_command 'edit'
@@ -341,8 +341,8 @@ describe "edit" do
     end
 
     it "should ignore -n for tempfiles" do
-      Pry.config.editor = lambda {|file, line|
-        File.open(file, 'w'){|f| f << "'FOO'\n" }
+      Pry.config.editor = lambda { |file, line|
+        File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
       @t.process_command "edit -n"
@@ -350,8 +350,8 @@ describe "edit" do
     end
 
     it "should not evaluate a file with -n" do
-      Pry.config.editor = lambda {|file, line|
-        File.open(file, 'w'){|f| f << "'FOO'\n" }
+      Pry.config.editor = lambda { |file, line|
+        File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
       begin
@@ -365,7 +365,7 @@ describe "edit" do
 
     it "should write the evaluated command to history" do
       quote = 'history repeats itself, first as tradegy...'
-      Pry.config.editor = lambda {|file, line|
+      Pry.config.editor = lambda { |file, line|
         File.open(file, 'w') { |f|
           f << quote
         }
@@ -434,7 +434,7 @@ describe "edit" do
       expect(klass.new.m).to eq 3
 
       # original file is unchanged
-      expect(File.readlines(filename)[line-1].strip).to eq 'def m; 1; end'
+      expect(File.readlines(filename)[line - 1].strip).to eq 'def m; 1; end'
     end
 
     it 'can repeatedly edit methods that were defined in the console' do

@@ -68,7 +68,7 @@ class Pry
   #   The backtrace of the session's `binding.pry` line, if applicable.
   # @option options [Object] :target
   #   The initial context for this session.
-  def initialize(options={})
+  def initialize(options = {})
     @binding_stack = []
     @indent        = Pry::Indent.new
     @command_state = {}
@@ -133,7 +133,7 @@ class Pry
 
   # Initialize this instance by pushing its initial context into the binding
   # stack. If no target is given, start at the top level.
-  def push_initial_binding(target=nil)
+  def push_initial_binding(target = nil)
     push_binding(target || Pry.toplevel_binding)
   end
 
@@ -265,7 +265,7 @@ class Pry
   # @return [Boolean] Is Pry ready to accept more input?
   # @raise [Exception] If the user uses the `raise-up` command, this method
   #   will raise that exception.
-  def eval(line, options={})
+  def eval(line, options = {})
     return false if @stopped
 
     exit_value = nil
@@ -511,7 +511,7 @@ class Pry
   # This method should not need to be invoked directly.
   # @param [Object] result The result.
   # @param [String] code The code that was run.
-  def set_last_result(result, code="")
+  def set_last_result(result, code = "")
     @last_result_is_exception = false
     @output_ring << result
 

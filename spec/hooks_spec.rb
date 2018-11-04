@@ -19,12 +19,12 @@ describe Pry::Hooks do
     end
 
     it 'should create a new hook with a block' do
-      @hooks.add_hook(:test_hook, :my_name) { }
+      @hooks.add_hook(:test_hook, :my_name) {}
       expect(@hooks.hook_count(:test_hook)).to eq 1
     end
 
     it 'should create a new hook with a callable' do
-      @hooks.add_hook(:test_hook, :my_name, proc { })
+      @hooks.add_hook(:test_hook, :my_name, proc {})
       expect(@hooks.hook_count(:test_hook)).to eq 1
     end
 
@@ -207,9 +207,9 @@ describe Pry::Hooks do
 
   describe "clearing all hooks for an event" do
     it 'should clear all hooks' do
-      @hooks.add_hook(:test_hook, :my_name) { }
-      @hooks.add_hook(:test_hook, :my_name2) { }
-      @hooks.add_hook(:test_hook, :my_name3) { }
+      @hooks.add_hook(:test_hook, :my_name) {}
+      @hooks.add_hook(:test_hook, :my_name2) {}
+      @hooks.add_hook(:test_hook, :my_name3) {}
       @hooks.clear_event_hooks(:test_hook)
       expect(@hooks.hook_count(:test_hook)).to eq 0
     end
@@ -423,8 +423,8 @@ describe Pry::Hooks do
 
       describe "exceptions" do
         before do
-          Pry.config.hooks.add_hook(:after_eval, :baddums){ raise "Baddums" }
-          Pry.config.hooks.add_hook(:after_eval, :simbads){ raise "Simbads" }
+          Pry.config.hooks.add_hook(:after_eval, :baddums) { raise "Baddums" }
+          Pry.config.hooks.add_hook(:after_eval, :simbads) { raise "Simbads" }
         end
 
         after do
@@ -449,8 +449,8 @@ describe Pry::Hooks do
     end
 
     it 'should only allow one anonymous hook to exist' do
-      @hooks.add_hook(:test_hook, nil) {  }
-      @hooks.add_hook(:test_hook, nil) {  }
+      @hooks.add_hook(:test_hook, nil) {}
+      @hooks.add_hook(:test_hook, nil) {}
       expect(@hooks.hook_count(:test_hook)).to eq 1
     end
 

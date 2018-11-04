@@ -31,9 +31,9 @@ class Pry::Command::GemSearch < Pry::ClassCommand
 
 private
   def list_as_string(gems, limit = 10)
-    gems[0..limit-1].map do |gem|
+    gems[0..limit - 1].map do |gem|
       name, version, info = gem.values_at 'name', 'version', 'info'
-      "#{bold(name)} #{bold('v'+version)} \n#{info}\n\n"
+      "#{bold(name)} #{bold('v' + version)} \n#{info}\n\n"
     end.join
   end
   Pry::Commands.add_command(self)

@@ -1,7 +1,7 @@
 class Pry
   class Config < Pry::BasicObject
     module Memoization
-      MEMOIZED_METHODS = Hash.new {|h,k| h[k] = [] }
+      MEMOIZED_METHODS = Hash.new { |h,k| h[k] = [] }
 
       module ClassMethods
         #

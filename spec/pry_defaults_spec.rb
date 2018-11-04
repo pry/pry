@@ -177,7 +177,7 @@ describe "test Pry defaults" do
     describe 'storing and restoring the prompt' do
       before do
         make = lambda do |name,i|
-          prompt = [ proc { "#{i}>" } , proc { "#{i+1}>" } ]
+          prompt = [ proc { "#{i}>" } , proc { "#{i + 1}>" } ]
           (class << prompt; self; end).send(:define_method, :inspect) { "<Prompt-#{name}>" }
           prompt
         end

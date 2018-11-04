@@ -75,7 +75,7 @@ class Pry
     #   # hello john, nice number: 10
     #   # pry(main)> help number
     #   # number-N regex command
-    def block_command(match, description="No description.", options={}, &block)
+    def block_command(match, description = "No description.", options = {}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
       options = Pry::Command.default_options(match).merge!(options)
 
@@ -107,7 +107,7 @@ class Pry
     #     end
     #   end
     #
-    def create_command(match, description="No description.", options={}, &block)
+    def create_command(match, description = "No description.", options = {}, &block)
       description, options = ["No description.", description] if description.is_a?(Hash)
       options = Pry::Command.default_options(match).merge!(options)
 
@@ -210,7 +210,7 @@ class Pry
     #   command description to be passed this way too.
     # @example Renaming the `ls` command and changing its description.
     #   Pry.config.commands.rename "dir", "ls", :description => "DOS friendly ls"
-    def rename_command(new_match, search, options={})
+    def rename_command(new_match, search, options = {})
       cmd = find_command_by_match_or_listing(search)
 
       options = {
@@ -225,7 +225,7 @@ class Pry
       @commands.delete(cmd.match)
     end
 
-    def disabled_command(name_of_disabled_command, message, matcher=name_of_disabled_command)
+    def disabled_command(name_of_disabled_command, message, matcher = name_of_disabled_command)
       create_command name_of_disabled_command do
         match matcher
         description ""
@@ -247,7 +247,7 @@ class Pry
     #   end
     # @example Getting
     #   Pry.config.commands.desc "amend-line"
-    def desc(search, description=nil)
+    def desc(search, description = nil)
       cmd = find_command_by_match_or_listing(search)
       return cmd.description if !description
 
@@ -359,7 +359,7 @@ class Pry
     # @param [String] val The line to execute
     # @param [Hash] context The context to execute the commands with
     # @return [CommandSet::Result]
-    def process_line(val, context={})
+    def process_line(val, context = {})
       if (command = find_command(val))
         context = context.merge(command_set: self)
         retval = command.new(context).process_line(val)
@@ -379,13 +379,13 @@ class Pry
     # @param [String] search The line to search for
     # @param [Hash] context  The context to create the command with
     # @return [Array<String>]
-    def complete(search, context={})
+    def complete(search, context = {})
       if (command = find_command(search))
         command.new(context).complete(search)
       else
         @commands.keys.select do |key|
           String === key && key.start_with?(search)
-        end.map{ |key| key + " " }
+        end.map { |key| key + " " }
       end
     end
   end

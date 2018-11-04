@@ -75,7 +75,7 @@ class Pry
     # @param [Array<Method>] matches
     def print_matches(matches)
       grouped = matches.group_by(&:owner)
-      order = grouped.keys.sort_by{ |x| x.name || x.to_s }
+      order = grouped.keys.sort_by { |x| x.name || x.to_s }
 
       order.each do |klass|
         print_matches_for_class(klass, grouped)
@@ -102,7 +102,7 @@ class Pry
     end
 
     def matched_method_lines(header, method)
-      method.source.split(/\n/).select {|x| x =~ pattern }.join("\n#{' ' * header.length}")
+      method.source.split(/\n/).select { |x| x =~ pattern }.join("\n#{' ' * header.length}")
     end
 
     # Run the given block against every constant in the provided namespace.
@@ -111,7 +111,7 @@ class Pry
     # @param [Hash<Module,Boolean>] done The namespaces we've already visited (private)
     # @yieldparam klass Each class/module in the namespace.
     #
-    def recurse_namespace(klass, done={}, &block)
+    def recurse_namespace(klass, done = {}, &block)
       return if !(Module === klass) || done[klass]
 
       done[klass] = true
@@ -142,7 +142,7 @@ class Pry
     # @return [Array<Method>]
     #
     def search_all_methods(namespace)
-      done = Hash.new{ |h,k| h[k] = {} }
+      done = Hash.new { |h,k| h[k] = {} }
       matches = []
 
       recurse_namespace(namespace) do |klass|

@@ -39,7 +39,7 @@ class Pry
       #   contain any context.
       # @return [Pry::Method, nil] A `Pry::Method` instance containing the requested
       #   method, or `nil` if name is `nil` or no method could be located matching the parameters.
-      def from_str(name, target=TOPLEVEL_BINDING, options={})
+      def from_str(name, target = TOPLEVEL_BINDING, options = {})
         if name.nil?
           nil
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
@@ -101,7 +101,7 @@ class Pry
       # @param [Symbol] method_type The type of method: :method or :instance_method
       # @param [Binding] target The binding where the method is looked up.
       # @return [Method, UnboundMethod] The 'refined' method object.
-      def lookup_method_via_binding(obj, method_name, method_type, target=TOPLEVEL_BINDING)
+      def lookup_method_via_binding(obj, method_name, method_type, target = TOPLEVEL_BINDING)
         Pry.current[:obj] = obj
         Pry.current[:name] = method_name
         receiver = obj.is_a?(Module) ? "Module" : "Kernel"
@@ -118,7 +118,7 @@ class Pry
       # @param [String] name
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
-      def from_class(klass, name, target=TOPLEVEL_BINDING)
+      def from_class(klass, name, target = TOPLEVEL_BINDING)
         new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
       end
       alias from_module from_class
@@ -131,7 +131,7 @@ class Pry
       # @param [String] name
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
-      def from_obj(obj, name, target=TOPLEVEL_BINDING)
+      def from_obj(obj, name, target = TOPLEVEL_BINDING)
         new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
       end
 
@@ -139,7 +139,7 @@ class Pry
       # @param [Class,Module] klass
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
-      def all_from_class(klass, include_super=true)
+      def all_from_class(klass, include_super = true)
         %w(public protected private).flat_map do |visibility|
           safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
             new(safe_send(klass, :instance_method, method_name), visibility: visibility.to_sym)
@@ -157,7 +157,7 @@ class Pry
       #
       # @return [Array[Pry::Method]]
       #
-      def all_from_obj(obj, include_super=true)
+      def all_from_obj(obj, include_super = true)
         all_from_class(singleton_class_of(obj), include_super)
       end
 
@@ -166,7 +166,7 @@ class Pry
       #  please use {all_from_obj} instead.
       #  the `method_type` argument is ignored.
       #
-      def all_from_common(obj, _method_type = nil, include_super=true)
+      def all_from_common(obj, _method_type = nil, include_super = true)
         all_from_obj(obj, include_super)
       end
 
@@ -233,7 +233,7 @@ class Pry
     # @param [::Method, UnboundMethod, Proc] method
     # @param [Hash] known_info Can be used to pre-cache expensive to compute stuff.
     # @return [Pry::Method]
-    def initialize(method, known_info={})
+    def initialize(method, known_info = {})
       @method = method
       @visibility = known_info[:visibility]
     end
@@ -384,7 +384,7 @@ class Pry
 
     # @return [Pry::Method, nil] The wrapped method that is called when you
     #   use "super" in the body of this method.
-    def super(times=1)
+    def super(times = 1)
       if UnboundMethod === @method
         sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
       else
@@ -467,7 +467,7 @@ class Pry
 
     # @param [String, Symbol] method_name
     # @return [Boolean]
-    def respond_to?(method_name, include_all=false)
+    def respond_to?(method_name, include_all = false)
       super or @method.respond_to?(method_name, include_all)
     end
 
@@ -498,7 +498,7 @@ class Pry
 
     # @param [Class, Module] ancestors The ancestors to investigate
     # @return [Method] The unwrapped super-method
-    def super_using_ancestors(ancestors, times=1)
+    def super_using_ancestors(ancestors, times = 1)
       next_owner = self.owner
       times.times do
         i = ancestors.index(next_owner) + 1

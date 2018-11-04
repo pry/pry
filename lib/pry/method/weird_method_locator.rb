@@ -65,7 +65,7 @@ class Pry
 
       def skip_superclass_search?
         target_mod = @target.eval('self').class
-        target_mod.ancestors.take_while {|mod| mod != target_mod }.any?
+        target_mod.ancestors.take_while { |mod| mod != target_mod }.any?
       end
 
       def normal_method?(method)

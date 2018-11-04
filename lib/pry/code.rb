@@ -66,7 +66,7 @@ class Pry
       # @param [Integer, nil] start_line The line number to start on, or nil to
       #   use the method's original line numbers.
       # @return [Code]
-      def from_module(mod, candidate_rank = 0, start_line=nil)
+      def from_module(mod, candidate_rank = 0, start_line = nil)
         candidate = Pry::WrappedModule(mod).candidate(candidate_rank)
         start_line ||= candidate.line
         new(candidate.source, start_line, :ruby)
@@ -266,7 +266,7 @@ class Pry
 
     # Writes a formatted representation (based on the configuration of the
     # object) to the given output, which must respond to `#<<`.
-    def print_to_output(output, color=false)
+    def print_to_output(output, color = false)
       @lines.each do |loc|
         loc = loc.dup
         loc.colorize(@code_type)              if color
@@ -338,7 +338,7 @@ class Pry
     undef =~
 
     # Check whether String responds to missing methods.
-    def respond_to_missing?(name, include_all=false)
+    def respond_to_missing?(name, include_all = false)
       ''.respond_to?(name, include_all)
     end
 

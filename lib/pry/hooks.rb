@@ -65,7 +65,7 @@ class Pry
     # @param [#call] callable The callable.
     # @yield The block to use as the callable (if no `callable` provided).
     # @return [Pry:Hooks] The receiver.
-    def add_hook(event_name, hook_name, callable=nil, &block)
+    def add_hook(event_name, hook_name, callable = nil, &block)
       event_name = event_name.to_s
 
       # do not allow duplicates, but allow multiple `nil` hooks

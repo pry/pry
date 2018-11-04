@@ -57,7 +57,7 @@ describe "show-source" do
   end
 
   it "should find methods even if the object overrides method method" do
-    _c = Class.new{
+    _c = Class.new {
       def method;
         98
       end
@@ -67,7 +67,7 @@ describe "show-source" do
   end
 
   it "should not show the source when a non-extant method is requested" do
-    _c = Class.new{ def method; 98; end }
+    _c = Class.new { def method; 98; end }
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to match(/Couldn't locate/)
   end
 
@@ -78,7 +78,7 @@ describe "show-source" do
   end
 
   it "should find instance_methods if the class overrides instance_method" do
-    _c = Class.new{
+    _c = Class.new {
       def method;
         98
       end
@@ -90,37 +90,37 @@ describe "show-source" do
   end
 
   it "should find instance methods with self#moo" do
-    _c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new { def moo; "ve over!"; end }
 
     expect(pry_eval(binding, "cd _c", "show-source self#moo")).to match(/ve over/)
   end
 
   it "should not find instance methods with self.moo" do
-    _c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new { def moo; "ve over!"; end }
 
     expect { pry_eval(binding, 'cd _c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods with self.moo" do
-    _c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new { def self.moo; "ve over!"; end }
 
     expect(pry_eval(binding, 'cd _c', 'show-source self.moo')).to match(/ve over/)
   end
 
   it "should not find normal methods with self#moo" do
-    _c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new { def self.moo; "ve over!"; end }
 
     expect { pry_eval(binding, 'cd _c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods (i.e non-instance methods) by default" do
-    _c = Class.new{ def self.moo; "ve over!"; end }
+    _c = Class.new { def self.moo; "ve over!"; end }
 
     expect(pry_eval(binding, "cd _c", "show-source moo")).to match(/ve over/)
   end
 
   it "should find instance methods if no normal methods available" do
-    _c = Class.new{ def moo; "ve over!"; end }
+    _c = Class.new { def moo; "ve over!"; end }
 
     expect(pry_eval(binding, "cd _c", "show-source moo")).to match(/ve over/)
   end
@@ -351,7 +351,7 @@ describe "show-source" do
           end
         end
 
-        class ShowSourceTestClass<ShowSourceTestSuperClass
+        class ShowSourceTestClass < ShowSourceTestSuperClass
           def alpha
           end
         end

@@ -107,7 +107,7 @@ describe Pry::Method do
     end
 
     it 'should look up methods using instance::bar syntax' do
-      _klass = Class.new{ def self.meth; Class.new; end }
+      _klass = Class.new { def self.meth; Class.new; end }
       meth = Pry::Method.from_str("_klass::meth", Pry.binding_for(binding))
       expect(meth.name).to eq "meth"
     end
@@ -119,7 +119,7 @@ describe Pry::Method do
 
   describe '.from_binding' do
     it 'should be able to pick a method out of a binding' do
-      expect(Pry::Method.from_binding(Class.new{ def self.foo; binding; end }.foo).name).to eq "foo"
+      expect(Pry::Method.from_binding(Class.new { def self.foo; binding; end }.foo).name).to eq "foo"
     end
 
     it 'should NOT find a method from the toplevel binding' do
@@ -143,7 +143,7 @@ describe Pry::Method do
       a = Class.new { def gag33; binding; end; def self.line; __LINE__; end }
       # rubocop:enable Layout/EmptyLineBetweenDefs
 
-      b = Class.new(a){ def gag33; super; end }
+      b = Class.new(a) { def gag33; super; end }
 
       g = b.new.gag33
       m = Pry::Method.from_binding(g)
@@ -154,7 +154,7 @@ describe Pry::Method do
     end
 
     it 'should find the right method if a super method exists' do
-      a = Class.new{ def gag; binding; end; }
+      a = Class.new { def gag; binding; end; }
 
       # rubocop:disable Layout/EmptyLineBetweenDefs
       b = Class.new(a) { def gag; super; binding; end; def self.line; __LINE__; end }
@@ -198,8 +198,8 @@ describe Pry::Method do
 
   describe 'super' do
     it 'should be able to find the super method on a bound method' do
-      a = Class.new{ def rar; 4; end }
-      b = Class.new(a){ def rar; super; end }
+      a = Class.new { def rar; 4; end }
+      b = Class.new(a) { def rar; super; end }
 
       obj = b.new
 
@@ -209,40 +209,40 @@ describe Pry::Method do
     end
 
     it 'should be able to find the super method of an unbound method' do
-      a = Class.new{ def rar; 4; end }
-      b = Class.new(a){ def rar; super; end }
+      a = Class.new { def rar; 4; end }
+      b = Class.new(a) { def rar; super; end }
 
       zuper = Pry::Method(b.instance_method(:rar)).super
       expect(zuper.owner).to eq a
     end
 
     it 'should return nil if no super method exists' do
-      a = Class.new{ def rar; super; end }
+      a = Class.new { def rar; super; end }
 
       expect(Pry::Method(a.instance_method(:rar)).super).to eq nil
     end
 
     it 'should be able to find super methods defined on modules' do
-      m = Module.new{ def rar; 4; end }
-      a = Class.new{ def rar; super; end; include m }
+      m = Module.new { def rar; 4; end }
+      a = Class.new { def rar; super; end; include m }
 
       zuper = Pry::Method(a.new.method(:rar)).super
       expect(zuper.owner).to eq m
     end
 
     it 'should be able to find super methods defined on super-classes when there are modules in the way' do
-      a = Class.new{ def rar; 4; end }
-      m = Module.new{ def mooo; 4; end }
-      b = Class.new(a){ def rar; super; end; include m }
+      a = Class.new { def rar; 4; end }
+      m = Module.new { def mooo; 4; end }
+      b = Class.new(a) { def rar; super; end; include m }
 
       zuper = Pry::Method(b.new.method(:rar)).super
       expect(zuper.owner).to eq a
     end
 
     it 'should be able to jump up multiple levels of bound method, even through modules' do
-      a = Class.new{ def rar; 4; end }
-      m = Module.new{ def rar; 4; end }
-      b = Class.new(a){ def rar; super; end; include m }
+      a = Class.new { def rar; 4; end }
+      m = Module.new { def rar; 4; end }
+      b = Class.new(a) { def rar; super; end; include m }
 
       zuper = Pry::Method(b.new.method(:rar)).super
       expect(zuper.owner).to eq m
@@ -256,7 +256,7 @@ describe Pry::Method do
     end
 
     it 'should be able to find public instance methods defined in a class' do
-      @class = Class.new{ def meth; 1; end }
+      @class = Class.new { def meth; 1; end }
       should_find_method('meth')
     end
 
@@ -272,7 +272,7 @@ describe Pry::Method do
     end
 
     it 'should be able to find instance methods defined in a super-class' do
-      @class = Class.new(Class.new{ def meth; 1; end }) {}
+      @class = Class.new(Class.new { def meth; 1; end }) {}
       should_find_method('meth')
     end
 
@@ -296,7 +296,7 @@ describe Pry::Method do
         include(Module.new { def meth; 1; end })
       end
       @class = Class.new(super_class) { def meth; 2; end }
-      expect(Pry::Method.all_from_class(@class).detect{ |x| x.name == 'meth' }.owner).to eq @class
+      expect(Pry::Method.all_from_class(@class).detect { |x| x.name == 'meth' }.owner).to eq @class
     end
 
     it 'should be able to find methods defined on a singleton class' do
@@ -305,7 +305,7 @@ describe Pry::Method do
     end
 
     it 'should be able to find methods on super-classes when given a singleton class' do
-      @class = (class << Class.new{ def meth; 1; end}.new; self; end)
+      @class = (class << Class.new { def meth; 1; end }.new; self; end)
       should_find_method('meth')
     end
   end
@@ -317,7 +317,7 @@ describe Pry::Method do
       end
 
       it "should find methods defined in the object's class" do
-        @obj = Class.new{ def meth; 1; end }.new
+        @obj = Class.new { def meth; 1; end }.new
         should_find_method('meth')
       end
 
@@ -346,7 +346,7 @@ describe Pry::Method do
       end
 
       it "should not find methods defined on the classes singleton class" do
-        @obj = Class.new{ class << self; def meth; 1; end; end }.new
+        @obj = Class.new { class << self; def meth; 1; end; end }.new
         expect(Pry::Method.all_from_obj(@obj).map(&:name)).not_to include 'meth'
       end
 
@@ -366,7 +366,7 @@ describe Pry::Method do
       end
 
       it "should find methods defined in the class' singleton class" do
-        @class = Class.new{ class << self; def meth; 1; end; end }
+        @class = Class.new { class << self; def meth; 1; end; end }
         should_find_method('meth')
       end
 
@@ -378,12 +378,12 @@ describe Pry::Method do
       end
 
       it "should find methods defined on the singleton class of super-classes" do
-        @class = Class.new(Class.new{ class << self; def meth; 1; end; end })
+        @class = Class.new(Class.new { class << self; def meth; 1; end; end })
         should_find_method('meth')
       end
 
       it "should not find methods defined within the class" do
-        @class = Class.new{ def meth; 1; end }
+        @class = Class.new { def meth; 1; end }
         expect(Pry::Method.all_from_obj(@class).map(&:name)).not_to include 'meth'
       end
 
@@ -398,8 +398,8 @@ describe Pry::Method do
       end
 
       it "should attribute overridden methods to the sub-class' singleton class" do
-        @class = Class.new(Class.new{ class << self; def meth; 1; end; end }) { class << self; def meth; 1; end; end }
-        expect(Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
+        @class = Class.new(Class.new { class << self; def meth; 1; end; end }) { class << self; def meth; 1; end; end }
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
       end
 
       it "should attrbute overridden methods to the class not the module" do
@@ -409,12 +409,12 @@ describe Pry::Method do
           end
           extend(Module.new { def meth; 1; end })
         end
-        expect(Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
       end
 
       it "should attribute overridden methods to the relevant singleton class in preference to Class" do
         @class = Class.new { class << self; def allocate; 1; end; end }
-        expect(Pry::Method.all_from_obj(@class).detect{ |x| x.name == 'allocate' }.owner).to eq(class << @class; self; end)
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'allocate' }.owner).to eq(class << @class; self; end)
       end
     end
 
@@ -561,7 +561,7 @@ describe Pry::Method do
 
         def self.rest(*splat) end
 
-        def self.optional(option=nil) end
+        def self.optional(option = nil) end
       }
     end
 

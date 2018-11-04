@@ -52,11 +52,11 @@ describe Pry do
     end
 
     it 'should raise an error for binding.pry' do
-      expect{binding.pry}.to raise_error(RuntimeError)
+      expect { binding.pry }.to raise_error(RuntimeError)
     end
 
     it 'should raise an error for Pry.start' do
-      expect{Pry.start}.to raise_error(RuntimeError)
+      expect { Pry.start }.to raise_error(RuntimeError)
     end
   end
 
@@ -170,13 +170,13 @@ describe Pry do
 
       it 'should be able to evaluate exceptions normally' do
         was_called = false
-        mock_pry("RuntimeError.new", exception_handler: proc{ was_called = true })
+        mock_pry("RuntimeError.new", exception_handler: proc { was_called = true })
         expect(was_called).to eq false
       end
 
       it 'should notice when exceptions are raised' do
         was_called = false
-        mock_pry("raise RuntimeError", exception_handler: proc{ was_called = true })
+        mock_pry("raise RuntimeError", exception_handler: proc { was_called = true })
         expect(was_called).to eq true
       end
 

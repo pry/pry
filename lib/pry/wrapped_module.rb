@@ -26,7 +26,7 @@ class Pry
     # @return [Module, nil] The module or `nil` (if conversion failed).
     # @example
     #   Pry::WrappedModule.from_str("Pry::Code")
-    def self.from_str(mod_name, target=TOPLEVEL_BINDING)
+    def self.from_str(mod_name, target = TOPLEVEL_BINDING)
       if safe_to_evaluate?(mod_name, target)
         Pry::WrappedModule.new(target.eval(mod_name))
       else
@@ -139,7 +139,7 @@ class Pry
       if Helpers::Platform.jruby?
         wrapped.to_java.attached
       else
-        @singleton_instance ||= ObjectSpace.each_object(wrapped).detect{ |x| (class << x; self; end) == wrapped }
+        @singleton_instance ||= ObjectSpace.each_object(wrapped).detect { |x| (class << x; self; end) == wrapped }
       end
     end
 
@@ -148,7 +148,7 @@ class Pry
       wrapped.send(method_name, *args, &block)
     end
 
-    def respond_to?(method_name, include_all=false)
+    def respond_to?(method_name, include_all = false)
       super || wrapped.respond_to?(method_name, include_all)
     end
 
@@ -265,7 +265,7 @@ class Pry
     #   When `self` is a `Module` then return the
     #   nth ancestor, otherwise (in the case of classes) return the
     #   nth ancestor that is a class.
-    def super(times=1)
+    def super(times = 1)
       return self if times.zero?
 
       if wrapped.is_a?(Class)
@@ -313,7 +313,7 @@ class Pry
       @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
         sort_by do |path, methods|
           expanded = File.expand_path(path)
-          load_order = $LOADED_FEATURES.index{ |file| expanded.end_with?(file) }
+          load_order = $LOADED_FEATURES.index { |file| expanded.end_with?(file) }
 
           [-methods.size, load_order || (1.0 / 0.0)]
         end

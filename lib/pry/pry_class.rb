@@ -117,7 +117,7 @@ class Pry
   # Trap interrupts on jruby, and make them behave like MRI so we can
   # catch them.
   def self.load_traps
-    trap('INT'){ raise Interrupt }
+    trap('INT') { raise Interrupt }
   end
 
   def self.load_win32console
@@ -166,7 +166,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   # @option options (see Pry#initialize)
   # @example
   #   Pry.start(Object.new, :input => MyInput.new)
-  def self.start(target=nil, options={})
+  def self.start(target = nil, options = {})
     return if ENV['DISABLE_PRY']
     if ENV['FAIL_PRY']
       raise 'You have FAIL_PRY set to true, which results in Pry calls failing'
@@ -275,7 +275,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   #   Pry.run_command "ls -m", :target => Pry
   # @example Display command output.
   #   Pry.run_command "ls -av", :show_output => true
-  def self.run_command(command_string, options={})
+  def self.run_command(command_string, options = {})
     options = {
       target: TOPLEVEL_BINDING,
       show_output: true,

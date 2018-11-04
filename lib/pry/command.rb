@@ -23,7 +23,7 @@ class Pry
       attr_writer :command_options
       attr_writer :match
 
-      def match(arg=nil)
+      def match(arg = nil)
         if arg
           @command_options ||= default_options(arg)
           @command_options[:listing] = arg.is_a?(String) ? arg : arg.inspect
@@ -33,13 +33,13 @@ class Pry
       end
 
       # Define or get the command's description
-      def description(arg=nil)
+      def description(arg = nil)
         @description = arg if arg
         @description ||= nil
       end
 
       # Define or get the command's options
-      def command_options(arg=nil)
+      def command_options(arg = nil)
         @command_options ||= default_options(match)
         @command_options.merge!(arg) if arg
         @command_options
@@ -49,7 +49,7 @@ class Pry
       alias_method :options=, :command_options=
 
       # Define or get the command's banner
-      def banner(arg=nil)
+      def banner(arg = nil)
         @banner = arg if arg
         @banner ||= description
       end
@@ -194,7 +194,7 @@ class Pry
       # This is usually auto-generated from directory naming, but it can be
       # manually overridden if necessary.
       # Group should not be changed once it is initialized.
-      def group(name=nil)
+      def group(name = nil)
         @group ||= if name
                      name
                    else
@@ -274,7 +274,7 @@ class Pry
 
     # Instantiate a command, in preparation for calling it.
     # @param [Hash] context The runtime context to use with this command.
-    def initialize(context={})
+    def initialize(context = {})
       self.context      = context
       self.target       = context[:target]
       self.output       = context[:output]

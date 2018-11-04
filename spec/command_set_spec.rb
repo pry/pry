@@ -371,7 +371,7 @@ describe Pry::CommandSet do
     end
 
     it 'should make old command name inaccessible' do
-      @set.command('foo') { }
+      @set.command('foo') {}
       @set.rename_command('bar', 'foo')
       expect { @set.run_command(@ctx, 'foo') }.to raise_error Pry::NoCommandError
     end
@@ -379,7 +379,7 @@ describe Pry::CommandSet do
     it 'should be able to pass in options when renaming command' do
       desc    = "hello"
       listing = "bing"
-      @set.command('foo') { }
+      @set.command('foo') {}
       @set.rename_command('bar', 'foo', description: desc, listing: listing, keep_retval: true)
       expect(@set['bar'].description).to           eq desc
       expect(@set['bar'].options[:listing]).to     eq listing
@@ -495,44 +495,44 @@ describe Pry::CommandSet do
 
   describe 'find_command' do
     it 'should find commands with the right string' do
-      cmd = @set.command('rincewind'){ }
+      cmd = @set.command('rincewind') {}
       expect(@set.find_command('rincewind')).to eq cmd
     end
 
     it 'should not find commands with spaces before' do
-      @set.command('luggage'){ }
+      @set.command('luggage') {}
       expect(@set.find_command(' luggage')).to eq nil
     end
 
     it 'should find commands with arguments after' do
-      cmd = @set.command('vetinari'){ }
+      cmd = @set.command('vetinari') {}
       expect(@set.find_command('vetinari --knock 3')).to eq cmd
     end
 
     it 'should find commands with names containing spaces' do
-      cmd = @set.command('nobby nobbs'){ }
+      cmd = @set.command('nobby nobbs') {}
       expect(@set.find_command('nobby nobbs --steal petty-cash')).to eq cmd
     end
 
     it 'should find command defined by regex' do
-      cmd = @set.command(/(capt|captain) vimes/i){ }
+      cmd = @set.command(/(capt|captain) vimes/i) {}
       expect(@set.find_command('Capt Vimes')).to eq cmd
     end
 
     it 'should find commands defined by regex with arguments' do
-      cmd = @set.command(/(cpl|corporal) Carrot/i){ }
+      cmd = @set.command(/(cpl|corporal) Carrot/i) {}
       expect(@set.find_command('cpl carrot --write-home')).to eq cmd
     end
 
     it 'should not find commands by listing' do
-      @set.command(/werewol(f|ve)s?/, 'only once a month', listing: "angua"){ }
+      @set.command(/werewol(f|ve)s?/, 'only once a month', listing: "angua") {}
       expect(@set.find_command('angua')).to eq nil
     end
 
     it 'should not find commands without command_prefix' do
       begin
         Pry.config.command_prefix = '%'
-        @set.command('detritus'){ }
+        @set.command('detritus') {}
         expect(@set.find_command('detritus')).to eq nil
       ensure
         Pry.config.command_prefix = ''
@@ -542,7 +542,7 @@ describe Pry::CommandSet do
     it "should find commands that don't use the prefix" do
       begin
         Pry.config.command_prefix = '%'
-        cmd = @set.command('colon', 'Sergeant Fred', use_prefix: false){ }
+        cmd = @set.command('colon', 'Sergeant Fred', use_prefix: false) {}
         expect(@set.find_command('colon')).to eq cmd
       ensure
         Pry.config.command_prefix = ''
@@ -550,14 +550,14 @@ describe Pry::CommandSet do
     end
 
     it "should find the command that has the longest match" do
-      @set.command(/\.(.*)/){ }
-      cmd2 = @set.command(/\.\|\|(.*)/){ }
+      @set.command(/\.(.*)/) {}
+      cmd2 = @set.command(/\.\|\|(.*)/) {}
       expect(@set.find_command('.||')).to eq cmd2
     end
 
     it "should find the command that has the longest name" do
-      @set.command(/\.(.*)/){ }
-      cmd2 = @set.command('.||'){ }
+      @set.command(/\.(.*)/) {}
+      cmd2 = @set.command('.||') {}
       expect(@set.find_command('.||')).to eq cmd2
     end
   end
@@ -646,12 +646,12 @@ describe Pry::CommandSet do
   if defined?(Bond)
     describe '.complete' do
       it "should list all command names" do
-        @set.create_command('susan'){ }
+        @set.create_command('susan') {}
         expect(@set.complete('sus')).to.include 'susan '
       end
 
       it "should delegate to commands" do
-        @set.create_command('susan'){ def complete(_search); ['--foo']; end }
+        @set.create_command('susan') { def complete(_search); ['--foo']; end }
         expect(@set.complete('susan ')).to eq ['--foo']
       end
     end

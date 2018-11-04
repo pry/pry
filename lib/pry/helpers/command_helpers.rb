@@ -8,7 +8,7 @@ class Pry
 
       # Open a temp file and yield it to the block, closing it after
       # @return [String] The path of the temp file
-      def temp_file(ext='.rb')
+      def temp_file(ext = '.rb')
         file = Tempfile.new(['pry', ext])
         yield file
       ensure
@@ -21,7 +21,7 @@ class Pry
         ["__binding__", "__pry__", "class_eval"].include?(m)
       end
 
-      def get_method_or_raise(name, target, opts={}, omit_help=false)
+      def get_method_or_raise(name, target, opts = {}, omit_help = false)
         meth = Pry::Method.from_str(name, target, opts)
 
         if name && !meth
@@ -44,7 +44,7 @@ class Pry
         meth
       end
 
-      def command_error(message, omit_help, klass=CommandError)
+      def command_error(message, omit_help, klass = CommandError)
         message += " Type `#{command_name} --help` for help." unless omit_help
         raise klass, message
       end
@@ -142,7 +142,7 @@ class Pry
         Range.new(a, b)
       end
 
-      def set_file_and_dir_locals(file_name, _pry_=_pry_(), target=target())
+      def set_file_and_dir_locals(file_name, _pry_ = _pry_(), target = target())
         return if !target or !file_name
 
         _pry_.last_file = File.expand_path(file_name)
