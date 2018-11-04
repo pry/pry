@@ -1,5 +1,7 @@
 ### HEAD
 
+### [v0.12.0][v0.12.0] (November 5, 2018)
+
 #### Major changes
 
 * Dropped support for Rubinius ([#1785](https://github.com/pry/pry/pull/1785))
@@ -929,3 +931,5 @@ complete CHANGELOG:
 
 ### 0.1.0 (2010/12/8)
 * release!
+
+[v0.12.0]: https://github.com/pry/pry/releases/tag/v0.12.0
