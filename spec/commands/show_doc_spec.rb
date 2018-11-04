@@ -11,7 +11,6 @@ describe "show-doc" do
     end
 
     def @o.no_docs;end
-
   end
 
   after do

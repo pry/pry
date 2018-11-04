@@ -89,7 +89,6 @@ asfadsssaaad    fasfaafdssd     s
 
     it 'should not raise error' do
       expect { Pry::Helpers.tablify(@out, @elem_len - 1) }.not_to raise_error
-
     end
 
     it 'should format output as one column' do

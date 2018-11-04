@@ -143,7 +143,6 @@ class Pry
       prefix = indent_level
 
       input.lines.each do |line|
-
         if in_string?
           tokens = tokenize("#{open_delimiters_line}\n#{line}")
           tokens = tokens.drop_while{ |token, type| !(String === token && token.include?("\n")) }

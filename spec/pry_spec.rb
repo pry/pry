@@ -72,7 +72,6 @@ describe Pry do
   end
 
   describe "Pry.binding_for" do
-
     # regression test for burg's bug (see git history)
     it "Should not error when object doesn't have a valid == method" do
       o = Object.new
@@ -379,7 +378,6 @@ describe Pry do
       end
 
       describe "Object#pry" do
-
         after do
           Pry.reset_defaults
           Pry.config.color = false

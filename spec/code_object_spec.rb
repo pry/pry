@@ -102,7 +102,6 @@ describe Pry::CodeObject do
       it 'finds nothing when passing nil as the first argument' do
         expect(Pry::CodeObject.lookup(nil, @p)).to eq nil
       end
-
     end
 
     it 'should lookup instance methods defined on classes accessed via local variable' do

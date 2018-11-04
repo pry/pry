@@ -68,5 +68,4 @@ describe Pry::Helpers::DocumentationHelpers do
       expect(@helper.process_rdoc("--\n  comment in a bubble\n++")).to match(/\+\+/)
     end
   end
-
 end

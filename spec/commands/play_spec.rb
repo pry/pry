@@ -11,7 +11,6 @@ describe "play" do
   end
 
   describe "with an argument" do
-
     # can't think of a f*cking way to test this!!
     describe "implied file" do
       # it 'should play from the file associated with the current binding' do

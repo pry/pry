@@ -51,7 +51,6 @@ describe Pry::Hooks do
       expect(run).to equal true
       expect(run2).to equal true
     end
-
   end
 
   describe "processing options" do
@@ -83,6 +82,5 @@ describe Pry::Hooks do
       expect(run).to eq true
       expect(run2).to eq true
     end
-
   end
 end

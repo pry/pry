@@ -437,7 +437,6 @@ describe Pry::Method do
       def eigen_class(obj); class << obj; self; end; end
 
       it "should look at a class and then its superclass" do
-
         expect(Pry::Method.instance_resolution_order(LS::Next)).to eq [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
       end
 

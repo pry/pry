@@ -138,7 +138,6 @@ describe Pry::Hooks do
           expect(h2.get_hook(:test_hook3, :testing)).to eq nil
         end
       end
-
     end
   end
 
@@ -169,7 +168,6 @@ describe Pry::Hooks do
 
       expect(hooks_dup.get_hook(:test_hook, :testing2)).not_to eq @hooks.get_hook(:test_hook, :testing2)
     end
-
   end
 
   describe "getting hooks" do
@@ -323,7 +321,6 @@ describe Pry::Hooks do
       end
 
       describe "target" do
-
         it 'should yield the target, as a binding ' do
           b = nil
           Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
@@ -362,7 +359,6 @@ describe Pry::Hooks do
         expect(o.value).to eq true
         Pry.config.hooks.delete_hook(:when_started, :test_hook)
       end
-
     end
 
     describe "after_session hook" do
@@ -423,7 +419,6 @@ describe Pry::Hooks do
             expect(out.string).not_to match(/little_duck/)
           end
         end
-
       end
 
       describe "exceptions" do
@@ -469,5 +464,4 @@ describe Pry::Hooks do
       expect(x).to eq 2
     end
   end
-
 end

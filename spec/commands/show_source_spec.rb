@@ -223,7 +223,6 @@ describe "show-source" do
     end
 
     it "finds super methods with explicit method argument" do
-
       o = Foo.new
       def o.foo(*_bars)
         :wibble
@@ -455,7 +454,6 @@ describe "show-source" do
       end
 
       it 'should lookup module name with respect to current context' do
-
         temporary_constants(:AlphaClass, :BetaClass) do
           class BetaClass
             def alpha
