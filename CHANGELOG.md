@@ -1,41 +1,105 @@
 ### HEAD
 
+#### Major changes
+
+* Dropped support for Rubinius ([#1785](https://github.com/pry/pry/pull/1785))
+
 #### Features
 
-* Add a new command, "clear-screen", that clears the content of the
-  screen Pry is running in regardless of platform (Windows or UNIX-like).
+* Added a new command, `clear-screen`, that clears the content of the screen Pry
+  is running in regardless of platform (Windows or UNIX-like)
+  ([#1723](https://github.com/pry/pry/pull/1723))
+* Added a new command, `gem-stat`, that prints gem statistics such as gem
+  dependencies and downloads ([#1707](https://github.com/pry/pry/pull/1707))
+* Added support for nested exceptions for the `wtf` command
+  ([#1791](https://github.com/pry/pry/pull/1791))
+* Added support for dynamic prompt names
+  ([#1833](https://github.com/pry/pry/pull/1833))
 
-* Add a new command, "gem-stat", inspired by the rubygem of a similar
-  name (gem-stats) by [@dannytatom](https://github.com/dannytatom).
+  ```rb
+  # pryrc
+  Pry.config.prompt_name = Pry.lazy { rand(100) }
 
-See pull request [#1705](https://github.com/pry/pry/pull/1705].
+  # Session
+  [1] 80(main)>
+  [2] 87(main)>
+  [3] 30(main)>
+  ```
+* Added support for XDG Base Directory Specification
+  ([#1609](https://github.com/pry/pry/pull/1609),
+  [#1844](https://github.com/pry/pry/pull/1844),
+  ([#1848](https://github.com/pry/pry/pull/1848)))
+* Removed the `simple-prompt`. Use `change-prompt simple` instead. The
+  `list-prompt` command was removed and embedded as `change-prompt --list`
+  ([#1849](https://github.com/pry/pry/pull/1849))
 
-* Add Pry::Platform#known_engines, returns an Array of Ruby engines
-  (MRI, JRuby, Rubinius) that Pry is known to run on.
+#### API changes
 
-See pull request [#1694](https://github.com/pry/pry/pull/1694).
+* The following methods started accepting the new optional `config` parameter
+  ([#1809](https://github.com/pry/pry/pull/1809)):
+  * `Pry::Helpers.tablify(things, line_length, config = Pry.config)`
+  * `Pry::Helpers.tablify_or_one_line(heading, things, config = Pry.config)`
+  * `Pry::Helpers.tablify_to_screen_width(things, options, config = Pry.config)`
+  * `Pry::Helpers::Table.new(items, args, config = Pry.config)`
 
-* Deprecate Pry::Command#text. Please use black(), white(), etc directly
-  instead (as you would with helper functions from BaseHelpers and
-  CommandHelpers)
+  You are expected to pass a session-local `_pry_.config` instead of the global
+  one.
 
-See pull request [#1701](https://github.com/pry/pry/pull/1701).
+* Added new method `Pry::Config.assign`, for creating a Config non-recursively
+  ([#1725](https://github.com/pry/pry/issues/1725))
+* Added `Pry.lazy`, which is a helper method for values that need to be
+  calculated dynamically. Currently, only `config.prompt_name` supports it
+  ([#1833](https://github.com/pry/pry/pull/1833))
+* `Pry::Prompt` responds to `.[]`, `.all` & `.add` now. The `Pry::Prompt.add`
+  method must be used for implementing custom prompts. See the API in the
+  documentation for the class ([#1846](https://github.com/pry/pry/pull/1846))
 
-* Add new method Pry::Config.assign(), for creating a Config non-recursively.
+#### Breaking changes
 
-See pull request [#1723](https://github.com/pry/pry/pull/1723)
+* Deleted the `Pry::Helpers::Text.bright_default` alias for
+  `Pry::Helpers::Text.bold` ([#1795](https://github.com/pry/pry/pull/1795))
+* `Pry::Helpers.tablify_to_screen_width(things, options, config = Pry.config)`
+  requires `options` or `nil` in place of them.
+* `Pry::Helpers::Table.new(items, args, config = Pry.config)` requires `args`
+  or `nil` in place of them.
+* Completely revamped `Pry::HistoryArray`
+  ([#1818](https://github.com/pry/pry/pull/1818)).
+  * It's been renamed to `Pry::Ring`
+    ([#1817](https://github.com/pry/pry/pull/1817))
+  * The implementation has changed and as result, the following methods were
+    removed:
+    * `Pry::Ring#length` (use `Pry::Ring#count` instead)
+    * `#empty?`, `#each`, `#inspect`, `#pop!`, `#to_h`
+  * To access old Enumerable methods convert the ring to Array with `#to_a`
+  * Fixed indexing for elements (e.g. `_pry_.input_ring[0]` always return some
+    element and not `nil`)
+* Renamed `Pry.config.prompt_safe_objects` to `Pry.config.prompt_safe_contexts`
+* Removed deprecated `Pry::CommandSet#before_command` &
+  `Pry::CommandSet#after_command` ([#1838](https://github.com/pry/pry/pull/1838))
+
+#### Deprecations
+
+* Deprecated `_pry_.input_array` & `_pry_.output_array` in favour of
+  `_pry_.input_ring` & `_pry_.output_ring` respectively
+  ([#1814](https://github.com/pry/pry/pull/1814))
+* Deprecated `Pry::Command#text`. Please use `#black`, `#white`, etc. directly
+  instead (as you would with helper functions from `BaseHelpers` and
+  `CommandHelpers`) ([#1701](https://github.com/pry/pry/pull/1701))
+* Deprecated `_pry_.input_array` & `_pry_.output_array` in favour of
+  `_pry_.input_ring` and `_pry_.output_ring` respectively
+  ([#1817](https://github.com/pry/pry/pull/1817))
+* Deprecated `Pry::Platform`. Use `Pry::Helpers::Platform` instead. Note that
+  `Pry::Helpers::BaseHelpers` still includes the `Platform` methods but emits a
+  warning. You must switch to `Pry::Helpers::Platform` in your code
+  ([#1838](https://github.com/pry/pry/pull/1838),
+  ([#1845](https://github.com/pry/pry/pull/1845)))
+* Deprecated `Pry::Prompt::MAP`. You should use `Pry::Prompt.all` instead to
+  access the same map ([#1846](https://github.com/pry/pry/pull/1846))
 
 #### Bug fixes
 
-* Add 'Data' as a deprecated constant for Ruby 2.5 (ls command).
-
-See pull request [#1731](https://github.com/pry/pry/pull/1731)
-
-* Fix a bug where 'cd Hash.new' reported self as an instance of Pry::Config
-  in the prompt.
-
-See pull request [#1723](https://github.com/pry/pry/pull/1723)
-
+* Fixed a bug where `cd Hash.new` reported `self` as an instance of Pry::Config
+  in the prompt ([#1725](https://github.com/pry/pry/pull/1725))
 * Silenced the `Could not find files for the given pattern(s)` error message
   coming from `where` on Windows, when `less` or another pager is not installed
   ([#1767](https://github.com/pry/pry/pull/1767))
@@ -46,14 +110,26 @@ See pull request [#1723](https://github.com/pry/pry/pull/1723)
   [#1774](https://github.com/pry/pry/pull/1762))
 * Fixed `NoMethodError` on code objects that have a comment but no source when
   invoking `show-source` ([#1779](https://github.com/pry/pry/pull/1779))
+* Fixed `negative argument (ArgumentError)` upon pasting code with tabs, which
+  used to confuse automatic indentation
+  ([#1771](https://github.com/pry/pry/pull/1771))
+* Fixed Pry not being able to load history on Ruby 2.4.4+ when it contains the
+  null character ([#1789](https://github.com/pry/pry/pull/1789))
+* Fixed Pry raising errors on `cd`'ing into some objects that redefine
+  `method_missing` and `respond_to?`
+  ([#1811](https://github.com/pry/pry/pull/1811))
+* Fixed bug when indentation leaves parts of input after pressing enter when
+  Readline is enabled with mode indicators for vi mode
+  ([#1813](https://github.com/pry/pry/pull/1813),
+  [#1820](https://github.com/pry/pry/pull/1820),
+  [#1825](https://github.com/pry/pry/pull/1825))
+* Fixed `edit` not writing to history
+  ([#1749](https://github.com/pry/pry/issues/1749))
 
-#### Pry developers
+#### Other changes
 
-* Optionally skip a spec on specific Ruby engine(s) by providing `expect_failure: [:mri, :jruby]`
-  as a metadata Hash to the example group.
-
-See pull request [#1694](https://github.com/pry/pry/pull/1694).
-
+* Deprecated the `Data` constant to match Ruby 2.5 in the `ls` command
+  ([#1731](https://github.com/pry/pry/pull/1731))
 
 ### 0.11.3
 
