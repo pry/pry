@@ -174,11 +174,6 @@ Layout/EmptyLineAfterMagicComment:
     - 'lib/pry/terminal.rb'
     - 'pry.gemspec'
 
-# Offense count: 24
-# Cop supports --auto-correct.
-Layout/EmptyLines:
-  Enabled: false
-
 # Offense count: 16
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundAccessModifier:

@@ -1,6 +1,5 @@
 require_relative 'helper'
 
-
 describe "commands" do
   before do
     @str_output = StringIO.new

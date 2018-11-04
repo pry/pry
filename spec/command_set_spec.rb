@@ -349,7 +349,6 @@ describe Pry::CommandSet do
     expect { @set.run_command(@ctx, 'help') }.to_not raise_error
   end
 
-
   describe "renaming a command" do
     it 'should be able to rename and run a command' do
       run = false

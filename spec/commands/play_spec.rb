@@ -18,7 +18,6 @@ describe "play" do
       #   # require 'fixtures/play_helper'
       # end
 
-
       # describe "integer" do
       #   it "should process one line from _pry_.last_file" do
       #     @t.process_command 'play --lines 1', @eval_str
@@ -50,7 +49,6 @@ describe "play" do
         # rubocop:enable Layout/EmptyLineBetweenDefs
       STR
     end
-
 
     it 'should output file contents with print option' do
       @t.process_command 'play --print spec/fixtures/whereami_helper.rb'

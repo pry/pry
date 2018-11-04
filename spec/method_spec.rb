@@ -434,7 +434,6 @@ describe Pry::Method do
         class Bottom < Lower; extend O; end
       end
 
-
       def eigen_class(obj); class << obj; self; end; end
 
       it "should look at a class and then its superclass" do

@@ -59,7 +59,6 @@ namespace :jruby do
   end
 end
 
-
 ['mswin32', 'mingw32'].each do |platform|
   namespace platform do
     spec = modify_base_gemspec do |s|

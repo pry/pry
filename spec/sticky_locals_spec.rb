@@ -123,7 +123,6 @@ describe "Sticky locals (_file_ and friends)" do
         expect(o.instance_variable_get(:@value2)).to eq :carl
       end
 
-
       it 'should define a new sticky local for the session (as Proc)' do
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",

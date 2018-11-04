@@ -149,7 +149,6 @@ describe "test Pry defaults" do
       expect(pry.prompt).to eq Pry.prompt
       expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
 
-
       pry = Pry.new(prompt: new_prompt)
       expect(pry.prompt).to eq new_prompt
       expect(get_prompts(pry)).to eq ["A", "A"]
@@ -166,7 +165,6 @@ describe "test Pry defaults" do
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
       expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
-
 
       pry = Pry.new(prompt: new_prompt)
       expect(pry.prompt).to eq new_prompt
@@ -313,7 +311,6 @@ describe "test Pry defaults" do
         describe "with a #name longer than the maximum specified" do
           it "returns a string of the #<class name:object idish> format" do
             c, m = Class.new, Module.new
-
 
             def c.name; "a" * (MAX_LENGTH + 1); end
 
