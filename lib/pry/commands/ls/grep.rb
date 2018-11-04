@@ -1,7 +1,6 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Grep
-
       def initialize(grep_regexp)
         @grep_regexp = grep_regexp
       end
@@ -15,7 +14,6 @@ class Pry
           end
         }
       end
-
     end
   end
 end

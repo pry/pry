@@ -1,11 +1,9 @@
 class Pry
   class Code
-
     # Represents a range of lines in a code listing.
     #
     # @api private
     class CodeRange
-
       # @param [Integer] start_line
       # @param [Integer?] end_line
       def initialize(start_line, end_line = nil)
@@ -69,6 +67,5 @@ class Pry
         @start_line = start_line.first
       end
     end
-
   end
 end

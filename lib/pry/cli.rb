@@ -1,12 +1,9 @@
 class Pry
-
   # Manage the processing of command line options
   class CLI
-
     NoOptionsError = Class.new(StandardError)
 
     class << self
-
       # @return [Proc] The Proc defining the valid command line options.
       attr_accessor :options
 
@@ -113,7 +110,6 @@ class Pry
         # Start the session (running any code passed with -e, if there is any)
         Pry.start(context, input: StringIO.new(Pry.config.exec_string))
       end
-
     end
 
     reset

@@ -1,7 +1,6 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class LocalVars < Pry::Command::Ls::Formatter
-
       def initialize(opts, _pry_)
         super(_pry_)
         @default_switch = opts[:locals]
@@ -33,7 +32,6 @@ class Pry
         pad = desired_width + color_escape_padding
         "%-#{pad}s = %s" % [color(:local_var, colorized_lhs), rhs]
       end
-
     end
   end
 end

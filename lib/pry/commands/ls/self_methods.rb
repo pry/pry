@@ -28,7 +28,6 @@ class Pry
       def correct_opts?
         @no_user_opts && interrogating_a_module?
       end
-
     end
   end
 end

@@ -36,7 +36,6 @@ class Pry::Slop
   }
 
   class << self
-
     # items  - The Array of items to extract options from (default: ARGV).
     # config - The Hash of configuration options to send to Slop.new().
     # block  - An optional block used to add options.
@@ -106,7 +105,6 @@ class Pry::Slop
 
       opts
     end
-
   end
 
   # The Hash of configuration options for this Slop instance.
@@ -660,5 +658,4 @@ class Pry::Slop
       "  #{cmd}#{' ' * (padding - cmd.size)}   #{opts.description}"
     end.join("\n")
   end
-
 end

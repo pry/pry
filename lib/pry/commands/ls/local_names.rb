@@ -1,7 +1,6 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class LocalNames < Pry::Command::Ls::Formatter
-
       def initialize(no_user_opts, args, _pry_)
         super(_pry_)
         @no_user_opts = no_user_opts
@@ -29,7 +28,6 @@ class Pry
           end
         end
       end
-
     end
   end
 end

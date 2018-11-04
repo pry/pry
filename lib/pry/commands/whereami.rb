@@ -1,6 +1,5 @@
 class Pry
   class Command::Whereami < Pry::ClassCommand
-
     def initialize(*)
       super
 

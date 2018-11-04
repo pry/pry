@@ -124,6 +124,5 @@ class Pry
     def editor_name
       File.basename(_pry_.config.editor).split(" ").first
     end
-
   end
 end

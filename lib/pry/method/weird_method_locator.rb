@@ -1,6 +1,5 @@
 class Pry
   class Method
-
     # This class is responsible for locating the *real* `Pry::Method`
     # object captured by a binding.
     #
@@ -16,7 +15,6 @@ class Pry
     # Pry::Method and return it, or return nil if we fail.
     class WeirdMethodLocator
       class << self
-
         # Whether the given method object matches the associated binding.
         # If the method object does not match the binding, then it's
         # most likely not the method captured by the binding, and we

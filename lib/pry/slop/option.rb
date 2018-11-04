@@ -1,6 +1,5 @@
 class Pry::Slop
   class Option
-
     # The default Hash of configuration options this class uses.
     DEFAULT_OPTIONS = {
       argument: false,
@@ -203,6 +202,5 @@ class Pry::Slop
         end
       end
     end
-
   end
 end

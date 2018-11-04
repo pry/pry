@@ -106,6 +106,5 @@ class Pry
     def from_load_path
       $LOAD_PATH.map { |path| File.expand_path(@filename, path) }
     end
-
   end
 end

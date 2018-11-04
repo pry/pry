@@ -1,5 +1,4 @@
 class Pry
-
   # As a REPL, we often want to catch any unexpected exceptions that may have
   # been raised; however we don't want to go overboard and prevent the user
   # from exiting Pry when they want to.
@@ -74,5 +73,4 @@ class Pry
   # IRB = Pry thing.
   module ExtendCommandBundle
   end
-
 end

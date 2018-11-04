@@ -1,5 +1,4 @@
 class Pry
-
   # A class to manage the loading of files through the REPL loop.
   # This is an interesting trick as it processes your file as if it
   # was user input in an interactive session. As a result, all Pry

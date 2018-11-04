@@ -1,5 +1,4 @@
 class Pry
-
   # This class is responsible for taking a string (identifying a
   # command/class/method/etc) and returning the relevant type of object.
   # For example, if the user looks up "show-source" then  a

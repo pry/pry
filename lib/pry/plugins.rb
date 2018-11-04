@@ -119,5 +119,4 @@ class Pry
       Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')
     end
   end
-
 end
