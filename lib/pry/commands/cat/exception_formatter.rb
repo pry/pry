@@ -74,7 +74,6 @@ class Pry
 
       }
       end
-
     end
   end
 end

@@ -33,7 +33,6 @@ class Pry
       def format(type, vars)
         vars.sort_by { |var| var.to_s.downcase }.map { |var| color(type, var) }
       end
-
     end
   end
 end

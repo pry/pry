@@ -10,7 +10,6 @@ require 'pry/commands/ls/local_vars'
 
 class Pry
   class Command::Ls < Pry::ClassCommand
-
     class LsEntity
       attr_reader :_pry_
 

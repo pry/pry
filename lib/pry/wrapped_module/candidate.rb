@@ -2,7 +2,6 @@ require 'pry/helpers/documentation_helpers'
 
 class Pry
   class WrappedModule
-
     # This class represents a single candidate for a module/class definition.
     # It provides access to the source, documentation, line and file
     # for a monkeypatch (reopening) of a class/module.

@@ -46,7 +46,6 @@ class Pry
       def grep
         @grep || proc { |x| x }
       end
-
     end
   end
 end

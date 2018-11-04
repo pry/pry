@@ -2,7 +2,6 @@ require 'delegate'
 require 'pry/helpers/documentation_helpers'
 
 class Pry
-
   # The super-class of all commands, new commands should be created by calling
   # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#create_command}
   # which creates a ClassCommand. Please don't use this class directly.
@@ -546,7 +545,6 @@ class Pry
   # gems your command needs to run, or to set up state.
   class ClassCommand < Command
     class << self
-
       # Ensure that subclasses inherit the options, description and
       # match from a ClassCommand super class.
       def inherited(klass)

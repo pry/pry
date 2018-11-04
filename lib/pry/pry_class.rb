@@ -1,5 +1,4 @@
 class Pry
-
   HOME_RC_FILE =
     if ENV.key?('PRYRC')
       ENV['PRYRC']

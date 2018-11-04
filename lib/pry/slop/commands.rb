@@ -191,6 +191,5 @@ class Pry::Slop
         global_opts.parse! items
       end
     end
-
   end
 end

@@ -1,7 +1,6 @@
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Globals < Pry::Command::Ls::Formatter
-
       # Taken from "puts global_variables.inspect".
       BUILTIN_GLOBALS =
         %w($" $$ $* $, $-0 $-F $-I $-K $-W $-a $-d $-i $-l $-p $-v $-w $. $/ $\\
@@ -42,7 +41,6 @@ class Pry
           end
         end
       end
-
     end
   end
 end

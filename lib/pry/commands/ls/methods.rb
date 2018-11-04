@@ -4,7 +4,6 @@ require 'pry/commands/ls/interrogatable'
 class Pry
   class Command::Ls < Pry::ClassCommand
     class Methods < Pry::Command::Ls::Formatter
-
       include Pry::Command::Ls::Interrogatable
       include Pry::Command::Ls::MethodsHelper
 
@@ -50,7 +49,6 @@ class Pry
                   end
         lambda { |klass| !ceiling.include?(klass) }
       end
-
     end
   end
 end

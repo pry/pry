@@ -1,6 +1,5 @@
 class Pry
   class Code
-
     # Represents a line of code (which may, in fact, contain multiple lines if the
     # entirety was eval'd as a single unit following the `edit` command).
     #
@@ -20,7 +19,6 @@ class Pry
     #   loc.indent(3)
     #   loc.line #=> "   def example\n  :example\nend"
     class LOC
-
       # @return [Array<String, Integer>]
       attr_reader :tuple
 
@@ -96,6 +94,5 @@ class Pry
         end.join("\n")
       end
     end
-
   end
 end

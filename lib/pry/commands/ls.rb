@@ -107,7 +107,6 @@ class Pry
         raise Pry::CommandError, message if opts.present?(option) && invalid_expr
       end
     end
-
   end
 
   Pry::Commands.add_command(Pry::Command::Ls)
