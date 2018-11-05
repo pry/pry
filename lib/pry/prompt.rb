@@ -45,7 +45,7 @@ class Pry
       # @return [Hash{Symbol=>Object}]
       # @since v0.12.0
       def [](prompt_name)
-        all[prompt_name.to_s]
+        @prompts[prompt_name.to_s]
       end
 
       # @return [Hash{Symbol=>Hash}] the duplicate of the internal prompts hash
