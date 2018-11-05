@@ -5,7 +5,7 @@ class Pry
   #
   # @example
   #   Pry::Prompt.add(
-  #     :ipython,
+  #     'ipython',
   #     'IPython-like prompt', [':', '...:']
   #   ) do |_context, _nesting, _pry_, sep|
   #     sep == ':' ? "In [#{_pry_.input_ring.count}]: " : '   ...: '
@@ -39,7 +39,7 @@ class Pry
       # Retrieves a prompt.
       #
       # @example
-      #   Prompt[:my_prompt][:value]
+      #   Prompt['my_prompt'][:value]
       #
       # @param [Symbol] prompt_name The name of the prompt you want to access
       # @return [Hash{Symbol=>Object}]
@@ -94,7 +94,7 @@ class Pry
       end
     end
 
-    add(:default, <<DESC) do |context, nesting, _pry_, sep|
+    add('default', <<DESC) do |context, nesting, _pry_, sep|
 The default Pry prompt. Includes information about the current expression
 number, evaluation context, and nesting level, plus a reminder that you're
 using Pry.
@@ -109,11 +109,11 @@ DESC
       )
     end
 
-    add(:simple, "A simple `>>`.\n", ['>> ', ' | ']) do |_, _, _, sep|
+    add('simple', "A simple `>>`.\n", ['>> ', ' | ']) do |_, _, _, sep|
       sep
     end
 
-    add(:nav, <<DESC, %w[> *]) do |context, nesting, _pry_, sep|
+    add('nav', <<DESC, %w[> *]) do |context, nesting, _pry_, sep|
 A prompt that displays the binding stack as a path and includes information
 about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.
 DESC
@@ -128,7 +128,7 @@ DESC
       )
     end
 
-    add(:shell, <<DESC, %w[$ *]) do |context, nesting, _pry_, sep|
+    add('shell', <<DESC, %w[$ *]) do |context, nesting, _pry_, sep|
 A prompt that displays `$PWD` as you change it.
 DESC
       format(
@@ -140,6 +140,6 @@ DESC
       )
     end
 
-    add(:none, 'Wave goodbye to the Pry prompt.', Array.new(2)) { '' }
+    add('none', 'Wave goodbye to the Pry prompt.', Array.new(2)) { '' }
   end
 end
