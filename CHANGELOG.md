@@ -1,5 +1,8 @@
 ### HEAD
 
+* Added `Pry::Prompt.select_default` for selecting the default prompt a
+  Pry session will use. It can be called from a `.pryrc` file. ([#1860](https://github.com/pry/pry/pull/1860/files)).
+
 ### [v0.12.0][v0.12.0] (November 5, 2018)
 
 #### Major changes

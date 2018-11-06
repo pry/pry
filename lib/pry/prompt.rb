@@ -35,7 +35,46 @@ class Pry
     # names, the values are Hash instances of the format {:description, :value}.
     @prompts = {}
 
+    # The name of the current default prompt.
+    @default_prompt = 'default'
+
     class << self
+      #
+      # @return [Hash]
+      #   Returns the current default prompt as a Hash.
+      #
+      def default_prompt
+        self[@default_prompt]
+      end
+
+      #
+      # Sets the default prompt that will be used when a Pry session starts.
+      # It can be used from inside a `.pryrc` file.
+      #
+      # @example
+      #   Pry::Prompt.select_default 'simple'
+      #   Pry::Prompt.select_default 'nav'
+      #   Pry::Prompt.select_default 'rails' # when using pry-rails
+      #
+      # @raise [ArgumentError]
+      #   When the prompt is not known to Pry.
+      #
+      # @param [String] prompt_name
+      #   The name of a prompt.
+      #
+      # @return [void]
+      #
+      # @api public
+      #
+      def select_default(prompt_name)
+        if self[prompt_name]
+          @default_prompt = prompt_name
+          nil
+        else
+          raise ArgumentError, "'#{prompt_name}' is not known to Pry."
+        end
+      end
+
       # Retrieves a prompt.
       #
       # @example
@@ -80,7 +119,7 @@ class Pry
           value: separators.map do |sep|
             proc { |context, nesting, _pry_| yield(context, nesting, _pry_, sep) }
           end
-        }
+        }.freeze
 
         nil
       end
