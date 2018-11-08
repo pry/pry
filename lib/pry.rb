@@ -2,7 +2,6 @@ require 'pp'
 require 'pry/forwardable'
 require 'pry/input_lock'
 require 'pry/exceptions'
-require 'pry/platform'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
