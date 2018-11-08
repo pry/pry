@@ -252,18 +252,6 @@ class Pry
       command_set.to_hash
     end
 
-    #
-    # @deprecated
-    #   Please use black(), white(), etc directly instead (as you would with helper
-    #   functions from BaseHelpers and CommandHelpers)
-    #
-    # @return [Module]
-    #   Returns Pry::Helpers::Text
-    #
-    def text
-      Pry::Helpers::Text
-    end
-
     def void
       VOID_VALUE
     end
@@ -319,7 +307,10 @@ class Pry
       collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
 
       if collision_type
-        output.puts "#{text.bold('WARNING:')} Calling Pry command '#{command_match}', which conflicts with a #{collision_type}.\n\n"
+        output.puts(
+          "#{Helpers::Text.bold('WARNING:')} Calling Pry command '#{command_match}', " \
+          "which conflicts with a #{collision_type}.\n\n"
+        )
       end
     rescue Pry::RescuableException
     end
@@ -425,9 +416,13 @@ class Pry
       unless dependencies_met?
         gems_needed = Array(command_options[:requires_gem])
         gems_not_installed = gems_needed.select { |g| !Rubygem.installed?(g) }
-        output.puts "\nThe command '#{command_name}' is #{text.bold("unavailable")} because it requires the following gems to be installed: #{(gems_not_installed.join(", "))}"
-        output.puts "-"
-        output.puts "Type `install-command #{command_name}` to install the required gems and activate this command."
+        output.puts(<<WARN)
+The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
+gems to be installed: #{(gems_not_installed.join(", "))}
+
+Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
+and activate this command.
+WARN
         return void
       end
 
