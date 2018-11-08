@@ -161,15 +161,6 @@ class Pry
         all_from_class(singleton_class_of(obj), include_super)
       end
 
-      #
-      # @deprecated
-      #  please use {all_from_obj} instead.
-      #  the `method_type` argument is ignored.
-      #
-      def all_from_common(obj, _method_type = nil, include_super = true)
-        all_from_obj(obj, include_super)
-      end
-
       # Get every `Class` and `Module`, in order, that will be checked when looking
       # for an instance method to call on this object.
       # @param [Object] obj
