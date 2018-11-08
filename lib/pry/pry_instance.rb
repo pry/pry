@@ -87,36 +87,6 @@ class Pry
     exec_hook(:when_started, target, options, self)
   end
 
-  @input_array_warn = false
-  # @deprecated Use {#input_ring} instead.
-  def input_array
-    unless @input_array_warn
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: method #{self.class}##{__method__} " \
-        "is deprecated. Use #{self.class}#input_ring instead"
-      )
-      @input_array_warn = true
-    end
-
-    @input_ring
-  end
-
-  @output_array_warn = false
-  # @deprecated Use {#output_ring} instead.
-  def output_array
-    unless @output_array_warn
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: method #{self.class}##{__method__} " \
-        "is deprecated. Use #{self.class}#output_ring instead"
-      )
-      @output_array_warn = true
-    end
-
-    @output_ring
-  end
-
   # This is the prompt at the top of the prompt stack.
   # @return [Array<Proc>] the current prompt
   def prompt
