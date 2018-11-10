@@ -213,7 +213,7 @@ describe Pry::InputCompleter do
     completer_test(self).call("[].size.chars")
   end
 
-  it 'does not offer methods from blacklisted modules' do
+  it 'does not offer methods from restricted modules' do
     require 'irb'
     completer_test(self, nil, false).call("[].size.parse_printf_format")
   end

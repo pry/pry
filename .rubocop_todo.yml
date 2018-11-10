@@ -430,7 +430,7 @@ Layout/SpaceInsideStringInterpolation:
 # SupportedStyles: final_newline, final_blank_line
 Layout/TrailingBlankLines:
   Exclude:
-    - 'spec/exception_whitelist_spec.rb'
+    - 'spec/unrescued_exceptions_spec.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
