@@ -19,7 +19,8 @@ class Pry
   #   # In [4]:
   # @since v0.11.0
   # @api public
-  module Prompt
+  class Prompt < Struct.new(:name, :description, :value)
+
     # @return [String]
     DEFAULT_NAME = 'pry'.freeze
 
@@ -47,7 +48,7 @@ class Pry
       #   Returns true when 'obj' is an object created by the {Pry::Prompt.add} method.
       #
       def prompt_object?(obj)
-        obj.respond_to?(:keys) and obj.keys == [:description, :value]
+        Pry::Prompt === obj
       end
 
       # Retrieves a prompt.
@@ -89,12 +90,9 @@ class Pry
           raise ArgumentError, "separators size must be 2, given #{separators.size}"
         end
 
-        @prompts[prompt_name.to_s] = {
-          description: description,
-          value: separators.map do |sep|
-            proc { |context, nesting, _pry_| yield(context, nesting, _pry_, sep) }
-          end
-        }.freeze
+        @prompts[prompt_name.to_s] = new(prompt_name, description, separators.map { |sep|
+          proc { |context, nesting, _pry_| yield(context, nesting, _pry_, sep) }
+        })
 
         nil
       end
