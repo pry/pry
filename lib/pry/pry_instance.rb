@@ -77,7 +77,7 @@ class Pry
     target = options.delete(:target)
     @config = Pry::Config.new
     config.merge!(options)
-    push_prompt(config.prompt)
+    self.prompt = config.prompt
     @input_ring = Pry::Ring.new(config.memory_size)
     @output_ring = Pry::Ring.new(config.memory_size)
     @custom_completions = config.command_completions
