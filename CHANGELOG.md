@@ -1,8 +1,16 @@
 ### HEAD
 
-* Added support for `Pry.config.prompt = Pry::Prompt[:nav]` ([#1860](https://github.com/pry/pry/pull/1860/)).
-* Added support for `_pry_.prompt = Pry::Prompt[:simple]` ([#1860](https://github.com/pry/pry/pull/1860/)).
-* By default `Pry.config.prompt` returns a prompt object instead of a two proc array. ([#1860](https://github.com/pry/pry/pull/1860/)).
+* Added support for `Pry.config.prompt = Pry::Prompt[:nav]`
+  ([#1860](https://github.com/pry/pry/pull/1860/))
+
+* Added support for `_pry_.prompt = Pry::Prompt[:simple]`
+  ([#1860](https://github.com/pry/pry/pull/1860/))
+
+* Pry::Prompt[] returns an instance of `Pry::Prompt` instead of Hash.
+  ([#1860](https://github.com/pry/pry/pull/1860/))
+
+* By default `Pry.config.prompt` returns an instance of `Pry::Prompt` instead
+  of a two proc array. ([#1860](https://github.com/pry/pry/pull/1860/)).
 
 ### [v0.12.0][v0.12.0] (November 5, 2018)
 
