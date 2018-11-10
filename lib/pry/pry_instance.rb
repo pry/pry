@@ -124,7 +124,7 @@ class Pry
   end
 
   def prompt=(new_prompt)
-    procs = Pry::Prompt.prompt_object?(new_prompt) ? new_prompt[:value] : new_prompt
+    procs = Pry::Prompt === new_prompt ? new_prompt.value : new_prompt
     if prompt_stack.empty?
       push_prompt procs
     else

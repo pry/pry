@@ -37,20 +37,6 @@ class Pry
     @prompts = {}
 
     class << self
-      #
-      # @example
-      #   Pry::Prompt.prompt_object? Pry::Prompt[:nav] # => true
-      #   Pry::Prompt.prompt_object? 'foobar' # => false
-      #
-      # @param [Object] obj
-      #
-      # @return [Boolean]
-      #   Returns true when 'obj' is an object created by the {Pry::Prompt.add} method.
-      #
-      def prompt_object?(obj)
-        Pry::Prompt === obj
-      end
-
       # Retrieves a prompt.
       #
       # @example
