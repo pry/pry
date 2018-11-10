@@ -32,8 +32,8 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
   end
 
   def change_prompt(prompt)
-    if Pry::Prompt.all.key?(prompt)
-      _pry_.prompt = Pry::Prompt.all[prompt][:value]
+    if Pry::Prompt[prompt]
+      _pry_.prompt = Pry::Prompt[prompt]
     else
       raise(Pry::CommandError, <<MSG)
 '#{prompt}' isn't a known prompt. Run `change-prompt --list` to see
