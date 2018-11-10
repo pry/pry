@@ -6,7 +6,7 @@
 * Added support for `_pry_.prompt = Pry::Prompt[:simple]`
   ([#1860](https://github.com/pry/pry/pull/1860/))
 
-* Pry::Prompt[] returns an instance of `Pry::Prompt` instead of Hash.
+* Pry::Prompt[], Pry::Prompt.all return `Pry::Prompt` object(s) instead of Hash.
   ([#1860](https://github.com/pry/pry/pull/1860/))
 
 * By default `Pry.config.prompt` returns an instance of `Pry::Prompt` instead
