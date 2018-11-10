@@ -1,8 +1,14 @@
 class Pry
   class Config < Pry::BasicObject
+    # rubocop:disable Metrics/ModuleLength
     module Behavior
       ASSIGNMENT = "=".freeze
-      NODUP = [TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc].freeze
+
+      NODUP = [
+        TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc,
+        Pry::Prompt
+      ].freeze
+
       INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
       ReservedKeyError = Class.new(RuntimeError)
 
@@ -251,5 +257,6 @@ class Pry
         @lookup.delete(key)
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

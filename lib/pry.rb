@@ -110,6 +110,7 @@ require 'pry/commands'
 require 'pry/plugins'
 require 'pry/core_extensions'
 require 'pry/basic_object'
+require "pry/prompt"
 require 'pry/config/behavior'
 require 'pry/config/memoization'
 require 'pry/config/default'
@@ -125,7 +126,6 @@ require 'pry/editor'
 require 'pry/rubygem'
 require "pry/indent"
 require "pry/last_exception"
-require "pry/prompt"
 require "pry/inspector"
 require 'pry/object_path'
 require 'pry/output'

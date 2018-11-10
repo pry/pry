@@ -141,95 +141,95 @@ describe "test Pry defaults" do
     end
 
     it 'should set the prompt default, and the default should be overridable (single prompt)' do
-      Pry.prompt = proc { "test prompt> " }
-      new_prompt = proc { "A" }
+      Pry.prompt = Pry::Prompt.new(:test, '', Array.new(2) { proc { '>' } })
+      new_prompt = Pry::Prompt.new(:new_test, '', Array.new(2) { proc { 'A' } })
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
+      expect(get_prompts(pry)).to eq(%w[> >])
 
       pry = Pry.new(prompt: new_prompt)
-      expect(pry.prompt).to eq new_prompt
-      expect(get_prompts(pry)).to eq ["A", "A"]
+      expect(pry.prompt).to eq(new_prompt)
+      expect(get_prompts(pry)).to eq(%w[A A])
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt> "]
+      expect(get_prompts(pry)).to eq(%w[> >])
     end
 
     it 'should set the prompt default, and the default should be overridable (multi prompt)' do
-      Pry.prompt = [proc { "test prompt> " }, proc { "test prompt* " }]
-      new_prompt = [proc { "A" }, proc { "B" }]
+      Pry.prompt = Pry::Prompt.new(:test, '', [proc { '>' }, proc { '*' }])
+      new_prompt = Pry::Prompt.new(:new_test, '', [proc { 'A' }, proc { 'B' }])
 
       pry = Pry.new
       expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
+      expect(get_prompts(pry)).to eq(%w[> *])
 
       pry = Pry.new(prompt: new_prompt)
-      expect(pry.prompt).to eq new_prompt
-      expect(get_prompts(pry)).to eq ["A", "B"]
+      expect(pry.prompt).to eq(new_prompt)
+      expect(get_prompts(pry)).to eq(%w[A B])
 
       pry = Pry.new
-      expect(pry.prompt).to eq Pry.prompt
-      expect(get_prompts(pry)).to eq ["test prompt> ", "test prompt* "]
+      expect(pry.prompt).to eq(Pry.prompt)
+      expect(get_prompts(pry)).to eq(%w[> *])
     end
 
     describe 'storing and restoring the prompt' do
-      before do
-        make = lambda do |name,i|
-          prompt = [ proc { "#{i}>" } , proc { "#{i + 1}>" } ]
-          (class << prompt; self; end).send(:define_method, :inspect) { "<Prompt-#{name}>" }
-          prompt
-        end
-        @a , @b , @c = make[:a,0] , make[:b,1] , make[:c,2]
-        @pry = Pry.new prompt: @a
-      end
+      let(:prompt1) { Pry::Prompt.new(:test1, '', Array.new(2) { proc { '' } }) }
+      let(:prompt2) { Pry::Prompt.new(:test2, '', Array.new(2) { proc { '' } }) }
+      let(:prompt3) { Pry::Prompt.new(:test3, '', Array.new(2) { proc { '' } }) }
+
+      let(:pry) { Pry.new(prompt: prompt1) }
+
       it 'should have a prompt stack' do
-        @pry.push_prompt @b
-        @pry.push_prompt @c
-        expect(@pry.prompt).to eq @c
-        @pry.pop_prompt
-        expect(@pry.prompt).to eq @b
-        @pry.pop_prompt
-        expect(@pry.prompt).to eq @a
+        pry.push_prompt(prompt2)
+        pry.push_prompt(prompt3)
+        expect(pry.prompt).to eq(prompt3)
+        pry.pop_prompt
+        expect(pry.prompt).to match(prompt2)
+        pry.pop_prompt
+        expect(pry.prompt).to eq(prompt1)
       end
 
-      it 'should restore overridden prompts when returning from file-mode' do
-        pry = Pry.new(prompt: [ proc { 'P>' } ] * 2)
-        expect(pry.select_prompt).to eq "P>"
+      it 'should restore overridden prompts when returning from shell-mode' do
+        pry = Pry.new(
+          prompt: Pry::Prompt.new(:test, '', Array.new(2) { proc { 'P>' } })
+        )
+        expect(pry.select_prompt).to eq('P>')
         pry.process_command('shell-mode')
         expect(pry.select_prompt).to match(/\Apry .* \$ \z/)
         pry.process_command('shell-mode')
-        expect(pry.select_prompt).to eq "P>"
+        expect(pry.select_prompt).to eq('P>')
       end
 
       it '#pop_prompt should return the popped prompt' do
-        @pry.push_prompt @b
-        @pry.push_prompt @c
-        expect(@pry.pop_prompt).to eq @c
-        expect(@pry.pop_prompt).to eq @b
+        pry.push_prompt(prompt2)
+        pry.push_prompt(prompt3)
+        expect(pry.pop_prompt).to eq(prompt3)
+        expect(pry.pop_prompt).to eq(prompt2)
       end
 
       it 'should not pop the last prompt' do
-        @pry.push_prompt @b
-        expect(@pry.pop_prompt).to eq @b
-        expect(@pry.pop_prompt).to eq @a
-        expect(@pry.pop_prompt).to eq @a
-        expect(@pry.prompt).to eq @a
+        pry.push_prompt(prompt2)
+        expect(pry.pop_prompt).to eq(prompt2)
+        expect(pry.pop_prompt).to eq(prompt1)
+        expect(pry.pop_prompt).to eq(prompt1)
+        expect(pry.prompt).to eq(prompt1)
       end
 
       describe '#prompt= should replace the current prompt with the new prompt' do
         it 'when only one prompt on the stack' do
-          @pry.prompt = @b
-          expect(@pry.prompt).to eq @b
-          expect(@pry.pop_prompt).to eq @b
-          expect(@pry.pop_prompt).to eq @b
+          pry.prompt = prompt2
+          expect(pry.prompt).to eq(prompt2)
+          expect(pry.pop_prompt).to eq(prompt2)
+          expect(pry.pop_prompt).to eq(prompt2)
         end
+
         it 'when several prompts on the stack' do
-          @pry.push_prompt @b
-          @pry.prompt = @c
-          expect(@pry.pop_prompt).to eq @c
-          expect(@pry.pop_prompt).to eq @a
+          pry.push_prompt(prompt2)
+          pry.prompt = prompt3
+          expect(pry.pop_prompt).to eq(prompt3)
+          expect(pry.pop_prompt).to eq(prompt1)
         end
       end
     end

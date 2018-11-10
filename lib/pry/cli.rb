@@ -180,11 +180,11 @@ Pry::CLI.add_options do
   end
 
   on "simple-prompt", "Enable simple prompt mode" do
-    Pry.config.prompt = Pry::Prompt[:simple][:value]
+    Pry.config.prompt = Pry::Prompt[:simple]
   end
 
   on "noprompt", "No prompt mode" do
-    Pry.config.prompt = Pry::Prompt[:none][:value]
+    Pry.config.prompt = Pry::Prompt[:none]
   end
 
   on :r, :require=, "`require` a Ruby script at startup" do |file|
