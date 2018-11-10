@@ -75,6 +75,16 @@ class Pry
         end
       end
 
+      #
+      # @param [Object] obj
+      #
+      # @return [Boolean]
+      #   Returns true when 'obj' is an object created by the {Pry::Prompt.add} method.
+      #
+      def prompt_object?(obj)
+        obj.respond_to?(:keys) and obj.keys == [:description, :value]
+      end
+
       # Retrieves a prompt.
       #
       # @example

@@ -33,12 +33,7 @@ class Pry
     end
 
     def prompt=(obj)
-      is_prompt_object = lambda do |prompt|
-        ::Hash === prompt and
-        prompt.key?(:description) and
-        prompt.key?(:value)
-      end
-      super(is_prompt_object.call(obj) ? obj[:value] : obj)
+      super(Pry::Prompt.prompt_object?(obj) ? obj[:value] : obj)
     end
   end
 end
