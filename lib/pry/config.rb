@@ -31,9 +31,5 @@ class Pry
     def self.shortcuts
       Convenience::SHORTCUTS
     end
-
-    def prompt=(obj)
-      super(Pry::Prompt.prompt_object?(obj) ? obj[:value] : obj)
-    end
   end
 end
