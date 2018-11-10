@@ -76,6 +76,10 @@ class Pry
       end
 
       #
+      # @example
+      #   Pry::Prompt.prompt_object? Pry::Prompt[:nav] # => true
+      #   Pry::Prompt.prompt_object? 'foobar' # => false
+      #
       # @param [Object] obj
       #
       # @return [Boolean]
