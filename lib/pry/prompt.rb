@@ -117,7 +117,7 @@ class Pry
       "A prompt that displays the binding stack as a path and includes information \n" \
       "about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.",
       %w[> *]
-    ) do |context, nesting, _pry_, sep|
+    ) do |_context, _nesting, _pry_, sep|
       tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }
       format(
         "[%<in_count>s] (%<name>s) %<tree>s: %<stack_size>s%<separator>s ",
@@ -133,7 +133,7 @@ class Pry
       'shell',
       'A prompt that displays `$PWD` as you change it.',
       %w[$ *]
-    ) do |context, nesting, _pry_, sep|
+    ) do |context, _nesting, _pry_, sep|
       format(
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
         name: prompt_name(_pry_.config.prompt_name),

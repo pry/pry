@@ -7,19 +7,19 @@ describe Pry do
     end
 
     it "should catch serialization exceptions" do
-      Pry.config.print = lambda { |*a| raise "catch-22" }
+      Pry.config.print = proc { raise "catch-22" }
 
       expect { mock_pry("1") }.to_not raise_error
     end
 
     it "should display serialization exceptions" do
-      Pry.config.print = lambda { |*a| raise "catch-22" }
+      Pry.config.print = proc { raise "catch-22" }
 
       expect(mock_pry("1")).to match(/\(pry\) output error: #<RuntimeError: catch-22>/)
     end
 
     it "should catch errors serializing exceptions" do
-      Pry.config.print = lambda do |*a|
+      Pry.config.print = proc do
         ex = Exception.new("catch-22")
         class << ex
           def inspect; raise ex; end

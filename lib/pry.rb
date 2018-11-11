@@ -7,14 +7,14 @@ require 'pry/hooks'
 
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
-  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |out, target, _pry_|
+  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |_out, _target, _pry_|
     next if _pry_.quiet?
 
     _pry_.run_command("whereami --quiet")
   end
 
   # The default print
-  DEFAULT_PRINT = proc do |output, value, _pry_|
+  DEFAULT_PRINT = proc do |_output, value, _pry_|
     _pry_.pager.open do |pager|
       pager.print _pry_.config.output_prefix
       Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)

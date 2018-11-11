@@ -34,7 +34,7 @@ class Pry
     # @return [Pry:Hooks] The receiver.
     # @see #merge
     def merge!(other)
-      @hooks.merge!(other.dup.hooks) do |key, array, other_array|
+      @hooks.merge!(other.dup.hooks) do |_key, array, other_array|
         temp_hash, output = {}, []
 
         (array + other_array).reverse_each do |pair|
@@ -79,7 +79,7 @@ class Pry
       end
 
       # ensure we only have one anonymous hook
-      @hooks[event_name].delete_if { |h, k| h.nil? } if hook_name.nil?
+      @hooks[event_name].delete_if { |h, _k| h.nil? } if hook_name.nil?
 
       if block
         @hooks[event_name] << [hook_name, block]
@@ -95,7 +95,7 @@ class Pry
     # @param [Array] args The arguments to pass to each hook function.
     # @return [Object] The return value of the last executed hook.
     def exec_hook(event_name, *args, &block)
-      @hooks[event_name.to_s].map do |hook_name, callable|
+      @hooks[event_name.to_s].map do |_hook_name, callable|
         begin
           callable.call(*args, &block)
         rescue RescuableException => e
@@ -115,7 +115,7 @@ class Pry
     # @param [Symbol] hook_name The name of the hook
     # @return [#call] a specific hook for a given event.
     def get_hook(event_name, hook_name)
-      hook = @hooks[event_name.to_s].find do |current_hook_name, callable|
+      hook = @hooks[event_name.to_s].find do |current_hook_name, _callable|
         current_hook_name == hook_name
       end
       hook.last if hook

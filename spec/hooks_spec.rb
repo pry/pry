@@ -309,7 +309,7 @@ describe Pry::Hooks do
     describe "when_started hook" do
       it 'should yield options to the hook' do
         options = nil
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| options = opt }
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_target, opt, _| options = opt }
 
         redirect_pry_io(StringIO.new("exit"), StringIO.new) do
           Pry.start binding, hello: :baby
@@ -323,7 +323,7 @@ describe Pry::Hooks do
       describe "target" do
         it 'should yield the target, as a binding ' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
+          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, _opt, _| b = target }
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, hello: :baby
@@ -335,7 +335,7 @@ describe Pry::Hooks do
 
         it 'should yield the target to the hook' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _| b = target }
+          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, _opt, _| b = target }
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, hello: :baby
@@ -350,7 +350,7 @@ describe Pry::Hooks do
         o = Object.new
         class << o; attr_accessor :value; end
 
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
+        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_target, _opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
 
         redirect_pry_io(InputTester.new("@value = true","exit-all")) do
           Pry.start binding, hello: :baby
@@ -393,7 +393,7 @@ describe Pry::Hooks do
       describe "before_eval hook" do
         describe "modifying input code" do
           it 'should replace input code with code determined by hook' do
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
+            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, _pry| code.replace(":little_duck") }
             redirect_pry_io(InputTester.new(":jemima", "exit-all"), out = StringIO.new) do
               Pry.start(self, hooks: hooks)
             end
@@ -410,7 +410,7 @@ describe Pry::Hooks do
               end
             end
 
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, pry| code.replace(":little_duck") }
+            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, _pry| code.replace(":little_duck") }
 
             redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
               Pry.start(self, hooks: hooks, commands: commands)

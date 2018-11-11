@@ -87,7 +87,7 @@ describe "test Pry defaults" do
   end
 
   it "should set the print default, and the default should be overridable" do
-    new_print = proc { |out, value| out.puts "=> LOL" }
+    new_print = proc { |out, _value| out.puts "=> LOL" }
     Pry.config.print = new_print
 
     expect(Pry.new.print).to eq Pry.config.print

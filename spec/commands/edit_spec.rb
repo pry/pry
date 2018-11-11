@@ -74,7 +74,7 @@ describe "edit" do
 
     if respond_to?(:require_relative, true)
       it "should work with require relative" do
-        Pry.config.editor = lambda { |file, line|
+        Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << 'require_relative "baz.rb"' }
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w') { |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
           nil
@@ -87,7 +87,7 @@ describe "edit" do
     describe do
       before do
         Pad.counter = 0
-        Pry.config.editor = lambda { |file, line|
+        Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << "Pad.counter = Pad.counter + 1" }
           nil
         }
@@ -186,7 +186,7 @@ describe "edit" do
       end
 
       it "should reload the file" do
-        Pry.config.editor = lambda { |file, line|
+        Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << "FOO = 'BAR'" }
           nil
         }
@@ -220,7 +220,7 @@ describe "edit" do
       end
 
       it "should not reload the file if -n is passed" do
-        Pry.config.editor = lambda { |file, line|
+        Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << "FOO2 = 'BAZ'" }
           nil
         }
@@ -235,7 +235,7 @@ describe "edit" do
       describe "with --patch" do
         # Original source code must be untouched.
         it "should apply changes only in memory (monkey patching)" do
-          Pry.config.editor = lambda { |file, line|
+          Pry.config.editor = lambda { |file, _line|
             File.open(file, 'w') { |f| f << "FOO3 = 'PIYO'" }
             @patched_def = File.open(file, 'r').read
             nil
@@ -332,7 +332,7 @@ describe "edit" do
     end
 
     it "should evaluate the expression" do
-      Pry.config.editor = lambda { |file, line|
+      Pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -341,7 +341,7 @@ describe "edit" do
     end
 
     it "should ignore -n for tempfiles" do
-      Pry.config.editor = lambda { |file, line|
+      Pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -350,7 +350,7 @@ describe "edit" do
     end
 
     it "should not evaluate a file with -n" do
-      Pry.config.editor = lambda { |file, line|
+      Pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -365,7 +365,7 @@ describe "edit" do
 
     it "should write the evaluated command to history" do
       quote = 'history repeats itself, first as tradegy...'
-      Pry.config.editor = lambda { |file, line|
+      Pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f|
           f << quote
         }
@@ -408,7 +408,7 @@ describe "edit" do
 
   describe 'when editing a method by name' do
     def use_editor(tester, options)
-      tester.pry.config.editor = lambda do |filename, line|
+      tester.pry.config.editor = lambda do |filename, _line|
         File.open(filename, 'w') { |f| f.write options.fetch(:replace_all) }
         nil
       end
@@ -557,7 +557,7 @@ describe "edit" do
 
       describe 'with -p' do
         before do
-          Pry.config.editor = lambda do |file, line|
+          Pry.config.editor = lambda do |file, _line|
             lines = File.read(file).lines.to_a
             lines[1] = if lines[2] =~ /end/
                          ":maybe\n"
@@ -708,7 +708,7 @@ describe "edit" do
 
       describe 'on an aliased method' do
         before do
-          Pry.config.editor = lambda do |file, line|
+          Pry.config.editor = lambda do |file, _line|
             lines = File.read(file).lines.to_a
             lines[1] = '"#{super}aa".to_sym' + "\n"
             File.open(file, 'w') do |f|

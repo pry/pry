@@ -191,7 +191,7 @@ Pry::CLI.add_options do
     Pry.config.requires << file
   end
 
-  on :I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":" do |load_path|
+  on(:I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":") do
     load_path.map! do |path|
       /\A\.\// =~ path ? path : File.expand_path(path)
     end
@@ -199,7 +199,7 @@ Pry::CLI.add_options do
     $LOAD_PATH.unshift(*load_path)
   end
 
-  on "gem", "Shorthand for -I./lib -rgemname" do |load_path|
+  on "gem", "Shorthand for -I./lib -rgemname" do |_load_path|
     $LOAD_PATH.unshift("./lib")
     Dir["./lib/*.rb"].each do |file|
       Pry.config.requires << file

@@ -41,7 +41,7 @@ describe Pry::Editor do
 
   describe 'invoke_editor with a proc' do
     it 'should not shell-escape files' do
-      editor = Pry::Editor.new(Pry.new(editor: proc { |file, line, blocking|
+      editor = Pry::Editor.new(Pry.new(editor: proc { |file, _line, _blocking|
         @file = file
         nil
       }))

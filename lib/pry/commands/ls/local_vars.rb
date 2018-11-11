@@ -19,7 +19,7 @@ class Pry
       private
 
       def format(name_value_pairs)
-        name_value_pairs.sort_by { |name, value|
+        name_value_pairs.sort_by { |_name, value|
           value.to_s.size
         }.reverse.map { |name, value|
           colorized_assignment_style(name, format_value(value))
