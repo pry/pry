@@ -45,7 +45,7 @@ class Pry::Slop
         integer: proc { |v| value_to_integer(v) },
         float: proc { |v| value_to_float(v) },
         range: proc { |v| value_to_range(v) },
-        count: proc { |_v| @count }
+        count: proc { @count }
       }
 
       if long && long.size > @slop.config[:longest_flag]

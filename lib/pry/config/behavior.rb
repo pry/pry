@@ -163,8 +163,8 @@ class Pry
 
       def eager_load!
         default = @default
-        while default
-          default.memoized_methods.each { |_method| self[key] = default.public_send(key) } if default.respond_to?(:memoized_methods)
+        while default && default.respond_to?(:memoized_methods)
+          default.memoized_methods.each { self[key] = default.public_send(key) }
           default = @default.default
         end
       end
