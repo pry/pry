@@ -155,7 +155,7 @@ class Pry
         owner: "\n#{bold("Owner:")} #{code_object.owner || "N/A"}\n",
         visibility: "#{bold("Visibility:")} #{code_object.visibility}",
         signature: "\n#{bold("Signature:")} #{code_object.signature}"
-      }.merge(header_options) { |key, old, new| (new && old).to_s }
+      }.merge(header_options) { |_key, old, new| (new && old).to_s }
     end
 
     def header_options

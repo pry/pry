@@ -19,7 +19,7 @@ module Pry::Command::Ls::JRubyHacks
       m.name.sub(/\A(is|get|set)(?=[A-Z_])/, '').gsub(/[_?=]/, '').downcase
     end
 
-    grouped.flat_map do |key, values|
+    grouped.flat_map do |_key, values|
       values = values.sort_by do |m|
         rubbishness(m.name)
       end

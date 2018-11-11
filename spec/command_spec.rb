@@ -465,7 +465,7 @@ describe "Pry::Command" do
     describe "block-related content removed from arguments" do
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
-          @set.block_command "walking-spanish", "down the hall", takes_block: true do |x, y|
+          @set.block_command "walking-spanish", "down the hall", takes_block: true do |x, _y|
             insert_variable(:@arg_string, arg_string, target)
             insert_variable(:@x, x, target)
           end

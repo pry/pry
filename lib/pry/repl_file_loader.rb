@@ -34,7 +34,7 @@ class Pry
     # @param [Pry] _pry_ the Pry instance to make non-interactive.
     def non_interactive_mode(_pry_, content)
       _pry_.print = proc {}
-      _pry_.exception_handler = proc do |o, e, _p_|
+      _pry_.exception_handler = proc do |o, _e, _p_|
         _p_.run_command "cat --ex"
         o.puts "...exception encountered, going interactive!"
         interactive_mode(_pry_)

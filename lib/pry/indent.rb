@@ -145,7 +145,7 @@ class Pry
       input.lines.each do |line|
         if in_string?
           tokens = tokenize("#{open_delimiters_line}\n#{line}")
-          tokens = tokens.drop_while { |token, type| !(String === token && token.include?("\n")) }
+          tokens = tokens.drop_while { |token, _type| !(String === token && token.include?("\n")) }
           previously_in_string = true
         else
           tokens = tokenize(line)

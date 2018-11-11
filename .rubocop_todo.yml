@@ -504,12 +504,6 @@ Lint/ShadowedException:
 Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
-# Offense count: 49
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Enabled: false
-
 # Offense count: 1
 Lint/UselessAssignment:
   Exclude:
