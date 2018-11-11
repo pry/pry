@@ -28,7 +28,7 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
       "#{bold(name)}#{red(' (selected)') if _pry_.prompt == prompt[:value]}\n" +
         prompt[:description]
     end
-    output.puts(prompts.join("\n"))
+    output.puts(prompts.join("\n" * 2))
   end
 
   def change_prompt(prompt)
