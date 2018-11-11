@@ -215,7 +215,7 @@ describe "edit" do
           Object.new.pry
         end
 
-        expect(source_location).to eq [@path, 3]
+        expect(source_location).to contain_exactly(%r{(/private)?#{@path}}, 3)
         Pad.clear
       end
 
@@ -521,34 +521,36 @@ describe "edit" do
           end
         end
 
+        # Workaround for https://github.com/jruby/jruby/issues/5436.
+        let(:expected_file) { %r{(/private)?#{@tempfile_path}} }
+
         it "should correctly find a class method" do
           pry_eval 'edit X.x'
-
-          expect(@file).to eq @tempfile_path
+          expect(@file).to match(expected_file)
           expect(@line).to eq 14
         end
 
         it "should correctly find an instance method" do
           pry_eval 'edit X#x'
-          expect(@file).to eq @tempfile_path
+          expect(@file).to match(expected_file)
           expect(@line).to eq 18
         end
 
         it "should correctly find a method on an instance" do
           pry_eval 'x = X.new', 'edit x.x'
-          expect(@file).to eq @tempfile_path
+          expect(@file).to match(expected_file)
           expect(@line).to eq 18
         end
 
         it "should correctly find a method from a module" do
           pry_eval 'edit X#a'
-          expect(@file).to eq @tempfile_path
+          expect(@file).to match(expected_file)
           expect(@line).to eq 2
         end
 
         it "should correctly find an aliased method" do
           pry_eval 'edit X#c'
-          expect(@file).to eq @tempfile_path
+          expect(@file).to match(expected_file)
           expect(@line).to eq 22
         end
       end
