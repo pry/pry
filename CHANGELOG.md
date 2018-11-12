@@ -1,5 +1,14 @@
 ### HEAD
 
+### [v0.12.1][v0.12.1] (November 12, 2018)
+
+#### Bug fixes
+
+* Stopped creating a new hash each time `Pry::Prompt#[]` is invoked
+  ([#1855](https://github.com/pry/pry/pull/1855))
+* Fixed `less` pager not working when it's available
+  ([#1861](https://github.com/pry/pry/pull/1861))
+
 ### [v0.12.0][v0.12.0] (November 5, 2018)
 
 #### Major changes
@@ -933,3 +942,4 @@ complete CHANGELOG:
 * release!
 
 [v0.12.0]: https://github.com/pry/pry/releases/tag/v0.12.0
+[v0.12.1]: https://github.com/pry/pry/releases/tag/v0.12.1
