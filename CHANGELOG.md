@@ -1,5 +1,12 @@
 ### HEAD
 
+### [v0.12.2][v0.12.2] (November 12, 2018)
+
+#### Bug fixes
+
+* Restore removed deprecations, which were removed by accident due to a bad
+  rebase.
+
 ### [v0.12.1][v0.12.1] (November 12, 2018)
 
 #### Bug fixes
@@ -943,3 +950,4 @@ complete CHANGELOG:
 
 [v0.12.0]: https://github.com/pry/pry/releases/tag/v0.12.0
 [v0.12.1]: https://github.com/pry/pry/releases/tag/v0.12.1
+[v0.12.2]: https://github.com/pry/pry/releases/tag/v0.12.2
