@@ -35,10 +35,8 @@ class Pry::Command::ChangePrompt < Pry::ClassCommand
     if Pry::Prompt.all.key?(prompt)
       _pry_.prompt = Pry::Prompt.all[prompt][:value]
     else
-      raise(Pry::CommandError, <<MSG)
-'#{prompt}' isn't a known prompt. Run `change-prompt --list` to see
-the list of known prompts.
-MSG
+      raise Pry::CommandError, "'#{prompt}' isn't a known prompt. " \
+                               "Run `change-prompt --list` to see the list of known prompts."
     end
   end
 
