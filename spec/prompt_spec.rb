@@ -3,36 +3,42 @@ require_relative 'helper'
 describe Pry::Prompt do
   describe ".[]" do
     it "accesses prompts" do
-      expect(subject[:default]).not_to be_nil
+      expect(described_class[:default]).not_to be_nil
     end
   end
 
   describe ".all" do
     it "returns a hash with prompts" do
-      expect(subject.all).to be_a(Hash)
+      expect(described_class.all).to be_a(Hash)
     end
 
     it "returns a duplicate of original prompts" do
-      subject.all[:foobar] = Object.new
-      expect(subject[:foobar]).to be_nil
+      described_class.all['foobar'] = Object.new
+      expect(described_class['foobar']).to be_nil
     end
   end
 
   describe ".add" do
-    after { described_class.instance_variable_get(:@prompts).delete(:my_prompt) }
+    after { described_class.instance_variable_get(:@prompts).delete('my_prompt') }
 
     it "adds a new prompt" do
-      subject.add(:my_prompt)
-      expect(subject[:my_prompt]).to be_a(Hash)
+      described_class.add(:my_prompt)
+      expect(described_class[:my_prompt]).to be_a(Hash)
     end
 
     it "raises error when separators.size != 2" do
-      expect { subject.add(:my_prompt, '', [1, 2, 3]) }
-        .to raise_error(ArgumentError)
+      expect { described_class.add(:my_prompt, '', [1, 2, 3]) }
+        .to raise_error(ArgumentError, /separators size must be 2/)
+    end
+
+    it "raises error on adding a prompt with the same name" do
+      described_class.add(:my_prompt)
+      expect { described_class.add(:my_prompt) }
+        .to raise_error(ArgumentError, /the 'my_prompt' prompt was already added/)
     end
 
     it "returns nil" do
-      expect(subject.add(:my_prompt)).to be_nil
+      expect(described_class.add(:my_prompt)).to be_nil
     end
   end
 
@@ -115,7 +121,7 @@ describe Pry::Prompt do
     end
     config._pry_.config.prompt_name = Pry.lazy { enum.next }
 
-    proc = subject[:default][:value].first
+    proc = described_class[:default][:value].first
     expect(proc.call(Object.new, 1, config._pry_)).to eq('[1] 101(#<Object>):1> ')
     expect(proc.call(Object.new, 1, config._pry_)).to eq('[1] 102(#<Object>):1> ')
   end
