@@ -37,11 +37,11 @@ class Pry
       # @example
       #   Prompt[:my_prompt][:value]
       #
-      # @param [Symbol] prompt_name The name of the prompt you want to access
+      # @param [Symbol] name The name of the prompt you want to access
       # @return [Hash{Symbol=>Object}]
       # @since v0.12.0
-      def [](prompt_name)
-        @prompts[prompt_name.to_s]
+      def [](name)
+        @prompts[name.to_s]
       end
 
       # @return [Hash{Symbol=>Hash}] the duplicate of the internal prompts hash
@@ -53,7 +53,7 @@ class Pry
 
       # Adds a new prompt to the prompt hash.
       #
-      # @param [Symbol] prompt_name
+      # @param [Symbol] name
       # @param [String] description
       # @param [Array<String>] separators The separators to differentiate
       #   between prompt modes (default mode and class/method definition mode).
@@ -65,13 +65,20 @@ class Pry
       # @yieldparam separator [String] separator string
       # @return [nil]
       # @raise [ArgumentError] if the size of `separators` is not 2
+      # @raise [ArgumentError] if `prompt_name` is already occupied
       # @since v0.12.0
-      def add(prompt_name, description = '', separators = %w[> *])
+      def add(name, description = '', separators = %w[> *])
+        name = name.to_s
+
         unless separators.size == 2
           raise ArgumentError, "separators size must be 2, given #{separators.size}"
         end
 
-        @prompts[prompt_name.to_s] = {
+        if @prompts.key?(name)
+          raise ArgumentError, "the '#{name}' prompt was already added"
+        end
+
+        @prompts[name] = {
           description: description,
           value: separators.map do |sep|
             proc { |context, nesting, _pry_| yield(context, nesting, _pry_, sep) }
