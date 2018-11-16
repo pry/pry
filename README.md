@@ -1,20 +1,23 @@
+Pry
+===
+
 [![Circle Build Status](https://circleci.com/gh/pry/pry.svg?style=shield)](https://circleci.com/gh/pry/pry)
 [![Code Climate](https://codeclimate.com/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
 [![Gem Version](https://badge.fury.io/rb/pry.svg)](http://badge.fury.io/rb/pry)
 [![Documentation Status](http://inch-ci.org/github/pry/pry.svg?branch=master)](http://inch-ci.org/github/pry/pry)
 [![Downloads](https://img.shields.io/gem/dt/pry.svg?style=flat)](https://rubygems.org/gems/pry)
-<br><br>
-![logo for Pry](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
-**Other Resources**
+![Pry logo](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
-[Skip to the website (recommended)](http://pryrepl.org/) <br />
-[Skip to the wiki](https://github.com/pry/pry/wiki)
+* http://pryrepl.org/
+* [YARD API documentation](http://www.rubydoc.info/gems/pry)
+* [Wiki](https://github.com/pry/pry/wiki)
 
+Introduction
+------------
 
-Pry is a powerful alternative to the standard IRB shell for Ruby. It is
-written from scratch to provide a number of advanced features,
-including:
+Pry is a powerful runtime developer console and IRB alternative for Ruby. It
+provides a number of advanced features, including:
 
 * Source code browsing (including core C source with the pry-doc gem)
 * Documentation browsing
