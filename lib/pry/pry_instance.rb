@@ -58,7 +58,7 @@ class Pry
   #   The object to use for commands.
   # @option options [Hash] :hooks
   #   The defined hook Procs.
-  # @option options [Array<Proc>] :prompt
+  # @option options [Pry::Prompt] :prompt
   #   The array of Procs to use for prompts.
   # @option options [Proc] :print
   #   The Proc to use for printing return values.
@@ -85,14 +85,18 @@ class Pry
     @input_ring << nil
     push_initial_binding(target)
     exec_hook(:when_started, target, options, self)
+    @prompt_warn = false
   end
 
   # This is the prompt at the top of the prompt stack.
-  # @return [Array<Proc>] the current prompt
+  # @return [Pry::Prompt] the current prompt
   def prompt
     prompt_stack.last
   end
 
+  # Sets the Pry prompt.
+  # @param [Pry::Prompt] new_prompt
+  # @return [void]
   def prompt=(new_prompt)
     if prompt_stack.empty?
       push_prompt new_prompt
@@ -548,6 +552,22 @@ class Pry
       })
 
     Pry.critical_section do
+      # If input buffer is empty, then use normal prompt. Otherwise use the wait
+      # prompt (indicating multi-line expression).
+      if prompt.is_a?(Pry::Prompt)
+        prompt_proc = eval_string.empty? ? prompt.wait_proc : prompt.incomplete_proc
+        return prompt_proc.call(c.object, c.nesting_level, c._pry_)
+      end
+
+      unless @prompt_warn
+        @prompt_warn = true
+        output.warn(
+          "warning: setting prompt with help of " \
+          "`Pry.config.prompt = [proc {}, proc {}]` is deprecated. " \
+          "Use Pry::Prompt API instead"
+        )
+      end
+
       # If input buffer is empty then use normal prompt
       if eval_string.empty?
         generate_prompt(Array(prompt).first, c)
@@ -575,27 +595,28 @@ class Pry
 
   # Pushes the current prompt onto a stack that it can be restored from later.
   # Use this if you wish to temporarily change the prompt.
-  # @param [Array<Proc>] new_prompt
-  # @return [Array<Proc>] new_prompt
+  #
   # @example
-  #    new_prompt = [ proc { '>' }, proc { '>>' } ]
-  #    push_prompt(new_prompt) # => new_prompt
+  #   push_prompt(Pry::Prompt[:my_prompt])
+  #
+  # @param [Pry::Prompt] new_prompt
+  # @return [Pry::Prompt] new_prompt
   def push_prompt(new_prompt)
     prompt_stack.push new_prompt
   end
 
-  # Pops the current prompt off of the prompt stack.
-  # If the prompt you are popping is the last prompt, it will not be popped.
-  # Use this to restore the previous prompt.
-  # @return [Array<Proc>] Prompt being popped.
+  # Pops the current prompt off of the prompt stack. If the prompt you are
+  # popping is the last prompt, it will not be popped. Use this to restore the
+  # previous prompt.
+  #
   # @example
-  #    prompt1 = [ proc { '>' }, proc { '>>' } ]
-  #    prompt2 = [ proc { '$' }, proc { '>' } ]
-  #    pry = Pry.new :prompt => prompt1
-  #    pry.push_prompt(prompt2)
+  #    pry = Pry.new(prompt: Pry::Prompt[:my_prompt1])
+  #    pry.push_prompt(Pry::Prompt[:my_prompt2])
   #    pry.pop_prompt # => prompt2
   #    pry.pop_prompt # => prompt1
   #    pry.pop_prompt # => prompt1
+  #
+  # @return [Pry::Prompt] the prompt being popped
   def pop_prompt
     prompt_stack.size > 1 ? prompt_stack.pop : prompt
   end

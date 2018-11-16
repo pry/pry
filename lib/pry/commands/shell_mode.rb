@@ -13,7 +13,7 @@ class Pry
 
       if state.disabled
         state.prev_prompt = _pry_.prompt
-        _pry_.prompt = Pry::Prompt[:shell][:value]
+        _pry_.prompt = Pry::Prompt[:shell]
       else
         _pry_.prompt = state.prev_prompt
       end
