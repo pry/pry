@@ -13,7 +13,7 @@ class Pry
         # Don't catch signals (particularly not SIGTERM) as these are unlikely
         # to be intended for pry itself. We should also make sure that
         # Kernel#exit works.
-      when *Pry.config.exception_whitelist
+      when *Pry.config.unrescued_exceptions
         false
         # All other exceptions will be caught.
       else
@@ -57,9 +57,15 @@ class Pry
   end
 
   # Don't catch these exceptions
-  DEFAULT_EXCEPTION_WHITELIST = [SystemExit,
-                                 SignalException,
-                                 Pry::TooSafeException]
+  DEFAULT_UNRESCUED_EXCEPTIONS = [SystemExit,
+                                  SignalException,
+                                  Pry::TooSafeException]
+  DEFAULT_EXCEPTION_WHITELIST = DEFAULT_UNRESCUED_EXCEPTIONS
+  if Object.respond_to?(:deprecate_constant)
+    deprecate_constant :DEFAULT_EXCEPTION_WHITELIST
+  else
+    warn('DEFAULT_EXCEPTION_WHITELIST is deprecated and will be removed in a future version of Pry. Please use DEFAULT_UNRESCUED_EXCEPTIONS instead.')
+  end
 
   # CommandErrors are caught by the REPL loop and displayed to the user. They
   # indicate an exceptional condition that's fatal to the current command.

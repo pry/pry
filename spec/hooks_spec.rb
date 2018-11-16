@@ -366,8 +366,8 @@ describe Pry::Hooks do
         o = Pry::Config.new
         o.great_escape = Class.new(StandardError)
 
-        old_ew = Pry.config.exception_whitelist
-        Pry.config.exception_whitelist << o.great_escape
+        old_ew = Pry.config.unrescued_exceptions
+        Pry.config.unrescued_exceptions << o.great_escape
 
         array = [1, 2, 3, 4, 5]
 
@@ -387,7 +387,7 @@ describe Pry::Hooks do
         expect(array).to eq nil
 
         # cleanup after test
-        Pry.config.exception_whitelist = old_ew
+        Pry.config.unrescued_exceptions = old_ew
       end
 
       describe "before_eval hook" do

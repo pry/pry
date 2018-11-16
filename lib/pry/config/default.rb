@@ -32,8 +32,12 @@ class Pry
         exception_handler: proc {
           Pry::DEFAULT_EXCEPTION_HANDLER
         },
+        unrescued_exceptions: proc {
+          Pry::DEFAULT_UNRESCUED_EXCEPTIONS
+        },
         exception_whitelist: proc {
-          Pry::DEFAULT_EXCEPTION_WHITELIST
+          warn 'Pry.config.exception_whitelist is deprecated, please use Pry.config.unrescued_exceptions instead.'
+          Pry::DEFAULT_UNRESCUED_EXCEPTIONS
         },
         hooks: proc {
           Pry::DEFAULT_HOOKS

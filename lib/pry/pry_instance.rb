@@ -314,7 +314,7 @@ class Pry
       # as an additional exception to be rescued explicitly.
       #
       # This workaround has a side effect: java exceptions specified
-      # in `Pry.config.exception_whitelist` are ignored.
+      # in `Pry.config.unrescued_exceptions` are ignored.
       jruby_exceptions = []
       if Helpers::Platform.jruby?
         jruby_exceptions << Java::JavaLang::Exception
