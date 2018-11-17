@@ -1,13 +1,74 @@
 ### master
 
+#### Features
+
+* Added metadata to the gem (such as changelog URI, source code URI & bug
+  tracker URI), so it shows on https://rubygems.org/gems/pry
+  ([#1869](https://github.com/pry/pry/pull/1869))
+* Added ability to forward ARGV to a Pry session via `--` (or `-`) when
+  launching Pry from shell
+  ([#1902](https://github.com/pry/pry/commit/5cd65d3c0eb053f6edcdf571eea5d0cd990626ed))
+
+#### API changes
+
+* `Pry::Prompt` is a class now and it can be instantiated to create new prompts
+  on the fly that are not registered with `Pry::Prompt#add`. Learn more about
+  its API in the docs ([#1877](https://github.com/pry/pry/pull/1877))
+
+#### Deprecations
+
+* Deprecated `Pry.config.exception_whitelist` in favor of
+  `Pry.config.unrescued_exceptions`
+  ([#1874](https://github.com/pry/pry/pull/1874))
+* Deprecated `Pry.config.prompt = Pry::Prompt[:simple][:value]` in favor of
+  `Pry.config.prompt = Pry::Prompt[:simple]` when setting Pry prompt via
+  `pryrc`. `Pry::Prompt[:simple]` would return an instance of `Pry::Prompt`
+  instead of `Hash` ([#1877](https://github.com/pry/pry/pull/1877))
+* Deprecated setting prompt via an array of two procs:
+  ([#1877](https://github.com/pry/pry/pull/1877))
+
+  ```ruby
+  # Deprecated, emits a warning.
+  Pry.config.prompt = [proc {}, proc {}]
+  ```
+
+  This will be removed in the next release.
 * Deprecated the `show-doc` command. The `show-source -d` is the new recommended
   way of reading docs ([#1934](https://github.com/pry/pry/pull/1934))
+
+#### Breaking changes
+
+* Deleted deprecated `Pry::Platform`
+  ([#1863](https://github.com/pry/pry/pull/1863))
+* Deleted deprecated `Pry#{input/output}_array`
+  ([#1884](https://github.com/pry/pry/pull/1864))
+* Deleted deprecated `Pry::Prompt::MAP`
+  ([#1866](https://github.com/pry/pry/pull/1866))
+* Deleted deprecated methods of `Pry::Helpers::BaseHelpers` such as `mac_osx?`,
+  `linux?`, `windows?`, `windows_ansi?`, `jruby?`, `jruby_19?`, `mri?`,
+  `mri_19?`, `mri_2?` ([#1867](https://github.com/pry/pry/pull/1867))
+* Deleted deprecated `Pry::Command#text`
+  ([#1865](https://github.com/pry/pry/pull/1865))
+* Deleted deprecated `Pry::Method#all_from_common`
+  ([#1868](https://github.com/pry/pry/pull/1868))
 * Deleted `install-command` ([#1979](https://github.com/pry/pry/pull/1979))
 * Deleted `Pry::Helpers::BaseHelpers#command_dependencies_met?`
   ([#1979](https://github.com/pry/pry/pull/1979))
-* Deleted commands: `gem_cd`, `gem_install`, `gem_list`, `gem_open`,
-  `gem_readme`, `gem_search`, `gem_stats`
+* Deleted commands: `gem-cd`, `gem-install`, `gem-list`, `gem-open`,
+  `gem-readme`, `gem-search`, `gem-stats`
   ([#1981](https://github.com/pry/pry/pull/1981))
+
+#### Bug fixes
+
+* Fixed bug where using `Pry.config.prompt_name` can return a
+  `Pry::Config::Lazy` instead of expected instance of `String`
+  ([#1890](https://github.com/pry/pry/commit/c8f23b3464d596c08922dc923c64bb57488e6227))
+* Fixed `LoadError` being raised when using auto completions and Bundler
+  ([#1896](https://github.com/pry/pry/commit/85850f47e074fe01f93e5cb7d561e7c2de7aede9))
+* Fixed bug where `Pry.input_ring` doesn't append duplicate elements
+  ([#1898](https://github.com/pry/pry/pull/1898))
+* Fixed Ruby 2.6 warning about `Binding#source_location`
+  ([#1904](https://github.com/pry/pry/pull/1904))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
