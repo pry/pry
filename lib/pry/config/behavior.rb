@@ -76,7 +76,7 @@ class Pry
       #
       def [](key)
         key = key.to_s
-        key?(key) ? @lookup[key] : (@default and @default[key])
+        key?(key) ? @lookup[key] : (@default && @default[key])
       end
 
       #
@@ -177,7 +177,7 @@ class Pry
 
       def last_default
         last = @default
-        last = last.default while last and last.default
+        last = last.default while last && last.default
         last
       end
 
@@ -216,7 +216,7 @@ class Pry
 
       def respond_to_missing?(key, include_all = false)
         key = key.to_s.chomp(ASSIGNMENT)
-        key?(key) or @default.respond_to?(key) or super(key, include_all)
+        key?(key) || @default.respond_to?(key) || super(key, include_all)
       end
 
       private

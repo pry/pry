@@ -135,7 +135,7 @@ class Pry
     end
 
     def code_object_doc
-      (code_object && code_object.doc) or could_not_locate(obj_name)
+      (code_object && code_object.doc) || could_not_locate(obj_name)
     end
 
     def code_object_source_or_file

@@ -46,7 +46,7 @@ class Pry::Testable::PryTester
   end
 
   def process_command(command_str)
-    @pry.process_command(command_str) or raise "Not a valid command"
+    @pry.process_command(command_str) || raise("Not a valid command")
     last_command_result_or_output
   end
 

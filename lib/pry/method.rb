@@ -56,7 +56,7 @@ class Pry
         elsif options[:methods]
           from_obj(target.eval("self"), name, target)
         else
-          from_str(name, target, instance: true) or
+          from_str(name, target, instance: true) ||
             from_str(name, target, methods: true)
         end
 
@@ -395,7 +395,7 @@ class Pry
 
     # @return [Boolean] Was the method defined outside a source file?
     def dynamically_defined?
-      !!(source_file and source_file =~ /(\(.*\))|<.*>/)
+      !!(source_file && source_file =~ /(\(.*\))|<.*>/)
     end
 
     # @return [Boolean] Whether the method is unbound.
@@ -452,14 +452,14 @@ class Pry
     # @param [Class] klass
     # @return [Boolean]
     def is_a?(klass)
-      klass == Pry::Method or @method.is_a?(klass)
+      (klass == Pry::Method) || @method.is_a?(klass)
     end
     alias kind_of? is_a?
 
     # @param [String, Symbol] method_name
     # @return [Boolean]
     def respond_to?(method_name, include_all = false)
-      super or @method.respond_to?(method_name, include_all)
+      super || @method.respond_to?(method_name, include_all)
     end
 
     # Delegate any unknown calls to the wrapped method.
@@ -477,7 +477,7 @@ class Pry
     # @raise [CommandError] when the method can't be found or `pry-doc` isn't installed.
     def pry_doc_info
       if Pry.config.has_pry_doc
-        Pry::MethodInfo.info_for(@method) or raise CommandError, "Cannot locate this method: #{name}. (source_location returns nil)"
+        Pry::MethodInfo.info_for(@method) || raise(CommandError, "Cannot locate this method: #{name}. (source_location returns nil)")
       else
         fail_msg = "Cannot locate this method: #{name}."
         if Helpers::Platform.mri?
@@ -496,7 +496,7 @@ class Pry
         while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
           i += 1
         end
-        next_owner = ancestors[i] or return nil
+        (next_owner = ancestors[i]) || (return nil)
       end
 
       safe_send(next_owner, :instance_method, name) rescue nil
@@ -520,7 +520,7 @@ class Pry
 
     def c_source
       info = pry_doc_info
-      if info and info.source
+      if info && info.source
         strip_comments_from_c_code(info.source)
       end
     end

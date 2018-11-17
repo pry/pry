@@ -58,16 +58,16 @@ class Pry
     #   readable for some reason.
     # @return [String] absolute path for the given `filename`.
     def abs_path
-      code_path.detect { |path| readable?(path) } or
-        raise MethodSource::SourceNotFoundError,
-              "Cannot open #{ @filename.inspect } for reading."
+      code_path.detect { |path| readable?(path) } ||
+        raise(MethodSource::SourceNotFoundError,
+              "Cannot open #{ @filename.inspect } for reading.")
     end
 
     # @param [String] path
     # @return [Boolean] if the path, with or without the default ext,
     #   is a readable file then `true`, otherwise `false`.
     def readable?(path)
-      File.readable?(path) && !File.directory?(path) or
+      File.readable?(path) && !File.directory?(path) ||
         File.readable?(path << DEFAULT_EXT)
     end
 

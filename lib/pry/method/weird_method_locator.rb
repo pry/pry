@@ -24,9 +24,9 @@ class Pry
         # @param [Binding] b
         # @return [Boolean]
         def normal_method?(method, b)
-          if method and method.source_file and method.source_range
+          if method && method.source_file && method.source_range
             binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
-            File.expand_path(method.source_file) == File.expand_path(binding_file) and
+            (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
             method.source_range.include?(binding_line)
           end
         rescue
