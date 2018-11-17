@@ -29,7 +29,7 @@ class Pry::Output
   alias write print
 
   def tty?
-    @boxed_io.respond_to?(:tty?) and @boxed_io.tty?
+    @boxed_io.respond_to?(:tty?) && @boxed_io.tty?
   end
 
   def method_missing(name, *args, &block)

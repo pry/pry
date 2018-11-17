@@ -293,8 +293,8 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   end
 
   def self.default_editor_for_platform
-    return ENV['VISUAL'] if ENV['VISUAL'] and not ENV['VISUAL'].empty?
-    return ENV['EDITOR'] if ENV['EDITOR'] and not ENV['EDITOR'].empty?
+    return ENV['VISUAL'] if ENV['VISUAL'] && (not ENV['VISUAL'].empty?)
+    return ENV['EDITOR'] if ENV['EDITOR'] && (not ENV['EDITOR'].empty?)
     return 'notepad' if Helpers::Platform.windows?
 
     %w(editor nano vi).detect do |editor|

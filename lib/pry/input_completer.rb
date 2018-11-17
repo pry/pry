@@ -157,7 +157,7 @@ class Pry::InputCompleter
         lv = eval("local_variables", bind).collect(&:to_s)
         cv = eval("self.class.constants", bind).collect(&:to_s)
 
-        if (gv | lv | cv).include?(receiver) or /^[A-Z]/ =~ receiver && /\./ !~ receiver
+        if (gv | lv | cv).include?(receiver) || /^[A-Z]/ =~ receiver && /\./ !~ receiver
           # foo.func and foo is local var. OR
           # Foo::Bar.func
           begin

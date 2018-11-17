@@ -131,7 +131,7 @@ class Pry
 
         # Default to less, and make sure less is being passed the correct
         # options
-        if pager.strip.empty? or pager =~ /^less\b/
+        if pager.strip.empty? || pager =~ /^less\b/
           pager = "less -R -F -X"
         end
 

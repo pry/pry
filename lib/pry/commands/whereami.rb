@@ -52,9 +52,9 @@ class Pry
 
     def code
       @code ||= if opts.present?(:m)
-                  method_code or raise CommandError, "Cannot find method code."
+                  method_code || raise(CommandError, "Cannot find method code.")
                 elsif opts.present?(:c)
-                  class_code or raise CommandError, "Cannot find class code."
+                  class_code || raise(CommandError, "Cannot find class code.")
                 elsif opts.present?(:f)
                   Pry::Code.from_file(@file)
                 elsif args.any?

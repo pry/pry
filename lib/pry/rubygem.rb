@@ -25,7 +25,7 @@ class Pry
 
         first_spec = specs.sort_by { |spec| Gem::Version.new(spec.version) }.last
 
-        first_spec or raise CommandError, "Gem `#{name}` not found"
+        first_spec || raise(CommandError, "Gem `#{name}` not found")
       end
 
       # List gems matching a pattern.

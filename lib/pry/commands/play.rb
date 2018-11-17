@@ -48,7 +48,7 @@ class Pry
     end
 
     def show_input
-      if opts.present?(:print) or !Pry::Code.complete_expression?(eval_string)
+      if opts.present?(:print) || !Pry::Code.complete_expression?(eval_string)
         run "show-input"
       end
     end

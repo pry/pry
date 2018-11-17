@@ -30,12 +30,12 @@ class Pry::Terminal
 
     def actual_screen_size
       # The best way, if possible (requires non-jruby ≥1.9 or io-console gem)
-      screen_size_according_to_io_console or
+      screen_size_according_to_io_console ||
         # Fall back to the old standby, though it might be stale:
-        screen_size_according_to_env or
+        screen_size_according_to_env ||
         # Fall further back, though this one is also out of date without something
         # calling Readline.set_screen_size
-        screen_size_according_to_readline or
+        screen_size_according_to_readline ||
         # Windows users can otherwise run ansicon and get a decent answer:
         screen_size_according_to_ansicon_env
     end
