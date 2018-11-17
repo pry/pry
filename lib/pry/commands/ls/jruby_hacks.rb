@@ -34,7 +34,7 @@ module Pry::Command::Ls::JRubyHacks
   # When removing jruby aliases, we want to keep the alias that is
   # "least rubbish" according to this metric.
   def rubbishness(name)
-    name.each_char.map { |x|
+    name.each_char.map do |x|
       case x
       when /[A-Z]/
         1
@@ -43,7 +43,7 @@ module Pry::Command::Ls::JRubyHacks
       else
         0
       end
-    }.inject(&:+) + (name.size / 100.0)
+    end.inject(&:+) + (name.size / 100.0)
   end
 
 end

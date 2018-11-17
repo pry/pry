@@ -8,22 +8,22 @@ class Pry
       end
 
       def output_self
-        name_value_pairs = @target.eval('local_variables').reject { |e|
+        name_value_pairs = @target.eval('local_variables').reject do |e|
           @sticky_locals.keys.include?(e.to_sym)
-        }.map { |name|
+        end.map do |name|
           [name, (@target.eval(name.to_s))]
-        }
+        end
         format(name_value_pairs).join('')
       end
 
       private
 
       def format(name_value_pairs)
-        name_value_pairs.sort_by { |_name, value|
+        name_value_pairs.sort_by do |_name, value|
           value.to_s.size
-        }.reverse.map { |name, value|
+        end.reverse.map do |name, value|
           colorized_assignment_style(name, format_value(value))
-        }
+        end
       end
 
       def colorized_assignment_style(lhs, rhs, desired_width = 7)

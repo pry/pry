@@ -322,9 +322,9 @@ describe Pry::Method do
       end
 
       it "should find methods defined in modules included into the object's class" do
-        @obj = Class.new {
+        @obj = Class.new do
           include(Module.new { def meth; 1; end })
-        }.new
+        end.new
         should_find_method('meth')
       end
 
@@ -351,11 +351,11 @@ describe Pry::Method do
       end
 
       it "should work in the face of an overridden send" do
-        @obj = Class.new {
+        @obj = Class.new do
           def meth; 1; end
 
           def send; raise EOFError; end
-        }.new
+        end.new
         should_find_method('meth')
       end
     end
@@ -499,7 +499,7 @@ describe Pry::Method do
 
   describe 'method aliases' do
     before do
-      @class = Class.new {
+      @class = Class.new do
         def eat
         end
 
@@ -508,7 +508,7 @@ describe Pry::Method do
 
         def eruct
         end
-      }
+      end
     end
 
     it 'should be able to find method aliases' do
@@ -554,7 +554,7 @@ describe Pry::Method do
 
   describe '.signature' do
     before do
-      @class = Class.new {
+      @class = Class.new do
         def self.standard_arg(arg) end
 
         def self.block_arg(&block) end
@@ -562,7 +562,7 @@ describe Pry::Method do
         def self.rest(*splat) end
 
         def self.optional(option = nil) end
-      }
+      end
     end
 
     it 'should print the name of regular args' do

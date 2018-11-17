@@ -88,8 +88,9 @@ class Pry
       if lines.is_a? String
         lines = lines.lines
       end
-      @lines = lines.each_with_index.map { |line, lineno|
-        LOC.new(line, lineno + start_line.to_i) }
+      @lines = lines.each_with_index.map do |line, lineno|
+        LOC.new(line, lineno + start_line.to_i)
+      end
       @code_type = code_type
 
       @with_marker = @with_indentation = @with_line_numbers = nil

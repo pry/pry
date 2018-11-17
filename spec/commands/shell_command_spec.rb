@@ -61,9 +61,9 @@ describe Pry::Command::ShellCommand do
       describe "with CDPATH" do
         let(:cdpath) { File.expand_path(File.join('spec', 'fixtures', 'cdpathdir')) }
         let(:nonexisting_path) { File.expand_path('nonexisting_path') }
-        let(:long_cdpath) {
+        let(:long_cdpath) do
           [nonexisting_path, cdpath].join(File::PATH_SEPARATOR)
-        }
+        end
 
         describe "when it is defined" do
           before do

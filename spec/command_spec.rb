@@ -52,7 +52,7 @@ describe "Pry::Command" do
         end
       end
 
-      let(:hooks) {
+      let(:hooks) do
         h = Pry::Hooks.new
         h.add_hook('before_jamaica', 'name1') do |i|
           output.puts 3 - i.to_i
@@ -69,7 +69,7 @@ describe "Pry::Command" do
         h.add_hook('after_jamaica', 'name4') do |i|
           output.puts 3 + i.to_i
         end
-      }
+      end
 
       it "should call hooks in the right order" do
         out = pry_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
@@ -129,7 +129,7 @@ describe "Pry::Command" do
   end
 
   describe 'context' do
-    let(:context) {
+    let(:context) do
       {
         target: binding,
         output: StringIO.new,
@@ -137,7 +137,7 @@ describe "Pry::Command" do
         command_set: @set,
         pry_instance: Pry.new
       }
-    }
+    end
 
     describe '#setup' do
       it 'should capture lots of stuff from the hash passed to new before setup' do
@@ -310,52 +310,52 @@ describe "Pry::Command" do
 
   describe 'tokenize' do
     it 'should interpolate string with #{} in them' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command('random-dent', &probe)
 
         _foo = 5
         cmd.new(target: binding).process_line 'random-dent #{1 + 2} #{3 + _foo}'
-      }.to yield_with_args('3', '8')
+      end.to yield_with_args('3', '8')
     end
 
     it 'should not fail if interpolation is not needed and target is not set' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command('the-book', &probe)
 
         cmd.new.process_line 'the-book --help'
-      }.to yield_with_args('--help')
+      end.to yield_with_args('--help')
     end
 
     it 'should not interpolate commands with :interpolate => false' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command('thor', 'norse god', interpolate: false, &probe)
 
         cmd.new.process_line 'thor %(#{foo})'
-      }.to yield_with_args('%(#{foo})')
+      end.to yield_with_args('%(#{foo})')
     end
 
     it 'should use shell-words to split strings' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command('eccentrica', &probe)
 
         cmd.new.process_line %(eccentrica "gallumbits" 'erot''icon' 6)
-      }.to yield_with_args('gallumbits', 'eroticon', '6')
+      end.to yield_with_args('gallumbits', 'eroticon', '6')
     end
 
     it 'should split on spaces if shellwords is not used' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command('bugblatter-beast', 'would eat its grandmother', shellwords: false, &probe)
 
         cmd.new.process_line %(bugblatter-beast "of traal")
-      }.to yield_with_args('"of', 'traal"')
+      end.to yield_with_args('"of', 'traal"')
     end
 
     it 'should add captures to arguments for regex commands' do
-      expect { |probe|
+      expect do |probe|
         cmd = @set.command(/perfectly (normal)( beast)?/i, &probe)
 
         cmd.new.process_line %(Perfectly Normal Beast (honest!))
-      }.to yield_with_args('Normal', ' Beast', '(honest!)')
+      end.to yield_with_args('Normal', ' Beast', '(honest!)')
     end
   end
 
@@ -392,11 +392,11 @@ describe "Pry::Command" do
     end
 
     it "should set the commands' arg_string and captures" do
-      inside = inner_scope { |probe|
+      inside = inner_scope do |probe|
         cmd = @set.command(/benj(ie|ei)/, &probe)
 
         cmd.new.process_line %(benjie mouse)
-      }
+      end
 
       expect(inside.arg_string).to eq("mouse")
       expect(inside.captures).to eq(['ie'])

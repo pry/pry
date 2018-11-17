@@ -50,11 +50,11 @@ class Pry
 
     def load_path_completions
       $LOAD_PATH.flat_map do |path|
-        Dir[path + '/**/*'].map { |f|
+        Dir[path + '/**/*'].map do |f|
           next if File.directory?(f)
 
           f.sub!(path + '/', '')
-        }
+        end
       end
     end
   end

@@ -17,20 +17,20 @@ describe "help" do
   end
 
   it 'should display help for a regex command with a "listing"' do
-    @set.command(/bar(.*)/, "Test listing", listing: "foo") do; end
+    @set.command(/bar(.*)/, "Test listing", listing: "foo") { ; }
     expect(pry_eval('help foo')).to match(/Test listing/)
   end
 
   it 'should display help for a command with a spaces in its name' do
-    @set.command "cmd with spaces", "desc of a cmd with spaces" do; end
+    @set.command('cmd with spaces', 'desc of a cmd with spaces') {}
     expect(pry_eval('help "cmd with spaces"')).to match(/desc of a cmd with spaces/)
   end
 
   it 'should display help for all commands with a description' do
-    @set.command(/bar(.*)/, "Test listing", listing: "foo") do; end
-    @set.command "b", "description for b", listing: "foo" do; end
-    @set.command "c" do;end
-    @set.command "d", "" do;end
+    @set.command(/bar(.*)/, "Test listing", listing: "foo") { ; }
+    @set.command('b', 'description for b', listing: 'foo') {}
+    @set.command('c') {}
+    @set.command('d', '') {}
 
     output = pry_eval('help')
     expect(output).to match(/Test listing/)
@@ -39,10 +39,10 @@ describe "help" do
   end
 
   it "should sort the output of the 'help' command" do
-    @set.command 'faa', "Fooerizes" do; end
-    @set.command 'gaa', "Gooerizes" do; end
-    @set.command 'maa', "Mooerizes" do; end
-    @set.command 'baa', "Booerizes" do; end
+    @set.command('faa', 'Fooerizes') {}
+    @set.command('gaa', 'Gooerizes') {}
+    @set.command('maa', 'Mooerizes') {}
+    @set.command('baa', 'Booerizes') {}
 
     doc = pry_eval('help')
 
