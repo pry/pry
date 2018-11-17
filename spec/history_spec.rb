@@ -66,12 +66,12 @@ describe Pry do
       expect(Pry.history.to_a.size).to eq 3
       Pry.history.clear
 
-      File.open(@hist_file_path, 'r') { |fh|
+      File.open(@hist_file_path, 'r') do |fh|
         file = fh.to_a
 
         expect(file.length).to eq 3
         expect(file.any? { |a| a =~ /athos/ }).to eq true
-      }
+      end
     end
   end
 

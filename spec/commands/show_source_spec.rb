@@ -57,11 +57,11 @@ describe "show-source" do
   end
 
   it "should find methods even if the object overrides method method" do
-    _c = Class.new {
+    _c = Class.new do
       def method;
         98
       end
-    }
+    end
 
     expect(pry_eval(binding, "show-source _c.new.method")).to match(/98/)
   end
@@ -78,13 +78,13 @@ describe "show-source" do
   end
 
   it "should find instance_methods if the class overrides instance_method" do
-    _c = Class.new {
+    _c = Class.new do
       def method;
         98
       end
 
       def self.instance_method; 789; end
-    }
+    end
 
     expect(pry_eval(binding, "show-source _c#method")).to match(/98/)
   end
@@ -688,25 +688,25 @@ describe "show-source" do
 
       describe "block commands" do
         it 'should show source for an ordinary command' do
-          @set.command "foo", :body_of_foo do; end
+          @set.command('foo', :body_of_foo) {}
 
           expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
         end
 
         it "should output source of commands using special characters" do
-          @set.command "!%$", "I gots the yellow fever" do; end
+          @set.command('!%$', 'I gots the yellow fever') {}
 
           expect(pry_eval('show-source !%$')).to match(/yellow fever/)
         end
 
         it 'should show source for a command with spaces in its name' do
-          @set.command "foo bar", :body_of_foo_bar do; end
+          @set.command('foo bar', :body_of_foo_bar) {}
 
           expect(pry_eval('show-source foo bar')).to match(/:body_of_foo_bar/)
         end
 
         it 'should show source for a command by listing name' do
-          @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") do; end
+          @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") { ; }
 
           expect(pry_eval('show-source bar')).to match(/:body_of_foo_bar_regex/)
         end

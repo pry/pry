@@ -48,10 +48,10 @@ describe Pry::CommandSet do
   end
 
   it 'should pass arguments of the command to the block' do
-    expect { |probe|
+    expect do |probe|
       @set.command('foo', &probe)
       @set.run_command(@ctx, 'foo', 1, 2, 3)
-    }.to yield_with_args(1, 2, 3)
+    end.to yield_with_args(1, 2, 3)
   end
 
   it 'should use the first argument as context' do
@@ -333,12 +333,12 @@ describe Pry::CommandSet do
   end
 
   it 'should provide a :listing for a command that defaults to its name' do
-    @set.command 'foo', "" do;end
+    @set.command('foo', '') {}
     expect(@set['foo'].options[:listing]).to eq 'foo'
   end
 
   it 'should provide a :listing for a command that differs from its name' do
-    @set.command 'foo', "", listing: 'bar' do;end
+    @set.command('foo', '', listing: 'bar') {}
     expect(@set['foo'].options[:listing]).to eq 'bar'
   end
 

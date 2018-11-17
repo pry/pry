@@ -72,9 +72,9 @@ describe Pry do
 
         # YUCK! horrible hack to get round the fact that output is not configured
         # at the point this message is printed.
-        (class << Pry; self; end).send(:define_method, :puts) { |str|
+        (class << Pry; self; end).send(:define_method, :puts) do |str|
           putsed = str
-        }
+        end
 
         @doing_it = lambda {
           Pry.start(self, input: StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), output: StringIO.new)

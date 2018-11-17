@@ -127,14 +127,14 @@ describe "show-doc" do
 
   describe "rdoc highlighting" do
     it "should syntax highlight code in rdoc" do
-      _c = Class.new {
+      _c = Class.new do
         # This can initialize your class:
         #
         #   a = _c.new :foo
         #
         # @param foo
         def initialize(foo); end
-      }
+      end
       t = pry_tester(binding)
       expect(t.eval("show-doc _c#initialize")).to match(/_c.new :foo/)
       # I don't want the test to rely on which colour codes are there, just to
@@ -144,12 +144,12 @@ describe "show-doc" do
     end
 
     it "should syntax highlight `code` in rdoc" do
-      _c = Class.new {
+      _c = Class.new do
         # After initializing your class with `_c.new(:foo)`, go have fun!
         #
         # @param foo
         def initialize(foo); end
-      }
+      end
 
       t = pry_tester(binding)
       expect(t.eval("show-doc _c#initialize")).to match(/_c.new\(:foo\)/)
@@ -160,14 +160,14 @@ describe "show-doc" do
     end
 
     it "should not syntax highlight `` inside code" do
-      _c = Class.new {
+      _c = Class.new do
         # Convert aligned output (from many shell commands) into nested arrays:
         #
         #   a = decolumnize `ls -l $HOME`
         #
         # @param output
         def decolumnize(output); end
-      }
+      end
 
       begin
         t = pry_tester(binding)
@@ -422,12 +422,15 @@ describe "show-doc" do
     end
 
     it 'should display help for a regex command with a "listing"' do
-      @set.command(/bar(.*)/, "Test listing", listing: "foo") do; end
+      @set.command(/bar(.*)/, "Test listing", listing: "foo") { ; }
       expect(pry_eval('show-doc foo')).to match(/Test listing/)
     end
 
     it 'should display help for a command with a spaces in its name' do
-      @set.command "command with spaces", "description of a command with spaces" do; end
+      @set.command(
+        'command with spaces',
+        'description of a command with spaces'
+      ) {}
       expect(pry_eval('show-doc command with spaces')).to match(/description of a command with spaces/)
     end
 

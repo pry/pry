@@ -170,7 +170,7 @@ class Pry::InputCompleter
           require 'set'
           candidates = Set.new
           to_ignore = ignored_modules
-          ObjectSpace.each_object(Module) { |m|
+          ObjectSpace.each_object(Module) do |m|
             next if (to_ignore.include?(m) rescue true)
 
             # jruby doesn't always provide #instance_methods() on each
@@ -178,7 +178,7 @@ class Pry::InputCompleter
             if m.respond_to?(:instance_methods)
               candidates.merge m.instance_methods(false).collect(&:to_s)
             end
-          }
+          end
         end
         select_message(path, receiver, message, candidates.sort)
       when /^\.([^.]*)$/
@@ -206,7 +206,7 @@ class Pry::InputCompleter
   end
 
   def select_message(path, receiver, message, candidates)
-    candidates.grep(/^#{message}/).collect { |e|
+    candidates.grep(/^#{message}/).collect do |e|
       case e
       when /^[a-zA-Z_]/
         path.call(receiver + "." << e)
@@ -214,7 +214,7 @@ class Pry::InputCompleter
       when *Operators
         #receiver + " " << e
       end
-    }.compact
+    end.compact
   end
 
   # build_path seperates the input into two parts: path and input.
