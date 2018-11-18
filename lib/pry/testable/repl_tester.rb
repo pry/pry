@@ -54,6 +54,18 @@ class Pry
       attr_writer :last_prompt
       attr_accessor :thread, :mailbox
 
+      #
+      # @return [String]
+      #   Returns the last prompt as a string.
+      #
+      attr_reader :last_prompt
+
+      #
+      # @return [Pry]
+      #   Returns the instance of Pry being tested.
+      #
+      attr_reader :pry
+
       def initialize(options = {})
         @pry     = Pry.new(options)
         @repl    = Pry::REPL.new(@pry)
@@ -86,12 +98,6 @@ class Pry
         wait
         @pry.output.string
       end
-
-      #
-      # @return [String]
-      #   Returns the last prompt as a string.
-      #
-      attr_reader :last_prompt
 
       #
       # @return [String]
