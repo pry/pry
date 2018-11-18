@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe Pry::Method::Patcher do
   before do
     @x = Object.new

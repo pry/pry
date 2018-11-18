@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "wtf?!" do
   let(:tester) do
     pry_tester do

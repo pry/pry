@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::CommandSet do
   before do
     @set = Pry::CommandSet.new do

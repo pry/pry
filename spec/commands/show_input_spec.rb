@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "show-input" do
   before do
     @t = pry_tester

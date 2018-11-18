@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "save-file" do
   before do
     @tf = Tempfile.new(["pry", ".py"])

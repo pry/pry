@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 _version = 1
 
 describe "test Pry defaults" do

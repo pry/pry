@@ -1,4 +1,3 @@
-require_relative 'helper'
 describe Pry::Config do
   describe "bug #1552" do
     specify "a local key has precendence over its default when the stored value is false" do

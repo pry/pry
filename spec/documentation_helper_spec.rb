@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::Helpers::DocumentationHelpers do
   before do
     @helper = Pry::Helpers::DocumentationHelpers

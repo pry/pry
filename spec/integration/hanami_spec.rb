@@ -1,4 +1,3 @@
-require "helper"
 require "shellwords"
 
 RSpec.describe "Hanami integration" do

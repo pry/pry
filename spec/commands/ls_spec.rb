@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "ls" do
   describe "bug #1407" do
     it "behaves as usual when a method of the same name exists." do

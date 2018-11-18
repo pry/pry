@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "disable-pry" do
   before do
     @t = pry_tester

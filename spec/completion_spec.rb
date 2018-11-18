@@ -1,4 +1,3 @@
-require_relative 'helper'
 require "readline" unless defined?(Readline)
 require "pry/input_completer"
 

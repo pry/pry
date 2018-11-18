@@ -1,5 +1,4 @@
 require 'pathname'
-require_relative '../helper'
 
 describe "edit" do
   before do

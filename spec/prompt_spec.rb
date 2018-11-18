@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::Prompt do
   describe ".[]" do
     it "accesses prompts" do

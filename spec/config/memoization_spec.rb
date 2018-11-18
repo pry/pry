@@ -1,4 +1,3 @@
-require 'helper'
 RSpec.describe Pry::Config::Memoization do
   let(:config) do
     Class.new do

@@ -1,4 +1,3 @@
-require 'helper'
 RSpec.describe Pry::Config::Behavior do
   let(:behavior) do
     Class.new do

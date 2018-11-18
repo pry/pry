@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 # Please keep in mind that any hash signs ("#") in the heredoc strings are
 # placed on purpose. Without these editors might remove the whitespace on empty
 # lines.
@@ -249,7 +247,7 @@ def test
   puts "something" rescue "whatever"
 end
 INPUT
-    
+
     expect(@indent.indent(input)).to eq input
   end
 

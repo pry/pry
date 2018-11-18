@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "help" do
   before do
     @oldset = Pry.config.commands

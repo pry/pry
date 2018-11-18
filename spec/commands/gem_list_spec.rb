@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "gem-list" do
   it 'should not raise when invoked' do
     expect { pry_eval(self, 'gem-list') }.to_not raise_error

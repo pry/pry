@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe 'cd' do
   before do
     @o, @obj = Object.new, Object.new

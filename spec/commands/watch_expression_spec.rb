@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "watch expression" do
   # Custom eval that will:
   # 1) Create an instance of pry that can use for multiple calls

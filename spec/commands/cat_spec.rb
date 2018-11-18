@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "cat" do
   before do
     @str_output = StringIO.new

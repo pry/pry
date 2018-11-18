@@ -1,4 +1,3 @@
-require_relative 'helper'
 require 'tempfile'
 
 describe Pry do
