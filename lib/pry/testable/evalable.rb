@@ -11,7 +11,7 @@ module Pry::Testable::Evalable
   #
   # For super-high-level integration testing.
   #
-  # @see Pry::Testable::ReplTester
+  # @see Pry::Testable::ReplTester.start
   #
   # @example
   #   pry_repl_tester do |repl|
