@@ -11,6 +11,16 @@ require 'pry' if not defined?(Pry)
 #     config.include Pry::Testable
 #   end
 #
+# @example
+#   # Minitest
+#   class TestCase < Minitest::Test
+#     include Pry::Testable
+#   end
+#
+# The methods provided are the instance methods of the following
+# modules: {Pry::Testable::Evalable}, {Pry::Testable::Mockable},
+# {Pry::Testable::Variables}, and {Pry::Testable::Utility}.
+#
 module Pry::Testable
   extend self
   require_relative "testable/repl_tester"
