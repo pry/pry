@@ -51,7 +51,8 @@ class Pry
         end
       end
 
-      attr_accessor :thread, :mailbox, :last_prompt
+      attr_writer :last_prompt
+      attr_accessor :thread, :mailbox
 
       def initialize(options = {})
         @pry     = Pry.new(options)
@@ -90,9 +91,7 @@ class Pry
       # @return [String]
       #   Returns the last prompt as a string.
       #
-      def last_prompt
-        @last_prompt
-      end
+      attr_reader :last_prompt
 
       #
       # @return [String]
