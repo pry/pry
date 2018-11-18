@@ -2,8 +2,18 @@
 # if you're testing pry plugin you should require pry by yourself, no?
 require 'pry' if not defined?(Pry)
 
+#
+# Provides helper methods for testing Pry.
+#
+# @example
+#   # RSpec
+#   RSpec.configure do |config|
+#     config.include Pry::Testable
+#   end
+#
 module Pry::Testable
   extend self
+  require_relative "testable/repl_tester"
   require_relative "testable/pry_tester"
   require_relative "testable/evalable"
   require_relative "testable/mockable"
