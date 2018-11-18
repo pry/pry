@@ -16,7 +16,7 @@ module Pry::Testable::Evalable
   # @example
   #   pry_repl_tester do |repl|
   #     repl.enter_input '_pry_.config.prompt_name = "foobar"'
-  #     expect(repl.last_prompt).to match('foobar')
+  #     expect(repl.last_prompt).to match(/foobar/)
   #   end
   #
   def pry_repl_tester(&b)

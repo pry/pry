@@ -30,7 +30,7 @@ class Pry
       # @example
       #   Pry::Testable::ReplTester.start do |repl|
       #     repl.enter_input '_pry_.config.prompt_name = "foo"'
-      #     expect(repl.last_prompt).to match('foo')
+      #     expect(repl.last_prompt).to match(/foo/)
       #   end
       #
       # @param [Hash] options
