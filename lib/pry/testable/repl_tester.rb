@@ -1,9 +1,10 @@
-#
-# Pry::Testable::ReplTester is for super-high-level integration testing.
-#
 class Pry
   module Testable
+    #
+    # Pry::Testable::ReplTester is for super-high-level integration testing.
+    #
     class ReplTester
+      # @api private
       class Input
         def initialize(tester_mailbox)
           @tester_mailbox = tester_mailbox
@@ -20,6 +21,7 @@ class Pry
       end
 
       require 'delegate'
+      # @api private
       class Output < SimpleDelegator
         def clear
           __setobj__(StringIO.new)
@@ -35,6 +37,8 @@ class Pry
       #
       # @param [Hash] options
       #   A hash that is passed to {Pry#initialize}.
+      #
+      # @return [void]
       #
       def self.start(options = {})
         Thread.current[:mailbox] = Queue.new
@@ -56,16 +60,20 @@ class Pry
 
       #
       # @return [String]
-      #   Returns the last prompt as a string.
+      #   The last rendered prompt.
       #
       attr_reader :last_prompt
 
       #
       # @return [Pry]
-      #   Returns the instance of Pry being tested.
+      #   The instance of Pry being tested.
       #
       attr_reader :pry
 
+      #
+      # @param [options] options
+      #   a Hash that is passed to {Pry#initialize}.
+      #
       def initialize(options = {})
         @pry     = Pry.new(options)
         @repl    = Pry::REPL.new(@pry)
@@ -91,7 +99,7 @@ class Pry
       #   Accept a line of input, as if entered by a user.
       #
       # @return [String]
-      #   Returns the contents of {Pry#output}.
+      #   The contents of {Pry#output}.
       #
       def enter_input(input)
         reset_output
@@ -102,7 +110,7 @@ class Pry
 
       #
       # @return [String]
-      #   Returns the last output written to `Pry#output` as a string.
+      #   The last output written to `Pry#output`.
       #
       def last_output
         @pry.output.string.chomp
