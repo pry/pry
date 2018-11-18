@@ -1,5 +1,4 @@
 require 'pathname'
-require_relative 'helper'
 
 describe Pry::Editor do
   class Pry::Editor

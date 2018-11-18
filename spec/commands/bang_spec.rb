@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "!" do
   before do
     @t = pry_tester

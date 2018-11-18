@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "raise-up" do
   before do
     @self  = "Pad.self = self"

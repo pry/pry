@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe Pry::Command::ShellCommand do
   describe 'cd' do
     before do

@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe "Pry.run_command" do
   before do
     o = Object.new

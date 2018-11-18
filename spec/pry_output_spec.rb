@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry do
   describe "output failsafe" do
     after do

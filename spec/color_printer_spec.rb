@@ -1,9 +1,8 @@
-require 'helper'
-describe Pry::ColorPrinter do    
+describe Pry::ColorPrinter do
   include Pry::Helpers::Text
   let(:io) { StringIO.new }
   let(:str) { strip_color(io.string.chomp) }
-  
+
   describe '.pp' do
     describe 'Object' do
       it 'prints a string' do
@@ -12,32 +11,32 @@ describe Pry::ColorPrinter do
       end
     end
 
-    describe 'Object subclass' do 
+    describe 'Object subclass' do
       before do
-        class ObjectF < Object 
+        class ObjectF < Object
           def inspect
             'foo'
           end
         end
 
         class ObjectG < Object
-          def inspect 
-            raise 
+          def inspect
+            raise
           end
         end
       end
 
-      after do 
+      after do
         Object.send :remove_const, :ObjectF
         Object.send :remove_const, :ObjectG
-      end 
+      end
 
       it 'prints a string' do
         Pry::ColorPrinter.pp(ObjectF.new, io)
         expect(str).to eq('foo')
-      end 
+      end
 
-      it 'prints a string, even when an exception is raised' do 
+      it 'prints a string, even when an exception is raised' do
         Pry::ColorPrinter.pp(ObjectG.new, io)
         expect(str).to match(/\A#<ObjectG:0x\w+>\z/)
       end

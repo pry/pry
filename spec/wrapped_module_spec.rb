@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::WrappedModule do
   describe "#initialize" do
     it "should raise an exception when a non-module is passed" do

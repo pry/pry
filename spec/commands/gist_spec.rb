@@ -1,9 +1,6 @@
 # These tests are out of date.
 # They need to be updated for the new 'gist' API, but im too sleepy to
 # do that now.
-
-require_relative '../helper'
-
 describe 'gist' do
   it 'has a dependency on the jist gem' do
     expect(Pry::Command::Gist.command_options[:requires_gem]).to eq("gist")

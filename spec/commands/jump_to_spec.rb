@@ -1,5 +1,3 @@
-require 'helper'
-
 RSpec.describe "jump-to" do
   let(:obj) { Object.new }
 

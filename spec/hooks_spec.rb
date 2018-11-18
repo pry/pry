@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::Hooks do
   before do
     @hooks = Pry::Hooks.new

@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
     expect { pry_eval '_file_', '_dir_', '_ex_', '_pry_', '_' }.to_not raise_error

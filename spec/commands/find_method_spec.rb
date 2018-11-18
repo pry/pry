@@ -1,5 +1,3 @@
-require_relative '../helper'
-
 describe "find-method" do
   MyKlass = Class.new do
     def hello

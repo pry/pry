@@ -1,4 +1,3 @@
-require_relative "helper"
 describe "Pry::Pager" do
   describe "PageTracker" do
     before do

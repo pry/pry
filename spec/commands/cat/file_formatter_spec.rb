@@ -1,5 +1,3 @@
-require_relative '../../helper'
-
 describe Pry::Command::Cat::FileFormatter do
   before do
     @p   = Pry.new

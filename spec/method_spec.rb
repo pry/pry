@@ -1,4 +1,3 @@
-require_relative 'helper'
 require 'set'
 
 describe Pry::Method do

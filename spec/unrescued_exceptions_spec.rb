@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe "Pry.config.unrescued_exceptions" do
   before do
     @str_output = StringIO.new

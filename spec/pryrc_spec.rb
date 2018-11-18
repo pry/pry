@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry do
   describe 'loading rc files' do
     before do
