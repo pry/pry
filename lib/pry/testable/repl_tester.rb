@@ -90,7 +90,8 @@ class Pry
       # @param [String] input
       #   Accept a line of input, as if entered by a user.
       #
-      # @return [void]
+      # @return [String]
+      #   Returns the contents of {Pry#output}.
       #
       def enter_input(input)
         reset_output
