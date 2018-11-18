@@ -111,6 +111,7 @@ require 'pry/plugins'
 require 'pry/core_extensions'
 require 'pry/basic_object'
 require "pry/prompt"
+require 'pry/config/lazy'
 require 'pry/config/behavior'
 require 'pry/config/memoization'
 require 'pry/config/default'

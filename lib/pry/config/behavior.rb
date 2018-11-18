@@ -6,7 +6,7 @@ class Pry
 
       NODUP = [
         TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc,
-        Pry::Prompt
+        Pry::Prompt, Pry::Config::Lazy
       ].freeze
 
       INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
