@@ -102,14 +102,6 @@ class Pry
 
         nil
       end
-
-      private
-
-      def prompt_name(name)
-        return name unless name.is_a?(Pry::Config::Lazy)
-
-        name.call
-      end
     end
 
     # @return [String]
@@ -172,7 +164,7 @@ class Pry
       format(
         "[%<in_count>s] %<name>s(%<context>s)%<nesting>s%<separator>s ",
         in_count: _pry_.input_ring.count,
-        name: prompt_name(_pry_.config.prompt_name),
+        name: _pry_.config.prompt_name,
         context: Pry.view_clip(context),
         nesting: (nesting > 0 ? ":#{nesting}" : ''),
         separator: sep
@@ -197,7 +189,7 @@ class Pry
       format(
         "[%<in_count>s] (%<name>s) %<tree>s: %<stack_size>s%<separator>s ",
         in_count: _pry_.input_ring.count,
-        name: prompt_name(_pry_.config.prompt_name),
+        name: _pry_.config.prompt_name,
         tree: tree.join(' / '),
         stack_size: _pry_.binding_stack.size - 1,
         separator: sep
@@ -211,7 +203,7 @@ class Pry
     ) do |context, _nesting, _pry_, sep|
       format(
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
-        name: prompt_name(_pry_.config.prompt_name),
+        name: _pry_.config.prompt_name,
         context: Pry.view_clip(context),
         pwd: Dir.pwd,
         separator: sep

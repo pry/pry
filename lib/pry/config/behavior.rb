@@ -76,7 +76,8 @@ class Pry
       #
       def [](key)
         key = key.to_s
-        key?(key) ? @lookup[key] : (@default && @default[key])
+        obj = key?(key) ? @lookup[key] : (@default && @default[key])
+        Pry::Config::Lazy === obj ? obj.call : obj
       end
 
       #
