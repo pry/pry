@@ -71,7 +71,7 @@ class Pry
   #  Returns a value store for an instance of Pry running on the current thread.
   #
   def self.current
-    Thread.current[:__pry__] ||= Pry::Config.from_hash({}, nil)
+    Thread.current[:__pry__] ||= Pry::Config.from_hash({})
   end
 
   # Load the given file in the context of `Pry.toplevel_binding`

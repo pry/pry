@@ -48,7 +48,7 @@ FAILWHALE
 
   private
   def format_gem(h)
-    h = Pry::Config.from_hash(h, nil)
+    h = Pry::Config.from_hash(h)
     format_str = unindent <<-FORMAT
     %{name} %{version}
     --
