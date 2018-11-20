@@ -43,7 +43,7 @@ class Pry
         def from_hash(attributes, default = nil)
           new(default).tap do |config|
             attributes.each do |key,value|
-              config[key] = Hash === value ? from_hash(value, nil) : value
+              config[key] = Hash === value ? from_hash(value) : value
             end
           end
         end
