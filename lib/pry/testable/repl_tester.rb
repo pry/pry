@@ -130,7 +130,7 @@ class Pry
       #
       def ensure_exit
         if @should_exit_naturally
-          raise "Session was not ended!" unless @thread[:session_ended].equal?(true)
+          raise "Session was not ended!" unless @thread[:session_ended]
         else
           enter_input "exit-all"
           raise "REPL didn't die" unless @thread[:session_ended]
