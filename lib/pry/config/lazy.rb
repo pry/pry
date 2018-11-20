@@ -1,6 +1,9 @@
 class Pry
   class Config < Pry::BasicObject
     # Wraps a block so it can have a name.
+    # The primary purpose for instances of this class is to be used as a
+    # configuration value that is computed upon each access, see {Pry.lazy}
+    # for more information.
     #
     # @example
     #   proc1 = proc {}
