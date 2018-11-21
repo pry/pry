@@ -13,7 +13,7 @@ RSpec.describe 'Bundler' do
     end
     exit 42 if Pry.config.completer
     RUBY
-    o = `#@ruby -I#@pry_dir -e'#{code}'`
-    expect($?.exitstatus).to eq(42)
+    `#{@ruby} -I#{@pry_dir} -e'#{code}'`
+    expect($CHILD_STATUS.exitstatus).to eq(42)
   end
 end
