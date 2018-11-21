@@ -115,7 +115,7 @@ class Pry
           Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS)
         },
         completer: proc {
-          require "pry/input_completer"
+          require_relative "../input_completer"
           Pry::InputCompleter
         },
         gist: proc {
