@@ -96,6 +96,7 @@ require 'tempfile'
 require 'pathname'
 
 require 'pry/version'
+require 'pry/input_completer'
 require 'pry/repl'
 require 'pry/code'
 require 'pry/ring'
