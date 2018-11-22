@@ -2,7 +2,7 @@ RSpec.describe 'Bundler' do
   let(:ruby) { RbConfig.ruby.shellescape }
   let(:pry_dir) { File.expand_path(File.join(__FILE__, '../../../lib')).shellescape }
 
-  context "when Pry requires Gemfile, which doesn't specify Pry as a dependency" do 
+  context "when Pry requires Gemfile, which doesn't specify Pry as a dependency" do
     it "loads auto-completion correctly" do
       code = <<-RUBY
       require "pry"
