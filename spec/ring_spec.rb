@@ -13,6 +13,11 @@ describe Pry::Ring do
       ring << 1 << 2 << 3 << 4 << 5
       expect(ring.to_a).to eq([3, 4, 5])
     end
+
+    it "keeps duplicate elements" do
+      ring << 1 << 1 << 1 << 1
+      expect(ring.to_a).to eq([1, 1, 1])
+    end
   end
 
   describe "#[]" do
@@ -52,6 +57,10 @@ describe Pry::Ring do
         expect(ring[-1]).to eq(5)
         expect(ring[-2]).to eq(4)
         expect(ring[-3]).to eq(3)
+      end
+
+      it "returns the first element when accessed through 0..0" do
+        expect(ring[0..0]).to eq([3])
       end
 
       it "reads elements via inclusive range" do
