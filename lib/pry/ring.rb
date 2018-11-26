@@ -57,10 +57,7 @@ class Pry
         return @buffer[(count + index) % max_size] if index.is_a?(Integer)
         return @buffer[index] if count <= max_size
 
-        # Swap parts of array when the array turns page and starts overwriting
-        # from the beginning, then apply the range.
-        last_part = @buffer.slice([index.end, max_size - 1].min, count % max_size)
-        (last_part + (@buffer - last_part))[index]
+        transpose_buffer_tail[index]
       end
     end
 
@@ -68,8 +65,7 @@ class Pry
     def to_a
       return @buffer.dup if count <= max_size
 
-      last_part = @buffer.slice(count % max_size, @buffer.size)
-      last_part + (@buffer - last_part)
+      transpose_buffer_tail
     end
 
     # Clear the buffer and reset count.
@@ -79,6 +75,13 @@ class Pry
         @buffer = []
         @count = 0
       end
+    end
+
+    private
+
+    def transpose_buffer_tail
+      tail = @buffer.slice(count % max_size, @buffer.size)
+      tail.concat @buffer.slice(0, count % max_size)
     end
   end
 end
