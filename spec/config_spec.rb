@@ -142,13 +142,13 @@ describe Pry::Config do
     end
   end
 
-  describe "#forget" do
-    it "forgets a local key" do
-      local = described_class.new described_class.from_hash(foo: 1)
-      local.foo = 2
-      expect(local.foo).to eq 2
-      local.forget(:foo)
-      expect(local.foo).to eq(1)
+  describe '#forget' do
+    it 'allows a key to return its default value' do
+      last_default = described_class.from_hash(a: 'c')
+      middle_default = described_class.from_hash({a: 'b'}, last_default)
+      c = described_class.from_hash({a: 'a'}, middle_default)
+      c.forget(:a)
+      expect(c.a).to eq('c')
     end
   end
 
