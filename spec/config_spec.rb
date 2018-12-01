@@ -15,6 +15,17 @@ describe Pry::Config do
     end
   end
 
+  describe "from_hash" do
+    it "recursively walks its argument and transforms Hash objects into Pry::Config objects" do
+      c = described_class.from_hash(number: 1, ary: [{number: 2}, Object, BasicObject.new], c: {str: 'hello'})
+      expect(c.number).to eq(1)
+      expect(c.ary[0].number).to eq(2)
+      expect(c.ary[1]).to eq(Object)
+      expect(BasicObject === c.ary[2]).to be(true)
+      expect(c.c.str).to eq('hello')
+    end
+  end
+
   describe "reserved keys" do
     it "raises ReservedKeyError on assignment of a reserved key" do
       local = described_class.new
