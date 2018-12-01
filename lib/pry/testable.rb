@@ -55,7 +55,7 @@ module Pry::Testable
   # @return [void]
   #
   def self.set_testenv_variables
-    Pry.config = Pry::Config.from_hash(TEST_DEFAULTS, Pry::Config::Default.new)
+    Pry.config = Pry::Config.from_hash TEST_DEFAULTS, Pry::Config.defaults
     Pry.config.hooks = Pry::Hooks.new
   end
 
@@ -65,6 +65,6 @@ module Pry::Testable
   # @return [void]
   #
   def self.unset_testenv_variables
-    Pry.config = Pry::Config.from_hash({}, Pry::Config::Default.new)
+    Pry.config = Pry::Config.from_hash({}, Pry::Config.defaults)
   end
 end
