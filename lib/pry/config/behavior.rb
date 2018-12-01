@@ -273,7 +273,7 @@ class Pry
 
       #
       # @example
-      #   # _pry_.config -> Pry.config -> Pry::Config::Default
+      #   # _pry_.config -> Pry.config -> Pry::Config.defaults
       #   _pry_.config.last_default
       #
       # @return [Pry::Config::Behaviour]
