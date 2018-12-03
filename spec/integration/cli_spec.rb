@@ -9,7 +9,7 @@ RSpec.describe 'The bin/pry CLI' do
       expect(out).to eq(%w[-a --b 3].inspect)
     end
 
-    it "forwards its remaining arguments when -- is passed" do
+    it "forwards its remaining arguments as ARGV when -- is passed" do
       out = `#{ruby} -I#{pry_dir} bin/pry --no-correct-indent -e #{code} -- -a --b 3`.chomp
       expect(out).to eq(%w[-a --b 3].inspect)
     end
