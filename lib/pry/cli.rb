@@ -65,6 +65,7 @@ class Pry
           slop_args = args[0...index]
           self.input_args = args.replace(args[index + 1..-1])
         else
+          @pass_argv = false
           self.input_args = slop_args = args
         end
 
