@@ -1,4 +1,4 @@
-describe Pry::Hooks do
+RSpec.describe Pry::CLI do
   before do
     Pry::CLI.reset
   end
@@ -16,6 +16,18 @@ describe Pry::Hooks do
         end
       end.parse_options(argv)
       expect(argv.include?('-v')).to eq false
+    end
+
+    it "forwards remaining arguments as ARGV when -- is passed as an argument" do
+      argv = ['-v', '--', '--one', '-two', '3', 'four']
+      described_class.add_options { on(:v, '...') {} }.parse_options(argv)
+      expect(argv).to eq(%w[--one -two 3 four])
+    end
+
+    it "forwards remaining arguments as ARGV when - is passed as an argument" do
+      argv = ['-v', '-', '--one', '-two', '3', 'four']
+      described_class.add_options { on(:v, '...') {} }.parse_options(argv)
+      expect(argv).to eq(%w[--one -two 3 four])
     end
   end
 

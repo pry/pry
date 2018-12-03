@@ -59,11 +59,18 @@ class Pry
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
 
-        self.input_args = args
+        index = args.index { |cli_arg| %w[- --].include?(cli_arg) }
+        if index
+          @pass_argv = true
+          slop_args = args[0...index]
+          self.input_args = args.replace(args[index + 1..-1])
+        else
+          self.input_args = slop_args = args
+        end
 
         begin
           opts = Pry::Slop.parse!(
-            args,
+            slop_args,
             help: true,
             multiple_switches: false,
             strict: true,
@@ -101,7 +108,7 @@ class Pry
           context = Pry.toplevel_binding
         end
 
-        if Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
+        if !@pass_argv && Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
           full_name = File.expand_path(Pry::CLI.input_args.first)
           Pry.load_file_through_repl(full_name)
           exit
