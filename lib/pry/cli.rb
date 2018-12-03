@@ -148,6 +148,11 @@ Pry::CLI.add_options do
     Pry.config.exec_string += input
   end
 
+  on "no-correct-indent", "Do not automatically correct indentation errors emitted by " \
+                          "the auto indentation feature of Pry" do
+    Pry.config.correct_indent = false
+  end
+
   on "no-pager", "Disable pager for long output" do
     Pry.config.pager = false
   end
