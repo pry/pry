@@ -142,7 +142,9 @@ RSpec.describe Pry::Config do
     end
 
     it "returns false when compared against nil" do
+      # rubocop:disable Style/NilComparison
       expect(described_class.new(nil) == nil).to eq(false)
+      # rubocop:enable Style/NilComparison
     end
   end
 
