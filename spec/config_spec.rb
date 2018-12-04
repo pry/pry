@@ -142,7 +142,7 @@ RSpec.describe Pry::Config do
     end
 
     it "returns false when compared against nil" do
-      expect(Pry::Config.new(nil) == nil).to eq(false)
+      expect(described_class.new(nil) == nil).to eq(false)
     end
   end
 
