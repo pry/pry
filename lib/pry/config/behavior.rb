@@ -215,6 +215,8 @@ class Pry
       #   True if self and `other` are considered `eql?`, otherwise false.
       #
       def ==(other)
+        return false if !other
+
         @lookup == __try_convert_to_hash(other)
       end
       alias_method :eql?, :==
