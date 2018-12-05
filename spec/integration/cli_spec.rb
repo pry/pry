@@ -11,7 +11,7 @@ RSpec.describe 'The bin/pry CLI' do
     end
 
     it "forwards ARGV as an empty array when -- is passed without following arguments" do
-      out = `#{ruby} -I#{pry_dir} bin/pry --no-correct-indent -e #{code} --`.chomp 
+      out = `#{ruby} -I#{pry_dir} bin/pry --no-correct-indent -e #{code} --`.chomp
       expect(out).to eq([].inspect)
     end
 
