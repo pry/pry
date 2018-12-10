@@ -3,7 +3,11 @@ class Pry
     module FileAndLineLocator
       class << self
         def from_binding(target)
-          [target.eval("__FILE__"), target.eval("__LINE__")]
+          if target.respond_to?(:source_location)
+            target.source_location
+          else
+            [target.eval("__FILE__"), target.eval("__LINE__")]
+          end
         end
 
         def from_code_object(code_object, filename_argument)
