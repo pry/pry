@@ -27,7 +27,13 @@ class Pry
     private
 
     def current_file
-      File.expand_path target.eval("__FILE__")
+      file =
+        if target.respond_to?(:source_location)
+          target.source_location.first
+        else
+          target.eval("__FILE__")
+        end
+      File.expand_path file
     end
 
     def reload_current_file
