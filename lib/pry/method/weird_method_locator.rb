@@ -25,7 +25,11 @@ class Pry
         # @return [Boolean]
         def normal_method?(method, b)
           if method && method.source_file && method.source_range
-            binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
+            if b.respond_to?(:source_location)
+              binding_file, binding_line = b.source_location
+            else
+              binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
+            end
             (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
             method.source_range.include?(binding_line)
           end
@@ -77,15 +81,31 @@ class Pry
       end
 
       def target_file
-        pry_file? ? target.eval('__FILE__') : File.expand_path(target.eval('__FILE__'))
+        file =
+          if target.respond_to?(:source_location)
+            target.source_location.first
+          else
+            target.eval('__FILE__')
+          end
+        pry_file? ? file : File.expand_path(file)
       end
 
       def target_line
-        target.eval('__LINE__')
+        if target.respond_to?(:source_location)
+          target.source_location.last
+        else
+          target.eval('__LINE__')
+        end
       end
 
       def pry_file?
-        Pry.eval_path == target.eval('__FILE__')
+        file =
+          if target.respond_to?(:source_location)
+            target.source_location.first
+          else
+            target.eval('__FILE__')
+          end
+        Pry.eval_path == file
       end
 
       # it's possible in some cases that the method we find by this approach is a sub-method of

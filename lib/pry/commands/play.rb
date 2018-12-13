@@ -86,7 +86,13 @@ class Pry
     # The file to play from when no code object is specified.
     # e.g `play --lines 4..10`
     def default_file
-      target.eval("__FILE__") && File.expand_path(target.eval("__FILE__"))
+      file =
+        if target.respond_to?(:source_location)
+          target.source_location.first
+        else
+          target.eval("__FILE__")
+        end
+      file && File.expand_path(file)
     end
 
     def file_content

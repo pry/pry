@@ -1,6 +1,41 @@
 class Pry
   class Config < Pry::BasicObject
-    # rubocop:disable Metrics/ModuleLength
+    #
+    # {Pry::Config::Behavior} is a module who can be included by classes who
+    # wish to behave similar to an OpenStruct object:
+    #
+    # ```ruby
+    # class Store
+    #   include Pry::Config::Behavior
+    # end
+    # store = Store.from_hash(number: 300)
+    # store.number    # => 300
+    # store[:number]  # => 300
+    # store['number'] # => 300
+    # ```
+    #
+    # Classes who include {Pry::Config::Behavior} can be linked to each other
+    # to provide a default in case a key does not exist locally:
+    #
+    # ```ruby
+    # class Store
+    #   include Pry::Config::Behavior
+    # end
+    # store = Store.from_hash({}, Store.from_hash(greeting: 'hello'))
+    # store.greeting # => 'hello'
+    # ```
+    #
+    # When an object is read from a default like in the example above, a copy
+    # of the object is created to avoid a mutation changing its value:
+    #
+    # ```ruby
+    # default = Store.from_hash(greeting: 'hello')
+    # store = Store.from_hash({}, default)
+    # store.greeting # => 'hello'
+    # default.greeting.sub! 'hello', 'goodbye'
+    # store.greeting # => 'hello'
+    # ```
+    #
     module Behavior
       ASSIGNMENT = "=".freeze
 
@@ -12,15 +47,32 @@ class Pry
       INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
       ReservedKeyError = Class.new(RuntimeError)
 
+      #
+      # The instance methods of this module are available as singleton methods
+      # on classes who include {Pry::Config::Behavior}. The methods can be used
+      # to initialize a {Pry::Config::Behavior} object from a Hash object.
+      #
+      # @example
+      #   class Store
+      #     include Pry::Config::Behavior
+      #   end
+      #   obj1 = Store.assign(foo: 1, bar: 2)
+      #   obj2 = Store.from_hash(foo: 1, bar: 2)
+      #   [obj1.class, obj2.class] # => [Store, Store]
+      #
       module Builder
         #
-        # Returns a new Behavior, non-recursively (unlike {#from_hash}).
+        # @example
+        #   c = Pry::Config.assign(foo: {bar: {baz: 42}})
+        #   c.class # => Pry::Config
+        #   c.foo.class # => Hash
         #
         # @param
         #   (see #from_hash)
         #
-        # @return
-        #   (see #from_hash)
+        # @return [Pry::Config::Behavior]
+        #   An instance of an object that has included Pry::Config::Behavior.
+        #   `attributes` is not visited using recursion.
         #
         def assign(attributes, default = nil)
           new(default).tap do |behavior|
@@ -29,16 +81,19 @@ class Pry
         end
 
         #
-        # Returns a new Behavior, recursively walking attributes.
+        # @example
+        #   c = Pry::Config.from_hash(foo: {bar: {baz: 42}})
+        #   c.foo.bar.class # => Pry::Config
+        #   c.foo.bar.baz   # => 42
         #
         # @param [Hash] attributes
-        #   a hash to initialize an instance of self with.
         #
-        # @param [Pry::Config, nil] default
-        #   a default, or nil for none.
+        # @param [Pry::Config::Behavior, nil] default
+        #   A default, or nil for none.
         #
-        # @return [Pry::Config]
-        #   returns an instance of self.
+        # @return [Pry::Config::Behavior]
+        #   An instance of an object that has included Pry::Config::Behavior.
+        #   `attributes` is visited using recursion.
         #
         def from_hash(attributes, default = nil)
           new(default).tap do |config|
@@ -59,6 +114,18 @@ class Pry
         klass.extend(Builder)
       end
 
+      #
+      # @example
+      #   class Store
+      #     include Pry::Config::Behavior
+      #   end
+      #   c = Store.new(Pry.config)
+      #   c.input # => Readline
+      #
+      # @param [Pry::Config::Behavior, nil] default
+      #   A default to query when a key is not found in self, or nil for none.
+      #
+      #
       def initialize(default = Pry.config)
         @default = default
         @lookup = {}
@@ -66,19 +133,18 @@ class Pry
       end
 
       #
-      # @return [Pry::Config::Behavior]
-      #   returns the default used incase a key isn't found in self.
+      # @return [Pry::Config::Behavior, nil]
+      #   The object queried when a key is not found in self.
       #
       def default
         @default
       end
 
       #
-      # @param [String] key
-      #   a key (as a String)
+      # @param [#to_s] key
       #
       # @return [Object, BasicObject]
-      #   returns an object from self or one of its defaults.
+      #   An object
       #
       def [](key)
         key = key.to_s
@@ -87,16 +153,14 @@ class Pry
       end
 
       #
-      # Add a key and value pair to self.
+      # Assigns a key/value pair.
       #
-      # @param [String] key
-      #   a key (as a String).
+      # @param [#to_s] key
       #
-      # @param [Object,BasicObject] value
-      #   a value.
+      # @param [Object, BasicObject] value
       #
       # @raise [Pry::Config::ReservedKeyError]
-      #   when 'key' is a reserved key name.
+      #   When `key` is a reserved key.
       #
       def []=(key, value)
         key = key.to_s
@@ -108,10 +172,15 @@ class Pry
       end
 
       #
-      # Removes a key from self.
+      # Removes `key` from self and allows the next lookup for `key` to
+      # traverse back to {#default}.
       #
-      # @param [String] key
-      #  a key (as a String)
+      # @example
+      #   _pry_.config.prompt_name = 'foo'
+      #   _pry_.config.forget(:prompt_name)
+      #   _pry_.config.prompt_name # => 'pry'
+      #
+      # @param [#to_s] key
       #
       # @return [void]
       #
@@ -121,8 +190,13 @@ class Pry
       end
 
       #
+      # @example
+      #   c = Pry::Config.from_hash(foo: 1)
+      #   c.merge!(bar: 2)
+      #   c.merge!(Pry::Config.from_hash(baz: 3))
+      #
       # @param [Hash, #to_h, #to_hash] other
-      #   a hash to merge into self.
+      #   An object to merge into self.
       #
       # @return [void]
       #
@@ -136,20 +210,33 @@ class Pry
       end
 
       #
+      # @example
+      #   Pry::Config.from_hash(foo: 1) == {'foo' => 1} # => true
+      #   Pry::Config.from_hash(foo: 1) == Pry::Config.from_hash(foo: 1) # => true
+      #
       # @param [Hash, #to_h, #to_hash] other
-      #   a hash to compare against the lookup table of self.
+      #   Compares `other` against self.
+      #
+      # @return [Boolean]
+      #   True if self and `other` are considered `eql?`, otherwise false.
       #
       def ==(other)
+        return false if !other
+
         @lookup == __try_convert_to_hash(other)
       end
       alias_method :eql?, :==
 
       #
-      # @param [String] key
-      #   a key (as a String)
+      # @example
+      #   c = Pry::Config.from_hash(foo: 1)
+      #   c.key?(:foo)  # => true
+      #   c.key?('foo') # => true
+      #
+      # @param [#to_s] key
       #
       # @return [Boolean]
-      #   returns true when "key" is a member of self.
+      #   True if `key` is stored in self, otherwise false.
       #
       def key?(key)
         key = key.to_s
@@ -157,7 +244,7 @@ class Pry
       end
 
       #
-      # Clear the lookup table of self.
+      # Clears the contents of self.
       #
       # @return [void]
       #
@@ -168,12 +255,22 @@ class Pry
 
       #
       # @return [Array<String>]
-      #   returns an array of keys in self.
+      #   An array of keys being stored in self.
       #
       def keys
         @lookup.keys
       end
 
+      #
+      # Normally keys are read from a default on first access, this method can
+      # be used to eagerly load all keys from {#last_default} at once instead.
+      #
+      # @example
+      #   _pry_.config.eager_load!
+      #   _pry_.config.keys # => [..., ..., ...]
+      #
+      # @return [void]
+      #
       def eager_load!
         default = @default
         while default && default.respond_to?(:memoized_methods)
@@ -182,6 +279,14 @@ class Pry
         end
       end
 
+      #
+      # @example
+      #   # _pry_.config -> Pry.config -> Pry::Config.defaults
+      #   _pry_.config.last_default
+      #
+      # @return [Pry::Config::Behaviour]
+      #   The last default, or nil.
+      #
       def last_default
         last = @default
         last = last.default while last && last.default
@@ -190,7 +295,7 @@ class Pry
 
       #
       # @return [Hash]
-      #   returns a duplicate copy of the lookup table used by self.
+      #   A duplicate copy of the Hash used by self.
       #
       def to_hash
         @lookup.dup
@@ -264,6 +369,5 @@ class Pry
         @lookup.delete(key)
       end
     end
-    # rubocop:enable Metrics/ModuleLength
   end
 end

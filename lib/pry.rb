@@ -114,8 +114,6 @@ require 'pry/basic_object'
 require "pry/prompt"
 require 'pry/config/lazy'
 require 'pry/config/behavior'
-require 'pry/config/memoization'
-require 'pry/config/default'
 require 'pry/config/convenience'
 require 'pry/config'
 require 'pry/pry_class'

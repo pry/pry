@@ -12,3 +12,7 @@ Naming/MethodName:
     - 'lib/pry/method.rb'
     - 'lib/pry/wrapped_module.rb'
     - 'lib/pry/code.rb'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/pry/config/behavior.rb'

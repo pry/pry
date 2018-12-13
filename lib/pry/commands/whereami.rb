@@ -37,8 +37,13 @@ class Pry
     BANNER
 
     def setup
-      @file = expand_path(target.eval('__FILE__'))
-      @line = target.eval('__LINE__')
+      if target.respond_to?(:source_location)
+        file, @line = target.source_location
+        @file = expand_path(file)
+      else
+        @file = expand_path(target.eval('__FILE__'))
+        @line = target.eval('__LINE__')
+      end
       @method = Pry::Method.from_binding(target)
     end
 
