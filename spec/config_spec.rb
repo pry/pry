@@ -1,4 +1,31 @@
-describe Pry::Config do
+RSpec.describe Pry::Config do
+  describe ".from_hash" do
+    it "returns an object without a default" do
+      local = described_class.from_hash({})
+      expect(local.default).to eq(nil)
+    end
+
+    it "returns an object with a default" do
+      default = described_class.new(nil)
+      local = described_class.from_hash({}, default)
+      expect(local.default).to eq(local)
+    end
+
+    it "recursively walks a Hash" do
+      h = {'foo1' => {'foo2' => {'foo3' => 'foobar'}}}
+      default = described_class.from_hash(h)
+      expect(default.foo1).to be_instance_of(described_class)
+      expect(default.foo1.foo2).to be_instance_of(described_class)
+    end
+
+    it "recursively walks an Array" do
+      c = described_class.from_hash(ary: [{number: 2}, Object, BasicObject.new])
+      expect(c.ary[0].number).to eq(2)
+      expect(c.ary[1]).to eq(Object)
+      expect(BasicObject === c.ary[2]).to be(true)
+    end
+  end
+
   describe "bug #1552" do
     specify "a local key has precendence over its default when the stored value is false" do
       local = described_class.from_hash({}, described_class.from_hash('color' => true))
@@ -50,26 +77,6 @@ describe Pry::Config do
       local.hooks.gsub! 'parent', 'local'
       expect(local.hooks).to eq 'local_hooks'
       expect(parent.hooks).to eq('parent_hooks')
-    end
-  end
-
-  describe ".from_hash" do
-    it "returns an object without a default" do
-      local = described_class.from_hash({})
-      expect(local.default).to eq(nil)
-    end
-
-    it "returns an object with a default" do
-      default = described_class.new(nil)
-      local = described_class.from_hash({}, default)
-      expect(local.default).to eq(local)
-    end
-
-    it "recursively creates Pry::Config objects from a Hash" do
-      h = {'foo1' => {'foo2' => {'foo3' => 'foobar'}}}
-      default = described_class.from_hash(h)
-      expect(default.foo1).to be_instance_of(described_class)
-      expect(default.foo1.foo2).to be_instance_of(described_class)
     end
   end
 
@@ -139,6 +146,12 @@ describe Pry::Config do
     it "compares equality against an object who does not implement #to_hash" do
       local1 = described_class.new(nil)
       expect(local1).not_to eq(Object.new)
+    end
+
+    it "returns false when compared against nil" do
+      # rubocop:disable Style/NilComparison
+      expect(described_class.new(nil) == nil).to eq(false)
+      # rubocop:enable Style/NilComparison
     end
   end
 

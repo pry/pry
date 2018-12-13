@@ -25,4 +25,19 @@ RSpec.describe 'The bin/pry CLI' do
       expect(out).to eq(%w[1 -foo --bar --baz daz].inspect)
     end
   end
+  
+  context '-I path' do
+    it 'adds an additional path to $LOAD_PATH' do
+      code = 'p($LOAD_PATH) and exit'
+      out = `#{ruby} -I#{pry_dir} bin/pry -I /added/at/cli -e '#{code}'`
+      expect(out).to include('/added/at/cli')
+    end
+
+    it 'adds multiple additional paths to $LOAD_PATH' do
+      code = 'p($LOAD_PATH) and exit'
+      out = `#{ruby} -I#{pry_dir} bin/pry -I /added-1/at/cli -I /added/at/cli/also -e '#{code}'`
+      expect(out).to include('/added-1/at/cli')
+      expect(out).to include('/added/at/cli/also')
+    end
+  end
 end

@@ -98,7 +98,13 @@ class Pry
         def from_hash(attributes, default = nil)
           new(default).tap do |config|
             attributes.each do |key,value|
-              config[key] = Hash === value ? from_hash(value) : value
+              config[key] = if Hash === value
+                              from_hash(value)
+                            elsif Array === value
+                              value.map { |v| Hash === v ? from_hash(v) : v }
+                            else
+                              value
+                            end
             end
           end
         end
@@ -215,6 +221,8 @@ class Pry
       #   True if self and `other` are considered `eql?`, otherwise false.
       #
       def ==(other)
+        return false if !other
+
         @lookup == __try_convert_to_hash(other)
       end
       alias_method :eql?, :==

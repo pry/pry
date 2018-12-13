@@ -204,7 +204,7 @@ Pry::CLI.add_options do
     Pry.config.requires << file
   end
 
-  on(:I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":") do
+  on(:I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":") do |load_path|
     load_path.map! do |path|
       /\A\.\// =~ path ? path : File.expand_path(path)
     end
