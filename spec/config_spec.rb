@@ -11,11 +11,18 @@ RSpec.describe Pry::Config do
       expect(local.default).to eq(local)
     end
 
-    it "recursively creates Pry::Config objects from a Hash" do
+    it "recursively walks a Hash" do
       h = {'foo1' => {'foo2' => {'foo3' => 'foobar'}}}
       default = described_class.from_hash(h)
       expect(default.foo1).to be_instance_of(described_class)
       expect(default.foo1.foo2).to be_instance_of(described_class)
+    end
+
+    it "recursively walks an Array" do
+      c = described_class.from_hash(ary: [{number: 2}, Object, BasicObject.new])
+      expect(c.ary[0].number).to eq(2)
+      expect(c.ary[1]).to eq(Object)
+      expect(BasicObject === c.ary[2]).to be(true)
     end
   end
 
