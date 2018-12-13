@@ -25,7 +25,7 @@ RSpec.describe 'The bin/pry CLI' do
       expect(out).to eq(%w[1 -foo --bar --baz daz].inspect)
     end
   end
-  
+
   context '-I path' do
     it 'adds an additional path to $LOAD_PATH' do
       code = 'p($LOAD_PATH) and exit'
