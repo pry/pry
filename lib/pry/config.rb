@@ -48,7 +48,7 @@ class Pry
         control_d_handler: Pry::DEFAULT_CONTROL_D_HANDLER,
         memory_size: 100,
         extra_sticky_locals: {},
-        command_completions: Pry.lazy { defaults.commands.keys },
+        command_completions: proc { defaults.commands.keys },
         file_completions: proc { Dir["."] },
         ls: Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS),
         completer: Pry::InputCompleter,
