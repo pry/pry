@@ -143,7 +143,7 @@ describe Pry::Config do
   end
 
   describe '#forget' do
-    it 'allows a key to return its default value' do
+    it 'restores a key to its default value' do
       last_default = described_class.from_hash(a: 'c')
       middle_default = described_class.from_hash({a: 'b'}, last_default)
       c = described_class.from_hash({a: 'a'}, middle_default)
