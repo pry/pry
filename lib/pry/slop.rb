@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class Pry::Slop
   require_relative 'slop/option'
   require_relative 'slop/commands'
@@ -664,3 +665,4 @@ class Pry::Slop
     end.join("\n")
   end
 end
+# rubocop:enable Metrics/ClassLength
