@@ -187,6 +187,7 @@ class Pry
       def forget(key)
         key = key.to_s
         __remove(key)
+        default.forget(key) if default && default != last_default
       end
 
       #
