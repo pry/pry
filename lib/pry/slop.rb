@@ -34,7 +34,7 @@ class Pry::Slop
     multiple_switches: true,
     longest_flag: 0
   }
-  
+
   class << self
     # items  - The Array of items to extract options from (default: ARGV).
     # config - The Hash of configuration options to send to Slop.new().
@@ -43,7 +43,7 @@ class Pry::Slop
     # Examples:
     #
     #   Slop.parse(ARGV, :help => true) do
-    #     on '-n', '--name', 'Your username', :argument => true
+    #     on '-n', '--name', 'Your username', argument_required: true
     #   end
     #
     # Returns a new instance of Slop.
