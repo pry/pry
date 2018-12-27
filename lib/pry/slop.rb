@@ -34,7 +34,7 @@ class Pry::Slop
     multiple_switches: true,
     longest_flag: 0
   }
-
+  
   class << self
     # items  - The Array of items to extract options from (default: ARGV).
     # config - The Hash of configuration options to send to Slop.new().
@@ -118,7 +118,12 @@ class Pry::Slop
   # config - A Hash of configuration options.
   # block  - An optional block used to specify options.
   def initialize(config = {}, &block)
-    @config = DEFAULT_OPTIONS.merge(config)
+    @config = begin
+      if config.key?(:argument_required)
+        config[:argument] = config.delete(:argument_required)
+      end
+      DEFAULT_OPTIONS.merge(config)
+    end
     @options = []
     @commands = {}
     @trash = []
