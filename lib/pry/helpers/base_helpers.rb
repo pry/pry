@@ -11,7 +11,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @mac_osx_warn = true
     end
@@ -25,7 +25,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @linux_warn = true
     end
@@ -39,7 +39,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @windows_warn = true
     end
@@ -53,7 +53,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @windows_ansi_warn = true
     end
@@ -81,7 +81,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @jruby19_warn = true
     end
@@ -95,7 +95,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @mri_warn = true
     end
@@ -109,7 +109,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @mri19_warn = true
     end
@@ -123,7 +123,7 @@ module Pry::Helpers::BaseHelpers
       loc = caller_locations(1..1).first
       warn(
         "#{loc.path}:#{loc.lineno}: warning: method BaseHelpers##{__method__} " \
-        "is deprecated. Use Pry:Helpers::Platform.#{__method__} instead"
+        "is deprecated. Use Pry::Helpers::Platform.#{__method__} instead"
       )
       @mri2_warn = true
     end
