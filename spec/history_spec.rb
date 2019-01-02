@@ -15,7 +15,6 @@ describe Pry do
 
   after do
     Pry.history.clear
-    Pry.history.restore_default_behavior
     Pry.history.instance_variable_set(:@original_lines, 0)
   end
 
@@ -46,7 +45,6 @@ describe Pry do
       @hist_file_path = File.expand_path('spec/fixtures/pry_history')
       Pry.config.history.file = @hist_file_path
       Pry.history.clear
-      Pry.history.restore_default_behavior
       Pry.load_history
     end
 
@@ -84,36 +82,6 @@ describe Pry do
       Pry.load_history
 
       expect(Pry.history.history_line_count).to eq 5
-    end
-  end
-
-  describe "#restore_default_behavior" do
-    it "restores loader" do
-      Pry.history.loader = proc {}
-      Pry.history.restore_default_behavior
-      expect(Pry.history.loader.class).to eq Method
-      expect(Pry.history.loader.name.to_sym).to eq :read_from_file
-    end
-
-    it "restores saver" do
-      Pry.history.saver = proc {}
-      Pry.history.restore_default_behavior
-      expect(Pry.history.saver.class).to eq Method
-      expect(Pry.history.saver.name.to_sym).to eq :save_to_file
-    end
-
-    it "restores pusher" do
-      Pry.history.pusher = proc {}
-      Pry.history.restore_default_behavior
-      expect(Pry.history.pusher.class).to eq Method
-      expect(Pry.history.pusher.name.to_sym).to eq :push_to_readline
-    end
-
-    it "restores clearer" do
-      Pry.history.clearer = proc {}
-      Pry.history.restore_default_behavior
-      expect(Pry.history.clearer.class).to eq Method
-      expect(Pry.history.clearer.name.to_sym).to eq :clear_readline
     end
   end
 

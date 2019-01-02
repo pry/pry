@@ -11,23 +11,13 @@ class Pry
       @history = []
       @original_lines = 0
       @file_path = options[:file_path]
-      restore_default_behavior
-    end
-
-    # Assign the default methods for loading, saving, pushing, and clearing.
-    def restore_default_behavior
-      Pry.config.input # force Readline to load if applicable
 
       @loader = method(:read_from_file)
-      @saver  = method(:save_to_file)
+      @saver = method(:save_to_file)
 
-      if defined?(Readline)
-        @pusher  = method(:push_to_readline)
-        @clearer = method(:clear_readline)
-      else
-        @pusher  = proc {}
-        @clearer = proc {}
-      end
+      Pry.config.input # force Readline to load if applicable
+      @pusher = defined?(Readline) ? method(:push_to_readline) : proc {}
+      @clearer = defined?(Readline) ? method(:clear_readline) : proc {}
     end
 
     # Load the input history using `History.loader`.
