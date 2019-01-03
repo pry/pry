@@ -39,7 +39,14 @@ class Pry
     end
 
     def history
-      @history ||= History.new
+      return @history if @history
+
+      @history =
+        if defined?(Pry.config.input::HISTORY)
+          History.new(history: Pry.config.input::HISTORY)
+        else
+          History.new
+        end
     end
 
     #

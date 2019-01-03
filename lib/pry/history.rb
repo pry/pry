@@ -2,32 +2,17 @@ class Pry
   # The History class is responsible for maintaining the user's input history,
   # both internally and within Readline.
   class History
-    attr_accessor :loader, :saver, :pusher, :clearer
+    attr_accessor :loader, :saver
 
     # @return [Fixnum] Number of lines in history when Pry first loaded.
     attr_reader :original_lines
 
     def initialize(options = {})
-      @history = []
-      @original_lines = 0
+      @history = options[:history] || []
       @file_path = options[:file_path]
-      restore_default_behavior
-    end
-
-    # Assign the default methods for loading, saving, pushing, and clearing.
-    def restore_default_behavior
-      Pry.config.input # force Readline to load if applicable
-
+      @original_lines = 0
       @loader = method(:read_from_file)
-      @saver  = method(:save_to_file)
-
-      if defined?(Readline)
-        @pusher  = method(:push_to_readline)
-        @clearer = method(:clear_readline)
-      else
-        @pusher  = proc {}
-        @clearer = proc {}
-      end
+      @saver = method(:save_to_file)
     end
 
     # Load the input history using `History.loader`.
@@ -36,7 +21,6 @@ class Pry
       @loader.call do |line|
         next if invalid_readline_line?(line)
 
-        @pusher.call(line.chomp)
         @history << line.chomp
         @original_lines += 1
       end
@@ -46,15 +30,21 @@ class Pry
     # @param [String] line
     # @return [String] The same line that was passed in
     def push(line)
-      empty_or_invalid_line = line.empty? || invalid_readline_line?(line)
+      return line if line.empty? || invalid_readline_line?(line)
 
-      unless empty_or_invalid_line || (@history.last && line == @history.last)
-        @pusher.call(line)
-        @history << line
-        if !should_ignore?(line) && Pry.config.history.should_save
-          @saver.call(line)
-        end
+      begin
+        last_line = @history[-1]
+      rescue IndexError
+        last_line = nil
       end
+
+      return line if line == last_line
+
+      @history << line
+      if !should_ignore?(line) && Pry.config.history.should_save
+        @saver.call(line)
+      end
+
       line
     end
     alias << push
@@ -62,9 +52,8 @@ class Pry
     # Clear this session's history. This won't affect the contents of the
     # history file.
     def clear
-      @clearer.call
+      @history.clear
       @original_lines = 0
-      @history = []
     end
 
     # @return [Fixnum] The number of lines in history.
@@ -81,7 +70,7 @@ class Pry
     # @return [Array<String>] An Array containing all lines of history loaded
     #   or entered by the user in the current session.
     def to_a
-      @history.dup
+      @history.to_a
     end
 
     # Filter the history with the histignore options
@@ -113,17 +102,6 @@ class Pry
       end
     rescue SystemCallError => error
       warn "Unable to read history file: #{error.message}"
-    end
-
-    # The default pusher. Appends the given line to Readline::HISTORY.
-    # @param [String] line
-    def push_to_readline(line)
-      Readline::HISTORY << line
-    end
-
-    # The default clearer. Clears Readline::HISTORY.
-    def clear_readline
-      Readline::HISTORY.shift until Readline::HISTORY.empty?
     end
 
     # The default saver. Appends the given line to `Pry.history.config.file`.
