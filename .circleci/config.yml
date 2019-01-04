@@ -37,7 +37,7 @@ references:
 jobs:
   rubocop_lint:
     docker:
-      - image: circleci/ruby:2.5
+      - image: circleci/ruby:2.6
     working_directory: ~/pry
     steps:
       - checkout
@@ -48,7 +48,7 @@ jobs:
           command: bundle exec rubocop --parallel
   yard_lint:
     docker:
-      - image: circleci/ruby:2.5
+      - image: circleci/ruby:2.6
     working_directory: ~/pry
     steps:
       - checkout
@@ -120,6 +120,15 @@ jobs:
       - <<: *bundle_install
       - <<: *install_ubuntu_nano
       - <<: *unit
+  "ruby-2.6":
+    docker:
+      - image: circleci/ruby:2.6
+    working_directory: ~/pry
+    steps:
+      - <<: *repo_restore_cache
+      - <<: *bundle_install
+      - <<: *install_ubuntu_nano
+      - <<: *unit
   "jruby-9.1-jdk":
     docker:
       - image: circleci/jruby:9.1-jdk
@@ -170,6 +179,10 @@ workflows:
             - rubocop_lint
             - yard_lint
       - "ruby-2.5":
+          requires:
+            - rubocop_lint
+            - yard_lint
+      - "ruby-2.6":
           requires:
             - rubocop_lint
             - yard_lint
