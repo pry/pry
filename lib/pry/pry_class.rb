@@ -39,7 +39,14 @@ class Pry
     end
 
     def history
-      @history ||= History.new
+      return @history if @history
+
+      @history =
+        if defined?(Pry.config.input::HISTORY)
+          History.new(history: Pry.config.input::HISTORY)
+        else
+          History.new
+        end
     end
 
     #
@@ -314,7 +321,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       warn <<-EOT
 Readline version #{Readline::VERSION} detected - will not auto_resize! correctly.
   For the fix, use GNU Readline instead:
-  https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X
+  https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X
       EOT
       return
     end
