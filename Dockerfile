@@ -1,6 +1,6 @@
 # Usage:
 # $ docker build -t pry .
-# $ docker run -t pry
+# $ docker run -i -t pry
 FROM ruby:2.6-stretch
 
 RUN apt-get update -y
@@ -11,3 +11,5 @@ ENV EDITOR emacs
 ADD . /pry
 WORKDIR /pry
 RUN bundle install
+
+ENTRYPOINT /bin/bash
