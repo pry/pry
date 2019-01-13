@@ -4,7 +4,7 @@ RSpec.describe 'The bin/pry CLI' do
   let(:clean_output) do
     # Pry will emit silent garbage because of our auto indent feature.
     # This lambda cleans the output of that garbage.
-    lambda {|out| out.strip.sub("\e[0G", "")}
+    ->(out) { out.strip.sub("\e[0G", "") }
   end
 
   context "ARGV forwarding" do
