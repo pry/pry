@@ -70,7 +70,7 @@ class Pry
         unindent %{
         #{bold 'Exception:'} #{ex.class}: #{ex.message}
         --
-        #{bold('From:')} #{backtrace_file} @ line #{backtrace_line} @ #{bold("level: #{backtrace_level}")} of backtrace (of #{ex.backtrace.size - 1}).
+        #{bold('From:')} #{backtrace_file}:#{backtrace_line} @ #{bold("level: #{backtrace_level}")} of backtrace (of #{ex.backtrace.size - 1}).
 
       }
       end

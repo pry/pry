@@ -81,7 +81,7 @@ class Pry
       mod.number_of_candidates.times do |v|
         candidate = mod.candidate(v)
         begin
-          result << "\nCandidate #{v + 1}/#{mod.number_of_candidates}: #{candidate.source_file} @ line #{candidate.source_line}:\n"
+          result << "\nCandidate #{v + 1}/#{mod.number_of_candidates}: #{candidate.source_file}:#{candidate.source_line}\n"
           content = content_for(candidate)
 
           result << "Number of lines: #{content.lines.count}\n\n" << content
@@ -103,7 +103,7 @@ class Pry
       file_name, line_num = file_and_line_for(code_object)
       content = content_for(code_object)
 
-      h = "\n#{bold('From:')} #{file_name} "
+      h = "\n#{bold('From:')} #{file_name}"
       h << code_object_header(code_object, line_num)
       h << "\n#{bold('Number of lines:')} " << "#{content.lines.count}\n\n"
       h << bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
@@ -130,7 +130,7 @@ class Pry
 
     def method_header(code_object, line_num)
       h = ""
-      h << (code_object.c_method? ? "(C Method):" : "@ line #{line_num}:")
+      h << (code_object.c_method? ? "(C Method):" : ":#{line_num}:")
       h << method_sections(code_object)[:owner]
       h << method_sections(code_object)[:visibility]
       h << method_sections(code_object)[:signature]
@@ -139,7 +139,7 @@ class Pry
 
     def module_header(code_object, line_num)
       h = ""
-      h << "@ line #{line_num}:\n"
+      h << ":#{line_num}\n"
       h << bold(code_object.module? ? "Module" : "Class")
       h << " #{bold('name:')} #{code_object.nonblank_name}"
 

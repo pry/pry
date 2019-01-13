@@ -119,7 +119,7 @@ describe "whereami" do
   #   proc { Cor.new.blimey! }.should.raise(MethodSource::SourceNotFoundError)
 
   #   Pad.tester.last_output.should =~
-  #     /From: not.found.file.erb @ line 7 Cor#blimey!:/
+  #     /From: not.found.file.erb:7 Cor#blimey!/
   #   Object.remove_const(:Cor)
   # end
 
