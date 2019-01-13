@@ -1,4 +1,4 @@
-describe Pry::Hooks do
+RSpec.describe Pry::CLI do
   before do
     Pry::CLI.reset
   end
