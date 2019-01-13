@@ -216,7 +216,7 @@ instance methods beginning with 're' and display the source code for the `rep` m
     Pry#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
     pry(Pry):1> show-method rep -l
 
-    From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb @ line 143:
+    From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb:143
     Number of lines: 6
 
     143: def rep(target=TOPLEVEL_BINDING)
@@ -281,7 +281,7 @@ documentation for the `try_activate` method:
     pry(main)> cd Gem
     pry(Gem):1> show-doc try_activate
 
-    From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb @ line 201:
+    From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb:201
     Number of lines: 3
 
     Try to activate a gem containing path. Returns true if
