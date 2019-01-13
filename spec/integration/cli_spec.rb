@@ -1,10 +1,10 @@
 RSpec.describe 'The bin/pry CLI' do
   let(:ruby) { RbConfig.ruby.shellescape }
   let(:pry_dir) { File.expand_path(File.join(__FILE__, '../../../lib')).shellescape }
-  # Pry will emit silent garbage because of our auto indent feature.
-  # This lambda cleans the output of that garbage.
-  clean_output = lambda do |out|
-    out.strip.sub("\e[0G", "")
+  let(:clean_output) do
+    # Pry will emit silent garbage because of our auto indent feature.
+    # This lambda cleans the output of that garbage.
+    lambda {|out| out.strip.sub("\e[0G", "")}
   end
 
   context "ARGV forwarding" do
