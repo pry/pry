@@ -59,13 +59,11 @@ class Pry
           raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
         end
 
-        index = args.index { |cli_arg| %w[- --].include?(cli_arg) }
-        if index
-          @pass_argv = true
-          slop_args = args[0...index]
-          self.input_args = args.replace(args[index + 1..-1])
+        @pass_argv = args.index { |cli_arg| %w[- --].include?(cli_arg) }
+        if @pass_argv
+          slop_args = args[0...@pass_argv]
+          self.input_args = args.replace(args[@pass_argv + 1..-1])
         else
-          @pass_argv = false
           self.input_args = slop_args = args
         end
 
