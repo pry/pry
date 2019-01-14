@@ -268,4 +268,14 @@ RSpec.describe Pry::Config do
       end
     end
   end
+
+  describe "#eager_load!" do
+    it "eagerly loads keys from the last default into self" do
+      last_default = described_class.from_hash(foo: 1, bar: 2, baz: 3)
+      c = described_class.from_hash({}, last_default)
+      expect(c.keys.size).to eq(0)
+      c.eager_load!
+      expect(c.keys.size).to eq(3)
+    end
+  end
 end
