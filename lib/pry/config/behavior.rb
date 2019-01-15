@@ -262,7 +262,7 @@ class Pry
       end
 
       #
-      # Eagerly loads keys into self directly from #{last_default}.
+      # Eagerly loads keys into self directly from {#last_default}.
       #
       # @example
       #
