@@ -277,7 +277,7 @@ class Pry
       #   An array of keys inserted into self, or nil if {#last_default} is nil.
       #
       def eager_load!
-        return if !last_default
+        return unless last_default
 
         last_default.keys.each { |key| self[key] = public_send(key) }
       end
