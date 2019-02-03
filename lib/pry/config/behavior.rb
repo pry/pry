@@ -263,30 +263,33 @@ class Pry
       end
 
       #
-      # Normally keys are read from a default on first access, this method can
-      # be used to eagerly load all keys from {#last_default} at once instead.
+      # Eagerly loads keys into self directly from {#last_default}.
       #
       # @example
-      #   _pry_.config.eager_load!
-      #   _pry_.config.keys # => [..., ..., ...]
       #
-      # @return [void]
+      #   [1] pry(main)> _pry_.config.keys.size
+      #   => 13
+      #  [2] pry(main)> _pry_.config.eager_load!;
+      #  [warning] Pry.config.exception_whitelist is deprecated, please use Pry.config.unrescued_exceptions instead.
+      #  [3] pry(main)> _pry_.config.keys.size
+      #  => 40
+      #
+      # @return [Array<String>, nil]
+      #   An array of keys inserted into self, or nil if {#last_default} is nil.
       #
       def eager_load!
-        default = @default
-        while default && default.respond_to?(:memoized_methods)
-          default.memoized_methods.each { self[key] = default.public_send(key) }
-          default = @default.default
-        end
+        return unless last_default
+
+        last_default.keys.each { |key| self[key] = public_send(key) }
       end
 
       #
       # @example
       #   # _pry_.config -> Pry.config -> Pry::Config.defaults
-      #   _pry_.config.last_default
+      #   [1] pry(main)> _pry_.config.last_default
       #
       # @return [Pry::Config::Behaviour]
-      #   The last default, or nil.
+      #   The last linked default, or nil if there is none.
       #
       def last_default
         last = @default
