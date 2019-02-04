@@ -267,7 +267,7 @@ class Pry
       #
       # @example
       #
-      #   [1] pry(main)> _pry_.config.keys.size
+      #  [1] pry(main)> _pry_.config.keys.size
       #   => 13
       #  [2] pry(main)> _pry_.config.eager_load!;
       #  [warning] Pry.config.exception_whitelist is deprecated, please use Pry.config.unrescued_exceptions instead.
