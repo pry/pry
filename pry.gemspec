@@ -31,6 +31,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'method_source', '~> 0.9.0'
 
   s.metadata['changelog_uri'] = 'https://github.com/pry/pry/blob/master/CHANGELOG.md'
-  s.metadata['source_code_uri'] = 'https://github.com/pry/pry/'
+  s.metadata['source_code_uri'] = 'https://github.com/pry/pry'
   s.metadata['bug_tracker_uri'] = 'https://github.com/pry/pry/issues'
 end
