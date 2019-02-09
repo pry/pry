@@ -88,6 +88,18 @@ class Pry
     @prompt_warn = false
   end
 
+  #
+  # @return [Module]
+  #   A module who includes the same helper methods available to {Pry} commands.
+  #
+  def h
+    pry = self
+    Module.new do
+      extend Pry::Helpers::Text
+      define_singleton_method(:pry) { pry }
+    end
+  end
+
   # This is the prompt at the top of the prompt stack.
   # @return [Pry::Prompt] the current prompt
   def prompt
