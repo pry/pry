@@ -266,9 +266,8 @@ class Pry
       # Eagerly loads keys into self directly from {#last_default}.
       #
       # @example
-      #
       #  [1] pry(main)> _pry_.config.keys.size
-      #   => 13
+      #  => 13
       #  [2] pry(main)> _pry_.config.eager_load!;
       #  [warning] Pry.config.exception_whitelist is deprecated, please use Pry.config.unrescued_exceptions instead.
       #  [3] pry(main)> _pry_.config.keys.size
