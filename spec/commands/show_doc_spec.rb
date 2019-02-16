@@ -18,6 +18,11 @@ describe "show-doc" do
     end
   end
 
+  it "emits a deprecation warning" do
+    expect(pry_eval(binding, 'show-doc @o.sample_method'))
+      .to match(/WARNING: the show-doc command is deprecated/)
+  end
+
   it 'should work even if #call is defined on Symbol' do
     class Symbol ; def call ; 5 ; end ; end
     expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)

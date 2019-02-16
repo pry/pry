@@ -420,6 +420,7 @@ Layout/SpaceInsideStringInterpolation:
     - 'lib/pry/commands/ls/methods.rb'
     - 'lib/pry/commands/ls/self_methods.rb'
     - 'lib/pry/commands/show_doc.rb'
+    - 'lib/pry/commands/show_source.rb'
     - 'lib/pry/commands/stat.rb'
     - 'spec/commands/edit_spec.rb'
     - 'spec/history_spec.rb'
@@ -523,7 +524,7 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 # ExcludedMethods: refine
 Metrics/BlockLength:
-  Max: 716
+  Max: 731
 
 # Offense count: 1
 # Configuration parameters: CountBlocks.
@@ -1378,6 +1379,7 @@ Style/UnneededCondition:
   Exclude:
     - 'lib/pry/command.rb'
     - 'lib/pry/commands/show_doc.rb'
+    - 'lib/pry/commands/show_source.rb'
     - 'lib/pry/commands/stat.rb'
 
 # Offense count: 5

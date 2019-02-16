@@ -881,4 +881,23 @@ describe "show-source" do
       end
     end
   end
+
+  context "when the --doc switch is provided" do
+    before do
+      # Foo has docs.
+      class Foo
+        def bar
+          :bar
+        end
+      end
+    end
+
+    after { Object.remove_const(:Foo) }
+
+    it "shows documentation for the code object along with source code" do
+      expect(pry_eval(binding, "show-source Foo -d")).to match(
+        /Foo has docs\.\n\s+class Foo/
+      )
+    end
+  end
 end

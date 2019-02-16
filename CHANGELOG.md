@@ -1,4 +1,7 @@
-### HEAD
+### master
+
+* Deprecated the `show-doc` command. The `show-source -d` is the new recommended
+  way of reading docs ([#1934](https://github.com/pry/pry/pull/1934))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
