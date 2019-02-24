@@ -51,7 +51,6 @@ class Pry
           alias_method method.name, method.original_name
           alias_method method.original_name, temp_name
         end
-
       ensure
         method.send(:remove_method, temp_name) rescue nil
       end

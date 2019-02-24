@@ -13,15 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundExceptionHandlingKeywords:
-  Exclude:
-    - 'lib/pry/code_object.rb'
-    - 'lib/pry/input_lock.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/patcher.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundMethodBody:

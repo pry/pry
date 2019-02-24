@@ -127,7 +127,6 @@ class Pry
           nil
         end
       end
-
     rescue Pry::RescuableException
       nil
     end
