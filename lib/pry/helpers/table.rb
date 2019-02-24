@@ -80,6 +80,7 @@ class Pry
       def to_a; items.to_a end
 
       private
+
       def _max_width(things)
         things.compact.map(&:size).max || 0
       end

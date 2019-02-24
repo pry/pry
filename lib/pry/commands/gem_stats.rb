@@ -47,6 +47,7 @@ VVVVVVVVVVVVVVVVVVVVV
   end
 
   private
+
   def format_gem(h)
     h = Pry::Config.from_hash(h)
     format_str = unindent <<-FORMAT

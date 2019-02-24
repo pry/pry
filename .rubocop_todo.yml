@@ -13,19 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Layout/EmptyLinesAroundAccessModifier:
-  Exclude:
-    - 'lib/pry/commands/cat/abstract_formatter.rb'
-    - 'lib/pry/commands/change_inspector.rb'
-    - 'lib/pry/commands/gem_search.rb'
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/commands/list_inspectors.rb'
-    - 'lib/pry/helpers/table.rb'
-    - 'lib/pry/plugins.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundExceptionHandlingKeywords:

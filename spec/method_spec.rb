@@ -262,9 +262,11 @@ describe Pry::Method do
     it 'should be able to find private and protected instance methods defined in a class' do
       @class = Class.new do
         protected
+
         def prot; 1; end
 
         private
+
         def priv; 1; end
       end
       should_find_method('priv')
@@ -537,6 +539,7 @@ describe Pry::Method do
       # top-level methods get added as private instance methods on Object
       class Object
         private
+
         def my_top_level_method ; end
         alias my_other_top_level_method my_top_level_method
       end
