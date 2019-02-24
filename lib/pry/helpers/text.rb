@@ -3,8 +3,7 @@ class Pry
     # The methods defined on {Text} are available to custom commands via {Pry::Command#text}.
     module Text
       extend self
-      COLORS =
-      {
+      COLORS = {
         "black" => 0,
         "red" => 1,
         "green" => 2,
