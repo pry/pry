@@ -31,7 +31,7 @@ class Pry
         # when file and line are passed as a single arg, e.g my_file.rb:30
         def from_filename_argument(filename_argument)
           f = File.expand_path(filename_argument)
-          l = f.sub!(/:(\d+)$/, "") ? $1.to_i : 1
+          l = f.sub!(/:(\d+)$/, "") ? Regexp.last_match(1).to_i : 1
           [f, l]
         end
       end

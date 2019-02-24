@@ -17,7 +17,7 @@ class Pry
 
     def process(cmd)
       if cmd =~ /^cd\s*(.*)/i
-        process_cd parse_destination($1)
+        process_cd parse_destination(Regexp.last_match(1))
       else
         pass_block(cmd)
         if command_block
