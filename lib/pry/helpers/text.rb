@@ -5,15 +5,15 @@ class Pry
       extend self
       COLORS =
       {
-        "black"   => 0,
-        "red"     => 1,
-        "green"   => 2,
-        "yellow"  => 3,
-        "blue"    => 4,
-        "purple"  => 5,
+        "black" => 0,
+        "red" => 1,
+        "green" => 2,
+        "yellow" => 3,
+        "blue" => 4,
+        "purple" => 5,
         "magenta" => 5,
-        "cyan"    => 6,
-        "white"   => 7
+        "cyan" => 6,
+        "white" => 7
       }
 
       COLORS.each_pair do |color, value|

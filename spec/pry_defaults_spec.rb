@@ -335,9 +335,12 @@ describe "test Pry defaults" do
 
   describe 'quiet' do
     it 'should show whereami by default' do
-      Pry.start(binding, input: InputTester.new("1", "exit-all"),
-              output: @str_output,
-              hooks: Pry::DEFAULT_HOOKS)
+      Pry.start(
+        binding,
+        input: InputTester.new("1", "exit-all"),
+        output: @str_output,
+        hooks: Pry::DEFAULT_HOOKS
+      )
 
       expect(@str_output.string).to match(/[w]hereami by default/)
     end

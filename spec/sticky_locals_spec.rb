@@ -109,11 +109,20 @@ describe "Sticky locals (_file_ and friends)" do
 
       it 'should define multiple sticky locals' do
         o = Object.new
-        redirect_pry_io(InputTester.new("@value1 = test_local1",
-                                        "@value2 = test_local2",
-                                        "exit-all")) do
-          Pry.start(o, extra_sticky_locals: { test_local1: :john ,
-                      test_local2: :carl} )
+        redirect_pry_io(
+          InputTester.new(
+            "@value1 = test_local1",
+            "@value2 = test_local2",
+            "exit-all"
+          )
+        ) do
+          Pry.start(
+            o,
+            extra_sticky_locals: {
+              test_local1: :john ,
+              test_local2: :carl
+            }
+          )
         end
 
         expect(o.instance_variable_get(:@value1)).to eq :john

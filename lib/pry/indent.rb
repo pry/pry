@@ -28,20 +28,20 @@ class Pry
     # tokens that should prevent a line from being indented if they appear on
     # the same line.
     OPEN_TOKENS = {
-      'def'    => 'end',
-      'class'  => 'end',
+      'def' => 'end',
+      'class' => 'end',
       'module' => 'end',
-      'do'     => 'end',
-      'if'     => 'end',
+      'do' => 'end',
+      'if' => 'end',
       'unless' => 'end',
-      'while'  => 'end',
-      'until'  => 'end',
-      'for'    => 'end',
-      'case'   => 'end',
-      'begin'  => 'end',
-      '['      => ']',
-      '{'      => '}',
-      '('      => ')'
+      'while' => 'end',
+      'until' => 'end',
+      'for' => 'end',
+      'case' => 'end',
+      'begin' => 'end',
+      '[' => ']',
+      '{' => '}',
+      '(' => ')'
     }
 
     # Which tokens can either be open tokens, or appear as modifiers on
