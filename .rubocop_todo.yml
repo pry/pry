@@ -13,12 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Layout/CommentIndentation:
-  Exclude:
-    - 'spec/fixtures/example_nesting.rb'
-
 # Offense count: 47
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
