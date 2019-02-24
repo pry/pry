@@ -1,6 +1,5 @@
 class Pry
   module Helpers
-
     # This class contains methods useful for extracting
     # documentation from methods and classes.
     module DocumentationHelpers

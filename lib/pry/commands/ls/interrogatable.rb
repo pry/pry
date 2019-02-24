@@ -1,5 +1,4 @@
 module Pry::Command::Ls::Interrogatable
-
   private
 
   def interrogating_a_module?
@@ -14,5 +13,4 @@ module Pry::Command::Ls::Interrogatable
       singleton.ancestors.grep(::Class).reject { |c| c == singleton }.first
     end
   end
-
 end

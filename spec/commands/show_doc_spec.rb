@@ -356,7 +356,6 @@ describe "show-doc" do
     describe "when no class/module arg is given" do
       before do
         module TestHost
-
           # hello there froggy
           module M
             def d; end
@@ -530,7 +529,6 @@ describe "show-doc" do
     describe "for modules" do
       before do
         module Jesus
-
           # alpha-doc
           module Alpha
             def alpha; :alpha; end

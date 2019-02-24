@@ -7,7 +7,6 @@ describe "Pry::Command" do
   describe 'call_safely' do
     it 'should display a message if gems are missing' do
       cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w(ghijkl) do
-        #
       end
 
       expect(mock_command(cmd, %w(hello world)).output).to match(/install-command ford-prefect/)
@@ -15,7 +14,6 @@ describe "Pry::Command" do
 
     it 'should abort early if arguments are required' do
       cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", argument_required: true do
-        #
       end
 
       expect { mock_command(cmd, %w()) }.to raise_error Pry::CommandError
@@ -79,7 +77,6 @@ describe "Pry::Command" do
   describe 'help' do
     it 'should default to the description for blocky commands' do
       @set.command 'oolon-colluphid', "Raving Atheist" do
-        #
       end
 
       expect(mock_command(@set['help'], %w(oolon-colluphid), command_set: @set).output).to match(/Raving Atheist/)
@@ -196,9 +193,7 @@ describe "Pry::Command" do
 
     it 'should raise a command error if process is not overridden' do
       cmd = @set.create_command 'jeltz', "Commander of a Vogon constructor fleet" do
-        def proccces
-          #
-        end
+        def proccces; end
       end
 
       expect { mock_command(cmd) }.to raise_error Pry::CommandError
@@ -789,10 +784,10 @@ describe "Pry::Command" do
   describe 'group' do
     before do
       @set.import(
-                  Pry::CommandSet.new do
-                    create_command("magic") { group("Not for a public use") }
-                  end
-                )
+        Pry::CommandSet.new do
+          create_command("magic") { group("Not for a public use") }
+        end
+      )
     end
 
     it 'should be correct for default commands' do

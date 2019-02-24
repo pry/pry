@@ -59,7 +59,6 @@ class Pry
           from_str(name, target, instance: true) ||
             from_str(name, target, methods: true)
         end
-
       rescue Pry::RescuableException
         nil
       end

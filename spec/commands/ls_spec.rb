@@ -20,13 +20,19 @@ describe "ls" do
     end
 
     it "should include super-classes by default" do
-      expect(pry_eval(
-        "cd Class.new(Class.new{ def goo; end; public :goo }).new",
-        "ls")).to match(/goo/)
+      expect(
+        pry_eval(
+          "cd Class.new(Class.new{ def goo; end; public :goo }).new",
+          "ls"
+        )
+      ).to match(/goo/)
 
-      expect(pry_eval(
-        "cd Class.new(Class.new{ def goo; end; public :goo })",
-        "ls -M")).to match(/goo/)
+      expect(
+        pry_eval(
+          "cd Class.new(Class.new{ def goo; end; public :goo })",
+          "ls -M"
+        )
+      ).to match(/goo/)
     end
 
     it "should not include super-classes when -q is given" do
@@ -47,10 +53,12 @@ describe "ls" do
     end
 
     it "should work on subclasses of BasicObject" do
-      expect(pry_eval(
-        "class LessBasic < BasicObject; def jaroussky; 5; end; end",
-        "ls LessBasic.new"
-      )).to match(/LessBasic#methods:.*jaroussky/m)
+      expect(
+        pry_eval(
+          "class LessBasic < BasicObject; def jaroussky; 5; end; end",
+          "ls LessBasic.new"
+        )
+      ).to match(/LessBasic#methods:.*jaroussky/m)
     end
   end
 
@@ -127,6 +135,7 @@ describe "ls" do
       expect(result).not_to match(/0x\d{5}/)
       expect(result).to match(/asdf.*xyz/m)
     end
+
     it 'should not list pry noise' do
       expect(pry_eval('ls -l')).not_to match(/_(?:dir|file|ex|pry|out|in)_/)
     end
@@ -134,17 +143,23 @@ describe "ls" do
 
   describe "when inside Modules" do
     it "should still work" do
-      expect(pry_eval(
-        "cd Module.new{ def foobie; end; public :foobie }",
-        "ls -M")).to match(/foobie/)
+      expect(
+        pry_eval(
+          "cd Module.new{ def foobie; end; public :foobie }",
+          "ls -M"
+        )
+      ).to match(/foobie/)
     end
 
     it "should work for ivars" do
-      expect(pry_eval(
-        "module StigmaT1sm; def foobie; @@gharble = 456; end; end",
-        "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie",
-        "cd StigmaT1sm",
-        "ls -i")).to match(/@@gharble/)
+      expect(
+        pry_eval(
+          "module StigmaT1sm; def foobie; @@gharble = 456; end; end",
+          "Object.new.tap{ |o| o.extend(StigmaT1sm) }.foobie",
+          "cd StigmaT1sm",
+          "ls -i"
+        )
+      ).to match(/@@gharble/)
     end
 
     it "should include instance methods by default" do
@@ -184,11 +199,13 @@ describe "ls" do
     end
 
     it "should show constants for an object's class regardless of mixins" do
-      expect(pry_eval(
-        "cd Pry.new",
-        "extend Module.new",
-        "ls -c"
-      )).to match(/Method/)
+      expect(
+        pry_eval(
+          "cd Pry.new",
+          "extend Module.new",
+          "ls -c"
+        )
+      ).to match(/Method/)
     end
   end
 

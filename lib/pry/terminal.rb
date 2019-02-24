@@ -1,4 +1,5 @@
 # coding: utf-8
+
 class Pry::Terminal
   class << self
     # Return a pair of [rows, columns] which gives the size of the window.

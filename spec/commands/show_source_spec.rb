@@ -611,7 +611,6 @@ describe "show-source" do
         describe "should skip over broken modules" do
           before do
             module BabyDuck
-
               module Muesli
                 binding.eval("def a; end", "dummy.rb", 1)
                 binding.eval("def b; end", "dummy.rb", 2)

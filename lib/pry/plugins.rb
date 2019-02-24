@@ -110,6 +110,7 @@ class Pry
     end
 
     private
+
     def plugin_located?(plugin)
       @plugins.any? { |existing| existing.gem_name == plugin.gem_name }
     end

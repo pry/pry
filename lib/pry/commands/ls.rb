@@ -77,13 +77,13 @@ class Pry
     def process
       @interrogatee = args.empty? ? target_self : target.eval(args.join(' '))
       raise_errors_if_arguments_are_weird
-      ls_entity = LsEntity.new({
+      ls_entity = LsEntity.new(
         interrogatee: @interrogatee,
         no_user_opts: no_user_opts?,
         opts: opts,
         args: args,
         _pry_: _pry_
-      })
+      )
 
       _pry_.pager.page ls_entity.entities_table
     end

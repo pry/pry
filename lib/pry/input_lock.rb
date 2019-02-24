@@ -57,7 +57,6 @@ class Pry
       end
 
       block.call
-
     ensure
       @mutex.synchronize do
         # We are releasing any desire to have the input ownership by removing
@@ -111,7 +110,6 @@ class Pry
       # the readline call succeeded, but we'll never know, and we will retry the
       # call, discarding that piece of input.
       block.call
-
     rescue Interrupt
       # We were asked to back off. The one requesting the interrupt will be
       # waiting on the conditional for the interruptible flag to change to false.
@@ -122,7 +120,6 @@ class Pry
       leave_interruptible_region
       sleep 0.01
       retry
-
     ensure
       leave_interruptible_region
     end

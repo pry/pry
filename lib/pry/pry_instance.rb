@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
 # features syntax highlighting, a flexible plugin architecture, runtime
@@ -539,19 +540,19 @@ class Pry
     object = current_binding.eval('self')
     open_token = @indent.open_delimiters.last || @indent.stack.last
 
-    c = Pry::Config.assign({
-        object: object,
-        nesting_level: binding_stack.size - 1,
-        open_token: open_token,
-        session_line: Pry.history.session_line_count + 1,
-        history_line: Pry.history.history_line_count + 1,
-        expr_number: input_ring.count,
-        _pry_: self,
-        binding_stack: binding_stack,
-        input_ring: input_ring,
-        eval_string: @eval_string,
-        cont: !@eval_string.empty?
-      })
+    c = Pry::Config.assign(
+      object: object,
+      nesting_level: binding_stack.size - 1,
+      open_token: open_token,
+      session_line: Pry.history.session_line_count + 1,
+      history_line: Pry.history.history_line_count + 1,
+      expr_number: input_ring.count,
+      _pry_: self,
+      binding_stack: binding_stack,
+      input_ring: input_ring,
+      eval_string: @eval_string,
+      cont: !@eval_string.empty?
+    )
 
     Pry.critical_section do
       # If input buffer is empty, then use normal prompt. Otherwise use the wait
