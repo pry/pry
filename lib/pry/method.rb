@@ -330,15 +330,16 @@ class Pry
     # @return [Symbol] The visibility of the method. May be `:public`,
     #   `:protected`, or `:private`.
     def visibility
-     @visibility ||= if owner.public_instance_methods.any? { |m| m.to_s == name }
-                       :public
-                     elsif owner.protected_instance_methods.any? { |m| m.to_s == name }
-                       :protected
-                     elsif owner.private_instance_methods.any? { |m| m.to_s == name }
-                       :private
-                     else
-                       :none
-                     end
+      @visibility ||=
+        if owner.public_instance_methods.any? { |m| m.to_s == name }
+          :public
+        elsif owner.protected_instance_methods.any? { |m| m.to_s == name }
+          :protected
+        elsif owner.private_instance_methods.any? { |m| m.to_s == name }
+          :private
+        else
+          :none
+        end
     end
 
     # @return [String] A representation of the method's signature, including its

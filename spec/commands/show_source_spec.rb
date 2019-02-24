@@ -642,7 +642,7 @@ describe "show-source" do
           class Array
             15.times do |i|
               define_method(:"doge#{i}") do
-                                           :"doge#{i}"
+                :"doge#{i}"
               end
             end
           end
