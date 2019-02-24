@@ -57,8 +57,8 @@ class Pry
         raise CommandError, "Cannot locate #{identifier}!"
       elsif !File.exist?(code_object.source_file)
         raise CommandError,
-          "Cannot reload #{identifier} as it has no associated file on disk. " \
-          "File found was: #{code_object.source_file}"
+              "Cannot reload #{identifier} as it has no associated file on disk. " \
+              "File found was: #{code_object.source_file}"
       end
     end
   end

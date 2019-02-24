@@ -132,7 +132,7 @@ describe 'cd' do
     describe 'when using ^D (Control-D) key press' do
       it 'should keep correct old binding' do
         @t.eval 'cd :john_dogg', 'cd :mon_dogg', 'cd :kyr_dogg',
-          'Pry::DEFAULT_CONTROL_D_HANDLER.call("", _pry_)'
+                'Pry::DEFAULT_CONTROL_D_HANDLER.call("", _pry_)'
         expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg]
 
         @t.eval 'cd -'

@@ -28,10 +28,10 @@ class Pry
 
     def options(opt)
       opt.on :d, :delete,
-        "Delete the watch expression with the given index. If no index is given; clear all watch expressions.",
-        optional_argument: true, as: Integer
+             "Delete the watch expression with the given index. If no index is given; clear all watch expressions.",
+             optional_argument: true, as: Integer
       opt.on :l, :list,
-        "Show all current watch expressions and their values.  Calling watch with no expressions or options will also show the watch expressions."
+             "Show all current watch expressions and their values.  Calling watch with no expressions or options will also show the watch expressions."
     end
 
     def process

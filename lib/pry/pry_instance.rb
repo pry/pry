@@ -408,7 +408,8 @@ class Pry
   def process_command(val)
     val = val.lstrip if /^\s\S/ !~ val
     val = val.chomp
-    result = commands.process_line(val,
+    result = commands.process_line(
+      val,
       target: current_binding,
       output: output,
       eval_string: @eval_string,
@@ -453,7 +454,8 @@ class Pry
   # @example
   #   pry_instance.run_command("ls -m")
   def run_command(val)
-    commands.process_line(val,
+    commands.process_line(
+      val,
       eval_string: @eval_string,
       target: current_binding,
       pry_instance: self,

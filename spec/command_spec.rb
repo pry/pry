@@ -429,8 +429,8 @@ describe "Pry::Command" do
 
     it 'should accept normal parameters along with block' do
       @set.block_command "walking-spanish",
-          "litella's been screeching for a blind pig.",
-          takes_block: true do |x, y|
+                         "litella's been screeching for a blind pig.",
+                         takes_block: true do |x, y|
         insert_variable(:@x, x, target)
         insert_variable(:@y, y, target)
         insert_variable(:@block_var, command_block.call, target)

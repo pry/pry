@@ -43,7 +43,7 @@ describe "save-file" do
 
     it 'should save multi-ranged input expressions' do
       @t.eval ':or_nostrils', ':sucking_up_all_the_oxygen', ':or_whatever',
-      ':baby_ducks', ':cannot_escape'
+              ':baby_ducks', ':cannot_escape'
       @t.eval "save-file -i 1..2 -i 4..5 --to '#{@path}'"
       expect(File.read(@path)).to eq(":or_nostrils\n:sucking_up_all_the_oxygen\n:baby_ducks\n:cannot_escape\n")
     end
