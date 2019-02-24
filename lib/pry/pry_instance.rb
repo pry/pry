@@ -203,7 +203,8 @@ class Pry
   end
 
   def sticky_locals
-    { _in_: input_ring,
+    {
+      _in_: input_ring,
       _out_: output_ring,
       _pry_: self,
       _ex_: last_exception && last_exception.wrapped_exception,
