@@ -24,12 +24,12 @@ class Pry
 
     def options(opt)
       opt.on :e, :ex,      "Open the file that raised the most recent exception (_ex_.file)",
-                           optional_argument: true, as: Integer
+             optional_argument: true, as: Integer
       opt.on :i, :in,      "Open a temporary file containing the Nth input expression. N may be a range",
-                           optional_argument: true, as: Range, default: -1..-1
+             optional_argument: true, as: Range, default: -1..-1
       opt.on :t, :temp,    "Open an empty temporary file"
       opt.on :l, :line,    "Jump to this line in the opened file",
-                           argument: true, as: Integer
+             argument: true, as: Integer
       opt.on :n, :"no-reload", "Don't automatically reload the edited file"
       opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)"
       opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
@@ -61,7 +61,7 @@ class Pry
 
     def repl_edit
       content = Pry::Editor.new(_pry_).edit_tempfile_with_content(initial_temp_file_content,
-                                                       initial_temp_file_content.lines.count)
+                                                                  initial_temp_file_content.lines.count)
       silence_warnings do
         eval_string.replace content
       end

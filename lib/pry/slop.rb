@@ -229,7 +229,7 @@ class Pry::Slop
     missing_options = options.select { |opt| opt.required? && opt.count < 1 }
     if missing_options.any?
       raise MissingOptionError,
-      "Missing required option(s): #{missing_options.map(&:key).join(', ')}"
+            "Missing required option(s): #{missing_options.map(&:key).join(', ')}"
     end
 
     if @unknown_options.any?

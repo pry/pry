@@ -17,9 +17,9 @@ class Pry::Command::GemSearch < Pry::ClassCommand
 
   def options(opt)
     opt.on :l, :limit, 'Limit the number of results (max: 30)',
-      default: 10,
-      as: Integer,
-      argument: true
+           default: 10,
+           as: Integer,
+           argument: true
   end
 
   def process(str)

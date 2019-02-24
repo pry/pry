@@ -17,9 +17,9 @@ class Pry
       # Get the method object parsed by the slop instance
       def method_object
         @method_object ||= get_method_or_raise(args.empty? ? nil : args.join(" "), @method_target,
-                            super: opts[:super],
-                            instance: opts.present?(:'instance-methods') && !opts.present?(:'methods'),
-                            methods: opts.present?(:'methods') && !opts.present?(:'instance-methods')
+                                               super: opts[:super],
+                                               instance: opts.present?(:'instance-methods') && !opts.present?(:'methods'),
+                                               methods: opts.present?(:'methods') && !opts.present?(:'instance-methods')
                            )
       end
     end

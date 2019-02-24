@@ -50,25 +50,6 @@ Layout/AlignHash:
     - 'spec/pry_defaults_spec.rb'
     - 'spec/sticky_locals_spec.rb'
 
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: with_first_parameter, with_fixed_indentation
-Layout/AlignParameters:
-  Exclude:
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/commands/gem_search.rb'
-    - 'lib/pry/commands/reload_code.rb'
-    - 'lib/pry/commands/watch_expression.rb'
-    - 'lib/pry/helpers/options_helpers.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/rubygem.rb'
-    - 'lib/pry/slop.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/cd_spec.rb'
-    - 'spec/commands/save_file_spec.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleAlignWith.
