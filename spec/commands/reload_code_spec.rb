@@ -12,7 +12,8 @@ describe "reload_code" do
       expect do
         pry_eval(
           "cd Class.new(Class.new{ def goo; end; public :goo })",
-          "reload-code")
+          "reload-code"
+        )
       end.to raise_error(Pry::CommandError)
     end
 
@@ -23,7 +24,8 @@ describe "reload_code" do
     it 'raises an error when pry command not found' do
       expect do
         pry_eval(
-          "reload-code not-a-real-command")
+          "reload-code not-a-real-command"
+        )
       end.to raise_error(Pry::CommandError, /Cannot locate not-a-real-command!/)
     end
   end

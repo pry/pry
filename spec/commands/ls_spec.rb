@@ -164,7 +164,8 @@ describe "ls" do
 
     it "should include instance methods by default" do
       output = pry_eval(
-        "ls Module.new{ def shinanagarns; 4; end; public :shinanagarns }")
+        "ls Module.new{ def shinanagarns; 4; end; public :shinanagarns }"
+      )
       expect(output).to match(/shinanagarns/)
     end
 
