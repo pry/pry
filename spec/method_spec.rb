@@ -486,10 +486,11 @@ describe Pry::Method do
       end
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
-        expect(Pry::Method.resolution_order(LS::Top)).to eq(
-                                                           [eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
-                                                            *Pry::Method.instance_resolution_order(Class)]
-                                                         )
+        singleton_classes = [
+          eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
+          *Pry::Method.instance_resolution_order(Class)
+        ]
+        expect(Pry::Method.resolution_order(LS::Top)).to eq(singleton_classes)
       end
     end
   end

@@ -188,10 +188,10 @@ class Pry::InputCompleter
         select_message(path, receiver, message, candidates)
       else
         candidates = eval(
-                          "methods | private_methods | local_variables | " \
-                          "self.class.constants | instance_variables",
-                          bind
-                        ).collect(&:to_s)
+          "methods | private_methods | local_variables | " \
+          "self.class.constants | instance_variables",
+          bind
+        ).collect(&:to_s)
 
         if eval("respond_to?(:class_variables)", bind)
           candidates += eval("class_variables", bind).collect(&:to_s)

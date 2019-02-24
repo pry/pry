@@ -784,10 +784,10 @@ describe "Pry::Command" do
   describe 'group' do
     before do
       @set.import(
-                  Pry::CommandSet.new do
-                    create_command("magic") { group("Not for a public use") }
-                  end
-                )
+        Pry::CommandSet.new do
+          create_command("magic") { group("Not for a public use") }
+        end
+      )
     end
 
     it 'should be correct for default commands' do
