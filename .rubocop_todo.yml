@@ -7,14 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: **/*.gemfile, **/Gemfile, **/gems.rb
-Bundler/InsecureProtocolSource:
-  Exclude:
-    - 'spec/fixtures/Gemfile'
-
-# Offense count: 1
 # Configuration parameters: Include.
 # Include: **/*.gemspec
 Gemspec/RequiredRubyVersion:
