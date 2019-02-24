@@ -57,8 +57,8 @@ class Pry
 
       if opts.present?(:'exclude-pry')
         @history = @history.select do |loc|
-                     !command_set.valid_command?(loc.line)
-                   end
+          !command_set.valid_command?(loc.line)
+        end
       end
 
       if opts.present?(:save)

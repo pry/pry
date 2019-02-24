@@ -13,18 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith.
-# SupportedStylesAlignWith: either, start_of_block, start_of_line
-Layout/BlockAlignment:
-  Exclude:
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/indent_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Layout/BlockEndNewline:

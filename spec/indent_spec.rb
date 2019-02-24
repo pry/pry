@@ -292,19 +292,19 @@ OUTPUT
   end
 
   describe "nesting" do
-      test = File.read("spec/fixtures/example_nesting.rb")
+    test = File.read("spec/fixtures/example_nesting.rb")
 
-      test.lines.each_with_index do |line, i|
-        result = line.split("#").last.strip
-        if result == ""
-          it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
-            expect { Pry::Indent.nesting_at(test, i + 1) }.to raise_error Pry::Indent::UnparseableNestingError
-          end
-        else
-          it "should parse nesting on line #{i + 1} of example_nesting.rb" do
-            expect(Pry::Indent.nesting_at(test, i + 1)).to eq eval(result)
-          end
+    test.lines.each_with_index do |line, i|
+      result = line.split("#").last.strip
+      if result == ""
+        it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
+          expect { Pry::Indent.nesting_at(test, i + 1) }.to raise_error Pry::Indent::UnparseableNestingError
+        end
+      else
+        it "should parse nesting on line #{i + 1} of example_nesting.rb" do
+          expect(Pry::Indent.nesting_at(test, i + 1)).to eq eval(result)
         end
       end
     end
+  end
 end
