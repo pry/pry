@@ -220,5 +220,5 @@ Pry::CLI.add_options do
   on(:c, :context=,
      "Start the session in the specified context. Equivalent to `context.pry` in a session.",
      default: "Pry.toplevel_binding"
-     )
+  )
 end

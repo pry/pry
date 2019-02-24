@@ -13,15 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/helpers/options_helpers.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'spec/command_spec.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Layout/CommentIndentation:

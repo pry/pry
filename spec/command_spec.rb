@@ -792,7 +792,7 @@ describe "Pry::Command" do
                   Pry::CommandSet.new do
                     create_command("magic") { group("Not for a public use") }
                   end
-                 )
+                )
     end
 
     it 'should be correct for default commands' do
