@@ -14,30 +14,31 @@ class Pry::InputCompleter
   GLOBALVARIABLE_REGEXP     = /^(\$[^.]*)$/
   VARIABLE_REGEXP           = /^([^."].*)\.([^.]*)$/
 
-  ReservedWords = [
-                   "BEGIN", "END",
-                   "alias", "and",
-                   "begin", "break",
-                   "case", "class",
-                   "def", "defined", "do",
-                   "else", "elsif", "end", "ensure",
-                   "false", "for",
-                   "if", "in",
-                   "module",
-                   "next", "nil", "not",
-                   "or",
-                   "redo", "rescue", "retry", "return",
-                   "self", "super",
-                   "then", "true",
-                   "undef", "unless", "until",
-                   "when", "while",
-                   "yield" ]
+  ReservedWords = %w[
+    BEGIN END
+    alias and
+    begin break
+    case class
+    def defined do
+    else elsif end ensure
+    false for
+    if in
+    module
+    next nil not
+    or
+    redo rescue retry return
+    self super
+    then true
+    undef unless until
+    when while
+    yield
+  ].freeze
 
-  Operators = [
-               "%", "&", "*", "**", "+", "-", "/",
-               "<", "<<", "<=", "<=>", "==", "===", "=~", ">", ">=", ">>",
-               "[]", "[]=", "^", "!", "!=", "!~"
-              ]
+  Operators = %w[
+    % & * ** + - /
+    < << <= <=> == === =~ > >= >>
+    [] []= ^ ! != !~
+  ].freeze
 
   WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
 
