@@ -564,7 +564,8 @@ class Pry::Slop
     unless option
       case flag
       when /\A--?([^=]+)=(.+)\z/, /\A-([a-zA-Z])(.+)\z/, /\A--no-(.+)\z/
-        option, argument = fetch_option($1), ($2 || false)
+        option = fetch_option(Regexp.last_match(1))
+        argument = Regexp.last_match(2) || false
         option.argument_in_value = true if option
       end
     end

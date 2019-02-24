@@ -199,7 +199,8 @@ class Pry
 
     def complete(input)
       if input =~ /([^ ]*)#([a-z0-9_]*)\z/
-        prefix, search = [$1, $2]
+        prefix = Regexp.last_match(1)
+        search = Regexp.last_match(2)
         methods = begin
                     Pry::Method.all_from_class(binding.eval(prefix))
                   rescue RescuableException

@@ -191,9 +191,13 @@ class Pry::Slop
     def value_to_range(value)
       case value.to_s
       when /\A(\-?\d+)\z/
-        Range.new($1.to_i, $1.to_i)
+        Range.new(Regexp.last_match(1).to_i, Regexp.last_match(1).to_i)
       when /\A(-?\d+?)(\.\.\.?|-|,)(-?\d+)\z/
-        Range.new($1.to_i, $3.to_i, $2 == '...')
+        Range.new(
+          Regexp.last_match(1).to_i,
+          Regexp.last_match(3).to_i,
+          Regexp.last_match(2) == '...'
+        )
       else
         if @slop.strict?
           raise InvalidArgumentError, "#{value} could not be coerced into Range"
