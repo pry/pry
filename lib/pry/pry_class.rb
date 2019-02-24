@@ -128,19 +128,17 @@ class Pry
   end
 
   def self.load_win32console
-    begin
-      require 'win32console'
-      # The mswin and mingw versions of pry require win32console, so this should
-      # only fail on jruby (where win32console doesn't work).
-      # Instead we'll recommend ansicon, which does.
-    rescue LoadError
-      warn <<-WARNING if Pry.config.windows_console_warning
+    require 'win32console'
+    # The mswin and mingw versions of pry require win32console, so this should
+    # only fail on jruby (where win32console doesn't work).
+    # Instead we'll recommend ansicon, which does.
+  rescue LoadError
+    warn <<-WARNING if Pry.config.windows_console_warning
 For a better Pry experience on Windows, please use ansicon:
   https://github.com/adoxa/ansicon
 If you use an alternative to ansicon and don't want to see this warning again,
 you can add "Pry.config.windows_console_warning = false" to your pryrc.
-      WARNING
-    end
+    WARNING
   end
 
   # Do basic setup for initial session including: loading pryrc, plugins,

@@ -37,7 +37,6 @@ class Pry
     # all the flags we want as well as the file and line number we
     # want to open at.
     def build_editor_invocation_string(file, line, blocking)
-
       if _pry_.config.editor.respond_to?(:call)
         args = [file, line, blocking][0...(_pry_.config.editor.arity)]
         _pry_.config.editor.call(*args)
@@ -58,13 +57,11 @@ class Pry
     # We need JRuby specific code here cos just shelling out using
     # system() appears to be pretty broken :/
     def open_editor_on_jruby(editor_invocation)
-      begin
-        require 'spoon'
-        pid = Spoon.spawnp(*Shellwords.split(editor_invocation))
-        Process.waitpid(pid)
-      rescue FFI::NotFoundError
-        system(editor_invocation)
-      end
+      require 'spoon'
+      pid = Spoon.spawnp(*Shellwords.split(editor_invocation))
+      Process.waitpid(pid)
+    rescue FFI::NotFoundError
+      system(editor_invocation)
     end
 
     # Some editors that run outside the terminal allow you to control whether or
