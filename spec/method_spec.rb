@@ -260,7 +260,13 @@ describe Pry::Method do
     end
 
     it 'should be able to find private and protected instance methods defined in a class' do
-      @class = Class.new { protected; def prot; 1; end; private; def priv; 1; end }
+      @class = Class.new do
+        protected
+        def prot; 1; end
+
+        private
+        def priv; 1; end
+      end
       should_find_method('priv')
       should_find_method('prot')
     end
