@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterMagicComment:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundAccessModifier:
