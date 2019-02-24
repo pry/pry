@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: AllowBorderComment, AllowMarginComment.
-Layout/EmptyComment:
-  Exclude:
-    - 'spec/command_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterMagicComment:
