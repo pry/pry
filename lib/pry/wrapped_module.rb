@@ -247,10 +247,10 @@ class Pry
     #  other rubies returns Enumerator
     def candidates
       enum = Enumerator.new do |y|
-               (0...number_of_candidates).each do |num|
-                 y.yield candidate(num)
-               end
-             end
+        (0...number_of_candidates).each do |num|
+          y.yield candidate(num)
+        end
+      end
       Helpers::Platform.jruby_19? ? enum.to_a : enum
     end
 

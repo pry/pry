@@ -296,135 +296,135 @@ describe "show-source" do
             end
           end
           ::TestHost.new.hello
-          EOS
-        end
-
-        after do
-          Object.remove_const(:TestHost)
-        end
-
-        it "source of variable should take precedence over method that is being shadowed" do
-          source = @t.eval('show-source hello')
-          expect(source).not_to match(/def hello/)
-          expect(source).to match(/proc \{ ' smile ' \}/)
-        end
-
-        it "source of method being shadowed should take precedence over variable
-          if given self.meth_name syntax" do
-          expect(@t.eval('show-source self.hello')).to match(/def hello/)
-        end
-      end
-    end
-
-    describe "on variable or constant" do
-      before do
-        class TestHost
-          def hello
-            "hi there"
-          end
-        end
+        EOS
       end
 
       after do
         Object.remove_const(:TestHost)
       end
 
-      it "should output source of its class if variable doesn't respond to source_location" do
-        _test_host = TestHost.new
-        expect(pry_eval(binding, 'show-source _test_host')).
-          to match(/class TestHost\n.*def hello/)
+      it "source of variable should take precedence over method that is being shadowed" do
+        source = @t.eval('show-source hello')
+        expect(source).not_to match(/def hello/)
+        expect(source).to match(/proc \{ ' smile ' \}/)
       end
 
-      it "should output source of its class if constant doesn't respond to source_location" do
-        TEST_HOST = TestHost.new
-        expect(pry_eval(binding, 'show-source TEST_HOST')).
-          to match(/class TestHost\n.*def hello/)
-        Object.remove_const(:TEST_HOST)
+      it "source of method being shadowed should take precedence over variable
+          if given self.meth_name syntax" do
+        expect(@t.eval('show-source self.hello')).to match(/def hello/)
+      end
+    end
+  end
+
+  describe "on variable or constant" do
+    before do
+      class TestHost
+        def hello
+          "hi there"
+        end
       end
     end
 
-    describe "on modules" do
-      before do
-        class ShowSourceTestSuperClass
-          def alpha
-          end
-        end
+    after do
+      Object.remove_const(:TestHost)
+    end
 
-        class ShowSourceTestClass < ShowSourceTestSuperClass
-          def alpha
-          end
-        end
+    it "should output source of its class if variable doesn't respond to source_location" do
+      _test_host = TestHost.new
+      expect(pry_eval(binding, 'show-source _test_host')).
+        to match(/class TestHost\n.*def hello/)
+    end
 
-        module ShowSourceTestSuperModule
-          def alpha
-          end
-        end
+    it "should output source of its class if constant doesn't respond to source_location" do
+      TEST_HOST = TestHost.new
+      expect(pry_eval(binding, 'show-source TEST_HOST')).
+        to match(/class TestHost\n.*def hello/)
+      Object.remove_const(:TEST_HOST)
+    end
+  end
 
-        module ShowSourceTestModule
-          include ShowSourceTestSuperModule
-          def alpha
-          end
-        end
-
-        ShowSourceTestClassWeirdSyntax = Class.new do
-          def beta
-          end
-        end
-
-        ShowSourceTestModuleWeirdSyntax = Module.new do
-          def beta
-          end
+  describe "on modules" do
+    before do
+      class ShowSourceTestSuperClass
+        def alpha
         end
       end
 
-      after do
-        Object.remove_const :ShowSourceTestSuperClass
-        Object.remove_const :ShowSourceTestClass
-        Object.remove_const :ShowSourceTestClassWeirdSyntax
-        Object.remove_const :ShowSourceTestSuperModule
-        Object.remove_const :ShowSourceTestModule
-        Object.remove_const :ShowSourceTestModuleWeirdSyntax
-      end
-
-      describe "basic functionality, should find top-level module definitions" do
-        it 'should show source for a class' do
-          expect(pry_eval('show-source ShowSourceTestClass')).
-            to match(/class ShowSourceTestClass.*?def alpha/m)
-        end
-
-        it 'should show source for a super class' do
-          expect(pry_eval('show-source -s ShowSourceTestClass')).
-            to match(/class ShowSourceTestSuperClass.*?def alpha/m)
-        end
-
-        it 'should show source for a module' do
-          expect(pry_eval('show-source ShowSourceTestModule')).
-            to match(/module ShowSourceTestModule/)
-        end
-
-        it 'should show source for an ancestor module' do
-          expect(pry_eval('show-source -s ShowSourceTestModule')).
-            to match(/module ShowSourceTestSuperModule/)
-        end
-
-        it 'should show source for a class when Const = Class.new syntax is used' do
-          expect(pry_eval('show-source ShowSourceTestClassWeirdSyntax')).
-            to match(/ShowSourceTestClassWeirdSyntax = Class.new/)
-        end
-
-        it 'should show source for a super class when Const = Class.new syntax is used' do
-          expect(pry_eval('show-source -s ShowSourceTestClassWeirdSyntax')).
-            to match(/class Object/)
-        end
-
-        it 'should show source for a module when Const = Module.new syntax is used' do
-          expect(pry_eval('show-source ShowSourceTestModuleWeirdSyntax')).
-            to match(/ShowSourceTestModuleWeirdSyntax = Module.new/)
+      class ShowSourceTestClass < ShowSourceTestSuperClass
+        def alpha
         end
       end
 
-      before do
-        pry_eval unindent(<<-EOS)
+      module ShowSourceTestSuperModule
+        def alpha
+        end
+      end
+
+      module ShowSourceTestModule
+        include ShowSourceTestSuperModule
+        def alpha
+        end
+      end
+
+      ShowSourceTestClassWeirdSyntax = Class.new do
+        def beta
+        end
+      end
+
+      ShowSourceTestModuleWeirdSyntax = Module.new do
+        def beta
+        end
+      end
+    end
+
+    after do
+      Object.remove_const :ShowSourceTestSuperClass
+      Object.remove_const :ShowSourceTestClass
+      Object.remove_const :ShowSourceTestClassWeirdSyntax
+      Object.remove_const :ShowSourceTestSuperModule
+      Object.remove_const :ShowSourceTestModule
+      Object.remove_const :ShowSourceTestModuleWeirdSyntax
+    end
+
+    describe "basic functionality, should find top-level module definitions" do
+      it 'should show source for a class' do
+        expect(pry_eval('show-source ShowSourceTestClass')).
+          to match(/class ShowSourceTestClass.*?def alpha/m)
+      end
+
+      it 'should show source for a super class' do
+        expect(pry_eval('show-source -s ShowSourceTestClass')).
+          to match(/class ShowSourceTestSuperClass.*?def alpha/m)
+      end
+
+      it 'should show source for a module' do
+        expect(pry_eval('show-source ShowSourceTestModule')).
+          to match(/module ShowSourceTestModule/)
+      end
+
+      it 'should show source for an ancestor module' do
+        expect(pry_eval('show-source -s ShowSourceTestModule')).
+          to match(/module ShowSourceTestSuperModule/)
+      end
+
+      it 'should show source for a class when Const = Class.new syntax is used' do
+        expect(pry_eval('show-source ShowSourceTestClassWeirdSyntax')).
+          to match(/ShowSourceTestClassWeirdSyntax = Class.new/)
+      end
+
+      it 'should show source for a super class when Const = Class.new syntax is used' do
+        expect(pry_eval('show-source -s ShowSourceTestClassWeirdSyntax')).
+          to match(/class Object/)
+      end
+
+      it 'should show source for a module when Const = Module.new syntax is used' do
+        expect(pry_eval('show-source ShowSourceTestModuleWeirdSyntax')).
+          to match(/ShowSourceTestModuleWeirdSyntax = Module.new/)
+      end
+    end
+
+    before do
+      pry_eval unindent(<<-EOS)
         class Dog
           def woof
           end
@@ -434,293 +434,293 @@ describe "show-source" do
           def woof
           end
         end
-        EOS
+      EOS
+    end
+
+    after do
+      Object.remove_const :Dog
+      Object.remove_const :TobinaMyDog
+    end
+
+    describe "in REPL" do
+      it 'should find class defined in repl' do
+        expect(pry_eval('show-source TobinaMyDog')).to match(/class TobinaMyDog/)
       end
 
-      after do
-        Object.remove_const :Dog
-        Object.remove_const :TobinaMyDog
+      it 'should find superclass defined in repl' do
+        expect(pry_eval('show-source -s TobinaMyDog')).to match(/class Dog/)
       end
+    end
 
-      describe "in REPL" do
-        it 'should find class defined in repl' do
-          expect(pry_eval('show-source TobinaMyDog')).to match(/class TobinaMyDog/)
+    it 'should lookup module name with respect to current context' do
+      temporary_constants(:AlphaClass, :BetaClass) do
+        class BetaClass
+          def alpha
+          end
         end
 
-        it 'should find superclass defined in repl' do
-          expect(pry_eval('show-source -s TobinaMyDog')).to match(/class Dog/)
-        end
-      end
-
-      it 'should lookup module name with respect to current context' do
-        temporary_constants(:AlphaClass, :BetaClass) do
+        class AlphaClass
           class BetaClass
-            def alpha
-            end
-          end
-
-          class AlphaClass
-            class BetaClass
-              def beta
-              end
-            end
-          end
-
-          expect(pry_eval(AlphaClass, 'show-source BetaClass')).to match(/def beta/)
-        end
-      end
-
-      it 'should lookup nested modules' do
-        temporary_constants(:AlphaClass) do
-          class AlphaClass
-            class BetaClass
-              def beta
-              end
-            end
-          end
-
-          expect(pry_eval('show-source AlphaClass::BetaClass')).to match(/class Beta/)
-        end
-      end
-
-      # note that pry assumes a class is only monkey-patched at most
-      # ONCE per file, so will not find multiple monkeypatches in the
-      # SAME file.
-      describe "show-source -a" do
-        it 'should show the source for all monkeypatches defined in different files' do
-          class TestClassForShowSource
             def beta
             end
           end
-
-          result = pry_eval('show-source TestClassForShowSource -a')
-          expect(result).to match(/def alpha/)
-          expect(result).to match(/def beta/)
         end
 
-        it 'should show the source for a class_eval-based monkeypatch' do
-          TestClassForShowSourceClassEval.class_eval do
-            def class_eval_method
+        expect(pry_eval(AlphaClass, 'show-source BetaClass')).to match(/def beta/)
+      end
+    end
+
+    it 'should lookup nested modules' do
+      temporary_constants(:AlphaClass) do
+        class AlphaClass
+          class BetaClass
+            def beta
+            end
+          end
+        end
+
+        expect(pry_eval('show-source AlphaClass::BetaClass')).to match(/class Beta/)
+      end
+    end
+
+    # note that pry assumes a class is only monkey-patched at most
+    # ONCE per file, so will not find multiple monkeypatches in the
+    # SAME file.
+    describe "show-source -a" do
+      it 'should show the source for all monkeypatches defined in different files' do
+        class TestClassForShowSource
+          def beta
+          end
+        end
+
+        result = pry_eval('show-source TestClassForShowSource -a')
+        expect(result).to match(/def alpha/)
+        expect(result).to match(/def beta/)
+      end
+
+      it 'should show the source for a class_eval-based monkeypatch' do
+        TestClassForShowSourceClassEval.class_eval do
+          def class_eval_method
+          end
+        end
+
+        result = pry_eval('show-source TestClassForShowSourceClassEval -a')
+        expect(result).to match(/def class_eval_method/)
+      end
+
+      it 'should ignore -a when object is not a module' do
+        TestClassForShowSourceClassEval.class_eval do
+          def class_eval_method
+            :bing
+          end
+        end
+
+        result = pry_eval('show-source TestClassForShowSourceClassEval#class_eval_method -a')
+        expect(result).to match(/bing/)
+      end
+
+      it 'should show the source for an instance_eval-based monkeypatch' do
+        TestClassForShowSourceInstanceEval.instance_eval do
+          def instance_eval_method
+          end
+        end
+
+        result = pry_eval('show-source TestClassForShowSourceInstanceEval -a')
+        expect(result).to match(/def instance_eval_method/)
+      end
+
+      describe "messages relating to -a" do
+        it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
+          class TestClassForShowSource
+            def gamma
             end
           end
 
-          result = pry_eval('show-source TestClassForShowSourceClassEval -a')
-          expect(result).to match(/def class_eval_method/)
+          result = pry_eval('show-source TestClassForShowSource')
+          expect(result).to match(/available monkeypatches/)
         end
 
-        it 'should ignore -a when object is not a module' do
-          TestClassForShowSourceClassEval.class_eval do
-            def class_eval_method
-              :bing
-            end
+        it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
+          class Aarrrrrghh
+            def o;end
           end
 
-          result = pry_eval('show-source TestClassForShowSourceClassEval#class_eval_method -a')
-          expect(result).to match(/bing/)
+          result = pry_eval('show-source Aarrrrrghh')
+          expect(result).not_to match(/available monkeypatches/)
+          Object.remove_const(:Aarrrrrghh)
         end
+      end
+    end
 
-        it 'should show the source for an instance_eval-based monkeypatch' do
-          TestClassForShowSourceInstanceEval.instance_eval do
-            def instance_eval_method
-            end
+    describe "when show-source is invoked without a method or class argument" do
+      before do
+        module TestHost
+          class M
+            def alpha; end
+
+            def beta; end
           end
 
-          result = pry_eval('show-source TestClassForShowSourceInstanceEval -a')
-          expect(result).to match(/def instance_eval_method/)
-        end
-
-        describe "messages relating to -a" do
-          it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
-            class TestClassForShowSource
-              def gamma
-              end
-            end
-
-            result = pry_eval('show-source TestClassForShowSource')
-            expect(result).to match(/available monkeypatches/)
+          module C
           end
 
-          it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
-            class Aarrrrrghh
-              def o;end
+          module D
+            def self.invoked_in_method
+              pry_eval(binding, 'show-source')
             end
-
-            result = pry_eval('show-source Aarrrrrghh')
-            expect(result).not_to match(/available monkeypatches/)
-            Object.remove_const(:Aarrrrrghh)
           end
         end
       end
 
-      describe "when show-source is invoked without a method or class argument" do
-        before do
-          module TestHost
-            class M
-              def alpha; end
+      after do
+        Object.remove_const(:TestHost)
+      end
 
-              def beta; end
-            end
+      describe "inside a module" do
+        it 'should display module source by default' do
+          out = pry_eval(TestHost::M, 'show-source')
+          expect(out).to match(/class M/)
+          expect(out).to match(/def alpha/)
+          expect(out).to match(/def beta/)
+        end
 
-            module C
-            end
+        it 'should be unable to find module source if no methods defined' do
+          expect { pry_eval(TestHost::C, 'show-source') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+        end
 
-            module D
-              def self.invoked_in_method
-                pry_eval(binding, 'show-source')
+        it 'should display method code (rather than class) if Pry started inside method binding' do
+          out = TestHost::D.invoked_in_method
+          expect(out).to match(/invoked_in_method/)
+          expect(out).not_to match(/module D/)
+        end
+
+        it 'should display class source when inside instance' do
+          out = pry_eval(TestHost::M.new, 'show-source')
+          expect(out).to match(/class M/)
+          expect(out).to match(/def alpha/)
+          expect(out).to match(/def beta/)
+        end
+
+        it 'should allow options to be passed' do
+          out = pry_eval(TestHost::M, 'show-source -b')
+          expect(out).to match(/\d:\s*class M/)
+          expect(out).to match(/\d:\s*def alpha/)
+          expect(out).to match(/\d:\s*def beta/)
+        end
+
+        describe "should skip over broken modules" do
+          before do
+            module BabyDuck
+
+              module Muesli
+                binding.eval("def a; end", "dummy.rb", 1)
+                binding.eval("def b; end", "dummy.rb", 2)
+                binding.eval("def c; end", "dummy.rb", 3)
+              end
+
+              module Muesli
+                def d; end
+
+                def e; end
               end
             end
+          end
+
+          after do
+            Object.remove_const(:BabyDuck)
+          end
+
+          it 'should return source for first valid module' do
+            out = pry_eval('show-source BabyDuck::Muesli')
+            expect(out).to match(/def d; end/)
+            expect(out).not_to match(/def a; end/)
           end
         end
 
-        after do
-          Object.remove_const(:TestHost)
-        end
-
-        describe "inside a module" do
-          it 'should display module source by default' do
-            out = pry_eval(TestHost::M, 'show-source')
-            expect(out).to match(/class M/)
-            expect(out).to match(/def alpha/)
-            expect(out).to match(/def beta/)
-          end
-
-          it 'should be unable to find module source if no methods defined' do
-            expect { pry_eval(TestHost::C, 'show-source') }.to raise_error(Pry::CommandError, /Couldn't locate/)
-          end
-
-          it 'should display method code (rather than class) if Pry started inside method binding' do
-            out = TestHost::D.invoked_in_method
-            expect(out).to match(/invoked_in_method/)
-            expect(out).not_to match(/module D/)
-          end
-
-          it 'should display class source when inside instance' do
-            out = pry_eval(TestHost::M.new, 'show-source')
-            expect(out).to match(/class M/)
-            expect(out).to match(/def alpha/)
-            expect(out).to match(/def beta/)
-          end
-
-          it 'should allow options to be passed' do
-            out = pry_eval(TestHost::M, 'show-source -b')
-            expect(out).to match(/\d:\s*class M/)
-            expect(out).to match(/\d:\s*def alpha/)
-            expect(out).to match(/\d:\s*def beta/)
-          end
-
-          describe "should skip over broken modules" do
-            before do
-              module BabyDuck
-
-                module Muesli
-                  binding.eval("def a; end", "dummy.rb", 1)
-                  binding.eval("def b; end", "dummy.rb", 2)
-                  binding.eval("def c; end", "dummy.rb", 3)
-                end
-
-                module Muesli
-                  def d; end
-
-                  def e; end
-                end
+        describe "monkey-patched C modules" do
+          # Monkey-patch Array and add 15 methods, so its internal rank is
+          # high enough to make this definition primary.
+          class Array
+            15.times do |i|
+              define_method(:"doge#{i}") do
+                                           :"doge#{i}"
               end
             end
+          end
 
-            after do
-              Object.remove_const(:BabyDuck)
+          describe "when current context is a C object" do
+            it "should display a warning, and not monkey-patched definition" do
+              out = pry_eval([1, 2, 3], 'show-source')
+              expect(out).not_to match(/doge/)
+              expect(out).to match(/warning/i)
             end
 
-            it 'should return source for first valid module' do
-              out = pry_eval('show-source BabyDuck::Muesli')
-              expect(out).to match(/def d; end/)
-              expect(out).not_to match(/def a; end/)
+            it "recommends to use the --all switch when other candidates are found" do
+              out = pry_eval([], 'show-source')
+              expect(out).to match(/'--all' switch/i)
             end
           end
 
-          describe "monkey-patched C modules" do
-            # Monkey-patch Array and add 15 methods, so its internal rank is
-            # high enough to make this definition primary.
-            class Array
-              15.times do |i|
-                define_method(:"doge#{i}") do
-                  :"doge#{i}"
-                end
-              end
-            end
-
-            describe "when current context is a C object" do
-              it "should display a warning, and not monkey-patched definition" do
-                out = pry_eval([1, 2, 3], 'show-source')
-                expect(out).not_to match(/doge/)
-                expect(out).to match(/warning/i)
-              end
-
-              it "recommends to use the --all switch when other candidates are found" do
-                out = pry_eval([], 'show-source')
-                expect(out).to match(/'--all' switch/i)
-              end
-            end
-
-            describe "when current context is something other than a C object" do
-              it "should display a candidate, not a warning" do
-                out = pry_eval('show-source Array')
-                expect(out).to match(/doge/)
-                expect(out).not_to match(/warning/i)
-              end
+          describe "when current context is something other than a C object" do
+            it "should display a candidate, not a warning" do
+              out = pry_eval('show-source Array')
+              expect(out).to match(/doge/)
+              expect(out).not_to match(/warning/i)
             end
           end
         end
       end
     end
+  end
 
-    describe "on commands" do
-      before do
-        @oldset = Pry.config.commands
-        @set = Pry.config.commands = Pry::CommandSet.new do
-          import Pry::Commands
-        end
+  describe "on commands" do
+    before do
+      @oldset = Pry.config.commands
+      @set = Pry.config.commands = Pry::CommandSet.new do
+        import Pry::Commands
+      end
+    end
+
+    after do
+      Pry.config.commands = @oldset
+    end
+
+    describe "block commands" do
+      it 'should show source for an ordinary command' do
+        @set.command('foo', :body_of_foo) {}
+
+        expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
       end
 
-      after do
-        Pry.config.commands = @oldset
+      it "should output source of commands using special characters" do
+        @set.command('!%$', 'I gots the yellow fever') {}
+
+        expect(pry_eval('show-source !%$')).to match(/yellow fever/)
       end
 
-      describe "block commands" do
-        it 'should show source for an ordinary command' do
-          @set.command('foo', :body_of_foo) {}
+      it 'should show source for a command with spaces in its name' do
+        @set.command('foo bar', :body_of_foo_bar) {}
 
-          expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
-        end
-
-        it "should output source of commands using special characters" do
-          @set.command('!%$', 'I gots the yellow fever') {}
-
-          expect(pry_eval('show-source !%$')).to match(/yellow fever/)
-        end
-
-        it 'should show source for a command with spaces in its name' do
-          @set.command('foo bar', :body_of_foo_bar) {}
-
-          expect(pry_eval('show-source foo bar')).to match(/:body_of_foo_bar/)
-        end
-
-        it 'should show source for a command by listing name' do
-          @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") { ; }
-
-          expect(pry_eval('show-source bar')).to match(/:body_of_foo_bar_regex/)
-        end
+        expect(pry_eval('show-source foo bar')).to match(/:body_of_foo_bar/)
       end
 
-      describe "create_command commands" do
-        it 'should show source for a command' do
-          @set.create_command "foo", "babble" do
-            def process() :body_of_foo end
-          end
-          expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
-        end
+      it 'should show source for a command by listing name' do
+        @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") { ; }
 
-        it 'should show source for a command defined inside pry' do
-          pry_eval %{
+        expect(pry_eval('show-source bar')).to match(/:body_of_foo_bar_regex/)
+      end
+    end
+
+    describe "create_command commands" do
+      it 'should show source for a command' do
+        @set.create_command "foo", "babble" do
+          def process() :body_of_foo end
+        end
+        expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
+      end
+
+      it 'should show source for a command defined inside pry' do
+        pry_eval %{
           _pry_.commands.create_command "foo", "babble" do
             def process() :body_of_foo end
           end

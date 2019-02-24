@@ -404,7 +404,7 @@ describe "Pry::Command" do
       cmd = @set.command 'grunthos', 'the flatulent'
       expect { cmd.new.process_line %(grumpos) }.to raise_error Pry::CommandError
     end
-   end
+  end
 
   describe "block parameters" do
     before do
