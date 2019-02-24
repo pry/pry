@@ -367,8 +367,9 @@ describe Pry do
           # JRuby behaves different than CRuby here (seems it always has to some extent, see 'unless' below).
           # It didn't seem trivial to work around. Skip for now.
           skip "JRuby incompatibility" if Pry::Helpers::Platform.jruby?
-          [:test, 0, true, false, nil,
-              (0.0 unless Pry::Helpers::Platform.jruby?)].each do |val|
+          [
+            :test, 0, true, false, nil, (0.0 unless Pry::Helpers::Platform.jruby?)
+          ].each do |val|
             pry_eval(val, "def hello; end");
             expect(val.class.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
           end

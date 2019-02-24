@@ -61,8 +61,10 @@ class Pry
       end
 
       def entities
-        [globals, constants, methods, self_methods, instance_vars, local_names,
-          local_vars]
+        [
+          globals, constants, methods, self_methods, instance_vars, local_names,
+          local_vars
+        ]
       end
     end
   end

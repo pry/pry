@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/AlignArray:
-  Exclude:
-    - 'lib/pry/commands/ls/ls_entity.rb'
-    - 'spec/pry_spec.rb'
-
 # Offense count: 34
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
