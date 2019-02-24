@@ -5,10 +5,11 @@ class Pry
       include Pry::Helpers::BaseHelpers
 
       private
+
       def decorate(content)
         content.code_type = code_type
-        content.between(*between_lines).
-          with_line_numbers(use_line_numbers?).highlighted
+        content.between(*between_lines)
+          .with_line_numbers(use_line_numbers?).highlighted
       end
 
       def code_type

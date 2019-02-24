@@ -31,8 +31,8 @@ class Pry
       end
 
       def numbered_input_items
-        @numbered_input_items ||= normalized_expression_range.zip(selected_input_items).
-          reject { |_, s| s.nil? || s == "" }
+        @numbered_input_items ||= normalized_expression_range.zip(selected_input_items)
+          .reject { |_, s| s.nil? || s == "" }
       end
 
       def normalized_expression_range

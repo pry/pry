@@ -309,14 +309,16 @@ class Pry
     def all_source_locations_by_popularity
       return @all_source_locations_by_popularity if @all_source_locations_by_popularity
 
-      ims = all_relevant_methods_for(wrapped)
-      @all_source_locations_by_popularity = ims.group_by { |v| Array(v.source_location).first }.
-        sort_by do |path, methods|
-          expanded = File.expand_path(path)
-          load_order = $LOADED_FEATURES.index { |file| expanded.end_with?(file) }
+      ims = all_relevant_methods_for(wrapped).group_by do |v|
+        Array(v.source_location).first
+      end
 
-          [-methods.size, load_order || (1.0 / 0.0)]
-        end
+      @all_source_locations_by_popularity = ims.sort_by do |path, methods|
+        expanded = File.expand_path(path)
+        load_order = $LOADED_FEATURES.index { |file| expanded.end_with?(file) }
+
+        [-methods.size, load_order || (1.0 / 0.0)]
+      end
     end
 
     # We only want methods that have a non-nil `source_location`. We also
@@ -324,8 +326,8 @@ class Pry
     #
     # @return [Array<Pry::Method>]
     def all_relevant_methods_for(mod)
-      methods = all_methods_for(mod).select(&:source_location).
-        reject { |x| method_defined_by_forwardable_module?(x) }
+      methods = all_methods_for(mod).select(&:source_location)
+        .reject { |x| method_defined_by_forwardable_module?(x) }
 
       return methods unless methods.empty?
 

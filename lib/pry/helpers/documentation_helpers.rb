@@ -4,18 +4,22 @@ class Pry
     # This class contains methods useful for extracting
     # documentation from methods and classes.
     module DocumentationHelpers
+      YARD_TAGS = %w[
+        param return option yield attr attr_reader attr_writer deprecate example
+        raise
+      ].freeze
 
       module_function
 
       def process_rdoc(comment)
         comment = comment.dup
-        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }.
-          gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }.
-          gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }.
-          gsub(/<tt>(?:\s*\n)?(.*?)\s*<\/tt>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }.
-          gsub(/\B\+(\w+?)\+\B/) { "\e[32m#{Regexp.last_match(1)}\e[0m" }.
-          gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/) { CodeRay.scan(Regexp.last_match(1), :ruby).term }.
-          gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{CodeRay.scan(Regexp.last_match(1), :ruby).term}`" }
+        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+          .gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
+          .gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
+          .gsub(/<tt>(?:\s*\n)?(.*?)\s*<\/tt>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+          .gsub(/\B\+(\w+?)\+\B/) { "\e[32m#{Regexp.last_match(1)}\e[0m" }
+          .gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+          .gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{CodeRay.scan(Regexp.last_match(1), :ruby).term}`" }
       end
 
       def process_yardoc_tag(comment, tag)
@@ -34,10 +38,9 @@ class Pry
       end
 
       def process_yardoc(comment)
-        yard_tags = ["param", "return", "option", "yield", "attr", "attr_reader", "attr_writer",
-                     "deprecate", "example", "raise"]
-        (yard_tags - ["example"]).inject(comment) { |a, v| process_yardoc_tag(a, v) }.
-          gsub(/^@(#{yard_tags.join("|")})/) { "\e[33m#{Regexp.last_match(1)}\e[0m" }
+        (YARD_TAGS - %w[example])
+          .inject(comment) { |a, v| process_yardoc_tag(a, v) }
+          .gsub(/^@(#{YARD_TAGS.join("|")})/) { "\e[33m#{Regexp.last_match(1)}\e[0m" }
       end
 
       def process_comment_markup(comment)

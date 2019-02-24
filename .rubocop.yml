@@ -16,3 +16,10 @@ Naming/MethodName:
 Metrics/ModuleLength:
   Exclude:
     - 'lib/pry/config/behavior.rb'
+
+Layout/CommentIndentation:
+  Exclude:
+    - 'spec/fixtures/example_nesting.rb'
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented

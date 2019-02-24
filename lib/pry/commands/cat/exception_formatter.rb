@@ -15,9 +15,11 @@ class Pry
       def format
         check_for_errors
         set_file_and_dir_locals(backtrace_file, _pry_, _pry_.current_context)
-        code = decorate(Pry::Code.from_file(backtrace_file).
-                                    between(*start_and_end_line_for_code_window).
-                                    with_marker(backtrace_line))
+        code = decorate(
+          Pry::Code.from_file(backtrace_file)
+            .between(*start_and_end_line_for_code_window)
+            .with_marker(backtrace_line)
+        )
         "#{header}#{code}"
       end
 

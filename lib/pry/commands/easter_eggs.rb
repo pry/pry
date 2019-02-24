@@ -79,7 +79,7 @@ class Pry
   O abstract hunger for things, impotent libido for moments,
   Intellectual orgy of feeling life!
                 -- Fernando Pessoa
-TEXT
+      TEXT
     end
 
     command "test-ansi", "" do
