@@ -193,7 +193,6 @@ class Pry
     # @return [Array[Integer]]
     #
     def indentation_delta(tokens)
-
       # We need to keep track of whether we've seen a "for" on this line because
       # if the line ends with "do" then that "do" should be discounted (i.e. we're
       # only opening one level not two) To do this robustly we want to keep track
