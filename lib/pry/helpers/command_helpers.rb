@@ -1,6 +1,5 @@
 class Pry
   module Helpers
-
     module CommandHelpers
       include OptionsHelpers
 
@@ -152,6 +151,5 @@ class Pry
         _pry_.inject_local("_dir_", _pry_.last_dir, target)
       end
     end
-
   end
 end

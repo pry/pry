@@ -2,7 +2,6 @@ require 'rubygems'
 
 class Pry
   module Rubygem
-
     class << self
       def installed?(name)
         if Gem::Specification.respond_to?(:find_all_by_name)
@@ -79,6 +78,5 @@ class Pry
         Gem.refresh
       end
     end
-
   end
 end

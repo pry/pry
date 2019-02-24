@@ -13,22 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Layout/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'lib/pry/commands/ls/interrogatable.rb'
-    - 'lib/pry/commands/ls/jruby_hacks.rb'
-    - 'lib/pry/commands/ls/methods_helper.rb'
-    - 'lib/pry/helpers/command_helpers.rb'
-    - 'lib/pry/helpers/documentation_helpers.rb'
-    - 'lib/pry/helpers/table.rb'
-    - 'lib/pry/rubygem.rb'
-    - 'spec/commands/show_doc_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

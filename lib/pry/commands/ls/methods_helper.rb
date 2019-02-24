@@ -1,7 +1,6 @@
 require 'pry/commands/ls/jruby_hacks'
 
 module Pry::Command::Ls::MethodsHelper
-
   include Pry::Command::Ls::JRubyHacks
 
   private
@@ -42,5 +41,4 @@ module Pry::Command::Ls::MethodsHelper
       end
     end
   end
-
 end

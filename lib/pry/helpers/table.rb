@@ -110,6 +110,5 @@ class Pry
         @colorless_cache[thing]
       end
     end
-
   end
 end

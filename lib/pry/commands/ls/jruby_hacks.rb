@@ -1,5 +1,4 @@
 module Pry::Command::Ls::JRubyHacks
-
   private
 
   # JRuby creates lots of aliases for methods imported from java in an attempt
@@ -45,5 +44,4 @@ module Pry::Command::Ls::JRubyHacks
       end
     end.inject(&:+) + (name.size / 100.0)
   end
-
 end
