@@ -19,7 +19,8 @@ class Pry::Command::ListInspectors < Pry::ClassCommand
     end
   end
 
-private
+  private
+
   def inspector_map
     Pry::Inspector::MAP
   end

@@ -29,7 +29,8 @@ class Pry::Command::GemSearch < Pry::ClassCommand
     _pry_.pager.page list_as_string(gems, opts[:limit])
   end
 
-private
+  private
+
   def list_as_string(gems, limit = 10)
     gems[0..limit - 1].map do |gem|
       name, version, info = gem.values_at 'name', 'version', 'info'

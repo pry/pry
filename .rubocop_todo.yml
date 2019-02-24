@@ -13,17 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: outdent, indent
-Layout/AccessModifierIndentation:
-  Exclude:
-    - 'lib/pry/commands/change_inspector.rb'
-    - 'lib/pry/commands/gem_search.rb'
-    - 'lib/pry/commands/list_inspectors.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/AlignArray:
