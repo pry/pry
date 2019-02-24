@@ -211,11 +211,9 @@ class Pry
       end
 
       def singleton_class_of(obj)
-        begin
-          class << obj; self; end
-        rescue TypeError # can't define singleton. Fixnum, Symbol, Float, ...
-          obj.class
-        end
+        class << obj; self; end
+      rescue TypeError # can't define singleton. Fixnum, Symbol, Float, ...
+        obj.class
       end
     end
 

@@ -38,12 +38,10 @@ class Pry
     end
 
     def process_cd(dest)
-      begin
-        state.old_pwd = Dir.pwd
-        Dir.chdir(File.expand_path(path_from_cd_path(dest) || dest))
-      rescue Errno::ENOENT
-        raise CommandError, "No such directory: #{dest}"
-      end
+      state.old_pwd = Dir.pwd
+      Dir.chdir(File.expand_path(path_from_cd_path(dest) || dest))
+    rescue Errno::ENOENT
+      raise CommandError, "No such directory: #{dest}"
     end
 
     def cd_path_env

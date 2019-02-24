@@ -1146,15 +1146,6 @@ Style/RaiseArgs:
   Exclude:
     - 'lib/pry/method.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'lib/pry/commands/shell_command.rb'
-    - 'lib/pry/editor.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/pry_class.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/RedundantException:
