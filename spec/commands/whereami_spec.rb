@@ -30,8 +30,8 @@ describe "whereami" do
   it 'should properly set _file_, _line_ and _dir_' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami', '_file_').
-          should == File.expand_path(__FILE__)
+        pry_eval(binding, 'whereami', '_file_')
+          .should == File.expand_path(__FILE__)
       end
     end
 

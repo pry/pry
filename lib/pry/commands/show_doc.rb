@@ -32,9 +32,11 @@ class Pry
 
     # The docs for code_object prepared for display.
     def content_for(code_object)
-      Code.new(render_doc_markup_for(code_object),
-               start_line_for(code_object), :text).
-        with_line_numbers(use_line_numbers?).to_s
+      Code.new(
+        render_doc_markup_for(code_object),
+        start_line_for(code_object),
+        :text
+      ).with_line_numbers(use_line_numbers?).to_s
     end
 
     # process the markup (if necessary) and apply colors

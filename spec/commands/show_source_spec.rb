@@ -331,14 +331,14 @@ describe "show-source" do
 
     it "should output source of its class if variable doesn't respond to source_location" do
       _test_host = TestHost.new
-      expect(pry_eval(binding, 'show-source _test_host')).
-        to match(/class TestHost\n.*def hello/)
+      expect(pry_eval(binding, 'show-source _test_host'))
+        .to match(/class TestHost\n.*def hello/)
     end
 
     it "should output source of its class if constant doesn't respond to source_location" do
       TEST_HOST = TestHost.new
-      expect(pry_eval(binding, 'show-source TEST_HOST')).
-        to match(/class TestHost\n.*def hello/)
+      expect(pry_eval(binding, 'show-source TEST_HOST'))
+        .to match(/class TestHost\n.*def hello/)
       Object.remove_const(:TEST_HOST)
     end
   end
@@ -388,38 +388,38 @@ describe "show-source" do
 
     describe "basic functionality, should find top-level module definitions" do
       it 'should show source for a class' do
-        expect(pry_eval('show-source ShowSourceTestClass')).
-          to match(/class ShowSourceTestClass.*?def alpha/m)
+        expect(pry_eval('show-source ShowSourceTestClass'))
+          .to match(/class ShowSourceTestClass.*?def alpha/m)
       end
 
       it 'should show source for a super class' do
-        expect(pry_eval('show-source -s ShowSourceTestClass')).
-          to match(/class ShowSourceTestSuperClass.*?def alpha/m)
+        expect(pry_eval('show-source -s ShowSourceTestClass'))
+          .to match(/class ShowSourceTestSuperClass.*?def alpha/m)
       end
 
       it 'should show source for a module' do
-        expect(pry_eval('show-source ShowSourceTestModule')).
-          to match(/module ShowSourceTestModule/)
+        expect(pry_eval('show-source ShowSourceTestModule'))
+          .to match(/module ShowSourceTestModule/)
       end
 
       it 'should show source for an ancestor module' do
-        expect(pry_eval('show-source -s ShowSourceTestModule')).
-          to match(/module ShowSourceTestSuperModule/)
+        expect(pry_eval('show-source -s ShowSourceTestModule'))
+          .to match(/module ShowSourceTestSuperModule/)
       end
 
       it 'should show source for a class when Const = Class.new syntax is used' do
-        expect(pry_eval('show-source ShowSourceTestClassWeirdSyntax')).
-          to match(/ShowSourceTestClassWeirdSyntax = Class.new/)
+        expect(pry_eval('show-source ShowSourceTestClassWeirdSyntax'))
+          .to match(/ShowSourceTestClassWeirdSyntax = Class.new/)
       end
 
       it 'should show source for a super class when Const = Class.new syntax is used' do
-        expect(pry_eval('show-source -s ShowSourceTestClassWeirdSyntax')).
-          to match(/class Object/)
+        expect(pry_eval('show-source -s ShowSourceTestClassWeirdSyntax'))
+          .to match(/class Object/)
       end
 
       it 'should show source for a module when Const = Module.new syntax is used' do
-        expect(pry_eval('show-source ShowSourceTestModuleWeirdSyntax')).
-          to match(/ShowSourceTestModuleWeirdSyntax = Module.new/)
+        expect(pry_eval('show-source ShowSourceTestModuleWeirdSyntax'))
+          .to match(/ShowSourceTestModuleWeirdSyntax = Module.new/)
       end
     end
 

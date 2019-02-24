@@ -13,8 +13,8 @@ describe Pry::Method::Patcher do
 
   it "should return a new method with new source" do
     expect(@method.source.strip).to eq "def @x.test; :before; end"
-    expect(@method.redefine("def @x.test; :after; end\n").
-      source.strip).to eq "def @x.test; :after; end"
+    expect(@method.redefine("def @x.test; :after; end\n")
+      .source.strip).to eq "def @x.test; :after; end"
   end
 
   it "should change the source of new Pry::Method objects" do

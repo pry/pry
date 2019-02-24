@@ -46,13 +46,13 @@ describe Pry::InputCompleter do
     object.class.send(:class_variable_set, :'@@number', 10)
 
     # check to see if variables are in scope
-    expect(object.instance_variables.
-      map { |v| v.to_sym }.
-      include?(:'@name')).to eq true
+    expect(object.instance_variables
+      .map { |v| v.to_sym }
+      .include?(:'@name')).to eq true
 
-    expect(object.class.class_variables.
-      map { |v| v.to_sym }.
-      include?(:'@@number')).to eq true
+    expect(object.class.class_variables
+      .map { |v| v.to_sym }
+      .include?(:'@@number')).to eq true
 
     # Complete instance variables.
     b = Pry.binding_for(object)

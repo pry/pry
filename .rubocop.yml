@@ -20,3 +20,6 @@ Metrics/ModuleLength:
 Layout/CommentIndentation:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented

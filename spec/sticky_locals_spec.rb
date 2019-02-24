@@ -45,11 +45,11 @@ describe "Sticky locals (_file_ and friends)" do
       set_file_and_dir_locals("/blah/ostrich.rb")
     end
 
-    expect(pry_eval('file-and-dir-test', 'cd 0', '_file_')).
-      to match(/\/blah\/ostrich\.rb/)
+    expect(pry_eval('file-and-dir-test', 'cd 0', '_file_'))
+      .to match(/\/blah\/ostrich\.rb/)
 
-    expect(pry_eval('file-and-dir-test', 'cd 0', '_dir_')).
-      to match(/\/blah/)
+    expect(pry_eval('file-and-dir-test', 'cd 0', '_dir_'))
+      .to match(/\/blah/)
 
     Pry.config.commands.delete "file-and-dir-test"
   end

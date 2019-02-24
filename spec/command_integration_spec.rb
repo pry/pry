@@ -255,8 +255,8 @@ describe "commands" do
       end
     end
 
-    expect(pry_tester(commands: set).eval('hello #{Pad.bong}')).
-      to match(/Pad\.bong/)
+    expect(pry_tester(commands: set).eval('hello #{Pad.bong}'))
+      .to match(/Pad\.bong/)
   end
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
@@ -274,8 +274,8 @@ describe "commands" do
       end
     end
 
-    expect(pry_tester(commands: set).eval('hello baby')).
-      to match(/hello baby command/)
+    expect(pry_tester(commands: set).eval('hello baby'))
+      .to match(/hello baby command/)
   end
 
   it 'should create a command with a space in its name and pass an argument' do
@@ -285,8 +285,8 @@ describe "commands" do
       end
     end
 
-    expect(pry_tester(commands: set).eval('hello baby john')).
-      to match(/hello baby command john/)
+    expect(pry_tester(commands: set).eval('hello baby john'))
+      .to match(/hello baby command john/)
   end
 
   it 'should create a regex command and be able to invoke it' do
@@ -318,8 +318,8 @@ describe "commands" do
     end
 
     bong = "bong"
-    expect(pry_tester(binding, commands: set).eval('hello #{bong}')).
-      to match(/hello #{bong}/)
+    expect(pry_tester(binding, commands: set).eval('hello #{bong}'))
+      .to match(/hello #{bong}/)
   end
 
   it 'should create a regex command and arg_string should be interpolated' do
@@ -333,9 +333,9 @@ describe "commands" do
     bong = 'bong'
     bang = 'bang'
 
-    expect(pry_tester(binding, commands: set).
-      eval('hellojohn #{bing} #{bong} #{bang}')).
-      to match(/hello john #{bing} #{bong} #{bang}/)
+    expect(pry_tester(binding, commands: set)
+      .eval('hellojohn #{bing} #{bong} #{bang}'))
+      .to match(/hello john #{bing} #{bong} #{bang}/)
   end
 
   it 'if a regex capture is missing it should be nil' do
@@ -543,12 +543,12 @@ describe "commands" do
   end
 
   it 'should run a command with no parameter' do
-    expect(pry_tester(commands: @command_tester).eval('command1')).
-      to eq "command1\n"
+    expect(pry_tester(commands: @command_tester).eval('command1'))
+      .to eq "command1\n"
   end
 
   it 'should run a command with one parameter' do
-    expect(pry_tester(commands: @command_tester).eval('command2 horsey')).
-      to eq "horsey\n"
+    expect(pry_tester(commands: @command_tester).eval('command2 horsey'))
+      .to eq "horsey\n"
   end
 end

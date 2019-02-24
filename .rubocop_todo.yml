@@ -13,27 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 47
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: leading, trailing
-Layout/DotPosition:
-  Exclude:
-    - 'lib/pry/commands/cat/abstract_formatter.rb'
-    - 'lib/pry/commands/cat/exception_formatter.rb'
-    - 'lib/pry/commands/cat/input_expression_formatter.rb'
-    - 'lib/pry/commands/show_doc.rb'
-    - 'lib/pry/helpers/documentation_helpers.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'spec/command_integration_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/commands/whereami_spec.rb'
-    - 'spec/completion_spec.rb'
-    - 'spec/history_spec.rb'
-    - 'spec/method/patcher_spec.rb'
-    - 'spec/pry_defaults_spec.rb'
-    - 'spec/sticky_locals_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: AllowBorderComment, AllowMarginComment.
