@@ -13,17 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Layout/MultilineMethodCallIndentation:
-  Exclude:
-    - 'lib/pry/commands/cat/input_expression_formatter.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'spec/command_set_spec.rb'
-    - 'spec/pry_defaults_spec.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, IndentationWidth.

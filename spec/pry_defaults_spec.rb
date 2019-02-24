@@ -384,10 +384,10 @@ describe "test Pry defaults" do
     Pry.config.input.rewind
 
     @str_output = StringIO.new
-    Object.new.pry output: @str_output,
-                   hooks: Pry::Hooks.new
-                   .add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }
-                   .add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
+    hooks = Pry::Hooks.new
+      .add_hook( :before_session, :my_name) { |out,_,_| out.puts "MORNING" }
+      .add_hook(:after_session, :my_name) { |out,_,_| out.puts "EVENING" }
+    Object.new.pry(output: @str_output, hooks: hooks)
 
     expect(@str_output.string).to match(/MORNING/)
     expect(@str_output.string).to match(/EVENING/)
@@ -395,17 +395,17 @@ describe "test Pry defaults" do
     # try below with just defining one hook
     Pry.config.input.rewind
     @str_output = StringIO.new
-    Object.new.pry output: @str_output,
-                   hooks: Pry::Hooks.new
-                   .add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
+    hooks = Pry::Hooks.new
+      .add_hook(:before_session, :my_name) { |out,_,_| out.puts "OPEN" }
+    Object.new.pry(output: @str_output, hooks: hooks)
 
     expect(@str_output.string).to match(/OPEN/)
 
     Pry.config.input.rewind
     @str_output = StringIO.new
-    Object.new.pry output: @str_output,
-                   hooks: Pry::Hooks.new
-                   .add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
+    hooks = Pry::Hooks.new
+      .add_hook(:after_session, :my_name) { |out,_,_| out.puts "CLOSE" }
+    Object.new.pry(output: @str_output, hooks: hooks)
 
     expect(@str_output.string).to match(/CLOSE/)
 

@@ -282,9 +282,9 @@ describe Pry::CommandSet do
     @set.helpers { def my_helper; end }
 
     @set.run_command(@ctx, 'foo')
-    expect(Pry::Command.subclass('foo', '', {}, Module.new)
-                .new({target: binding}))
-                .not_to(respond_to :my_helper)
+    expect(
+      Pry::Command.subclass('foo', '', {}, Module.new).new(target: binding)
+    ).not_to(respond_to :my_helper)
   end
 
   it 'should not recreate a new helper module when helpers is called' do
