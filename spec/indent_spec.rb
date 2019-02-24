@@ -169,7 +169,7 @@ else
 end
 TXT
 
- output = <<TXT.strip
+    output = <<TXT.strip
 case foo
 when 1
   2
