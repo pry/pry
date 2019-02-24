@@ -13,14 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/ClosingHeredocIndentation:
-  Exclude:
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'spec/commands/show_source_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Layout/ClosingParenthesisIndentation:

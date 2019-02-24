@@ -14,7 +14,7 @@ W        W  W     W
 \'-.__,   .__.,'
  `'----'._\--'
 VVVVVVVVVVVVVVVVVVVVV
-FAILWHALE
+  FAILWHALE
 
   match 'gem-stat'
   description 'Show the statistics of a gem (requires internet connection)'
