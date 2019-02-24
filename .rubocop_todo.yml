@@ -13,12 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Layout/BlockEndNewline:
-  Exclude:
-    - 'spec/completion_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Layout/ClosingHeredocIndentation:
