@@ -142,7 +142,7 @@ class Pry
     # @return [Array<Method>]
     #
     def search_all_methods(namespace)
-      done = Hash.new { |h,k| h[k] = {} }
+      done = Hash.new { |h, k| h[k] = {} }
       matches = []
 
       recurse_namespace(namespace) do |klass|

@@ -16,7 +16,7 @@ class Pry
       gems    = Rubygem.list(pattern).group_by(&:name)
 
       gems.each do |gem, specs|
-        specs.sort! do |a,b|
+        specs.sort! do |a, b|
           Gem::Version.new(b.version) <=> Gem::Version.new(a.version)
         end
 

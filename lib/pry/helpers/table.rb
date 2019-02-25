@@ -45,7 +45,7 @@ class Pry
         widths = columns.map { |e| _max_width(e) }
         @rows_without_colors.map do |r|
           padded = []
-          r.each_with_index do |e,i|
+          r.each_with_index do |e, i|
             next unless e
 
             item = e.ljust(widths[i])

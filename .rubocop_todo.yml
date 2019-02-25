@@ -13,21 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 30
-# Cop supports --auto-correct.
-Layout/SpaceAfterComma:
-  Exclude:
-    - 'lib/pry/code_object.rb'
-    - 'lib/pry/commands/find_method.rb'
-    - 'lib/pry/commands/gem_list.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/helpers/table.rb'
-    - 'spec/commands/play_spec.rb'
-    - 'spec/commands/raise_up_spec.rb'
-    - 'spec/hooks_spec.rb'
-    - 'spec/pry_defaults_spec.rb'
-    - 'spec/syntax_checking_spec.rb'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Layout/SpaceAfterSemicolon:
