@@ -13,12 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceInsideArrayPercentLiteral:
-  Exclude:
-    - 'spec/helpers/table_spec.rb'
-
 # Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.

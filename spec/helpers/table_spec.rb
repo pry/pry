@@ -10,10 +10,7 @@ describe 'Formatting Table' do
     t.column_count = 2
     expect(t.fits_on_line?(4)).to eq false
 
-    t.items = %w(
-      a   ccc
-      bb  dddd
-    ).sort
+    t.items = %w[a ccc bb dddd].sort
     expect(t.fits_on_line?(8)).to eq true
     expect(t.fits_on_line?(7)).to eq false
   end
