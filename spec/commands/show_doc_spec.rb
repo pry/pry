@@ -9,7 +9,7 @@ describe "show-doc" do
       :sample
     end
 
-    def @o.no_docs;end
+    def @o.no_docs; end
   end
 
   after do
@@ -24,7 +24,9 @@ describe "show-doc" do
   end
 
   it 'should work even if #call is defined on Symbol' do
-    class Symbol ; def call ; 5 ; end ; end
+    class Symbol
+      def call; 5; end
+    end
     expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
   end
 
@@ -343,7 +345,7 @@ describe "show-doc" do
         it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
           # Do not remove me.
           class Aarrrrrghh
-            def o;end
+            def o; end
           end
 
           result = pry_eval('show-doc Aarrrrrghh')

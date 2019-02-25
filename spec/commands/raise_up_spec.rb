@@ -16,7 +16,7 @@ describe "raise-up" do
   end
 
   it "should raise an unamed exception with raise-up" do
-    redirect_pry_io(InputTester.new("raise 'stop'","raise-up 'noreally'")) do
+    redirect_pry_io(InputTester.new("raise 'stop'", "raise-up 'noreally'")) do
       expect { Object.new.pry }.to raise_error(RuntimeError, "noreally")
     end
   end
@@ -32,12 +32,12 @@ describe "raise-up" do
   end
 
   it "should raise the most recently raised exception" do
-    expect { mock_pry("raise NameError, 'homographery'","raise-up") }.to raise_error(NameError, 'homographery')
+    expect { mock_pry("raise NameError, 'homographery'", "raise-up") }.to raise_error(NameError, 'homographery')
   end
 
   it "should allow you to cd up and (eventually) out" do
     redirect_pry_io(InputTester.new("cd :inner", "raise NoMethodError", @inner,
-                                    "deep = :deep", "cd deep","Pad.deep = self",
+                                    "deep = :deep", "cd deep", "Pad.deep = self",
                                     "raise-up NoMethodError", "raise-up", @outer,
                                     "raise-up", "exit-all")) do
       expect { Pry.start(:outer) }.to raise_error NoMethodError

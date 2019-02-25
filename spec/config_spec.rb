@@ -12,14 +12,14 @@ RSpec.describe Pry::Config do
     end
 
     it "recursively walks a Hash" do
-      h = {'foo1' => {'foo2' => {'foo3' => 'foobar'}}}
+      h = { 'foo1' => { 'foo2' => { 'foo3' => 'foobar' } } }
       default = described_class.from_hash(h)
       expect(default.foo1).to be_instance_of(described_class)
       expect(default.foo1.foo2).to be_instance_of(described_class)
     end
 
     it "recursively walks an Array" do
-      c = described_class.from_hash(ary: [{number: 2}, Object, BasicObject.new])
+      c = described_class.from_hash(ary: [{ number: 2 }, Object, BasicObject.new])
       expect(c.ary[0].number).to eq(2)
       expect(c.ary[1]).to eq(Object)
       expect(BasicObject === c.ary[2]).to be(true)
@@ -64,7 +64,7 @@ RSpec.describe Pry::Config do
     end
 
     it "traverses through a chain of parents" do
-      root = described_class.from_hash({foo: 21})
+      root = described_class.from_hash({ foo: 21 })
       local1 = described_class.new(root)
       local2 = described_class.new(local1)
       local3 = described_class.new(local2)
@@ -128,8 +128,8 @@ RSpec.describe Pry::Config do
 
   describe "#keys" do
     it "returns an array of local keys" do
-      root = described_class.from_hash({zoo: "boo"}, nil)
-      local = described_class.from_hash({foo: "bar"}, root)
+      root = described_class.from_hash({ zoo: "boo" }, nil)
+      local = described_class.from_hash({ foo: "bar" }, root)
       expect(local.keys).to eq(["foo"])
     end
   end
@@ -158,8 +158,8 @@ RSpec.describe Pry::Config do
   describe '#forget' do
     it 'restores a key to its default value' do
       last_default = described_class.from_hash(a: 'c')
-      middle_default = described_class.from_hash({a: 'b'}, last_default)
-      c = described_class.from_hash({a: 'a'}, middle_default)
+      middle_default = described_class.from_hash({ a: 'b' }, last_default)
+      c = described_class.from_hash({ a: 'a' }, middle_default)
       c.forget(:a)
       expect(c.a).to eq('c')
     end
@@ -185,13 +185,13 @@ RSpec.describe Pry::Config do
     end
 
     it "merges an object who returns a Hash through #to_hash" do
-      obj = Class.new { def to_hash() {epoch: 1} end }.new
+      obj = Class.new { def to_hash() { epoch: 1 } end }.new
       @config.merge!(obj)
       expect(@config.epoch).to eq(1)
     end
 
     it "merges an object who returns a Hash through #to_h" do
-      obj = Class.new { def to_h() {epoch: 2} end }.new
+      obj = Class.new { def to_h() { epoch: 2 } end }.new
       @config.merge!(obj)
       expect(@config.epoch).to eq(2)
     end
@@ -232,13 +232,13 @@ RSpec.describe Pry::Config do
 
   describe "#[]" do
     it "traverses back to a default" do
-      default = described_class.from_hash({k: 1})
+      default = described_class.from_hash({ k: 1 })
       local = described_class.new(default)
       expect(local['k']).to eq(1)
     end
 
     it "traverses back to a default (2 deep)" do
-      default1 = described_class.from_hash({k: 1})
+      default1 = described_class.from_hash({ k: 1 })
       default2 = described_class.from_hash({}, default1)
       local = described_class.new(default2)
       expect(local['k']).to eq(1)

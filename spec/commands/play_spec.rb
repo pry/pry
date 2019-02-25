@@ -173,16 +173,16 @@ describe "play" do
 
         def @o.test_method
           @s = [
-            1,2,3,
-            4,5,6
+            1, 2, 3,
+            4, 5, 6
           ]
         end
 
         @t.process_command 'play test_method -e 2'
         expect(@t.eval_string).to eq unindent(<<-STR, 0)
           @s = [
-            1,2,3,
-            4,5,6
+            1, 2, 3,
+            4, 5, 6
           ]
         STR
       end

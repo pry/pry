@@ -16,22 +16,22 @@ class Pry
       command = find_command(name)
 
       unless command
-        output.puts "Command #{ green(name) } is not found"
+        output.puts "Command #{green(name)} is not found"
         return
       end
 
       if command_dependencies_met?(command.options)
-        output.puts "Dependencies for #{ green(name) } are met. Nothing to do"
+        output.puts "Dependencies for #{green(name)} are met. Nothing to do"
         return
       end
 
-      output.puts "Attempting to install #{ green(name) } command..."
+      output.puts "Attempting to install #{green(name)} command..."
       gems_to_install = Array(command.options[:requires_gem])
 
       gems_to_install.each do |g|
         next if Rubygem.installed?(g)
 
-        output.puts "Installing #{ green(g) } gem..."
+        output.puts "Installing #{green(g)} gem..."
         Rubygem.install(g)
       end
 
@@ -39,14 +39,14 @@ class Pry
         begin
           require g
         rescue LoadError
-          fail_msg = "Required gem #{ green(g) } installed but not found."
+          fail_msg = "Required gem #{green(g)} installed but not found."
           fail_msg += " Aborting command installation\n"
           fail_msg += 'Tips: 1. Check your PATH; 2. Run `bundle update`'
           raise CommandError, fail_msg
         end
       end
 
-      output.puts "Installation of #{ green(name) } successful! Type `help #{name}` for information"
+      output.puts "Installation of #{green(name)} successful! Type `help #{name}` for information"
     end
   end
 

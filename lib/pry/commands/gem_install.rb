@@ -20,7 +20,7 @@ class Pry
 
     def process(gem)
       Rubygem.install(gem)
-      output.puts "Gem `#{ green(gem) }` installed."
+      output.puts "Gem `#{green(gem)}` installed."
       require gem
     rescue LoadError
       require_path = gem.split('-').join('/')

@@ -133,9 +133,9 @@ class Pry
     def method_or_class_lookup
       obj = case str
             when /\S+\(\)\z/
-              Pry::Method.from_str(str.sub(/\(\)\z/, ''),target) || Pry::WrappedModule.from_str(str, target)
+              Pry::Method.from_str(str.sub(/\(\)\z/, ''), target) || Pry::WrappedModule.from_str(str, target)
             else
-              Pry::WrappedModule.from_str(str,target) || Pry::Method.from_str(str, target)
+              Pry::WrappedModule.from_str(str, target) || Pry::Method.from_str(str, target)
             end
 
       lookup_super(obj, super_level)

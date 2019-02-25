@@ -63,7 +63,7 @@ class Pry
         padded = lineno.to_s.rjust(max_width)
         colorized_lineno = color ? Pry::Helpers::BaseHelpers.colorize_code(padded) : padded
         properly_padded_line = handle_multiline_entries_from_edit_command(line, max_width)
-        tuple[0] = "#{ colorized_lineno }: #{ properly_padded_line }"
+        tuple[0] = "#{colorized_lineno}: #{properly_padded_line}"
       end
 
       # Prepends a marker "=>" or an empty marker to the +line+.
@@ -74,9 +74,9 @@ class Pry
       def add_marker(marker_lineno)
         tuple[0] =
           if lineno == marker_lineno
-            " => #{ line }"
+            " => #{line}"
           else
-            "    #{ line }"
+            "    #{line}"
           end
       end
 
@@ -85,7 +85,7 @@ class Pry
       # @param [Integer] distance
       # @return [void]
       def indent(distance)
-        tuple[0] = "#{ ' ' * distance }#{ line }"
+        tuple[0] = "#{' ' * distance}#{line}"
       end
 
       def handle_multiline_entries_from_edit_command(line, max_width)

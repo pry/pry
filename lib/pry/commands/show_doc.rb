@@ -48,10 +48,9 @@ class Pry
         docs
       else
         if docs.empty?
-          raise CommandError, "No docs found for: #{
-            obj_name ? obj_name : 'current context'
-          }"
+          raise CommandError, "No docs found for: #{obj_name ? obj_name : 'current context'}"
         end
+
         process_comment_markup(docs)
       end
     end

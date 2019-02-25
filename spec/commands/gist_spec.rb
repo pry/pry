@@ -17,7 +17,7 @@ describe 'gist' do
 
       def gist(*args)
         Pad.gist_calls[:gist_args] = args
-        {'html_url' => 'http://gist.blahblah'}
+        { 'html_url' => 'http://gist.blahblah' }
       end
 
       def copy(content); Pad.gist_calls[:copy_args] = content end

@@ -97,7 +97,7 @@ class Pry
         #
         def from_hash(attributes, default = nil)
           new(default).tap do |config|
-            attributes.each do |key,value|
+            attributes.each do |key, value|
               config[key] = if Hash === value
                               from_hash(value)
                             elsif Array === value
@@ -168,7 +168,7 @@ class Pry
           raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name."
         end
 
-        __push(key,value)
+        __push(key, value)
       end
 
       #
@@ -360,7 +360,7 @@ class Pry
         end
       end
 
-      def __push(key,value)
+      def __push(key, value)
         unless singleton_class.method_defined? key
           define_singleton_method(key) { self[key] }
           define_singleton_method("#{key}=") { |val| @lookup[key] = val }

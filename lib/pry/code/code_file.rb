@@ -60,7 +60,7 @@ class Pry
     def abs_path
       code_path.detect { |path| readable?(path) } ||
         raise(MethodSource::SourceNotFoundError,
-              "Cannot open #{ @filename.inspect } for reading.")
+              "Cannot open #{@filename.inspect} for reading.")
     end
 
     # @param [String] path

@@ -182,7 +182,7 @@ describe "whereami" do
       end
 
       class Horse < Cor
-        def pig;end
+        def pig; end
       end
 
       out = Horse.new.blimey!
@@ -195,7 +195,7 @@ describe "whereami" do
 
     it 'should show class when -c option used, and binding is outside a method' do
       class Cor
-        def blimey;end
+        def blimey; end
 
         out = pry_eval(binding, 'whereami -c')
         out.should =~ /class Cor/

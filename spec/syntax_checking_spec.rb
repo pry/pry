@@ -28,7 +28,7 @@ describe Pry do
     ["puts :"]
   ] + [
     ["def", "method(1"], # in this case the syntax error is "expecting ')'".
-    ["o = Object.new.tap{ def o.render;","'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
+    ["o = Object.new.tap{ def o.render;", "'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
   ]).compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
@@ -68,7 +68,7 @@ describe Pry do
   end
 
   it "should allow newline delimeted strings" do
-    expect(mock_pry('"%s" % %','foo')).to match(/"foo"/)
+    expect(mock_pry('"%s" % %', 'foo')).to match(/"foo"/)
   end
 
   it "should allow whitespace delimeted strings ending on the first char of a line" do

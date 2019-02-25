@@ -350,7 +350,7 @@ describe Pry::Hooks do
 
         Pry.config.hooks.add_hook(:when_started, :test_hook) { |_target, _opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
 
-        redirect_pry_io(InputTester.new("@value = true","exit-all")) do
+        redirect_pry_io(InputTester.new("@value = true", "exit-all")) do
           Pry.start binding, hello: :baby
         end
 

@@ -66,7 +66,7 @@ describe "edit" do
     it "works with files that contain blanks in their names" do
       tf_path = File.join(File.dirname(@tf_path), 'swoop and doop.rb')
       FileUtils.touch(tf_path)
-      pry_eval "edit #{ tf_path }"
+      pry_eval "edit #{tf_path}"
       expect(@file).to eq tf_path
       FileUtils.rm(tf_path)
     end
