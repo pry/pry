@@ -396,8 +396,8 @@ class Pry
   # Force `eval_string` into the encoding of `val`. [Issue #284]
   def ensure_correct_encoding!(val)
     if @eval_string.empty? &&
-        val.respond_to?(:encoding) &&
-        val.encoding != @eval_string.encoding
+       val.respond_to?(:encoding) &&
+       val.encoding != @eval_string.encoding
       @eval_string.force_encoding(val.encoding)
     end
   end

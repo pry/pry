@@ -31,7 +31,7 @@ class Pry
               binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
             end
             (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
-            method.source_range.include?(binding_line)
+              method.source_range.include?(binding_line)
           end
         rescue
           false
@@ -186,8 +186,8 @@ class Pry
           Pry::Method.method_definition?(method.name, v)
         end
 
-        @original_method_source_location = source_index &&
-          [target_file, index_to_line_number(source_index)]
+        @original_method_source_location =
+          source_index && [target_file, index_to_line_number(source_index)]
       end
 
       def index_to_line_number(index)

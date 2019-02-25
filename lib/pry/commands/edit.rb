@@ -135,7 +135,8 @@ class Pry
     end
 
     def code_object
-      @code_object ||= !probably_a_file?(filename_argument) &&
+      @code_object ||=
+        !probably_a_file?(filename_argument) &&
         Pry::CodeObject.lookup(filename_argument, _pry_)
     end
 

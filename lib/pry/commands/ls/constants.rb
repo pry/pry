@@ -35,8 +35,8 @@ class Pry
       def format(mod, constants)
         constants.sort_by(&:downcase).map do |name|
           if Object.respond_to?(:deprecate_constant) &&
-            DEPRECATED_CONSTANTS.include?(name)      &&
-            !show_deprecated_constants?
+             DEPRECATED_CONSTANTS.include?(name) &&
+             !show_deprecated_constants?
             next
           end
 
