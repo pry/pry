@@ -13,15 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideParens:
-  Exclude:
-    - 'spec/pry_defaults_spec.rb'
-    - 'spec/sticky_locals_spec.rb'
-
 # Offense count: 25
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

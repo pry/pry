@@ -385,7 +385,7 @@ describe "test Pry defaults" do
 
     @str_output = StringIO.new
     hooks = Pry::Hooks.new
-      .add_hook( :before_session, :my_name) { |out, _, _| out.puts "MORNING" }
+      .add_hook(:before_session, :my_name) { |out, _, _| out.puts "MORNING" }
       .add_hook(:after_session, :my_name) { |out, _, _| out.puts "EVENING" }
     Object.new.pry(output: @str_output, hooks: hooks)
 
