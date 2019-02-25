@@ -13,14 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Layout/SpaceAfterSemicolon:
-  Exclude:
-    - 'spec/commands/show_doc_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/commands/whereami_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Layout/SpaceBeforeComma:

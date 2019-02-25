@@ -9,7 +9,7 @@ describe "show-doc" do
       :sample
     end
 
-    def @o.no_docs;end
+    def @o.no_docs; end
   end
 
   after do
@@ -343,7 +343,7 @@ describe "show-doc" do
         it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
           # Do not remove me.
           class Aarrrrrghh
-            def o;end
+            def o; end
           end
 
           result = pry_eval('show-doc Aarrrrrghh')

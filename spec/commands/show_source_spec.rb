@@ -542,7 +542,7 @@ describe "show-source" do
 
         it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
           class Aarrrrrghh
-            def o;end
+            def o; end
           end
 
           result = pry_eval('show-source Aarrrrrghh')
