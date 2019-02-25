@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/RescueEnsureAlignment:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/pager.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 Layout/SpaceAfterComma:

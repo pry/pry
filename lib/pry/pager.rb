@@ -142,17 +142,18 @@ class Pry
 
       def self.available?
         if @system_pager.nil?
-          @system_pager = begin
-            pager_executable = default_pager.split(' ').first
-            if Helpers::Platform.windows? || Helpers::Platform.windows_ansi?
-              `where /Q #{pager_executable}`
-            else
-              `which #{pager_executable}`
+          @system_pager =
+            begin
+              pager_executable = default_pager.split(' ').first
+              if Helpers::Platform.windows? || Helpers::Platform.windows_ansi?
+                `where /Q #{pager_executable}`
+              else
+                `which #{pager_executable}`
+              end
+              $?.success?
+            rescue
+              false
             end
-            $?.success?
-          rescue
-            false
-          end
         else
           @system_pager
         end
