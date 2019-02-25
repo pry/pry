@@ -13,25 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 25
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/SpaceInsideStringInterpolation:
-  Exclude:
-    - 'lib/pry/code/code_file.rb'
-    - 'lib/pry/code/loc.rb'
-    - 'lib/pry/commands/gem_install.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/commands/install_command.rb'
-    - 'lib/pry/commands/ls/methods.rb'
-    - 'lib/pry/commands/ls/self_methods.rb'
-    - 'lib/pry/commands/show_doc.rb'
-    - 'lib/pry/commands/show_source.rb'
-    - 'lib/pry/commands/stat.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/history_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: AllowInHeredoc.

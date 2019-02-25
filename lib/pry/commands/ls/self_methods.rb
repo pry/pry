@@ -19,7 +19,7 @@ class Pry
         methods = all_methods(true).select do |m|
           m.owner == @interrogatee && grep.regexp[m.name]
         end
-        heading = "#{ Pry::WrappedModule.new(@interrogatee).method_prefix }methods"
+        heading = "#{Pry::WrappedModule.new(@interrogatee).method_prefix}methods"
         output_section(heading, format(methods))
       end
 

@@ -153,7 +153,7 @@ class Pry
           index = opts[:r]
           index = index.min if index.min == index.max || index.max.nil?
 
-          raise CommandError, "Replay index #{ index } points out to another replay call: `#{ replay_sequence }`"
+          raise CommandError, "Replay index #{index} points out to another replay call: `#{replay_sequence}`"
         end
       else
         false

@@ -25,7 +25,7 @@ class Pry
         # appears right by the prompt.
         resolution_order.take_while(&below_ceiling).reverse.map do |klass|
           methods_here = (methods[klass] || []).select { |m| grep.regexp[m.name] }
-          heading = "#{ Pry::WrappedModule.new(klass).method_prefix }methods"
+          heading = "#{Pry::WrappedModule.new(klass).method_prefix}methods"
           output_section(heading, format(methods_here))
         end.join('')
       end
