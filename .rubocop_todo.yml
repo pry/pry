@@ -13,16 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBrackets.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBrackets: space, no_space
-Layout/SpaceInsideArrayLiteralBrackets:
-  Exclude:
-    - 'lib/pry/input_completer.rb'
-    - 'spec/history_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Layout/SpaceInsideArrayPercentLiteral:

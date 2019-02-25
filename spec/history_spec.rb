@@ -125,7 +125,7 @@ describe Pry do
     end
 
     it "should not write histignore words to the history file" do
-      Pry.config.history.histignore = [ "ls", /hist*/, 'exit' ]
+      Pry.config.history.histignore = ["ls", /hist*/, 'exit']
       @history.push "ls"
       @history.push "hist"
       @history.push "kakaroto"
