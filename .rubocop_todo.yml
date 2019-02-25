@@ -13,13 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Layout/SpaceBeforeSemicolon:
-  Exclude:
-    - 'spec/commands/show_doc_spec.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBrackets.

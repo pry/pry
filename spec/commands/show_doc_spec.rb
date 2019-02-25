@@ -24,7 +24,9 @@ describe "show-doc" do
   end
 
   it 'should work even if #call is defined on Symbol' do
-    class Symbol ; def call ; 5 ; end ; end
+    class Symbol
+      def call; 5; end
+    end
     expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
   end
 
