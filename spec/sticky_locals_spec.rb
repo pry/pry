@@ -119,7 +119,7 @@ describe "Sticky locals (_file_ and friends)" do
           Pry.start(
             o,
             extra_sticky_locals: {
-              test_local1: :john ,
+              test_local1: :john,
               test_local2: :carl
             }
           )
