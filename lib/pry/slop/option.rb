@@ -142,8 +142,8 @@ class Pry::Slop
 
     # Returns the String inspection text.
     def inspect
-      "#<Slop::Option [-#{short} | --#{long}" +
-      "#{'=' if expects_argument?}#{'=?' if accepts_optional_argument?}]" +
+      "#<Slop::Option [-#{short} | --#{long}" \
+      "#{'=' if expects_argument?}#{'=?' if accepts_optional_argument?}]" \
       " (#{description}) #{config.inspect}"
     end
 

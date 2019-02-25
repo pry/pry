@@ -20,7 +20,7 @@ class Pry
         ivars = if Object === @interrogatee
                   Pry::Method.safe_send(@interrogatee, :instance_variables)
                 else
-                  [] #TODO: BasicObject support
+                  [] # TODO: BasicObject support
                 end
         kvars = Pry::Method.safe_send(interrogatee_mod, :class_variables)
         ivars_out = output_section('instance variables', format(:instance_var, ivars))

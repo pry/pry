@@ -45,7 +45,7 @@ class Pry
         commands = sorted_commands(groups[group_name])
 
         if commands.any?
-           help_text << help_text_for_commands(group_name, commands)
+          help_text << help_text_for_commands(group_name, commands)
         end
       end
 

@@ -282,9 +282,9 @@ describe Pry::CommandSet do
     @set.helpers { def my_helper; end }
 
     @set.run_command(@ctx, 'foo')
-    expect(Pry::Command.subclass('foo', '', {}, Module.new)
-                .new({target: binding}))
-                .not_to(respond_to :my_helper)
+    expect(
+      Pry::Command.subclass('foo', '', {}, Module.new).new(target: binding)
+    ).not_to(respond_to :my_helper)
   end
 
   it 'should not recreate a new helper module when helpers is called' do
@@ -578,10 +578,10 @@ describe Pry::CommandSet do
 
   describe '.process_line' do
     it 'should return Result.new(false) if there is no matching command' do
-     result = @set.process_line('1 + 42')
-     expect(result.command?).to eq false
-     expect(result.void_command?).to eq false
-     expect(result.retval).to eq nil
+      result = @set.process_line('1 + 42')
+      expect(result.command?).to eq false
+      expect(result.void_command?).to eq false
+      expect(result.retval).to eq nil
     end
 
     it 'should return Result.new(true, VOID) if the command is not keep_retval' do

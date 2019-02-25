@@ -213,7 +213,7 @@ class Pry::InputCompleter
         path.call(receiver + "." << e)
       when /^[0-9]/
       when *Operators
-        #receiver + " " << e
+        # receiver + " " << e
       end
     end.compact
   end

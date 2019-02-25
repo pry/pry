@@ -73,7 +73,10 @@ class Pry
     end
 
     def runtime_patch?
-       !file_based_exception? && (opts.present?(:patch) || previously_patched?(code_object) || pry_method?(code_object))
+      !file_based_exception? &&
+        (opts.present?(:patch) ||
+         previously_patched?(code_object) ||
+         pry_method?(code_object))
     end
 
     def apply_runtime_patch
@@ -132,7 +135,8 @@ class Pry
     end
 
     def code_object
-      @code_object ||= !probably_a_file?(filename_argument) &&
+      @code_object ||=
+        !probably_a_file?(filename_argument) &&
         Pry::CodeObject.lookup(filename_argument, _pry_)
     end
 

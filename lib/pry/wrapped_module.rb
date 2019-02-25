@@ -287,9 +287,7 @@ class Pry
     #   candidate of rank 0 will be returned, or a CommandError raised if
     #   there are no candidates at all.
     def primary_candidate
-      @primary_candidate ||= candidates.find { |c| c.file } ||
-        # This will raise an exception if there is no candidate at all.
-        candidate(0)
+      @primary_candidate ||= candidates.find { |c| c.file } || candidate(0)
     end
 
     # @return [Array<Array<Pry::Method>>] The array of `Pry::Method` objects,
