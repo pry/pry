@@ -133,7 +133,7 @@ describe "Sticky locals (_file_ and friends)" do
         o = Object.new
         redirect_pry_io(InputTester.new("@value = test_local",
                                         "exit-all")) do
-          Pry.start(o, extra_sticky_locals: { test_local: proc { :john }} )
+          Pry.start(o, extra_sticky_locals: { test_local: proc { :john } } )
         end
 
         expect(o.instance_variable_get(:@value)).to eq :john

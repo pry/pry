@@ -13,21 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 42
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, EnforcedStyleForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Layout/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'spec/command_set_spec.rb'
-    - 'spec/commands/gist_spec.rb'
-    - 'spec/config_spec.rb'
-    - 'spec/method_spec.rb'
-    - 'spec/sticky_locals_spec.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

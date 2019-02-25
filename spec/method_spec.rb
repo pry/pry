@@ -35,7 +35,7 @@ describe Pry::Method do
 
         def self.hello; end
       end
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {"instance-methods" => true})
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), { "instance-methods" => true })
       expect(meth).to eq klass.instance_method(:hello)
     end
 
@@ -45,7 +45,7 @@ describe Pry::Method do
 
         def self.hello; end
       end
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), {methods: true})
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), { methods: true })
       expect(meth).to eq klass.method(:hello)
     end
 
@@ -541,7 +541,7 @@ describe Pry::Method do
       class Object
         private
 
-        def my_top_level_method ; end
+        def my_top_level_method; end
         alias my_other_top_level_method my_top_level_method
       end
 

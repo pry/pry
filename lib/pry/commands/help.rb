@@ -113,7 +113,7 @@ class Pry
       if filtered.size == 1
         display_command(filtered.values.first)
       else
-        display_index({"'#{search}' commands" => filtered.values})
+        display_index({ "'#{search}' commands" => filtered.values })
       end
     end
 
@@ -138,7 +138,7 @@ class Pry
       hash.each_pair do |key, value|
         next unless key.is_a?(String)
         if normalize(key) == normalize(search)
-          return {key => value}
+          return { key => value }
         elsif normalize(key).start_with?(normalize(search))
           matching[key] = value
         end
