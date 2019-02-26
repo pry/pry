@@ -227,7 +227,7 @@ class Pry
 
         if kind == :delimiter
           track_delimiter(token)
-        elsif OPEN_TOKENS.keys.include?(token) && !is_optional_do && !is_singleline_if
+        elsif OPEN_TOKENS.key?(token) && !is_optional_do && !is_singleline_if
           @stack << token
           add_after += 1
         elsif token == OPEN_TOKENS[@stack.last]

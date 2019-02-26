@@ -162,10 +162,10 @@ class Pry::Slop
       globals = commands.delete('global')
       helps = commands.reject { |_, v| v.options.none? }
       if globals && globals.options.any?
-        helps.merge!('Global options' => globals.to_s)
+        helps['Global options'] = globals.to_s
       end
       if defaults && defaults.options.any?
-        helps.merge!('Other options' => defaults.to_s)
+        helps['Other options'] = defaults.to_s
       end
       banner = @banner ? "#{@banner}\n" : ""
       banner + helps.map { |key, opts| "  #{key}\n#{opts}" }.join("\n\n")

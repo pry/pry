@@ -88,7 +88,7 @@ class Pry::Slop
     # when an array type is specified and used more than once, values from
     # both options will be grouped together and flattened into a single array.
     def value=(new_value)
-      if config[:as].to_s.downcase == 'array'
+      if config[:as].to_s.casecmp('array') == 0
         @value ||= []
 
         if new_value.respond_to?(:split)

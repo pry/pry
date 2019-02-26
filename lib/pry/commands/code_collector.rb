@@ -122,13 +122,13 @@ class Pry
        !args.empty?].count(true) > 1
     end
 
-    def pry_array_content_as_string(array, ranges, &block)
+    def pry_array_content_as_string(array, ranges)
       all = ''
       ranges.each do |range|
         raise CommandError, "Minimum value for range is 1, not 0." if convert_to_range(range).first == 0
 
         ranged_array = Array(array[range]) || []
-        ranged_array.compact.each { |v| all << block.call(v) }
+        ranged_array.compact.each { |v| all << yield(v) }
       end
 
       all

@@ -43,7 +43,7 @@ class Pry
 
       begin
         str = obj.inspect
-      rescue Exception 
+      rescue Exception
         # Read the class name off of the singleton class to provide a default
         # inspect.
         singleton = class << obj; self; end

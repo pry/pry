@@ -13,14 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'lib/pry/color_printer.rb'
-    - 'lib/pry/testable/variables.rb'
-
 # Offense count: 3
 Lint/Debugger:
   Exclude:
@@ -40,14 +32,6 @@ Lint/HandleExceptions:
     - 'lib/pry/commands/gist.rb'
     - 'lib/pry/pager.rb'
     - 'lib/pry/terminal.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: runtime_error, standard_error
-Lint/InheritException:
-  Exclude:
-    - 'lib/pry/input_lock.rb'
 
 # Offense count: 16
 Lint/InterpolationCheck:
@@ -185,64 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/Casecmp:
-  Exclude:
-    - 'lib/pry/slop/option.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/InefficientHashSearch:
-  Exclude:
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/indent.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/input_lock.rb'
-    - 'lib/pry/slop.rb'
-    - 'spec/command_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantMatch:
-  Exclude:
-    - 'lib/pry/command.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: MaxKeyValuePairs.
-Performance/RedundantMerge:
-  Exclude:
-    - 'lib/pry/slop/commands.rb'
-    - 'spec/config_spec.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/Size:
-  Exclude:
-    - 'spec/history_spec.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/slop.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/UnneededSort:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/rubygem.rb'
-
 # Offense count: 10
 Security/Eval:
   Exclude:
@@ -252,13 +178,6 @@ Security/Eval:
     - 'lib/pry/input_completer.rb'
     - 'spec/indent_spec.rb'
     - 'spec/wrapped_module_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect.
-Security/JSONLoad:
-  Exclude:
-    - 'lib/pry/commands/gem_search.rb'
 
 # Offense count: 11
 # Configuration parameters: EnforcedStyle.

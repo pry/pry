@@ -27,15 +27,15 @@ describe Pry do
     end
 
     it "does not record lines that contain a NULL byte" do
-      c = Pry.history.to_a.count
+      c = Pry.history.to_a.size
       Pry.history << "a\0b"
-      expect(Pry.history.to_a.count).to eq c
+      expect(Pry.history.to_a.size).to eq c
     end
 
     it "does not record empty lines" do
-      c = Pry.history.to_a.count
+      c = Pry.history.to_a.size
       Pry.history << ''
-      expect(Pry.history.to_a.count).to eq c
+      expect(Pry.history.to_a.size).to eq c
     end
   end
 

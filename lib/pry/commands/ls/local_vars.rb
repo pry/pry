@@ -9,7 +9,7 @@ class Pry
 
       def output_self
         name_value_pairs = @target.eval('local_variables').reject do |e|
-          @sticky_locals.keys.include?(e.to_sym)
+          @sticky_locals.key?(e.to_sym)
         end.map do |name|
           [name, (@target.eval(name.to_s))]
         end

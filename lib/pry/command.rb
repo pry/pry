@@ -200,7 +200,7 @@ class Pry
                    else
                      case Pry::Method(block).source_file
                      when %r{/pry/.*_commands/(.*).rb}
-                       Regexp.last_match(1).capitalize.gsub(/_/, " ")
+                       Regexp.last_match(1).capitalize.tr('_', " ")
                      when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
                        name = Regexp.last_match(1)
                        version = Regexp.last_match(2)
@@ -305,7 +305,7 @@ class Pry
     # the current scope.
     def check_for_command_collision(command_match, arg_string)
       collision_type = target.eval("defined?(#{command_match})")
-      collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
+      collision_type ||= 'local-variable' if arg_string =~ %r{\A\s*[-+*/%&|^]*=}
 
       if collision_type
         output.puts(

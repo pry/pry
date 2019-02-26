@@ -605,7 +605,7 @@ describe "Pry::Command" do
         it "should NOT expose &block in create_command's process method" do
           @set.create_command "walking-spanish", "down the hall", takes_block: true do
             def process(&block)
-              block.call
+              block.call # rubocop:disable Performance/RedundantBlockCall
             end
           end
           @out = StringIO.new
