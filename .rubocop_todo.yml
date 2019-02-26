@@ -13,14 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Exclude:
-    - 'lib/pry/color_printer.rb'
-    - 'lib/pry/testable/variables.rb'
-
 # Offense count: 3
 Lint/Debugger:
   Exclude:

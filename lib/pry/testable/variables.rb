@@ -41,6 +41,6 @@ module Pry::Testable::Variables
     Pry.current[:pry_local] = value
     b.eval("#{name} = ::Pry.current[:pry_local]")
   ensure
-    Pry.current[:pry_local] = nil   
+    Pry.current[:pry_local] = nil
   end
 end
