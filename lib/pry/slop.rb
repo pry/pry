@@ -496,7 +496,7 @@ class Pry::Slop
       end
     else
       @unknown_options << item if strict? && item =~ /\A--?/
-      block.call(item) if block && !@trash.include?(index)
+      yield(item) if block && !@trash.include?(index)
     end
   end
 

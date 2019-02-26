@@ -169,15 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Performance/RedundantBlockCall:
-  Exclude:
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/input_lock.rb'
-    - 'lib/pry/slop.rb'
-    - 'spec/command_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Performance/RedundantMatch:

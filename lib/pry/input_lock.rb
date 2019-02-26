@@ -33,7 +33,7 @@ class Pry
 
     # Adds ourselves to the ownership list. The last one in the list may access
     # the input through interruptible_region().
-    def __with_ownership(&block)
+    def __with_ownership
       @mutex.synchronize do
         # Three cases:
         # 1) There are no owners, in this case we are good to go.
@@ -56,7 +56,7 @@ class Pry
         @owners << Thread.current
       end
 
-      block.call
+      yield
     ensure
       @mutex.synchronize do
         # We are releasing any desire to have the input ownership by removing
@@ -73,7 +73,7 @@ class Pry
     def with_ownership(&block)
       # If we are in a nested with_ownership() call (nested pry context), we do nothing.
       nested = @mutex.synchronize { @owners.include?(Thread.current) }
-      nested ? block.call : __with_ownership(&block)
+      nested ? yield : __with_ownership(&block)
     end
 
     def enter_interruptible_region
@@ -103,13 +103,13 @@ class Pry
       retry
     end
 
-    def interruptible_region(&block)
+    def interruptible_region
       enter_interruptible_region
 
       # XXX Note that there is a chance that we get the interrupt right after
       # the readline call succeeded, but we'll never know, and we will retry the
       # call, discarding that piece of input.
-      block.call
+      yield
     rescue Interrupt
       # We were asked to back off. The one requesting the interrupt will be
       # waiting on the conditional for the interruptible flag to change to false.
