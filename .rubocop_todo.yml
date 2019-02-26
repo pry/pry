@@ -179,13 +179,6 @@ Security/Eval:
     - 'spec/indent_spec.rb'
     - 'spec/wrapped_module_spec.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect.
-Security/JSONLoad:
-  Exclude:
-    - 'lib/pry/commands/gem_search.rb'
-
 # Offense count: 11
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: inline, group

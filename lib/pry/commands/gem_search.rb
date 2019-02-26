@@ -25,7 +25,7 @@ class Pry::Command::GemSearch < Pry::ClassCommand
   def process(str)
     uri = URI.parse(API_ENDPOINT)
     uri.query = URI.encode_www_form(query: str)
-    gems = JSON.load Net::HTTP.get(uri)
+    gems = JSON.parse(Net::HTTP.get(uri))
     _pry_.pager.page list_as_string(gems, opts[:limit])
   end
 
