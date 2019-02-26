@@ -169,13 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/InefficientHashSearch:
-  Exclude:
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/indent.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Performance/RedundantBlockCall:
