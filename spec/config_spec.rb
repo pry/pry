@@ -174,7 +174,7 @@ RSpec.describe Pry::Config do
 
     it "returns a duplicate of the lookup table" do
       local = described_class.new(nil)
-      local.to_hash.merge!("foo" => 42)
+      local.to_hash["foo"] = 42
       expect(local.foo).not_to eq(42)
     end
   end
@@ -197,7 +197,7 @@ RSpec.describe Pry::Config do
     end
 
     it "merges a Hash" do
-      @config.merge!(epoch: 420)
+      @config[:epoch] = 420
       expect(@config.epoch).to eq(420)
     end
 

@@ -171,14 +171,6 @@ Naming/UncommunicativeMethodParamName:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-# Configuration parameters: MaxKeyValuePairs.
-Performance/RedundantMerge:
-  Exclude:
-    - 'lib/pry/slop/commands.rb'
-    - 'spec/config_spec.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Performance/Size:
   Exclude:
     - 'spec/history_spec.rb'
