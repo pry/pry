@@ -178,10 +178,10 @@ class Pry
       (cmd = find_command(action)) || fail("Command: `#{action}` not found")
       original_options = cmd.options.dup
 
-      options = original_options.merge!({
-                                          desc: "Alias for `#{action}`",
-                                          listing: match
-                                        }).merge!(options)
+      options = original_options.merge!(
+        desc: "Alias for `#{action}`",
+        listing: match
+      ).merge!(options)
 
       # ensure default description is used if desc is nil
       desc = options.delete(:desc).to_s

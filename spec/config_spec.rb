@@ -64,7 +64,7 @@ RSpec.describe Pry::Config do
     end
 
     it "traverses through a chain of parents" do
-      root = described_class.from_hash({ foo: 21 })
+      root = described_class.from_hash(foo: 21)
       local1 = described_class.new(root)
       local2 = described_class.new(local1)
       local3 = described_class.new(local2)
@@ -169,7 +169,7 @@ RSpec.describe Pry::Config do
     it "provides a copy of local key & value pairs as a Hash" do
       local = described_class.new described_class.from_hash(bar: true)
       local.foo = "21"
-      expect(local.to_hash).to eq({ "foo" => "21" })
+      expect(local.to_hash).to eq("foo" => "21")
     end
 
     it "returns a duplicate of the lookup table" do
@@ -226,19 +226,19 @@ RSpec.describe Pry::Config do
     it "stores keys as strings" do
       local = described_class.from_hash({})
       local[:zoo] = "hello"
-      expect(local.to_hash).to eq({ "zoo" => "hello" })
+      expect(local.to_hash).to eq("zoo" => "hello")
     end
   end
 
   describe "#[]" do
     it "traverses back to a default" do
-      default = described_class.from_hash({ k: 1 })
+      default = described_class.from_hash(k: 1)
       local = described_class.new(default)
       expect(local['k']).to eq(1)
     end
 
     it "traverses back to a default (2 deep)" do
-      default1 = described_class.from_hash({ k: 1 })
+      default1 = described_class.from_hash(k: 1)
       default2 = described_class.from_hash({}, default1)
       local = described_class.new(default2)
       expect(local['k']).to eq(1)

@@ -199,20 +199,6 @@ Style/AsciiComments:
     - 'lib/pry/pry_instance.rb'
     - 'lib/pry/terminal.rb'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/commands/ls.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/command_set_spec.rb'
-    - 'spec/config_spec.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 39
 Style/CaseEquality:
   Enabled: false
