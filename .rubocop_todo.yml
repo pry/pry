@@ -171,12 +171,6 @@ Naming/UncommunicativeMethodParamName:
 
 # Offense count: 4
 # Cop supports --auto-correct.
-Performance/Size:
-  Exclude:
-    - 'spec/history_spec.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
 Performance/StringReplacement:
   Exclude:
     - 'lib/pry/command.rb'
