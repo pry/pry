@@ -226,7 +226,7 @@ class Pry
 
         @lookup == __try_convert_to_hash(other)
       end
-      alias_method :eql?, :==
+      alias eql? ==
 
       #
       # @example
@@ -303,7 +303,7 @@ class Pry
       def to_hash
         @lookup.dup
       end
-      alias_method :to_h, :to_hash
+      alias to_h to_hash
 
       def inspect
         key_str = keys.map { |key| "'#{key}'" }.join(",")

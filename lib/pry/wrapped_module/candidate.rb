@@ -12,11 +12,11 @@ class Pry
 
       # @return [String] The file where the module definition is located.
       attr_reader :file
-      alias_method :source_file, :file
+      alias source_file file
 
       # @return [Fixnum] The line where the module definition is located.
       attr_reader :line
-      alias_method :source_line, :line
+      alias source_line line
 
       # Methods to delegate to associated `Pry::WrappedModule
       # instance`.

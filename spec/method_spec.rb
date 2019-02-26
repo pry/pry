@@ -186,7 +186,7 @@ describe Pry::Method do
           @nips = "nips"
           binding
         end
-        alias paella borscht
+        alias_method :paella, :borscht
         def borscht() paella end
       end
 
@@ -511,7 +511,7 @@ describe Pry::Method do
         def eat
         end
 
-        alias fress eat
+        alias_method :fress, :eat
         alias_method :omnomnom, :fress
 
         def eruct
