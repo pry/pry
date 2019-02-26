@@ -169,13 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/UnneededSort:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/rubygem.rb'
-
 # Offense count: 10
 Security/Eval:
   Exclude:

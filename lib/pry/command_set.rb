@@ -288,9 +288,9 @@ class Pry
     def [](pattern)
       @commands.values.select do |command|
         command.matches?(pattern)
-      end.sort_by do |command|
+      end.max_by do |command|
         command.match_score(pattern)
-      end.last
+      end
     end
     alias_method :find_command, :[]
 

@@ -22,7 +22,7 @@ class Pry
                   Gem.source_index.find_name(name)
                 end
 
-        first_spec = specs.sort_by { |spec| Gem::Version.new(spec.version) }.last
+        first_spec = specs.max_by { |spec| Gem::Version.new(spec.version) }
 
         first_spec || raise(CommandError, "Gem `#{name}` not found")
       end
