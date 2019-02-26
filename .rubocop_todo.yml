@@ -33,14 +33,6 @@ Lint/HandleExceptions:
     - 'lib/pry/pager.rb'
     - 'lib/pry/terminal.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: runtime_error, standard_error
-Lint/InheritException:
-  Exclude:
-    - 'lib/pry/input_lock.rb'
-
 # Offense count: 16
 Lint/InterpolationCheck:
   Exclude:
