@@ -169,15 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/slop.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Performance/UnneededSort:

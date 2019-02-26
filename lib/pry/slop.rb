@@ -447,7 +447,7 @@ class Pry::Slop
     meth = method.to_s
     if meth.end_with?('?')
       meth.chop!
-      present?(meth) || present?(meth.gsub('_', '-'))
+      present?(meth) || present?(meth.tr('_', '-'))
     else
       super
     end
