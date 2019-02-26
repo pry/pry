@@ -305,7 +305,7 @@ class Pry
     # the current scope.
     def check_for_command_collision(command_match, arg_string)
       collision_type = target.eval("defined?(#{command_match})")
-      collision_type ||= 'local-variable' if arg_string.match(%r{\A\s*[-+*/%&|^]*=})
+      collision_type ||= 'local-variable' if arg_string =~ %r{\A\s*[-+*/%&|^]*=}
 
       if collision_type
         output.puts(

@@ -169,12 +169,6 @@ Naming/MemoizedInstanceVariableName:
 Naming/UncommunicativeMethodParamName:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/RedundantMatch:
-  Exclude:
-    - 'lib/pry/command.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: MaxKeyValuePairs.
