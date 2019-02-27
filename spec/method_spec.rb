@@ -35,7 +35,7 @@ describe Pry::Method do
 
         def self.hello; end
       end
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), { "instance-methods" => true })
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), "instance-methods" => true)
       expect(meth).to eq klass.instance_method(:hello)
     end
 
@@ -45,7 +45,7 @@ describe Pry::Method do
 
         def self.hello; end
       end
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), { methods: true })
+      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), methods: true)
       expect(meth).to eq klass.method(:hello)
     end
 
@@ -186,7 +186,7 @@ describe Pry::Method do
           @nips = "nips"
           binding
         end
-        alias paella borscht
+        alias_method :paella, :borscht
         def borscht() paella end
       end
 
@@ -511,7 +511,7 @@ describe Pry::Method do
         def eat
         end
 
-        alias fress eat
+        alias_method :fress, :eat
         alias_method :omnomnom, :fress
 
         def eruct

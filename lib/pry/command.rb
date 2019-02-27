@@ -45,8 +45,8 @@ class Pry
         @command_options
       end
       # backward compatibility
-      alias_method :options, :command_options
-      alias_method :options=, :command_options=
+      alias options command_options
+      alias options= command_options=
 
       # Define or get the command's banner
       def banner(arg = nil)
@@ -70,12 +70,12 @@ class Pry
       def source_file
         Array(block.source_location).first
       end
-      alias_method :file, :source_file
+      alias file source_file
 
       def source_line
         Array(block.source_location).last
       end
-      alias_method :line, :source_line
+      alias line source_line
 
       def default_options(match)
         {
@@ -514,7 +514,7 @@ WARN
   # Create subclasses using {Pry::CommandSet#command}.
   class BlockCommand < Command
     # backwards compatibility
-    alias_method :opts, :context
+    alias opts context
 
     # Call the block that was registered with this command.
     # @param [Array<String>] args The arguments passed
@@ -564,12 +564,12 @@ WARN
       def source_file
         source_object.source_file
       end
-      alias_method :file, :source_file
+      alias file source_file
 
       def source_line
         source_object.source_line
       end
-      alias_method :line, :source_line
+      alias line source_line
 
       private
 

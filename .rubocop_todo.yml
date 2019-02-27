@@ -192,39 +192,12 @@ Style/AccessModifierDeclarations:
     - 'spec/helper.rb'
     - 'spec/method/patcher_spec.rb'
 
-# Offense count: 19
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'lib/pry/wrapped_module/candidate.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: AllowedChars.
 Style/AsciiComments:
   Exclude:
     - 'lib/pry/pry_instance.rb'
     - 'lib/pry/terminal.rb'
-
-# Offense count: 12
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/commands/ls.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/command_set_spec.rb'
-    - 'spec/config_spec.rb'
-    - 'spec/method_spec.rb'
 
 # Offense count: 39
 Style/CaseEquality:

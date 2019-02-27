@@ -81,7 +81,7 @@ class Pry
 
       @commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
     end
-    alias_method :command, :block_command
+    alias command block_command
 
     # Defines a new Pry command class.
     #
@@ -178,10 +178,10 @@ class Pry
       (cmd = find_command(action)) || fail("Command: `#{action}` not found")
       original_options = cmd.options.dup
 
-      options = original_options.merge!({
-                                          desc: "Alias for `#{action}`",
-                                          listing: match
-                                        }).merge!(options)
+      options = original_options.merge!(
+        desc: "Alias for `#{action}`",
+        listing: match
+      ).merge!(options)
 
       # ensure default description is used if desc is nil
       desc = options.delete(:desc).to_s
@@ -275,12 +275,12 @@ class Pry
     def list_commands
       @commands.keys
     end
-    alias_method :keys, :list_commands
+    alias keys list_commands
 
     def to_hash
       @commands.dup
     end
-    alias_method :to_h, :to_hash
+    alias to_h to_hash
 
     # Find a command that matches the given line
     # @param [String] pattern The line that might be a command invocation
@@ -292,7 +292,7 @@ class Pry
         command.match_score(pattern)
       end
     end
-    alias_method :find_command, :[]
+    alias find_command []
 
     #
     # Re-assign the command found at _pattern_ with _command_.

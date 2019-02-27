@@ -113,7 +113,7 @@ class Pry
       if filtered.size == 1
         display_command(filtered.values.first)
       else
-        display_index({ "'#{search}' commands" => filtered.values })
+        display_index("'#{search}' commands" => filtered.values)
       end
     end
 

@@ -169,14 +169,14 @@ class Pry
     def file
       Array(source_location).first
     end
-    alias_method :source_file, :file
+    alias source_file file
 
     # @return [Fixnum, nil] The associated line for the module (i.e
     #   the primary candidate: highest ranked monkeypatch).
     def line
       Array(source_location).last
     end
-    alias_method :source_line, :line
+    alias source_line line
 
     # Returns documentation for the module.
     # This documentation is for the primary candidate, if
