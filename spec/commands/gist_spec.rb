@@ -11,7 +11,7 @@ describe 'gist' do
   end
 
   # In absence of normal mocking, just monkeysmash these with no undoing after.
-  module ::Gist
+  module ::Gist # rubocop:disable Style/ClassAndModuleChildren
     class << self
       def login!; Pad.gist_calls[:login!] = true end
 

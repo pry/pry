@@ -96,6 +96,7 @@ require 'tempfile'
 require 'pathname'
 
 require 'pry/version'
+require 'pry/last_exception'
 require 'pry/input_completer'
 require 'pry/repl'
 require 'pry/code'
@@ -125,7 +126,6 @@ require 'pry/terminal'
 require 'pry/editor'
 require 'pry/rubygem'
 require "pry/indent"
-require "pry/last_exception"
 require "pry/inspector"
 require 'pry/object_path'
 require 'pry/output'

@@ -23,3 +23,7 @@ Layout/CommentIndentation:
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - 'spec/fixtures/example_nesting.rb'

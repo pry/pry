@@ -203,13 +203,6 @@ Style/AsciiComments:
 Style/CaseEquality:
   Enabled: false
 
-# Offense count: 95
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
