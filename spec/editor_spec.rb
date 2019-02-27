@@ -1,8 +1,10 @@
 require 'pathname'
 
 describe Pry::Editor do
-  class Pry::Editor
-    public :build_editor_invocation_string
+  class Pry
+    class Editor
+      public :build_editor_invocation_string
+    end
   end
 
   before do

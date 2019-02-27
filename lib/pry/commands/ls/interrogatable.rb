@@ -1,16 +1,22 @@
-module Pry::Command::Ls::Interrogatable
-  private
+class Pry
+  class Command
+    class Ls
+      module Interrogatable
+        private
 
-  def interrogating_a_module?
-    Module === @interrogatee
-  end
+        def interrogating_a_module?
+          Module === @interrogatee
+        end
 
-  def interrogatee_mod
-    if interrogating_a_module?
-      @interrogatee
-    else
-      singleton = Pry::Method.singleton_class_of(@interrogatee)
-      singleton.ancestors.grep(::Class).reject { |c| c == singleton }.first
+        def interrogatee_mod
+          if interrogating_a_module?
+            @interrogatee
+          else
+            singleton = Pry::Method.singleton_class_of(@interrogatee)
+            singleton.ancestors.grep(::Class).reject { |c| c == singleton }.first
+          end
+        end
+      end
     end
   end
 end

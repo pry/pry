@@ -730,10 +730,12 @@ describe "show-source" do
 
     describe "real class-based commands" do
       before do
+        # rubocop:disable Style/ClassAndModuleChildren
         class ::TemporaryCommand < Pry::ClassCommand
           match 'temp-command'
           def process() :body_of_temp end
         end
+        # rubocop:enable Style/ClassAndModuleChildren
 
         Pry.config.commands.add_command(::TemporaryCommand)
       end
