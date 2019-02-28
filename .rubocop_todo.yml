@@ -232,17 +232,6 @@ Style/DoubleNegation:
 
 # Offense count: 6
 # Cop supports --auto-correct.
-Style/EmptyCaseCondition:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/cat.rb'
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/commands/watch_expression.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: empty, nil, both
 Style/EmptyElse:

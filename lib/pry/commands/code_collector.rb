@@ -56,12 +56,11 @@ class Pry
           begin
             raise CommandError, "Only one of --out, --in, --doc and CODE_OBJECT may be specified." if bad_option_combination?
 
-            content = case
-                      when opts.present?(:o)
+            content = if opts.present?(:o)
                         pry_output_content
-                      when opts.present?(:i)
+                      elsif opts.present?(:i)
                         pry_input_content
-                      when opts.present?(:d)
+                      elsif opts.present?(:d)
                         code_object_doc
                       else
                         code_object_source_or_file

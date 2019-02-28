@@ -497,12 +497,11 @@ WARN
     # @param [Array] args The arguments to pass
     # @return [Array] A (possibly shorter) array of the arguments to pass
     def correct_arg_arity(arity, args)
-      case
-      when arity < 0
+      if arity < 0
         args
-      when arity == 0
+      elsif arity == 0
         []
-      when arity > 0
+      elsif arity > 0
         args.values_at(*(0..(arity - 1)).to_a)
       end
     end

@@ -45,12 +45,11 @@ class Pry
         end
 
         @history =
-          case
-          when opts.present?(:head)
+          if opts.present?(:head)
             @history.take_lines(1, opts[:head] || 10)
-          when opts.present?(:tail)
+          elsif opts.present?(:tail)
             @history.take_lines(-(opts[:tail] || 10), opts[:tail] || 10)
-          when opts.present?(:show)
+          elsif opts.present?(:show)
             @history.between(opts[:show])
           else
             @history

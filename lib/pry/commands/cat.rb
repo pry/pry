@@ -33,10 +33,9 @@ class Pry
       end
 
       def process
-        output = case
-                 when opts.present?(:ex)
+        output = if opts.present?(:ex)
                    ExceptionFormatter.new(_pry_.last_exception, _pry_, opts).format
-                 when opts.present?(:in)
+                 elsif opts.present?(:in)
                    InputExpressionFormatter.new(_pry_.input_ring, opts).format
                  else
                    FileFormatter.new(args.first, _pry_, opts).format
