@@ -198,26 +198,22 @@ describe "show-doc" do
     before do
       # god this is boring1
       class ShowSourceTestClass
-        def alpha
-        end
+        def alpha; end
       end
 
       # god this is boring2
       module ShowSourceTestModule
-        def alpha
-        end
+        def alpha; end
       end
 
       # god this is boring3
       ShowSourceTestClassWeirdSyntax = Class.new do
-        def beta
-        end
+        def beta; end
       end
 
       # god this is boring4
       ShowSourceTestModuleWeirdSyntax = Module.new do
-        def beta
-        end
+        def beta; end
       end
     end
 
@@ -273,15 +269,13 @@ describe "show-doc" do
       temporary_constants(:AlphaClass, :BetaClass) do
         # top-level beta
         class BetaClass
-          def alpha
-          end
+          def alpha; end
         end
 
         class AlphaClass
           # nested beta
           class BetaClass
-            def beta
-            end
+            def beta; end
           end
         end
 
@@ -294,8 +288,7 @@ describe "show-doc" do
         class AlphaClass
           # nested beta
           class BetaClass
-            def beta
-            end
+            def beta; end
           end
         end
 
@@ -309,8 +302,7 @@ describe "show-doc" do
       it 'should show the docs for all monkeypatches defined in different files' do
         # local monkeypatch
         class TestClassForShowSource
-          def epsilon
-          end
+          def epsilon; end
         end
 
         result = pry_eval("show-doc TestClassForShowSource -a")
@@ -321,8 +313,7 @@ describe "show-doc" do
       describe "messages relating to -a" do
         it "displays the original definition by default (not a doc of a monkeypatch)" do
           class TestClassForCandidatesOrder
-            def beta
-            end
+            def beta; end
           end
 
           result = pry_eval("show-doc TestClassForCandidatesOrder")
@@ -334,8 +325,7 @@ describe "show-doc" do
           '(when -a not used and more than one candidate exists for class)' do
           # Still reading boring tests, eh?
           class TestClassForShowSource
-            def delta
-            end
+            def delta; end
           end
 
           result = pry_eval('show-doc TestClassForShowSource')

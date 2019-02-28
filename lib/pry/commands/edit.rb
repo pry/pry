@@ -183,12 +183,11 @@ class Pry
       end
 
       def initial_temp_file_content
-        case
-        when opts.present?(:temp)
+        if opts.present?(:temp)
           ""
-        when opts.present?(:in)
+        elsif opts.present?(:in)
           input_expression
-        when eval_string.strip != ""
+        elsif eval_string.strip != ""
           eval_string
         else
           _pry_.input_ring.to_a.reverse_each.find { |x| x && x.strip != "" } || ""

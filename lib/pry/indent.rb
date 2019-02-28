@@ -291,11 +291,7 @@ class Pry
       when @close_heredocs[@heredoc_queue.first]
         @heredoc_queue.shift
       else
-        if @string_start
-          @string_start = nil
-        else
-          @string_start = token
-        end
+        @string_start = @string_start ? nil : token
       end
     end
 

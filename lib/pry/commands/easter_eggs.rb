@@ -95,11 +95,12 @@ class Pry
         \____/   \________________________|
       EOS
 
-      if Helpers::Platform.windows_ansi?
-        move_up = proc { |n| "\e[#{n}F" }
-      else
-        move_up = proc { |n| "\e[#{n}A\e[0G" }
-      end
+      move_up =
+        if Helpers::Platform.windows_ansi?
+          proc { |n| "\e[#{n}F" }
+        else
+          proc { |n| "\e[#{n}A\e[0G" }
+        end
 
       output.puts "\n" * 6
       output.puts picture.lines.map(&:chomp).reverse.join(move_up[1])

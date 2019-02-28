@@ -14,8 +14,7 @@ describe Pry::WrappedModule do
 
       # rank 2
       class CandidateTest
-        def test6
-        end
+        def test6; end
       end
 
       class PitifullyBlank
@@ -27,8 +26,7 @@ describe Pry::WrappedModule do
         class DoublyNested
           # nested docs
           class TriplyNested
-            def nested_method
-            end
+            def nested_method; end
           end
         end
       end
@@ -103,7 +101,7 @@ describe Pry::WrappedModule do
 
       it 'should return source for deeply nested class' do
         expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source).to match(/nested_method/)
-        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count).to eq 4
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count).to eq(3)
       end
     end
 

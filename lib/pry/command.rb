@@ -349,11 +349,12 @@ class Pry
       # process and pass a block if one is found
       pass_block(arg_string) if command_options[:takes_block]
 
-      if arg_string
-        args = command_options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
-      else
-        args = []
-      end
+      args =
+        if arg_string
+          command_options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
+        else
+          []
+        end
 
       [val[0..pos].rstrip, arg_string, captures, args]
     end
@@ -390,11 +391,12 @@ class Pry
       block_init_string = arg_string.slice!(block_index..-1)[1..-1]
       prime_string = "proc #{block_init_string}\n"
 
-      if !Pry::Code.complete_expression?(prime_string)
-        block_string = _pry_.r(target, prime_string)
-      else
-        block_string = prime_string
-      end
+      block_string =
+        if !Pry::Code.complete_expression?(prime_string)
+          _pry_.r(target, prime_string)
+        else
+          prime_string
+        end
 
       begin
         self.command_block = target.eval(block_string)
@@ -495,12 +497,11 @@ WARN
     # @param [Array] args The arguments to pass
     # @return [Array] A (possibly shorter) array of the arguments to pass
     def correct_arg_arity(arity, args)
-      case
-      when arity < 0
+      if arity < 0
         args
-      when arity == 0
+      elsif arity == 0
         []
-      when arity > 0
+      elsif arity > 0
         args.values_at(*(0..(arity - 1)).to_a)
       end
     end

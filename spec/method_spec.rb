@@ -508,14 +508,12 @@ describe Pry::Method do
   describe 'method aliases' do
     before do
       @class = Class.new do
-        def eat
-        end
+        def eat; end
 
         alias_method :fress, :eat
         alias_method :omnomnom, :fress
 
-        def eruct
-        end
+        def eruct; end
       end
     end
 
@@ -554,7 +552,7 @@ describe Pry::Method do
     end
 
     it 'should be able to find aliases for methods implemented in C' do
-      meth = Pry::Method(Hash.new.method(:key?))
+      meth = Pry::Method({}.method(:key?))
       aliases = Set.new(meth.aliases)
 
       expect(aliases).to eq Set.new(["include?", "member?", "has_key?"])

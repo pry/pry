@@ -346,34 +346,28 @@ describe "show-source" do
   describe "on modules" do
     before do
       class ShowSourceTestSuperClass
-        def alpha
-        end
+        def alpha; end
       end
 
       class ShowSourceTestClass < ShowSourceTestSuperClass
-        def alpha
-        end
+        def alpha; end
       end
 
       module ShowSourceTestSuperModule
-        def alpha
-        end
+        def alpha; end
       end
 
       module ShowSourceTestModule
         include ShowSourceTestSuperModule
-        def alpha
-        end
+        def alpha; end
       end
 
       ShowSourceTestClassWeirdSyntax = Class.new do
-        def beta
-        end
+        def beta; end
       end
 
       ShowSourceTestModuleWeirdSyntax = Module.new do
-        def beta
-        end
+        def beta; end
       end
     end
 
@@ -455,14 +449,12 @@ describe "show-source" do
     it 'should lookup module name with respect to current context' do
       temporary_constants(:AlphaClass, :BetaClass) do
         class BetaClass
-          def alpha
-          end
+          def alpha; end
         end
 
         class AlphaClass
           class BetaClass
-            def beta
-            end
+            def beta; end
           end
         end
 
@@ -474,8 +466,7 @@ describe "show-source" do
       temporary_constants(:AlphaClass) do
         class AlphaClass
           class BetaClass
-            def beta
-            end
+            def beta; end
           end
         end
 
@@ -489,8 +480,7 @@ describe "show-source" do
     describe "show-source -a" do
       it 'should show the source for all monkeypatches defined in different files' do
         class TestClassForShowSource
-          def beta
-          end
+          def beta; end
         end
 
         result = pry_eval('show-source TestClassForShowSource -a')
@@ -500,8 +490,7 @@ describe "show-source" do
 
       it 'should show the source for a class_eval-based monkeypatch' do
         TestClassForShowSourceClassEval.class_eval do
-          def class_eval_method
-          end
+          def class_eval_method; end
         end
 
         result = pry_eval('show-source TestClassForShowSourceClassEval -a')
@@ -521,8 +510,7 @@ describe "show-source" do
 
       it 'should show the source for an instance_eval-based monkeypatch' do
         TestClassForShowSourceInstanceEval.instance_eval do
-          def instance_eval_method
-          end
+          def instance_eval_method; end
         end
 
         result = pry_eval('show-source TestClassForShowSourceInstanceEval -a')
@@ -532,8 +520,7 @@ describe "show-source" do
       describe "messages relating to -a" do
         it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
           class TestClassForShowSource
-            def gamma
-            end
+            def gamma; end
           end
 
           result = pry_eval('show-source TestClassForShowSource')

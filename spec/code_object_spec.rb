@@ -219,15 +219,12 @@ describe Pry::CodeObject do
     before do
       class ClassyWassy
         class Puff
-          def tiggy
-          end
+          def tiggy; end
         end
 
-        def Puff
-        end
+        def Puff; end
 
-        def piggy
-        end
+        def piggy; end
       end
 
       Object.class_eval do

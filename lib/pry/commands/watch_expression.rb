@@ -36,10 +36,9 @@ class Pry
       end
 
       def process
-        case
-        when opts.present?(:delete)
+        if opts.present?(:delete)
           delete opts[:delete]
-        when opts.present?(:list) || args.empty?
+        elsif opts.present?(:list) || args.empty?
           list
         else
           add_hook

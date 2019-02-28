@@ -23,11 +23,12 @@ class Pry
           end
           @history.push str if @history
 
-          if @pry.process_command(str)
-            result = last_command_result_or_output
-          else
-            result = @pry.evaluate_ruby(str)
-          end
+          result =
+            if @pry.process_command(str)
+              last_command_result_or_output
+            else
+              @pry.evaluate_ruby(str)
+            end
         end
 
         result

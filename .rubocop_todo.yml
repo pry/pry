@@ -204,14 +204,6 @@ Style/CaseEquality:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'lib/pry/pry_class.rb'
-
-# Offense count: 1
 Style/ClassVars:
   Exclude:
     - 'lib/pry/method/patcher.rb'
@@ -220,19 +212,6 @@ Style/ClassVars:
 Style/CommentedKeyword:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/testable/pry_tester.rb'
-    - 'lib/pry/wrapped_module.rb'
 
 # Offense count: 154
 Style/Documentation:
@@ -250,53 +229,6 @@ Style/DoubleNegation:
     - 'lib/pry/pager.rb'
     - 'lib/pry/slop/option.rb'
     - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/EmptyCaseCondition:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/cat.rb'
-    - 'lib/pry/commands/code_collector.rb'
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/commands/watch_expression.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'lib/pry/code_object.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-    - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/EmptyLiteral:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/method_spec.rb'
-
-# Offense count: 42
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, expanded
-Style/EmptyMethod:
-  Exclude:
-    - 'lib/pry/pager.rb'
-    - 'spec/code_object_spec.rb'
-    - 'spec/commands/show_doc_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/completion_spec.rb'
-    - 'spec/fixtures/candidate_helper1.rb'
-    - 'spec/fixtures/candidate_helper2.rb'
-    - 'spec/fixtures/show_source_doc_examples.rb'
-    - 'spec/method_spec.rb'
-    - 'spec/wrapped_module_spec.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
