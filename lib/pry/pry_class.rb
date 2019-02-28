@@ -237,7 +237,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   def self.view_clip(obj, options = {})
     max = options.fetch :max_length, 60
     id = options.fetch :id, false
-    if obj.kind_of?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
+    if obj.is_a?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
       obj.name.to_s
     elsif Pry.main == obj
       # special-case to support jruby.

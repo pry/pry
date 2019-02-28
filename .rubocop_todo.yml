@@ -204,14 +204,6 @@ Style/CaseEquality:
   Enabled: false
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'lib/pry/pry_class.rb'
-
-# Offense count: 1
 Style/ClassVars:
   Exclude:
     - 'lib/pry/method/patcher.rb'
