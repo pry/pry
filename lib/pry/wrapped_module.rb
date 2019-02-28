@@ -268,11 +268,12 @@ class Pry
     def super(times = 1)
       return self if times.zero?
 
-      if wrapped.is_a?(Class)
-        sup = ancestors.select { |v| v.is_a?(Class) }[times]
-      else
-        sup = ancestors[times]
-      end
+      sup =
+        if wrapped.is_a?(Class)
+          ancestors.select { |v| v.is_a?(Class) }[times]
+        else
+          ancestors[times]
+        end
 
       Pry::WrappedModule(sup) if sup
     end
@@ -368,11 +369,12 @@ class Pry
     def lines_for_file(file)
       @lines_for_file ||= {}
 
-      if file == Pry.eval_path
-        @lines_for_file[file] ||= Pry.line_buffer.drop(1)
-      else
-        @lines_for_file[file] ||= File.readlines(file)
-      end
+      @lines_for_file[file] ||=
+        if file == Pry.eval_path
+          Pry.line_buffer.drop(1)
+        else
+          File.readlines(file)
+        end
     end
   end
 end

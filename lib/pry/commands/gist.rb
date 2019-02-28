@@ -72,11 +72,7 @@ class Pry
       def comment_expression_result_for_gist(result)
         content = ""
         result.lines.each_with_index do |line, index|
-          if index == 0
-            content << "# => #{line}"
-          else
-            content << "#    #{line}"
-          end
+          content << index == 0 ? "# => #{line}" : "#    #{line}"
         end
 
         content

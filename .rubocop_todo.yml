@@ -213,19 +213,6 @@ Style/CommentedKeyword:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/testable/pry_tester.rb'
-    - 'lib/pry/wrapped_module.rb'
-
 # Offense count: 154
 Style/Documentation:
   Enabled: false
