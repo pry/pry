@@ -122,8 +122,6 @@ class Pry
           Pry::Method(obj)
         elsif !obj.is_a?(Module)
           Pry::WrappedModule(obj.class)
-        else
-          nil
         end
       end
     rescue Pry::RescuableException

@@ -324,8 +324,6 @@ class Pry
         elsif @default.respond_to?(name)
           value = @default.public_send(name, *args, &block)
           self[key] = __dup(value)
-        else
-          nil
         end
       end
 
@@ -347,8 +345,6 @@ class Pry
           obj.to_h
         elsif obj.respond_to?(:to_hash)
           obj.to_hash
-        else
-          nil
         end
       end
 

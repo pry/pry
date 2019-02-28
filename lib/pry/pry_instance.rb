@@ -373,8 +373,6 @@ class Pry
       exception_handler.call(output, result, self)
     elsif should_print?
       print.call(output, result, self)
-    else
-      # nothin'
     end
   rescue RescuableException => e
     # Being uber-paranoid here, given that this exception arose because we couldn't

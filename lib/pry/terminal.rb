@@ -10,8 +10,6 @@ class Pry
         rows, cols = actual_screen_size
         if rows.to_i != 0 && cols.to_i != 0
           [rows.to_i, cols.to_i]
-        else
-          nil
         end
       end
 

@@ -29,8 +29,6 @@ class Pry
     def self.from_str(mod_name, target = TOPLEVEL_BINDING)
       if safe_to_evaluate?(mod_name, target)
         Pry::WrappedModule.new(target.eval(mod_name))
-      else
-        nil
       end
     rescue RescuableException
       nil
