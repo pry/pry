@@ -591,7 +591,7 @@ class Pry
 
   # the array that the prompt stack is stored in
   def prompt_stack
-    @prompt_stack ||= Array.new
+    @prompt_stack ||= []
   end
   private :prompt_stack
 

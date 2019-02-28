@@ -554,7 +554,7 @@ describe Pry::Method do
     end
 
     it 'should be able to find aliases for methods implemented in C' do
-      meth = Pry::Method(Hash.new.method(:key?))
+      meth = Pry::Method({}.method(:key?))
       aliases = Set.new(meth.aliases)
 
       expect(aliases).to eq Set.new(["include?", "member?", "has_key?"])

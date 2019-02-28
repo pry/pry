@@ -230,13 +230,6 @@ Style/DoubleNegation:
     - 'lib/pry/slop/option.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/EmptyLiteral:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
