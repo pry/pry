@@ -508,14 +508,12 @@ describe Pry::Method do
   describe 'method aliases' do
     before do
       @class = Class.new do
-        def eat
-        end
+        def eat; end
 
         alias_method :fress, :eat
         alias_method :omnomnom, :fress
 
-        def eruct
-        end
+        def eruct; end
       end
     end
 

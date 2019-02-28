@@ -227,11 +227,9 @@ describe Pry::InputCompleter do
       # skip unless Pry::Helpers::Platform.jruby?
 
       m = Module.new do
-        def self.hash(a, b)
-        end
+        def self.hash(a, b); end
 
-        def aaaa
-        end
+        def aaaa; end
       end
 
       completer_test(m, nil, false).call("[].size.aaaa")

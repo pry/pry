@@ -81,8 +81,7 @@ class Pry
         @out.write str
       end
 
-      def close
-      end
+      def close; end
 
       private
 
