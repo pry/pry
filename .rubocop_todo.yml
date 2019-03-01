@@ -230,13 +230,6 @@ Style/DoubleNegation:
     - 'lib/pry/slop/option.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 27
 Style/EvalWithLocation:
   Exclude:

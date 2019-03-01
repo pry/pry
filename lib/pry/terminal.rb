@@ -1,5 +1,3 @@
-# coding: utf-8
-
 class Pry
   class Terminal
     class << self
