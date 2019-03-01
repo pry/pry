@@ -239,13 +239,6 @@ Style/EvalWithLocation:
     - 'spec/commands/watch_expression_spec.rb'
     - 'spec/method_spec.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'lib/pry/commands.rb'
-    - 'pry.gemspec'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

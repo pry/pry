@@ -27,3 +27,9 @@ Layout/MultilineMethodCallIndentation:
 Style/ClassAndModuleChildren:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
+
+# TODO: delete exclusions when we drop Ruby 1.9.3 support.
+Style/ExpandPathArguments:
+  Exclude:
+    - 'lib/pry/commands.rb'
+    - 'pry.gemspec'
