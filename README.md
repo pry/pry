@@ -60,8 +60,8 @@ Overview
 --------
 
 Pry is fairly flexible and allows significant user
-[customization](https://github.com/pry/pry/wiki/Customization-and-configuration)
-is trivial to set it to read from any object that has a `readline` method and
+[customization](https://github.com/pry/pry/wiki/Customization-and-configuration).
+It is trivial to read from any object that has a `readline` method and
 write to any object that has a `puts` method - many other aspects of Pry are
 also configurable making it a good choice for implementing custom shells.
 
