@@ -117,7 +117,7 @@ describe Pry::Code do
 
   describe 'filters and formatters' do
     before do
-      @code = Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
+      @code = Pry::Code(Pry::Helpers::CommandHelpers.unindent(<<-STR))
         class MyProgram
           def self.main
             puts 'Hello, world!'
@@ -262,7 +262,7 @@ describe Pry::Code do
 
   describe "#reject" do
     let(:code) do
-      Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
+      Pry::Code(Pry::Helpers::CommandHelpers.unindent(<<-STR))
         puts 'This line will be rejected'
         puts 'This line will remain'
         puts 'This line will be rejected'

@@ -69,7 +69,7 @@ class Pry
       end
 
       def fits_on_line?(line_length)
-        _max_width(rows_to_s :no_color) <= line_length
+        _max_width(rows_to_s(:no_color)) <= line_length
       end
 
       def columns
