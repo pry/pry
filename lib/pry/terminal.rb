@@ -6,9 +6,7 @@ class Pry
       # If the window size cannot be determined, return nil.
       def screen_size
         rows, cols = actual_screen_size
-        if rows.to_i != 0 && cols.to_i != 0
-          [rows.to_i, cols.to_i]
-        end
+        [rows.to_i, cols.to_i] if rows.to_i != 0 && cols.to_i != 0
       end
 
       # Return a screen size or a default if that fails.
@@ -45,9 +43,7 @@ class Pry
           require 'io/console'
 
           begin
-            if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
-              $stdout.winsize
-            end
+            $stdout.winsize if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
           rescue Errno::EOPNOTSUPP
             # $stdout is probably a socket, which doesn't support #winsize.
           end

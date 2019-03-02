@@ -60,12 +60,8 @@ class Pry
                                "#{' ' * 32}Constants that are pending autoload? are also shown (in yellow)"
         opt.on :i, :ivars,     "Show instance variables (in blue) and class variables (in bright blue)"
         opt.on :G, :grep,      "Filter output by regular expression", argument: true
-        if Object.respond_to?(:deprecate_constant)
-          opt.on :d, :dconstants, "Show deprecated constants"
-        end
-        if Helpers::Platform.jruby?
-          opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)"
-        end
+        opt.on :d, :dconstants, "Show deprecated constants" if Object.respond_to?(:deprecate_constant)
+        opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)" if Helpers::Platform.jruby?
       end
 
       # Exclude -q, -v and --grep because they,

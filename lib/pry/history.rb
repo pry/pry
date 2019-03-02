@@ -41,9 +41,7 @@ class Pry
       return line if line == last_line
 
       @history << line
-      if !should_ignore?(line) && Pry.config.history.should_save
-        @saver.call(line)
-      end
+      @saver.call(line) if !should_ignore?(line) && Pry.config.history.should_save
 
       line
     end
@@ -97,9 +95,7 @@ class Pry
     def read_from_file
       path = history_file_path
 
-      if File.exist?(path)
-        File.foreach(path) { |line| yield(line) }
-      end
+      File.foreach(path) { |line| yield(line) } if File.exist?(path)
     rescue SystemCallError => error
       warn "Unable to read history file: #{error.message}"
     end
@@ -114,9 +110,7 @@ class Pry
       if defined?(@history_file)
         @history_file
       else
-        unless File.exist?(history_file_path)
-          FileUtils.mkdir_p(File.dirname(history_file_path))
-        end
+        FileUtils.mkdir_p(File.dirname(history_file_path)) unless File.exist?(history_file_path)
         @history_file = File.open(history_file_path, 'a', 0600).tap do |file|
           file.sync = true
         end

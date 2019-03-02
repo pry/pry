@@ -429,9 +429,7 @@ WARN
         return void
       end
 
-      if command_options[:argument_required] && args.empty?
-        raise CommandError, "The command '#{command_name}' requires an argument."
-      end
+      raise CommandError, "The command '#{command_name}' requires an argument." if command_options[:argument_required] && args.empty?
 
       ret = use_unpatched_symbol do
         call_with_hooks(*args)

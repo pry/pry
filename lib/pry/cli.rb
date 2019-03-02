@@ -55,9 +55,7 @@ class Pry
       end
 
       def parse_options(args = ARGV)
-        unless options
-          raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options."
-        end
+        raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options." unless options
 
         @pass_argv = args.index { |cli_arg| %w[- --].include?(cli_arg) }
         if @pass_argv
@@ -85,9 +83,7 @@ class Pry
         Pry.final_session_setup
 
         # Option processors are optional.
-        if option_processors
-          option_processors.each { |processor| processor.call(opts) }
-        end
+        option_processors.each { |processor| processor.call(opts) } if option_processors
 
         opts
       end
@@ -129,9 +125,7 @@ Pry::Slop.new do
   end
 end.parse(ARGV.dup)
 
-if Pry.config.should_load_plugins
-  Pry::CLI.add_plugin_options
-end
+Pry::CLI.add_plugin_options if Pry.config.should_load_plugins
 
 # The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do

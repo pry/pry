@@ -274,11 +274,6 @@ Style/IfInsideElse:
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
 
-# Offense count: 79
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Enabled: false
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: InverseMethods, InverseBlocks.

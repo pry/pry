@@ -45,9 +45,7 @@ class Pry
         sorted_group_names(groups).each do |group_name|
           commands = sorted_commands(groups[group_name])
 
-          if commands.any?
-            help_text << help_text_for_commands(group_name, commands)
-          end
+          help_text << help_text_for_commands(group_name, commands) if commands.any?
         end
 
         _pry_.pager.page help_text.join("\n\n")

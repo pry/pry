@@ -70,13 +70,9 @@ class Pry
 
       # do not allow duplicates, but allow multiple `nil` hooks
       # (anonymous hooks)
-      if hook_exists?(event_name, hook_name) && !hook_name.nil?
-        raise ArgumentError, "Hook with name '#{hook_name}' already defined!"
-      end
+      raise ArgumentError, "Hook with name '#{hook_name}' already defined!" if hook_exists?(event_name, hook_name) && !hook_name.nil?
 
-      if !block && !callable
-        raise ArgumentError, "Must provide a block or callable."
-      end
+      raise ArgumentError, "Must provide a block or callable." if !block && !callable
 
       # ensure we only have one anonymous hook
       @hooks[event_name].delete_if { |h, _k| h.nil? } if hook_name.nil?

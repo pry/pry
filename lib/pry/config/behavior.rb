@@ -164,9 +164,7 @@ class Pry
       #
       def []=(key, value)
         key = key.to_s
-        if @reserved_keys.include?(key)
-          raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name."
-        end
+        raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name." if @reserved_keys.include?(key)
 
         __push(key, value)
       end

@@ -57,9 +57,7 @@ class Pry
         return if !(dest && cd_path_exists?) || special_case_path?(dest)
 
         cd_path_env.split(File::PATH_SEPARATOR).each do |path|
-          if File.directory?(path) && path.split(File::SEPARATOR).last == dest
-            return path
-          end
+          return path if File.directory?(path) && path.split(File::SEPARATOR).last == dest
         end
 
         return nil

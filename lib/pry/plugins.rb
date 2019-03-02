@@ -68,9 +68,7 @@ class Pry
       def supported?
         pry_version = Gem::Version.new(VERSION)
         spec.dependencies.each do |dependency|
-          if dependency.name == "pry"
-            return dependency.requirement.satisfied_by?(pry_version)
-          end
+          return dependency.requirement.satisfied_by?(pry_version) if dependency.name == "pry"
         end
         true
       end

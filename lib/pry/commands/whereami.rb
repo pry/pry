@@ -86,9 +86,7 @@ class Pry
       end
 
       def process
-        if bad_option_combination?
-          raise CommandError, "Only one of -m, -c, -f, and  LINES may be specified."
-        end
+        raise CommandError, "Only one of -m, -c, -f, and  LINES may be specified." if bad_option_combination?
 
         if nothing_to_do?
           return
@@ -152,9 +150,7 @@ class Pry
       def method_code
         return @method_code if @method_code
 
-        if valid_method?
-          @method_code = Pry::Code.from_method(@method)
-        end
+        @method_code = Pry::Code.from_method(@method) if valid_method?
       end
 
       # This either returns the `target_self`

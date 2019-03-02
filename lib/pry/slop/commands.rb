@@ -143,9 +143,7 @@ class Pry
           if (opts = commands['default'])
             opts.parse! items
           else
-            if config[:strict] && items[0]
-              raise InvalidCommandError, "Unknown command `#{items[0]}`"
-            end
+            raise InvalidCommandError, "Unknown command `#{items[0]}`" if config[:strict] && items[0]
           end
           execute_global_opts! items
         end
@@ -162,12 +160,8 @@ class Pry
         defaults = commands.delete('default')
         globals = commands.delete('global')
         helps = commands.reject { |_, v| v.options.none? }
-        if globals && globals.options.any?
-          helps['Global options'] = globals.to_s
-        end
-        if defaults && defaults.options.any?
-          helps['Other options'] = defaults.to_s
-        end
+        helps['Global options'] = globals.to_s if globals && globals.options.any?
+        helps['Other options'] = defaults.to_s if defaults && defaults.options.any?
         banner = @banner ? "#{@banner}\n" : ""
         banner + helps.map { |key, opts| "  #{key}\n#{opts}" }.join("\n\n")
       end

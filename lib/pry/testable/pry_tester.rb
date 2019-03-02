@@ -18,9 +18,7 @@ class Pry
 
         strs.flatten.each do |str|
           # Check for space prefix. See #1369.
-          if str !~ /^\s\S/
-            str = "#{str.strip}\n"
-          end
+          str = "#{str.strip}\n" if str !~ /^\s\S/
           @history.push str if @history
 
           result =

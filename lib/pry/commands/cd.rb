@@ -24,9 +24,7 @@ class Pry
         state.old_stack ||= []
 
         if arg_string.strip == "-"
-          unless state.old_stack.empty?
-            _pry_.binding_stack, state.old_stack = state.old_stack, _pry_.binding_stack
-          end
+          _pry_.binding_stack, state.old_stack = state.old_stack, _pry_.binding_stack unless state.old_stack.empty?
         else
           stack = ObjectPath.new(arg_string, _pry_.binding_stack).resolve
 

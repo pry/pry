@@ -36,9 +36,7 @@ class ReplTester
       instance.ensure_exit
     end
   ensure
-    if instance && instance.thread && instance.thread.alive?
-      instance.thread.kill
-    end
+    instance.thread.kill if instance && instance.thread && instance.thread.alive?
   end
 
   attr_accessor :thread, :mailbox, :last_prompt

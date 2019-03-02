@@ -23,9 +23,7 @@ class Pry
 
       @readline_output = nil
 
-      if options[:target]
-        @pry.push_binding options[:target]
-      end
+      @pry.push_binding options[:target] if options[:target]
     end
 
     # Start the read-eval-print loop.
@@ -151,9 +149,7 @@ class Pry
         puts "Error: #{e.message}"
         output.puts e.backtrace
         exception_count += 1
-        if exception_count < 5
-          retry
-        end
+        retry if exception_count < 5
         puts "FATAL: Pry failed to get user input using `#{input}`."
         puts "To fix this you may be able to pass input and output file " \
           "descriptors to pry directly. e.g."
@@ -227,9 +223,7 @@ class Pry
     def set_readline_output
       return if @readline_output
 
-      if piping?
-        @readline_output = (Readline.output = Pry.config.output)
-      end
+      @readline_output = (Readline.output = Pry.config.output) if piping?
     end
 
     # Calculates correct overhang for current line. Supports vi Readline
@@ -246,9 +240,7 @@ class Pry
         begin
           # rb-readline doesn't support this method:
           # https://github.com/ConnorAtherton/rb-readline/issues/152
-          if Readline.vi_editing_mode?
-            overhang += current_prompt.length - indented_val.length
-          end
+          overhang += current_prompt.length - indented_val.length if Readline.vi_editing_mode?
         rescue NotImplementedError
           # VI editing mode is unsupported on JRuby.
           # https://github.com/pry/pry/issues/1840

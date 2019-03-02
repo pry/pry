@@ -353,9 +353,7 @@ class Pry
     # @param [String] token  a token from Coderay
     # @param [Symbol] kind  the kind of that token
     def track_module_nesting_end(token, kind = :keyword)
-      if kind == :keyword && (token == "class" || token == "module")
-        @module_nesting.pop
-      end
+      @module_nesting.pop if kind == :keyword && (token == "class" || token == "module")
     end
 
     # Return a list of strings which can be used to re-construct the Module.nesting at

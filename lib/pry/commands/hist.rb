@@ -36,13 +36,9 @@ class Pry
       def process
         @history = find_history
 
-        if opts.present?(:show)
-          @history = @history.between(opts[:show])
-        end
+        @history = @history.between(opts[:show]) if opts.present?(:show)
 
-        if opts.present?(:grep)
-          @history = @history.grep(opts[:grep])
-        end
+        @history = @history.grep(opts[:grep]) if opts.present?(:grep)
 
         @history =
           if opts.present?(:head)
@@ -75,9 +71,7 @@ class Pry
       private
 
       def process_display
-        unless opts.present?(:'no-numbers')
-          @history = @history.with_line_numbers
-        end
+        @history = @history.with_line_numbers unless opts.present?(:'no-numbers')
 
         _pry_.pager.open do |pager|
           @history.print_to_output(pager, true)
@@ -89,9 +83,7 @@ class Pry
         when Range
           @history = @history.between(opts[:save])
 
-          unless args.first
-            raise CommandError, "Must provide a file name."
-          end
+          raise CommandError, "Must provide a file name." unless args.first
 
           file_name = File.expand_path(args.first)
         when String

@@ -13,9 +13,7 @@ describe "show-doc" do
   end
 
   after do
-    if Symbol.method_defined? :call
-      Symbol.class_eval { undef :call }
-    end
+    Symbol.class_eval { undef :call } if Symbol.method_defined? :call
   end
 
   it "emits a deprecation warning" do

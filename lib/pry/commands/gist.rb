@@ -32,9 +32,7 @@ class Pry
 
         cc = CodeCollector.new(args, opts, _pry_)
 
-        if cc.content =~ /\A\s*\z/
-          raise CommandError, "Found no code to gist."
-        end
+        raise CommandError, "Found no code to gist." if cc.content =~ /\A\s*\z/
 
         if opts.present?(:clip)
           clipboard_content(cc.content)
@@ -59,9 +57,7 @@ class Pry
             corrected_index = index + range.first
             if code && code != ""
               content << code
-              if code !~ /;\Z/
-                content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index]))}"
-              end
+              content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index]))}" if code !~ /;\Z/
             end
           end
         end
