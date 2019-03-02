@@ -147,7 +147,7 @@ describe Pry do
       error = Class.new(RuntimeError)
 
       expect(File).to receive(:open)
-        .with(File.join(ENV['HOME'].to_s, "/test_history"), 'a', 0600)
+        .with(File.join(ENV['HOME'].to_s, "/test_history"), 'a', 0o600)
         .and_raise(error)
 
       expect { history.push 'a line' }.to raise_error error
@@ -167,7 +167,7 @@ describe Pry do
 
       it "handles #{error_class} failure to write history" do
         Pry.config.history.should_save = true
-        expect(File).to receive(:open).with(file_path, "a", 0600).and_raise(error_class)
+        expect(File).to receive(:open).with(file_path, "a", 0o600).and_raise(error_class)
         expect(history).to receive(:warn).with(/Unable to write history file:/)
         expect { history.push("anything") }.to_not raise_error
       end
