@@ -44,9 +44,7 @@ class Pry
       !!@enabled
     end
 
-    def output
-      @output
-    end
+    attr_reader :output
 
     # Return an instance of the "best" available pager class --
     # `SystemPager` if possible, `SimplePager` if `SystemPager` isn't

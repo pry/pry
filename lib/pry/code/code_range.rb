@@ -20,13 +20,9 @@ class Pry
 
       private
 
-      def start_line
-        @start_line
-      end
+      attr_reader :start_line
 
-      def end_line
-        @end_line
-      end
+      attr_reader :end_line
 
       # If `end_line` is equal to `nil`, then calculate it from the first
       # parameter, `start_line`. Otherwise, leave it as it is.

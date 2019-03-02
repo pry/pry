@@ -314,18 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
-# Whitelist: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
-Style/TrivialAccessors:
-  Exclude:
-    - 'lib/pry/code/code_range.rb'
-    - 'lib/pry/hooks.rb'
-    - 'lib/pry/last_exception.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/pry_class.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/UnneededCondition:
