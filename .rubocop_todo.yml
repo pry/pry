@@ -274,13 +274,6 @@ Style/IfInsideElse:
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Exclude:
-    - 'lib/pry/commands/show_info.rb'
-    - 'lib/pry/slop/option.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
