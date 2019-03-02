@@ -40,9 +40,13 @@ class Pry
 
     private
 
-    def enabled?; !!@enabled; end
+    def enabled?
+      !!@enabled
+    end
 
-    def output; @output; end
+    def output
+      @output
+    end
 
     # Return an instance of the "best" available pager class --
     # `SystemPager` if possible, `SimplePager` if `SystemPager` isn't

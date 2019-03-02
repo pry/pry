@@ -125,7 +125,9 @@ describe Pry::REPL do
     it "should raise no exception when indented with a tab" do
       ReplTester.start(correct_indent: true, auto_indent: true) do
         output = @pry.config.output
-        def output.tty?; true; end
+        def output.tty?
+          true
+        end
         input <<EOS
 loop do
 	break #note the tab here

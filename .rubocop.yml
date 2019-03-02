@@ -33,3 +33,12 @@ Style/ExpandPathArguments:
   Exclude:
     - 'lib/pry/commands.rb'
     - 'pry.gemspec'
+
+Style/Semicolon:
+  Exclude:
+    - 'spec/method_spec.rb'
+
+Style/SingleLineMethods:
+  Exclude:
+    - 'spec/method_spec.rb'
+    - 'spec/fixtures/example_nesting.rb'

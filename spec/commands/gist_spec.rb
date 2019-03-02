@@ -13,14 +13,18 @@ describe 'gist' do
   # In absence of normal mocking, just monkeysmash these with no undoing after.
   module ::Gist # rubocop:disable Style/ClassAndModuleChildren
     class << self
-      def login!; Pad.gist_calls[:login!] = true end
+      def login!
+        Pad.gist_calls[:login!] = true
+      end
 
       def gist(*args)
         Pad.gist_calls[:gist_args] = args
         { 'html_url' => 'http://gist.blahblah' }
       end
 
-      def copy(content); Pad.gist_calls[:copy_args] = content end
+      def copy(content)
+        Pad.gist_calls[:copy_args] = content
+      end
     end
   end
 

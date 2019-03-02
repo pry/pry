@@ -21,7 +21,9 @@ describe "whereami" do
         pry_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
       end
 
-      def method; "moo"; end
+      def method
+        "moo"
+      end
     end
     Cor.new.blimey!
     Object.remove_const(:Cor)

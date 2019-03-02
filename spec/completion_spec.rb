@@ -17,7 +17,9 @@ describe Pry::InputCompleter do
     #  pry(main)> AMQP::Protocol::Test::ContentOk.name
     #  => :content_ok
     module SymbolyName
-      def self.name; :symboly_name; end
+      def self.name
+        :symboly_name
+      end
     end
 
     @before_completer = Pry.config.completer

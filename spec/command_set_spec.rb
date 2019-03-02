@@ -586,7 +586,9 @@ describe Pry::CommandSet do
 
     it 'should return Result.new(true, VOID) if the command is not keep_retval' do
       @set.create_command('mrs-cake') do
-        def process; 42; end
+        def process
+          42
+        end
       end
 
       result = @set.process_line('mrs-cake')
@@ -597,7 +599,9 @@ describe Pry::CommandSet do
 
     it 'should return Result.new(true, retval) if the command is keep_retval' do
       @set.create_command('magrat', 'the maiden', keep_retval: true) do
-        def process; 42; end
+        def process
+          42
+        end
       end
 
       result = @set.process_line('magrat')
@@ -649,7 +653,11 @@ describe Pry::CommandSet do
       end
 
       it "should delegate to commands" do
-        @set.create_command('susan') { def complete(_search); ['--foo']; end }
+        @set.create_command('susan') do
+          def complete(_search)
+            ['--foo']
+          end
+        end
         expect(@set.complete('susan ')).to eq ['--foo']
       end
     end

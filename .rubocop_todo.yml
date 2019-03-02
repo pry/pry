@@ -86,7 +86,7 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 # ExcludedMethods: refine
 Metrics/BlockLength:
-  Max: 731
+  Max: 760
 
 # Offense count: 1
 # Configuration parameters: CountBlocks.
@@ -313,12 +313,6 @@ Style/PerlBackrefs:
     - 'lib/pry/last_exception.rb'
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
-
-# Offense count: 116
-# Cop supports --auto-correct.
-# Configuration parameters: AllowIfMethodIsEmpty.
-Style/SingleLineMethods:
-  Enabled: false
 
 # Offense count: 8
 # Cop supports --auto-correct.

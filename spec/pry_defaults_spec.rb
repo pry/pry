@@ -242,7 +242,9 @@ describe "test Pry defaults" do
     describe "given an object with an #inspect string" do
       it "returns the #<> format of the object (never use inspect)" do
         o = Object.new
-        def o.inspect; "a" * MAX_LENGTH; end
+        def o.inspect
+          "a" * MAX_LENGTH
+        end
 
         expect(Pry.view_clip(o, DEFAULT_OPTIONS)).to match(/#<Object/)
       end
@@ -268,7 +270,11 @@ describe "test Pry defaults" do
       end
 
       it "returns the #inspect of the custom prompt safe objects" do
-        Barbie = Class.new { def inspect; "life is plastic, it's fantastic" end }
+        Barbie = Class.new do
+          def inspect
+            "life is plastic, it's fantastic"
+          end
+        end
         Pry.config.prompt_safe_contexts << Barbie
         output = Pry.view_clip(Barbie.new, DEFAULT_OPTIONS)
         expect(output).to eq "life is plastic, it's fantastic"
@@ -278,7 +284,9 @@ describe "test Pry defaults" do
     describe "given an object with an #inspect string as long as the maximum specified" do
       it "returns the #<> format of the object (never use inspect)" do
         o = Object.new
-        def o.inspect; "a" * DEFAULT_OPTIONS; end
+        def o.inspect
+          "a" * DEFAULT_OPTIONS
+        end
 
         expect(Pry.view_clip(o, DEFAULT_OPTIONS)).to match(/#<Object/)
       end
@@ -288,7 +296,9 @@ describe "test Pry defaults" do
       describe "when the object is a regular one" do
         it "returns a string of the #<class name:object idish> format" do
           o = Object.new
-          def o.inspect; "a" * (DEFAULT_OPTIONS + 1); end
+          def o.inspect
+            "a" * (DEFAULT_OPTIONS + 1)
+          end
 
           expect(Pry.view_clip(o, DEFAULT_OPTIONS)).to match(/#<Object/)
         end
@@ -310,9 +320,13 @@ describe "test Pry defaults" do
             c = Class.new
             m = Module.new
 
-            def c.name; "a" * (MAX_LENGTH + 1); end
+            def c.name
+              "a" * (MAX_LENGTH + 1)
+            end
 
-            def m.name; "a" * (MAX_LENGTH + 1); end
+            def m.name
+              "a" * (MAX_LENGTH + 1)
+            end
 
             expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to match(/#<Class/)
             expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to match(/#<Module/)
@@ -324,9 +338,13 @@ describe "test Pry defaults" do
             c = Class.new
             m = Module.new
 
-            def c.name; "a" * MAX_LENGTH; end
+            def c.name
+              "a" * MAX_LENGTH
+            end
 
-            def m.name; "a" * MAX_LENGTH; end
+            def m.name
+              "a" * MAX_LENGTH
+            end
 
             expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to eq c.name
             expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to eq m.name

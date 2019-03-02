@@ -13,7 +13,9 @@ class Pry
     VOID_VALUE = Object.new
 
     # give it a nice inspect
-    def VOID_VALUE.inspect() "void" end
+    def VOID_VALUE.inspect
+      "void"
+    end
 
     # Properties of the command itself (as passed as arguments to
     # {CommandSet#command} or {CommandSet#create_command}).
@@ -92,19 +94,33 @@ class Pry
     end
 
     # Make those properties accessible to instances
-    def name; self.class.name; end
+    def name
+      self.class.name
+    end
 
-    def match; self.class.match; end
+    def match
+      self.class.match
+    end
 
-    def description; self.class.description; end
+    def description
+      self.class.description
+    end
 
-    def block; self.class.block; end
+    def block
+      self.class.block
+    end
 
-    def command_options; self.class.options; end
+    def command_options
+      self.class.options
+    end
 
-    def command_name; self.class.command_name; end
+    def command_name
+      self.class.command_name
+    end
 
-    def source; self.class.source; end
+    def source
+      self.class.source
+    end
 
     class << self
       def name
@@ -274,7 +290,9 @@ class Pry
     end
 
     # @return [Object] The value of `self` inside the `target` binding.
-    def target_self; target.eval('self'); end
+    def target_self
+      target.eval('self')
+    end
 
     # @return [Hash] Pry commands can store arbitrary state
     #   here. This state persists between subsequent command invocations.
@@ -713,6 +731,8 @@ WARN
     #       gist_method
     #     end
     #   end
-    def process; raise CommandError, "command '#{command_name}' not implemented" end
+    def process
+      raise CommandError, "command '#{command_name}' not implemented"
+    end
   end
 end

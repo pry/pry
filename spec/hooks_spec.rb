@@ -252,7 +252,9 @@ describe Pry::Hooks do
         obj.instance_variable_set(:@test_var, nil)
         class << obj
           attr_accessor :test_var
-          def call() @test_var = true; end
+          def call
+            @test_var = true
+          end
         end
       end
 

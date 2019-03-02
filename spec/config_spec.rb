@@ -37,7 +37,13 @@ RSpec.describe Pry::Config do
   describe "bug #1277" do
     specify "a local key has precendence over an inherited method of the same name" do
       local = described_class.from_hash(output: 'foobar')
-      local.extend(Module.new { def output(); 'broken'; end })
+      local.extend(
+        Module.new do
+          def output
+            'broken'
+          end
+        end
+      )
       expect(local.output).to eq('foobar')
     end
   end
@@ -185,13 +191,21 @@ RSpec.describe Pry::Config do
     end
 
     it "merges an object who returns a Hash through #to_hash" do
-      obj = Class.new { def to_hash() { epoch: 1 } end }.new
+      obj = Class.new do
+        def to_hash
+          { epoch: 1 }
+        end
+      end.new
       @config.merge!(obj)
       expect(@config.epoch).to eq(1)
     end
 
     it "merges an object who returns a Hash through #to_h" do
-      obj = Class.new { def to_h() { epoch: 2 } end }.new
+      obj = Class.new do
+        def to_h
+          { epoch: 2 }
+        end
+      end.new
       @config.merge!(obj)
       expect(@config.epoch).to eq(2)
     end
