@@ -314,17 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/commands/ls/ls_entity.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'spec/completion_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleForMultiline.

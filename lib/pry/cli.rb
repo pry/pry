@@ -33,9 +33,7 @@ class Pry
 
       # Bring in options defined in plugins
       def add_plugin_options
-        Pry.plugins.values.each do |plugin|
-          plugin.load_cli_options
-        end
+        Pry.plugins.values.each(&:load_cli_options)
 
         self
       end
