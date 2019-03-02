@@ -314,17 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Exclude:
-    - 'lib/pry/commands/shell_command.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/completion_spec.rb'
-
 # Offense count: 11
 # Cop supports --auto-correct.
 Style/RedundantSelf:

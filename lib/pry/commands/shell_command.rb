@@ -60,7 +60,7 @@ class Pry
           return path if File.directory?(path) && path.split(File::SEPARATOR).last == dest
         end
 
-        return nil
+        nil
       end
 
       def special_case_path?(dest)

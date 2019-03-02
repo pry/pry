@@ -166,7 +166,7 @@ class Pry
 
       @indent_level = prefix
 
-      return output
+      output
     end
 
     # Get the indentation for the start of the next line.
@@ -251,7 +251,7 @@ class Pry
         end
       end
 
-      return [remove_before, add_after]
+      [remove_before, add_after]
     end
 
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,

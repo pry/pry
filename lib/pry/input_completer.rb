@@ -230,7 +230,7 @@ class Pry
         p += '/' if trailing_slash && !i.nil?
         p
       end
-      return path, input
+      [path, input]
     end
 
     def ignored_modules

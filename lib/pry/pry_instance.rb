@@ -260,7 +260,7 @@ class Pry
     # TODO: make this configurable?
     raise exception if exception
 
-    return false
+    false
   end
 
   def handle_line(line, options)
