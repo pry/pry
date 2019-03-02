@@ -95,7 +95,7 @@ class Pry
       def display_filtered_search_results(search)
         groups = search_hash(search, command_groups)
 
-        if groups.size > 0
+        if !groups.empty?
           display_index(groups)
         else
           display_filtered_commands(search)

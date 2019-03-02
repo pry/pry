@@ -314,17 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/code.rb'
-    - 'lib/pry/commands/cat/input_expression_formatter.rb'
-    - 'lib/pry/commands/find_method.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/testable/evalable.rb'
-
 # Offense count: 869
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
