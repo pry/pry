@@ -51,9 +51,9 @@ class Pry
       def options(opt)
         opt.on :q, :quiet,             "Don't display anything in case of an error"
         opt.on :n, :"no-line-numbers", "Do not display line numbers"
-        opt.on :m, :"method", "Show the complete source for the current method."
-        opt.on :c, :"class", "Show the complete source for the current class or module."
-        opt.on :f, :"file", "Show the complete source for the current file."
+        opt.on :m, :method, "Show the complete source for the current method."
+        opt.on :c, :class, "Show the complete source for the current class or module."
+        opt.on :f, :file, "Show the complete source for the current file."
       end
 
       def code

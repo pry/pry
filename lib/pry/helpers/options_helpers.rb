@@ -20,8 +20,8 @@ class Pry
           args.empty? ? nil : args.join(" "),
           @method_target,
           super: opts[:super],
-          instance: opts.present?(:'instance-methods') && !opts.present?(:'methods'),
-          methods: opts.present?(:'methods') && !opts.present?(:'instance-methods')
+          instance: opts.present?(:'instance-methods') && !opts.present?(:methods),
+          methods: opts.present?(:methods) && !opts.present?(:'instance-methods')
         )
       end
     end

@@ -316,13 +316,6 @@ Style/PerlBackrefs:
 
 # Offense count: 5
 # Cop supports --auto-correct.
-Style/SymbolLiteral:
-  Exclude:
-    - 'lib/pry/commands/whereami.rb'
-    - 'lib/pry/helpers/options_helpers.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
 # IgnoredMethods: respond_to, define_method
 Style/SymbolProc:
