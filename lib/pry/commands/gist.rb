@@ -57,7 +57,7 @@ class Pry
             corrected_index = index + range.first
             if code && code != ""
               content << code
-              content << "#{comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index]))}" if code !~ /;\Z/
+              content << comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index])).to_s if code !~ /;\Z/
             end
           end
         end

@@ -314,16 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/UnneededInterpolation:
-  Exclude:
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/editor.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/command_integration_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/UnneededPercentQ:

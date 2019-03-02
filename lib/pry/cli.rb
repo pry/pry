@@ -172,7 +172,7 @@ Pry::CLI.add_options do
     puts "Installed Plugins:"
     puts "--"
     Pry.locate_plugins.each do |plugin|
-      puts "#{plugin.name}".ljust(18) << plugin.spec.summary
+      puts plugin.name.to_s.ljust(18) << plugin.spec.summary
     end
     exit
   end

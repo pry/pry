@@ -101,7 +101,7 @@ class Pry
         "-l#{line_number} #{file_name}"
       else
         if Helpers::Platform.windows?
-          "#{file_name}"
+          file_name.to_s
         else
           "+#{line_number} #{file_name}"
         end
