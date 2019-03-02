@@ -23,7 +23,7 @@ class Pry
 
     def self.tablify(things, line_length, config = Pry.config)
       table = Table.new(things, { column_count: things.size }, config)
-      table.column_count -= 1 until (1 == table.column_count) || table.fits_on_line?(line_length)
+      table.column_count -= 1 until (table.column_count == 1) || table.fits_on_line?(line_length)
       table
     end
 
@@ -47,7 +47,7 @@ class Pry
             next unless e
 
             item = e.ljust(widths[i])
-            item.sub! e, _recall_color_for(e) if :color_on == style
+            item.sub! e, _recall_color_for(e) if style == :color_on
             padded << item
           end
           padded.join(@config.ls.separator)
