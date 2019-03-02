@@ -45,3 +45,7 @@ Style/SingleLineMethods:
 
 Style/StringLiterals:
   Enabled: false
+
+# TODO: delete this rule when we drop Ruby 1.9.3 support.
+Style/SymbolArray:
+  EnforcedStyle: brackets
