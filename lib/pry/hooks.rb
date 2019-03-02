@@ -35,7 +35,8 @@ class Pry
     # @see #merge
     def merge!(other)
       @hooks.merge!(other.dup.hooks) do |_key, array, other_array|
-        temp_hash, output = {}, []
+        temp_hash = {}
+        output = []
 
         (array + other_array).reverse_each do |pair|
           temp_hash[pair.first] ||= output.unshift(pair)

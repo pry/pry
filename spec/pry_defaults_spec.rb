@@ -297,7 +297,8 @@ describe "test Pry defaults" do
       describe "when the object is a Class or a Module" do
         describe "without a name (usually a c = Class.new)" do
           it "returns a string of the #<class name:object idish> format" do
-            c, m = Class.new, Module.new
+            c = Class.new
+            m = Module.new
 
             expect(Pry.view_clip(c, DEFAULT_OPTIONS)).to match(/#<Class/)
             expect(Pry.view_clip(m, DEFAULT_OPTIONS)).to match(/#<Module/)
@@ -306,7 +307,8 @@ describe "test Pry defaults" do
 
         describe "with a #name longer than the maximum specified" do
           it "returns a string of the #<class name:object idish> format" do
-            c, m = Class.new, Module.new
+            c = Class.new
+            m = Module.new
 
             def c.name; "a" * (MAX_LENGTH + 1); end
 
@@ -319,7 +321,8 @@ describe "test Pry defaults" do
 
         describe "with a #name shorter than or equal to the maximum specified" do
           it "returns a string of the #<class name:object idish> format" do
-            c, m = Class.new, Module.new
+            c = Class.new
+            m = Module.new
 
             def c.name; "a" * MAX_LENGTH; end
 

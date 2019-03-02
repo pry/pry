@@ -210,7 +210,8 @@ class Pry
     # `false` to `true` until we see a newline.
     class PageTracker
       def initialize(rows, cols)
-        @rows, @cols = rows, cols
+        @rows = rows
+        @cols = cols
         reset
       end
 

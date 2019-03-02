@@ -28,7 +28,8 @@ class Pry
             if b.respond_to?(:source_location)
               binding_file, binding_line = b.source_location
             else
-              binding_file, binding_line = b.eval('__FILE__'), b.eval('__LINE__')
+              binding_file = b.eval('__FILE__')
+              binding_line = b.eval('__LINE__')
             end
             (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
               method.source_range.include?(binding_line)
@@ -49,7 +50,8 @@ class Pry
       # @param [Binding] target The Binding that captures the method
       #   we want to locate.
       def initialize(method, target)
-        @method, @target = method, target
+        @method = method
+        @target = target
       end
 
       # @return [Pry::Method, nil] The Pry::Method that matches the

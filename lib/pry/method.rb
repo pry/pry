@@ -43,13 +43,16 @@ class Pry
         if name.nil?
           nil
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
-          context, meth_name = $1, $2
+          context = $1
+          meth_name = $2
           from_module(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\[\])\Z/
-          context, meth_name = $1, $2
+          context = $1
+          meth_name = $2
           from_obj(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\.|::)(\S+)\Z/
-          context, meth_name = $1, $3
+          context = $1
+          meth_name = $3
           from_obj(target.eval(context), meth_name, target)
         elsif options[:instance]
           from_module(target.eval("self"), name, target)

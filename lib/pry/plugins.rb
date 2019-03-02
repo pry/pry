@@ -17,7 +17,10 @@ class Pry
       attr_accessor :name, :gem_name, :enabled, :spec, :active
 
       def initialize(name, gem_name, spec, enabled)
-        @name, @gem_name, @enabled, @spec = name, gem_name, enabled, spec
+        @name = name
+        @gem_name = gem_name
+        @enabled = enabled
+        @spec = spec
       end
 
       # Disable a plugin. (prevents plugin from being loaded, cannot

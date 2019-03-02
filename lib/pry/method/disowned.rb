@@ -21,7 +21,8 @@ class Pry
       # @param [Object] receiver
       # @param [String] method_name
       def initialize(receiver, method_name)
-        @receiver, @name = receiver, method_name
+        @receiver = receiver
+        @name = method_name
         @method = nil
       end
 

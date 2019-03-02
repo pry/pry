@@ -203,12 +203,14 @@ class Pry
       # When deciding whether an "if" token is the start of a multiline statement,
       # or just the middle of a single-line if statement, we just look at the
       # preceding token, which is tracked here.
-      last_token, last_kind = [nil, nil]
+      last_token = nil
+      last_kind = nil
 
       # delta keeps track of the total difference from the start of each line after
       # the given token, 0 is just the level at which the current line started for
       # reference.
-      remove_before, add_after = [0, 0]
+      remove_before = 0
+      add_after = 0
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
@@ -216,7 +218,10 @@ class Pry
         is_singleline_if = (SINGLELINE_TOKENS.include?(token)) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
-        last_token, last_kind = token, kind unless kind == :space
+        unless kind == :space
+          last_token = token
+          last_kind = kind
+        end
         next if IGNORE_TOKENS.include?(kind)
 
         track_module_nesting(token, kind)

@@ -305,23 +305,6 @@ Style/MultipleComparison:
   Exclude:
     - 'lib/pry/indent.rb'
 
-# Offense count: 24
-# Cop supports --auto-correct.
-Style/ParallelAssignment:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/hooks.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/disowned.rb'
-    - 'lib/pry/method/weird_method_locator.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/slop.rb'
-    - 'spec/commands/cd_spec.rb'
-    - 'spec/commands/whereami_spec.rb'
-    - 'spec/pry_defaults_spec.rb'
-
 # Offense count: 57
 # Cop supports --auto-correct.
 # Configuration parameters: PreferredDelimiters.
