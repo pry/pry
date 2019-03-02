@@ -85,7 +85,11 @@ task rm_pkgs: :rmgems
 
 desc "reinstall gem"
 task reinstall: :gems do
-  sh "gem uninstall pry" rescue nil
+  begin
+    sh "gem uninstall pry"
+  rescue StandardError
+    nil
+  end
   sh "gem install #{File.dirname(__FILE__)}/pkg/pry-#{Pry::VERSION}.gem"
 end
 

@@ -121,7 +121,9 @@ class Pry
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_class(klass, name, target = TOPLEVEL_BINDING)
-        new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
+        new(lookup_method_via_binding(klass, name, :instance_method, target))
+      rescue StandardError
+        nil
       end
       alias from_module from_class
 
@@ -134,7 +136,9 @@ class Pry
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_obj(obj, name, target = TOPLEVEL_BINDING)
-        new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
+        new(lookup_method_via_binding(obj, name, :method, target))
+      rescue StandardError
+        nil
       end
 
       # Get all of the instance methods of a `Class` or `Module`
@@ -171,7 +175,11 @@ class Pry
         if Class === obj
           singleton_class_resolution_order(obj) + instance_resolution_order(Class)
         else
-          klass = singleton_class_of(obj) rescue obj.class
+          klass = begin
+                    singleton_class_of(obj)
+                  rescue StandardError
+                    obj.class
+                  end
           instance_resolution_order(klass)
         end
       end
@@ -498,7 +506,11 @@ class Pry
         (next_owner = ancestors[i]) || (return nil)
       end
 
-      safe_send(next_owner, :instance_method, name) rescue nil
+      begin
+        safe_send(next_owner, :instance_method, name)
+      rescue StandardError
+        nil
+      end
     end
 
     # @param [String] first_ln The first line of a method definition.

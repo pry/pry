@@ -314,18 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 12
-# Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/code_object.rb'
-    - 'lib/pry/color_printer.rb'
-    - 'lib/pry/commands/ls/constants.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/patcher.rb'
-
 # Offense count: 11
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

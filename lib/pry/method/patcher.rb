@@ -52,7 +52,11 @@ class Pry
           alias_method method.original_name, temp_name
         end
       ensure
-        method.send(:remove_method, temp_name) rescue nil
+        begin
+          method.send(:remove_method, temp_name)
+        rescue StandardError
+          nil
+        end
       end
 
       # Update the definition line so that it can be eval'd directly on the Method's

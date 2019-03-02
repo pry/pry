@@ -172,7 +172,11 @@ class Pry
             candidates = Set.new
             to_ignore = ignored_modules
             ObjectSpace.each_object(Module) do |m|
-              next if (to_ignore.include?(m) rescue true)
+              next if begin
+                        to_ignore.include?(m)
+                      rescue StandardError
+                        true
+                      end
 
               # jruby doesn't always provide #instance_methods() on each
               # object.
