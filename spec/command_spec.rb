@@ -6,17 +6,17 @@ describe "Pry::Command" do
 
   describe 'call_safely' do
     it 'should display a message if gems are missing' do
-      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w(ghijkl) do
+      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w[ghijkl] do
       end
 
-      expect(mock_command(cmd, %w(hello world)).output).to match(/install-command ford-prefect/)
+      expect(mock_command(cmd, %w[hello world]).output).to match(/install-command ford-prefect/)
     end
 
     it 'should abort early if arguments are required' do
       cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", argument_required: true do
       end
 
-      expect { mock_command(cmd, %w()) }.to raise_error Pry::CommandError
+      expect { mock_command(cmd, %w[]) }.to raise_error Pry::CommandError
     end
 
     it 'should return VOID without keep_retval' do
@@ -79,7 +79,7 @@ describe "Pry::Command" do
       @set.command 'oolon-colluphid', "Raving Atheist" do
       end
 
-      expect(mock_command(@set['help'], %w(oolon-colluphid), command_set: @set).output).to match(/Raving Atheist/)
+      expect(mock_command(@set['help'], %w[oolon-colluphid], command_set: @set).output).to match(/Raving Atheist/)
     end
 
     it 'should use slop to generate the help for classy commands' do
@@ -89,7 +89,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(@set['help'], %w(eddie), command_set: @set).output).to match(/Over-cheerful/)
+      expect(mock_command(@set['help'], %w[eddie], command_set: @set).output).to match(/Over-cheerful/)
     end
 
     it 'should provide --help for classy commands' do
@@ -99,7 +99,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(cmd, %w(--help)).output).to match(/--retaliate/)
+      expect(mock_command(cmd, %w[--help]).output).to match(/--retaliate/)
     end
 
     it 'should provide a -h for classy commands' do
@@ -109,7 +109,7 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(cmd, %w(--help)).output).to match(/Total Perspective Vortex/)
+      expect(mock_command(cmd, %w[--help]).output).to match(/Total Perspective Vortex/)
     end
 
     it 'should use the banner provided' do
@@ -119,7 +119,7 @@ describe "Pry::Command" do
         BANNER
       end
 
-      expect(mock_command(cmd, %w(--help)).output).to match(/Who\'s merest/)
+      expect(mock_command(cmd, %w[--help]).output).to match(/Who\'s merest/)
     end
   end
 
@@ -221,7 +221,7 @@ describe "Pry::Command" do
         end
       end
 
-      result = mock_command(cmd, %w(--four 4 four))
+      result = mock_command(cmd, %w[--four 4 four])
       expect(result.output.split).to eq ['["four"]', '4']
     end
 
@@ -265,7 +265,7 @@ describe "Pry::Command" do
         end
       end
 
-      result = mock_command(cmd, %w|yell --person papa|)
+      result = mock_command(cmd, %w[yell --person papa])
       expect(result.output.split).to eq ['["papa"]', 'true', 'true']
     end
 
@@ -280,7 +280,7 @@ describe "Pry::Command" do
         end
       end
 
-      mock_command(cmd, %w|yell papa sonny daughter|)
+      mock_command(cmd, %w[yell papa sonny daughter])
     end
 
     describe "explicit classes" do

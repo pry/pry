@@ -298,7 +298,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
     return 'notepad' if Helpers::Platform.windows?
 
-    %w(editor nano vi).detect do |editor|
+    %w[editor nano vi].detect do |editor|
       system("which #{editor} > /dev/null 2>&1")
     end
   end

@@ -46,10 +46,10 @@ class Pry
 
     # Which tokens can either be open tokens, or appear as modifiers on
     # a single-line.
-    SINGLELINE_TOKENS = %w(if while until unless rescue).freeze
+    SINGLELINE_TOKENS = %w[if while until unless rescue].freeze
 
     # Which tokens can be followed by an optional "do" keyword.
-    OPTIONAL_DO_TOKENS = %w(for while until).freeze
+    OPTIONAL_DO_TOKENS = %w[for while until].freeze
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
@@ -73,7 +73,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = %w(when else elsif ensure rescue).freeze
+    MIDWAY_TOKENS = %w[when else elsif ensure rescue].freeze
 
     # Clean the indentation of a fragment of ruby.
     #

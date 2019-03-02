@@ -10,17 +10,17 @@ class Pry
     end
 
     command "get-naked", "" do
-      txt = %{
+      txt = %(
   --
   We dont have to take our clothes off to have a good time.
   We could dance & party all night And drink some cherry wine.
-  -- Jermaine Stewart }
+  -- Jermaine Stewart )
       output.puts txt
       txt
     end
 
     command "east-coker", "" do
-      txt = %{
+      txt = %(
   --
   Now the light falls
   Across the open field, leaving the deep lane
@@ -33,13 +33,13 @@ class Pry
   The dahlias sleep in the empty silence.
   Wait for the early owl.
                 -- T.S Eliot
-          }
+          )
       output.puts txt
       txt
     end
 
     command "cohen-poem", "" do
-      txt = %{
+      txt = %(
   --
   When this American woman,
   whose thighs are bound in casual red cloth,
@@ -56,7 +56,7 @@ class Pry
   that if you turn your head
   they are lost for hours.
                 -- Leonard Cohen
-              }
+              )
       output.puts txt
       txt
     end

@@ -752,11 +752,11 @@ describe "edit" do
     before do
       @t = pry_tester
       class BinkyWink
-        eval %{
+        eval %(
           def m1
             binding
           end
-        }
+        )
 
         def m2
           _foo = :jeremy_jones
@@ -798,10 +798,10 @@ describe "edit" do
     before do
       @t = pry_tester
       class TrinkyDink
-        eval %{
+        eval %(
           def m
           end
-        }
+        )
       end
     end
 

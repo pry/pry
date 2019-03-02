@@ -172,11 +172,11 @@ describe "show-source" do
   end
 
   it "should output the source of a command defined inside Pry" do
-    command_definition = %{
+    command_definition = %(
       Pry.config.commands.command "hubba-hubba" do
         puts "that's what she said!"
       end
-    }
+    )
     out = pry_eval(command_definition, 'show-source hubba-hubba')
     expect(out).to match(/what she said/)
     Pry.config.commands.delete "hubba-hubba"

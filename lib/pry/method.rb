@@ -142,7 +142,7 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super = true)
-        %w(public protected private).flat_map do |visibility|
+        %w[public protected private].flat_map do |visibility|
           safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
             new(safe_send(klass, :instance_method, method_name), visibility: visibility.to_sym)
           end

@@ -1,11 +1,11 @@
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
-    t = Pry::Helpers::Table.new %w(hihi), column_count: 1
+    t = Pry::Helpers::Table.new %w[hihi], column_count: 1
     expect(t.fits_on_line?(4)).to eq true
     t.items = []
     expect(t.fits_on_line?(4)).to eq true
 
-    t.items = %w(hi hi)
+    t.items = %w[hi hi]
     expect(t.fits_on_line?(4)).to eq true
     t.column_count = 2
     expect(t.fits_on_line?(4)).to eq false
@@ -93,6 +93,6 @@ asfadsssaaad    fasfaafdssd     s
   end
 
   specify 'decide between one-line or indented output' do
-    expect(Pry::Helpers.tablify_or_one_line('head', %w(ing))).to eq "head: ing\n"
+    expect(Pry::Helpers.tablify_or_one_line('head', %w[ing])).to eq "head: ing\n"
   end
 end

@@ -305,27 +305,6 @@ Style/MultipleComparison:
   Exclude:
     - 'lib/pry/indent.rb'
 
-# Offense count: 57
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'lib/pry/code/code_file.rb'
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/help.rb'
-    - 'lib/pry/commands/ls/globals.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/helpers/table_spec.rb'
-    - 'spec/history_spec.rb'
-    - 'spec/pry_spec.rb'
-    - 'spec/syntax_checking_spec.rb'
-    - 'spec/wrapped_module_spec.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
