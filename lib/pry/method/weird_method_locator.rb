@@ -151,7 +151,7 @@ class Pry
       # @return [Pry::Method, nil] The Pry::Method representing the
       #   renamed method
       def find_renamed_method
-        return if !valid_file?(target_file)
+        return unless valid_file?(target_file)
 
         alias_name = all_methods_for(target_self).find do |v|
           expanded_source_location(target_self.method(v).source_location) == renamed_method_source_location
@@ -161,7 +161,7 @@ class Pry
       end
 
       def expanded_source_location(sl)
-        return if !sl
+        return unless sl
 
         if pry_file?
           sl

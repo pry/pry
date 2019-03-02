@@ -249,7 +249,7 @@ class Pry
     #   Pry.config.commands.desc "amend-line"
     def desc(search, description = nil)
       cmd = find_command_by_match_or_listing(search)
-      return cmd.description if !description
+      return cmd.description unless description
 
       cmd.description = description
     end

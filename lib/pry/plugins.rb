@@ -50,7 +50,7 @@ class Pry
         Pry.config.send("#{gem_name.tr('-', '_')}=", Pry::Config.from_hash({}))
 
         begin
-          require gem_name if !active?
+          require gem_name unless active?
         rescue LoadError => e
           warn "Found plugin #{gem_name}, but could not require '#{gem_name}'"
           warn e

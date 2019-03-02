@@ -20,7 +20,7 @@ class Pry
 
       def process
         code_object = Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
-        raise CommandError, no_definition_message if !code_object
+        raise CommandError, no_definition_message unless code_object
 
         @original_code_object = code_object
 
@@ -59,7 +59,7 @@ class Pry
           if candidate
             return candidate
           else
-            raise CommandError, no_definition_message if !valid_superclass?(code_object)
+            raise CommandError, no_definition_message unless valid_superclass?(code_object)
 
             @used_super = true
             code_object_with_accessible_source(code_object.super)

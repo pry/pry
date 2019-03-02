@@ -275,7 +275,7 @@ class Pry
     @suppress_output = false
     inject_sticky_locals!
     begin
-      if !process_command_safely(line)
+      unless process_command_safely(line)
         @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
     rescue RescuableException => e
@@ -416,7 +416,7 @@ class Pry
     # command was matched and invoked then `result.command?` returns true,
     # otherwise it returns false.
     if result.command?
-      if !result.void_command?
+      unless result.void_command?
         # the command that was invoked was non-void (had a return value) and so we make
         # the value of the current expression equal to the return value
         # of the command.

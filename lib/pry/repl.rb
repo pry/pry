@@ -128,7 +128,7 @@ class Pry
         yield
       rescue EOFError
         pry.config.input = Pry.config.input
-        if !should_retry
+        unless should_retry
           output.puts "Error: Pry ran out of things to read from! " \
             "Attempting to break out of REPL."
           return :no_more_input

@@ -220,7 +220,7 @@ class Pry
       #   True if self and `other` are considered `eql?`, otherwise false.
       #
       def ==(other)
-        return false if !other
+        return false unless other
 
         @lookup == __try_convert_to_hash(other)
       end

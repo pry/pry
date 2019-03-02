@@ -34,7 +34,7 @@ class Pry
       end
 
       def command_dependencies_met?(options)
-        return true if !options[:requires_gem]
+        return true unless options[:requires_gem]
 
         Array(options[:requires_gem]).all? do |g|
           Pry::Rubygem.installed?(g)

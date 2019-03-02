@@ -408,7 +408,7 @@ class Pry
       end.join("\n")
 
       if @commands.any?
-        optstr << "\n" if !optstr.empty?
+        optstr << "\n" unless optstr.empty?
         optstr << "\nAvailable commands:\n\n"
         optstr << commands_to_help
         optstr << "\n\nSee `<command> --help` for more information on a specific command."
@@ -500,7 +500,7 @@ class Pry
     #
     # Returns nothing.
     def execute_option(option, argument, index, item = nil)
-      if !option
+      unless option
         raise InvalidOptionError, "Unknown option -#{item}" if config[:multiple_switches] && strict?
 
         return
