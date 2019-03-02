@@ -305,15 +305,6 @@ Style/MultipleComparison:
   Exclude:
     - 'lib/pry/indent.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/pager.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
