@@ -14,7 +14,7 @@ class Pry
 
         # perform the patch
         def perform_patch
-          file_name, _ = file_and_line
+          file_name, = file_and_line
           lines = state.dynamical_ex_file || File.read(file_name)
 
           source = Pry::Editor.new(_pry_).edit_tempfile_with_content(lines)
