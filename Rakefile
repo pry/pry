@@ -59,7 +59,7 @@ namespace :jruby do
   end
 end
 
-['mswin32', 'mingw32'].each do |platform|
+%w[mswin32 mingw32].each do |platform|
   namespace platform do
     spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')

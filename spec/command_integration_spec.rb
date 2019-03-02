@@ -206,7 +206,7 @@ describe "commands" do
         end
       end
 
-      ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
+      %w[run_v_explicit_parameter run_v_embedded_parameter].each do |cmd|
         expect(pry_tester(commands: klass).eval(cmd)).to match(/v baby param/)
       end
     end

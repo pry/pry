@@ -314,22 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/helpers/command_helpers.rb'
-    - 'lib/pry/helpers/documentation_helpers.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'spec/command_integration_spec.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/history_spec.rb'
-    - 'spec/hooks_spec.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

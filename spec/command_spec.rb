@@ -247,7 +247,7 @@ describe "Pry::Command" do
       end
 
       result = mock_command(cmd, ['yell'])
-      expect(result.output.split).to eq ['nil', 'true']
+      expect(result.output.split).to eq %w[nil true]
     end
 
     it "should create subcommand options" do
@@ -276,7 +276,7 @@ describe "Pry::Command" do
         end
 
         def process
-          args.should == ['yell', 'papa', 'sonny', 'daughter']
+          args.should == %w[yell papa sonny daughter]
         end
       end
 
