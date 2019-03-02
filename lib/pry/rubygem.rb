@@ -45,7 +45,7 @@ class Pry
       # @return [Array<String>] completions
       def complete(so_far)
         if so_far =~ / ([^ ]*)\z/
-          list(%r{\A#{$2}}).map(&:name)
+          list(/\A#{$2}/).map(&:name)
         else
           list.map(&:name)
         end

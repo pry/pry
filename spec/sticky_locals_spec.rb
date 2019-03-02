@@ -46,10 +46,10 @@ describe "Sticky locals (_file_ and friends)" do
     end
 
     expect(pry_eval('file-and-dir-test', 'cd 0', '_file_'))
-      .to match(/\/blah\/ostrich\.rb/)
+      .to match(%r{/blah/ostrich\.rb})
 
     expect(pry_eval('file-and-dir-test', 'cd 0', '_dir_'))
-      .to match(/\/blah/)
+      .to match(%r{/blah})
 
     Pry.config.commands.delete "file-and-dir-test"
   end

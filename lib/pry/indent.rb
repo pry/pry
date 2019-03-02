@@ -257,7 +257,7 @@ class Pry
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
-      (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
+      (last_token =~ %r{^[)\]\}/]$} || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Are we currently in the middle of a string literal.

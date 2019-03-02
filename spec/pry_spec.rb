@@ -195,19 +195,19 @@ describe Pry do
 
         describe "newline stripping from an empty string" do
           it "with double quotes" do
-            expect(mock_pry('"', '"')).to match(%r{"\\n"})
-            expect(mock_pry('"', "\n", "\n", "\n", '"')).to match(%r{"\\n\\n\\n\\n"})
+            expect(mock_pry('"', '"')).to match(/"\\n"/)
+            expect(mock_pry('"', "\n", "\n", "\n", '"')).to match(/"\\n\\n\\n\\n"/)
           end
 
           it "with single quotes" do
-            expect(mock_pry("'", "'")).to match(%r{"\\n"})
-            expect(mock_pry("'", "\n", "\n", "\n", "'")).to match(%r{"\\n\\n\\n\\n"})
+            expect(mock_pry("'", "'")).to match(/"\\n"/)
+            expect(mock_pry("'", "\n", "\n", "\n", "'")).to match(/"\\n\\n\\n\\n"/)
           end
 
           it "with fancy delimiters" do
-            expect(mock_pry('%(', ')')).to match(%r{"\\n"})
-            expect(mock_pry('%|', "\n", "\n", '|')).to match(%r{"\\n\\n\\n"})
-            expect(mock_pry('%q[', "\n", "\n", ']')).to match(%r{"\\n\\n\\n"})
+            expect(mock_pry('%(', ')')).to match(/"\\n"/)
+            expect(mock_pry('%|', "\n", "\n", '|')).to match(/"\\n\\n\\n"/)
+            expect(mock_pry('%q[', "\n", "\n", ']')).to match(/"\\n\\n\\n"/)
           end
         end
 
@@ -224,9 +224,9 @@ describe Pry do
 
         describe "newline from an empty heredoc" do
           it "works" do
-            expect(mock_pry('<<HERE', 'HERE')).to match(%r{""})
-            expect(mock_pry("<<'HERE'", "\n", 'HERE')).to match(%r{"\\n"})
-            expect(mock_pry("<<-'HERE'", "\n", "\n", 'HERE')).to match(%r{"\\n\\n"})
+            expect(mock_pry('<<HERE', 'HERE')).to match(/""/)
+            expect(mock_pry("<<'HERE'", "\n", 'HERE')).to match(/"\\n"/)
+            expect(mock_pry("<<-'HERE'", "\n", "\n", 'HERE')).to match(/"\\n\\n"/)
           end
         end
       end

@@ -6,7 +6,7 @@ class Pry
     ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/.freeze
     SYMBOL_REGEXP             = /^(:[^:.]*)$/.freeze
     SYMBOL_METHOD_CALL_REGEXP = /^(:[^:.]+)\.([^.]*)$/.freeze
-    REGEX_REGEXP              = /^(\/[^\/]*\/)\.([^.]*)$/.freeze
+    REGEX_REGEXP              = %r{^(/[^/]*/)\.([^.]*)$}.freeze
     PROC_OR_HASH_REGEXP       = /^([^\}]*\})\.([^.]*)$/.freeze
     TOPLEVEL_LOOKUP_REGEXP    = /^::([A-Z][^:\.\(]*)$/.freeze
     CONSTANT_REGEXP           = /^([A-Z][A-Za-z0-9]*)$/.freeze
@@ -220,10 +220,10 @@ class Pry
     # path is a proc that takes an input and builds a full path.
     def build_path(input)
       # check to see if the input is a regex
-      return proc { |i| i.to_s }, input if input[/\/\./]
+      return proc { |i| i.to_s }, input if input[%r{/\.}]
 
       trailing_slash = input.end_with?('/')
-      contexts = input.chomp('/').split(/\//)
+      contexts = input.chomp('/').split(%r{/})
       input = contexts[-1]
       path = proc do |i|
         p = contexts[0..-2].push(i).join('/')

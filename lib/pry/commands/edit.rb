@@ -194,7 +194,7 @@ class Pry
 
       def probably_a_file?(str)
         [".rb", ".c", ".py", ".yml", ".gemspec"].include?(File.extname(str)) ||
-          str =~ /\/|\\/
+          str =~ %r{/|\\}
       end
     end
 

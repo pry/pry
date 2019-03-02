@@ -314,25 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 28
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/cat/file_formatter.rb'
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/helpers/documentation_helpers.rb'
-    - 'lib/pry/indent.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'lib/pry/object_path.rb'
-    - 'lib/pry/rubygem.rb'
-    - 'spec/pry_spec.rb'
-    - 'spec/sticky_locals_spec.rb'
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Style/RescueModifier:

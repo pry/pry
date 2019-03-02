@@ -201,7 +201,7 @@ class Pry
                      case Pry::Method(block).source_file
                      when %r{/pry/.*_commands/(.*).rb}
                        Regexp.last_match(1).capitalize.tr('_', " ")
-                     when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
+                     when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
                        name = Regexp.last_match(1)
                        version = Regexp.last_match(2)
                        "#{name} (v#{version})"

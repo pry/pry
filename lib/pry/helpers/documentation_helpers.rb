@@ -12,10 +12,10 @@ class Pry
 
       def process_rdoc(comment)
         comment = comment.dup
-        comment.gsub(/<code>(?:\s*\n)?(.*?)\s*<\/code>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
-          .gsub(/<em>(?:\s*\n)?(.*?)\s*<\/em>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
-          .gsub(/<i>(?:\s*\n)?(.*?)\s*<\/i>/m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
-          .gsub(/<tt>(?:\s*\n)?(.*?)\s*<\/tt>/m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+        comment.gsub(%r{<code>(?:\s*\n)?(.*?)\s*</code>}m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+          .gsub(%r{<em>(?:\s*\n)?(.*?)\s*</em>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
+          .gsub(%r{<i>(?:\s*\n)?(.*?)\s*</i>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
+          .gsub(%r{<tt>(?:\s*\n)?(.*?)\s*</tt>}m) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
           .gsub(/\B\+(\w+?)\+\B/) { "\e[32m#{Regexp.last_match(1)}\e[0m" }
           .gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/) { CodeRay.scan(Regexp.last_match(1), :ruby).term }
           .gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{CodeRay.scan(Regexp.last_match(1), :ruby).term}`" }
@@ -49,7 +49,7 @@ class Pry
       # @param [String] code
       # @return [String]
       def strip_comments_from_c_code(code)
-        code.sub(/\A\s*\/\*.*?\*\/\s*/m, '')
+        code.sub(%r{\A\s*/\*.*?\*/\s*}m, '')
       end
 
       # Given a string that makes up a comment in a source-code file parse out the content

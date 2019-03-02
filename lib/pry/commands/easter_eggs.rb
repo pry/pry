@@ -4,7 +4,7 @@ class Pry
       run ".nyancat"
     end
 
-    command(/!s\/(.*?)\/(.*?)/, "") do |source, dest|
+    command(%r{!s/(.*?)/(.*?)}, "") do |source, dest|
       eval_string.gsub!(/#{source}/) { dest }
       run "show-input"
     end
