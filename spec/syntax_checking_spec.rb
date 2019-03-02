@@ -12,7 +12,7 @@ describe Pry do
     ["issue = %W/", "343/"],
     ["pouts(<<HI, 'foo", "bar", "HI", "baz')"],
   ].each do |foo|
-    it "should not raise an error on broken lines: #{foo.join("\\n")}" do
+    it "should not raise an error on broken lines: #{foo.join('\\n')}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end

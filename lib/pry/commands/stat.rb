@@ -26,13 +26,13 @@ class Pry
           Method Information:
           --
           Name: #{meth.name}
-          Alias#{"es" if aliases.length > 1}: #{aliases.any? ? aliases.join(", ") : "None."}
-          Owner: #{meth.owner ? meth.owner : "Unknown"}
+          Alias#{'es' if aliases.length > 1}: #{aliases.any? ? aliases.join(', ') : 'None.'}
+          Owner: #{meth.owner ? meth.owner : 'Unknown'}
           Visibility: #{meth.visibility}
-          Type: #{meth.is_a?(::Method) ? "Bound" : "Unbound"}
+          Type: #{meth.is_a?(::Method) ? 'Bound' : 'Unbound'}
           Arity: #{meth.arity}
           Method Signature: #{meth.signature}
-          Source Location: #{meth.source_location ? meth.source_location.join(":") : "Not found."}
+          Source Location: #{meth.source_location ? meth.source_location.join(':') : 'Not found.'}
         EOS
       end
     end

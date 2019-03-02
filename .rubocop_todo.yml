@@ -314,21 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 20
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/show_info.rb'
-    - 'lib/pry/commands/stat.rb'
-    - 'lib/pry/commands/toggle_color.rb'
-    - 'lib/pry/commands/watch_expression.rb'
-    - 'lib/pry/indent.rb'
-    - 'spec/helper.rb'
-    - 'spec/syntax_checking_spec.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: MinSize.

@@ -261,7 +261,7 @@ class Pry
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
       command_string = _pry_.config.command_prefix.to_s + command_string
-      complete_string = "#{command_string} #{args.join(" ")}".rstrip
+      complete_string = "#{command_string} #{args.join(' ')}".rstrip
       command_set.process_line(complete_string, context)
     end
 
@@ -439,7 +439,7 @@ class Pry
         gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
         output.puts(<<WARN)
 The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
-gems to be installed: #{gems_not_installed.join(", ")}
+gems to be installed: #{gems_not_installed.join(', ')}
 
 Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
 and activate this command.
