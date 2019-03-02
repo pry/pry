@@ -42,3 +42,6 @@ Style/SingleLineMethods:
   Exclude:
     - 'spec/method_spec.rb'
     - 'spec/fixtures/example_nesting.rb'
+
+Style/StringLiterals:
+  Enabled: false
