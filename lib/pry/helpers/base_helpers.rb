@@ -1,7 +1,7 @@
 class Pry
   module Helpers
     module BaseHelpers
-      extend self
+      extend self # rubocop:disable Style/ModuleFunction
 
       def silence_warnings
         old_verbose = $VERBOSE

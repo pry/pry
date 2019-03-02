@@ -293,16 +293,6 @@ Style/MissingRespondToMissing:
     - 'lib/pry/plugins.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Autocorrect.
-# SupportedStyles: module_function, extend_self
-Style/ModuleFunction:
-  Exclude:
-    - 'lib/pry/helpers/base_helpers.rb'
-    - 'lib/pry/helpers/text.rb'
-    - 'lib/pry/testable.rb'
-
 # Offense count: 8
 Style/MultilineBlockChain:
   Exclude:

@@ -2,7 +2,8 @@ class Pry
   module Helpers
     # The methods defined on {Text} are available to custom commands via {Pry::Command#text}.
     module Text
-      extend self
+      extend self # rubocop:disable Style/ModuleFunction
+
       COLORS = {
         "black" => 0,
         "red" => 1,

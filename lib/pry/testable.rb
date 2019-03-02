@@ -4,7 +4,6 @@ require 'pry' if not defined?(Pry)
 
 class Pry
   module Testable
-    extend self
     require_relative "testable/pry_tester"
     require_relative "testable/evalable"
     require_relative "testable/mockable"
