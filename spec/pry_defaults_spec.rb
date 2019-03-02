@@ -234,10 +234,10 @@ describe "test Pry defaults" do
   end
 
   describe "view_clip used for displaying an object in a truncated format" do
-    DEFAULT_OPTIONS = {
-      max_length: 60
-    }
-    MAX_LENGTH = DEFAULT_OPTIONS[:max_length]
+    before do
+      stub_const('DEFAULT_OPTIONS', max_length: 60)
+      stub_const('MAX_LENGTH', 60)
+    end
 
     describe "given an object with an #inspect string" do
       it "returns the #<> format of the object (never use inspect)" do

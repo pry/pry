@@ -48,7 +48,7 @@ class Pry
                     else
                       _pry_.config.ls.ceiling.dup
                     end
-          lambda { |klass| !ceiling.include?(klass) }
+          ->(klass) { !ceiling.include?(klass) }
         end
       end
     end

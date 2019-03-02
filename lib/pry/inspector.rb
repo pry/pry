@@ -24,6 +24,6 @@ class Pry
           but prints large objects as a smaller string.
         DESCRIPTION
       }
-    }
+    }.freeze
   end
 end

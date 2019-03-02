@@ -3,10 +3,10 @@ class Pry
     class GemStat < Pry::ClassCommand
       require 'json'
       require 'net/http'
-      STAT_HOST = "rubygems.org"
+      STAT_HOST = "rubygems.org".freeze
       STAT_PORT = 443
-      STAT_PATH = "/api/v1/gems/%s.json"
-      FAIL_WHALE = <<-FAILWHALE
+      STAT_PATH = "/api/v1/gems/%s.json".freeze
+      FAIL_WHALE = <<-FAILWHALE.freeze
 W     W      W
 W        W  W     W
               '.  W

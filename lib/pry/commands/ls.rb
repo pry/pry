@@ -21,7 +21,7 @@ class Pry
         unloaded_constant_color: :yellow, # Any constant that is still in .autoload? state
         separator: "  ",
         ceiling: [Object, Module, Class]
-      }
+      }.freeze
 
       match 'ls'
       group 'Context'

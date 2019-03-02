@@ -44,7 +44,7 @@ class Pry
         Pry::Prompt, Pry::Config::Lazy
       ].freeze
 
-      INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
+      INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/.freeze
       ReservedKeyError = Class.new(RuntimeError)
 
       #
@@ -220,7 +220,7 @@ class Pry
       #   True if self and `other` are considered `eql?`, otherwise false.
       #
       def ==(other)
-        return false if !other
+        return false unless other
 
         @lookup == __try_convert_to_hash(other)
       end

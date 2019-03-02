@@ -20,16 +20,16 @@ class Pry
 
       def process
         code_object = Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
-        raise CommandError, no_definition_message if !code_object
+        raise CommandError, no_definition_message unless code_object
 
         @original_code_object = code_object
 
         if !obj_name && code_object.c_module? && !opts[:all]
-          result = "Warning: You're inside an object, whose class is defined by means\n" +
-                   "         of the C Ruby API. Pry cannot display the information for\n" +
+          result = "Warning: You're inside an object, whose class is defined by means\n" \
+                   "         of the C Ruby API. Pry cannot display the information for\n" \
                    "         this class."
           if code_object.candidates.any?
-            result += "\n         However, you can view monkey-patches applied to this class.\n" +
+            result += "\n         However, you can view monkey-patches applied to this class.\n" \
                       "         Just execute the same command with the '--all' switch."
           end
         elsif show_all_modules?(code_object)
@@ -59,7 +59,7 @@ class Pry
           if candidate
             return candidate
           else
-            raise CommandError, no_definition_message if !valid_superclass?(code_object)
+            raise CommandError, no_definition_message unless valid_superclass?(code_object)
 
             @used_super = true
             code_object_with_accessible_source(code_object.super)

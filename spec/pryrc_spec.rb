@@ -1,16 +1,15 @@
 describe Pry do
   describe 'loading rc files' do
     before do
-      Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
-      Pry::LOCAL_RC_FILE.replace "spec/fixtures/testrc/../testrc"
+      stub_const('Pry::HOME_RC_FILE', 'spec/fixtures/testrc')
+      stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testrc/../testrc')
+
       Pry.instance_variable_set(:@initial_session, true)
       Pry.config.should_load_rc = true
       Pry.config.should_load_local_rc = true
     end
 
     after do
-      Pry::HOME_RC_FILE.replace "~/.pryrc"
-      Pry::LOCAL_RC_FILE.replace "./.pryrc"
       Pry.config.should_load_rc = false
       Object.remove_const(:TEST_RC) if defined?(TEST_RC)
     end
@@ -26,8 +25,8 @@ describe Pry do
     # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
     unless Pry::Helpers::Platform.jruby_19?
       it "should not load the rc file twice if it's symlinked differently" do
-        Pry::HOME_RC_FILE.replace "spec/fixtures/testrc"
-        Pry::LOCAL_RC_FILE.replace "spec/fixtures/testlinkrc"
+        stub_const('Pry::HOME_RC_FILE', 'spec/fixtures/testrc')
+        stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testlinkrc')
 
         Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
 
@@ -37,11 +36,11 @@ describe Pry do
 
     it "should not load the pryrc if pryrc's directory permissions do not allow this" do
       Dir.mktmpdir do |dir|
-        File.chmod 0000, dir
+        File.chmod 0o000, dir
         Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')
         Pry.config.should_load_rc = true
         expect { Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new) }.to_not raise_error
-        File.chmod 0777, dir
+        File.chmod 0o777, dir
       end
     end
 

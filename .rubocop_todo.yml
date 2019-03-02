@@ -274,38 +274,6 @@ Style/IfInsideElse:
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'lib/pry/commands/ls/methods.rb'
-    - 'spec/pry_spec.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/LineEndConcatenation:
-  Exclude:
-    - 'lib/pry/commands/show_info.rb'
-    - 'lib/pry/slop/option.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'lib/pry/helpers/command_helpers.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: require_parentheses, require_no_parentheses, require_no_parentheses_except_multiline
-Style/MethodDefParentheses:
-  Exclude:
-    - 'lib/pry/helpers/table.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 7
 Style/MethodMissingSuper:
   Exclude:
@@ -325,16 +293,6 @@ Style/MissingRespondToMissing:
     - 'lib/pry/plugins.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Autocorrect.
-# SupportedStyles: module_function, extend_self
-Style/ModuleFunction:
-  Exclude:
-    - 'lib/pry/helpers/base_helpers.rb'
-    - 'lib/pry/helpers/text.rb'
-    - 'lib/pry/testable.rb'
-
 # Offense count: 8
 Style/MultilineBlockChain:
   Exclude:
@@ -346,72 +304,6 @@ Style/MultilineBlockChain:
 Style/MultipleComparison:
   Exclude:
     - 'lib/pry/indent.rb'
-
-# Offense count: 48
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-Style/MutableConstant:
-  Enabled: false
-
-# Offense count: 23
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: Whitelist.
-# Whitelist: be, be_a, be_an, be_between, be_falsey, be_kind_of, be_instance_of, be_truthy, be_within, eq, eql, end_with, include, match, raise_error, respond_to, start_with
-Style/NestedParenthesizedCalls:
-  Exclude:
-    - 'lib/pry/helpers/table.rb'
-    - 'spec/code_spec.rb'
-    - 'spec/commands/jump_to_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/pager.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: predicate, comparison
-Style/NilComparison:
-  Exclude:
-    - 'lib/pry/core_extensions.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IncludeSemanticChanges.
-Style/NonNilCheck:
-  Exclude:
-    - 'lib/pry/helpers/base_helpers.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/Not:
-  Exclude:
-    - 'lib/pry/method/weird_method_locator.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'lib/pry/testable.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedOctalStyle.
-# SupportedOctalStyles: zero_with_o, zero_only
-Style/NumericLiteralPrefix:
-  Exclude:
-    - 'lib/pry/history.rb'
-    - 'spec/history_spec.rb'
-    - 'spec/pryrc_spec.rb'
 
 # Offense count: 24
 # Cop supports --auto-correct.

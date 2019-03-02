@@ -177,7 +177,7 @@ class Pry
       end
 
       def expand_path(f)
-        return if !f
+        return unless f
 
         if Pry.eval_path == f
           f

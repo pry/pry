@@ -137,14 +137,14 @@ class Pry
         Range.new(a, b)
       end
 
-      def set_file_and_dir_locals(file_name, _pry_ = _pry_(), target = target())
-        return if !target || !file_name
+      def set_file_and_dir_locals(file_name, pry = _pry_, ctx = target)
+        return if !ctx || !file_name
 
-        _pry_.last_file = File.expand_path(file_name)
-        _pry_.inject_local("_file_", _pry_.last_file, target)
+        pry.last_file = File.expand_path(file_name)
+        pry.inject_local("_file_", pry.last_file, ctx)
 
-        _pry_.last_dir = File.dirname(_pry_.last_file)
-        _pry_.inject_local("_dir_", _pry_.last_dir, target)
+        pry.last_dir = File.dirname(pry.last_file)
+        pry.inject_local("_dir_", pry.last_dir, ctx)
       end
     end
   end

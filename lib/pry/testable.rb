@@ -1,10 +1,9 @@
 # good idea ???
 # if you're testing pry plugin you should require pry by yourself, no?
-require 'pry' if not defined?(Pry)
+require 'pry' unless defined?(Pry)
 
 class Pry
   module Testable
-    extend self
     require_relative "testable/pry_tester"
     require_relative "testable/evalable"
     require_relative "testable/mockable"
@@ -46,7 +45,7 @@ class Pry
         should_load: false,
         should_save: false
       }
-    }
+    }.freeze
     private_constant :TEST_DEFAULTS
 
     #

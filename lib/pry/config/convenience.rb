@@ -13,7 +13,7 @@ class Pry
         :editor,
         :memory_size,
         :extra_sticky_locals
-      ]
+      ].freeze
 
       def config_shortcut(*names)
         names.each do |name|

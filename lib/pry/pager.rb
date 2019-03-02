@@ -107,15 +107,15 @@ class Pry
           @out.print line
           @tracker.record line
 
-          if @tracker.page?
-            @out.print "\n"
-            @out.print "\e[0m"
-            @out.print "<page break> --- Press enter to continue " \
-                       "( q<enter> to break ) --- <page break>\n"
-            raise StopPaging if Readline.readline("").chomp == "q"
+          next unless @tracker.page?
 
-            @tracker.reset
-          end
+          @out.print "\n"
+          @out.print "\e[0m"
+          @out.print "<page break> --- Press enter to continue " \
+                     "( q<enter> to break ) --- <page break>\n"
+          raise StopPaging if Readline.readline("").chomp == "q"
+
+          @tracker.reset
         end
       end
     end

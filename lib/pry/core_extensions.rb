@@ -4,7 +4,7 @@ class Pry
   #   friends).
   #
   # @see Object#__binding__
-  BINDING_METHOD_IMPL = [<<-METHOD, __FILE__, __LINE__ + 1]
+  BINDING_METHOD_IMPL = [<<-METHOD, __FILE__, __LINE__ + 1].freeze
     # Get a binding with 'self' set to self, and no locals.
     #
     # The default definee is determined by the context in which the
@@ -81,7 +81,7 @@ class Object
       # This fixes the following two spec failures, at https://travis-ci.org/pry/pry/jobs/274470002
       # 1) ./spec/pry_spec.rb:360:in `block in (root)'
       # 2) ./spec/pry_spec.rb:366:in `block in (root)'
-      return class_eval { binding } if Pry::Helpers::Platform.jruby? && (self.name == nil)
+      return class_eval { binding } if Pry::Helpers::Platform.jruby? && self.name.nil?
 
       # class_eval sets both self and the default definee to this class.
       return class_eval("binding")

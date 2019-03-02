@@ -75,7 +75,7 @@ class Pry
   end
 
   DEFAULT_SYSTEM = proc do |output, cmd, _|
-    output.puts "Error: there was a problem executing system command: #{cmd}" if !system(cmd)
+    output.puts "Error: there was a problem executing system command: #{cmd}" unless system(cmd)
   end
 
   # This is to keep from breaking under Rails 3.2 for people who are doing that

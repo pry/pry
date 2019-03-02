@@ -386,7 +386,7 @@ class Pry
       arg_string.scan(/\| *(?:do|\{)/)
       block_index = $~ && $~.offset(0)[0]
 
-      return if !block_index
+      return unless block_index
 
       block_init_string = arg_string.slice!(block_index..-1)[1..-1]
       prime_string = "proc #{block_init_string}\n"

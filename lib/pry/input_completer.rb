@@ -2,18 +2,18 @@
 # Implements tab completion for Readline in Pry
 class Pry
   class InputCompleter
-    NUMERIC_REGEXP            = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/
-    ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/
-    SYMBOL_REGEXP             = /^(:[^:.]*)$/
-    SYMBOL_METHOD_CALL_REGEXP = /^(:[^:.]+)\.([^.]*)$/
-    REGEX_REGEXP              = /^(\/[^\/]*\/)\.([^.]*)$/
-    PROC_OR_HASH_REGEXP       = /^([^\}]*\})\.([^.]*)$/
-    TOPLEVEL_LOOKUP_REGEXP    = /^::([A-Z][^:\.\(]*)$/
-    CONSTANT_REGEXP           = /^([A-Z][A-Za-z0-9]*)$/
-    CONSTANT_OR_METHOD_REGEXP = /^([A-Z].*)::([^:.]*)$/
-    HEX_REGEXP                = /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/
-    GLOBALVARIABLE_REGEXP     = /^(\$[^.]*)$/
-    VARIABLE_REGEXP           = /^([^."].*)\.([^.]*)$/
+    NUMERIC_REGEXP            = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/.freeze
+    ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/.freeze
+    SYMBOL_REGEXP             = /^(:[^:.]*)$/.freeze
+    SYMBOL_METHOD_CALL_REGEXP = /^(:[^:.]+)\.([^.]*)$/.freeze
+    REGEX_REGEXP              = /^(\/[^\/]*\/)\.([^.]*)$/.freeze
+    PROC_OR_HASH_REGEXP       = /^([^\}]*\})\.([^.]*)$/.freeze
+    TOPLEVEL_LOOKUP_REGEXP    = /^::([A-Z][^:\.\(]*)$/.freeze
+    CONSTANT_REGEXP           = /^([A-Z][A-Za-z0-9]*)$/.freeze
+    CONSTANT_OR_METHOD_REGEXP = /^([A-Z].*)::([^:.]*)$/.freeze
+    HEX_REGEXP                = /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/.freeze
+    GLOBALVARIABLE_REGEXP     = /^(\$[^.]*)$/.freeze
+    VARIABLE_REGEXP           = /^([^."].*)\.([^.]*)$/.freeze
 
     ReservedWords = %w[
       BEGIN END
@@ -41,7 +41,7 @@ class Pry
       [] []= ^ ! != !~
     ].freeze
 
-    WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{("
+    WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{(".freeze
 
     def initialize(input, pry = nil)
       @pry = pry

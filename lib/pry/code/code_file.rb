@@ -1,6 +1,6 @@
 class Pry
   class CodeFile
-    DEFAULT_EXT = '.rb'
+    DEFAULT_EXT = '.rb'.freeze
 
     # List of all supported languages.
     # @return [Hash]
@@ -19,11 +19,11 @@ class Pry
       %w(.yaml .yml) => :yaml,
       %w(.cpp .hpp .cc .h .cxx) => :cpp,
       %w(.rb .ru .irbrc .gemspec .pryrc .rake) => :ruby,
-    }
+    }.freeze
 
     FILES = {
       %w(Gemfile Rakefile Guardfile Capfile) => :ruby
-    }
+    }.freeze
 
     # Store the current working directory. This allows show-source etc. to work if
     # your process has changed directory since boot. [Issue #675]

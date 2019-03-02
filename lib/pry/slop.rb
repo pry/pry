@@ -3,7 +3,7 @@ class Pry
     require_relative 'slop/option'
     require_relative 'slop/commands'
     include Enumerable
-    VERSION = '3.4.0'
+    VERSION = '3.4.0'.freeze
 
     # The main Error class, all Exception classes inherit from this class.
     class Error < StandardError; end
@@ -34,7 +34,7 @@ class Pry
       optional_arguments: false,
       multiple_switches: true,
       longest_flag: 0
-    }
+    }.freeze
 
     class << self
       # items  - The Array of items to extract options from (default: ARGV).
@@ -408,7 +408,7 @@ class Pry
       end.join("\n")
 
       if @commands.any?
-        optstr << "\n" if !optstr.empty?
+        optstr << "\n" unless optstr.empty?
         optstr << "\nAvailable commands:\n\n"
         optstr << commands_to_help
         optstr << "\n\nSee `<command> --help` for more information on a specific command."
@@ -500,7 +500,7 @@ class Pry
     #
     # Returns nothing.
     def execute_option(option, argument, index, item = nil)
-      if !option
+      unless option
         raise InvalidOptionError, "Unknown option -#{item}" if config[:multiple_switches] && strict?
 
         return

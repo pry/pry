@@ -60,7 +60,7 @@ class Pry
   # Don't catch these exceptions
   DEFAULT_UNRESCUED_EXCEPTIONS = [SystemExit,
                                   SignalException,
-                                  Pry::TooSafeException]
+                                  Pry::TooSafeException].freeze
   DEFAULT_EXCEPTION_WHITELIST = DEFAULT_UNRESCUED_EXCEPTIONS
   if Object.respond_to?(:deprecate_constant)
     deprecate_constant :DEFAULT_EXCEPTION_WHITELIST

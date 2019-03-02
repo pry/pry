@@ -178,7 +178,7 @@ class Pry
     # @param [Object] obj
     # @param [Fixnum] super_level How far up the super chain to ascend.
     def lookup_super(obj, super_level)
-      return nil if !obj
+      return nil unless obj
 
       sup = obj.super(super_level)
       if !sup

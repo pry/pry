@@ -91,7 +91,7 @@ class Pry
       end
 
       def ensure_file_name_is_valid(file_name)
-        raise CommandError, "Cannot find a valid file for #{filename_argument}" if !file_name
+        raise CommandError, "Cannot find a valid file for #{filename_argument}" unless file_name
         raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
       end
 

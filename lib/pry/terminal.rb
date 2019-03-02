@@ -10,7 +10,7 @@ class Pry
       end
 
       # Return a screen size or a default if that fails.
-      def size! default = [27, 80]
+      def size!(default = [27, 80])
         screen_size || default
       end
 

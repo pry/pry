@@ -90,7 +90,7 @@ describe Pry::InputCompleter do
     # Constant
     module Mod
       remove_const :Con if defined? Con
-      Con = 'Constant'
+      Con = 'Constant'.freeze
       module Mod2
       end
     end
@@ -162,7 +162,7 @@ describe Pry::InputCompleter do
     # Constant
     module Mod
       remove_const :Con if defined? Con
-      Con = 'Constant'
+      Con = 'Constant'.freeze
       module Mod2
       end
     end

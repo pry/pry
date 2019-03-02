@@ -1,7 +1,7 @@
 class Pry
   module Helpers
     module BaseHelpers
-      extend self
+      extend self # rubocop:disable Style/ModuleFunction
 
       def silence_warnings
         old_verbose = $VERBOSE
@@ -24,7 +24,7 @@ class Pry
 
       def find_command(name, set = Pry::Commands)
         command_match = set.find do |_, command|
-          (listing = command.options[:listing]) == name && listing != nil
+          (listing = command.options[:listing]) == name && !listing.nil?
         end
         command_match.last if command_match
       end
@@ -34,7 +34,7 @@ class Pry
       end
 
       def command_dependencies_met?(options)
-        return true if !options[:requires_gem]
+        return true unless options[:requires_gem]
 
         Array(options[:requires_gem]).all? do |g|
           Pry::Rubygem.installed?(g)
