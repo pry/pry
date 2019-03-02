@@ -274,15 +274,6 @@ Style/IfInsideElse:
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'lib/pry/commands/ls/methods.rb'
-    - 'spec/pry_spec.rb'
-
 # Offense count: 5
 # Cop supports --auto-correct.
 Style/LineEndConcatenation:
