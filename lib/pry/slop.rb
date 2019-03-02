@@ -3,7 +3,7 @@ class Pry
     require_relative 'slop/option'
     require_relative 'slop/commands'
     include Enumerable
-    VERSION = '3.4.0'
+    VERSION = '3.4.0'.freeze
 
     # The main Error class, all Exception classes inherit from this class.
     class Error < StandardError; end
@@ -34,7 +34,7 @@ class Pry
       optional_arguments: false,
       multiple_switches: true,
       longest_flag: 0
-    }
+    }.freeze
 
     class << self
       # items  - The Array of items to extract options from (default: ARGV).

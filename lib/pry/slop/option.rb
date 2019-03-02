@@ -15,7 +15,7 @@ class Pry
         required: false,
         as: String,
         autocreated: false
-      }
+      }.freeze
 
       attr_reader :short, :long, :description, :config, :types
       attr_accessor :count, :argument_in_value

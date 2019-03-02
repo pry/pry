@@ -44,7 +44,7 @@ class Pry
         Pry::Prompt, Pry::Config::Lazy
       ].freeze
 
-      INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/
+      INSPECT_REGEXP = /#{Regexp.escape "default=#<"}/.freeze
       ReservedKeyError = Class.new(RuntimeError)
 
       #

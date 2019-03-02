@@ -14,7 +14,7 @@ class Pry
         "magenta" => 5,
         "cyan" => 6,
         "white" => 7
-      }
+      }.freeze
 
       COLORS.each_pair do |color, value|
         define_method color do |text|

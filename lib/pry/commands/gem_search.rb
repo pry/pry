@@ -10,7 +10,7 @@ class Pry
         Search for a gem with the rubygems.org HTTP API
       BANNER
 
-      API_ENDPOINT = 'https://rubygems.org/api/v1/search.json'
+      API_ENDPOINT = 'https://rubygems.org/api/v1/search.json'.freeze
 
       def setup
         require 'json' unless defined?(JSON)

@@ -4,7 +4,7 @@ class Pry
   #   friends).
   #
   # @see Object#__binding__
-  BINDING_METHOD_IMPL = [<<-METHOD, __FILE__, __LINE__ + 1]
+  BINDING_METHOD_IMPL = [<<-METHOD, __FILE__, __LINE__ + 1].freeze
     # Get a binding with 'self' set to self, and no locals.
     #
     # The default definee is determined by the context in which the

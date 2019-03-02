@@ -11,7 +11,7 @@ class Pry
     else
       '~/.config/pry/pryrc'
     end
-  LOCAL_RC_FILE = "./.pryrc"
+  LOCAL_RC_FILE = "./.pryrc".freeze
 
   class << self
     extend Pry::Forwardable

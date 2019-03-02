@@ -1,6 +1,6 @@
 class Pry
   class PluginManager
-    PRY_PLUGIN_PREFIX = /^pry-/
+    PRY_PLUGIN_PREFIX = /^pry-/.freeze
 
     # Placeholder when no associated gem found, displays warning
     class NoPlugin

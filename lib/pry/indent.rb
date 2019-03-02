@@ -21,7 +21,7 @@ class Pry
     attr_reader :stack
 
     # The amount of spaces to insert for each indent level.
-    SPACES = '  '
+    SPACES = '  '.freeze
 
     # Hash containing all the tokens that should increase the indentation
     # level. The keys of this hash are open tokens, the values the matching
@@ -42,14 +42,14 @@ class Pry
       '[' => ']',
       '{' => '}',
       '(' => ')'
-    }
+    }.freeze
 
     # Which tokens can either be open tokens, or appear as modifiers on
     # a single-line.
-    SINGLELINE_TOKENS = %w(if while until unless rescue)
+    SINGLELINE_TOKENS = %w(if while until unless rescue).freeze
 
     # Which tokens can be followed by an optional "do" keyword.
-    OPTIONAL_DO_TOKENS = %w(for while until)
+    OPTIONAL_DO_TOKENS = %w(for while until).freeze
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
@@ -58,7 +58,7 @@ class Pry
     # :pre_constant and :preserved_constant are the CodeRay 0.9.8 and 1.0.0
     # classifications of "true", "false", and "nil".
     IGNORE_TOKENS = [:space, :content, :string, :method, :ident,
-                     :constant, :pre_constant, :predefined_constant]
+                     :constant, :pre_constant, :predefined_constant].freeze
 
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
@@ -73,7 +73,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = %w(when else elsif ensure rescue)
+    MIDWAY_TOKENS = %w(when else elsif ensure rescue).freeze
 
     # Clean the indentation of a fragment of ruby.
     #

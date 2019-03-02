@@ -45,7 +45,7 @@ class Pry
         should_load: false,
         should_save: false
       }
-    }
+    }.freeze
     private_constant :TEST_DEFAULTS
 
     #

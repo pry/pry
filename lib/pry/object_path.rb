@@ -11,7 +11,7 @@ class Pry
   # Object paths are mostly relevant in the context of the `cd` command.
   # @see https://github.com/pry/pry/wiki/State-navigation
   class ObjectPath
-    SPECIAL_TERMS = ["", "::", ".", ".."]
+    SPECIAL_TERMS = ["", "::", ".", ".."].freeze
 
     # @param [String] path_string The object path expressed as a string.
     # @param [Array<Binding>] current_stack The current state of the binding
