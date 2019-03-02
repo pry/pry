@@ -41,7 +41,7 @@ class Pry
         rows_to_s.join("\n")
       end
 
-      def rows_to_s style = :color_on
+      def rows_to_s(style = :color_on)
         widths = columns.map { |e| _max_width(e) }
         @rows_without_colors.map do |r|
           padded = []
@@ -56,19 +56,19 @@ class Pry
         end
       end
 
-      def items= items
+      def items=(items)
         @items = items
         _rebuild_colorless_cache
         _recolumn
         items
       end
 
-      def column_count= n
+      def column_count=(n)
         @column_count = n
         _recolumn
       end
 
-      def fits_on_line? line_length
+      def fits_on_line?(line_length)
         _max_width(rows_to_s :no_color) <= line_length
       end
 
@@ -107,7 +107,7 @@ class Pry
         end
       end
 
-      def _recall_color_for thing
+      def _recall_color_for(thing)
         @colorless_cache[thing]
       end
     end
