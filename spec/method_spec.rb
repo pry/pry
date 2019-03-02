@@ -482,7 +482,7 @@ describe Pry::Method do
       end
 
       it "should include modules at the point which they would be reached" do
-        expect(Pry::Method.resolution_order(LS::Bottom)).to eq [eigen_class(LS::Bottom), LS::O] + (Pry::Method.resolution_order(LS::Lower))
+        expect(Pry::Method.resolution_order(LS::Bottom)).to eq [eigen_class(LS::Bottom), LS::O] + Pry::Method.resolution_order(LS::Lower)
       end
 
       it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do

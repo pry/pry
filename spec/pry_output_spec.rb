@@ -20,7 +20,9 @@ describe Pry do
       Pry.config.print = proc do
         ex = Exception.new("catch-22")
         class << ex
-          def inspect; raise ex; end
+          def inspect
+            raise ex
+          end
         end
         raise ex
       end

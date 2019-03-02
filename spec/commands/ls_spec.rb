@@ -109,7 +109,7 @@ describe "ls" do
         begin
           pry_eval(test_case, "class GeFromulate2; @flurb=1.3; end", "cd GeFromulate2", "ls")
           pry_eval(normalize)
-        rescue
+        rescue StandardError
           pry_eval(normalize)
           raise
         end

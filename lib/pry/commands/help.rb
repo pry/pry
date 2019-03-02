@@ -155,7 +155,7 @@ class Pry
       end
 
       def group_sort_key(group_name)
-        [%w(Help Context Editing Introspection Input_and_output Navigating_pry Gems Basic Commands).index(group_name.tr(' ', '_')) || 99, group_name]
+        [%w[Help Context Editing Introspection Input_and_output Navigating_pry Gems Basic Commands].index(group_name.tr(' ', '_')) || 99, group_name]
       end
     end
 

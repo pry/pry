@@ -87,7 +87,7 @@ describe "cat" do
     it 'cat --ex should correctly display code that generated exception' do
       begin
         @o.broken_method
-      rescue => e
+      rescue StandardError => e
         @t.last_exception = e
       end
       expect(@t.eval('cat --ex')).to match(/this method is broken/)

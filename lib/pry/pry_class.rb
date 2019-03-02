@@ -298,7 +298,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
     return 'notepad' if Helpers::Platform.windows?
 
-    %w(editor nano vi).detect do |editor|
+    %w[editor nano vi].detect do |editor|
       system("which #{editor} > /dev/null 2>&1")
     end
   end
@@ -323,12 +323,12 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     trap :WINCH do
       begin
         Readline.set_screen_size(*Terminal.size!)
-      rescue => e
+      rescue StandardError => e
         warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
       end
       begin
         Readline.refresh_line
-      rescue => e
+      rescue StandardError => e
         warn "\nPry.auto_resize!'s Readline.refresh_line failed: #{e}"
       end
     end

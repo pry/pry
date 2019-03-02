@@ -99,7 +99,7 @@ class Pry
         max_width = (offset + lines.count).to_s.length
         lines.each_with_index.map do |line, index|
           adjusted_index = (index + offset).to_s.rjust(max_width)
-          "#{self.send(color, adjusted_index)}: #{line}"
+          "#{send(color, adjusted_index)}: #{line}"
         end.join
       end
 

@@ -20,9 +20,13 @@ class Pry
 
       private
 
-      def start_line; @start_line; end
+      def start_line
+        @start_line
+      end
 
-      def end_line; @end_line; end
+      def end_line
+        @end_line
+      end
 
       # If `end_line` is equal to `nil`, then calculate it from the first
       # parameter, `start_line`. Otherwise, leave it as it is.

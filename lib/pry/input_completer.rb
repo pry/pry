@@ -6,7 +6,7 @@ class Pry
     ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/.freeze
     SYMBOL_REGEXP             = /^(:[^:.]*)$/.freeze
     SYMBOL_METHOD_CALL_REGEXP = /^(:[^:.]+)\.([^.]*)$/.freeze
-    REGEX_REGEXP              = /^(\/[^\/]*\/)\.([^.]*)$/.freeze
+    REGEX_REGEXP              = %r{^(/[^/]*/)\.([^.]*)$}.freeze
     PROC_OR_HASH_REGEXP       = /^([^\}]*\})\.([^.]*)$/.freeze
     TOPLEVEL_LOOKUP_REGEXP    = /^::([A-Z][^:\.\(]*)$/.freeze
     CONSTANT_REGEXP           = /^([A-Z][A-Za-z0-9]*)$/.freeze
@@ -108,7 +108,7 @@ class Pry
             context = target.eval("self")
             context = context.class unless context.respond_to? :constants
             candidates = context.constants.collect(&:to_s)
-          rescue
+          rescue StandardError
             candidates = []
           end
           candidates = candidates.grep(/^#{message}/).collect(&path)
@@ -172,7 +172,11 @@ class Pry
             candidates = Set.new
             to_ignore = ignored_modules
             ObjectSpace.each_object(Module) do |m|
-              next if (to_ignore.include?(m) rescue true)
+              next if begin
+                        to_ignore.include?(m)
+                      rescue StandardError
+                        true
+                      end
 
               # jruby doesn't always provide #instance_methods() on each
               # object.
@@ -220,17 +224,17 @@ class Pry
     # path is a proc that takes an input and builds a full path.
     def build_path(input)
       # check to see if the input is a regex
-      return proc { |i| i.to_s }, input if input[/\/\./]
+      return proc { |i| i.to_s }, input if input[%r{/\.}]
 
       trailing_slash = input.end_with?('/')
-      contexts = input.chomp('/').split(/\//)
+      contexts = input.chomp('/').split(%r{/})
       input = contexts[-1]
       path = proc do |i|
         p = contexts[0..-2].push(i).join('/')
         p += '/' if trailing_slash && !i.nil?
         p
       end
-      return path, input
+      [path, input]
     end
 
     def ignored_modules

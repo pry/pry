@@ -58,7 +58,10 @@ class Pry
       #
       # Returns a new instance of Slop.
       def parse!(items = ARGV, config = {}, &block)
-        config, items = items, ARGV if items.is_a?(Hash) && config.empty?
+        if items.is_a?(Hash) && config.empty?
+          config = items
+          items = ARGV
+        end
         slop = Pry::Slop.new config, &block
         slop.parse! items
         slop

@@ -38,7 +38,7 @@ class Pry
       else
         super
       end
-    rescue => e
+    rescue StandardError => e
       raise if e.is_a? Pry::Pager::StopPaging
 
       begin
@@ -49,7 +49,11 @@ class Pry
         singleton = class << obj; self; end
         ancestors = Pry::Method.safe_send(singleton, :ancestors)
         klass  = ancestors.reject { |k| k == singleton }.first
-        obj_id = obj.__id__.to_s(16) rescue 0
+        obj_id = begin
+                   obj.__id__.to_s(16)
+                 rescue StandardError
+                   0
+                 end
         str    = "#<#{klass}:0x#{obj_id}>"
       end
 

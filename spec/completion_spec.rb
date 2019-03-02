@@ -8,7 +8,7 @@ def completer_test(bind, pry = nil, assert_flag = true)
     completions = input_completer.call(symbol[0..-2], target: Pry.binding_for(bind))
     expect(completions.include?(symbol)).to eq(assert_flag)
   end
-  return proc { |*symbols| symbols.each(&test) }
+  proc { |*symbols| symbols.each(&test) }
 end
 
 describe Pry::InputCompleter do
@@ -17,7 +17,9 @@ describe Pry::InputCompleter do
     #  pry(main)> AMQP::Protocol::Test::ContentOk.name
     #  => :content_ok
     module SymbolyName
-      def self.name; :symboly_name; end
+      def self.name
+        :symboly_name
+      end
     end
 
     @before_completer = Pry.config.completer

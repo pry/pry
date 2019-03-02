@@ -5,7 +5,9 @@ describe "edit" do
     @old_editor = Pry.config.editor
     @file = @line = @contents = nil
     Pry.config.editor = lambda do |file, line|
-      @file = file; @line = line; @contents = File.read(@file)
+      @file = file
+      @line = line
+      @contents = File.read(@file)
       nil
     end
   end
@@ -141,7 +143,9 @@ describe "edit" do
       before do
         @reloading = nil
         Pry.config.editor = lambda do |file, line, reloading|
-          @file = file; @line = line; @reloading = reloading
+          @file = file
+          @line = line
+          @reloading = reloading
           nil
         end
       end
@@ -162,7 +166,9 @@ describe "edit" do
           @pry.last_exception = exception
         end
 
-        def last_exception; @pry.last_exception; end
+        def last_exception
+          @pry.last_exception
+        end
       end
     end
 
@@ -414,6 +420,7 @@ describe "edit" do
       tester
     end
 
+    # rubocop:disable Style/SingleLineMethods
     it 'uses patch editing on methods that were previously patched' do
       # initial definition
       tester   = pry_tester binding
@@ -435,6 +442,7 @@ describe "edit" do
       # original file is unchanged
       expect(File.readlines(filename)[line - 1].strip).to eq 'def m; 1; end'
     end
+    # rubocop:enable Style/SingleLineMethods
 
     it 'can repeatedly edit methods that were defined in the console' do
       # initial definition
@@ -459,7 +467,7 @@ describe "edit" do
       before do
         Object.remove_const :X if defined? ::X
         Object.remove_const :A if defined? ::A
-        @tempfile = (Tempfile.new(['pry', '.rb']))
+        @tempfile = Tempfile.new(['pry', '.rb'])
         @tempfile.puts <<-EOS
         module A
           def a
@@ -515,7 +523,8 @@ describe "edit" do
         before do
           @file = @line = @contents = nil
           Pry.config.editor = lambda do |file, line|
-            @file = file; @line = line
+            @file = file
+            @line = line
             nil
           end
         end
@@ -733,7 +742,9 @@ describe "edit" do
         before do
           @file = @line = @reloading = nil
           Pry.config.editor = lambda do |file, line, reloading|
-            @file = file; @line = line; @reloading = reloading
+            @file = file
+            @line = line
+            @reloading = reloading
             nil
           end
         end
@@ -752,11 +763,11 @@ describe "edit" do
     before do
       @t = pry_tester
       class BinkyWink
-        eval %{
+        eval %(
           def m1
             binding
           end
-        }
+        )
 
         def m2
           _foo = :jeremy_jones
@@ -798,10 +809,10 @@ describe "edit" do
     before do
       @t = pry_tester
       class TrinkyDink
-        eval %{
+        eval %(
           def m
           end
-        }
+        )
       end
     end
 

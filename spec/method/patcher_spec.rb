@@ -1,9 +1,11 @@
 describe Pry::Method::Patcher do
+  # rubocop:disable Style/SingleLineMethods
   before do
     @x = Object.new
     def @x.test; :before; end
     @method = Pry::Method(@x.method(:test))
   end
+  # rubocop:enable Style/SingleLineMethods
 
   it "should change the behaviour of the method" do
     expect(@x.test).to eq :before

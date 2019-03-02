@@ -76,7 +76,10 @@ class Pry
     #   # pry(main)> help number
     #   # number-N regex command
     def block_command(match, description = "No description.", options = {}, &block)
-      description, options = ["No description.", description] if description.is_a?(Hash)
+      if description.is_a?(Hash)
+        options = description
+        description = "No description."
+      end
       options = Pry::Command.default_options(match).merge!(options)
 
       @commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
@@ -108,7 +111,10 @@ class Pry
     #   end
     #
     def create_command(match, description = "No description.", options = {}, &block)
-      description, options = ["No description.", description] if description.is_a?(Hash)
+      if description.is_a?(Hash)
+        options = description
+        description = "No description."
+      end
       options = Pry::Command.default_options(match).merge!(options)
 
       @commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
@@ -175,7 +181,7 @@ class Pry
     # @example Pass explicit description (overriding default).
     #   Pry.config.commands.alias_command "lM", "ls -M", :desc => "cutiepie"
     def alias_command(match, action, options = {})
-      (cmd = find_command(action)) || fail("Command: `#{action}` not found")
+      (cmd = find_command(action)) || raise("Command: `#{action}` not found")
       original_options = cmd.options.dup
 
       options = original_options.merge!(
@@ -393,7 +399,8 @@ class Pry
     attr_reader :retval
 
     def initialize(is_command, retval = nil)
-      @is_command, @retval = is_command, retval
+      @is_command = is_command
+      @retval = retval
     end
 
     # Is the result a command?

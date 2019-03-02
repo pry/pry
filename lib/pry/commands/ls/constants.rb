@@ -44,10 +44,22 @@ class Pry
               next
             end
 
-            if (const = (!mod.autoload?(name) && (mod.const_get(name) || true) rescue nil))
-              if (const < Exception rescue false)
+            if (const = (begin
+                           !mod.autoload?(name) && (mod.const_get(name) || true)
+                         rescue StandardError
+                           nil
+                         end))
+              if begin
+                   const < Exception
+                 rescue StandardError
+                   false
+                 end
                 color(:exception_constant, name)
-              elsif (Module === mod.const_get(name) rescue false)
+              elsif begin
+                      Module === mod.const_get(name)
+                    rescue StandardError
+                      false
+                    end
                 color(:class_constant, name)
               else
                 color(:constant, name)

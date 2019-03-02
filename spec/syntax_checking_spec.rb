@@ -40,7 +40,7 @@ describe Pry do
   end
 
   it "should not intefere with syntax errors explicitly raised" do
-    redirect_pry_io(InputTester.new(%q{raise SyntaxError, "unexpected $end"}), @str_output) do
+    redirect_pry_io(InputTester.new(%q(raise SyntaxError, "unexpected $end")), @str_output) do
       Pry.start
     end
 

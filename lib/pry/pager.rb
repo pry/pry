@@ -40,9 +40,13 @@ class Pry
 
     private
 
-    def enabled?; !!@enabled; end
+    def enabled?
+      !!@enabled
+    end
 
-    def output; @output; end
+    def output
+      @output
+    end
 
     # Return an instance of the "best" available pager class --
     # `SystemPager` if possible, `SimplePager` if `SystemPager` isn't
@@ -148,7 +152,7 @@ class Pry
                 `which #{pager_executable}`
               end
               $?.success?
-            rescue
+            rescue StandardError
               false
             end
         else
@@ -210,7 +214,8 @@ class Pry
     # `false` to `true` until we see a newline.
     class PageTracker
       def initialize(rows, cols)
-        @rows, @cols = rows, cols
+        @rows = rows
+        @cols = cols
         reset
       end
 

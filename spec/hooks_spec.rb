@@ -252,7 +252,9 @@ describe Pry::Hooks do
         obj.instance_variable_set(:@test_var, nil)
         class << obj
           attr_accessor :test_var
-          def call() @test_var = true; end
+          def call
+            @test_var = true
+          end
         end
       end
 
@@ -373,7 +375,7 @@ describe Pry::Hooks do
           redirect_pry_io(StringIO.new("raise great_escape"), StringIO.new) do
             Pry.start o, hooks: Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
           end
-        rescue => ex
+        rescue StandardError => ex
           exception = ex
         end
 

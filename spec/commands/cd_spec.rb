@@ -1,6 +1,7 @@
 describe 'cd' do
   before do
-    @o, @obj = Object.new, Object.new
+    @o = Object.new
+    @obj = Object.new
     @obj.instance_variable_set(:@x, 66)
     @obj.instance_variable_set(:@y, 79)
     @o.instance_variable_set(:@obj, @obj)

@@ -57,7 +57,7 @@ describe "show-source" do
 
   it "should find methods even if the object overrides method method" do
     _c = Class.new do
-      def method;
+      def method
         98
       end
     end
@@ -66,7 +66,11 @@ describe "show-source" do
   end
 
   it "should not show the source when a non-extant method is requested" do
-    _c = Class.new { def method; 98; end }
+    _c = Class.new do
+      def method
+        98
+      end
+    end
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to match(/Couldn't locate/)
   end
 
@@ -78,48 +82,74 @@ describe "show-source" do
 
   it "should find instance_methods if the class overrides instance_method" do
     _c = Class.new do
-      def method;
+      def method
         98
       end
 
-      def self.instance_method; 789; end
+      def self.instance_method
+        789
+      end
     end
 
     expect(pry_eval(binding, "show-source _c#method")).to match(/98/)
   end
 
   it "should find instance methods with self#moo" do
-    _c = Class.new { def moo; "ve over!"; end }
+    _c = Class.new do
+      def moo
+        "ve over!"
+      end
+    end
 
     expect(pry_eval(binding, "cd _c", "show-source self#moo")).to match(/ve over/)
   end
 
   it "should not find instance methods with self.moo" do
-    _c = Class.new { def moo; "ve over!"; end }
+    _c = Class.new do
+      def moo
+        "ve over!"
+      end
+    end
 
     expect { pry_eval(binding, 'cd _c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods with self.moo" do
-    _c = Class.new { def self.moo; "ve over!"; end }
+    _c = Class.new do
+      def self.moo
+        "ve over!"
+      end
+    end
 
     expect(pry_eval(binding, 'cd _c', 'show-source self.moo')).to match(/ve over/)
   end
 
   it "should not find normal methods with self#moo" do
-    _c = Class.new { def self.moo; "ve over!"; end }
+    _c = Class.new do
+      def self.moo
+        "ve over!"
+      end
+    end
 
     expect { pry_eval(binding, 'cd _c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods (i.e non-instance methods) by default" do
-    _c = Class.new { def self.moo; "ve over!"; end }
+    _c = Class.new do
+      def self.moo
+        "ve over!"
+      end
+    end
 
     expect(pry_eval(binding, "cd _c", "show-source moo")).to match(/ve over/)
   end
 
   it "should find instance methods if no normal methods available" do
-    _c = Class.new { def moo; "ve over!"; end }
+    _c = Class.new do
+      def moo
+        "ve over!"
+      end
+    end
 
     expect(pry_eval(binding, "cd _c", "show-source moo")).to match(/ve over/)
   end
@@ -172,11 +202,11 @@ describe "show-source" do
   end
 
   it "should output the source of a command defined inside Pry" do
-    command_definition = %{
+    command_definition = %(
       Pry.config.commands.command "hubba-hubba" do
         puts "that's what she said!"
       end
-    }
+    )
     out = pry_eval(command_definition, 'show-source hubba-hubba')
     expect(out).to match(/what she said/)
     Pry.config.commands.delete "hubba-hubba"
@@ -280,7 +310,9 @@ describe "show-source" do
     end
 
     it "should output source for method objects" do
-      def @o.hi; puts 'hi world'; end
+      def @o.hi
+        puts 'hi world'
+      end
       _meth = @o.method(:hi)
       expect(pry_eval(binding, "show-source _meth")).to match(/puts 'hi world'/)
     end
@@ -700,7 +732,9 @@ describe "show-source" do
     describe "create_command commands" do
       it 'should show source for a command' do
         @set.create_command "foo", "babble" do
-          def process() :body_of_foo end
+          def process
+            :body_of_foo
+          end
         end
         expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
       end
@@ -720,7 +754,9 @@ describe "show-source" do
         # rubocop:disable Style/ClassAndModuleChildren
         class ::TemporaryCommand < Pry::ClassCommand
           match 'temp-command'
-          def process() :body_of_temp end
+          def process
+            :body_of_temp
+          end
         end
         # rubocop:enable Style/ClassAndModuleChildren
 
@@ -763,12 +799,16 @@ describe "show-source" do
       before do
         module Jesus
           module Pig
-            def lillybing; :lillybing; end
+            def lillybing
+              :lillybing
+            end
           end
 
           class Brian; end
           class Jingle
-            def a; :doink; end
+            def a
+              :doink
+            end
           end
 
           class Jangle < Jingle; include Pig; end
@@ -820,7 +860,9 @@ describe "show-source" do
       before do
         module Jesus
           module Alpha
-            def alpha; :alpha; end
+            def alpha
+              :alpha
+            end
           end
 
           module Zeta; end

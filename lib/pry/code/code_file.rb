@@ -5,24 +5,24 @@ class Pry
     # List of all supported languages.
     # @return [Hash]
     EXTENSIONS = {
-      %w(.py) => :python,
-      %w(.js) => :javascript,
-      %w(.css) => :css,
-      %w(.xml) => :xml,
-      %w(.php) => :php,
-      %w(.html) => :html,
-      %w(.diff) => :diff,
-      %w(.java) => :java,
-      %w(.json) => :json,
-      %w(.c .h) => :c,
-      %w(.rhtml) => :rhtml,
-      %w(.yaml .yml) => :yaml,
-      %w(.cpp .hpp .cc .h .cxx) => :cpp,
-      %w(.rb .ru .irbrc .gemspec .pryrc .rake) => :ruby,
+      %w[.py] => :python,
+      %w[.js] => :javascript,
+      %w[.css] => :css,
+      %w[.xml] => :xml,
+      %w[.php] => :php,
+      %w[.html] => :html,
+      %w[.diff] => :diff,
+      %w[.java] => :java,
+      %w[.json] => :json,
+      %w[.c .h] => :c,
+      %w[.rhtml] => :rhtml,
+      %w[.yaml .yml] => :yaml,
+      %w[.cpp .hpp .cc .h .cxx] => :cpp,
+      %w[.rb .ru .irbrc .gemspec .pryrc .rake] => :ruby,
     }.freeze
 
     FILES = {
-      %w(Gemfile Rakefile Guardfile Capfile) => :ruby
+      %w[Gemfile Rakefile Guardfile Capfile] => :ruby
     }.freeze
 
     # Store the current working directory. This allows show-source etc. to work if

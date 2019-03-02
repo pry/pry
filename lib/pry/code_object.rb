@@ -87,10 +87,11 @@ class Pry
       @super_level = options[:super]
     end
 
+    # TODO: just make it so find_command_by_match_or_listing doesn't raise?
     def command_lookup
-      # TODO: just make it so find_command_by_match_or_listing doesn't
-      # raise?
-      _pry_.commands.find_command_by_match_or_listing(str) rescue nil
+      _pry_.commands.find_command_by_match_or_listing(str)
+    rescue StandardError
+      nil
     end
 
     # when no paramter is given (i.e CodeObject.lookup(nil)), then we

@@ -95,7 +95,7 @@ describe Pry do
 
   describe ".load_history" do
     it "reads the contents of the file" do
-      expect(Pry.history.to_a[-2..-1]).to eq %w(2 3)
+      expect(Pry.history.to_a[-2..-1]).to eq %w[2 3]
     end
   end
 

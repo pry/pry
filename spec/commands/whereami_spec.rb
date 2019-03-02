@@ -21,7 +21,9 @@ describe "whereami" do
         pry_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
       end
 
-      def method; "moo"; end
+      def method
+        "moo"
+      end
     end
     Cor.new.blimey!
     Object.remove_const(:Cor)
@@ -134,8 +136,10 @@ describe "whereami" do
   end
 
   it 'should show entire method when -m option used' do
-    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
-    old_cutoff, Pry::Command::Whereami.method_size_cutoff = Pry::Command::Whereami.method_size_cutoff, 1
+    old_size = Pry.config.default_window_size
+    Pry.config.default_window_size = 1
+    old_cutoff = Pry::Command::Whereami.method_size_cutoff
+    Pry::Command::Whereami.method_size_cutoff = 1
     class Cor
       def blimey!
         @foo = 1
@@ -143,7 +147,8 @@ describe "whereami" do
         pry_eval(binding, 'whereami -m')
       end
     end
-    Pry::Command::Whereami.method_size_cutoff, Pry.config.default_window_size = old_cutoff, old_size
+    Pry::Command::Whereami.method_size_cutoff = old_cutoff
+    Pry.config.default_window_size = old_size
     result = Cor.new.blimey!
     Object.remove_const(:Cor)
     expect(result).to match(/def blimey/)
@@ -218,7 +223,8 @@ describe "whereami" do
   end
 
   it 'should use Pry.config.default_window_size for window size when outside a method context' do
-    old_size, Pry.config.default_window_size = Pry.config.default_window_size, 1
+    old_size = Pry.config.default_window_size
+    Pry.config.default_window_size = 1
     _foo = :litella
     _foo = :pig
     out = pry_eval(binding, 'whereami')

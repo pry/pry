@@ -43,13 +43,16 @@ class Pry
         if name.nil?
           nil
         elsif name.to_s =~ /(.+)\#(\S+)\Z/
-          context, meth_name = $1, $2
+          context = $1
+          meth_name = $2
           from_module(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\[\])\Z/
-          context, meth_name = $1, $2
+          context = $1
+          meth_name = $2
           from_obj(target.eval(context), meth_name, target)
         elsif name.to_s =~ /(.+)(\.|::)(\S+)\Z/
-          context, meth_name = $1, $3
+          context = $1
+          meth_name = $3
           from_obj(target.eval(context), meth_name, target)
         elsif options[:instance]
           from_module(target.eval("self"), name, target)
@@ -118,7 +121,9 @@ class Pry
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_class(klass, name, target = TOPLEVEL_BINDING)
-        new(lookup_method_via_binding(klass, name, :instance_method, target)) rescue nil
+        new(lookup_method_via_binding(klass, name, :instance_method, target))
+      rescue StandardError
+        nil
       end
       alias from_module from_class
 
@@ -131,7 +136,9 @@ class Pry
       # @param [Binding] target The binding where the method is looked up.
       # @return [Pry::Method, nil]
       def from_obj(obj, name, target = TOPLEVEL_BINDING)
-        new(lookup_method_via_binding(obj, name, :method, target)) rescue nil
+        new(lookup_method_via_binding(obj, name, :method, target))
+      rescue StandardError
+        nil
       end
 
       # Get all of the instance methods of a `Class` or `Module`
@@ -139,7 +146,7 @@ class Pry
       # @param [Boolean] include_super Whether to include methods from ancestors.
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super = true)
-        %w(public protected private).flat_map do |visibility|
+        %w[public protected private].flat_map do |visibility|
           safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
             new(safe_send(klass, :instance_method, method_name), visibility: visibility.to_sym)
           end
@@ -168,7 +175,11 @@ class Pry
         if Class === obj
           singleton_class_resolution_order(obj) + instance_resolution_order(Class)
         else
-          klass = singleton_class_of(obj) rescue obj.class
+          klass = begin
+                    singleton_class_of(obj)
+                  rescue StandardError
+                    obj.class
+                  end
           instance_resolution_order(klass)
         end
       end
@@ -486,7 +497,7 @@ class Pry
     # @param [Class, Module] ancestors The ancestors to investigate
     # @return [Method] The unwrapped super-method
     def super_using_ancestors(ancestors, times = 1)
-      next_owner = self.owner
+      next_owner = owner
       times.times do
         i = ancestors.index(next_owner) + 1
         while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
@@ -495,7 +506,11 @@ class Pry
         (next_owner = ancestors[i]) || (return nil)
       end
 
-      safe_send(next_owner, :instance_method, name) rescue nil
+      begin
+        safe_send(next_owner, :instance_method, name)
+      rescue StandardError
+        nil
+      end
     end
 
     # @param [String] first_ln The first line of a method definition.
@@ -527,7 +542,7 @@ class Pry
       begin
         code = Pry::Code.from_file(file).expression_at(line)
       rescue SyntaxError => e
-        raise MethodSource::SourceNotFoundError.new(e.message)
+        raise MethodSource::SourceNotFoundError, e.message
       end
       strip_leading_whitespace(code)
     end

@@ -46,10 +46,10 @@ class Pry
 
     # Which tokens can either be open tokens, or appear as modifiers on
     # a single-line.
-    SINGLELINE_TOKENS = %w(if while until unless rescue).freeze
+    SINGLELINE_TOKENS = %w[if while until unless rescue].freeze
 
     # Which tokens can be followed by an optional "do" keyword.
-    OPTIONAL_DO_TOKENS = %w(for while until).freeze
+    OPTIONAL_DO_TOKENS = %w[for while until].freeze
 
     # Collection of token types that should be ignored. Without this list
     # keywords such as "class" inside strings would cause the code to be
@@ -73,7 +73,7 @@ class Pry
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
-    MIDWAY_TOKENS = %w(when else elsif ensure rescue).freeze
+    MIDWAY_TOKENS = %w[when else elsif ensure rescue].freeze
 
     # Clean the indentation of a fragment of ruby.
     #
@@ -166,7 +166,7 @@ class Pry
 
       @indent_level = prefix
 
-      return output
+      output
     end
 
     # Get the indentation for the start of the next line.
@@ -203,20 +203,25 @@ class Pry
       # When deciding whether an "if" token is the start of a multiline statement,
       # or just the middle of a single-line if statement, we just look at the
       # preceding token, which is tracked here.
-      last_token, last_kind = [nil, nil]
+      last_token = nil
+      last_kind = nil
 
       # delta keeps track of the total difference from the start of each line after
       # the given token, 0 is just the level at which the current line started for
       # reference.
-      remove_before, add_after = [0, 0]
+      remove_before = 0
+      add_after = 0
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
-        is_singleline_if = (SINGLELINE_TOKENS.include?(token)) && end_of_statement?(last_token, last_kind)
+        is_singleline_if = SINGLELINE_TOKENS.include?(token) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
-        last_token, last_kind = token, kind unless kind == :space
+        unless kind == :space
+          last_token = token
+          last_kind = kind
+        end
         next if IGNORE_TOKENS.include?(kind)
 
         track_module_nesting(token, kind)
@@ -246,13 +251,13 @@ class Pry
         end
       end
 
-      return [remove_before, add_after]
+      [remove_before, add_after]
     end
 
     # If the code just before an "if" or "while" token on a line looks like the end of a statement,
     # then we want to treat that "if" as a singleline, not multiline statement.
     def end_of_statement?(last_token, last_kind)
-      (last_token =~ /^[)\]}\/]$/ || STATEMENT_END_TOKENS.include?(last_kind))
+      (last_token =~ %r{^[)\]\}/]$} || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Are we currently in the middle of a string literal.

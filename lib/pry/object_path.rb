@@ -32,7 +32,7 @@ class Pry
 
         loop do
           # Scan for as long as we don't see a slash
-          next_segment << scanner.scan(/[^\/]*/)
+          next_segment << scanner.scan(%r{[^/]*})
 
           if complete?(next_segment) || scanner.eos?
             scanner.getch # consume the slash

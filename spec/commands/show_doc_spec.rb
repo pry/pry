@@ -23,7 +23,9 @@ describe "show-doc" do
 
   it 'should work even if #call is defined on Symbol' do
     class Symbol
-      def call; 5; end
+      def call
+        5
+      end
     end
     expect(pry_eval(binding, "show-doc @o.sample_method")).to match(/sample doc/)
   end
@@ -474,7 +476,9 @@ describe "show-doc" do
 
           # doink-doc
           class Jingle
-            def a; :doink; end
+            def a
+              :doink
+            end
           end
 
           class Jangle < Jingle; end
@@ -521,7 +525,9 @@ describe "show-doc" do
         module Jesus
           # alpha-doc
           module Alpha
-            def alpha; :alpha; end
+            def alpha
+              :alpha
+            end
           end
 
           module Zeta; end

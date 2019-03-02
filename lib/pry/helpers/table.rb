@@ -76,9 +76,13 @@ class Pry
         @rows_without_colors.transpose
       end
 
-      def ==(other); items == other.to_a end
+      def ==(other)
+        items == other.to_a
+      end
 
-      def to_a; items.to_a end
+      def to_a
+        items.to_a
+      end
 
       private
 

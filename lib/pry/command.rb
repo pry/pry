@@ -13,7 +13,9 @@ class Pry
     VOID_VALUE = Object.new
 
     # give it a nice inspect
-    def VOID_VALUE.inspect() "void" end
+    def VOID_VALUE.inspect
+      "void"
+    end
 
     # Properties of the command itself (as passed as arguments to
     # {CommandSet#command} or {CommandSet#create_command}).
@@ -92,19 +94,33 @@ class Pry
     end
 
     # Make those properties accessible to instances
-    def name; self.class.name; end
+    def name
+      self.class.name
+    end
 
-    def match; self.class.match; end
+    def match
+      self.class.match
+    end
 
-    def description; self.class.description; end
+    def description
+      self.class.description
+    end
 
-    def block; self.class.block; end
+    def block
+      self.class.block
+    end
 
-    def command_options; self.class.options; end
+    def command_options
+      self.class.options
+    end
 
-    def command_name; self.class.command_name; end
+    def command_name
+      self.class.command_name
+    end
 
-    def source; self.class.source; end
+    def source
+      self.class.source
+    end
 
     class << self
       def name
@@ -116,7 +132,7 @@ class Pry
       end
 
       def command_name
-        self.options[:listing]
+        options[:listing]
       end
 
       # Create a new command with the given properties.
@@ -201,7 +217,7 @@ class Pry
                      case Pry::Method(block).source_file
                      when %r{/pry/.*_commands/(.*).rb}
                        Regexp.last_match(1).capitalize.tr('_', " ")
-                     when %r{(pry-\w+)-([\d\.]+([\w\.]+)?)}
+                     when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
                        name = Regexp.last_match(1)
                        version = Regexp.last_match(2)
                        "#{name} (v#{version})"
@@ -274,7 +290,9 @@ class Pry
     end
 
     # @return [Object] The value of `self` inside the `target` binding.
-    def target_self; target.eval('self'); end
+    def target_self
+      target.eval('self')
+    end
 
     # @return [Hash] Pry commands can store arbitrary state
     #   here. This state persists between subsequent command invocations.
@@ -421,7 +439,7 @@ class Pry
         gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
         output.puts(<<WARN)
 The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
-gems to be installed: #{(gems_not_installed.join(", "))}
+gems to be installed: #{gems_not_installed.join(", ")}
 
 Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
 and activate this command.
@@ -464,7 +482,7 @@ WARN
 
     def find_hooks(event)
       event_name = "#{event}_#{command_name}"
-      (self.hooks || self.class.hooks).get_hooks(event_name).values
+      (hooks || self.class.hooks).get_hooks(event_name).values
     end
 
     def before_hooks
@@ -599,7 +617,7 @@ WARN
       setup
 
       self.opts = slop
-      self.args = self.opts.parse!(args)
+      self.args = opts.parse!(args)
 
       if opts.present?(:help)
         output.puts slop.help
@@ -713,6 +731,8 @@ WARN
     #       gist_method
     #     end
     #   end
-    def process; raise CommandError, "command '#{command_name}' not implemented" end
+    def process
+      raise CommandError, "command '#{command_name}' not implemented"
+    end
   end
 end

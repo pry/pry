@@ -193,7 +193,7 @@ Pry::CLI.add_options do
 
   on(:I=, "Add a path to the $LOAD_PATH", as: Array, delimiter: ":") do |load_path|
     load_path.map! do |path|
-      /\A\.\// =~ path ? path : File.expand_path(path)
+      %r{\A\./} =~ path ? path : File.expand_path(path)
     end
 
     $LOAD_PATH.unshift(*load_path)

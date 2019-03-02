@@ -14,7 +14,7 @@ class << A                          # ["class << A"]
   end                               # ["class << A"]
 end                                 # []
                                     # []
-module (:symbol.class)::Exciting    #
+module :symbol.class::Exciting      #
   def foo; end                      #
   class B                           #
     def goo; end                    #
