@@ -305,13 +305,6 @@ Style/MultipleComparison:
   Exclude:
     - 'lib/pry/indent.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IncludeSemanticChanges.
-Style/NonNilCheck:
-  Exclude:
-    - 'lib/pry/helpers/base_helpers.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/Not:
