@@ -38,7 +38,7 @@ class Pry
         end
 
         def weird_method?(method, b)
-          not normal_method?(method, b)
+          !normal_method?(method, b)
         end
       end
 
