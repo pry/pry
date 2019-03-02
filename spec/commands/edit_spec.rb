@@ -459,7 +459,7 @@ describe "edit" do
       before do
         Object.remove_const :X if defined? ::X
         Object.remove_const :A if defined? ::A
-        @tempfile = (Tempfile.new(['pry', '.rb']))
+        @tempfile = Tempfile.new(['pry', '.rb'])
         @tempfile.puts <<-EOS
         module A
           def a

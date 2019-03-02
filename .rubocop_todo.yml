@@ -314,19 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/ls/jruby_hacks.rb'
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/indent.rb'
-    - 'spec/command_integration_spec.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/fixtures/example_nesting.rb'
-    - 'spec/method_spec.rb'
-
 # Offense count: 6
 # Cop supports --auto-correct.
 # Configuration parameters: AllowMultipleReturnValues.

@@ -349,7 +349,7 @@ describe "commands" do
   end
 
   it 'should create a command in a nested context and that command should be accessible from the parent' do
-    expect(pry_tester(Object.new).eval(*(<<-RUBY.split("\n")))).to match(/instance variables:\s+@x/m)
+    expect(pry_tester(Object.new).eval(*<<-RUBY.split("\n"))).to match(/instance variables:\s+@x/m)
       @x = nil
       cd 7
       _pry_.commands.instance_eval { command('bing') { |arg| run arg } }

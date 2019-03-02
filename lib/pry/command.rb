@@ -421,7 +421,7 @@ class Pry
         gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
         output.puts(<<WARN)
 The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
-gems to be installed: #{(gems_not_installed.join(", "))}
+gems to be installed: #{gems_not_installed.join(", ")}
 
 Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
 and activate this command.

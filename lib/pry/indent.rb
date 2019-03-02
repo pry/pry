@@ -215,7 +215,7 @@ class Pry
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
-        is_singleline_if = (SINGLELINE_TOKENS.include?(token)) && end_of_statement?(last_token, last_kind)
+        is_singleline_if = SINGLELINE_TOKENS.include?(token) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
         unless kind == :space

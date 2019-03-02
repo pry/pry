@@ -12,7 +12,7 @@ class Pry
           name_value_pairs = @target.eval('local_variables').reject do |e|
             @sticky_locals.key?(e.to_sym)
           end.map do |name|
-            [name, (@target.eval(name.to_s))]
+            [name, @target.eval(name.to_s)]
           end
           format(name_value_pairs).join('')
         end
