@@ -46,7 +46,7 @@ describe "edit" do
       pry_eval 'edit lib/pry.rb'
       expect(@file).to eq File.expand_path('lib/pry.rb')
 
-      pry_eval "edit #@tf_path"
+      pry_eval "edit #{@tf_path}"
       expect(@file).to eq @tf_path
     end
 
@@ -80,7 +80,7 @@ describe "edit" do
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w') { |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
           nil
         }
-        pry_eval "edit #@tf_path"
+        pry_eval "edit #{@tf_path}"
         expect(Pad.required).to eq true
       end
     end
@@ -660,7 +660,7 @@ describe "edit" do
 
           it "should work for a class method" do
             def_before, def_after =
-              apply_monkey_patch(X.method(:x), "#@edit X.x")
+              apply_monkey_patch(X.method(:x), "#{@edit} X.x")
 
             expect(def_before).to   eq ':double_yup'
             expect(def_after).to    eq ':double_yup'
@@ -669,7 +669,7 @@ describe "edit" do
 
           it "should work for an instance method" do
             def_before, def_after =
-              apply_monkey_patch(X.instance_method(:x), "#@edit X#x")
+              apply_monkey_patch(X.instance_method(:x), "#{@edit} X#x")
 
             expect(def_before).to   eq ':nope'
             expect(def_after).to    eq ':nope'
@@ -678,7 +678,7 @@ describe "edit" do
 
           it "should work for a method on an instance" do
             def_before, def_after =
-              apply_monkey_patch(X.instance_method(:x), 'instance = X.new', "#@edit instance.x")
+              apply_monkey_patch(X.instance_method(:x), 'instance = X.new', "#{@edit} instance.x")
 
             expect(def_before).to   eq ':nope'
             expect(def_after).to    eq ':nope'
@@ -687,7 +687,7 @@ describe "edit" do
 
           it "should work for a method from a module" do
             def_before, def_after =
-              apply_monkey_patch(X.instance_method(:a), "#@edit X#a")
+              apply_monkey_patch(X.instance_method(:a), "#{@edit} X#a")
 
             expect(def_before).to   eq ':yup'
             expect(def_after).to    eq ':yup'
@@ -696,7 +696,7 @@ describe "edit" do
 
           it "should work for a method with a question mark" do
             def_before, def_after =
-              apply_monkey_patch(X.instance_method(:y?), "#@edit X#y?")
+              apply_monkey_patch(X.instance_method(:y?), "#{@edit} X#y?")
 
             expect(def_before).to   eq ':because'
             expect(def_after).to    eq ':because'
@@ -705,7 +705,7 @@ describe "edit" do
 
           it "should work with nesting" do
             def_before, def_after =
-              apply_monkey_patch(X::B.instance_method(:foo), "#@edit X::B#foo")
+              apply_monkey_patch(X::B.instance_method(:foo), "#{@edit} X::B#foo")
 
             expect(def_before).to   eq '_foo = :possibly'
             expect(def_after).to    eq '_foo = :possibly'

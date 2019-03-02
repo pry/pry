@@ -314,15 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 17
-# Cop supports --auto-correct.
-Style/VariableInterpolation:
-  Exclude:
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/editor_spec.rb'
-    - 'spec/integration/hanami_spec.rb'
-    - 'spec/integration/readline_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Style/WhileUntilModifier:

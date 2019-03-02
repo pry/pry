@@ -14,7 +14,7 @@ RSpec.describe "Readline" do
       require "pry"
       p defined?(Readline)
     RUBY
-    expect(`#@ruby -I #@pry_dir -e '#{code}'`).to eq("nil\n")
+    expect(`#{@ruby} -I #{@pry_dir} -e '#{code}'`).to eq("nil\n")
   end
 
   it "is loaded on invoking 'pry'" do
@@ -23,7 +23,7 @@ RSpec.describe "Readline" do
       Pry.start self, input: StringIO.new("exit-all"), output: StringIO.new
       puts defined?(Readline)
     RUBY
-    expect(`#@ruby -I #@pry_dir -e '#{code}'`.end_with?("constant\n")).to eq(true)
+    expect(`#{@ruby} -I #{@pry_dir} -e '#{code}'`.end_with?("constant\n")).to eq(true)
   end
 
   it "is not loaded on invoking 'pry' if Pry.input is set" do
@@ -33,6 +33,6 @@ RSpec.describe "Readline" do
       Pry.start self, output: StringIO.new
       p defined?(Readline)
     RUBY
-    expect(`#@ruby -I #@pry_dir -e '#{code}'`.end_with?("nil\n")).to eq(true)
+    expect(`#{@ruby} -I #{@pry_dir} -e '#{code}'`.end_with?("nil\n")).to eq(true)
   end
 end
