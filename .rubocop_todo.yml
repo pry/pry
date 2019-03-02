@@ -316,14 +316,6 @@ Style/PerlBackrefs:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'lib/pry/method.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 Style/RedundantException:
   Exclude:
     - 'lib/pry/repl_file_loader.rb'

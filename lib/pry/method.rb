@@ -530,7 +530,7 @@ class Pry
       begin
         code = Pry::Code.from_file(file).expression_at(line)
       rescue SyntaxError => e
-        raise MethodSource::SourceNotFoundError.new(e.message)
+        raise MethodSource::SourceNotFoundError, e.message
       end
       strip_leading_whitespace(code)
     end
