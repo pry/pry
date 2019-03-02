@@ -78,7 +78,7 @@ class Pry
 
     def initialize(str, _pry_, options = {})
       options = {
-        super: 0,
+        super: 0
       }.merge!(options)
 
       @str = str
