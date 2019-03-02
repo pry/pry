@@ -55,7 +55,7 @@ class Pry
     # @return [Pry::Hooks] a new `Pry::Hooks` instance containing a merge of the
     #   contents of two `Pry:Hooks` instances.
     def merge(other)
-      self.dup.tap do |v|
+      dup.tap do |v|
         v.merge!(other)
       end
     end

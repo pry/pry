@@ -116,7 +116,7 @@ class Pry
       end
 
       def command_name
-        self.options[:listing]
+        options[:listing]
       end
 
       # Create a new command with the given properties.
@@ -464,7 +464,7 @@ WARN
 
     def find_hooks(event)
       event_name = "#{event}_#{command_name}"
-      (self.hooks || self.class.hooks).get_hooks(event_name).values
+      (hooks || self.class.hooks).get_hooks(event_name).values
     end
 
     def before_hooks
@@ -599,7 +599,7 @@ WARN
       setup
 
       self.opts = slop
-      self.args = self.opts.parse!(args)
+      self.args = opts.parse!(args)
 
       if opts.present?(:help)
         output.puts slop.help

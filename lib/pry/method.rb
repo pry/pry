@@ -489,7 +489,7 @@ class Pry
     # @param [Class, Module] ancestors The ancestors to investigate
     # @return [Method] The unwrapped super-method
     def super_using_ancestors(ancestors, times = 1)
-      next_owner = self.owner
+      next_owner = owner
       times.times do
         i = ancestors.index(next_owner) + 1
         while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
