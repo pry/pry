@@ -239,17 +239,6 @@ Style/EvalWithLocation:
     - 'spec/commands/watch_expression_spec.rb'
     - 'spec/method_spec.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: format, sprintf, percent
-Style/FormatString:
-  Exclude:
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/pry_class.rb'
-
 # Offense count: 9
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: annotated, template, unannotated
