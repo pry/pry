@@ -57,7 +57,7 @@ describe "show-source" do
 
   it "should find methods even if the object overrides method method" do
     _c = Class.new do
-      def method;
+      def method
         98
       end
     end
@@ -78,7 +78,7 @@ describe "show-source" do
 
   it "should find instance_methods if the class overrides instance_method" do
     _c = Class.new do
-      def method;
+      def method
         98
       end
 

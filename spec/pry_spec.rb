@@ -370,7 +370,7 @@ describe Pry do
           [
             :test, 0, true, false, nil, (0.0 unless Pry::Helpers::Platform.jruby?)
           ].each do |val|
-            pry_eval(val, "def hello; end");
+            pry_eval(val, "def hello; end")
             expect(val.class.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
           end
         end
