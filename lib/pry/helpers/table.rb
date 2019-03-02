@@ -23,9 +23,7 @@ class Pry
 
     def self.tablify(things, line_length, config = Pry.config)
       table = Table.new(things, { column_count: things.size }, config)
-      until (1 == table.column_count) || table.fits_on_line?(line_length)
-        table.column_count -= 1
-      end
+      table.column_count -= 1 until (1 == table.column_count) || table.fits_on_line?(line_length)
       table
     end
 

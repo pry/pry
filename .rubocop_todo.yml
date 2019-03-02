@@ -314,13 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/WhileUntilModifier:
-  Exclude:
-    - 'lib/pry/helpers/table.rb'
-    - 'lib/pry/method.rb'
-
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, MinSize, WordRegex.
