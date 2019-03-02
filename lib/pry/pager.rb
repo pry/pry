@@ -148,7 +148,7 @@ class Pry
                 `which #{pager_executable}`
               end
               $?.success?
-            rescue
+            rescue StandardError
               false
             end
         else

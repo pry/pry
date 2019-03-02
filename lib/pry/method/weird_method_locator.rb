@@ -34,7 +34,7 @@ class Pry
             (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
               method.source_range.include?(binding_line)
           end
-        rescue
+        rescue StandardError
           false
         end
 

@@ -108,7 +108,7 @@ class Pry
             context = target.eval("self")
             context = context.class unless context.respond_to? :constants
             candidates = context.constants.collect(&:to_s)
-          rescue
+          rescue StandardError
             candidates = []
           end
           candidates = candidates.grep(/^#{message}/).collect(&path)

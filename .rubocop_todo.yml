@@ -314,23 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, explicit
-Style/RescueStandardError:
-  Exclude:
-    - 'lib/pry/color_printer.rb'
-    - 'lib/pry/commands/watch_expression/expression.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'lib/pry/method/weird_method_locator.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'spec/commands/cat_spec.rb'
-    - 'spec/commands/ls_spec.rb'
-    - 'spec/hooks_spec.rb'
-
 # Offense count: 16
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAsExpressionSeparator.

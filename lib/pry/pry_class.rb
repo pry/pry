@@ -323,12 +323,12 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     trap :WINCH do
       begin
         Readline.set_screen_size(*Terminal.size!)
-      rescue => e
+      rescue StandardError => e
         warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
       end
       begin
         Readline.refresh_line
-      rescue => e
+      rescue StandardError => e
         warn "\nPry.auto_resize!'s Readline.refresh_line failed: #{e}"
       end
     end

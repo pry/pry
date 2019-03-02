@@ -31,7 +31,7 @@ class Pry
 
         def target_eval(target, source)
           target.eval(source)
-        rescue => e
+        rescue StandardError => e
           e
         end
       end
