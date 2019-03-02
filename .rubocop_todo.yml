@@ -230,13 +230,6 @@ Style/DoubleNegation:
     - 'lib/pry/slop/option.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/Encoding:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 27
 Style/EvalWithLocation:
   Exclude:
@@ -245,24 +238,6 @@ Style/EvalWithLocation:
     - 'spec/commands/edit_spec.rb'
     - 'spec/commands/watch_expression_spec.rb'
     - 'spec/method_spec.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'lib/pry/commands.rb'
-    - 'pry.gemspec'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: format, sprintf, percent
-Style/FormatString:
-  Exclude:
-    - 'lib/pry/commands/gem_stats.rb'
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/pry_class.rb'
 
 # Offense count: 9
 # Configuration parameters: EnforcedStyle.
@@ -298,21 +273,6 @@ Style/IfInsideElse:
     - 'lib/pry/repl.rb'
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
-
-# Offense count: 79
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Enabled: false
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/commands/ls/jruby_hacks.rb'
-    - 'lib/pry/commands/ls/ls_entity.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.

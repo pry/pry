@@ -173,9 +173,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target = nil, options = {})
     return if ENV['DISABLE_PRY']
-    if ENV['FAIL_PRY']
-      raise 'You have FAIL_PRY set to true, which results in Pry calls failing'
-    end
+    raise 'You have FAIL_PRY set to true, which results in Pry calls failing' if ENV['FAIL_PRY']
 
     options = options.to_hash
 
@@ -194,9 +192,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       options[:backtrace] = caller
 
       # If Pry was started via `binding.pry`, elide that from the backtrace
-      if options[:backtrace].first =~ /pry.*core_extensions.*pry/
-        options[:backtrace].shift
-      end
+      options[:backtrace].shift if options[:backtrace].first =~ /pry.*core_extensions.*pry/
     end
 
     driver = options[:driver] || Pry::REPL
@@ -247,7 +243,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } && obj.inspect.length <= max
       obj.inspect
     else
-      id == true ? "#<#{obj.class}:0x%x>" % (obj.object_id << 1) : "#<#{obj.class}>"
+      id ? format("#<#{obj.class}:0x%x>", (obj.object_id << 1)) : "#<#{obj.class}>"
     end
   rescue RescuableException
     "unknown"

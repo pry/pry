@@ -259,4 +259,19 @@ describe Pry::Code do
       end
     end
   end
+
+  describe "#reject" do
+    let(:code) do
+      Pry::Code(Pry::Helpers::CommandHelpers.unindent <<-STR)
+        puts 'This line will be rejected'
+        puts 'This line will remain'
+        puts 'This line will be rejected'
+      STR
+    end
+
+    it "selects lines based" do
+      filtered_code = code.reject { |loc| loc.line =~ /will be rejected/ }
+      expect(filtered_code).to eq("puts 'This line will remain'\n")
+    end
+  end
 end

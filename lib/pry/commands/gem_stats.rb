@@ -65,14 +65,15 @@ VVVVVVVVVVVVVVVVVVVVV
         #{red('Dependencies')} (development)
         %{ddependencies}
         FORMAT
-        format_str % {
+        format(
+          format_str,
           name: green(h.name),
           version: bold("v#{h.version}"),
           downloads: h.downloads,
           version_downloads: h.version_downloads,
           rdependencies: format_dependencies(h.dependencies.runtime),
           ddependencies: format_dependencies(h.dependencies.development)
-        }
+        )
       end
 
       def format_dependencies(rdeps)

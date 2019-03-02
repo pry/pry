@@ -109,9 +109,7 @@ class Pry
         h << "\n#{bold('Number of lines:')} " << "#{content.lines.count}\n\n"
         h << bold('** Warning:') << " Cannot find code for #{@original_code_object.nonblank_name}. Showing superclass #{code_object.nonblank_name} instead. **\n\n" if @used_super
 
-        if content.lines.none?
-          h << bold('** Warning:') << " Cannot find code for '#{code_object.name}' (source_location is nil)"
-        end
+        h << bold('** Warning:') << " Cannot find code for '#{code_object.name}' (source_location is nil)" if content.lines.none?
 
         h
       end

@@ -15,9 +15,7 @@ class Pry
       BANNER
 
       def process(spec)
-        unless spec
-          return output.puts "Please provide a class, module, or method name (e.g: ri Array#push)"
-        end
+        return output.puts "Please provide a class, module, or method name (e.g: ri Array#push)" unless spec
 
         # Lazily load RI
         require 'rdoc/ri/driver'

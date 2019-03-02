@@ -12,9 +12,7 @@ describe "wtf?!" do
   end
 
   it "unwinds nested exceptions" do
-    if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.0.0')
-      skip('Exception#cause is not supported')
-    end
+    skip('Exception#cause is not supported') if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.0.0')
 
     begin
       begin

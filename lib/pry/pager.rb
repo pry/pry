@@ -130,9 +130,7 @@ class Pry
 
         # Default to less, and make sure less is being passed the correct
         # options
-        if pager.strip.empty? || pager =~ /^less\b/
-          pager = "less -R -F -X"
-        end
+        pager = "less -R -F -X" if pager.strip.empty? || pager =~ /^less\b/
 
         pager
       end
@@ -172,9 +170,7 @@ class Pry
           @tracker.record str
           @buffer << str
 
-          if @tracker.page?
-            write_to_pager @buffer
-          end
+          write_to_pager @buffer if @tracker.page?
         end
       rescue Errno::EPIPE
         raise StopPaging

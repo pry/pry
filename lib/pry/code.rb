@@ -85,9 +85,7 @@ class Pry
     # @param [Integer?] start_line
     # @param [Symbol?] code_type
     def initialize(lines = [], start_line = 1, code_type = :ruby)
-      if lines.is_a? String
-        lines = lines.lines
-      end
+      lines = lines.lines if lines.is_a? String
       @lines = lines.each_with_index.map do |line, lineno|
         LOC.new(line, lineno + start_line.to_i)
       end
@@ -103,9 +101,7 @@ class Pry
     # @param [Integer?] lineno
     # @return [String] The inserted line.
     def push(line, lineno = nil)
-      if lineno.nil?
-        lineno = @lines.last.lineno + 1
-      end
+      lineno = @lines.last.lineno + 1 if lineno.nil?
       @lines.push(LOC.new(line, lineno))
       line
     end
@@ -118,6 +114,16 @@ class Pry
     def select(&block)
       alter do
         @lines = @lines.select(&block)
+      end
+    end
+
+    # Filter the lines using the given block.
+    #
+    # @yield [LOC]
+    # @return [Code]
+    def reject(&block)
+      alter do
+        @lines = @lines.reject(&block)
       end
     end
 

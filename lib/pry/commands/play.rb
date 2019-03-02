@@ -49,9 +49,7 @@ class Pry
       end
 
       def show_input
-        if opts.present?(:print) || !Pry::Code.complete_expression?(eval_string)
-          run "show-input"
-        end
+        run "show-input" if opts.present?(:print) || !Pry::Code.complete_expression?(eval_string)
       end
 
       def content_after_options

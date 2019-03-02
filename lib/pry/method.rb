@@ -478,9 +478,7 @@ class Pry
         Pry::MethodInfo.info_for(@method) || raise(CommandError, "Cannot locate this method: #{name}. (source_location returns nil)")
       else
         fail_msg = "Cannot locate this method: #{name}."
-        if Helpers::Platform.mri?
-          fail_msg += " Invoke the 'gem-install pry-doc' Pry command to get access to Ruby Core documentation.\n"
-        end
+        fail_msg += " Invoke the 'gem-install pry-doc' Pry command to get access to Ruby Core documentation.\n" if Helpers::Platform.mri?
         raise CommandError, fail_msg
       end
     end
@@ -508,9 +506,7 @@ class Pry
       tokens = CodeRay.scan(first_ln, :ruby)
       tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
       tokens.each_cons(2) do |t1, t2|
-        if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
-          return t2.first
-        end
+        return t2.first if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
       end
 
       nil
@@ -518,9 +514,7 @@ class Pry
 
     def c_source
       info = pry_doc_info
-      if info && info.source
-        strip_comments_from_c_code(info.source)
-      end
+      strip_comments_from_c_code(info.source) if info && info.source
     end
 
     def ruby_source

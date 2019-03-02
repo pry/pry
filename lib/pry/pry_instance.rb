@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
 # features syntax highlighting, a flexible plugin architecture, runtime
@@ -302,9 +300,7 @@ class Pry
     end
 
     if complete_expr
-      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
-        @suppress_output = true
-      end
+      @suppress_output = true if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
 
       # A bug in jruby makes java.lang.Exception not rescued by
       # `rescue Pry::RescuableException` clause.
@@ -318,9 +314,7 @@ class Pry
       # This workaround has a side effect: java exceptions specified
       # in `Pry.config.unrescued_exceptions` are ignored.
       jruby_exceptions = []
-      if Helpers::Platform.jruby?
-        jruby_exceptions << Java::JavaLang::Exception
-      end
+      jruby_exceptions << Java::JavaLang::Exception if Helpers::Platform.jruby?
 
       begin
         # Reset eval string, in case we're evaluating Ruby that does something
@@ -333,9 +327,7 @@ class Pry
         # Eliminate following warning:
         # warning: singleton on non-persistent Java type X
         # (http://wiki.jruby.org/Persistence)
-        if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
-          e.class.__persistent__ = true
-        end
+        e.class.__persistent__ = true if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
         self.last_exception = e
         result = e
       end

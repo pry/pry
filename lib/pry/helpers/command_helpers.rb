@@ -23,9 +23,7 @@ class Pry
       def get_method_or_raise(name, target, opts = {}, omit_help = false)
         meth = Pry::Method.from_str(name, target, opts)
 
-        if name && !meth
-          command_error("The method '#{name}' could not be found.", omit_help, MethodNotFound)
-        end
+        command_error("The method '#{name}' could not be found.", omit_help, MethodNotFound) if name && !meth
 
         (opts[:super] || 0).times do
           if meth.super
@@ -35,9 +33,7 @@ class Pry
           end
         end
 
-        if !meth || (!name && internal_binding?(target))
-          command_error("No method name given, and context is not a method.", omit_help, MethodNotFound)
-        end
+        command_error("No method name given, and context is not a method.", omit_help, MethodNotFound) if !meth || (!name && internal_binding?(target))
 
         set_file_and_dir_locals(meth.source_file)
         meth

@@ -418,7 +418,7 @@ class Pry
     def call_safely(*args)
       unless dependencies_met?
         gems_needed = Array(command_options[:requires_gem])
-        gems_not_installed = gems_needed.select { |g| !Rubygem.installed?(g) }
+        gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
         output.puts(<<WARN)
 The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
 gems to be installed: #{(gems_not_installed.join(", "))}
@@ -429,9 +429,7 @@ WARN
         return void
       end
 
-      if command_options[:argument_required] && args.empty?
-        raise CommandError, "The command '#{command_name}' requires an argument."
-      end
+      raise CommandError, "The command '#{command_name}' requires an argument." if command_options[:argument_required] && args.empty?
 
       ret = use_unpatched_symbol do
         call_with_hooks(*args)

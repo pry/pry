@@ -124,9 +124,7 @@ class Pry
       #   superclass method.
       def find_method_in_superclass
         guess = method
-        if skip_superclass_search?
-          return guess
-        end
+        return guess if skip_superclass_search?
 
         while guess
           # needs rescue if this is a Disowned method or a C method or something...

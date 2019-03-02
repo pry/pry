@@ -39,9 +39,7 @@ class Pry
       end
 
       def process
-        if bad_option_combination?
-          raise CommandError, "Only one of --ex, --temp, --in, --method and FILE may be specified."
-        end
+        raise CommandError, "Only one of --ex, --temp, --in, --method and FILE may be specified." if bad_option_combination?
 
         if repl_edit?
           # code defined in pry, eval'd within pry.

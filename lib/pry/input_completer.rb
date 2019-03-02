@@ -176,9 +176,7 @@ class Pry
 
               # jruby doesn't always provide #instance_methods() on each
               # object.
-              if m.respond_to?(:instance_methods)
-                candidates.merge m.instance_methods(false).collect(&:to_s)
-              end
+              candidates.merge m.instance_methods(false).collect(&:to_s) if m.respond_to?(:instance_methods)
             end
           end
           select_message(path, receiver, message, candidates.sort)
@@ -195,9 +193,7 @@ class Pry
             bind
           ).collect(&:to_s)
 
-          if eval("respond_to?(:class_variables)", bind)
-            candidates += eval("class_variables", bind).collect(&:to_s)
-          end
+          candidates += eval("class_variables", bind).collect(&:to_s) if eval("respond_to?(:class_variables)", bind)
           candidates = (candidates | ReservedWords | custom_completions).grep(/^#{Regexp.quote(input)}/)
           candidates.collect(&path)
         end

@@ -2,9 +2,7 @@ class Pry
   module Testable
     module Evalable
       def pry_tester(*args, &block)
-        if args.length == 0 || args[0].is_a?(Hash)
-          args.unshift(Pry.toplevel_binding)
-        end
+        args.unshift(Pry.toplevel_binding) if args.length == 0 || args[0].is_a?(Hash)
         Pry::Testable::PryTester.new(*args).tap do |t|
           t.singleton_class.class_eval(&block) if block
         end
