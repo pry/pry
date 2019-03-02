@@ -314,12 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/RedundantException:
-  Exclude:
-    - 'lib/pry/repl_file_loader.rb'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/RedundantParentheses:
