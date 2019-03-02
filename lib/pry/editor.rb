@@ -51,7 +51,7 @@ class Pry
       # Note we dont want to use Pry.config.system here as that
       # may be invoked non-interactively (i.e via Open4), whereas we want to
       # ensure the editor is always interactive
-      system(*Shellwords.split(editor_invocation)) || raise(CommandError, "`#{editor_invocation}` gave exit status: #{$?.exitstatus}")
+      system(*Shellwords.split(editor_invocation)) || raise(CommandError, "`#{editor_invocation}` gave exit status: #{$CHILD_STATUS.exitstatus}")
     end
 
     # We need JRuby specific code here cos just shelling out using

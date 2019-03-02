@@ -151,7 +151,7 @@ class Pry
               else
                 `which #{pager_executable}`
               end
-              $?.success?
+              $CHILD_STATUS.success?
             rescue StandardError
               false
             end

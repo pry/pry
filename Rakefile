@@ -1,7 +1,7 @@
 require 'rake/clean'
 require 'rubygems/package_task'
 
-$:.unshift 'lib'
+$LOAD_PATH.unshift 'lib'
 require 'pry/version'
 
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')

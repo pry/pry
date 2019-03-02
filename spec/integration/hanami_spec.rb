@@ -32,6 +32,6 @@ RSpec.describe "Hanami integration" do
         exit 42
     RUBY
     `#@ruby -I#@pry_dir -e'#{code}'`
-    expect($?.exitstatus).to eq(42)
+    expect($CHILD_STATUS.exitstatus).to eq(42)
   end
 end

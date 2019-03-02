@@ -402,7 +402,7 @@ class Pry
       # Workaround for weird JRuby bug where rindex in this case can return nil
       # even when there's a match.
       arg_string.scan(/\| *(?:do|\{)/)
-      block_index = $~ && $~.offset(0)[0]
+      block_index = $LAST_MATCH_INFO && $LAST_MATCH_INFO.offset(0)[0]
 
       return unless block_index
 

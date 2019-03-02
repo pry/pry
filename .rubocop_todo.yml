@@ -314,20 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: use_perl_names, use_english_names
-Style/SpecialGlobalVars:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/color_printer.rb'
-    - 'lib/pry/command.rb'
-    - 'lib/pry/editor.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/slop.rb'
-    - 'spec/integration/hanami_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/StderrPuts:

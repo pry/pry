@@ -12,7 +12,7 @@ class Pry
 
     CodeRay::Encoders::Terminal::TOKEN_COLORS[:comment][:self] = "\e[1;34m"
 
-    def self.pp(obj, out = $>, width = 79, newline = "\n")
+    def self.pp(obj, out = $DEFAULT_OUTPUT, width = 79, newline = "\n")
       q = ColorPrinter.new(out, width, newline)
       q.guard_inspect_key { q.pp obj }
       q.flush
