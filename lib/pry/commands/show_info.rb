@@ -151,9 +151,9 @@ class Pry
 
       def method_sections(code_object)
         {
-          owner: "\n#{bold("Owner:")} #{code_object.owner || "N/A"}\n",
-          visibility: "#{bold("Visibility:")} #{code_object.visibility}",
-          signature: "\n#{bold("Signature:")} #{code_object.signature}"
+          owner: "\n#{bold('Owner:')} #{code_object.owner || 'N/A'}\n",
+          visibility: "#{bold('Visibility:')} #{code_object.visibility}",
+          signature: "\n#{bold('Signature:')} #{code_object.signature}"
         }.merge(header_options) { |_key, old, new| (new && old).to_s }
       end
 

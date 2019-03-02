@@ -521,7 +521,7 @@ describe Pry::Method do
       meth = Pry::Method(@class.new.method(:eat))
       aliases = Set.new(meth.aliases)
 
-      expect(aliases).to eq Set.new(["fress", "omnomnom"])
+      expect(aliases).to eq Set.new(%w[fress omnomnom])
     end
 
     it 'should return an empty Array if cannot find aliases' do

@@ -11,7 +11,7 @@ class Pry
         end
 
         def format
-          raise CommandError, "No input expressions!" if numbered_input_items.length < 1
+          raise CommandError, "No input expressions!" if numbered_input_items.empty?
 
           if numbered_input_items.length > 1
             content = ""

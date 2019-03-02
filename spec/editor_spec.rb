@@ -25,7 +25,7 @@ describe Pry::Editor do
   describe "build_editor_invocation_string", skip: !Pry::Helpers::Platform.windows? do
     it 'should shell-escape files' do
       invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
-      expect(invocation_str).to match(/#@tf_dir.+hello\\ world\.rb/)
+      expect(invocation_str).to match(/#{@tf_dir}.+hello\\ world\.rb/)
     end
   end
 

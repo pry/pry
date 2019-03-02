@@ -1,7 +1,7 @@
 require 'rake/clean'
 require 'rubygems/package_task'
 
-$:.unshift 'lib'
+$LOAD_PATH.unshift 'lib'
 require 'pry/version'
 
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
@@ -59,7 +59,7 @@ namespace :jruby do
   end
 end
 
-['mswin32', 'mingw32'].each do |platform|
+%w[mswin32 mingw32].each do |platform|
   namespace platform do
     spec = modify_base_gemspec do |s|
       s.add_dependency('win32console', '~> 1.3')

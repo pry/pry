@@ -294,7 +294,7 @@ describe Pry::Hooks do
       @hooks.add_hook(:test_hook, :foo2) { raise 'two' }
       @hooks.add_hook(:test_hook, :foo3) { raise 'three' }
       @hooks.exec_hook(:test_hook)
-      expect(@hooks.errors.map(&:message)).to eq ['one', 'two', 'three']
+      expect(@hooks.errors.map(&:message)).to eq %w[one two three]
     end
 
     it 'should return the last exception raised as the return value' do

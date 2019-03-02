@@ -500,9 +500,7 @@ class Pry
       next_owner = owner
       times.times do
         i = ancestors.index(next_owner) + 1
-        while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
-          i += 1
-        end
+        i += 1 while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
         (next_owner = ancestors[i]) || (return nil)
       end
 

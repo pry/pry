@@ -31,7 +31,7 @@ class Pry
       end
 
       def process
-        return if args.size < 1
+        return if args.empty?
 
         klass = search_class
 

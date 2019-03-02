@@ -257,7 +257,7 @@ class Pry
 
     # @return [Integer] the number of digits in the last line.
     def max_lineno_width
-      @lines.length > 0 ? @lines.last.lineno.to_s.length : 0
+      !@lines.empty? ? @lines.last.lineno.to_s.length : 0
     end
 
     # @return [String] a formatted representation (based on the configuration of

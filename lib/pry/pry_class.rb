@@ -387,8 +387,8 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     @toplevel_binding
   end
 
-  def self.toplevel_binding=(binding)
-    @toplevel_binding = binding
+  class << self
+    attr_writer :toplevel_binding
   end
 
   def self.in_critical_section?

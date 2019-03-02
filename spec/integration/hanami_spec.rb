@@ -31,7 +31,7 @@ RSpec.describe "Hanami integration" do
         Timeout.timeout(1) { Action.new.call("define prison, in the abstract sense") }
         exit 42
     RUBY
-    `#@ruby -I#@pry_dir -e'#{code}'`
-    expect($?.exitstatus).to eq(42)
+    `#{@ruby} -I#{@pry_dir} -e'#{code}'`
+    expect($CHILD_STATUS.exitstatus).to eq(42)
   end
 end

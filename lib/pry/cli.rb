@@ -33,9 +33,7 @@ class Pry
 
       # Bring in options defined in plugins
       def add_plugin_options
-        Pry.plugins.values.each do |plugin|
-          plugin.load_cli_options
-        end
+        Pry.plugins.values.each(&:load_cli_options)
 
         self
       end
@@ -136,7 +134,7 @@ Pry::CLI.add_options do
   )
 
   on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
-    Pry.config.exec_string += "\n" if Pry.config.exec_string.length > 0
+    Pry.config.exec_string += "\n" unless Pry.config.exec_string.empty?
     Pry.config.exec_string += input
   end
 
@@ -174,7 +172,7 @@ Pry::CLI.add_options do
     puts "Installed Plugins:"
     puts "--"
     Pry.locate_plugins.each do |plugin|
-      puts "#{plugin.name}".ljust(18) << plugin.spec.summary
+      puts plugin.name.to_s.ljust(18) << plugin.spec.summary
     end
     exit
   end

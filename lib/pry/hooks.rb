@@ -161,8 +161,6 @@ class Pry
 
     protected
 
-    def hooks
-      @hooks
-    end
+    attr_reader :hooks
   end
 end

@@ -312,7 +312,7 @@ class Pry
     #
     # @return String
     def open_delimiters_line
-      "puts #{open_delimiters.join(", ")}"
+      "puts #{open_delimiters.join(', ')}"
     end
 
     # Update the internal state relating to module nesting.

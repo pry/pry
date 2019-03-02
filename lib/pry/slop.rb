@@ -138,7 +138,7 @@ class Pry
 
       if config[:help]
         on('-h', '--help', 'Display this help message.', tail: true) do
-          $stderr.puts help
+          warn help
         end
       end
     end
@@ -418,7 +418,7 @@ class Pry
       end
 
       banner = config[:banner]
-      banner = "Usage: #{File.basename($0, '.*')}#{' [command]' if @commands.any?} [options]" if banner.nil?
+      banner = "Usage: #{File.basename($PROGRAM_NAME, '.*')}#{' [command]' if @commands.any?} [options]" if banner.nil?
       if banner
         "#{banner}\n#{@separators[0] ? "#{@separators[0]}\n" : ''}#{optstr}"
       else

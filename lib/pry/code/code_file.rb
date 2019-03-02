@@ -18,7 +18,7 @@ class Pry
       %w[.rhtml] => :rhtml,
       %w[.yaml .yml] => :yaml,
       %w[.cpp .hpp .cc .h .cxx] => :cpp,
-      %w[.rb .ru .irbrc .gemspec .pryrc .rake] => :ruby,
+      %w[.rb .ru .irbrc .gemspec .pryrc .rake] => :ruby
     }.freeze
 
     FILES = {

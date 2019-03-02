@@ -32,17 +32,13 @@ class Pry
     # @return [String]
     #  returns the path to a file for the current backtrace. see {#bt_index}.
     #
-    def file
-      @file
-    end
+    attr_reader :file
 
     #
     # @return [Fixnum]
     #  returns the line for the current backtrace. see {#bt_index}.
     #
-    def line
-      @line
-    end
+    attr_reader :line
 
     # @return [Exception]
     #   returns the wrapped exception

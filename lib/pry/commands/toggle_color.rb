@@ -13,7 +13,7 @@ class Pry
 
       def process
         _pry_.color = color_toggle
-        output.puts "Syntax highlighting #{_pry_.color ? "on" : "off"}"
+        output.puts "Syntax highlighting #{_pry_.color ? 'on' : 'off'}"
       end
 
       def color_toggle

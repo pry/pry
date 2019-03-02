@@ -80,7 +80,7 @@ class Pry
       def eval_and_print_changed(output)
         expressions.each do |expr|
           expr.eval!
-          output.puts "#{blue "watch"}: #{expr}" if expr.changed?
+          output.puts "#{blue 'watch'}: #{expr}" if expr.changed?
         end
       end
 

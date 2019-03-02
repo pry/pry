@@ -48,9 +48,7 @@ class Pry
           # command '--help' shouldn't use markup highlighting
           docs
         else
-          if docs.empty?
-            raise CommandError, "No docs found for: #{obj_name ? obj_name : 'current context'}"
-          end
+          raise CommandError, "No docs found for: #{obj_name || 'current context'}" if docs.empty?
 
           process_comment_markup(docs)
         end

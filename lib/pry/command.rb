@@ -211,22 +211,20 @@ class Pry
       # manually overridden if necessary.
       # Group should not be changed once it is initialized.
       def group(name = nil)
-        @group ||= if name
-                     name
-                   else
-                     case Pry::Method(block).source_file
-                     when %r{/pry/.*_commands/(.*).rb}
-                       Regexp.last_match(1).capitalize.tr('_', " ")
-                     when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
-                       name = Regexp.last_match(1)
-                       version = Regexp.last_match(2)
-                       "#{name} (v#{version})"
-                     when /pryrc/
-                       "pryrc"
-                     else
-                       "(other)"
-                     end
-                   end
+        @group ||= begin
+          name || case Pry::Method(block).source_file
+                  when %r{/pry/.*_commands/(.*).rb}
+                    Regexp.last_match(1).capitalize.tr('_', " ")
+                  when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
+                    name = Regexp.last_match(1)
+                    version = Regexp.last_match(2)
+                    "#{name} (v#{version})"
+                  when /pryrc/
+                    "pryrc"
+                  else
+                    "(other)"
+                  end
+        end
       end
     end
 
@@ -261,7 +259,7 @@ class Pry
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
       command_string = _pry_.config.command_prefix.to_s + command_string
-      complete_string = "#{command_string} #{args.join(" ")}".rstrip
+      complete_string = "#{command_string} #{args.join(' ')}".rstrip
       command_set.process_line(complete_string, context)
     end
 
@@ -402,7 +400,7 @@ class Pry
       # Workaround for weird JRuby bug where rindex in this case can return nil
       # even when there's a match.
       arg_string.scan(/\| *(?:do|\{)/)
-      block_index = $~ && $~.offset(0)[0]
+      block_index = $LAST_MATCH_INFO && $LAST_MATCH_INFO.offset(0)[0]
 
       return unless block_index
 
@@ -439,7 +437,7 @@ class Pry
         gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
         output.puts(<<WARN)
 The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
-gems to be installed: #{gems_not_installed.join(", ")}
+gems to be installed: #{gems_not_installed.join(', ')}
 
 Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
 and activate this command.

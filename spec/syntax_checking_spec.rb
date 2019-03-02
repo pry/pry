@@ -10,9 +10,9 @@ describe Pry do
     ["[", ":lets,", "'list',", "[/nested/", "], things ]"],
     ["abc =~ /hello", "/"],
     ["issue = %W/", "343/"],
-    ["pouts(<<HI, 'foo", "bar", "HI", "baz')"],
+    ["pouts(<<HI, 'foo", "bar", "HI", "baz')"]
   ].each do |foo|
-    it "should not raise an error on broken lines: #{foo.join("\\n")}" do
+    it "should not raise an error on broken lines: #{foo.join('\\n')}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end
@@ -40,7 +40,7 @@ describe Pry do
   end
 
   it "should not intefere with syntax errors explicitly raised" do
-    redirect_pry_io(InputTester.new(%q(raise SyntaxError, "unexpected $end")), @str_output) do
+    redirect_pry_io(InputTester.new('raise SyntaxError, "unexpected $end"'), @str_output) do
       Pry.start
     end
 

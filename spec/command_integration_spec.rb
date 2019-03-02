@@ -206,7 +206,7 @@ describe "commands" do
         end
       end
 
-      ["run_v_explicit_parameter", "run_v_embedded_parameter"].each do |cmd|
+      %w[run_v_explicit_parameter run_v_embedded_parameter].each do |cmd|
         expect(pry_tester(commands: klass).eval(cmd)).to match(/v baby param/)
       end
     end
@@ -485,7 +485,7 @@ describe "commands" do
   it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
     klass = Pry::CommandSet.new do
       command "v" do
-        output.puts "#{target.eval('self')}"
+        output.puts target.eval('self').to_s
       end
     end
 
