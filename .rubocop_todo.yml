@@ -314,12 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/UnneededPercentQ:
-  Exclude:
-    - 'spec/syntax_checking_spec.rb'
-
 # Offense count: 17
 # Cop supports --auto-correct.
 Style/VariableInterpolation:
