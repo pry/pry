@@ -211,22 +211,20 @@ class Pry
       # manually overridden if necessary.
       # Group should not be changed once it is initialized.
       def group(name = nil)
-        @group ||= if name
-                     name
-                   else
-                     case Pry::Method(block).source_file
-                     when %r{/pry/.*_commands/(.*).rb}
-                       Regexp.last_match(1).capitalize.tr('_', " ")
-                     when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
-                       name = Regexp.last_match(1)
-                       version = Regexp.last_match(2)
-                       "#{name} (v#{version})"
-                     when /pryrc/
-                       "pryrc"
-                     else
-                       "(other)"
-                     end
-                   end
+        @group ||= begin
+          name || case Pry::Method(block).source_file
+                  when %r{/pry/.*_commands/(.*).rb}
+                    Regexp.last_match(1).capitalize.tr('_', " ")
+                  when /(pry-\w+)-([\d\.]+([\w\.]+)?)/
+                    name = Regexp.last_match(1)
+                    version = Regexp.last_match(2)
+                    "#{name} (v#{version})"
+                  when /pryrc/
+                    "pryrc"
+                  else
+                    "(other)"
+                  end
+        end
       end
     end
 

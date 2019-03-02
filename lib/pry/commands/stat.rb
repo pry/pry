@@ -27,7 +27,7 @@ class Pry
           --
           Name: #{meth.name}
           Alias#{'es' if aliases.length > 1}: #{aliases.any? ? aliases.join(', ') : 'None.'}
-          Owner: #{meth.owner ? meth.owner : 'Unknown'}
+          Owner: #{meth.owner || 'Unknown'}
           Visibility: #{meth.visibility}
           Type: #{meth.is_a?(::Method) ? 'Bound' : 'Unbound'}
           Arity: #{meth.arity}
