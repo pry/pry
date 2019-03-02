@@ -274,16 +274,6 @@ Style/IfInsideElse:
     - 'lib/pry/slop/commands.rb'
     - 'lib/pry/slop/option.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/hist.rb'
-    - 'lib/pry/commands/ls/jruby_hacks.rb'
-    - 'lib/pry/commands/ls/ls_entity.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

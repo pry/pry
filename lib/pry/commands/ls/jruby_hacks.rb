@@ -28,7 +28,7 @@ class Pry
 
             found = []
             values.select do |x|
-              (!found.any? { |y| x == y }) && found << x
+              (found.none? { |y| x == y }) && found << x
             end
           end
         end

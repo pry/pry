@@ -117,6 +117,16 @@ class Pry
       end
     end
 
+    # Filter the lines using the given block.
+    #
+    # @yield [LOC]
+    # @return [Code]
+    def reject(&block)
+      alter do
+        @lines = @lines.reject(&block)
+      end
+    end
+
     # Remove all lines that aren't in the given range, expressed either as a
     # `Range` object or a first and last line number (inclusive). Negative
     # indices count from the end of the array of lines.

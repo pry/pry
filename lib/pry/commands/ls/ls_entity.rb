@@ -24,7 +24,7 @@ class Pry
         end
 
         def entities_table
-          entities.map(&:write_out).reject { |o| !o }.join('')
+          entities.map(&:write_out).select { |o| o }.join('')
         end
 
         private
