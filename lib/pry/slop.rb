@@ -138,7 +138,7 @@ class Pry
 
       if config[:help]
         on('-h', '--help', 'Display this help message.', tail: true) do
-          $stderr.puts help
+          warn help
         end
       end
     end

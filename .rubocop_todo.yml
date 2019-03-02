@@ -314,12 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/StderrPuts:
-  Exclude:
-    - 'lib/pry/slop.rb'
-
 # Offense count: 2271
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
