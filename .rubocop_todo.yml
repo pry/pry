@@ -314,14 +314,6 @@ Style/PerlBackrefs:
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-
 # Offense count: 116
 # Cop supports --auto-correct.
 # Configuration parameters: AllowIfMethodIsEmpty.

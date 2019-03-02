@@ -181,7 +181,7 @@ class Pry
     # @example Pass explicit description (overriding default).
     #   Pry.config.commands.alias_command "lM", "ls -M", :desc => "cutiepie"
     def alias_command(match, action, options = {})
-      (cmd = find_command(action)) || fail("Command: `#{action}` not found")
+      (cmd = find_command(action)) || raise("Command: `#{action}` not found")
       original_options = cmd.options.dup
 
       options = original_options.merge!(
