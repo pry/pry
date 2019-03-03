@@ -13,12 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 3
-Lint/Debugger:
-  Exclude:
-    - 'spec/commands/play_spec.rb'
-    - 'spec/pry_spec.rb'
-
 # Offense count: 2
 Lint/EmptyWhen:
   Exclude:
