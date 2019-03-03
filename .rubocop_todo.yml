@@ -14,11 +14,6 @@ Gemspec/RequiredRubyVersion:
     - 'pry.gemspec'
 
 # Offense count: 1
-Lint/Loop:
-  Exclude:
-    - 'lib/pry/object_path.rb'
-
-# Offense count: 1
 Lint/RescueException:
   Exclude:
     - 'lib/pry/color_printer.rb'

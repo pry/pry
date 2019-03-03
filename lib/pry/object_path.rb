@@ -27,36 +27,40 @@ class Pry
       scanner = StringScanner.new(@path_string.strip)
       stack   = @current_stack.dup
 
-      begin
-        next_segment = ""
+      loop do
+        begin
+          next_segment = ""
 
-        loop do
-          # Scan for as long as we don't see a slash
-          next_segment << scanner.scan(%r{[^/]*})
+          loop do
+            # Scan for as long as we don't see a slash
+            next_segment << scanner.scan(%r{[^/]*})
 
-          if complete?(next_segment) || scanner.eos?
-            scanner.getch # consume the slash
-            break
-          else
-            next_segment << scanner.getch # append the slash
+            if complete?(next_segment) || scanner.eos?
+              scanner.getch # consume the slash
+              break
+            else
+              next_segment << scanner.getch # append the slash
+            end
           end
+
+          case next_segment.chomp
+          when ""
+            stack = [stack.first]
+          when "::"
+            stack.push(TOPLEVEL_BINDING)
+          when "."
+            next
+          when ".."
+            stack.pop unless stack.size == 1
+          else
+            stack.push(Pry.binding_for(stack.last.eval(next_segment)))
+          end
+        rescue RescuableException => e
+          return handle_failure(next_segment, e)
         end
 
-        case next_segment.chomp
-        when ""
-          stack = [stack.first]
-        when "::"
-          stack.push(TOPLEVEL_BINDING)
-        when "."
-          next
-        when ".."
-          stack.pop unless stack.size == 1
-        else
-          stack.push(Pry.binding_for(stack.last.eval(next_segment)))
-        end
-      rescue RescuableException => e
-        return handle_failure(next_segment, e)
-      end until scanner.eos?
+        break if scanner.eos?
+      end
 
       stack
     end
