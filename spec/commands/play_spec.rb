@@ -156,10 +156,13 @@ describe "play" do
     describe "play -i" do
       it 'should play multi-ranged input expressions' do
         a = b = c = d = e = 0
-        redirect_pry_io(InputTester.new('a += 1', 'b += 1',
-                                        'c += 1', 'd += 1', 'e += 1',
-                                        "play -i 1..3"), StringIO.new) do
-          binding.pry
+        redirect_pry_io(
+          InputTester.new(
+            'a += 1', 'b += 1', 'c += 1', 'd += 1', 'e += 1', 'play -i 1..3'
+          ),
+          StringIO.new
+        ) do
+          binding.pry # rubocop:disable Lint/Debugger
         end
 
         [a, b, c].all? { |v| expect(v).to eq 2 }

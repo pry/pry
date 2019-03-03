@@ -32,7 +32,7 @@ describe Pry do
     end
 
     it 'should not binding.pry' do
-      expect(binding.pry).to eq nil
+      expect(binding.pry).to eq nil # rubocop:disable Lint/Debugger
     end
 
     it 'should not Pry.start' do
@@ -50,7 +50,7 @@ describe Pry do
     end
 
     it 'should raise an error for binding.pry' do
-      expect { binding.pry }.to raise_error(RuntimeError)
+      expect { binding.pry }.to raise_error(RuntimeError) # rubocop:disable Lint/Debugger
     end
 
     it 'should raise an error for Pry.start' do
