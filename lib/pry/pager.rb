@@ -33,7 +33,7 @@ class Pry
     def open
       pager = best_available
       yield pager
-    rescue StopPaging
+    rescue StopPaging # rubocop:disable Lint/HandleExceptions
     ensure
       pager.close if pager
     end

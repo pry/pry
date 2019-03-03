@@ -46,10 +46,10 @@ class Pry
             if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
               $stdout.winsize
             end
-          rescue Errno::EOPNOTSUPP
+          rescue Errno::EOPNOTSUPP # rubocop:disable Lint/HandleExceptions
             # $stdout is probably a socket, which doesn't support #winsize.
           end
-        rescue LoadError
+        rescue LoadError # rubocop:disable Lint/HandleExceptions
           # They probably don't have the io/console stdlib or the io-console gem.
           # We'll keep trying.
         end

@@ -127,7 +127,7 @@ class Pry
 
           begin
             const = klass.const_get(name)
-          rescue RescuableException
+          rescue RescuableException # rubocop:disable Lint/HandleExceptions
             # constant loading is an inexact science at the best of times,
             # this often happens when a constant was .autoload? but someone
             # tried to load it. It's now not .autoload? but will still raise

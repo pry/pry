@@ -89,7 +89,7 @@ class Pry
           begin
             ::Gist.copy(url)
             message << ", which is now in the clipboard."
-          rescue ::Gist::ClipboardError
+          rescue ::Gist::ClipboardError # rubocop:disable Lint/HandleExceptions
           end
 
           output.puts message
