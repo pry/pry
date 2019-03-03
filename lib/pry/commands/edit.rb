@@ -24,22 +24,31 @@ class Pry
       BANNER
 
       def options(opt)
-        opt.on :e, :ex,      "Open the file that raised the most recent exception (_ex_.file)",
+        opt.on :e, :ex, "Open the file that raised the most recent exception " \
+                        "(_ex_.file)",
                optional_argument: true, as: Integer
-        opt.on :i, :in,      "Open a temporary file containing the Nth input expression. N may be a range",
+        opt.on :i, :in, "Open a temporary file containing the Nth input " \
+                        "expression. N may be a range",
                optional_argument: true, as: Range, default: -1..-1
-        opt.on :t, :temp,    "Open an empty temporary file"
-        opt.on :l, :line,    "Jump to this line in the opened file",
+        opt.on :t, :temp, "Open an empty temporary file"
+        opt.on :l, :line, "Jump to this line in the opened file",
                argument: true, as: Integer
         opt.on :n, :"no-reload", "Don't automatically reload the edited file"
-        opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as returned by `whereami`)"
-        opt.on :r, :reload,  "Reload the edited code immediately (default for ruby files)"
-        opt.on :p, :patch,   "Instead of editing the object's file, try to edit in a tempfile and apply as a monkey patch"
-        opt.on :m, :method,  "Explicitly edit the _current_ method (when inside a method context)."
+        opt.on :c, :current, "Open the current __FILE__ and at __LINE__ (as " \
+                             "returned by `whereami`)"
+        opt.on :r, :reload, "Reload the edited code immediately (default for " \
+                            "ruby files)"
+        opt.on :p, :patch, "Instead of editing the object's file, try to edit " \
+                           "in a tempfile and apply as a monkey patch"
+        opt.on :m, :method, "Explicitly edit the _current_ method (when " \
+                            "inside a method context)."
       end
 
       def process
-        raise CommandError, "Only one of --ex, --temp, --in, --method and FILE may be specified." if bad_option_combination?
+        if bad_option_combination?
+          raise CommandError, "Only one of --ex, --temp, --in, --method and " \
+                              "FILE may be specified."
+        end
 
         if repl_edit?
           # code defined in pry, eval'd within pry.
@@ -59,8 +68,10 @@ class Pry
       end
 
       def repl_edit
-        content = Pry::Editor.new(_pry_).edit_tempfile_with_content(initial_temp_file_content,
-                                                                    initial_temp_file_content.lines.count)
+        content = Pry::Editor.new(_pry_).edit_tempfile_with_content(
+          initial_temp_file_content,
+          initial_temp_file_content.lines.count
+        )
         silence_warnings do
           eval_string.replace content
         end
@@ -80,10 +91,16 @@ class Pry
 
       def apply_runtime_patch
         if patch_exception?
-          ExceptionPatcher.new(_pry_, state, file_and_line_for_current_exception).perform_patch
+          ExceptionPatcher.new(
+            _pry_, state, file_and_line_for_current_exception
+          ).perform_patch
         else
           if code_object.is_a?(Pry::Method)
-            code_object.redefine Pry::Editor.new(_pry_).edit_tempfile_with_content(code_object.source)
+            code_object.redefine(
+              Pry::Editor.new(_pry_).edit_tempfile_with_content(
+                code_object.source
+              )
+            )
           else
             raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
           end
@@ -91,8 +108,13 @@ class Pry
       end
 
       def ensure_file_name_is_valid(file_name)
-        raise CommandError, "Cannot find a valid file for #{filename_argument}" unless file_name
-        raise CommandError, "#{file_name} is not a valid file name, cannot edit!" if not_a_real_file?(file_name)
+        unless file_name
+          raise CommandError, "Cannot find a valid file for #{filename_argument}"
+        end
+
+        if not_a_real_file?(file_name)
+          raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
+        end
       end
 
       def file_and_line_for_current_exception
@@ -100,16 +122,17 @@ class Pry
       end
 
       def file_and_line
-        file_name, line = if opts.present?(:current)
-                            FileAndLineLocator.from_binding(target)
-                          elsif opts.present?(:ex)
-                            file_and_line_for_current_exception
-                          elsif code_object
-                            FileAndLineLocator.from_code_object(code_object, filename_argument)
-                          else
-                            # when file and line are passed as a single arg, e.g my_file.rb:30
-                            FileAndLineLocator.from_filename_argument(filename_argument)
-                          end
+        file_name, line =
+          if opts.present?(:current)
+            FileAndLineLocator.from_binding(target)
+          elsif opts.present?(:ex)
+            file_and_line_for_current_exception
+          elsif code_object
+            FileAndLineLocator.from_code_object(code_object, filename_argument)
+          else
+            # when file and line are passed as a single arg, e.g my_file.rb:30
+            FileAndLineLocator.from_filename_argument(filename_argument)
+          end
 
         [file_name, opts.present?(:line) ? opts[:l].to_i : line]
       end
@@ -145,7 +168,8 @@ class Pry
       end
 
       def previously_patched?(code_object)
-        code_object.is_a?(Pry::Method) && Pry::Method::Patcher.code_for(code_object.source_location.first)
+        code_object.is_a?(Pry::Method) &&
+          Pry::Method::Patcher.code_for(code_object.source_location.first)
       end
 
       def patch_exception?
@@ -153,8 +177,11 @@ class Pry
       end
 
       def bad_option_combination?
-        [opts.present?(:ex), opts.present?(:temp),
-         opts.present?(:in), opts.present?(:method), !filename_argument.empty?].count(true) > 1
+        [
+          opts.present?(:ex), opts.present?(:temp),
+          opts.present?(:in), opts.present?(:method),
+          !filename_argument.empty?
+        ].count(true) > 1
       end
 
       def input_expression

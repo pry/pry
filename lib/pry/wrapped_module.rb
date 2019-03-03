@@ -54,7 +54,10 @@ class Pry
     # @raise [ArgumentError] if the argument is not a `Module`
     # @param [Module] mod
     def initialize(mod)
-      raise ArgumentError, "Tried to initialize a WrappedModule with a non-module #{mod.inspect}" unless ::Module === mod
+      unless ::Module === mod
+        raise ArgumentError, "Tried to initialize a WrappedModule with a " \
+                             "non-module #{mod.inspect}"
+      end
 
       @wrapped = mod
       @memoized_candidates = []
@@ -130,12 +133,16 @@ class Pry
     #
     # @return [Object]
     def singleton_instance
-      raise ArgumentError, "tried to get instance of non singleton class" unless singleton_class?
+      unless singleton_class?
+        raise ArgumentError, "tried to get instance of non singleton class"
+      end
 
       if Helpers::Platform.jruby?
         wrapped.to_java.attached
       else
-        @singleton_instance ||= ObjectSpace.each_object(wrapped).detect { |x| (class << x; self; end) == wrapped }
+        @singleton_instance ||= ObjectSpace.each_object(wrapped).detect do |x|
+          (class << x; self; end) == wrapped
+        end
       end
     end
 

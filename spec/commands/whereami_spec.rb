@@ -72,7 +72,10 @@ describe "whereami" do
     expect(pry_eval(cor, 'whereami')).to match(/::Kernel.binding [#] omnom/)
   end
 
-  it 'should show description and correct code when __LINE__ and __FILE__ are outside @method.source_location' do
+  it(
+    'shows description and corrects code when __LINE__ and __FILE__ are ' \
+    'outside @method.source_location'
+  ) do
     class Cor
       def blimey!
         eval <<-END, binding, "spec/fixtures/example.erb", 1
@@ -86,7 +89,10 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
-  it 'should show description and correct code when @method.source_location would raise an error' do
+  it(
+    'shows description and corrects code when @method.source_location ' \
+    'would raise an error'
+  ) do
     class Cor
       eval <<-END, binding, "spec/fixtures/example.erb", 1
         def blimey!
@@ -95,7 +101,8 @@ describe "whereami" do
       END
     end
 
-    expect { Cor.instance_method(:blimey!).source }.to raise_error MethodSource::SourceNotFoundError
+    expect { Cor.instance_method(:blimey!).source }
+      .to raise_error MethodSource::SourceNotFoundError
 
     expect(Cor.new.blimey!).to match(/Cor#blimey!.*Look at me/m)
     Object.remove_const(:Cor)
@@ -222,7 +229,9 @@ describe "whereami" do
     Object.remove_const(:Cor)
   end
 
-  it 'should use Pry.config.default_window_size for window size when outside a method context' do
+  it(
+    'uses Pry.config.default_window_size for window size when outside a method context'
+  ) do
     old_size = Pry.config.default_window_size
     Pry.config.default_window_size = 1
     _foo = :litella

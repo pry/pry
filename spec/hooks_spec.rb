@@ -67,7 +67,9 @@ describe Pry::Hooks do
 
         h2.merge!(h1)
         h2.add_hook(:test_hook, :testing2) {}
-        expect(h2.get_hook(:test_hook, :testing2)).not_to eq h1.get_hook(:test_hook, :testing2)
+        expect(h2.get_hook(:test_hook, :testing2)).not_to eq(
+          h1.get_hook(:test_hook, :testing2)
+        )
       end
 
       it 'should NOT overwrite hooks belonging to shared event in receiver' do
@@ -121,8 +123,12 @@ describe Pry::Hooks do
           h2 = Pry::Hooks.new.add_hook(:test_hook2, :testing) {}
 
           h3 = h2.merge(h1)
-          expect(h3.get_hook(:test_hook, :testing)).to eq h1.get_hook(:test_hook, :testing)
-          expect(h3.get_hook(:test_hook2, :testing)).to eq h2.get_hook(:test_hook2, :testing)
+          expect(h3.get_hook(:test_hook, :testing)).to eq(
+            h1.get_hook(:test_hook, :testing)
+          )
+          expect(h3.get_hook(:test_hook2, :testing)).to eq(
+            h2.get_hook(:test_hook2, :testing)
+          )
         end
 
         it 'should not affect original instances when new hooks are added' do
@@ -146,7 +152,9 @@ describe Pry::Hooks do
       end
 
       hooks_dup = @hooks.dup
-      expect(hooks_dup.get_hook(:test_hook, :testing)).to eq @hooks.get_hook(:test_hook, :testing)
+      expect(hooks_dup.get_hook(:test_hook, :testing)).to eq(
+        @hooks.get_hook(:test_hook, :testing)
+      )
     end
 
     it 'adding a new event to dupped instance should not affect original' do
@@ -155,7 +163,8 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:other_test_hook, :testing) { :okay_man }
 
-      expect(hooks_dup.get_hook(:other_test_hook, :testing)).not_to eq @hooks.get_hook(:other_test_hook, :testing)
+      expect(hooks_dup.get_hook(:other_test_hook, :testing))
+        .not_to eq @hooks.get_hook(:other_test_hook, :testing)
     end
 
     it 'adding a new hook to dupped instance should not affect original' do
@@ -164,7 +173,8 @@ describe Pry::Hooks do
 
       hooks_dup.add_hook(:test_hook, :testing2) { :okay_man }
 
-      expect(hooks_dup.get_hook(:test_hook, :testing2)).not_to eq @hooks.get_hook(:test_hook, :testing2)
+      expect(hooks_dup.get_hook(:test_hook, :testing2))
+        .not_to eq @hooks.get_hook(:test_hook, :testing2)
     end
   end
 
@@ -309,7 +319,9 @@ describe Pry::Hooks do
     describe "when_started hook" do
       it 'should yield options to the hook' do
         options = nil
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_target, opt, _| options = opt }
+        Pry.config.hooks.add_hook(:when_started, :test_hook) do |_target, opt, _|
+          options = opt
+        end
 
         redirect_pry_io(StringIO.new("exit"), StringIO.new) do
           Pry.start binding, hello: :baby
@@ -323,7 +335,9 @@ describe Pry::Hooks do
       describe "target" do
         it 'should yield the target, as a binding ' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, _opt, _| b = target }
+          Pry.config.hooks.add_hook(:when_started, :test_hook) do |target, _opt, _|
+            b = target
+          end
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, hello: :baby
@@ -335,7 +349,9 @@ describe Pry::Hooks do
 
         it 'should yield the target to the hook' do
           b = nil
-          Pry.config.hooks.add_hook(:when_started, :test_hook) { |target, _opt, _| b = target }
+          Pry.config.hooks.add_hook(:when_started, :test_hook) do |target, _opt, _|
+            b = target
+          end
 
           redirect_pry_io(StringIO.new("exit"), StringIO.new) do
             Pry.start 5, hello: :baby
@@ -350,7 +366,9 @@ describe Pry::Hooks do
         o = Object.new
         class << o; attr_accessor :value; end
 
-        Pry.config.hooks.add_hook(:when_started, :test_hook) { |_target, _opt, _pry_| _pry_.binding_stack = [Pry.binding_for(o)] }
+        Pry.config.hooks.add_hook(:when_started, :test_hook) do |_target, _opt, _pry_|
+          _pry_.binding_stack = [Pry.binding_for(o)]
+        end
 
         redirect_pry_io(InputTester.new("@value = true", "exit-all")) do
           Pry.start binding, hello: :baby
@@ -373,7 +391,10 @@ describe Pry::Hooks do
 
         begin
           redirect_pry_io(StringIO.new("raise great_escape"), StringIO.new) do
-            Pry.start o, hooks: Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
+            Pry.start(
+              o,
+              hooks: Pry::Hooks.new.add_hook(:after_session, :cleanup) { array = nil }
+            )
           end
         rescue StandardError => ex
           exception = ex
@@ -393,7 +414,9 @@ describe Pry::Hooks do
       describe "before_eval hook" do
         describe "modifying input code" do
           it 'should replace input code with code determined by hook' do
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, _pry| code.replace(":little_duck") }
+            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) do |code, _pry|
+              code.replace(":little_duck")
+            end
             redirect_pry_io(InputTester.new(":jemima", "exit-all"), out = StringIO.new) do
               Pry.start(self, hooks: hooks)
             end
@@ -410,12 +433,21 @@ describe Pry::Hooks do
               end
             end
 
-            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) { |code, _pry| code.replace(":little_duck") }
+            hooks = Pry::Hooks.new.add_hook(:before_eval, :quirk) do |code, _pry|
+              code.replace(":little_duck")
+            end
 
-            redirect_pry_io(InputTester.new("how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"), out = StringIO.new) do
+            redirect_pry_io(
+              InputTester.new(
+                "how-do-you-like-your-blue-eyed-boy-now-mister-death", "exit-all"
+              ),
+              out = StringIO.new
+            ) do
               Pry.start(self, hooks: hooks, commands: commands)
             end
-            expect(out.string).to match(/in hours of bitterness i imagine balls of sapphire, of metal/)
+            expect(out.string).to match(
+              /in hours of bitterness i imagine balls of sapphire, of metal/
+            )
             expect(out.string).not_to match(/little_duck/)
           end
         end
@@ -436,7 +468,10 @@ describe Pry::Hooks do
         end
 
         it "should print out a notice for each exception raised" do
-          expect(mock_pry("1")).to match(/after_eval hook failed: RuntimeError: Baddums\n.*after_eval hook failed: RuntimeError: Simbads/m)
+          expect(mock_pry("1")).to match(
+            /after_eval\shook\sfailed:\sRuntimeError:\sBaddums\n
+            .*after_eval\shook\sfailed:\sRuntimeError:\sSimbads/xm
+          )
         end
       end
     end

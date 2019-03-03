@@ -24,11 +24,13 @@ describe "show-source" do
   end
 
   it "should output a method's source with line numbers" do
-    expect(pry_eval(binding, 'show-source -l @o.sample_method')).to match(/\d+: def @o.sample/)
+    expect(pry_eval(binding, 'show-source -l @o.sample_method'))
+      .to match(/\d+: def @o.sample/)
   end
 
   it "should output a method's source with line numbers starting at 1" do
-    expect(pry_eval(binding, 'show-source -b @o.sample_method')).to match(/1: def @o.sample/)
+    expect(pry_eval(binding, 'show-source -b @o.sample_method'))
+      .to match(/1: def @o.sample/)
   end
 
   it "should output a method's source if inside method and no name given" do
@@ -71,10 +73,11 @@ describe "show-source" do
         98
       end
     end
-    expect(mock_pry(binding, "show-source _c#wrongmethod")).to match(/Couldn't locate/)
+    expect(mock_pry(binding, "show-source _c#wrongmethod"))
+      .to match(/Couldn't locate/)
   end
 
-  it "should not show the source and deliver an error message without exclamation point" do
+  it "doesn't show the source and deliver an error message without exclamation point" do
     _c = Class.new
     error_message = "Error: Couldn't locate a definition for _c#wrongmethod\n"
     expect(mock_pry(binding, "show-source _c#wrongmethod")).to eq(error_message)
@@ -111,7 +114,8 @@ describe "show-source" do
       end
     end
 
-    expect { pry_eval(binding, 'cd _c', 'show-source self.moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+    expect { pry_eval(binding, 'cd _c', 'show-source self.moo') }
+      .to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods with self.moo" do
@@ -131,7 +135,8 @@ describe "show-source" do
       end
     end
 
-    expect { pry_eval(binding, 'cd _c', 'show-source self#moo') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+    expect { pry_eval(binding, 'cd _c', 'show-source self#moo') }
+      .to raise_error(Pry::CommandError, /Couldn't locate/)
   end
 
   it "should find normal methods (i.e non-instance methods) by default" do
@@ -167,7 +172,7 @@ describe "show-source" do
       Object.remove_const(:FooBar)
     end
 
-    it "evaluates the argument as ruby and shows the source code for the returned value" do
+    it "shows the source code for the returned value as Ruby" do
       ReplTester.start target: binding do
         input 'show-source -e FooBar.new'
         output(/class FooBar/)
@@ -178,7 +183,8 @@ describe "show-source" do
   it "should raise a CommandError when super method doesn't exist" do
     def @o.foo(*bars); end
 
-    expect { pry_eval(binding, "show-source --super @o.foo") }.to raise_error(Pry::CommandError, /No superclass found/)
+    expect { pry_eval(binding, "show-source --super @o.foo") }
+      .to raise_error(Pry::CommandError, /No superclass found/)
   end
 
   it "should output the source of a method defined inside Pry" do
@@ -335,7 +341,7 @@ describe "show-source" do
         Object.remove_const(:TestHost)
       end
 
-      it "source of variable should take precedence over method that is being shadowed" do
+      it "source of variable takes precedence over method that is being shadowed" do
         source = @t.eval('show-source hello')
         expect(source).not_to match(/def hello/)
         expect(source).to match(/proc \{ ' smile ' \}/)
@@ -361,13 +367,13 @@ describe "show-source" do
       Object.remove_const(:TestHost)
     end
 
-    it "should output source of its class if variable doesn't respond to source_location" do
+    it "outputs source of its class if variable doesn't respond to source_location" do
       _test_host = TestHost.new
       expect(pry_eval(binding, 'show-source _test_host'))
         .to match(/class TestHost\n.*def hello/)
     end
 
-    it "should output source of its class if constant doesn't respond to source_location" do
+    it "outputs source of its class if constant doesn't respond to source_location" do
       TEST_HOST = TestHost.new
       expect(pry_eval(binding, 'show-source TEST_HOST'))
         .to match(/class TestHost\n.*def hello/)
@@ -536,7 +542,9 @@ describe "show-source" do
           end
         end
 
-        result = pry_eval('show-source TestClassForShowSourceClassEval#class_eval_method -a')
+        result = pry_eval(
+          'show-source TestClassForShowSourceClassEval#class_eval_method -a'
+        )
         expect(result).to match(/bing/)
       end
 
@@ -550,7 +558,10 @@ describe "show-source" do
       end
 
       describe "messages relating to -a" do
-        it 'indicates all available monkeypatches can be shown with -a when (when -a not used and more than one candidate exists for class)' do
+        it(
+          'indicates all available monkeypatches can be shown with -a when ' \
+          '(when -a not used and more than one candidate exists for class)'
+        ) do
           class TestClassForShowSource
             def gamma; end
           end
@@ -559,7 +570,10 @@ describe "show-source" do
           expect(result).to match(/available monkeypatches/)
         end
 
-        it 'shouldnt say anything about monkeypatches when only one candidate exists for selected class' do
+        it(
+          "doesn't mention monkeypatches when only 1 candidate exists for " \
+          "selected class"
+        ) do
           class Aarrrrrghh
             def o; end
           end
@@ -604,10 +618,14 @@ describe "show-source" do
         end
 
         it 'should be unable to find module source if no methods defined' do
-          expect { pry_eval(TestHost::C, 'show-source') }.to raise_error(Pry::CommandError, /Couldn't locate/)
+          expect { pry_eval(TestHost::C, 'show-source') }
+            .to raise_error(Pry::CommandError, /Couldn't locate/)
         end
 
-        it 'should display method code (rather than class) if Pry started inside method binding' do
+        it(
+          'displays method code (rather than class) if Pry started inside ' \
+          'method binding'
+        ) do
           out = TestHost::D.invoked_in_method
           expect(out).to match(/invoked_in_method/)
           expect(out).not_to match(/module D/)
@@ -670,7 +688,7 @@ describe "show-source" do
             it "should display a warning, and not monkey-patched definition" do
               out = pry_eval([1, 2, 3], 'show-source')
               expect(out).not_to match(/doge/)
-              expect(out).to match(/warning/i)
+              expect(out).to match(/Pry cannot display the information/)
             end
 
             it "recommends to use the --all switch when other candidates are found" do
@@ -834,16 +852,22 @@ describe "show-source" do
 
       it 'errors when class has no superclass to show' do
         t = pry_tester
-        expect { t.process_command "show-source Jesus::Brian" }.to raise_error(Pry::CommandError, /Couldn't locate/)
+        expect { t.process_command "show-source Jesus::Brian" }
+          .to raise_error(Pry::CommandError, /Couldn't locate/)
       end
 
       it 'shows warning when reverting to superclass code' do
         t = pry_tester
         t.process_command "show-source Jesus::Jangle"
-        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/)
+        expect(t.last_output).to match(
+          /Warning.*?Cannot find.*?Jesus::Jangle.*Showing.*Jesus::Jingle instead/
+        )
       end
 
-      it 'shows nth level superclass code (when no intermediary superclasses have code either)' do
+      it(
+        'shows nth level superclass code (when no intermediary ' \
+        'superclasses have code either)'
+      ) do
         t = pry_tester
         t.process_command "show-source Jesus::Bangle"
         expect(t.last_output).to match(/doink/)
@@ -852,7 +876,9 @@ describe "show-source" do
       it 'shows correct warning when reverting to nth level superclass' do
         t = pry_tester
         t.process_command "show-source Jesus::Bangle"
-        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/)
+        expect(t.last_output).to match(
+          /Warning.*?Cannot find.*?Jesus::Bangle.*Showing.*Jesus::Jingle instead/
+        )
       end
     end
 
@@ -890,15 +916,21 @@ describe "show-source" do
       it 'shows warning when reverting to included module code' do
         t = pry_tester
         t.process_command "show-source Jesus::Beta"
-        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/)
+        expect(t.last_output).to match(
+          /Warning.*?Cannot find.*?Jesus::Beta.*Showing.*Jesus::Alpha instead/
+        )
       end
 
       it 'errors when module has no included module to show' do
         t = pry_tester
-        expect { t.process_command "show-source Jesus::Zeta" }.to raise_error(Pry::CommandError, /Couldn't locate/)
+        expect { t.process_command "show-source Jesus::Zeta" }
+          .to raise_error(Pry::CommandError, /Couldn't locate/)
       end
 
-      it 'shows nth level included module code (when no intermediary modules have code either)' do
+      it(
+        'shows nth level included module code (when no intermediary modules ' \
+        'have code either)'
+      ) do
         t = pry_tester
         t.process_command "show-source Jesus::Gamma"
         expect(t.last_output).to match(/alpha/)
@@ -907,7 +939,9 @@ describe "show-source" do
       it 'shows correct warning when reverting to nth level included module' do
         t = pry_tester
         t.process_command "show-source Jesus::Gamma"
-        expect(t.last_output).to match(/Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/)
+        expect(t.last_output).to match(
+          /Warning.*?Cannot find.*?Jesus::Gamma.*Showing.*Jesus::Alpha instead/
+        )
       end
     end
   end

@@ -158,7 +158,10 @@ describe Pry do
         expect(Hello.const_defined?(:Nested)).to eq true
       end
 
-      it 'should suppress output if input ends in a ";" and is an Exception object (single line)' do
+      it(
+        'should suppress output if input ends in a ";" and is an Exception ' \
+        'object (single line)'
+      ) do
         expect(mock_pry("Exception.new;")).to eq ""
       end
 
@@ -181,7 +184,8 @@ describe Pry do
       it 'should not try to catch intended exceptions' do
         expect { mock_pry("raise SystemExit") }.to raise_error SystemExit
         # SIGTERM
-        expect { mock_pry("raise SignalException.new(15)") }.to raise_error SignalException
+        expect { mock_pry("raise SignalException.new(15)") }
+          .to raise_error SignalException
       end
 
       describe "multi-line input" do
@@ -289,7 +293,8 @@ describe Pry do
         end
 
         it 'can change the size of the history arrays' do
-          expect(pry_tester(memory_size: 1000).eval("[_out_, _in_].map(&:max_size)")).to eq [1000, 1000]
+          expect(pry_tester(memory_size: 1000).eval("[_out_, _in_].map(&:max_size)"))
+            .to eq [1000, 1000]
         end
 
         it 'store exceptions' do
@@ -332,7 +337,10 @@ describe Pry do
         end
 
         it 'should nest properly' do
-          Pry.config.input = InputTester.new("cd 1", "cd 2", "cd 3", "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all")
+          Pry.config.input = InputTester.new(
+            "cd 1", "cd 2", "cd 3",
+            "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all"
+          )
 
           Pry.config.output = @str_output
 
@@ -344,34 +352,50 @@ describe Pry do
       end
 
       describe "defining methods" do
-        it 'should define a method on the singleton class of an object when performing "def meth;end" inside the object' do
+        it(
+          'defines a method on the singleton class of an object when performing ' \
+          '"def meth;end" inside the object'
+        ) do
           [Object.new, {}, []].each do |val|
             pry_eval(val, 'def hello; end')
             expect(val.methods(false).map(&:to_sym).include?(:hello)).to eq true
           end
         end
 
-        it 'should define an instance method on the module when performing "def meth;end" inside the module' do
+        it(
+          'defines an instance method on the module when performing ' \
+          '"def meth;end" inside the module'
+        ) do
           hello = Module.new
           pry_eval(hello, "def hello; end")
-          expect(hello.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
+          expect(hello.instance_methods(false).map(&:to_sym).include?(:hello))
+            .to be_truthy
         end
 
-        it 'should define an instance method on the class when performing "def meth;end" inside the class' do
+        it(
+          'defines an instance method on the class when performing ' \
+          '"def meth;end" inside the class'
+        ) do
           hello = Class.new
           pry_eval(hello, "def hello; end")
-          expect(hello.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
+          expect(hello.instance_methods(false).map(&:to_sym).include?(:hello))
+            .to be_truthy
         end
 
-        it 'should define a method on the class of an object when performing "def meth;end" inside an immediate value or Numeric' do
-          # JRuby behaves different than CRuby here (seems it always has to some extent, see 'unless' below).
-          # It didn't seem trivial to work around. Skip for now.
+        it(
+          'defines a method on the class of an object when performing ' \
+          '"def meth;end" inside an immediate value or Numeric'
+        ) do
+          # JRuby behaves different than CRuby here (seems it always has to some
+          # extent, see 'unless' below). It didn't seem trivial to work
+          # around. Skip for now.
           skip "JRuby incompatibility" if Pry::Helpers::Platform.jruby?
           [
             :test, 0, true, false, nil, (0.0 unless Pry::Helpers::Platform.jruby?)
           ].each do |val|
             pry_eval(val, "def hello; end")
-            expect(val.class.instance_methods(false).map(&:to_sym).include?(:hello)).to eq true
+            expect(val.class.instance_methods(false).map(&:to_sym).include?(:hello))
+              .to be_truthy
           end
         end
       end

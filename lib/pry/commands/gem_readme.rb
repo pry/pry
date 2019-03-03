@@ -20,7 +20,8 @@ class Pry
           raise Pry::CommandError, "Gem '#{name}' doesn't appear to have a README"
         end
       rescue Gem::LoadError
-        raise Pry::CommandError, "Gem '#{name}' wasn't found. Are you sure it is installed?"
+        raise Pry::CommandError,
+              "Gem '#{name}' wasn't found. Are you sure it is installed?"
       end
 
       Pry::Commands.add_command(self)

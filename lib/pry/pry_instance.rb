@@ -138,7 +138,11 @@ class Pry
 
     Pry.critical_section do
       completer = config.completer.new(config.input, self)
-      completer.call str, target: current_binding, custom_completions: custom_completions.call.push(*sticky_locals.keys)
+      completer.call(
+        str,
+        target: current_binding,
+        custom_completions: custom_completions.call.push(*sticky_locals.keys)
+      )
     end
   end
 
@@ -300,7 +304,9 @@ class Pry
     end
 
     if complete_expr
-      @suppress_output = true if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
+      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
+        @suppress_output = true
+      end
 
       # A bug in jruby makes java.lang.Exception not rescued by
       # `rescue Pry::RescuableException` clause.
@@ -327,7 +333,9 @@ class Pry
         # Eliminate following warning:
         # warning: singleton on non-persistent Java type X
         # (http://wiki.jruby.org/Persistence)
-        e.class.__persistent__ = true if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
+        if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
+          e.class.__persistent__ = true
+        end
         self.last_exception = e
         result = e
       end
@@ -434,7 +442,9 @@ class Pry
   # @return [Boolean] `true` if `val` is a command, `false` otherwise
   def process_command_safely(val)
     process_command(val)
-  rescue CommandError, Pry::Slop::InvalidOptionError, MethodSource::SourceNotFoundError => e
+  rescue CommandError,
+         Pry::Slop::InvalidOptionError,
+         MethodSource::SourceNotFoundError => e
     Pry.last_internal_error = e
     output.puts "Error: #{e.message}"
     true

@@ -6,21 +6,28 @@ describe "Pry::Command" do
 
   describe 'call_safely' do
     it 'should display a message if gems are missing' do
-      cmd = @set.create_command "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w[ghijkl] do
+      cmd = @set.create_command(
+        "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w[ghijkl]
+      ) do
       end
 
-      expect(mock_command(cmd, %w[hello world]).output).to match(/install-command ford-prefect/)
+      expect(mock_command(cmd, %w[hello world]).output)
+        .to match(/install-command ford-prefect/)
     end
 
     it 'should abort early if arguments are required' do
-      cmd = @set.create_command 'arthur-dent', "Doesn't understand Thursdays", argument_required: true do
+      cmd = @set.create_command(
+        'arthur-dent', "Doesn't understand Thursdays", argument_required: true
+      ) do
       end
 
       expect { mock_command(cmd, %w[]) }.to raise_error Pry::CommandError
     end
 
     it 'should return VOID without keep_retval' do
-      cmd = @set.create_command 'zaphod-beeblebrox', "Likes pan-Galactic Gargle Blasters" do
+      cmd = @set.create_command(
+        'zaphod-beeblebrox', "Likes pan-Galactic Gargle Blasters"
+      ) do
         def process
           3
         end
@@ -79,7 +86,8 @@ describe "Pry::Command" do
       @set.command 'oolon-colluphid', "Raving Atheist" do
       end
 
-      expect(mock_command(@set['help'], %w[oolon-colluphid], command_set: @set).output).to match(/Raving Atheist/)
+      expect(mock_command(@set['help'], %w[oolon-colluphid], command_set: @set).output)
+        .to match(/Raving Atheist/)
     end
 
     it 'should use slop to generate the help for classy commands' do
@@ -89,7 +97,8 @@ describe "Pry::Command" do
         end
       end
 
-      expect(mock_command(@set['help'], %w[eddie], command_set: @set).output).to match(/Over-cheerful/)
+      expect(mock_command(@set['help'], %w[eddie], command_set: @set).output)
+        .to match(/Over-cheerful/)
     end
 
     it 'should provide --help for classy commands' do
@@ -103,7 +112,9 @@ describe "Pry::Command" do
     end
 
     it 'should provide a -h for classy commands' do
-      cmd = @set.create_command 'zarniwoop', "On an intergalactic cruise, in his office." do
+      cmd = @set.create_command(
+        'zarniwoop', "On an intergalactic cruise, in his office."
+      ) do
         def options(opt)
           opt.on :e, :escape, "Help zaphod escape the Total Perspective Vortex"
         end
@@ -226,7 +237,9 @@ describe "Pry::Command" do
     end
 
     it 'should allow overriding options after definition' do
-      cmd = @set.create_command(/number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", shellwords: false) do
+      cmd = @set.create_command(
+        /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", shellwords: false
+      ) do
         command_options listing: 'number-one'
       end
 
@@ -337,7 +350,9 @@ describe "Pry::Command" do
 
     it 'should split on spaces if shellwords is not used' do
       expect do |probe|
-        cmd = @set.command('bugblatter-beast', 'would eat its grandmother', shellwords: false, &probe)
+        cmd = @set.command(
+          'bugblatter-beast', 'would eat its grandmother', shellwords: false, &probe
+        )
 
         cmd.new.process_line %(bugblatter-beast "of traal")
       end.to yield_with_args('"of', 'traal"')
@@ -458,14 +473,17 @@ describe "Pry::Command" do
     describe "block-related content removed from arguments" do
       describe "arg_string" do
         it 'should remove block-related content from arg_string (with one normal arg)' do
-          @set.block_command "walking-spanish", "down the hall", takes_block: true do |x, _y|
+          @set.block_command(
+            "walking-spanish", "down the hall", takes_block: true
+          ) do |x, _y|
             insert_variable(:@arg_string, arg_string, target)
             insert_variable(:@x, x, target)
           end
 
           @t.eval 'walking-spanish john| { :jesus }'
 
-          expect(@context.instance_variable_get(:@arg_string)).to eq @context.instance_variable_get(:@x)
+          expect(@context.instance_variable_get(:@arg_string))
+            .to eq(@context.instance_variable_get(:@x))
         end
 
         it 'should remove block-related content from arg_string (with no normal args)' do
@@ -478,7 +496,10 @@ describe "Pry::Command" do
           expect(@context.instance_variable_get(:@arg_string)).to eq ""
         end
 
-        it 'should NOT remove block-related content from arg_string when :takes_block => false' do
+        it(
+          "doesn't remove block-related content from arg_string " \
+          "when :takes_block => false"
+        ) do
           block_string = "| { :jesus }"
           @set.block_command "walking-spanish", "homemade special", takes_block: false do
             insert_variable(:@arg_string, arg_string, target)
@@ -493,7 +514,9 @@ describe "Pry::Command" do
       describe "args" do
         describe "block_command" do
           it "should remove block-related content from arguments" do
-            @set.block_command "walking-spanish", "glass is full of sand", takes_block: true do |x, y|
+            @set.block_command(
+              "walking-spanish", "glass is full of sand", takes_block: true
+            ) do |x, y|
               insert_variable(:@x, x, target)
               insert_variable(:@y, y, target)
             end
@@ -504,8 +527,12 @@ describe "Pry::Command" do
             expect(@context.instance_variable_get(:@y)).to eq nil
           end
 
-          it "should NOT remove block-related content from arguments if :takes_block => false" do
-            @set.block_command "walking-spanish", "litella screeching for a blind pig", takes_block: false do |x, y|
+          it(
+            "doesn't remove block-related content from arguments if :takes_block => false"
+          ) do
+            @set.block_command(
+              "walking-spanish", "litella screeching for a blind pig", takes_block: false
+            ) do |x, y|
               insert_variable(:@x, x, target)
               insert_variable(:@y, y, target)
             end
@@ -519,7 +546,9 @@ describe "Pry::Command" do
 
         describe "create_command" do
           it "should remove block-related content from arguments" do
-            @set.create_command "walking-spanish", "punk sanders carved one out of wood", takes_block: true do
+            @set.create_command(
+              "walking-spanish", "punk sanders carved one out of wood", takes_block: true
+            ) do
               def process(x, y)
                 insert_variable(:@x, x, target)
                 insert_variable(:@y, y, target)
@@ -532,7 +561,9 @@ describe "Pry::Command" do
             expect(@context.instance_variable_get(:@y)).to eq nil
           end
 
-          it "should NOT remove block-related content from arguments if :takes_block => false" do
+          it(
+            "doesn't remove block-related content from arguments if :takes_block => false"
+          ) do
             @set.create_command "walking-spanish", "down the hall", takes_block: false do
               def process(x, y)
                 insert_variable(:@x, x, target)

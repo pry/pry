@@ -1,5 +1,6 @@
 class Pry
   module Helpers
+    # rubocop:disable Metrics/ModuleLength
     module CommandHelpers
       include OptionsHelpers
 
@@ -23,17 +24,31 @@ class Pry
       def get_method_or_raise(name, target, opts = {}, omit_help = false)
         meth = Pry::Method.from_str(name, target, opts)
 
-        command_error("The method '#{name}' could not be found.", omit_help, MethodNotFound) if name && !meth
+        if name && !meth
+          command_error(
+            "The method '#{name}' could not be found.", omit_help, MethodNotFound
+          )
+        end
 
         (opts[:super] || 0).times do
           if meth.super
             meth = meth.super
           else
-            command_error("'#{meth.name_with_owner}' has no super method.", omit_help, MethodNotFound)
+            command_error(
+              "'#{meth.name_with_owner}' has no super method.",
+              omit_help,
+              MethodNotFound
+            )
           end
         end
 
-        command_error("No method name given, and context is not a method.", omit_help, MethodNotFound) if !meth || (!name && internal_binding?(target))
+        if !meth || (!name && internal_binding?(target))
+          command_error(
+            "No method name given, and context is not a method.",
+            omit_help,
+            MethodNotFound
+          )
+        end
 
         set_file_and_dir_locals(meth.source_file)
         meth
@@ -73,7 +88,8 @@ class Pry
         # Find the longest common whitespace to all indented lines
         # Ignore lines containing just -- or ++ as these seem to be used by
         # comment authors as delimeters.
-        margin = text.scan(/^[ \t]*(?!--\n|\+\+\n)(?=[^ \t\n])/).inject do |current_margin, next_indent|
+        scanned_text = text.scan(/^[ \t]*(?!--\n|\+\+\n)(?=[^ \t\n])/)
+        margin = scanned_text.inject do |current_margin, next_indent|
           if next_indent.start_with?(current_margin)
             current_margin
           elsif current_margin.start_with?(next_indent)
@@ -147,5 +163,6 @@ class Pry
         pry.inject_local("_dir_", pry.last_dir, ctx)
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

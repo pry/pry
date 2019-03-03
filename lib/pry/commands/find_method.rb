@@ -5,7 +5,8 @@ class Pry
 
       match 'find-method'
       group 'Context'
-      description 'Recursively search for a method within a Class/Module or the current namespace.'
+      description 'Recursively search for a method within a Class/Module or ' \
+                  'the current namespace.'
       command_options shellwords: false
 
       banner <<-'BANNER'
@@ -103,7 +104,9 @@ class Pry
       end
 
       def matched_method_lines(header, method)
-        method.source.split(/\n/).select { |x| x =~ pattern }.join("\n#{' ' * header.length}")
+        method.source.split(/\n/).select { |x| x =~ pattern }.join(
+          "\n#{' ' * header.length}"
+        )
       end
 
       # Run the given block against every constant in the provided namespace.
@@ -147,7 +150,8 @@ class Pry
         matches = []
 
         recurse_namespace(namespace) do |klass|
-          (Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)).each do |method|
+          methods = Pry::Method.all_from_class(klass) + Pry::Method.all_from_obj(klass)
+          methods.each do |method|
             next if done[method.owner][method.name]
 
             done[method.owner][method.name] = true

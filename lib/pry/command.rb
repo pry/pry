@@ -3,8 +3,9 @@ require 'pry/helpers/documentation_helpers'
 
 class Pry
   # The super-class of all commands, new commands should be created by calling
-  # {Pry::CommandSet#command} which creates a BlockCommand or {Pry::CommandSet#create_command}
-  # which creates a ClassCommand. Please don't use this class directly.
+  # {Pry::CommandSet#command} which creates a BlockCommand or
+  # {Pry::CommandSet#create_command} which creates a ClassCommand. Please don't
+  # use this class directly.
   class Command
     extend Helpers::DocumentationHelpers
     extend CodeObject::Helpers
@@ -177,7 +178,11 @@ class Pry
       # @return [Fixnum]
       def match_score(val)
         if command_regex =~ val
-          Regexp.last_match.size > 1 ? Regexp.last_match.begin(1) : Regexp.last_match.end(0)
+          if Regexp.last_match.size > 1
+            Regexp.last_match.begin(1)
+          else
+            Regexp.last_match.end(0)
+          end
         else
           -1
         end
@@ -352,7 +357,9 @@ class Pry
       self.class.command_regex =~ val
 
       # please call Command.matches? before Command#call_safely
-      raise CommandError, "fatal: called a command which didn't match?!" unless Regexp.last_match
+      unless Regexp.last_match
+        raise CommandError, "fatal: called a command which didn't match?!"
+      end
 
       captures = Regexp.last_match.captures
       pos = Regexp.last_match.end(0)
@@ -367,7 +374,11 @@ class Pry
 
       args =
         if arg_string
-          command_options[:shellwords] ? Shellwords.shellwords(arg_string) : arg_string.split(" ")
+          if command_options[:shellwords]
+            Shellwords.shellwords(arg_string)
+          else
+            arg_string.split(" ")
+          end
         else
           []
         end
@@ -381,7 +392,9 @@ class Pry
     def process_line(line)
       command_match, arg_string, captures, args = tokenize(line)
 
-      check_for_command_collision(command_match, arg_string) if Pry.config.collision_warning
+      if Pry.config.collision_warning
+        check_for_command_collision(command_match, arg_string)
+      end
 
       self.arg_string = arg_string
       self.captures = captures
@@ -445,7 +458,9 @@ WARN
         return void
       end
 
-      raise CommandError, "The command '#{command_name}' requires an argument." if command_options[:argument_required] && args.empty?
+      if command_options[:argument_required] && args.empty?
+        raise CommandError, "The command '#{command_name}' requires an argument."
+      end
 
       ret = use_unpatched_symbol do
         call_with_hooks(*args)

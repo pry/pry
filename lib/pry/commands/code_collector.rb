@@ -29,17 +29,21 @@ class Pry
         @input_expression_ranges = []
         @output_result_ranges = []
 
-        opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number or range",
+        opt.on :l, :lines, "Restrict to a subset of lines. Takes a line number " \
+                           "or range",
                optional_argument: true, as: Range, default: 1..-1
-        opt.on :o, :out, "Select lines from Pry's output result history. Takes an index or range",
+        opt.on :o, :out, "Select lines from Pry's output result history. " \
+                         "Takes an index or range",
                optional_argument: true, as: Range, default: -5..-1 do |r|
           output_result_ranges << (r || (-5..-1))
         end
-        opt.on :i, :in, "Select lines from Pry's input expression history. Takes an index or range",
+        opt.on :i, :in, "Select lines from Pry's input expression history. " \
+                        "Takes an index or range",
                optional_argument: true, as: Range, default: -5..-1 do |r|
           input_expression_ranges << (r || (-5..-1))
         end
-        opt.on :s, :super, "Select the 'super' method. Can be repeated to traverse the ancestors",
+        opt.on :s, :super, "Select the 'super' method. Can be repeated to " \
+                           "traverse the ancestors",
                as: :count
         opt.on :d, :doc, "Select lines from the code object's documentation"
       end
@@ -54,7 +58,11 @@ class Pry
       def content
         @content ||=
           begin
-            raise CommandError, "Only one of --out, --in, --doc and CODE_OBJECT may be specified." if bad_option_combination?
+            if bad_option_combination?
+              raise CommandError,
+                    "Only one of --out, --in, --doc and CODE_OBJECT may " \
+                    "be specified."
+            end
 
             content = if opts.present?(:o)
                         pry_output_content
@@ -92,7 +100,9 @@ class Pry
       #
       # @return [String]
       def pry_output_content
-        pry_array_content_as_string(_pry_.output_ring, self.class.output_result_ranges) do |v|
+        pry_array_content_as_string(
+          _pry_.output_ring, self.class.output_result_ranges
+        ) do |v|
           _pry_.config.gist.inspecter.call(v)
         end
       end
@@ -102,7 +112,9 @@ class Pry
       #
       # @return [String]
       def pry_input_content
-        pry_array_content_as_string(_pry_.input_ring, self.class.input_expression_ranges) { |v| v }
+        pry_array_content_as_string(
+          _pry_.input_ring, self.class.input_expression_ranges
+        ) { |v| v }
       end
 
       # The line range passed to `--lines`, converted to a 0-indexed range.
@@ -125,7 +137,9 @@ class Pry
       def pry_array_content_as_string(array, ranges)
         all = ''
         ranges.each do |range|
-          raise CommandError, "Minimum value for range is 1, not 0." if convert_to_range(range).first == 0
+          if convert_to_range(range).first == 0
+            raise CommandError, "Minimum value for range is 1, not 0."
+          end
 
           ranged_array = Array(array[range]) || []
           ranged_array.compact.each { |v| all << yield(v) }

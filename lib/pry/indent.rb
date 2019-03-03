@@ -145,7 +145,9 @@ class Pry
       input.lines.each do |line|
         if in_string?
           tokens = tokenize("#{open_delimiters_line}\n#{line}")
-          tokens = tokens.drop_while { |token, _type| !(String === token && token.include?("\n")) }
+          tokens = tokens.drop_while do |token, _type|
+            !(String === token && token.include?("\n"))
+          end
           previously_in_string = true
         else
           tokens = tokenize(line)
@@ -215,7 +217,8 @@ class Pry
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
       tokens.each do |token, kind|
-        is_singleline_if = SINGLELINE_TOKENS.include?(token) && end_of_statement?(last_token, last_kind)
+        is_singleline_if =
+          SINGLELINE_TOKENS.include?(token) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
 
         unless kind == :space
@@ -254,17 +257,18 @@ class Pry
       [remove_before, add_after]
     end
 
-    # If the code just before an "if" or "while" token on a line looks like the end of a statement,
-    # then we want to treat that "if" as a singleline, not multiline statement.
+    # If the code just before an "if" or "while" token on a line looks like the
+    # end of a statement, then we want to treat that "if" as a singleline, not
+    # multiline statement.
     def end_of_statement?(last_token, last_kind)
       (last_token =~ %r{^[)\]\}/]$} || STATEMENT_END_TOKENS.include?(last_kind))
     end
 
     # Are we currently in the middle of a string literal.
     #
-    # This is used to determine whether to re-indent a given line, we mustn't re-indent
-    # within string literals because to do so would actually change the value of the
-    # String!
+    # This is used to determine whether to re-indent a given line, we mustn't
+    # re-indent within string literals because to do so would actually change
+    # the value of the String!
     #
     # @return Boolean
     def in_string?
@@ -283,9 +287,10 @@ class Pry
 
     # Update the internal state about what kind of strings are open.
     #
-    # Most of the complication here comes from the fact that HEREDOCs can be nested. For
-    # normal strings (which can't be nested) we assume that CodeRay correctly pairs
-    # open-and-close delimiters so we don't bother checking what they are.
+    # Most of the complication here comes from the fact that HEREDOCs can be
+    # nested. For normal strings (which can't be nested) we assume that CodeRay
+    # correctly pairs open-and-close delimiters so we don't bother checking what
+    # they are.
     #
     # @param [String] token The token (of type :delimiter)
     def track_delimiter(token)

@@ -79,7 +79,10 @@ describe Pry::CodeObject do
           Pry.config.commands.delete("lobster-lady")
         end
 
-        it 'should return Pry::WrappedModule when looking up command class directly (as a class, not as a command)' do
+        it(
+          'returns Pry::WrappedModule when looking up command class directly ' \
+          '(as a class, not as a command)'
+        ) do
           Pry.config.commands.add_command(LobsterLady)
           m = Pry::CodeObject.lookup("LobsterLady", @p)
           expect(m.is_a?(Pry::WrappedModule)).to eq true
@@ -102,7 +105,7 @@ describe Pry::CodeObject do
       end
     end
 
-    it 'should lookup instance methods defined on classes accessed via local variable' do
+    it 'lookups instance methods defined on classes accessed via local variable' do
       o = Class.new do
         def princess_bubblegum
           "mathematic!"
@@ -268,8 +271,8 @@ describe Pry::CodeObject do
       expect(o.is_a?(Pry::WrappedModule)).to eq true
     end
 
-    # actually locals are never looked up (via co.default_lookup)  when they're classes, it
-    # just falls through to co.method_or_class
+    # actually locals are never looked up (via co.default_lookup) when they're
+    # classes, it just falls through to co.method_or_class
     it 'should look up classes before locals' do
       _c = ClassyWassy
       @p.binding_stack = [binding]

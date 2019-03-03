@@ -164,7 +164,11 @@ class Pry
       #
       def []=(key, value)
         key = key.to_s
-        raise ReservedKeyError, "It is not possible to use '#{key}' as a key name, please choose a different key name." if @reserved_keys.include?(key)
+        if @reserved_keys.include?(key)
+          raise ReservedKeyError,
+                "It is not possible to use '#{key}' as a key name, please " \
+                "choose a different key name."
+        end
 
         __push(key, value)
       end
@@ -267,7 +271,8 @@ class Pry
       #  [1] pry(main)> _pry_.config.keys.size
       #  => 13
       #  [2] pry(main)> _pry_.config.eager_load!;
-      #  [warning] Pry.config.exception_whitelist is deprecated, please use Pry.config.unrescued_exceptions instead.
+      #  [warning] Pry.config.exception_whitelist is deprecated,
+      #  please use Pry.config.unrescued_exceptions instead.
       #  [3] pry(main)> _pry_.config.keys.size
       #  => 40
       #

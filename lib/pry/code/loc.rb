@@ -1,7 +1,7 @@
 class Pry
   class Code
-    # Represents a line of code (which may, in fact, contain multiple lines if the
-    # entirety was eval'd as a single unit following the `edit` command).
+    # Represents a line of code (which may, in fact, contain multiple lines if
+    # the entirety was eval'd as a single unit following the `edit` command).
     #
     # A line of code is a tuple, which consists of a line and a line number. A
     # `LOC` object's state (namely, the line parameter) can be changed via
@@ -61,7 +61,12 @@ class Pry
       # @return [void]
       def add_line_number(max_width = 0, color = false)
         padded = lineno.to_s.rjust(max_width)
-        colorized_lineno = color ? Pry::Helpers::BaseHelpers.colorize_code(padded) : padded
+        colorized_lineno =
+          if color
+            Pry::Helpers::BaseHelpers.colorize_code(padded)
+          else
+            padded
+          end
         properly_padded_line = handle_multiline_entries_from_edit_command(line, max_width)
         tuple[0] = "#{colorized_lineno}: #{properly_padded_line}"
       end

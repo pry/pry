@@ -24,7 +24,10 @@ class Pry
 
             file_name, line = exception.bt_source_location_for(backtrace_level)
             raise CommandError, "Exception has no associated file." if file_name.nil?
-            raise CommandError, "Cannot edit exceptions raised in REPL." if Pry.eval_path == file_name
+
+            if Pry.eval_path == file_name
+              raise CommandError, "Cannot edit exceptions raised in REPL."
+            end
 
             [file_name, line]
           end

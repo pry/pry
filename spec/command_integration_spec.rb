@@ -240,8 +240,13 @@ describe "commands" do
   end
 
   # bug fix for https://github.com/pry/pry/issues/170
-  it 'should not choke on complex string interpolation when checking if ruby code is a command' do
-    redirect_pry_io(InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'), @str_output) do
+  it(
+    "doesn't choke on complex string interpolation when checking if ruby code " \
+    "is a command"
+  ) do
+    redirect_pry_io(
+      InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'), @str_output
+    ) do
       pry
     end
 
@@ -300,7 +305,10 @@ describe "commands" do
     expect(pry_tester(commands: set).eval('hello1')).to match(/hello1/)
   end
 
-  it 'should create a regex command and pass captures into the args list before regular arguments' do
+  it(
+    'creates a regex command and passes captures into the args list ' \
+    'before regular arguments'
+  ) do
     set = Pry::CommandSet.new do
       command(/hello(.)/, "") do |c1, a1|
         output.puts "hello #{c1} #{a1}"
@@ -348,8 +356,12 @@ describe "commands" do
     expect(pry_tester(commands: set).eval('hello baby')).to match(/hello nil baby/)
   end
 
-  it 'should create a command in a nested context and that command should be accessible from the parent' do
-    expect(pry_tester(Object.new).eval(*<<-RUBY.split("\n"))).to match(/instance variables:\s+@x/m)
+  it(
+    'creates a command in a nested context and that command should ' \
+    'be accessible from the parent'
+  ) do
+    tester = pry_tester(Object.new)
+    expect(tester.eval(*<<-RUBY.split("\n"))).to match(/instance variables:\s+@x/m)
       @x = nil
       cd 7
       _pry_.commands.instance_eval { command('bing') { |arg| run arg } }
@@ -394,7 +406,10 @@ describe "commands" do
     expect(t.last_command_result).to eq nil
   end
 
-  it 'should define a command that keeps its return value but does not return when value is void' do
+  it(
+    'should define a command that keeps its return value but does not ' \
+    'return when value is void'
+  ) do
     klass = Pry::CommandSet.new do
       command "hello", "", keep_retval: true do
         void
@@ -404,7 +419,10 @@ describe "commands" do
     expect(pry_tester(commands: klass).eval("hello\n").empty?).to eq true
   end
 
-  it 'a command (with :keep_retval => false) that replaces eval_string with a valid expression should not have the expression value suppressed' do
+  it(
+    "a command (with :keep_retval => false) that replaces eval_string with a " \
+    "valid expression doesn't have the expression value suppressed"
+  ) do
     klass = Pry::CommandSet.new do
       command "hello", "" do
         eval_string.replace("6")
@@ -418,7 +436,10 @@ describe "commands" do
     expect(@str_output.string).to match(/6/)
   end
 
-  it 'a command (with :keep_retval => true) that replaces eval_string with a valid expression should overwrite the eval_string with the return value' do
+  it(
+    'a command (with :keep_retval => true) that replaces eval_string with ' \
+    'a valid expression overwrites the eval_string with the return value'
+  ) do
     klass = Pry::CommandSet.new do
       command "hello", "", keep_retval: true do
         eval_string.replace("6")
@@ -429,7 +450,10 @@ describe "commands" do
     expect(pry_tester(commands: klass).eval("def yo\nhello\n")).to eq 7
   end
 
-  it 'a command that return a value in a multi-line expression should clear the expression and return the value' do
+  it(
+    'a command that return a value in a multi-line expression clears ' \
+    'the expression and return the value'
+  ) do
     klass = Pry::CommandSet.new do
       command "hello", "", keep_retval: true do
         5
@@ -482,7 +506,10 @@ describe "commands" do
     expect(commands["help"].description).to eq "blah"
   end
 
-  it 'should enable an inherited method to access opts and output and target, due to instance_exec' do
+  it(
+    'enables an inherited method to access opts, output and target, ' \
+    'due to instance_exec'
+  ) do
     klass = Pry::CommandSet.new do
       command "v" do
         output.puts target.eval('self').to_s

@@ -55,7 +55,8 @@ class Pry
         array[range] = arg_string + "\n"
       end
 
-      # @return [Fixnum] The number of lines currently in `eval_string` (the input buffer).
+      # @return [Fixnum] The number of lines currently in `eval_string` (the
+      #   input buffer)
       def line_count
         eval_string.lines.count
       end

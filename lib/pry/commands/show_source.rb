@@ -29,7 +29,8 @@ class Pry
       BANNER
 
       def options(opt)
-        opt.on :e, :eval, "evaluate the command's argument as a ruby expression and show the class its return value"
+        opt.on :e, :eval, "evaluate the command's argument as a ruby " \
+                          "expression and show the class its return value"
         opt.on :d, :doc, 'include documentation in the output'
         super(opt)
       end
@@ -69,7 +70,9 @@ class Pry
           # command '--help' shouldn't use markup highlighting
           docs
         else
-          raise CommandError, "No docs found for: #{obj_name || 'current context'}" if docs.empty?
+          if docs.empty?
+            raise CommandError, "No docs found for: #{obj_name || 'current context'}"
+          end
 
           process_comment_markup(docs)
         end

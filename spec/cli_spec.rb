@@ -5,7 +5,8 @@ RSpec.describe Pry::CLI do
 
   describe "parsing options" do
     it 'should raise if no options defined' do
-      expect { Pry::CLI.parse_options(["--nothing"]) }.to raise_error Pry::CLI::NoOptionsError
+      expect { Pry::CLI.parse_options(["--nothing"]) }
+        .to raise_error Pry::CLI::NoOptionsError
     end
 
     it "should remove args from ARGV by default" do

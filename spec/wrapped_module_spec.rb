@@ -48,19 +48,25 @@ describe Pry::WrappedModule do
 
     describe "ordering of candidates" do
       it 'should return class with largest number of methods as primary candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).file).to match(/helper1/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).file)
+          .to match(/helper1/)
       end
 
-      it 'should return class with second largest number of methods as second ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).file).to match(/helper2/)
+      it(
+        'returns class with second largest number of methods as second ranked candidate'
+      ) do
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).file)
+          .to match(/helper2/)
       end
 
-      it 'should return class with third largest number of methods as third ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).file).to match(/#{__FILE__}/)
+      it 'returns class with third largest number of methods as third ranked candidate' do
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).file)
+          .to match(/#{__FILE__}/)
       end
 
       it 'should raise when trying to access non-existent candidate' do
-        expect { Pry::WrappedModule(Host::CandidateTest).candidate(3) }.to raise_error Pry::CommandError
+        expect { Pry::WrappedModule(Host::CandidateTest).candidate(3) }
+          .to raise_error Pry::CommandError
       end
     end
 
@@ -70,9 +76,10 @@ describe Pry::WrappedModule do
         expect(wm.source_location).to eq wm.candidate(0).source_location
       end
 
-      it 'should return the location of the outer module if an inner module has methods' do
+      it 'returns the location of the outer module if an inner module has methods' do
         wm = Pry::WrappedModule(Host::ForeverAlone)
-        expect(File.expand_path(wm.source_location.first)).to eq File.expand_path(__FILE__)
+        expect(File.expand_path(wm.source_location.first))
+          .to eq File.expand_path(__FILE__)
         expect(wm.source_location.last).to eq Host::FOREVER_ALONE_LINE
       end
 
@@ -88,20 +95,25 @@ describe Pry::WrappedModule do
       end
 
       it 'should return source for highest ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).source).to match(/test1/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).source)
+          .to match(/test1/)
       end
 
       it 'should return source for second ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).source).to match(/test4/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).source)
+          .to match(/test4/)
       end
 
       it 'should return source for third ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).source).to match(/test6/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).source)
+          .to match(/test6/)
       end
 
       it 'should return source for deeply nested class' do
-        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source).to match(/nested_method/)
-        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source.lines.count).to eq(3)
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).source)
+          .to match(/nested_method/)
+        mod = Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested)
+        expect(mod.source.lines.count).to eq(3)
       end
     end
 
@@ -112,19 +124,23 @@ describe Pry::WrappedModule do
       end
 
       it 'should return doc for highest ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).doc).to match(/rank 0/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(0).doc)
+          .to match(/rank 0/)
       end
 
       it 'should return doc for second ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).doc).to match(/rank 1/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(1).doc)
+          .to match(/rank 1/)
       end
 
       it 'should return doc for third ranked candidate' do
-        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).doc).to match(/rank 2/)
+        expect(Pry::WrappedModule(Host::CandidateTest).candidate(2).doc)
+          .to match(/rank 2/)
       end
 
       it 'should return docs for deeply nested class' do
-        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc).to match(/nested docs/)
+        expect(Pry::WrappedModule(Host::ForeverAlone::DoublyNested::TriplyNested).doc)
+          .to match(/nested docs/)
       end
     end
   end
@@ -160,7 +176,8 @@ describe Pry::WrappedModule do
     end
 
     example "of singleton classes of anonymous classes should not be empty" do
-      expect(Pry::WrappedModule.new(class << Class.new; self; end).method_prefix).to match(/#<Class:.*>./)
+      expect(Pry::WrappedModule.new(class << Class.new; self; end).method_prefix)
+        .to match(/#<Class:.*>./)
     end
   end
 
@@ -180,12 +197,15 @@ describe Pry::WrappedModule do
 
   describe ".singleton_instance" do
     it "should raise an exception when called on a non-singleton-class" do
-      expect { Pry::WrappedModule.new(Class).singleton_instance }.to raise_error ArgumentError
+      expect { Pry::WrappedModule.new(Class).singleton_instance }
+        .to raise_error ArgumentError
     end
 
     it "should return the attached object" do
-      expect(Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance).to eq "hi"
-      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance).to equal(Object)
+      expect(Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance)
+        .to eq "hi"
+      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance)
+        .to equal(Object)
     end
   end
 

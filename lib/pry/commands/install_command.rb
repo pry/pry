@@ -13,7 +13,7 @@ class Pry
       BANNER
 
       def process(name)
-        require 'rubygems/dependency_installer' unless defined? Gem::DependencyInstaller
+        require 'rubygems/dependency_installer'
         command = find_command(name)
 
         unless command
@@ -47,7 +47,10 @@ class Pry
           end
         end
 
-        output.puts "Installation of #{green(name)} successful! Type `help #{name}` for information"
+        output.puts(
+          "Installation of #{green(name)} successful! Type `help #{name}` " \
+          "for information"
+        )
       end
     end
 

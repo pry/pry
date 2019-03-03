@@ -38,7 +38,8 @@ describe "edit" do
     it "should not allow patching any known kind of file" do
       ["file.rb", "file.c", "file.py", "file.yml", "file.gemspec",
        "/tmp/file", "\\\\Temp\\\\file"].each do |file|
-        expect { pry_eval "edit -p #{file}" }.to raise_error(NotImplementedError, /Cannot yet patch false objects!/)
+        expect { pry_eval "edit -p #{file}" }
+          .to raise_error(NotImplementedError, /Cannot yet patch false objects!/)
       end
     end
 
@@ -77,7 +78,9 @@ describe "edit" do
       it "should work with require relative" do
         Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << 'require_relative "baz.rb"' }
-          File.open(file.gsub('bar.rb', 'baz.rb'), 'w') { |f| f << "Pad.required = true; FileUtils.rm(__FILE__)" }
+          File.open(file.gsub('bar.rb', 'baz.rb'), 'w') do |f|
+            f << "Pad.required = true; FileUtils.rm(__FILE__)"
+          end
           nil
         }
         pry_eval "edit #{@tf_path}"
@@ -403,11 +406,15 @@ describe "edit" do
     end
 
     it "should not work with a filename" do
-      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(Pry::CommandError, /Only one of --ex, --temp, --in, --method and FILE/)
+      expect { pry_eval 'edit ruby.rb -i' }.to raise_error(
+        Pry::CommandError, /Only one of --ex, --temp, --in, --method and FILE/
+      )
     end
 
     it "should not work with nonsense" do
-      expect { pry_eval 'edit --in three' }.to raise_error(Pry::CommandError, /Not a valid range: three/)
+      expect { pry_eval 'edit --in three' }.to raise_error(
+        Pry::CommandError, /Not a valid range: three/
+      )
     end
   end
 
@@ -677,8 +684,9 @@ describe "edit" do
           end
 
           it "should work for a method on an instance" do
-            def_before, def_after =
-              apply_monkey_patch(X.instance_method(:x), 'instance = X.new', "#{@edit} instance.x")
+            def_before, def_after = apply_monkey_patch(
+              X.instance_method(:x), 'instance = X.new', "#{@edit} instance.x"
+            )
 
             expect(def_before).to   eq ':nope'
             expect(def_after).to    eq ':nope'
@@ -797,11 +805,13 @@ describe "edit" do
       end
 
       t = pry_tester(BinkyWink.new.m1)
-      expect { t.process_command "edit -m -n" }.to raise_error(Pry::CommandError, /Cannot find a file for/)
+      expect { t.process_command "edit -m -n" }
+        .to raise_error(Pry::CommandError, /Cannot find a file for/)
     end
 
     it 'errors when a filename arg is passed with --method' do
-      expect { @t.process_command "edit -m Pry#repl" }.to raise_error(Pry::CommandError, /Only one of/)
+      expect { @t.process_command "edit -m Pry#repl" }
+        .to raise_error(Pry::CommandError, /Only one of/)
     end
   end
 
@@ -821,7 +831,8 @@ describe "edit" do
     end
 
     it 'should display a nice error message when cannot open a file' do
-      expect { @t.process_command "edit TrinkyDink#m" }.to raise_error(Pry::CommandError, /Cannot find a file for/)
+      expect { @t.process_command "edit TrinkyDink#m" }
+        .to raise_error(Pry::CommandError, /Cannot find a file for/)
     end
   end
 end

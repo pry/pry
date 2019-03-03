@@ -37,8 +37,9 @@ class Pry
         if Pry::Prompt[prompt]
           _pry_.prompt = Pry::Prompt[prompt]
         else
-          raise Pry::CommandError, "'#{prompt}' isn't a known prompt. " \
-                                   "Run `change-prompt --list` to see the list of known prompts."
+          raise Pry::CommandError,
+                "'#{prompt}' isn't a known prompt. Run `change-prompt --list` " \
+                "to see the list of known prompts."
         end
       end
 

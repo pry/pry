@@ -45,7 +45,9 @@ class Pry
       end
 
       unless _pry_.eval_string.empty?
-        _pry_.output.puts "#{_pry_.eval_string}...exception encountered, going interactive!"
+        _pry_.output.puts(
+          "#{_pry_.eval_string}...exception encountered, going interactive!"
+        )
         interactive_mode(_pry_)
       end
     end
@@ -59,7 +61,9 @@ class Pry
         s.interactive_mode(_pry_)
       end
 
-      Pry::Commands.command "load-file", "Load another file through the repl" do |file_name|
+      Pry::Commands.command(
+        "load-file", "Load another file through the repl"
+      ) do |file_name|
         s.non_interactive_mode(_pry_, File.read(File.expand_path(file_name)))
       end
     end

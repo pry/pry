@@ -5,7 +5,9 @@ $LOAD_PATH.unshift 'lib'
 require 'pry/version'
 
 CLOBBER.include('**/*~', '**/*#*', '**/*.log')
-CLEAN.include('**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*')
+CLEAN.include(
+  '**/*#*', '**/*#*.*', '**/*_flymake*.*', '**/*_flymake', '**/*.rbc', '**/.#*.*'
+)
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
@@ -112,6 +114,8 @@ namespace :docker do
 
   desc "test pry on multiple ruby versions"
   task test: :build do
-    system "docker run -i -t -v /tmp/prytmp:/tmp/prytmp pry/pry ./multi_test_inside_docker.sh"
+    system(
+      "docker run -i -t -v /tmp/prytmp:/tmp/prytmp pry/pry ./multi_test_inside_docker.sh"
+    )
   end
 end

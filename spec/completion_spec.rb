@@ -33,11 +33,19 @@ describe Pry::InputCompleter do
 
   it "should not crash if there's a Module that has a symbolic name." do
     skip unless Pry::Helpers::Platform.jruby?
-    expect { Pry::InputCompleter.new(Readline).call "a.to_s.", target: Pry.binding_for(Object.new) }.not_to raise_error
+    expect do
+      Pry::InputCompleter.new(Readline).call(
+        "a.to_s.", target: Pry.binding_for(Object.new)
+      )
+    end.not_to raise_error
   end
 
   it 'should take parenthesis and other characters into account for symbols' do
-    expect { Pry::InputCompleter.new(Readline).call ":class)", target: Pry.binding_for(Object.new) }.not_to raise_error
+    expect do
+      Pry::InputCompleter.new(Readline).call(
+        ":class)", target: Pry.binding_for(Object.new)
+      )
+    end.not_to raise_error
   end
 
   it 'should complete instance variables' do
@@ -114,7 +122,8 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod)).include?('Mod2/')).to eq(true)
+    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod))
+      .include?('Mod2/')).to eq(true)
   end
 
   it 'should complete for arbitrary scopes' do
@@ -186,7 +195,8 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod)).include?('Mod2/')).to eq(true)
+    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod))
+      .include?('Mod2/')).to eq(true)
   end
 
   it 'should complete for arbitrary scopes' do
@@ -211,7 +221,8 @@ describe Pry::InputCompleter do
 
   it 'should not return nil in its output' do
     pry = Pry.new
-    expect(Pry::InputCompleter.new(Readline, pry).call("pry.", target: binding)).not_to include nil
+    expect(Pry::InputCompleter.new(Readline, pry).call("pry.", target: binding))
+      .not_to include nil
   end
 
   it 'completes expressions with all available methods' do

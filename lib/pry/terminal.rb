@@ -43,7 +43,9 @@ class Pry
           require 'io/console'
 
           begin
-            $stdout.winsize if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
+            if $stdout.respond_to?(:tty?) && $stdout.tty? && $stdout.respond_to?(:winsize)
+              $stdout.winsize
+            end
           rescue Errno::EOPNOTSUPP
             # $stdout is probably a socket, which doesn't support #winsize.
           end

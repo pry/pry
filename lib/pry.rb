@@ -7,7 +7,9 @@ require 'pry/hooks'
 
 class Pry
   # The default hooks - display messages when beginning and ending Pry sessions.
-  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(:before_session, :default) do |_out, _target, _pry_|
+  DEFAULT_HOOKS = Pry::Hooks.new.add_hook(
+    :before_session, :default
+  ) do |_out, _target, _pry_|
     next if _pry_.quiet?
 
     _pry_.run_command("whereami --quiet")
@@ -75,7 +77,9 @@ class Pry
   end
 
   DEFAULT_SYSTEM = proc do |output, cmd, _|
-    output.puts "Error: there was a problem executing system command: #{cmd}" unless system(cmd)
+    unless system(cmd)
+      output.puts "Error: there was a problem executing system command: #{cmd}"
+    end
   end
 
   # This is to keep from breaking under Rails 3.2 for people who are doing that

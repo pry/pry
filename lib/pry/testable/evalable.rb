@@ -9,7 +9,12 @@ class Pry
       end
 
       def pry_eval(*eval_strs)
-        b = String === eval_strs.first ? Pry.toplevel_binding : Pry.binding_for(eval_strs.shift)
+        b =
+          if String === eval_strs.first
+            Pry.toplevel_binding
+          else
+            Pry.binding_for(eval_strs.shift)
+          end
         pry_tester(b).eval(*eval_strs)
       end
     end

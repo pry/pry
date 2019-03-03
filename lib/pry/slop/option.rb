@@ -49,11 +49,15 @@ class Pry
           count: proc { @count }
         }
 
-        @slop.config[:longest_flag] = long.size if long && long.size > @slop.config[:longest_flag]
+        if long && long.size > @slop.config[:longest_flag]
+          @slop.config[:longest_flag] = long.size
+        end
 
         @config.each_key do |key|
           predicate = :"#{key}?"
-          self.class.__send__(:define_method, predicate) { !!@config[key] } unless self.class.method_defined? predicate
+          unless self.class.method_defined?(predicate)
+            self.class.__send__(:define_method, predicate) { !!@config[key] }
+          end
         end
       end
 
@@ -88,7 +92,9 @@ class Pry
         if config[:as].to_s.casecmp('array') == 0
           @value ||= []
 
-          @value.concat new_value.split(config[:delimiter], config[:limit]) if new_value.respond_to?(:split)
+          if new_value.respond_to?(:split)
+            @value.concat new_value.split(config[:delimiter], config[:limit])
+          end
         else
           @value = new_value
         end

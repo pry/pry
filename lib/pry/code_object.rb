@@ -113,7 +113,8 @@ class Pry
 
     # lookup variables and constants and `self` that are not modules
     def default_lookup
-      # we skip instance methods as we want those to fall through to method_or_class_lookup()
+      # we skip instance methods as we want those to fall through to
+      # method_or_class_lookup()
       if safe_to_evaluate?(str) && !looks_like_an_instance_method?(str)
         obj = target.eval(str)
 
@@ -130,12 +131,15 @@ class Pry
     end
 
     def method_or_class_lookup
-      obj = case str
-            when /\S+\(\)\z/
-              Pry::Method.from_str(str.sub(/\(\)\z/, ''), target) || Pry::WrappedModule.from_str(str, target)
-            else
-              Pry::WrappedModule.from_str(str, target) || Pry::Method.from_str(str, target)
-            end
+      obj =
+        case str
+        when /\S+\(\)\z/
+          Pry::Method.from_str(str.sub(/\(\)\z/, ''), target) ||
+          Pry::WrappedModule.from_str(str, target)
+        else
+          Pry::WrappedModule.from_str(str, target) ||
+          Pry::Method.from_str(str, target)
+        end
 
       lookup_super(obj, super_level)
     end

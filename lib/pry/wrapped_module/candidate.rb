@@ -41,7 +41,9 @@ class Pry
         if number_of_candidates <= 0
           raise CommandError, "Cannot find a definition for #{name} module!"
         elsif rank > (number_of_candidates - 1)
-          raise CommandError, "No such module candidate. Allowed candidates range is from 0 to #{number_of_candidates - 1}"
+          raise CommandError,
+                "No such module candidate. Allowed candidates range is " \
+                "from 0 to #{number_of_candidates - 1}"
         end
 
         @source = @source_location = nil
@@ -56,7 +58,9 @@ class Pry
         return nil if file.nil?
         return @source if @source
 
-        @source ||= strip_leading_whitespace(Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk))
+        @source ||= strip_leading_whitespace(
+          Pry::Code.from_file(file).expression_at(line, number_of_lines_in_first_chunk)
+        )
       end
 
       # @raise [Pry::CommandError] If documentation cannot be found.
@@ -116,11 +120,12 @@ class Pry
         @end_method_source_location ||= method_candidates[@rank].last.source_location
       end
 
-      # Return the number of lines between the start of the class definition
-      # and the start of the last method. We use this value so we can
-      # quickly grab these lines from the file (without having to
-      # check each intervening line for validity, which is expensive) speeding up source extraction.
-      # @return [Fixum] Number of lines.
+      # Return the number of lines between the start of the class definition and
+      # the start of the last method. We use this value so we can quickly grab
+      # these lines from the file (without having to check each intervening line
+      # for validity, which is expensive) speeding up source extraction.
+      #
+      # @return [Integer] number of lines.
       def number_of_lines_in_first_chunk
         end_method_line = last_method_source_location.last
 

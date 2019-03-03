@@ -27,7 +27,9 @@ RSpec.describe Pry::Config do
   end
 
   describe "bug #1552" do
-    specify "a local key has precendence over its default when the stored value is false" do
+    specify(
+      "a local key has precendence over its default when the stored value is false"
+    ) do
       local = described_class.from_hash({}, described_class.from_hash('color' => true))
       local.color = false
       expect(local.color).to eq(false)

@@ -3,7 +3,8 @@ class Pry
     class ShowInput < Pry::ClassCommand
       match 'show-input'
       group 'Editing'
-      description 'Show the contents of the input buffer for the current multi-line expression.'
+      description 'Show the contents of the input buffer for the current ' \
+                  'multi-line expression.'
 
       banner <<-'BANNER'
         Show the contents of the input buffer for the current multi-line expression.

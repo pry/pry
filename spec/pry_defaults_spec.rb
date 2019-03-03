@@ -46,7 +46,8 @@ describe "test Pry defaults" do
         end
       end.new
 
-      expect { Pry.start(self, input: arity_zero_input, output: StringIO.new) }.to_not raise_error
+      expect { Pry.start(self, input: arity_zero_input, output: StringIO.new) }
+        .to_not raise_error
     end
 
     it 'should not pass in the prompt if the arity is -1' do
@@ -105,23 +106,30 @@ describe "test Pry defaults" do
 
   describe "pry return values" do
     it 'should return nil' do
-      expect(Pry.start(self, input: StringIO.new("exit-all"), output: StringIO.new)).to eq nil
+      expect(Pry.start(self, input: StringIO.new("exit-all"), output: StringIO.new))
+        .to eq nil
     end
 
     it 'should return the parameter given to exit-all' do
-      expect(Pry.start(self, input: StringIO.new("exit-all 10"), output: StringIO.new)).to eq 10
+      expect(Pry.start(self, input: StringIO.new("exit-all 10"), output: StringIO.new))
+        .to eq 10
     end
 
     it 'should return the parameter (multi word string) given to exit-all' do
-      expect(Pry.start(self, input: StringIO.new("exit-all \"john mair\""), output: StringIO.new)).to eq "john mair"
+      input = StringIO.new("exit-all \"john mair\"")
+      expect(Pry.start(self, input: input, output: StringIO.new)).to eq "john mair"
     end
 
     it 'should return the parameter (function call) given to exit-all' do
-      expect(Pry.start(self, input: StringIO.new("exit-all 'abc'.reverse"), output: StringIO.new)).to eq 'cba'
+      input = StringIO.new("exit-all 'abc'.reverse")
+      expect(Pry.start(self, input: input, output: StringIO.new)).to eq 'cba'
     end
 
     it 'should return the parameter (self) given to exit-all' do
-      expect(Pry.start("carl", input: StringIO.new("exit-all self"), output: StringIO.new)).to eq "carl"
+      pry = Pry.start(
+        "carl", input: StringIO.new("exit-all self"), output: StringIO.new
+      )
+      expect(pry).to eq "carl"
     end
   end
 
@@ -138,7 +146,7 @@ describe "test Pry defaults" do
       [a, b]
     end
 
-    it 'should set the prompt default, and the default should be overridable (single prompt)' do
+    it 'sets the prompt default, and the default should be overridable (single prompt)' do
       Pry.prompt = Pry::Prompt.new(:test, '', Array.new(2) { proc { '>' } })
       new_prompt = Pry::Prompt.new(:new_test, '', Array.new(2) { proc { 'A' } })
 
@@ -155,7 +163,7 @@ describe "test Pry defaults" do
       expect(get_prompts(pry)).to eq(%w[> >])
     end
 
-    it 'should set the prompt default, and the default should be overridable (multi prompt)' do
+    it 'sets the prompt default, and the default should be overridable (multi prompt)' do
       Pry.prompt = Pry::Prompt.new(:test, '', [proc { '>' }, proc { '*' }])
       new_prompt = Pry::Prompt.new(:new_test, '', [proc { 'A' }, proc { 'B' }])
 
@@ -264,7 +272,10 @@ describe "test Pry defaults" do
         end
       end
 
-      it "returns #<> format of the special-cased immediate object if #inspect is longer than maximum" do
+      it(
+        "returns #<> format of the special-cased immediate object if " \
+        "#inspect is longer than maximum"
+      ) do
         o = "o" * (MAX_LENGTH + 1)
         expect(Pry.view_clip(o, DEFAULT_OPTIONS)).to match(/#<String/)
       end
@@ -292,7 +303,9 @@ describe "test Pry defaults" do
       end
     end
 
-    describe "given a regular object with an #inspect string longer than the maximum specified" do
+    describe(
+      "given a regular object with an #inspect string longer than the maximum specified"
+    ) do
       describe "when the object is a regular one" do
         it "returns a string of the #<class name:object idish> format" do
           o = Object.new

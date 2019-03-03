@@ -22,7 +22,8 @@ class Pry
         # Has the value of the expression changed?
         #
         # We use the pretty-printed string represenation to detect differences
-        # as this avoids problems with dup (causes too many differences) and == (causes too few)
+        # as this avoids problems with dup (causes too many differences) and ==
+        # (causes too few)
         def changed?
           (value != previous_value)
         end

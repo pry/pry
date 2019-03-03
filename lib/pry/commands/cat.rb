@@ -24,12 +24,18 @@ class Pry
       BANNER
 
       def options(opt)
-        opt.on :ex,        "Show the context of the last exception", optional_argument: true, as: Integer
-        opt.on :i, :in,    "Show one or more entries from Pry's expression history", optional_argument: true, as: Range, default: -5..-1
-        opt.on :s, :start, "Starting line (defaults to the first line)", optional_argument: true, as: Integer
-        opt.on :e, :end,   "Ending line (defaults to the last line)", optional_argument: true, as: Integer
+        opt.on :ex, "Show the context of the last exception",
+               optional_argument: true, as: Integer
+        opt.on :i, :in, "Show one or more entries from Pry's expression history",
+               optional_argument: true, as: Range, default: -5..-1
+        opt.on :s, :start, "Starting line (defaults to the first line)",
+               optional_argument: true, as: Integer
+        opt.on :e, :end, "Ending line (defaults to the last line)",
+               optional_argument: true, as: Integer
         opt.on :l, :'line-numbers', "Show line numbers"
-        opt.on :t, :type, "The file type for syntax highlighting (e.g., 'ruby' or 'python')", argument: true, as: Symbol
+        opt.on :t, :type, "The file type for syntax highlighting " \
+                          "(e.g., 'ruby' or 'python')",
+               argument: true, as: Symbol
       end
 
       def process

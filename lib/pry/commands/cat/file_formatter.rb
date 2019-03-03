@@ -7,7 +7,9 @@ class Pry
         attr_reader :_pry_
 
         def initialize(file_with_embedded_line, _pry_, opts)
-          raise CommandError, "Must provide a filename, --in, or --ex." unless file_with_embedded_line
+          unless file_with_embedded_line
+            raise CommandError, "Must provide a filename, --in, or --ex."
+          end
 
           @file_with_embedded_line = file_with_embedded_line
           @opts = opts

@@ -19,7 +19,10 @@ class Pry
     end
 
     def invoke_editor(file, line, blocking = true)
-      raise CommandError, "Please set Pry.config.editor or export $VISUAL or $EDITOR" unless _pry_.config.editor
+      unless _pry_.config.editor
+        raise CommandError,
+              "Please set Pry.config.editor or export $VISUAL or $EDITOR"
+      end
 
       editor_invocation = build_editor_invocation_string(file, line, blocking)
       return nil unless editor_invocation
@@ -42,7 +45,10 @@ class Pry
         _pry_.config.editor.call(*args)
       else
         sanitized_file = Helpers::Platform.windows? ? file : Shellwords.escape(file)
-        "#{_pry_.config.editor} #{blocking_flag_for_editor(blocking)} #{start_line_syntax_for_editor(sanitized_file, line)}"
+        editor = _pry_.config.editor
+        flag = blocking_flag_for_editor(blocking)
+        start_line = start_line_syntax_for_editor(sanitized_file, line)
+        "#{editor} #{flag} #{start_line}"
       end
     end
 
@@ -51,7 +57,11 @@ class Pry
       # Note we dont want to use Pry.config.system here as that
       # may be invoked non-interactively (i.e via Open4), whereas we want to
       # ensure the editor is always interactive
-      system(*Shellwords.split(editor_invocation)) || raise(CommandError, "`#{editor_invocation}` gave exit status: #{$CHILD_STATUS.exitstatus}")
+      system(*Shellwords.split(editor_invocation)) ||
+        raise(
+          CommandError,
+          "`#{editor_invocation}` gave exit status: #{$CHILD_STATUS.exitstatus}"
+        )
     end
 
     # We need JRuby specific code here cos just shelling out using

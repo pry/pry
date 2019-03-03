@@ -86,7 +86,7 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 # ExcludedMethods: refine
 Metrics/BlockLength:
-  Max: 760
+  Max: 794
 
 # Offense count: 1
 # Configuration parameters: CountBlocks.
@@ -313,9 +313,3 @@ Style/PerlBackrefs:
     - 'lib/pry/last_exception.rb'
     - 'lib/pry/method.rb'
     - 'lib/pry/rubygem.rb'
-
-# Offense count: 869
-# Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
-# URISchemes: http, https
-Metrics/LineLength:
-  Max: 205

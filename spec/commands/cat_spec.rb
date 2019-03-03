@@ -15,13 +15,15 @@ describe "cat" do
 
   describe "when invoked without arguments" do
     it 'should display an error message' do
-      expect { @t.eval 'cat' }.to raise_error(Pry::CommandError, /Must provide a filename/)
+      expect { @t.eval 'cat' }
+        .to raise_error(Pry::CommandError, /Must provide a filename/)
     end
   end
 
   describe "on receiving a file that does not exist" do
     it 'should display an error message' do
-      expect { @t.eval 'cat supercalifragilicious66' }.to raise_error(StandardError, /Cannot open/)
+      expect { @t.eval 'cat supercalifragilicious66' }
+        .to raise_error(StandardError, /Cannot open/)
     end
   end
 
@@ -133,10 +135,14 @@ describe "cat" do
 
     it 'should show error when backtrace level out of bounds' do
       @t.last_exception = mock_exception('x', 'x', 'x')
-      expect { @t.eval('cat --ex 3') }.to raise_error(Pry::CommandError, /out of bounds/)
+      expect { @t.eval('cat --ex 3') }
+        .to raise_error(Pry::CommandError, /out of bounds/)
     end
 
-    it 'each successive cat --ex should show the next level of backtrace, and going past the final level should return to the first' do
+    it(
+      'each successive cat --ex should show the next level of backtrace, ' \
+      'and going past the final level should return to the first'
+    ) do
       temp_files = []
       3.times do |i|
         temp_files << Tempfile.new(['pry', '.rb'])

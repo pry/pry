@@ -7,19 +7,22 @@ describe Pry::Method do
   end
 
   describe ".from_str" do
-    it 'should look up instance methods if no methods available and no options provided' do
+    it 'looks up instance methods if no methods available and no options provided' do
       klass = Class.new { def hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
       expect(meth).to eq klass.instance_method(:hello)
     end
 
-    it 'should look up methods if no instance methods available and no options provided' do
+    it 'looks up methods if no instance methods available and no options provided' do
       klass = Class.new { def self.hello; end }
       meth = Pry::Method.from_str(:hello, Pry.binding_for(klass))
       expect(meth).to eq klass.method(:hello)
     end
 
-    it 'should look up instance methods first even if methods available and no options provided' do
+    it(
+      'looks up instance methods first even if methods available and no ' \
+      'options provided'
+    ) do
       klass = Class.new do
         def hello; end
 
@@ -35,7 +38,9 @@ describe Pry::Method do
 
         def self.hello; end
       end
-      meth = Pry::Method.from_str(:hello, Pry.binding_for(klass), "instance-methods" => true)
+      meth = Pry::Method.from_str(
+        :hello, Pry.binding_for(klass), "instance-methods" => true
+      )
       expect(meth).to eq klass.instance_method(:hello)
     end
 
@@ -69,13 +74,19 @@ describe Pry::Method do
       expect(meth).to eq klass.method(:hello)
     end
 
-    it 'should NOT look up instance methods using the Class#method syntax if no instance methods defined' do
+    it(
+      'should NOT look up instance methods using the Class#method syntax if ' \
+      'no instance methods defined'
+    ) do
       _klass = Class.new { def self.hello; end }
       meth = Pry::Method.from_str("_klass#hello", Pry.binding_for(binding))
       expect(meth).to eq nil
     end
 
-    it 'should NOT look up methods using the object.method syntax if no methods defined' do
+    it(
+      'should NOT look up methods using the object.method syntax if no ' \
+      'methods defined'
+    ) do
       _klass = Class.new { def hello; end }
       meth = Pry::Method.from_str("_klass.hello", Pry.binding_for(binding))
       expect(meth).to eq nil
@@ -112,13 +123,15 @@ describe Pry::Method do
     end
 
     it 'should not raise an exception if receiver does not exist' do
-      expect { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }.to_not raise_error
+      expect { Pry::Method.from_str("random_klass.meth", Pry.binding_for(binding)) }
+        .to_not raise_error
     end
   end
 
   describe '.from_binding' do
     it 'should be able to pick a method out of a binding' do
-      expect(Pry::Method.from_binding(Class.new { def self.foo; binding; end }.foo).name).to eq "foo"
+      klass = Class.new { def self.foo; binding; end }.foo
+      expect(Pry::Method.from_binding(klass).name).to eq('foo')
     end
 
     it 'should NOT find a method from the toplevel binding' do
@@ -229,7 +242,10 @@ describe Pry::Method do
       expect(zuper.owner).to eq m
     end
 
-    it 'should be able to find super methods defined on super-classes when there are modules in the way' do
+    it(
+      'should be able to find super methods defined on super-classes when ' \
+      'there are modules in the way'
+    ) do
       a = Class.new { def rar; 4; end }
       m = Module.new { def mooo; 4; end }
       b = Class.new(a) { def rar; super; end; include m }
@@ -238,7 +254,7 @@ describe Pry::Method do
       expect(zuper.owner).to eq a
     end
 
-    it 'should be able to jump up multiple levels of bound method, even through modules' do
+    it 'jumps up multiple levels of bound method, even through modules' do
       a = Class.new { def rar; 4; end }
       m = Module.new { def rar; 4; end }
       b = Class.new(a) { def rar; super; end; include m }
@@ -259,7 +275,7 @@ describe Pry::Method do
       should_find_method('meth')
     end
 
-    it 'should be able to find private and protected instance methods defined in a class' do
+    it 'finds private and protected instance methods defined in a class' do
       @class = Class.new do
         protected
 
@@ -283,14 +299,14 @@ describe Pry::Method do
       should_find_method('meth')
     end
 
-    it 'should be able to find instance methods defined in modules included into this class' do
+    it 'finds instance methods defined in modules included into this class' do
       @class = Class.new do
         include(Module.new { def meth; 1; end })
       end
       should_find_method('meth')
     end
 
-    it 'should be able to find instance methods defined in modules included into super-classes' do
+    it 'finds instance methods defined in modules included into super-classes' do
       super_class = Class.new do
         include(Module.new { def meth; 1; end })
       end
@@ -303,7 +319,8 @@ describe Pry::Method do
         include(Module.new { def meth; 1; end })
       end
       @class = Class.new(super_class) { def meth; 2; end }
-      expect(Pry::Method.all_from_class(@class).detect { |x| x.name == 'meth' }.owner).to eq @class
+      expect(Pry::Method.all_from_class(@class).detect { |x| x.name == 'meth' }.owner)
+        .to eq @class
     end
 
     it 'should be able to find methods defined on a singleton class' do
@@ -405,8 +422,11 @@ describe Pry::Method do
       end
 
       it "should attribute overridden methods to the sub-class' singleton class" do
-        @class = Class.new(Class.new { class << self; def meth; 1; end; end }) { class << self; def meth; 1; end; end }
-        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
+        @class = Class.new(Class.new { class << self; def meth; 1; end; end }) do
+          class << self; def meth; 1; end; end
+        end
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner)
+          .to eq(class << @class; self; end)
       end
 
       it "should attrbute overridden methods to the class not the module" do
@@ -416,12 +436,17 @@ describe Pry::Method do
           end
           extend(Module.new { def meth; 1; end })
         end
-        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner).to eq(class << @class; self; end)
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'meth' }.owner)
+          .to eq(class << @class; self; end)
       end
 
-      it "should attribute overridden methods to the relevant singleton class in preference to Class" do
+      it(
+        "attributes overridden methods to the relevant singleton class in " \
+        "preference to Class"
+      ) do
         @class = Class.new { class << self; def allocate; 1; end; end }
-        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'allocate' }.owner).to eq(class << @class; self; end)
+        expect(Pry::Method.all_from_obj(@class).detect { |x| x.name == 'allocate' }.owner)
+          .to eq(class << @class; self; end)
       end
     end
 
@@ -444,15 +469,20 @@ describe Pry::Method do
       def eigen_class(obj); class << obj; self; end; end
 
       it "should look at a class and then its superclass" do
-        expect(Pry::Method.instance_resolution_order(LS::Next)).to eq [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
+        expect(Pry::Method.instance_resolution_order(LS::Next))
+          .to eq [LS::Next] + Pry::Method.instance_resolution_order(LS::Top)
       end
 
       it "should include the included modules between a class and its superclass" do
-        expect(Pry::Method.instance_resolution_order(LS::Low)).to eq [LS::Low, LS::P, LS::N, LS::M] + Pry::Method.instance_resolution_order(LS::Next)
+        expect(Pry::Method.instance_resolution_order(LS::Low)).to eq(
+          [LS::Low, LS::P, LS::N, LS::M] + Pry::Method.instance_resolution_order(LS::Next)
+        )
       end
 
       it "should not include modules extended into the class" do
-        expect(Pry::Method.instance_resolution_order(LS::Bottom)).to eq [LS::Bottom] + Pry::Method.instance_resolution_order(LS::Lower)
+        expect(Pry::Method.instance_resolution_order(LS::Bottom)).to eq(
+          [LS::Bottom] + Pry::Method.instance_resolution_order(LS::Lower)
+        )
       end
 
       it "should include included modules for Modules" do
@@ -461,20 +491,28 @@ describe Pry::Method do
 
       it "should include the singleton class of objects" do
         obj = LS::Low.new
-        expect(Pry::Method.resolution_order(obj)).to eq [eigen_class(obj)] + Pry::Method.instance_resolution_order(LS::Low)
+        expect(Pry::Method.resolution_order(obj)).to eq(
+          [eigen_class(obj)] + Pry::Method.instance_resolution_order(LS::Low)
+        )
       end
 
       it "should not include singleton classes of numbers" do
         target_class = 4.class
-        expect(Pry::Method.resolution_order(4)).to eq Pry::Method.instance_resolution_order(target_class)
+        expect(Pry::Method.resolution_order(4)).to eq(
+          Pry::Method.instance_resolution_order(target_class)
+        )
       end
 
       it "should include singleton classes for classes" do
-        expect(Pry::Method.resolution_order(LS::Low)).to eq [eigen_class(LS::Low)] + Pry::Method.resolution_order(LS::Next)
+        expect(Pry::Method.resolution_order(LS::Low)).to eq(
+          [eigen_class(LS::Low)] + Pry::Method.resolution_order(LS::Next)
+        )
       end
 
       it "should include modules included into singleton classes" do
-        expect(Pry::Method.resolution_order(LS::Lower)).to eq [eigen_class(LS::Lower), LS::N, LS::M] + Pry::Method.resolution_order(LS::Low)
+        expect(Pry::Method.resolution_order(LS::Lower)).to eq(
+          [eigen_class(LS::Lower), LS::N, LS::M] + Pry::Method.resolution_order(LS::Low)
+        )
       end
 
       it "should include modules at most once" do
@@ -482,10 +520,15 @@ describe Pry::Method do
       end
 
       it "should include modules at the point which they would be reached" do
-        expect(Pry::Method.resolution_order(LS::Bottom)).to eq [eigen_class(LS::Bottom), LS::O] + Pry::Method.resolution_order(LS::Lower)
+        expect(Pry::Method.resolution_order(LS::Bottom)).to eq(
+          [eigen_class(LS::Bottom), LS::O] + Pry::Method.resolution_order(LS::Lower)
+        )
       end
 
-      it "should include the Pry::Method.instance_resolution_order of Class after the singleton classes" do
+      it(
+        "includes the Pry::Method.instance_resolution_order of Class after " \
+        "the singleton classes"
+      ) do
         singleton_classes = [
           eigen_class(LS::Top), eigen_class(Object), eigen_class(BasicObject),
           *Pry::Method.instance_resolution_order(Class)
