@@ -13,15 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 6
-Lint/HandleExceptions:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/commands/find_method.rb'
-    - 'lib/pry/commands/gist.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 1
 Lint/Loop:
   Exclude:

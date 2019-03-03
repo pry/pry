@@ -334,7 +334,7 @@ class Pry
           "which conflicts with a #{collision_type}.\n\n"
         )
       end
-    rescue Pry::RescuableException
+    rescue Pry::RescuableException # rubocop:disable Lint/HandleExceptions
     end
 
     # Extract necessary information from a line that Command.matches? this
