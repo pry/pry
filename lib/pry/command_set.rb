@@ -325,7 +325,11 @@ class Pry
     #   Pry.config.commands["help"] = MyHelpCommand
     #
     def []=(pattern, command)
-      return @commands.delete(pattern) if command.equal?(nil)
+      if command.equal?(nil)
+        @commands.delete(pattern)
+        return
+      end
+
       unless Class === command && command < Pry::Command
         raise TypeError, "command is not a subclass of Pry::Command"
       end
