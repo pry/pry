@@ -64,7 +64,9 @@ class Pry
     #   # Greet somebody
     # @example Regexp command
     #   MyCommands = Pry::CommandSet.new do
-    #     command /number-(\d+)/, "number-N regex command", :listing => "number" do |num, name|
+    #     command(
+    #       /number-(\d+)/, "number-N regex command", :listing => "number"
+    #     ) do |num, name|
     #       puts "hello #{name}, nice number: #{num}"
     #     end
     #   end
@@ -82,7 +84,9 @@ class Pry
       end
       options = Pry::Command.default_options(match).merge!(options)
 
-      @commands[match] = Pry::BlockCommand.subclass(match, description, options, helper_module, &block)
+      @commands[match] = Pry::BlockCommand.subclass(
+        match, description, options, helper_module, &block
+      )
     end
     alias command block_command
 
@@ -102,7 +106,9 @@ class Pry
     #     end
     #
     #     def process
-    #       raise Pry::CommandError, "-u and -d makes no sense" if opts.present?(:u) && opts.present?(:d)
+    #       if opts.present?(:u) && opts.present?(:d)
+    #         raise Pry::CommandError, "-u and -d makes no sense"
+    #       end
     #       result = args.join(" ")
     #       result.downcase! if opts.present?(:downcase)
     #       result.upcase! if opts.present?(:upcase)
@@ -117,7 +123,9 @@ class Pry
       end
       options = Pry::Command.default_options(match).merge!(options)
 
-      @commands[match] = Pry::ClassCommand.subclass(match, description, options, helper_module, &block)
+      @commands[match] = Pry::ClassCommand.subclass(
+        match, description, options, helper_module, &block
+      )
       @commands[match].class_eval(&block)
       @commands[match]
     end
@@ -127,7 +135,8 @@ class Pry
     end
 
     # Removes some commands from the set
-    # @param [Array<String>] searches the matches or listings of the commands to remove
+    # @param [Array<String>] searches the matches or listings of the commands
+    #   to remove
     def delete(*searches)
       searches.each do |search|
         cmd = find_command_by_match_or_listing(search)
@@ -231,8 +240,8 @@ class Pry
       @commands.delete(cmd.match)
     end
 
-    def disabled_command(name_of_disabled_command, message, matcher = name_of_disabled_command)
-      create_command name_of_disabled_command do
+    def disabled_command(disabled_command_name, message, matcher = disabled_command_name)
+      create_command(disabled_command_name) do
         match matcher
         description ""
 
@@ -317,7 +326,9 @@ class Pry
     #
     def []=(pattern, command)
       return @commands.delete(pattern) if command.equal?(nil)
-      raise TypeError, "command is not a subclass of Pry::Command" unless Class === command && command < Pry::Command
+      unless Class === command && command < Pry::Command
+        raise TypeError, "command is not a subclass of Pry::Command"
+      end
 
       bind_command_to_pattern = pattern != command.match
       if bind_command_to_pattern

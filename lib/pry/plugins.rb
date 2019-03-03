@@ -40,7 +40,9 @@ class Pry
         cli_options_file = File.join(spec.full_gem_path, "lib/#{spec.name}/cli.rb")
         return unless File.exist?(cli_options_file)
 
-        cli_options_file = File.realpath(cli_options_file) if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.4.4")
+        if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.4.4")
+          cli_options_file = File.realpath(cli_options_file)
+        end
         require cli_options_file
       end
 
@@ -71,7 +73,9 @@ class Pry
       def supported?
         pry_version = Gem::Version.new(VERSION)
         spec.dependencies.each do |dependency|
-          return dependency.requirement.satisfied_by?(pry_version) if dependency.name == "pry"
+          if dependency.name == "pry"
+            return dependency.requirement.satisfied_by?(pry_version)
+          end
         end
         true
       end
@@ -118,7 +122,9 @@ class Pry
 
     def gem_list
       Gem.refresh
-      Gem::Specification.respond_to?(:each) ? Gem::Specification : Gem.source_index.find_name('')
+      return Gem::Specification if Gem::Specification.respond_to?(:each)
+
+      Gem.source_index.find_name('')
     end
   end
 end

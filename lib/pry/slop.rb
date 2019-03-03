@@ -1,4 +1,5 @@
 class Pry
+  # rubocop:disable Metrics/ClassLength
   class Slop
     require_relative 'slop/option'
     require_relative 'slop/commands'
@@ -236,9 +237,13 @@ class Pry
               "Missing required option(s): #{missing_options.map(&:key).join(', ')}"
       end
 
-      raise InvalidOptionError, "Unknown options #{@unknown_options.join(', ')}" if @unknown_options.any?
+      if @unknown_options.any?
+        raise InvalidOptionError, "Unknown options #{@unknown_options.join(', ')}"
+      end
 
-      @callbacks[:no_options].each { |cb| cb.call(self) } if @triggered_options.empty? && @callbacks[:no_options]
+      if @triggered_options.empty? && @callbacks[:no_options]
+        @callbacks[:no_options].each { |cb| cb.call(self) }
+      end
 
       @runner.call(self, items) if @runner.respond_to?(:call)
 
@@ -279,7 +284,9 @@ class Pry
     # include_commands - If true, merge options from all sub-commands.
     def to_hash(include_commands = false)
       hash = Hash[options.map { |opt| [opt.key.to_sym, opt.value] }]
-      @commands.each { |cmd, opts| hash.merge!(cmd.to_sym => opts.to_hash) } if include_commands
+      if include_commands
+        @commands.each { |cmd, opts| hash.merge!(cmd.to_sym => opts.to_hash) }
+      end
       hash
     end
     alias to_h to_hash
@@ -307,7 +314,9 @@ class Pry
     #   end
     def run(callable = nil, &block)
       @runner = callable || block
-      raise ArgumentError, "You must specify a callable object or a block to #run" unless @runner.respond_to?(:call)
+      unless @runner.respond_to?(:call)
+        raise ArgumentError, "You must specify a callable object or a block to #run"
+      end
     end
 
     # Check for an options presence.
@@ -418,7 +427,8 @@ class Pry
       end
 
       banner = config[:banner]
-      banner = "Usage: #{File.basename($PROGRAM_NAME, '.*')}#{' [command]' if @commands.any?} [options]" if banner.nil?
+      banner ||= "Usage: #{File.basename($PROGRAM_NAME, '.*')}" \
+                 "#{' [command]' if @commands.any?} [options]"
       if banner
         "#{banner}\n#{@separators[0] ? "#{@separators[0]}\n" : ''}#{optstr}"
       else
@@ -471,7 +481,9 @@ class Pry
         if option.expects_argument?
           argument ||= items.at(index + 1)
 
-          raise MissingArgumentError, "#{option.key} expects an argument" if !argument || argument =~ /\A--?[a-zA-Z][a-zA-Z0-9_-]*\z/
+          if !argument || argument =~ /\A--?[a-zA-Z][a-zA-Z0-9_-]*\z/
+            raise MissingArgumentError, "#{option.key} expects an argument"
+          end
 
           execute_option(option, argument, index, item)
         elsif option.accepts_optional_argument?
@@ -504,7 +516,9 @@ class Pry
     # Returns nothing.
     def execute_option(option, argument, index, item = nil)
       unless option
-        raise InvalidOptionError, "Unknown option -#{item}" if config[:multiple_switches] && strict?
+        if config[:multiple_switches] && strict?
+          raise InvalidOptionError, "Unknown option -#{item}"
+        end
 
         return
       end
@@ -518,7 +532,9 @@ class Pry
         option.value = option.count > 0
       end
 
-      raise InvalidArgumentError, "#{argument} is an invalid argument" if option.match? && !argument.match(option.config[:match])
+      if option.match? && !argument.match(option.config[:match])
+        raise InvalidArgumentError, "#{argument} is an invalid argument"
+      end
 
       option.call(option.value)
     end
@@ -650,4 +666,5 @@ class Pry
       end.join("\n")
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

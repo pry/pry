@@ -146,11 +146,17 @@ describe "hist" do
     expect(output).to eq "1: :banzai\n2: :geronimo\n3: :huzzah\n4: hist --replay 1..3\n"
   end
 
-  it "should raise CommandError when index of `--replay` points out to another `hist --replay`" do
+  it(
+    "raises CommandError when index of `--replay` points out to another " \
+    "`hist --replay`"
+  ) do
     @t.eval ":banzai"
     @t.eval "hist --replay 1"
 
-    expect { @t.eval "hist --replay 2" }.to raise_error(Pry::CommandError, /Replay index 2 points out to another replay call: `hist --replay 1`/)
+    expect { @t.eval "hist --replay 2" }.to raise_error(
+      Pry::CommandError,
+      /Replay index 2 points out to another replay call: `hist --replay 1`/
+    )
   end
 
   it "should disallow execution of `--replay <i>` when CommandError raised" do

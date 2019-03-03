@@ -50,18 +50,33 @@ class Pry
 
       def options(opt)
         opt.on :m, :methods, "Show public methods defined on the Object"
-        opt.on :M, "instance-methods", "Show public methods defined in a Module or Class"
-        opt.on :p, :ppp,       "Show public, protected (in yellow) and private (in green) methods"
-        opt.on :q, :quiet,     "Show only methods defined on object.singleton_class and object.class"
-        opt.on :v, :verbose,   "Show methods and constants on all super-classes (ignores Pry.config.ls.ceiling)"
-        opt.on :g, :globals,   "Show global variables, including those builtin to Ruby (in cyan)"
-        opt.on :l, :locals,    "Show hash of local vars, sorted by descending size"
-        opt.on :c, :constants, "Show constants, highlighting classes (in blue), and exceptions (in purple).\n" \
-                               "#{' ' * 32}Constants that are pending autoload? are also shown (in yellow)"
-        opt.on :i, :ivars,     "Show instance variables (in blue) and class variables (in bright blue)"
-        opt.on :G, :grep,      "Filter output by regular expression", argument: true
-        opt.on :d, :dconstants, "Show deprecated constants" if Object.respond_to?(:deprecate_constant)
-        opt.on :J, "all-java", "Show all the aliases for methods from java (default is to show only prettiest)" if Helpers::Platform.jruby?
+        opt.on :M, "instance-methods", "Show public methods defined in a " \
+                                       "Module or Class"
+        opt.on :p, :ppp, "Show public, protected (in yellow) and private " \
+                         "(in green) methods"
+        opt.on :q, :quiet, "Show only methods defined on object.singleton_class " \
+                           "and object.class"
+        opt.on :v, :verbose, "Show methods and constants on all super-classes " \
+                             "(ignores Pry.config.ls.ceiling)"
+        opt.on :g, :globals, "Show global variables, including those builtin to " \
+                             "Ruby (in cyan)"
+        opt.on :l, :locals, "Show hash of local vars, sorted by descending size"
+        opt.on :c, :constants, "Show constants, highlighting classes (in blue), " \
+                               "and exceptions (in purple).\n" \
+                               "#{' ' * 32}Constants that are pending autoload? " \
+                               "are also shown (in yellow)"
+        opt.on :i, :ivars, "Show instance variables (in blue) and class " \
+                           "variables (in bright blue)"
+        opt.on :G, :grep, "Filter output by regular expression", argument: true
+
+        if Object.respond_to?(:deprecate_constant)
+          opt.on :d, :dconstants, "Show deprecated constants"
+        end
+
+        if Helpers::Platform.jruby?
+          opt.on :J, "all-java", "Show all the aliases for methods from java " \
+                                 "(default is to show only prettiest)"
+        end
       end
 
       # Exclude -q, -v and --grep because they,
@@ -93,9 +108,15 @@ class Pry
         [
           ['-l does not make sense with a specified Object', :locals, any_args],
           ['-g does not make sense with a specified Object', :globals, any_args],
-          ['-q does not make sense with -v',                 :quiet, opts.present?(:verbose)],
-          ['-M only makes sense with a Module or a Class',   'instance-methods', non_mod_interrogatee],
-          ['-c only makes sense with a Module or a Class',   :constants, any_args && non_mod_interrogatee]
+          ['-q does not make sense with -v', :quiet, opts.present?(:verbose)],
+          [
+            '-M only makes sense with a Module or a Class', 'instance-methods',
+            non_mod_interrogatee
+          ],
+          [
+            '-c only makes sense with a Module or a Class', :constants,
+            any_args && non_mod_interrogatee
+          ]
         ]
       end
 

@@ -21,12 +21,16 @@ RSpec.describe 'The bin/pry CLI' do
     end
 
     it "forwards its remaining arguments as ARGV when - is passed" do
-      out = clean_output.call(`#{ruby} -I#{pry_dir} bin/pry -e #{code} - 1 -foo --bar --baz daz`)
+      out = clean_output.call(
+        `#{ruby} -I#{pry_dir} bin/pry -e #{code} - 1 -foo --bar --baz daz`
+      )
       expect(out).to eq(%w[1 -foo --bar --baz daz].inspect)
     end
 
     it "forwards its remaining arguments as ARGV when -- is passed" do
-      out = clean_output.call(`#{ruby} -I#{pry_dir} bin/pry -e #{code} -- 1 -foo --bar --baz daz`)
+      out = clean_output.call(
+        `#{ruby} -I#{pry_dir} bin/pry -e #{code} -- 1 -foo --bar --baz daz`
+      )
       expect(out).to eq(%w[1 -foo --bar --baz daz].inspect)
     end
   end
@@ -34,13 +38,19 @@ RSpec.describe 'The bin/pry CLI' do
   context '-I path' do
     it 'adds an additional path to $LOAD_PATH' do
       code = 'p($LOAD_PATH) and exit'
-      out = clean_output.call(`#{ruby} -I#{pry_dir} bin/pry -I /added/at/cli -e '#{code}'`)
+      out = clean_output.call(
+        `#{ruby} -I#{pry_dir} bin/pry -I /added/at/cli -e '#{code}'`
+      )
       expect(out).to include('/added/at/cli')
     end
 
     it 'adds multiple additional paths to $LOAD_PATH' do
       code = 'p($LOAD_PATH) and exit'
-      out = clean_output.call(`#{ruby} -I#{pry_dir} bin/pry -I /added-1/at/cli -I /added/at/cli/also -e '#{code}'`)
+      out = clean_output.call(
+        # rubocop:disable Metrics/LineLength
+        `#{ruby} -I#{pry_dir} bin/pry -I /added-1/at/cli -I /added/at/cli/also -e '#{code}'`
+        # rubocop:enable Metrics/LineLength
+      )
       expect(out).to include('/added-1/at/cli')
       expect(out).to include('/added/at/cli/also')
     end

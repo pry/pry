@@ -36,8 +36,10 @@ describe "ls" do
     end
 
     it "should not include super-classes when -q is given" do
-      expect(pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls -q")).not_to match(/goo/)
-      expect(pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M -q")).not_to match(/goo/)
+      expect(pry_eval("cd Class.new(Class.new{ def goo; end }).new", "ls -q"))
+        .not_to match(/goo/)
+      expect(pry_eval("cd Class.new(Class.new{ def goo; end })", "ls -M -q"))
+        .not_to match(/goo/)
     end
   end
 
@@ -82,8 +84,10 @@ describe "ls" do
     end
 
     it "should not show protected/private by default" do
-      expect(pry_eval("ls -M Class.new{ def goo; end; private :goo }")).not_to match(/goo/)
-      expect(pry_eval("ls Class.new{ def goo; end; protected :goo }.new")).not_to match(/goo/)
+      expect(pry_eval("ls -M Class.new{ def goo; end; private :goo }"))
+        .not_to match(/goo/)
+      expect(pry_eval("ls Class.new{ def goo; end; protected :goo }.new"))
+        .not_to match(/goo/)
     end
 
     it "should show public methods with -p" do
@@ -91,23 +95,32 @@ describe "ls" do
     end
 
     it "should show protected/private methods with -p" do
-      expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }")).to match(/methods: goo/)
-      expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new")).to match(/methods: goo/)
+      expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }"))
+        .to match(/methods: goo/)
+      expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new"))
+        .to match(/methods: goo/)
     end
 
     it "should work for objects with an overridden method method" do
       require 'net/http'
       # This doesn't actually touch the network, promise!
-      expect(pry_eval("ls Net::HTTP::Get.new('localhost')")).to match(/Net::HTTPGenericRequest#methods/)
+      expect(pry_eval("ls Net::HTTP::Get.new('localhost')"))
+        .to match(/Net::HTTPGenericRequest#methods/)
     end
 
-    it "should work for objects which instance_variables returns array of symbol but there is no Symbol#downcase" do
-      test_case = "class Object; alias :fg :instance_variables; def instance_variables; fg.map(&:to_sym); end end;"
+    it(
+      "should work for objects which instance_variables returns array of " \
+      "symbol but there is no Symbol#downcase"
+    ) do
+      test_case = "class Object; alias :fg :instance_variables; " \
+                  "def instance_variables; fg.map(&:to_sym); end end;"
       normalize = "class Object; def instance_variables; fg; end end;"
 
       test = lambda do
         begin
-          pry_eval(test_case, "class GeFromulate2; @flurb=1.3; end", "cd GeFromulate2", "ls")
+          pry_eval(
+            test_case, "class GeFromulate2; @flurb=1.3; end", "cd GeFromulate2", "ls"
+          )
           pry_eval(normalize)
         rescue StandardError
           pry_eval(normalize)
@@ -119,7 +132,8 @@ describe "ls" do
     end
 
     it "should show error message when instance is given with -M option" do
-      expect { pry_eval("ls -M String.new") }.to raise_error(Pry::CommandError, /-M only makes sense with a Module or a Class/)
+      expect { pry_eval("ls -M String.new") }
+        .to raise_error(Pry::CommandError, /-M only makes sense with a Module or a Class/)
     end
 
     it "should handle classes that (pathologically) define .ancestors" do
@@ -183,15 +197,24 @@ describe "ls" do
     end
 
     it "should show constants defined on the current module" do
-      expect(pry_eval("class TempFoo1; BARGHL = 1; end", "ls TempFoo1")).to match(/BARGHL/)
+      expect(pry_eval("class TempFoo1; BARGHL = 1; end", "ls TempFoo1"))
+        .to match(/BARGHL/)
     end
 
     it "should not show constants defined on parent modules by default" do
-      expect(pry_eval("class TempFoo2; LHGRAB = 1; end; class TempFoo3 < TempFoo2; BARGHL = 1; end", "ls TempFoo3")).not_to match(/LHGRAB/)
+      output = pry_eval(
+        "class TempFoo2; LHGRAB = 1; end; " \
+        "class TempFoo3 < TempFoo2; BARGHL = 1; end", "ls TempFoo3"
+      )
+      expect(output).not_to match(/LHGRAB/)
     end
 
     it "should show constants defined on ancestors with -v" do
-      expect(pry_eval("class TempFoo4; LHGRAB = 1; end; class TempFoo5 < TempFoo4; BARGHL = 1; end", "ls -v TempFoo5")).to match(/LHGRAB/)
+      output = pry_eval(
+        "class TempFoo4; LHGRAB = 1; end; " \
+        "class TempFoo5 < TempFoo4; BARGHL = 1; end", "ls -v TempFoo5"
+      )
+      expect(output).to match(/LHGRAB/)
     end
 
     it "should not autoload constants!" do
@@ -231,21 +254,33 @@ describe "ls" do
 
     describe "when in a class" do
       it "should show constants" do
-        expect(pry_eval("class GeFromulate1; FOOTIFICATE=1.3; end", "cd GeFromulate1", "ls")).to match(/FOOTIFICATE/)
+        output = pry_eval(
+          "class GeFromulate1; FOOTIFICATE=1.3; end", "cd GeFromulate1", "ls"
+        )
+        expect(output).to match(/FOOTIFICATE/)
       end
 
       it "should show class variables" do
-        expect(pry_eval("class GeFromulate2; @@flurb=1.3; end", "cd GeFromulate2", "ls")).to match(/@@flurb/)
+        output = pry_eval(
+          "class GeFromulate2; @@flurb=1.3; end", "cd GeFromulate2", "ls"
+        )
+        expect(output).to match(/@@flurb/)
       end
 
       it "should show methods" do
-        expect(pry_eval("class GeFromulate3; def self.mooflight; end ; end", "cd GeFromulate3", "ls")).to match(/mooflight/)
+        output = pry_eval(
+          "class GeFromulate3; def self.mooflight; end ; end",
+          "cd GeFromulate3",
+          "ls"
+        )
+        expect(output).to match(/mooflight/)
       end
     end
 
     describe "when in an object" do
       it "should show methods" do
-        expect(pry_eval("cd Class.new{ def self.fooerise; end; self }", "ls")).to match(/fooerise/)
+        expect(pry_eval("cd Class.new{ def self.fooerise; end; self }", "ls"))
+          .to match(/fooerise/)
       end
 
       it "should show instance variables" do
@@ -256,13 +291,17 @@ describe "ls" do
 
   describe 'on java objects', skip: !Pry::Helpers::Platform.jruby? do
     it 'should omit java-esque aliases by default' do
-      expect(pry_eval('ls java.lang.Thread.current_thread')).to match(/\bthread_group\b/)
-      expect(pry_eval('ls java.lang.Thread.current_thread')).not_to match(/\bgetThreadGroup\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread'))
+        .to match(/\bthread_group\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread'))
+        .not_to match(/\bgetThreadGroup\b/)
     end
 
     it 'should include java-esque aliases if requested' do
-      expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bthread_group\b/)
-      expect(pry_eval('ls java.lang.Thread.current_thread -J')).to match(/\bgetThreadGroup\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread -J'))
+        .to match(/\bthread_group\b/)
+      expect(pry_eval('ls java.lang.Thread.current_thread -J'))
+        .to match(/\bgetThreadGroup\b/)
     end
   end
 end

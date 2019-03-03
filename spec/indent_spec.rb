@@ -190,7 +190,9 @@ TXT
   it "should indent correctly with nesting" do
     expect(@indent.indent("[[\n[]]\n]")).to eq "[[\n  []]\n]"
     expect(@indent.reset.indent("[[\n[]]\n]")).to eq "[[\n  []]\n]"
-    expect(@indent.reset.indent("[[{\n[] =>\n[]}]\n]")).to eq "[[{\n      [] =>\n  []}]\n]"
+    expect(@indent.reset.indent("[[{\n[] =>\n[]}]\n]")).to eq(
+      "[[{\n      [] =>\n  []}]\n]"
+    )
   end
 
   it "should not indent single-line ifs" do
@@ -215,11 +217,15 @@ TXT
   end
 
   it "should differentiate single/multi-line unless" do
-    expect(@indent.indent("foo unless bar\nunless foo\nbar\nend")).to eq "foo unless bar\nunless foo\n  bar\nend"
+    expect(@indent.indent("foo unless bar\nunless foo\nbar\nend")).to eq(
+      "foo unless bar\nunless foo\n  bar\nend"
+    )
   end
 
   it "should not indent single/multi-line until" do
-    expect(@indent.indent("%w{baz} until bar\nuntil foo\nbar\nend")).to eq "%w{baz} until bar\nuntil foo\n  bar\nend"
+    expect(@indent.indent("%w{baz} until bar\nuntil foo\nbar\nend")).to eq(
+      "%w{baz} until bar\nuntil foo\n  bar\nend"
+    )
   end
 
   it "should indent begin rescue end" do
@@ -253,12 +259,18 @@ INPUT
 
   it "should not indent inside strings" do
     expect(@indent.indent(%(def a\n"foo\nbar"\n  end))).to eq %(def a\n  "foo\nbar"\nend)
-    expect(@indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end))).to eq %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
+    expect(@indent.indent(%(def a\nputs %w(foo\nbar), 'foo\nbar'\n  end))).to eq(
+      %(def a\n  puts %w(foo\nbar), 'foo\nbar'\nend)
+    )
   end
 
   it "should not indent inside HEREDOCs" do
-    expect(@indent.indent(%(def a\nputs <<FOO\n bar\nFOO\nbaz\nend))).to eq %(def a\n  puts <<FOO\n bar\nFOO\n  baz\nend)
-    expect(@indent.indent(%(def a\nputs <<-'^^'\n bar\n\t^^\nbaz\nend))).to eq %(def a\n  puts <<-'^^'\n bar\n\t^^\n  baz\nend)
+    expect(@indent.indent(%(def a\nputs <<FOO\n bar\nFOO\nbaz\nend))).to eq(
+      %(def a\n  puts <<FOO\n bar\nFOO\n  baz\nend)
+    )
+    expect(@indent.indent(%(def a\nputs <<-'^^'\n bar\n\t^^\nbaz\nend))).to eq(
+      %(def a\n  puts <<-'^^'\n bar\n\t^^\n  baz\nend)
+    )
   end
 
   it "should not indent nested HEREDOCs" do
@@ -298,7 +310,8 @@ OUTPUT
       result = line.split("#").last.strip
       if result == ""
         it "should fail to parse nesting on line #{i + 1} of example_nesting.rb" do
-          expect { Pry::Indent.nesting_at(test, i + 1) }.to raise_error Pry::Indent::UnparseableNestingError
+          expect { Pry::Indent.nesting_at(test, i + 1) }
+            .to raise_error Pry::Indent::UnparseableNestingError
         end
       else
         it "should parse nesting on line #{i + 1} of example_nesting.rb" do

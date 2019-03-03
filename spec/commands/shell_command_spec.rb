@@ -39,7 +39,8 @@ describe Pry::Command::ShellCommand do
       describe "given a dash" do
         describe "given no prior directory" do
           it "raises the correct error" do
-            expect { @t.eval ".cd -" }.to raise_error(StandardError, "No prior directory available")
+            expect { @t.eval ".cd -" }
+              .to raise_error(StandardError, "No prior directory available")
           end
         end
 

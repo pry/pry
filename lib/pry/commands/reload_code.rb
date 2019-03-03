@@ -38,7 +38,9 @@ class Pry
       end
 
       def reload_current_file
-        raise CommandError, "Current file: #{current_file} cannot be found on disk!" unless File.exist?(current_file)
+        unless File.exist?(current_file)
+          raise CommandError, "Current file: #{current_file} cannot be found on disk!"
+        end
 
         load current_file
         output.puts "The current file: #{current_file} was reloaded!"

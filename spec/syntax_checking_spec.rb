@@ -27,8 +27,10 @@ describe Pry do
     ["1 1"],
     ["puts :"]
   ] + [
-    ["def", "method(1"], # in this case the syntax error is "expecting ')'".
-    ["o = Object.new.tap{ def o.render;", "'MEH'", "}"] # in this case the syntax error is "expecting keyword_end".
+    # in this case the syntax error is "expecting ')'".
+    ["def", "method(1"],
+    # in this case the syntax error is "expecting keyword_end".
+    ["o = Object.new.tap{ def o.render;", "'MEH'", "}"]
   ]).compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
@@ -40,7 +42,8 @@ describe Pry do
   end
 
   it "should not intefere with syntax errors explicitly raised" do
-    redirect_pry_io(InputTester.new('raise SyntaxError, "unexpected $end"'), @str_output) do
+    input_tester = InputTester.new('raise SyntaxError, "unexpected $end"')
+    redirect_pry_io(input_tester, @str_output) do
       Pry.start
     end
 
@@ -60,7 +63,12 @@ describe Pry do
   end
 
   it "should not clobber _ex_ on a SyntaxError in the repl" do
-    expect(mock_pry("raise RuntimeError, 'foo'", "puts foo)", "_ex_.is_a?(RuntimeError)")).to match(/^RuntimeError.*\nSyntaxError.*\n=> true/m)
+    output = mock_pry(
+      "raise RuntimeError, 'foo'",
+      "puts foo)",
+      "_ex_.is_a?(RuntimeError)"
+    )
+    expect(output).to match(/^RuntimeError.*\nSyntaxError.*\n=> true/m)
   end
 
   it "should allow whitespace delimeted strings" do

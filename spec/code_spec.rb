@@ -29,13 +29,15 @@ describe Pry::Code do
 
     specify 'check for files relative to origin pwd' do
       Dir.chdir('spec') do
-        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type).to eq :ruby
+        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__)).code_type)
+          .to eq :ruby
       end
     end
 
     specify 'check for Ruby files relative to origin pwd with `.rb` omitted' do
       Dir.chdir('spec') do
-        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type).to eq :ruby
+        expect(Pry::Code.from_file('spec/' + File.basename(__FILE__, '.*')).code_type)
+          .to eq :ruby
       end
     end
 

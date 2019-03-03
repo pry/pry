@@ -24,7 +24,8 @@ class Pry
         CodeCollector.inject_options(opt)
         opt.on :login, "Authenticate the gist gem with GitHub"
         opt.on :p, :public, "Create a public gist (default: false)", default: false
-        opt.on :clip, "Copy the selected content to clipboard instead, do NOT gist it", default: false
+        opt.on :clip, "Copy the selected content to clipboard instead, do NOT " \
+                      "gist it", default: false
       end
 
       def process
@@ -55,10 +56,14 @@ class Pry
           input_expressions = _pry_.input_ring[range] || []
           Array(input_expressions).each_with_index do |code, index|
             corrected_index = index + range.first
-            if code && code != ""
-              content << code
-              content << comment_expression_result_for_gist(_pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index])).to_s if code !~ /;\Z/
-            end
+            next unless code && code != ""
+
+            content << code
+            next unless code !~ /;\Z/
+
+            content << comment_expression_result_for_gist(
+              _pry_.config.gist.inspecter.call(_pry_.output_ring[corrected_index])
+            ).to_s
           end
         end
 
@@ -75,7 +80,9 @@ class Pry
       end
 
       def gist_content(content, filename)
-        response = ::Gist.gist(content, filename: filename || "pry_gist.rb", public: !!opts[:p])
+        response = ::Gist.gist(
+          content, filename: filename || "pry_gist.rb", public: !!opts[:p]
+        )
         if response
           url = response['html_url']
           message = "Gist created at URL #{url}"

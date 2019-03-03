@@ -53,7 +53,11 @@ class Pry
       end
 
       def parse_options(args = ARGV)
-        raise NoOptionsError, "No command line options defined! Use Pry::CLI.add_options to add command line options." unless options
+        unless options
+          raise NoOptionsError,
+                "No command line options defined! Use Pry::CLI.add_options to " \
+                "add command line options."
+        end
 
         @pass_argv = args.index { |cli_arg| %w[- --].include?(cli_arg) }
         if @pass_argv
@@ -133,7 +137,9 @@ Pry::CLI.add_options do
     "See http://pryrepl.org/ for more information.\n"
   )
 
-  on :e, :exec=, "A line of code to execute in context before the session starts" do |input|
+  on(
+    :e, :exec=, "A line of code to execute in context before the session starts"
+  ) do |input|
     Pry.config.exec_string += "\n" unless Pry.config.exec_string.empty?
     Pry.config.exec_string += input
   end

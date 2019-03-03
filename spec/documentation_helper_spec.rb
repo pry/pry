@@ -9,15 +9,19 @@ describe Pry::Helpers::DocumentationHelpers do
     end
 
     it "should strip out leading lines of hashes" do
-      expect(@helper.get_comment_content("###############\n#hello\n#world\n")).to eq("hello\nworld\n")
+      expect(@helper.get_comment_content("###############\n#hello\n#world\n"))
+        .to eq("hello\nworld\n")
     end
 
     it "should remove shebangs" do
-      expect(@helper.get_comment_content("#!/usr/bin/env ruby\n# This is a program\n")).to eq("This is a program\n")
+      expect(@helper.get_comment_content("#!/usr/bin/env ruby\n# This is a program\n"))
+        .to eq("This is a program\n")
     end
 
     it "should unindent past separators" do
-      expect(@helper.get_comment_content(" # Copyright Me <me@cirw.in>\n #--\n # So there.\n")).to eq("Copyright Me <me@cirw.in>\n--\nSo there.\n")
+      str = " # Copyright Me <me@cirw.in>\n #--\n # So there.\n"
+      expect(@helper.get_comment_content(str))
+        .to eq("Copyright Me <me@cirw.in>\n--\nSo there.\n")
     end
   end
 
@@ -51,7 +55,8 @@ describe Pry::Helpers::DocumentationHelpers do
     end
 
     it "should syntax highlight code in <code>" do
-      expect(@helper.process_rdoc("for <code>Example</code>")).to match(/for \e.*Example\e.*/)
+      expect(@helper.process_rdoc("for <code>Example</code>"))
+        .to match(/for \e.*Example\e.*/)
     end
 
     it "should syntax highlight code in <tt>" do

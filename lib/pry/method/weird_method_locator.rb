@@ -6,10 +6,11 @@ class Pry
     # Given a `Binding` from inside a method and a 'seed' Pry::Method object,
     # there are primarily two situations where the seed method doesn't match
     # the Binding:
-    # 1. The Pry::Method is from a subclass 2. The Pry::Method represents a method of the same name
-    # while the original was renamed to something else. For 1. we
-    # search vertically up the inheritance chain,
-    # and for 2. we search laterally along the object's method table.
+    # 1. The Pry::Method is from a subclass
+    # 2. The Pry::Method represents a method of the same name while the original
+    # was renamed to something else. For 1. we search vertically up the
+    # inheritance chain, and for 2. we search laterally along the object's
+    # method table.
     #
     # When we locate the method that matches the Binding we wrap it in
     # Pry::Method and return it, or return nil if we fail.
@@ -110,17 +111,18 @@ class Pry
         Pry.eval_path == file
       end
 
-      # it's possible in some cases that the method we find by this approach is a sub-method of
-      # the one we're currently in, consider:
+      # it's possible in some cases that the method we find by this approach is
+      # a sub-method of the one we're currently in, consider:
       #
       # class A; def b; binding.pry; end; end
       # class B < A; def b; super; end; end
       #
-      # Given that we can normally find the source_range of methods, and that we know which
-      # __FILE__ and __LINE__ the binding is at, we can hope to disambiguate these cases.
+      # Given that we can normally find the source_range of methods, and that we
+      # know which __FILE__ and __LINE__ the binding is at, we can hope to
+      # disambiguate these cases.
       #
-      # This obviously won't work if the source is unavaiable for some reason, or if both
-      # methods have the same __FILE__ and __LINE__.
+      # This obviously won't work if the source is unavaiable for some reason,
+      # or if both methods have the same __FILE__ and __LINE__.
       #
       # @return [Pry::Method, nil] The Pry::Method representing the
       #   superclass method.
@@ -156,7 +158,8 @@ class Pry
         return unless valid_file?(target_file)
 
         alias_name = all_methods_for(target_self).find do |v|
-          expanded_source_location(target_self.method(v).source_location) == renamed_method_source_location
+          location = target_self.method(v).source_location
+          expanded_source_location(location) == renamed_method_source_location
         end
 
         alias_name && Pry::Method(target_self.method(alias_name))
@@ -180,7 +183,9 @@ class Pry
       # @return [Array<String, Fixnum>] The `source_location` of the
       #   renamed method
       def renamed_method_source_location
-        return @original_method_source_location if defined?(@original_method_source_location)
+        if defined?(@original_method_source_location)
+          return @original_method_source_location
+        end
 
         source_index = lines_for_file(target_file)[0..(target_line - 1)].rindex do |v|
           Pry::Method.method_definition?(method.name, v)

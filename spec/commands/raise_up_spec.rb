@@ -32,7 +32,8 @@ describe "raise-up" do
   end
 
   it "should raise the most recently raised exception" do
-    expect { mock_pry("raise NameError, 'homographery'", "raise-up") }.to raise_error(NameError, 'homographery')
+    expect { mock_pry("raise NameError, 'homographery'", "raise-up") }
+      .to raise_error(NameError, 'homographery')
   end
 
   it "should allow you to cd up and (eventually) out" do
@@ -49,6 +50,7 @@ describe "raise-up" do
   end
 
   it "should jump immediately out of nested contexts with !" do
-    expect { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }.to raise_error(RuntimeError, 'fancy that...')
+    expect { mock_pry("cd 1", "cd 2", "cd 3", "raise-up! 'fancy that...'") }
+      .to raise_error(RuntimeError, 'fancy that...')
   end
 end

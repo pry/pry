@@ -173,13 +173,16 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   #   Pry.start(Object.new, :input => MyInput.new)
   def self.start(target = nil, options = {})
     return if ENV['DISABLE_PRY']
-    raise 'You have FAIL_PRY set to true, which results in Pry calls failing' if ENV['FAIL_PRY']
+    if ENV['FAIL_PRY']
+      raise 'You have FAIL_PRY set to true, which results in Pry calls failing'
+    end
 
     options = options.to_hash
 
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
-      output.puts "This can happen if you have a binding.pry inside a #to_s or #inspect function."
+      output.puts "This can happen if you have a binding.pry inside a #to_s " \
+                  "or #inspect function."
       return
     end
 
@@ -192,7 +195,9 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       options[:backtrace] = caller
 
       # If Pry was started via `binding.pry`, elide that from the backtrace
-      options[:backtrace].shift if options[:backtrace].first =~ /pry.*core_extensions.*pry/
+      if options[:backtrace].first =~ /pry.*core_extensions.*pry/
+        options[:backtrace].shift
+      end
     end
 
     driver = options[:driver] || Pry::REPL
@@ -236,11 +241,12 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     if obj.is_a?(Module) && obj.name.to_s != "" && obj.name.to_s.length <= max
       obj.name.to_s
     elsif Pry.main == obj
-      # special-case to support jruby.
-      # fixed as of https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
+      # Special-case to support jruby. Fixed as of:
+      # https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
       # we can drop in the future.
       obj.to_s
-    elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } && obj.inspect.length <= max
+    elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } &&
+          obj.inspect.length <= max
       obj.inspect
     else
       id ? format("#<#{obj.class}:0x%x>", (obj.object_id << 1)) : "#<#{obj.class}>"

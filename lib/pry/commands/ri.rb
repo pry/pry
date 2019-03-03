@@ -15,7 +15,11 @@ class Pry
       BANNER
 
       def process(spec)
-        return output.puts "Please provide a class, module, or method name (e.g: ri Array#push)" unless spec
+        unless spec
+          return output.puts(
+            "Please provide a class, module, or method name (e.g: ri Array#push)"
+          )
+        end
 
         # Lazily load RI
         require 'rdoc/ri/driver'
@@ -50,7 +54,9 @@ class Pry
         end
 
         # Spin-up an RI insance.
-        ri = RDoc::RI::PryDriver.new _pry_.pager, use_stdout: true, interactive: false
+        ri = RDoc::RI::PryDriver.new(
+          _pry_.pager, use_stdout: true, interactive: false
+        )
 
         begin
           ri.display_names [spec] # Get the documentation (finally!)

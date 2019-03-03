@@ -143,7 +143,9 @@ class Pry
           if (opts = commands['default'])
             opts.parse! items
           else
-            raise InvalidCommandError, "Unknown command `#{items[0]}`" if config[:strict] && items[0]
+            if config[:strict] && items[0]
+              raise InvalidCommandError, "Unknown command `#{items[0]}`"
+            end
           end
           execute_global_opts! items
         end

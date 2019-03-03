@@ -190,7 +190,7 @@ describe 'cd' do
     expect(@t.mapped_binding_stack).to eq [@o, @obj, 66]
   end
 
-  it 'should cd into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
+  it 'cds into an object and its ivar using cd obj/@ivar/ syntax (note following /)' do
     @t.eval 'cd @obj/@x/'
     expect(@t.mapped_binding_stack).to eq [@o, @obj, 66]
   end
@@ -200,12 +200,15 @@ describe 'cd' do
     expect(@t.mapped_binding_stack).to eq [@o, @obj, :local]
   end
 
-  it 'should cd into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
+  it 'cds into an object and its ivar and back again using cd obj/@ivar/.. syntax' do
     @t.eval 'cd @obj/@x/..'
     expect(@t.mapped_binding_stack).to eq [@o, @obj]
   end
 
-  it 'should cd into an object and its ivar and back and then into another ivar using cd obj/@ivar/../@y syntax' do
+  it(
+    'cds into an object and its ivar and back and then into another ivar ' \
+    'using cd obj/@ivar/../@y syntax'
+  ) do
     @t.eval 'cd @obj/@x/../@y'
     expect(@t.mapped_binding_stack).to eq [@o, @obj, 79]
   end

@@ -84,9 +84,13 @@ class Pry
       def add(name, description = '', separators = %w[> *])
         name = name.to_s
 
-        raise ArgumentError, "separators size must be 2, given #{separators.size}" unless separators.size == 2
+        unless separators.size == 2
+          raise ArgumentError, "separators size must be 2, given #{separators.size}"
+        end
 
-        raise ArgumentError, "the '#{name}' prompt was already added" if @prompts.key?(name)
+        if @prompts.key?(name)
+          raise ArgumentError, "the '#{name}' prompt was already added"
+        end
 
         @prompts[name] = new(
           name,

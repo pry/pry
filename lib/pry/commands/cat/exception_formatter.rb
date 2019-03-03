@@ -59,7 +59,10 @@ class Pry
 
         def check_for_errors
           raise CommandError, "No exception found." unless ex
-          raise CommandError, "The given backtrace level is out of bounds." unless backtrace_file
+
+          unless backtrace_file
+            raise CommandError, "The given backtrace level is out of bounds."
+          end
         end
 
         def start_and_end_line_for_code_window
@@ -70,12 +73,13 @@ class Pry
         end
 
         def header
-          unindent %{
-          #{bold 'Exception:'} #{ex.class}: #{ex.message}
-          --
-          #{bold('From:')} #{backtrace_file}:#{backtrace_line} @ #{bold("level: #{backtrace_level}")} of backtrace (of #{ex.backtrace.size - 1}).
-
-        }
+          unindent(
+            "#{bold 'Exception:'} #{ex.class}: #{ex.message}\n" \
+            "--\n" \
+            "#{bold('From:')} #{backtrace_file}:#{backtrace_line} @ " \
+            "#{bold("level: #{backtrace_level}")} of backtrace " \
+            "(of #{ex.backtrace.size - 1}).\n\n"
+          )
         end
       end
     end

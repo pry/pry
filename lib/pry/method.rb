@@ -15,7 +15,7 @@ class Pry
 
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
-  class Method
+  class Method # rubocop:disable Metrics/ClassLength
     require 'pry/method/weird_method_locator'
     require 'pry/method/disowned'
     require 'pry/method/patcher'
@@ -27,18 +27,19 @@ class Pry
 
     class << self
       # Given a string representing a method name and optionally a binding to
-      # search in, find and return the requested method wrapped in a `Pry::Method`
-      # instance.
+      # search in, find and return the requested method wrapped in a
+      # `Pry::Method` instance.
       #
       # @param [String] name The name of the method to retrieve.
       # @param [Binding] target The context in which to search for the method.
       # @param [Hash] options
-      # @option options [Boolean] :instance Look for an instance method if `name` doesn't
-      #   contain any context.
-      # @option options [Boolean] :methods Look for a bound/singleton method if `name` doesn't
-      #   contain any context.
-      # @return [Pry::Method, nil] A `Pry::Method` instance containing the requested
-      #   method, or `nil` if name is `nil` or no method could be located matching the parameters.
+      # @option options [Boolean] :instance Look for an instance method if
+      #   `name` doesn't contain any context.
+      # @option options [Boolean] :methods Look for a bound/singleton method if
+      #  `name` doesn't contain any context.
+      # @return [Pry::Method, nil] A `Pry::Method` instance containing the
+      #   requested method, or `nil` if name is `nil` or no method could be
+      #   located matching the parameters.
       def from_str(name, target = TOPLEVEL_BINDING, options = {})
         if name.nil?
           nil
@@ -78,15 +79,18 @@ class Pry
         if [:__script__, nil].include?(meth_name)
           nil
         else
-          method = begin
-                     if Object === b.eval('self')
-                       new(Kernel.instance_method(:method).bind(b.eval("self")).call(meth_name))
-                     else
-                       new(b.eval('class << self; self; end.instance_method(::Kernel.__method__).bind(self)'))
-                     end
-                   rescue NameError, NoMethodError
-                     Disowned.new(b.eval('self'), meth_name.to_s)
-                   end
+          method =
+            begin
+              if Object === b.eval('self')
+                new(Kernel.instance_method(:method).bind(b.eval("self")).call(meth_name))
+              else
+                str = 'class << self; self; end' \
+                      '.instance_method(::Kernel.__method__).bind(self)'
+                new(b.eval(str))
+              end
+            rescue NameError, NoMethodError
+              Disowned.new(b.eval('self'), meth_name.to_s)
+            end
 
           if WeirdMethodLocator.weird_method?(method, b)
             WeirdMethodLocator.new(method, b).get_method || method
@@ -103,11 +107,16 @@ class Pry
       # @param [Symbol] method_type The type of method: :method or :instance_method
       # @param [Binding] target The binding where the method is looked up.
       # @return [Method, UnboundMethod] The 'refined' method object.
-      def lookup_method_via_binding(obj, method_name, method_type, target = TOPLEVEL_BINDING)
+      def lookup_method_via_binding(
+        obj, method_name, method_type, target = TOPLEVEL_BINDING
+      )
         Pry.current[:obj] = obj
         Pry.current[:name] = method_name
         receiver = obj.is_a?(Module) ? "Module" : "Kernel"
-        target.eval("::#{receiver}.instance_method(:#{method_type}).bind(Pry.current[:obj]).call(Pry.current[:name])")
+        target.eval(
+          "::#{receiver}.instance_method(:#{method_type})" \
+          ".bind(Pry.current[:obj]).call(Pry.current[:name])"
+        )
       ensure
         Pry.current[:obj] = Pry.current[:name] = nil
       end
@@ -147,8 +156,13 @@ class Pry
       # @return [Array[Pry::Method]]
       def all_from_class(klass, include_super = true)
         %w[public protected private].flat_map do |visibility|
-          safe_send(klass, :"#{visibility}_instance_methods", include_super).map do |method_name|
-            new(safe_send(klass, :instance_method, method_name), visibility: visibility.to_sym)
+          safe_send(
+            klass, :"#{visibility}_instance_methods", include_super
+          ).map do |method_name|
+            new(
+              safe_send(klass, :instance_method, method_name),
+              visibility: visibility.to_sym
+            )
           end
         end
       end
@@ -200,11 +214,17 @@ class Pry
       end
 
       def singleton_method_definition?(name, definition_line)
-        /^define_singleton_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*self\.#{Regexp.escape(name)}/ =~ definition_line.strip
+        regexp =
+          /^define_singleton_method\(?\s*[:\"\']#{Regexp.escape(name)}|
+           ^def\s*self\.#{Regexp.escape(name)}/x
+        regexp =~ definition_line.strip
       end
 
       def instance_method_definition?(name, definition_line)
-        /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|^def\s*#{Regexp.escape(name)}/ =~ definition_line.strip
+        regexp =
+          /^define_method\(?\s*[:\"\']#{Regexp.escape(name)}|
+           ^def\s*#{Regexp.escape(name)}/x
+        regexp =~ definition_line.strip
       end
 
       # Get the singleton classes of superclasses that could define methods on
@@ -227,7 +247,8 @@ class Pry
       end
     end
 
-    # A new instance of `Pry::Method` wrapping the given `::Method`, `UnboundMethod`, or `Proc`.
+    # A new instance of `Pry::Method` wrapping the given `::Method`,
+    # `UnboundMethod`, or `Proc`.
     #
     # @param [::Method, UnboundMethod, Proc] method
     # @param [Hash] known_info Can be used to pre-cache expensive to compute stuff.
@@ -237,7 +258,9 @@ class Pry
       @visibility = known_info[:visibility]
     end
 
-    # Get the name of the method as a String, regardless of the underlying Method#name type.
+    # Get the name of the method as a String, regardless of the underlying
+    # Method#name type.
+    #
     # @return [String]
     def name
       @method.name.to_s
@@ -486,10 +509,17 @@ class Pry
     # @raise [CommandError] when the method can't be found or `pry-doc` isn't installed.
     def pry_doc_info
       if Pry.config.has_pry_doc
-        Pry::MethodInfo.info_for(@method) || raise(CommandError, "Cannot locate this method: #{name}. (source_location returns nil)")
+        Pry::MethodInfo.info_for(@method) ||
+          raise(
+            CommandError,
+            "Cannot locate this method: #{name}. (source_location returns nil)"
+          )
       else
         fail_msg = "Cannot locate this method: #{name}."
-        fail_msg += " Invoke the 'gem-install pry-doc' Pry command to get access to Ruby Core documentation.\n" if Helpers::Platform.mri?
+        if Helpers::Platform.mri?
+          fail_msg += " Invoke the 'gem-install pry-doc' Pry command to get " \
+                      "access to Ruby Core documentation.\n"
+        end
         raise CommandError, fail_msg
       end
     end
@@ -500,7 +530,11 @@ class Pry
       next_owner = owner
       times.times do
         i = ancestors.index(next_owner) + 1
-        i += 1 while ancestors[i] && !(ancestors[i].method_defined?(name) || ancestors[i].private_method_defined?(name))
+        while ancestors[i] &&
+              !(ancestors[i].method_defined?(name) ||
+                ancestors[i].private_method_defined?(name))
+          i += 1
+        end
         (next_owner = ancestors[i]) || (return nil)
       end
 
@@ -519,7 +553,9 @@ class Pry
       tokens = CodeRay.scan(first_ln, :ruby)
       tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens)
       tokens.each_cons(2) do |t1, t2|
-        return t2.first if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
+        if t2.last == :method || t2.last == :ident && t1 == [".", :operator]
+          return t2.first
+        end
       end
 
       nil
@@ -535,7 +571,9 @@ class Pry
       # hacked version of `source_location` for our input buffer for methods
       # defined in `(pry)`.
       file, line = *source_location
-      raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!" unless file
+      unless file
+        raise SourceNotFoundError, "Could not locate source for #{name_with_owner}!"
+      end
 
       begin
         code = Pry::Code.from_file(file).expression_at(line)

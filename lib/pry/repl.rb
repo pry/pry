@@ -102,7 +102,9 @@ class Pry
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
-        if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
+        if output.tty? &&
+           pry.config.correct_indent &&
+           Pry::Helpers::BaseHelpers.use_ansi_codes?
           output.print @indent.correct_indentation(
             current_prompt,
             indented_val,
@@ -240,7 +242,9 @@ class Pry
         begin
           # rb-readline doesn't support this method:
           # https://github.com/ConnorAtherton/rb-readline/issues/152
-          overhang += current_prompt.length - indented_val.length if Readline.vi_editing_mode?
+          if Readline.vi_editing_mode?
+            overhang += current_prompt.length - indented_val.length
+          end
         rescue NotImplementedError
           # VI editing mode is unsupported on JRuby.
           # https://github.com/pry/pry/issues/1840

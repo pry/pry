@@ -65,7 +65,10 @@ class Pry
   if Object.respond_to?(:deprecate_constant)
     deprecate_constant :DEFAULT_EXCEPTION_WHITELIST
   else
-    warn('DEFAULT_EXCEPTION_WHITELIST is deprecated and will be removed in a future version of Pry. Please use DEFAULT_UNRESCUED_EXCEPTIONS instead.')
+    warn(
+      'DEFAULT_EXCEPTION_WHITELIST is deprecated and will be removed in a ' \
+      'future version of Pry. Please use DEFAULT_UNRESCUED_EXCEPTIONS instead.'
+    )
   end
 
   # CommandErrors are caught by the REPL loop and displayed to the user. They

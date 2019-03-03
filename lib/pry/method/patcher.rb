@@ -75,7 +75,9 @@ class Pry
         if line =~ /\Adef (?:.*?\.)?#{Regexp.escape(method.original_name)}(?=[\(\s;]|$)/
           "def #{method.original_name}#{$'}"
         else
-          raise CommandError, "Could not find original `def #{method.original_name}` line to patch."
+          raise CommandError,
+                "Could not find original `def #{method.original_name}` line " \
+                "to patch."
         end
       end
 

@@ -49,7 +49,7 @@ class Pry
       end
 
       def options(opt)
-        opt.on :q, :quiet,             "Don't display anything in case of an error"
+        opt.on :q, :quiet, "Don't display anything in case of an error"
         opt.on :n, :"no-line-numbers", "Do not display line numbers"
         opt.on :m, :method, "Show the complete source for the current method."
         opt.on :c, :class, "Show the complete source for the current class or module."
@@ -86,7 +86,9 @@ class Pry
       end
 
       def process
-        raise CommandError, "Only one of -m, -c, -f, and  LINES may be specified." if bad_option_combination?
+        if bad_option_combination?
+          raise CommandError, "Only one of -m, -c, -f, and  LINES may be specified."
+        end
 
         if nothing_to_do?
           return

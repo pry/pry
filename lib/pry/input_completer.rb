@@ -2,18 +2,18 @@
 # Implements tab completion for Readline in Pry
 class Pry
   class InputCompleter
-    NUMERIC_REGEXP            = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/.freeze
-    ARRAY_REGEXP              = /^([^\]]*\])\.([^.]*)$/.freeze
-    SYMBOL_REGEXP             = /^(:[^:.]*)$/.freeze
+    NUMERIC_REGEXP = /^(-?(0[dbo])?[0-9_]+(\.[0-9_]+)?([eE]-?[0-9]+)?)\.([^.]*)$/.freeze
+    ARRAY_REGEXP = /^([^\]]*\])\.([^.]*)$/.freeze
+    SYMBOL_REGEXP = /^(:[^:.]*)$/.freeze
     SYMBOL_METHOD_CALL_REGEXP = /^(:[^:.]+)\.([^.]*)$/.freeze
-    REGEX_REGEXP              = %r{^(/[^/]*/)\.([^.]*)$}.freeze
-    PROC_OR_HASH_REGEXP       = /^([^\}]*\})\.([^.]*)$/.freeze
-    TOPLEVEL_LOOKUP_REGEXP    = /^::([A-Z][^:\.\(]*)$/.freeze
-    CONSTANT_REGEXP           = /^([A-Z][A-Za-z0-9]*)$/.freeze
+    REGEX_REGEXP = %r{^(/[^/]*/)\.([^.]*)$}.freeze
+    PROC_OR_HASH_REGEXP = /^([^\}]*\})\.([^.]*)$/.freeze
+    TOPLEVEL_LOOKUP_REGEXP = /^::([A-Z][^:\.\(]*)$/.freeze
+    CONSTANT_REGEXP = /^([A-Z][A-Za-z0-9]*)$/.freeze
     CONSTANT_OR_METHOD_REGEXP = /^([A-Z].*)::([^:.]*)$/.freeze
-    HEX_REGEXP                = /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/.freeze
-    GLOBALVARIABLE_REGEXP     = /^(\$[^.]*)$/.freeze
-    VARIABLE_REGEXP           = /^([^."].*)\.([^.]*)$/.freeze
+    HEX_REGEXP = /^(-?0x[0-9a-fA-F_]+)\.([^.]*)$/.freeze
+    GLOBALVARIABLE_REGEXP = /^(\$[^.]*)$/.freeze
+    VARIABLE_REGEXP = /^([^."].*)\.([^.]*)$/.freeze
 
     ReservedWords = %w[
       BEGIN END
@@ -46,12 +46,17 @@ class Pry
     def initialize(input, pry = nil)
       @pry = pry
       @input = input
-      @input.basic_word_break_characters = WORD_ESCAPE_STR if @input.respond_to?(:basic_word_break_characters=)
-      @input.completion_append_character = nil if @input.respond_to?(:completion_append_character=)
+      if @input.respond_to?(:basic_word_break_characters=)
+        @input.basic_word_break_characters = WORD_ESCAPE_STR
+      end
+
+      if @input.respond_to?(:completion_append_character=)
+        @input.completion_append_character = nil
+      end
     end
 
     # Return a new completion proc for use by Readline.
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def call(str, options = {})
       custom_completions = options[:custom_completions] || []
       # if there are multiple contexts e.g. cd 1/2/3
@@ -180,7 +185,9 @@ class Pry
 
               # jruby doesn't always provide #instance_methods() on each
               # object.
-              candidates.merge m.instance_methods(false).collect(&:to_s) if m.respond_to?(:instance_methods)
+              if m.respond_to?(:instance_methods)
+                candidates.merge m.instance_methods(false).collect(&:to_s)
+              end
             end
           end
           select_message(path, receiver, message, candidates.sort)
@@ -197,15 +204,19 @@ class Pry
             bind
           ).collect(&:to_s)
 
-          candidates += eval("class_variables", bind).collect(&:to_s) if eval("respond_to?(:class_variables)", bind)
-          candidates = (candidates | ReservedWords | custom_completions).grep(/^#{Regexp.quote(input)}/)
+          if eval("respond_to?(:class_variables)", bind)
+            candidates += eval("class_variables", bind).collect(&:to_s)
+          end
+          candidates =
+            (candidates | ReservedWords | custom_completions)
+              .grep(/^#{Regexp.quote(input)}/)
           candidates.collect(&path)
         end
       rescue Pry::RescuableException
         []
       end
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def select_message(path, receiver, message, candidates)
       candidates.grep(/^#{message}/).collect do |e|

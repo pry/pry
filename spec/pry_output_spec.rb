@@ -45,7 +45,8 @@ describe Pry do
     end
 
     it "should not be phased by un-inspectable things" do
-      expect(mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new")).to match(/#<.*NastyClass:0x.*?>/)
+      expect(mock_pry("class NastyClass; undef pretty_inspect; end", "NastyClass.new"))
+        .to match(/#<.*NastyClass:0x.*?>/)
     end
 
     it "doesn't leak colour for object literals" do
@@ -121,7 +122,8 @@ describe Pry do
     it "does not crash pry" do
       old_stdout = $stdout
       pry_eval = pry_tester(binding)
-      expect(pry_eval.eval("$stdout = Class.new { def write(*) end }.new", ":ok")).to eq(:ok)
+      expect(pry_eval.eval("$stdout = Class.new { def write(*) end }.new", ":ok"))
+        .to eq(:ok)
       $stdout = old_stdout
     end
   end

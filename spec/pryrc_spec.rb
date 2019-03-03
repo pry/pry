@@ -39,7 +39,9 @@ describe Pry do
         File.chmod 0o000, dir
         Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')
         Pry.config.should_load_rc = true
-        expect { Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new) }.to_not raise_error
+        expect do
+          Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
+        end.to_not raise_error
         File.chmod 0o777, dir
       end
     end
@@ -48,7 +50,9 @@ describe Pry do
       old_home = ENV['HOME']
       ENV['HOME'] = nil
       Pry.config.should_load_rc = true
-      expect { Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new) }.to_not raise_error
+      expect do
+        Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
+      end.to_not raise_error
 
       ENV['HOME'] = old_home
     end
@@ -74,7 +78,8 @@ describe Pry do
         end
 
         @doing_it = lambda {
-          Pry.start(self, input: StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n"), output: StringIO.new)
+          input = StringIO.new("Object::TEST_AFTER_RAISE=1\nexit-all\n")
+          Pry.start(self, input: input, output: StringIO.new)
           putsed
         }
       end

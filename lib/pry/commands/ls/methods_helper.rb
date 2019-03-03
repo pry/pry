@@ -16,7 +16,9 @@ class Pry
                       Pry::Method.all_from_obj(@interrogatee)
                     end
 
-          methods = trim_jruby_aliases(methods) if Pry::Helpers::Platform.jruby? && !@jruby_switch
+          if Pry::Helpers::Platform.jruby? && !@jruby_switch
+            methods = trim_jruby_aliases(methods)
+          end
 
           methods.select { |method| @ppp_switch || method.visibility == :public }
         end

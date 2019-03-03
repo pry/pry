@@ -22,10 +22,12 @@ class Pry
         exception_handler: Pry::DEFAULT_EXCEPTION_HANDLER,
         unrescued_exceptions: Pry::DEFAULT_UNRESCUED_EXCEPTIONS,
         exception_whitelist: Pry.lazy do
-                               defaults.output.puts '[warning] Pry.config.exception_whitelist is deprecated, ' \
-                                                    'please use Pry.config.unrescued_exceptions instead.'
-                               Pry::DEFAULT_UNRESCUED_EXCEPTIONS
-                             end,
+          defaults.output.puts(
+            '[warning] Pry.config.exception_whitelist is deprecated, ' \
+            'please use Pry.config.unrescued_exceptions instead.'
+          )
+          Pry::DEFAULT_UNRESCUED_EXCEPTIONS
+        end,
         hooks: Pry::DEFAULT_HOOKS,
         pager: true,
         system: Pry::DEFAULT_SYSTEM,
@@ -53,16 +55,19 @@ class Pry
         ls: Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS),
         completer: Pry::InputCompleter,
         gist: Pry::Config.from_hash(inspecter: proc(&:pretty_inspect)),
-        history: Pry::Config.from_hash(should_save: true, should_load: true).tap do |history|
-          history_file = if File.exist?(File.expand_path('~/.pry_history'))
-                           '~/.pry_history'
-                         elsif ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
-                           # See XDG Base Directory Specification at
-                           # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-                           ENV['XDG_DATA_HOME'] + '/pry/pry_history'
-                         else
-                           '~/.local/share/pry/pry_history'
-                         end
+        history: Pry::Config.from_hash(
+          should_save: true, should_load: true
+        ).tap do |history|
+          history_file =
+            if File.exist?(File.expand_path('~/.pry_history'))
+              '~/.pry_history'
+            elsif ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
+              # See XDG Base Directory Specification at
+              # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+              ENV['XDG_DATA_HOME'] + '/pry/pry_history'
+            else
+              '~/.local/share/pry/pry_history'
+            end
           history.file = File.expand_path(history_file)
         end,
         exec_string: ""
@@ -78,11 +83,13 @@ class Pry
       require 'readline'
       ::Readline
     rescue LoadError
-      defaults.output.puts "Sorry, you can't use Pry without Readline or a compatible library. \n" \
-                           "Possible solutions: \n" \
-                           " * Rebuild Ruby with Readline support using `--with-readline` \n" \
-                           " * Use the rb-readline gem, which is a pure-Ruby port of Readline \n" \
-                           " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
+      defaults.output.puts(
+        "Sorry, you can't use Pry without Readline or a compatible library. \n" \
+        "Possible solutions: \n" \
+        " * Rebuild Ruby with Readline support using `--with-readline` \n" \
+        " * Use the rb-readline gem, which is a pure-Ruby port of Readline \n" \
+        " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
+      )
       raise
     end
     private_class_method :lazy_readline

@@ -16,7 +16,8 @@ describe Pry::CommandSet do
       expect(@set["help"]).not_to eq nil
       @set["help"] = nil
       expect(@set["help"]).to eq nil
-      expect { @set.run_command(TOPLEVEL_BINDING, "help") }.to raise_error Pry::NoCommandError
+      expect { @set.run_command(TOPLEVEL_BINDING, "help") }
+        .to raise_error Pry::NoCommandError
     end
 
     it "replaces a command" do
@@ -378,7 +379,9 @@ describe Pry::CommandSet do
       desc    = "hello"
       listing = "bing"
       @set.command('foo') {}
-      @set.rename_command('bar', 'foo', description: desc, listing: listing, keep_retval: true)
+      @set.rename_command(
+        'bar', 'foo', description: desc, listing: listing, keep_retval: true
+      )
       expect(@set['bar'].description).to           eq desc
       expect(@set['bar'].options[:listing]).to     eq listing
       expect(@set['bar'].options[:keep_retval]).to eq true

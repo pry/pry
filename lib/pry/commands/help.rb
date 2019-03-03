@@ -59,7 +59,8 @@ class Pry
       # @return [String] The generated help string.
       def help_text_for_commands(name, commands)
         "#{bold(name.capitalize)}\n" << commands.map do |command|
-          "  #{command.options[:listing].to_s.ljust(18)} #{command.description.capitalize}"
+          "  #{command.options[:listing].to_s.ljust(18)} " \
+          "#{command.description.capitalize}"
         end.join("\n")
       end
 
@@ -155,7 +156,12 @@ class Pry
       end
 
       def group_sort_key(group_name)
-        [%w[Help Context Editing Introspection Input_and_output Navigating_pry Gems Basic Commands].index(group_name.tr(' ', '_')) || 99, group_name]
+        [
+          %w[
+            Help Context Editing Introspection Input_and_output Navigating_pry
+            Gems Basic Commands
+          ].index(group_name.tr(' ', '_')) || 99, group_name
+        ]
       end
     end
 

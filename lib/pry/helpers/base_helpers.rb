@@ -18,7 +18,8 @@ class Pry
       # This is required to introspect methods on objects like Net::HTTP::Get that
       # have overridden the `method` method.
       def safe_send(obj, method, *args, &block)
-        (Module === obj ? Module : Object).instance_method(method).bind(obj).call(*args, &block)
+        (Module === obj ? Module : Object).instance_method(method)
+          .bind(obj).call(*args, &block)
       end
       public :safe_send
 
@@ -50,7 +51,9 @@ class Pry
       end
 
       def highlight(string, regexp, highlight_color = :bright_yellow)
-        string.gsub(regexp) { |match| "<#{highlight_color}>#{match}</#{highlight_color}>" }
+        string.gsub(regexp) do |match|
+          "<#{highlight_color}>#{match}</#{highlight_color}>"
+        end
       end
 
       # formatting
