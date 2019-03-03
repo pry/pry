@@ -35,12 +35,6 @@ class Pry
       yield
     ].freeze
 
-    Operators = %w[
-      % & * ** + - /
-      < << <= <=> == === =~ > >= >>
-      [] []= ^ ! != !~
-    ].freeze
-
     WORD_ESCAPE_STR = " \t\n\"\\'`><=;|&{(".freeze
 
     def initialize(input, pry = nil)
@@ -220,13 +214,9 @@ class Pry
 
     def select_message(path, receiver, message, candidates)
       candidates.grep(/^#{message}/).collect do |e|
-        case e
-        when /^[a-zA-Z_]/
-          path.call(receiver + "." << e)
-        when /^[0-9]/
-        when *Operators
-          # receiver + " " << e
-        end
+        next unless e =~ /^[a-zA-Z_]/
+
+        path.call(receiver + "." << e)
       end.compact
     end
 
