@@ -315,12 +315,14 @@ describe "Pry::Command" do
   end
 
   describe 'tokenize' do
-    it 'should interpolate string with #{} in them' do
+    it "should interpolate string with \#{} in them" do
       expect do |probe|
         cmd = @set.command('random-dent', &probe)
 
         _foo = 5
-        cmd.new(target: binding).process_line 'random-dent #{1 + 2} #{3 + _foo}'
+        # rubocop:disable Lint/InterpolationCheck
+        cmd.new(target: binding).process_line('random-dent #{1 + 2} #{3 + _foo}')
+        # rubocop:enable Lint/InterpolationCheck
       end.to yield_with_args('3', '8')
     end
 
@@ -333,11 +335,13 @@ describe "Pry::Command" do
     end
 
     it 'should not interpolate commands with :interpolate => false' do
+      # rubocop:disable Lint/InterpolationCheck
       expect do |probe|
         cmd = @set.command('thor', 'norse god', interpolate: false, &probe)
 
         cmd.new.process_line 'thor %(#{foo})'
       end.to yield_with_args('%(#{foo})')
+      # rubocop:enable Lint/InterpolationCheck
     end
 
     it 'should use shell-words to split strings' do

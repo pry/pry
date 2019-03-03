@@ -726,7 +726,11 @@ describe "edit" do
         before do
           Pry.config.editor = lambda do |file, _line|
             lines = File.read(file).lines.to_a
+
+            # rubocop:disable Lint/InterpolationCheck
             lines[1] = '"#{super}aa".to_sym' + "\n"
+            # rubocop:enable Lint/InterpolationCheck
+
             File.open(file, 'w') do |f|
               f.write(lines.join)
             end

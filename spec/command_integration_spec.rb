@@ -236,7 +236,9 @@ describe "commands" do
       end
     end
 
+    # rubocop:disable Lint/InterpolationCheck
     expect(pry_tester(commands: set).eval('hello #{Pad.bong}')).to match(/bong/)
+    # rubocop:enable Lint/InterpolationCheck
   end
 
   # bug fix for https://github.com/pry/pry/issues/170
@@ -245,7 +247,10 @@ describe "commands" do
     "is a command"
   ) do
     redirect_pry_io(
-      InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'), @str_output
+      # rubocop:disable Lint/InterpolationCheck
+      InputTester.new('/#{Regexp.escape(File.expand_path("."))}/'),
+      # rubocop:enable Lint/InterpolationCheck
+      @str_output
     ) do
       pry
     end
@@ -260,16 +265,19 @@ describe "commands" do
       end
     end
 
+    # rubocop:disable Lint/InterpolationCheck
     expect(pry_tester(commands: set).eval('hello #{Pad.bong}'))
       .to match(/Pad\.bong/)
+    # rubocop:enable Lint/InterpolationCheck
   end
 
   it 'should NOT try to interpolate pure ruby code (no commands) ' do
+    # rubocop:disable Lint/InterpolationCheck
     # These should raise RuntimeError instead of NameError
     expect { pry_eval 'raise \'#{aggy}\'' }.to raise_error RuntimeError
-    expect { pry_eval 'raise #{aggy}'     }.to raise_error RuntimeError
-
+    expect { pry_eval 'raise #{aggy}' }.to raise_error RuntimeError
     expect(pry_eval('format \'#{my_var}\'')).to eq "\#{my_var}"
+    # rubocop:enable Lint/InterpolationCheck
   end
 
   it 'should create a command with a space in its name zzz' do
@@ -326,7 +334,7 @@ describe "commands" do
     end
 
     bong = "bong"
-    expect(pry_tester(binding, commands: set).eval('hello #{bong}'))
+    expect(pry_tester(binding, commands: set).eval("hello #{bong}"))
       .to match(/hello #{bong}/)
   end
 
@@ -342,7 +350,7 @@ describe "commands" do
     bang = 'bang'
 
     expect(pry_tester(binding, commands: set)
-      .eval('hellojohn #{bing} #{bong} #{bang}'))
+      .eval("hellojohn #{bing} #{bong} #{bang}"))
       .to match(/hello john #{bing} #{bong} #{bang}/)
   end
 

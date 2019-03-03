@@ -318,7 +318,9 @@ describe Pry do
             a.to_i + 1
           end
 
+          # rubocop:disable Lint/InterpolationCheck
           expect(mock_pry('++ 86', '++ #{_}')).to match(/88/)
+          # rubocop:enable Lint/InterpolationCheck
         end
 
         it "should be preserved over an empty line" do
