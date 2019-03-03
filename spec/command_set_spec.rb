@@ -575,7 +575,9 @@ describe Pry::CommandSet do
 
     it 'should not cause argument interpolation' do
       @set.command('hello')
+      # rubocop:disable Lint/InterpolationCheck
       expect { @set.valid_command?('hello #{raise "futz"}') }.to_not raise_error
+      # rubocop:enable Lint/InterpolationCheck
     end
   end
 

@@ -97,7 +97,9 @@ describe "amend-line" do
         puts :bang
     STR
 
+    # rubocop:disable Lint/InterpolationCheck
     @t.process_command 'amend-line   puts "#{goodbye}"'
+    # rubocop:enable Lint/InterpolationCheck
 
     expect(@t.eval_string).to eq unindent(<<-'STR')
       def hello

@@ -22,16 +22,6 @@ Lint/HandleExceptions:
     - 'lib/pry/pager.rb'
     - 'lib/pry/terminal.rb'
 
-# Offense count: 16
-Lint/InterpolationCheck:
-  Exclude:
-    - 'spec/command_integration_spec.rb'
-    - 'spec/command_set_spec.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/amend_line_spec.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/pry_spec.rb'
-
 # Offense count: 1
 Lint/Loop:
   Exclude:
