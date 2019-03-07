@@ -1,5 +1,3 @@
-require_relative 'helper'
-
 describe Pry::Ring do
   let(:ring) { described_class.new(3) }
 

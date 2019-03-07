@@ -2,8 +2,10 @@ require 'bundler/setup'
 Bundler.require :default, :test
 require 'pry/testable'
 require 'English'
-require_relative 'spec_helpers/mock_pry'
-require_relative 'spec_helpers/repl_tester'
+
+Dir['./spec/support/**/*.rb'].map do |file|
+  require file
+end
 
 if ENV["COVERAGE"]
   require "simplecov"
@@ -11,8 +13,11 @@ if ENV["COVERAGE"]
 end
 
 class Module
+  # False positive: https://github.com/rubocop-hq/rubocop/issues/5953
+  # rubocop:disable Style/AccessModifierDeclarations
   public :remove_const
   public :remove_method
+  # rubocop:enable Style/AccessModifierDeclarations
 end
 
 Pad = Class.new do
