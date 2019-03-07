@@ -1,7 +1,6 @@
-# This is for super-high-level integration testing.
-
 require 'delegate'
 
+# This is for super-high-level integration testing.
 class ReplTester
   class Input
     def initialize(tester_mailbox)

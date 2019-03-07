@@ -2,8 +2,10 @@ require 'bundler/setup'
 Bundler.require :default, :test
 require 'pry/testable'
 require 'English'
-require_relative 'spec_helpers/mock_pry'
-require_relative 'spec_helpers/repl_tester'
+
+Dir['./spec/support/**/*.rb'].map do |file|
+  require file
+end
 
 if ENV["COVERAGE"]
   require "simplecov"
