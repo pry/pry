@@ -1,15 +1,16 @@
-require 'bundler/setup'
-Bundler.require :default, :test
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start
+end
+
+require 'pry'
+require 'rspec'
+
 require 'pry/testable'
 require 'English'
 
 Dir['./spec/support/**/*.rb'].map do |file|
   require file
-end
-
-if ENV["COVERAGE"]
-  require "simplecov"
-  SimpleCov.start
 end
 
 class Module
