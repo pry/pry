@@ -52,3 +52,6 @@ Style/SymbolArray:
 
 Metrics/LineLength:
   Max: 90
+
+Bundler/OrderedGems:
+  Enabled: false
