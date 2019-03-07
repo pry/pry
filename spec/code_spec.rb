@@ -65,11 +65,11 @@ describe Pry::Code do
       end
 
       it 'finds files in a relative directory with `.rb` extension' do
-        expect(Pry::Code.from_file('../helper.rb').code_type).to eq :ruby
+        expect(Pry::Code.from_file('../spec_helper.rb').code_type).to eq :ruby
       end
 
       it 'finds files in a relative directory with `.rb` omitted' do
-        expect(Pry::Code.from_file('../helper').code_type).to eq :ruby
+        expect(Pry::Code.from_file('../spec_helper').code_type).to eq :ruby
       end
 
       it "doesn't confuse files with the same name, but without an extension" do
