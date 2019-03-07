@@ -67,9 +67,9 @@ RUN set -ex \
     && gem update --system $RUBYGEMS_VERSION \
     && rm -r /usr/src/ruby-$RUBY_VERSION
 
-RUN apk add --no-cache git nano
+RUN apk add --no-cache git nano build-base
 
-RUN gem update --system
+RUN gem update --system 2.7.9
 
 RUN gem install bundler --version "$BUNDLER_VERSION" --force
 
