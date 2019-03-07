@@ -5,6 +5,7 @@ gem 'rake', '~> 10.0'
 gem 'gist'
 gem 'yard'
 gem 'rspec', '~> 3.8.0'
+gem 'simplecov', '~> 0.16', require: false
 
 # Rubocop supports only >=2.2.0
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.2.0')
