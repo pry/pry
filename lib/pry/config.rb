@@ -28,7 +28,17 @@ class Pry
           )
           Pry::DEFAULT_UNRESCUED_EXCEPTIONS
         end,
-        hooks: Pry::DEFAULT_HOOKS,
+
+        # The default hooks - display messages when beginning and ending Pry
+        # sessions.
+        hooks: Pry::Hooks.new.add_hook(
+          :before_session, :default
+        ) do |_out, _target, _pry_|
+          next if _pry_.quiet?
+
+          _pry_.run_command('whereami --quiet')
+        end,
+
         pager: true,
         system: Pry::DEFAULT_SYSTEM,
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
