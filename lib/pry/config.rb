@@ -17,7 +17,14 @@ class Pry
         prompt_name: Pry::Prompt::DEFAULT_NAME,
         prompt: Pry::Prompt[:default],
         prompt_safe_contexts: Pry::Prompt::SAFE_CONTEXTS,
-        print: Pry::DEFAULT_PRINT,
+
+        print: proc do |_output, value, _pry_|
+          _pry_.pager.open do |pager|
+            pager.print _pry_.config.output_prefix
+            Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
+          end
+        end,
+
         quiet: false,
         exception_handler: Pry::DEFAULT_EXCEPTION_HANDLER,
         unrescued_exceptions: Pry::DEFAULT_UNRESCUED_EXCEPTIONS,

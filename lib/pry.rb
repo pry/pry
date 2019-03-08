@@ -6,14 +6,6 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 class Pry
-  # The default print
-  DEFAULT_PRINT = proc do |_output, value, _pry_|
-    _pry_.pager.open do |pager|
-      pager.print _pry_.config.output_prefix
-      Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
-    end
-  end
-
   # may be convenient when working with enormous objects and
   # pretty_print is too slow
   SIMPLE_PRINT = proc do |output, value|

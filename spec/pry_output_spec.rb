@@ -1,8 +1,6 @@
 describe Pry do
   describe "output failsafe" do
-    after do
-      Pry.config.print = Pry::DEFAULT_PRINT
-    end
+    after { Pry.config.print = Pry::Config.defaults.print }
 
     it "should catch serialization exceptions" do
       Pry.config.print = proc { raise "catch-22" }
@@ -31,7 +29,7 @@ describe Pry do
     end
   end
 
-  describe "DEFAULT_PRINT" do
+  describe "default print" do
     it "should output the right thing" do
       expect(mock_pry("[1]")).to match(/^=> \[1\]/)
     end
