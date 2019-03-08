@@ -373,17 +373,19 @@ describe "test Pry defaults" do
         binding,
         input: InputTester.new("1", "exit-all"),
         output: @str_output,
-        hooks: Pry::DEFAULT_HOOKS
+        hooks: Pry::Config.defaults.hooks
       )
 
       expect(@str_output.string).to match(/[w]hereami by default/)
     end
 
     it 'should hide whereami if quiet is set' do
-      Pry.new(input: InputTester.new("exit-all"),
-              output: @str_output,
-              quiet: true,
-              hooks: Pry::DEFAULT_HOOKS)
+      Pry.new(
+        input: InputTester.new('exit-all'),
+        output: @str_output,
+        quiet: true,
+        hooks: Pry::Config.defaults.hooks
+      )
 
       expect(@str_output.string).to eq ""
     end
