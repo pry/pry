@@ -65,7 +65,14 @@ class Pry
         end,
 
         pager: true,
-        system: Pry::DEFAULT_SYSTEM,
+
+        system: proc do |output, cmd, _|
+          next if system(cmd)
+
+          output.puts 'Error: there was a problem executing system ' \
+                      "command: #{cmd}"
+        end,
+
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
         editor: Pry.default_editor_for_platform,

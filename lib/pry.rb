@@ -6,12 +6,6 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 class Pry
-  DEFAULT_SYSTEM = proc do |output, cmd, _|
-    unless system(cmd)
-      output.puts "Error: there was a problem executing system command: #{cmd}"
-    end
-  end
-
   # This is to keep from breaking under Rails 3.2 for people who are doing that
   # IRB = Pry thing.
   module ExtendCommandBundle; end
