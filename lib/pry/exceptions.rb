@@ -78,9 +78,4 @@ class Pry
 
   # indicates obsolete API
   class ObsoleteError < StandardError; end
-
-  # This is to keep from breaking under Rails 3.2 for people who are doing that
-  # IRB = Pry thing.
-  module ExtendCommandBundle
-  end
 end
