@@ -45,7 +45,10 @@ class Pry
           end
         end,
 
-        unrescued_exceptions: Pry::DEFAULT_UNRESCUED_EXCEPTIONS,
+        unrescued_exceptions: [
+          ::SystemExit, ::SignalException, Pry::TooSafeException
+        ],
+
         exception_whitelist: Pry.lazy do
           defaults.output.puts(
             '[warning] Pry.config.exception_whitelist is deprecated, ' \

@@ -57,20 +57,6 @@ class Pry
     end
   end
 
-  # Don't catch these exceptions
-  DEFAULT_UNRESCUED_EXCEPTIONS = [SystemExit,
-                                  SignalException,
-                                  Pry::TooSafeException].freeze
-  DEFAULT_EXCEPTION_WHITELIST = DEFAULT_UNRESCUED_EXCEPTIONS
-  if Object.respond_to?(:deprecate_constant)
-    deprecate_constant :DEFAULT_EXCEPTION_WHITELIST
-  else
-    warn(
-      'DEFAULT_EXCEPTION_WHITELIST is deprecated and will be removed in a ' \
-      'future version of Pry. Please use DEFAULT_UNRESCUED_EXCEPTIONS instead.'
-    )
-  end
-
   # CommandErrors are caught by the REPL loop and displayed to the user. They
   # indicate an exceptional condition that's fatal to the current command.
   class CommandError < StandardError; end
