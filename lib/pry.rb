@@ -6,25 +6,6 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 class Pry
-  # Will only show the first line of the backtrace
-  DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, _|
-    if UserError === exception && SyntaxError === exception
-      output.puts "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
-    else
-      output.puts "#{exception.class}: #{exception.message}"
-      output.puts "from #{exception.backtrace.first}"
-
-      if exception.respond_to? :cause
-        cause = exception.cause
-        while cause
-          output.puts "Caused by #{cause.class}: #{cause}\n"
-          output.puts "from #{cause.backtrace.first}"
-          cause = cause.cause
-        end
-      end
-    end
-  end
-
   # Deal with the ^D key being pressed. Different behaviour in different cases:
   #   1. In an expression behave like `!` command.
   #   2. At top-level session behave like `exit` command.
