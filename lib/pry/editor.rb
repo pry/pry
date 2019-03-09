@@ -1,3 +1,5 @@
+require 'shellwords'
+
 class Pry
   class Editor
     include Pry::Helpers::CommandHelpers

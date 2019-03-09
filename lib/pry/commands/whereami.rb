@@ -1,3 +1,5 @@
+require 'method_source'
+
 class Pry
   class Command
     class Whereami < Pry::ClassCommand

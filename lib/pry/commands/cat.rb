@@ -1,11 +1,6 @@
 class Pry
   class Command
     class Cat < Pry::ClassCommand
-      require 'pry/commands/cat/abstract_formatter.rb'
-      require 'pry/commands/cat/input_expression_formatter.rb'
-      require 'pry/commands/cat/exception_formatter.rb'
-      require 'pry/commands/cat/file_formatter.rb'
-
       match 'cat'
       group 'Input and Output'
       description "Show code from a file, Pry's input buffer, or the last exception."

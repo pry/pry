@@ -1,5 +1,5 @@
 require 'delegate'
-require 'pry/helpers/documentation_helpers'
+require 'shellwords'
 
 class Pry
   # The super-class of all commands, new commands should be created by calling

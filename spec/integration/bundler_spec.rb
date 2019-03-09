@@ -1,3 +1,5 @@
+require 'rbconfig'
+
 RSpec.describe 'Bundler' do
   let(:ruby) { RbConfig.ruby.shellescape }
   let(:pry_dir) { File.expand_path(File.join(__FILE__, '../../../lib')).shellescape }

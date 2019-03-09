@@ -1,4 +1,5 @@
 require "shellwords"
+require 'rbconfig'
 
 RSpec.describe "Hanami integration" do
   before :all do

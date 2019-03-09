@@ -54,7 +54,7 @@ class Pry
             '[warning] Pry.config.exception_whitelist is deprecated, ' \
             'please use Pry.config.unrescued_exceptions instead.'
           )
-          Pry::DEFAULT_UNRESCUED_EXCEPTIONS
+          [::SystemExit, ::SignalException, Pry::TooSafeException]
         end,
 
         # The default hooks - display messages when beginning and ending Pry

@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'rbconfig'
 
 describe Pry do
   before do

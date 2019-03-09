@@ -1,4 +1,5 @@
 require 'pathname'
+require 'tempfile'
 
 describe "edit" do
   before do

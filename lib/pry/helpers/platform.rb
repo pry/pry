@@ -1,3 +1,5 @@
+require 'rbconfig'
+
 class Pry
   module Helpers
     # Contains methods for querying the platform that Pry is running on

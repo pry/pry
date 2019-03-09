@@ -1,5 +1,3 @@
-require 'pry/helpers/documentation_helpers'
-
 class Pry
   class WrappedModule
     # This class represents a single candidate for a module/class definition.

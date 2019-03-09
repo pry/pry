@@ -1,3 +1,5 @@
+require 'method_source'
+
 describe "whereami" do
   it 'should work with methods that have been undefined' do
     class Cor

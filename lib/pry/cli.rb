@@ -1,3 +1,5 @@
+require 'stringio'
+
 class Pry
   # Manage the processing of command line options
   class CLI

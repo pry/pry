@@ -1,8 +1,6 @@
-require 'pry/commands/ls/jruby_hacks'
-
 class Pry
   class Command
-    class Ls
+    class Ls < Pry::ClassCommand
       module MethodsHelper
         include Pry::Command::Ls::JRubyHacks
 

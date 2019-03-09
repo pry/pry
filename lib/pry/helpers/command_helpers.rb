@@ -1,3 +1,5 @@
+require 'tempfile'
+
 class Pry
   module Helpers
     # rubocop:disable Metrics/ModuleLength

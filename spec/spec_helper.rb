@@ -8,6 +8,7 @@ require 'rspec'
 
 require 'pry/testable'
 require 'English'
+require 'stringio'
 
 Dir['./spec/support/**/*.rb'].map do |file|
   require file

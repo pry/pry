@@ -1,6 +1,3 @@
-require 'pry/commands/ls/interrogatable'
-require 'pry/commands/ls/methods_helper'
-
 class Pry
   class Command
     class Ls < Pry::ClassCommand

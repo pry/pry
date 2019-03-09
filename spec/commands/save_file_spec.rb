@@ -1,3 +1,5 @@
+require 'tempfile'
+
 describe "save-file" do
   before do
     @tf = Tempfile.new(["pry", ".py"])

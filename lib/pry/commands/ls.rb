@@ -1,4 +1,3 @@
-require 'pry/commands/ls/ls_entity'
 class Pry
   class Command
     class Ls < Pry::ClassCommand

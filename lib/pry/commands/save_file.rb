@@ -1,5 +1,3 @@
-require 'pry/commands/code_collector'
-
 class Pry
   class Command
     class SaveFile < Pry::ClassCommand

@@ -1,3 +1,5 @@
+require 'strscan'
+
 class Pry
   # `ObjectPath` implements the resolution of "object paths", which are strings
   # that are similar to filesystem paths but meant for traversing Ruby objects.

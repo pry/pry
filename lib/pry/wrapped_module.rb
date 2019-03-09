@@ -1,5 +1,3 @@
-require 'pry/wrapped_module/candidate'
-
 class Pry
   class << self
     # If the given object is a `Pry::WrappedModule`, return it unaltered. If it's

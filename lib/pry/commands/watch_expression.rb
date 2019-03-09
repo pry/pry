@@ -1,8 +1,6 @@
 class Pry
   class Command
     class WatchExpression < Pry::ClassCommand
-      require 'pry/commands/watch_expression/expression.rb'
-
       match 'watch'
       group 'Context'
       description 'Watch the value of an expression and print a notification ' \
