@@ -6,25 +6,6 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 class Pry
-  # Deal with the ^D key being pressed. Different behaviour in different cases:
-  #   1. In an expression behave like `!` command.
-  #   2. At top-level session behave like `exit` command.
-  #   3. In a nested session behave like `cd ..`.
-  DEFAULT_CONTROL_D_HANDLER = proc do |eval_string, _pry_|
-    if !eval_string.empty?
-      eval_string.replace('') # Clear input buffer.
-    elsif _pry_.binding_stack.one?
-      _pry_.binding_stack.clear
-      throw(:breakout)
-    else
-      # Otherwise, saves current binding stack as old stack and pops last
-      # binding out of binding stack (the old stack still has that binding).
-      _pry_.command_state["cd"] ||= Pry::Config.from_hash({})
-      _pry_.command_state['cd'].old_stack = _pry_.binding_stack.dup
-      _pry_.binding_stack.pop
-    end
-  end
-
   DEFAULT_SYSTEM = proc do |output, cmd, _|
     unless system(cmd)
       output.puts "Error: there was a problem executing system command: #{cmd}"
