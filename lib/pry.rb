@@ -5,12 +5,6 @@ require 'pry/exceptions'
 require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
-class Pry
-  # This is to keep from breaking under Rails 3.2 for people who are doing that
-  # IRB = Pry thing.
-  module ExtendCommandBundle; end
-end
-
 require 'method_source'
 require 'shellwords'
 require 'stringio'
