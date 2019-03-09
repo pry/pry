@@ -1,14 +1,14 @@
-describe Pry::DEFAULT_CONTROL_D_HANDLER do
+describe 'Pry::Config.defaults.control_d_handler' do
   describe "control-d press" do
     before do
       # Simulates a ^D press.
-      @control_d = "Pry::DEFAULT_CONTROL_D_HANDLER.call('', _pry_)"
+      @control_d = "Pry::Config.defaults.control_d_handler.call('', _pry_)"
     end
 
     describe "in an expression" do
       it "should clear out passed string" do
         str = 'hello world'
-        Pry::DEFAULT_CONTROL_D_HANDLER.call(str, nil)
+        Pry::Config.defaults.control_d_handler.call(str, nil)
         expect(str).to eq ''
       end
     end
