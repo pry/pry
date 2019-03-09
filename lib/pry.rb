@@ -6,21 +6,6 @@ require 'pry/helpers/base_helpers'
 require 'pry/hooks'
 
 class Pry
-  # may be convenient when working with enormous objects and
-  # pretty_print is too slow
-  SIMPLE_PRINT = proc do |output, value|
-    begin
-      output.puts value.inspect
-    rescue RescuableException
-      output.puts "unknown"
-    end
-  end
-
-  # useful when playing with truly enormous objects
-  CLIPPED_PRINT = proc do |output, value|
-    output.puts Pry.view_clip(value, id: true)
-  end
-
   # Will only show the first line of the backtrace
   DEFAULT_EXCEPTION_HANDLER = proc do |output, exception, _|
     if UserError === exception && SyntaxError === exception
