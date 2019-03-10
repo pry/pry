@@ -5,6 +5,9 @@
 * Deleted `install-command` ([#1979](https://github.com/pry/pry/pull/1979))
 * Deleted `Pry::Helpers::BaseHelpers#command_dependencies_met?`
   ([#1979](https://github.com/pry/pry/pull/1979))
+* Deleted commands: `gem_cd`, `gem_install`, `gem_list`, `gem_open`,
+  `gem_readme`, `gem_search`, `gem_stats`
+  ([#1981](https://github.com/pry/pry/pull/1981))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 

@@ -266,4 +266,3 @@ Style/PerlBackrefs:
     - 'lib/pry/input_completer.rb'
     - 'lib/pry/last_exception.rb'
     - 'lib/pry/method.rb'
-    - 'lib/pry/rubygem.rb'
