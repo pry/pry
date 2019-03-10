@@ -1,3 +1,6 @@
+require 'stringio'
+require 'pathname'
+
 class Pry
   HOME_RC_FILE =
     if ENV.key?('PRYRC')
@@ -212,7 +215,6 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   # Execute the file through the REPL loop, non-interactively.
   # @param [String] file_name File name to load through the REPL.
   def self.load_file_through_repl(file_name)
-    require "pry/repl_file_loader"
     REPLFileLoader.new(file_name).load
   end
 

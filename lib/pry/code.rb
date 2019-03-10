@@ -1,6 +1,5 @@
-require 'pry/code/loc'
-require 'pry/code/code_range'
-require 'pry/code/code_file'
+require 'coderay'
+require 'method_source'
 
 class Pry
   class << self

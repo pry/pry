@@ -1,6 +1,6 @@
 class Pry
   class Command
-    class Ls
+    class Ls < Pry::ClassCommand
       module JRubyHacks
         private
 

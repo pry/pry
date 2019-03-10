@@ -1,3 +1,5 @@
+require 'method_source'
+
 class Pry
   class CodeFile
     DEFAULT_EXT = '.rb'.freeze

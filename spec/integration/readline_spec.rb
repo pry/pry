@@ -2,6 +2,7 @@
 # REPL is started.
 
 require "shellwords"
+require 'rbconfig'
 
 RSpec.describe "Readline" do
   before :all do

@@ -1,3 +1,5 @@
+require 'stringio'
+
 class Pry
   module Testable
     class PryTester

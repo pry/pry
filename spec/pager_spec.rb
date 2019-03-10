@@ -1,3 +1,5 @@
+require 'coderay'
+
 describe "Pry::Pager" do
   describe "PageTracker" do
     before do

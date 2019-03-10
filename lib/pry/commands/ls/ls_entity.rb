@@ -1,13 +1,3 @@
-require 'pry/commands/ls/grep'
-require 'pry/commands/ls/formatter'
-require 'pry/commands/ls/globals'
-require 'pry/commands/ls/constants'
-require 'pry/commands/ls/methods'
-require 'pry/commands/ls/self_methods'
-require 'pry/commands/ls/instance_vars'
-require 'pry/commands/ls/local_names'
-require 'pry/commands/ls/local_vars'
-
 class Pry
   class Command
     class Ls < Pry::ClassCommand

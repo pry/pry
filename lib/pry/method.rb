@@ -1,4 +1,5 @@
-require 'pry/helpers/documentation_helpers'
+require 'coderay'
+require 'method_source'
 
 class Pry
   class << self
@@ -16,10 +17,6 @@ class Pry
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
   class Method # rubocop:disable Metrics/ClassLength
-    require 'pry/method/weird_method_locator'
-    require 'pry/method/disowned'
-    require 'pry/method/patcher'
-
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
     include Helpers::DocumentationHelpers

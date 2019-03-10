@@ -1,5 +1,3 @@
-require 'pry/commands/show_info'
-
 class Pry
   class Command
     class ShowSource < Command::ShowInfo

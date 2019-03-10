@@ -1,3 +1,5 @@
+require 'method_source'
+
 describe Pry::Code do
   describe '.from_file' do
     specify 'read lines from a file on disk' do

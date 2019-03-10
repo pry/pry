@@ -1,9 +1,6 @@
 class Pry
   class Command
     class Edit < Pry::ClassCommand
-      require 'pry/commands/edit/exception_patcher'
-      require 'pry/commands/edit/file_and_line_locator'
-
       match 'edit'
       group 'Editing'
       description 'Invoke the default editor on a file.'

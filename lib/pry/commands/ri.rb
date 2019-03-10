@@ -1,3 +1,5 @@
+require 'stringio'
+
 class Pry
   class Command
     class Ri < Pry::ClassCommand
