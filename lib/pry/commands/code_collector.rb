@@ -101,10 +101,10 @@ class Pry
       # @return [String]
       def pry_output_content
         pry_array_content_as_string(
-          _pry_.output_ring, self.class.output_result_ranges
-        ) do |v|
-          _pry_.config.gist.inspecter.call(v)
-        end
+          _pry_.output_ring,
+          self.class.output_result_ranges,
+          &:pretty_inspect
+        )
       end
 
       # The selected `_pry_.input_ring` as a string, as specified by

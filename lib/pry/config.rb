@@ -119,7 +119,6 @@ class Pry
         file_completions: proc { Dir["."] },
         ls: Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS),
         completer: Pry::InputCompleter,
-        gist: Pry::Config.from_hash(inspecter: proc(&:pretty_inspect)),
         history: Pry::Config.from_hash(
           should_save: true, should_load: true
         ).tap do |history|

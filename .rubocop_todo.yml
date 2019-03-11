@@ -177,7 +177,6 @@ Style/DoubleNegation:
   Exclude:
     - 'lib/pry/code.rb'
     - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/gist.rb'
     - 'lib/pry/commands/whereami.rb'
     - 'lib/pry/method.rb'
     - 'lib/pry/method/weird_method_locator.rb'
