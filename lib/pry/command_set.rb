@@ -29,10 +29,6 @@ class Pry
     # @option options [Boolean] :keep_retval Whether or not to use return value
     #   of the block for return of `command` or just to return `nil`
     #   (the default).
-    # @option options [Array<String>] :requires_gem Whether the command has
-    #   any gem dependencies, if it does and dependencies not met then
-    #   command is disabled and a stub proc giving instructions to
-    #   install command is provided.
     # @option options [Boolean] :interpolate Whether string #{} based
     #   interpolation is applied to the command arguments before
     #   executing the command. Defaults to true.

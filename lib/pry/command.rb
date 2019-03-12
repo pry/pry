@@ -82,7 +82,6 @@ class Pry
 
       def default_options(match)
         {
-          requires_gem: [],
           keep_retval: false,
           argument_required: false,
           interpolate: true,

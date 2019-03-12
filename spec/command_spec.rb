@@ -686,7 +686,6 @@ describe "Pry::Command" do
     describe "command options hash" do
       it "is always present" do
         options_hash = {
-          requires_gem: [],
           keep_retval: false,
           argument_required: false,
           interpolate: true,
