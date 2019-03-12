@@ -112,7 +112,6 @@ require 'pry/commands/gem_stats'
 require 'pry/commands/help'
 require 'pry/commands/hist'
 require 'pry/commands/import_set'
-require 'pry/commands/install_command'
 require 'pry/commands/jump_to'
 require 'pry/commands/list_inspectors'
 

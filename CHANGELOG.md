@@ -2,6 +2,9 @@
 
 * Deprecated the `show-doc` command. The `show-source -d` is the new recommended
   way of reading docs ([#1934](https://github.com/pry/pry/pull/1934))
+* Deleted `install-command` ([#1979](https://github.com/pry/pry/pull/1979))
+* Deleted `Pry::Helpers::BaseHelpers#command_dependencies_met?`
+  ([#1979](https://github.com/pry/pry/pull/1979))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
