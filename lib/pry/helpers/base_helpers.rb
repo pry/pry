@@ -36,14 +36,6 @@ class Pry
         file =~ /^(\(.*\))$|^<.*>$/ || file =~ /__unknown__/ || file == "" || file == "-e"
       end
 
-      def command_dependencies_met?(options)
-        return true unless options[:requires_gem]
-
-        Array(options[:requires_gem]).all? do |g|
-          Pry::Rubygem.installed?(g)
-        end
-      end
-
       def use_ansi_codes?
         Pry::Helpers::Platform.windows_ansi? || ENV['TERM'] && ENV['TERM'] != "dumb"
       end

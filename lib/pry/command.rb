@@ -445,19 +445,6 @@ class Pry
     # @return [Object] The return value of the `#call` method, or
     #   {Command::VOID_VALUE}.
     def call_safely(*args)
-      unless dependencies_met?
-        gems_needed = Array(command_options[:requires_gem])
-        gems_not_installed = gems_needed.reject { |g| Rubygem.installed?(g) }
-        output.puts(<<WARN)
-The command #{Helpers::Text.bold(command_name)} is unavailable because it requires the following
-gems to be installed: #{gems_not_installed.join(', ')}
-
-Type #{Helpers::Text.bold('install-command ' + command_name)} to install the required gems
-and activate this command.
-WARN
-        return void
-      end
-
       if command_options[:argument_required] && args.empty?
         raise CommandError, "The command '#{command_name}' requires an argument."
       end
@@ -474,13 +461,6 @@ WARN
       yield
     ensure
       Symbol.instance_eval { define_method(:call, call_method) } if call_method
-    end
-
-    # Are all the gems required to use this command installed?
-    #
-    # @return  Boolean
-    def dependencies_met?
-      @dependencies_met ||= command_dependencies_met?(command_options)
     end
 
     # Generate completions for this command

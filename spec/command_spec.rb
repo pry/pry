@@ -5,16 +5,6 @@ describe "Pry::Command" do
   end
 
   describe 'call_safely' do
-    it 'should display a message if gems are missing' do
-      cmd = @set.create_command(
-        "ford-prefect", "From a planet near Beetlegeuse", requires_gem: %w[ghijkl]
-      ) do
-      end
-
-      expect(mock_command(cmd, %w[hello world]).output)
-        .to match(/install-command ford-prefect/)
-    end
-
     it 'should abort early if arguments are required' do
       cmd = @set.create_command(
         'arthur-dent', "Doesn't understand Thursdays", argument_required: true
