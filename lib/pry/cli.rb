@@ -80,7 +80,7 @@ class Pry
         rescue Pry::Slop::InvalidOptionError
           # Display help message on unknown switches and exit.
           puts Pry::Slop.new(&options)
-          exit
+          Kernel.exit
         end
 
         Pry.initial_session_setup
@@ -93,7 +93,7 @@ class Pry
       end
 
       def start(opts)
-        exit if opts.help?
+        Kernel.exit if opts.help?
 
         # invoked via cli
         Pry.cli = true
@@ -110,7 +110,7 @@ class Pry
         if !@pass_argv && Pry::CLI.input_args.any? && Pry::CLI.input_args != ["pry"]
           full_name = File.expand_path(Pry::CLI.input_args.first)
           Pry.load_file_through_repl(full_name)
-          exit
+          Kernel.exit
         end
 
         # Start the session (running any code passed with -e, if there is any)
@@ -182,7 +182,7 @@ Pry::CLI.add_options do
     Pry.locate_plugins.each do |plugin|
       puts plugin.name.to_s.ljust(18) << plugin.spec.summary
     end
-    exit
+    Kernel.exit
   end
 
   on "simple-prompt", "Enable simple prompt mode" do
@@ -214,7 +214,7 @@ Pry::CLI.add_options do
 
   on :v, :version, "Display the Pry version" do
     puts "Pry version #{Pry::VERSION} on Ruby #{RUBY_VERSION}"
-    exit
+    Kernel.exit
   end
 
   on :c, :context=,
