@@ -1,284 +1,369 @@
-describe Pry::CodeObject do
-  describe "basic lookups" do
-    before do
-      @obj = Object.new
-      def @obj.ziggy
-        "a flight of scarlet pigeons thunders round my thoughts"
-      end
-
-      class ClassyWassy
-        def piggy
-          binding
-        end
-      end
-
-      @p = Pry.new
-      @p.binding_stack = [binding]
-    end
-
-    after do
-      Object.remove_const(:ClassyWassy)
-    end
-
-    it 'should lookup methods' do
-      m = Pry::CodeObject.lookup("@obj.ziggy", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
-      expect(m.name.to_sym).to eq :ziggy
-    end
-
-    it 'should lookup modules' do
-      m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.source).to match(/piggy/)
-    end
-
-    it 'should lookup procs' do
-      my_proc = proc { :hello }
-      @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("my_proc", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
-      expect(m.source).to match(/hello/)
-      expect(m.wrapped).to eq my_proc
-    end
-
-    describe 'commands lookup' do
-      before do
-        @p = Pry.new
-        @p.binding_stack = [binding]
-      end
-
-      it 'should return command class' do
-        @p.commands.command "jeremy-jones" do
-          "lobster"
-        end
-        m = Pry::CodeObject.lookup("jeremy-jones", @p)
-        expect(m <= Pry::Command).to eq true
-        expect(m.source).to match(/lobster/)
-      end
-
-      describe "class commands" do
-        before do
-          class LobsterLady < Pry::ClassCommand
-            match "lobster-lady"
-            description "nada."
-            def process
-              "lobster"
-            end
-          end
-        end
-
-        after do
-          Object.remove_const(:LobsterLady)
-        end
-
-        it 'should return Pry::ClassCommand class when looking up class command' do
-          Pry.config.commands.add_command(LobsterLady)
-          m = Pry::CodeObject.lookup("lobster-lady", @p)
-          expect(m <= Pry::ClassCommand).to eq true
-          expect(m.source).to match(/class LobsterLady/)
-          Pry.config.commands.delete("lobster-lady")
-        end
-
-        it(
-          'returns Pry::WrappedModule when looking up command class directly ' \
-          '(as a class, not as a command)'
-        ) do
-          Pry.config.commands.add_command(LobsterLady)
-          m = Pry::CodeObject.lookup("LobsterLady", @p)
-          expect(m.is_a?(Pry::WrappedModule)).to eq true
-          expect(m.source).to match(/class LobsterLady/)
-          Pry.config.commands.delete("lobster-lady")
-        end
-      end
-
-      it 'looks up commands by :listing name as well' do
-        @p.commands.command(/jeremy-.*/, "", listing: "jeremy-baby") do
-          "lobster"
-        end
-        m = Pry::CodeObject.lookup("jeremy-baby", @p)
-        expect(m <= Pry::Command).to eq true
-        expect(m.source).to match(/lobster/)
-      end
-
-      it 'finds nothing when passing nil as the first argument' do
-        expect(Pry::CodeObject.lookup(nil, @p)).to eq nil
-      end
-    end
-
-    it 'lookups instance methods defined on classes accessed via local variable' do
-      o = Class.new do
-        def princess_bubblegum
-          "mathematic!"
-        end
-      end
-
-      @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("o#princess_bubblegum", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
-      expect(m.source).to match(/mathematic!/)
-      expect(m.wrapped).to eq o.instance_method(:princess_bubblegum)
-    end
-
-    it 'should lookup class methods defined on classes accessed via local variable' do
-      o = Class.new do
-        def self.finn
-          "4 realzies"
-        end
-      end
-      @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("o.finn", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
-      expect(m.source).to match(/4 realzies/)
-      expect(m.wrapped).to eq o.method(:finn)
-    end
-
-    it 'should lookup the class of an object (when given a variable)' do
-      moddy = ClassyWassy.new
-      @p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("moddy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.source).to match(/piggy/)
-      expect(m.wrapped).to eq moddy.class
-    end
-
-    describe "inferring object from binding when lookup str is empty/nil" do
-      before do
-        @b1 = Pry.binding_for(ClassyWassy)
-        @b2 = Pry.binding_for(ClassyWassy.new)
-      end
-
-      describe "infer module objects" do
-        it 'should infer module object when binding self is a module' do
-          ["", nil].each do |v|
-            @p.binding_stack = [@b1]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::WrappedModule)).to eq true
-            expect(m.name).to match(/ClassyWassy/)
-          end
-        end
-
-        it 'should infer module object when binding self is an instance' do
-          ["", nil].each do |v|
-            @p.binding_stack = [@b2]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::WrappedModule)).to eq true
-            expect(m.name).to match(/ClassyWassy/)
-          end
-        end
-      end
-
-      describe "infer method objects" do
-        it 'should infer method object from binding when inside method context' do
-          b = ClassyWassy.new.piggy
-
-          ["", nil].each do |v|
-            @p.binding_stack = [b]
-            m = Pry::CodeObject.lookup(v, @p)
-            expect(m.is_a?(Pry::Method)).to eq true
-            expect(m.name).to match(/piggy/)
-          end
-        end
-      end
-    end
+RSpec.describe Pry::CodeObject do
+  let(:pry) do
+    Pry.new.tap { |p| p.binding_stack = [binding] }
   end
 
-  describe "lookups with :super" do
-    before do
-      class MyClassyWassy; end
-      class CuteSubclass < MyClassyWassy; end
-      @p = Pry.new
-      @p.binding_stack = [binding]
-    end
+  describe ".lookup" do
+    context "when looking up method" do
+      let(:pry) do
+        obj = Class.new.new
+        def obj.foo_method; end
 
-    after do
-      Object.remove_const(:MyClassyWassy)
-      Object.remove_const(:CuteSubclass)
-    end
-
-    it 'should lookup original class with :super => 0' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, super: 0)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.wrapped).to eq CuteSubclass
-    end
-
-    it 'should lookup immediate super class with :super => 1' do
-      m = Pry::CodeObject.lookup("CuteSubclass", @p, super: 1)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.wrapped).to eq MyClassyWassy
-    end
-
-    it 'should ignore :super parameter for commands' do
-      p = Pry.new
-      p.commands.command "jeremy-jones" do
-        "lobster"
+        Pry.new.tap { |p| p.binding_stack = [binding] }
       end
-      p.binding_stack = [binding]
-      m = Pry::CodeObject.lookup("jeremy-jones", p, super: 10)
-      expect(m.source).to match(/lobster/)
-    end
-  end
 
-  describe "precedence" do
-    before do
-      class ClassyWassy
-        class Puff
-          def tiggy; end
+      it "finds methods defined on objects" do
+        code_object = described_class.lookup('obj.foo_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+        expect(code_object.name).to eq('foo_method')
+      end
+    end
+
+    context "when looking up modules" do
+      module FindMeModule; end
+
+      after { Object.remove_const(:FindMeModule) }
+
+      it "finds modules" do
+        code_object = described_class.lookup('FindMeModule', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up classes" do
+      class FindMeClass; end
+
+      after { Object.remove_const(:FindMeClass) }
+
+      it "finds classes" do
+        code_object = described_class.lookup('FindMeClass', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up procs" do
+      let(:test_proc) { proc { :hello } }
+
+      it "finds classes" do
+        code_object = described_class.lookup('test_proc', pry)
+        expect(code_object).to be_a(Pry::Method)
+        expect(code_object.wrapped.call).to eql(test_proc)
+      end
+    end
+
+    context "when looking up Pry::BlockCommand" do
+      let(:pry) do
+        pry = Pry.new
+        pry.commands.command('test-block-command') {}
+        pry.binding_stack = [binding]
+        pry
+      end
+
+      it "finds Pry:BlockCommand" do
+        code_object = described_class.lookup('test-block-command', pry)
+        expect(code_object.command_name).to eq('test-block-command')
+      end
+    end
+
+    context "when looking up Pry::ClassCommand" do
+      class TestClassCommand < Pry::ClassCommand
+        match 'test-class-command'
+      end
+
+      let(:pry) do
+        pry = Pry.new
+        pry.commands.add_command(TestClassCommand)
+        pry.binding_stack = [binding]
+        pry
+      end
+
+      after { Object.remove_const(:TestClassCommand) }
+
+      it "finds Pry:BlockCommand" do
+        code_object = described_class.lookup('test-class-command', pry)
+        expect(code_object.command_name).to eq('test-class-command')
+      end
+    end
+
+    context "when looking up Pry commands by class" do
+      class TestCommand < Pry::ClassCommand
+        match 'test-command'
+      end
+
+      let(:pry) do
+        pry = Pry.new
+        pry.commands.add_command(TestCommand)
+        pry.binding_stack = [binding]
+        pry
+      end
+
+      after { Object.remove_const(:TestCommand) }
+
+      it "finds Pry::WrappedModule" do
+        code_object = described_class.lookup('TestCommand', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up Pry commands by listing" do
+      let(:pry) do
+        pry = Pry.new
+        pry.commands.command('test-command', listing: 'test-listing') {}
+        pry.binding_stack = [binding]
+        pry
+      end
+
+      it "finds Pry::WrappedModule" do
+        code_object = described_class.lookup('test-listing', pry)
+        expect(code_object.command_name).to eq('test-listing')
+      end
+    end
+
+    context "when looking up 'nil'" do
+      it "returns nil" do
+        pry = Pry.new
+        pry.binding_stack = [binding]
+
+        code_object = described_class.lookup(nil, pry)
+        expect(code_object).to be_nil
+      end
+    end
+
+    context "when looking up 'nil' while being inside a module" do
+      let(:pry) do
+        Pry.new.tap { |p| p.binding_stack = [Pry.binding_for(Module)] }
+      end
+
+      it "infers the module" do
+        code_object = described_class.lookup(nil, pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up empty string while being inside a module" do
+      let(:pry) do
+        Pry.new.tap { |p| p.binding_stack = [Pry.binding_for(Module)] }
+      end
+
+      it "infers the module" do
+        code_object = described_class.lookup('', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up 'nil' while being inside a class instance" do
+      let(:pry) do
+        Pry.new.tap { |p| p.binding_stack = [Pry.binding_for(Module.new)] }
+      end
+
+      it "infers the module" do
+        code_object = described_class.lookup(nil, pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up empty string while being inside a class instance" do
+      let(:pry) do
+        Pry.new.tap { |p| p.binding_stack = [Pry.binding_for(Module.new)] }
+      end
+
+      it "infers the module" do
+        code_object = described_class.lookup('', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+    end
+
+    context "when looking up 'nil' while being inside a method" do
+      let(:pry) do
+        klass = Class.new do
+          def test_binding
+            binding
+          end
         end
 
-        def Puff; end
-
-        def piggy; end
+        Pry.new.tap { |p| p.binding_stack = [klass.new.test_binding] }
       end
 
-      Object.class_eval do
-        def ClassyWassy
-          :ducky
+      it "infers the method" do
+        code_object = described_class.lookup(nil, pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
+    end
+
+    context "when looking up empty string while being inside a method" do
+      let(:pry) do
+        klass = Class.new do
+          def test_binding
+            binding
+          end
         end
+
+        Pry.new.tap { |p| p.binding_stack = [klass.new.test_binding] }
       end
 
-      @p = Pry.new
-      @p.binding_stack = [binding]
+      it "infers the method" do
+        code_object = described_class.lookup('', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
     end
 
-    after do
-      Object.remove_const(:ClassyWassy)
-      Object.remove_method(:ClassyWassy)
+    context "when looking up instance methods of a class" do
+      let(:pry) do
+        instance = Class.new do
+          def instance_method; end
+        end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      it "finds instance methods" do
+        code_object = described_class.lookup('instance#instance_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
     end
 
-    it 'should look up classes before methods (at top-level)' do
-      m = Pry::CodeObject.lookup("ClassyWassy", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.source).to match(/piggy/)
+    context "when looking up instance methods" do
+      let(:pry) do
+        instance = Class.new do
+          def instance_method; end
+        end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      it "finds instance methods via the # notation" do
+        code_object = described_class.lookup('instance#instance_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
+
+      it "finds instance methods via the . notation" do
+        code_object = described_class.lookup('instance.instance_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
     end
 
-    it 'should look up methods before classes when ending in () (at top-level)' do
-      m = Pry::CodeObject.lookup("ClassyWassy()", @p)
-      expect(m.is_a?(Pry::Method)).to eq true
-      expect(m.source).to match(/ducky/)
+    context "when looking up anonymous class methods" do
+      let(:pry) do
+        klass = Class.new do
+          def self.class_method; end
+        end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      it "finds instance methods via the # notation" do
+        code_object = described_class.lookup('klass.class_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
     end
 
-    it 'should look up classes before methods when namespaced' do
-      m = Pry::CodeObject.lookup("ClassyWassy::Puff", @p)
-      expect(m.is_a?(Pry::WrappedModule)).to eq true
-      expect(m.source).to match(/tiggy/)
+    context "when looking up class methods of a named class" do
+      class TestClass
+        def self.class_method; end
+      end
+
+      after { Object.remove_const(:TestClass) }
+
+      it "finds instance methods via the # notation" do
+        code_object = described_class.lookup('TestClass.class_method', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
     end
 
-    it 'should look up locals before methods' do
-      b = Pry.binding_for(ClassyWassy)
-      b.eval("piggy = Puff.new")
-      @p.binding_stack = [b]
-      o = Pry::CodeObject.lookup("piggy", @p)
-      expect(o.is_a?(Pry::WrappedModule)).to eq true
+    context "when looking up classes by names of variables" do
+      let(:pry) do
+        klass = Class.new
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      it "finds instance methods via the # notation" do
+        code_object = described_class.lookup('klass', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
     end
 
-    # actually locals are never looked up (via co.default_lookup) when they're
-    # classes, it just falls through to co.method_or_class
-    it 'should look up classes before locals' do
-      _c = ClassyWassy
-      @p.binding_stack = [binding]
-      o = Pry::CodeObject.lookup("_c", @p)
-      expect(o.is_a?(Pry::WrappedModule)).to eq true
-      expect(o.wrapped).to eq ClassyWassy
+    context "when looking up classes with 'super: 0'" do
+      let(:pry) do
+        class ParentClass; end
+        class ChildClass < ParentClass; end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      after do
+        Object.remove_const(:ChildClass)
+        Object.remove_const(:ParentClass)
+      end
+
+      it "finds the child class" do
+        code_object = described_class.lookup('ChildClass', pry, super: 0)
+        expect(code_object).to be_a(Pry::WrappedModule)
+        expect(code_object.wrapped).to eq(ChildClass)
+      end
+    end
+
+    context "when looking up classes with 'super: 1'" do
+      let(:pry) do
+        class ParentClass; end
+        class ChildClass < ParentClass; end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      after do
+        Object.remove_const(:ChildClass)
+        Object.remove_const(:ParentClass)
+      end
+
+      it "finds the parent class" do
+        code_object = described_class.lookup('ChildClass', pry, super: 1)
+        expect(code_object).to be_a(Pry::WrappedModule)
+        expect(code_object.wrapped).to eq(ParentClass)
+      end
+    end
+
+    context "when looking up commands with the super option" do
+      let(:pry) do
+        pry = Pry.new
+        pry.commands.command('test-command') {}
+        pry.binding_stack = [binding]
+        pry
+      end
+
+      it "finds the command ignoring the super option" do
+        code_object = described_class.lookup('test-command', pry, super: 1)
+        expect(code_object.command_name).to eq('test-command')
+      end
+    end
+
+    context "when there is a class and a method who is a namesake" do
+      let(:pry) do
+        class TestClass
+          class InnerTestClass; end
+        end
+        def TestClass; end
+
+        Pry.new.tap { |p| p.binding_stack = [binding] }
+      end
+
+      after { Object.remove_const(:TestClass) }
+
+      it "finds the class before the method" do
+        code_object = described_class.lookup('TestClass', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+      end
+
+      it "finds the method when the look up ends with ()" do
+        code_object = described_class.lookup('TestClass()', pry)
+        expect(code_object).to be_a(Pry::Method)
+      end
+
+      it "finds the class before the method when it's namespaced" do
+        code_object = described_class.lookup('TestClass::InnerTestClass', pry)
+        expect(code_object).to be_a(Pry::WrappedModule)
+        expect(code_object.wrapped).to eq(TestClass::InnerTestClass)
+      end
     end
   end
 end
