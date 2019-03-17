@@ -97,12 +97,10 @@ class Pry
     # line, unless specified otherwise.
     #
     # @param [String] line
-    # @param [Integer?] lineno
-    # @return [String] The inserted line.
-    def push(line, lineno = nil)
-      lineno = @lines.last.lineno + 1 if lineno.nil?
-      @lines.push(LOC.new(line, lineno))
-      line
+    # @return [void]
+    def push(line)
+      line_number = @lines.any? ? @lines.last.lineno + 1 : 1
+      @lines.push(LOC.new(line, line_number))
     end
     alias << push
 
@@ -249,11 +247,6 @@ class Pry
       end
     end
 
-    # @return [String]
-    def inspect
-      Object.instance_method(:to_s).bind(self).call
-    end
-
     # @return [Integer] the number of digits in the last line.
     def max_lineno_width
       !@lines.empty? ? @lines.last.lineno.to_s.length : 0
@@ -346,6 +339,14 @@ class Pry
     # Check whether String responds to missing methods.
     def respond_to_missing?(name, include_all = false)
       ''.respond_to?(name, include_all)
+    end
+
+    if RUBY_VERSION.start_with?('1.9')
+      # @todo This is needed for Ruby 1.9 support where `lines` return an
+      #   Enumerator. Newer Rubies return an Array
+      def lines
+        super.to_a
+      end
     end
 
     protected
