@@ -23,11 +23,6 @@ Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
 # Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-
-# Offense count: 1
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
 Lint/Void:
   Exclude:
