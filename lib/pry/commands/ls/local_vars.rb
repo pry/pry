@@ -9,9 +9,10 @@ class Pry
         end
 
         def output_self
-          name_value_pairs = @target.eval('local_variables').reject do |e|
+          locals = @target.eval('local_variables').reject do |e|
             @sticky_locals.key?(e.to_sym)
-          end.map do |name|
+          end
+          name_value_pairs = locals.map do |name|
             [name, @target.eval(name.to_s)]
           end
           format(name_value_pairs).join('')
@@ -20,9 +21,10 @@ class Pry
         private
 
         def format(name_value_pairs)
-          name_value_pairs.sort_by do |_name, value|
+          sorted = name_value_pairs.sort_by do |_name, value|
             value.to_s.size
-          end.reverse.map do |name, value|
+          end
+          sorted.reverse.map do |name, value|
             colorized_assignment_style(name, format_value(value))
           end
         end

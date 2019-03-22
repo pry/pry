@@ -235,12 +235,6 @@ Style/MissingRespondToMissing:
     - 'lib/pry/plugins.rb'
     - 'lib/pry/wrapped_module.rb'
 
-# Offense count: 4
-Style/MultilineBlockChain:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/ls/local_vars.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
