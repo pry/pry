@@ -138,14 +138,10 @@ class Pry
           @triggered_command = items.shift
           execute_arguments! items
           opts.parse! items
-        else
-          if (opts = commands['default'])
-            opts.parse! items
-          else
-            if config[:strict] && items[0]
-              raise InvalidCommandError, "Unknown command `#{items[0]}`"
-            end
-          end
+        elsif (opts = commands['default'])
+          opts.parse! items
+        elsif config[:strict] && items[0]
+          raise InvalidCommandError, "Unknown command `#{items[0]}`"
         end
         execute_global_opts! items
         items

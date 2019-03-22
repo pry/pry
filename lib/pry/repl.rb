@@ -183,12 +183,10 @@ class Pry
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
           input_readline(current_prompt)
+        elsif input.method(:readline).arity == 1
+          input_readline(current_prompt)
         else
-          if input.method(:readline).arity == 1
-            input_readline(current_prompt)
-          else
-            input_readline
-          end
+          input_readline
         end
       end
     end

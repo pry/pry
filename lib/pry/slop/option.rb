@@ -111,12 +111,10 @@ class Pry
         type = config[:as]
         if type.respond_to?(:call)
           type.call(value)
+        elsif (callable = types[type.to_s.downcase.to_sym])
+          callable.call(value)
         else
-          if (callable = types[type.to_s.downcase.to_sym])
-            callable.call(value)
-          else
-            value
-          end
+          value
         end
       end
 

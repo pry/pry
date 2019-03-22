@@ -207,15 +207,6 @@ Style/GlobalVars:
 Style/GuardClause:
   Enabled: false
 
-# Offense count: 5
-Style/IfInsideElse:
-  Exclude:
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'lib/pry/repl.rb'
-    - 'lib/pry/slop/commands.rb'
-    - 'lib/pry/slop/option.rb'
-
 # Offense count: 7
 Style/MethodMissingSuper:
   Exclude:

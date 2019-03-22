@@ -91,16 +91,14 @@ class Pry
           ExceptionPatcher.new(
             pry_instance, state, file_and_line_for_current_exception
           ).perform_patch
-        else
-          if code_object.is_a?(Pry::Method)
-            code_object.redefine(
-              Pry::Editor.new(pry_instance).edit_tempfile_with_content(
-                code_object.source
-              )
+        elsif code_object.is_a?(Pry::Method)
+          code_object.redefine(
+            Pry::Editor.new(pry_instance).edit_tempfile_with_content(
+              code_object.source
             )
-          else
-            raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
-          end
+          )
+        else
+          raise NotImplementedError, "Cannot yet patch #{code_object} objects!"
         end
       end
 
