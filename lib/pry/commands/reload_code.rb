@@ -47,7 +47,7 @@ class Pry
       end
 
       def reload_object(identifier)
-        code_object = Pry::CodeObject.lookup(identifier, _pry_)
+        code_object = Pry::CodeObject.lookup(identifier, pry_instance)
         check_for_reloadability(code_object, identifier)
         load code_object.source_file
         output.puts "#{identifier} was reloaded!"

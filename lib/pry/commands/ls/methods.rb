@@ -5,8 +5,8 @@ class Pry
         include Pry::Command::Ls::Interrogatable
         include Pry::Command::Ls::MethodsHelper
 
-        def initialize(interrogatee, no_user_opts, opts, _pry_)
-          super(_pry_)
+        def initialize(interrogatee, no_user_opts, opts, pry_instance)
+          super(pry_instance)
           @interrogatee = interrogatee
           @no_user_opts = no_user_opts
           @default_switch = opts[:methods]
@@ -39,11 +39,11 @@ class Pry
         def below_ceiling
           ceiling = if @quiet_switch
                       [Pry::Method.safe_send(interrogatee_mod, :ancestors)[1]] +
-                        _pry_.config.ls.ceiling
+                        pry_instance.config.ls.ceiling
                     elsif @verbose_switch
                       []
                     else
-                      _pry_.config.ls.ceiling.dup
+                      pry_instance.config.ls.ceiling.dup
                     end
           ->(klass) { !ceiling.include?(klass) }
         end

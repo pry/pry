@@ -35,6 +35,8 @@
   This will be removed in the next release.
 * Deprecated the `show-doc` command. The `show-source -d` is the new recommended
   way of reading docs ([#1934](https://github.com/pry/pry/pull/1934))
+* Deprecated `Pry::Command#_pry_`. Use `Pry::Command#pry_instance` instead
+  ([#1989](https://github.com/pry/pry/pull/1989))
 
 #### Breaking changes
 

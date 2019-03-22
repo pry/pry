@@ -2,7 +2,7 @@ class Pry
   class Command
     class Ls < Pry::ClassCommand
       class LsEntity
-        attr_reader :_pry_
+        attr_reader :pry_instance
 
         def initialize(opts)
           @interrogatee = opts[:interrogatee]
@@ -10,7 +10,7 @@ class Pry
           @opts = opts[:opts]
           @args = opts[:args]
           @grep = Grep.new(Regexp.new(opts[:opts][:G] || '.'))
-          @_pry_ = opts.delete(:_pry_)
+          @pry_instance = opts.delete(:pry_instance)
         end
 
         def entities_table
@@ -24,31 +24,31 @@ class Pry
         end
 
         def globals
-          grep Globals.new(@opts, _pry_)
+          grep Globals.new(@opts, pry_instance)
         end
 
         def constants
-          grep Constants.new(@interrogatee, @no_user_opts, @opts, _pry_)
+          grep Constants.new(@interrogatee, @no_user_opts, @opts, pry_instance)
         end
 
         def methods
-          grep(Methods.new(@interrogatee, @no_user_opts, @opts, _pry_))
+          grep(Methods.new(@interrogatee, @no_user_opts, @opts, pry_instance))
         end
 
         def self_methods
-          grep SelfMethods.new(@interrogatee, @no_user_opts, @opts, _pry_)
+          grep SelfMethods.new(@interrogatee, @no_user_opts, @opts, pry_instance)
         end
 
         def instance_vars
-          grep InstanceVars.new(@interrogatee, @no_user_opts, @opts, _pry_)
+          grep InstanceVars.new(@interrogatee, @no_user_opts, @opts, pry_instance)
         end
 
         def local_names
-          grep LocalNames.new(@no_user_opts, @args, _pry_)
+          grep LocalNames.new(@no_user_opts, @args, pry_instance)
         end
 
         def local_vars
-          LocalVars.new(@opts, _pry_)
+          LocalVars.new(@opts, pry_instance)
         end
 
         def entities

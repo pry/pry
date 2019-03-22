@@ -1,17 +1,19 @@
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
-    expect { pry_eval '_file_', '_dir_', '_ex_', '_pry_', '_' }.to_not raise_error
+    expect { pry_eval '_file_', '_dir_', '_ex_', 'pry_instance', '_' }
+      .to_not raise_error
   end
 
   it 'locals should still exist after cd-ing into a new context' do
-    expect { pry_eval 'cd 0', '_file_', '_dir_', '_ex_', '_pry_', '_' }.to_not raise_error
+    expect { pry_eval('cd 0', '_file_', '_dir_', '_ex_', 'pry_instance', '_') }
+      .to_not raise_error
   end
 
-  it 'locals should keep value after cd-ing (_pry_)' do
+  it 'locals should keep value after cd-ing (pry_instance)' do
     pry_tester.tap do |t|
-      pry = t.eval '_pry_'
+      pry = t.eval 'pry_instance'
       t.eval 'cd 0'
-      expect(t.eval('_pry_')).to eq(pry)
+      expect(t.eval('pry_instance')).to eq(pry)
     end
   end
 
@@ -157,13 +159,13 @@ describe "Sticky locals (_file_ and friends)" do
 
     it 'should create a new sticky local' do
       t = pry_tester
-      t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
+      t.eval "pry_instance.add_sticky_local(:test_local){ :test_value }"
       expect(t.eval("test_local")).to eq(:test_value)
     end
 
     it 'should still exist after cd-ing into new binding' do
       t = pry_tester
-      t.eval "_pry_.add_sticky_local(:test_local){ :test_value }"
+      t.eval "pry_instance.add_sticky_local(:test_local){ :test_value }"
       t.eval "cd Object.new"
       expect(t.eval("test_local")).to eq(:test_value)
     end

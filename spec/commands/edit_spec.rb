@@ -219,7 +219,7 @@ describe "edit" do
         Pad.le = @t.last_exception
         redirect_pry_io(InputTester.new("def broken_method", "binding.pry", "end",
                                         "broken_method",
-                                        "_pry_.last_exception = Pad.le",
+                                        "pry_instance.last_exception = Pad.le",
                                         "edit --ex -n", "exit-all", "exit-all")) do
           Object.new.pry
         end

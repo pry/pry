@@ -8,7 +8,7 @@ class Pry
         protected_method_color: :blue,
         method_missing_color: :bright_red,
         local_var_color: :yellow,
-        pry_var_color: :default, # e.g. _, _pry_, _file_
+        pry_var_color: :default, # e.g. _, pry_instance, _file_
         instance_var_color: :blue, # e.g. @foo
         class_var_color: :bright_blue, # e.g. @@foo
         global_var_color: :default, # e.g. $CODERAY_DEBUG, $eventmachine_library
@@ -93,10 +93,10 @@ class Pry
           no_user_opts: no_user_opts?,
           opts: opts,
           args: args,
-          _pry_: _pry_
+          pry_instance: pry_instance
         )
 
-        _pry_.pager.page ls_entity.entities_table
+        pry_instance.pager.page ls_entity.entities_table
       end
 
       private

@@ -24,7 +24,7 @@ class Pry
           if command_block
             command_block.call `#{cmd}`
           else
-            _pry_.config.system.call(output, cmd, _pry_)
+            pry_instance.config.system.call(output, cmd, pry_instance)
           end
         end
       end

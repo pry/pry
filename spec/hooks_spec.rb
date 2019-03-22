@@ -366,8 +366,10 @@ describe Pry::Hooks do
         o = Object.new
         class << o; attr_accessor :value; end
 
-        Pry.config.hooks.add_hook(:when_started, :test_hook) do |_target, _opt, _pry_|
-          _pry_.binding_stack = [Pry.binding_for(o)]
+        Pry.config.hooks.add_hook(
+          :when_started, :test_hook
+        ) do |_target, _opt, pry_instance|
+          pry_instance.binding_stack = [Pry.binding_for(o)]
         end
 
         redirect_pry_io(InputTester.new("@value = true", "exit-all")) do

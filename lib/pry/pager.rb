@@ -6,10 +6,10 @@ class Pry
     class StopPaging < StandardError
     end
 
-    attr_reader :_pry_
+    attr_reader :pry_instance
 
-    def initialize(_pry_)
-      @_pry_ = _pry_
+    def initialize(pry_instance)
+      @pry_instance = pry_instance
     end
 
     # Send the given text through the best available pager (if
@@ -52,12 +52,12 @@ class Pry
     # you must rescue `Pry::Pager::StopPaging`. These requirements can be
     # avoided by using `.open` instead.
     def best_available
-      if !_pry_.config.pager
-        NullPager.new(_pry_.output)
+      if !pry_instance.config.pager
+        NullPager.new(pry_instance.output)
       elsif !SystemPager.available? || Helpers::Platform.jruby?
-        SimplePager.new(_pry_.output)
+        SimplePager.new(pry_instance.output)
       else
-        SystemPager.new(_pry_.output)
+        SystemPager.new(pry_instance.output)
       end
     end
 

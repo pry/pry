@@ -3,11 +3,11 @@ class Pry
     class Ls < Pry::ClassCommand
       class Formatter
         attr_writer :grep
-        attr_reader :_pry_
+        attr_reader :pry_instance
 
-        def initialize(_pry_)
-          @_pry_ = _pry_
-          @target = _pry_.current_context
+        def initialize(pry_instance)
+          @pry_instance = pry_instance
+          @target = pry_instance.current_context
           @default_switch = nil
         end
 
@@ -20,7 +20,7 @@ class Pry
         private
 
         def color(type, str)
-          Pry::Helpers::Text.send _pry_.config.ls["#{type}_color"], str
+          Pry::Helpers::Text.send pry_instance.config.ls["#{type}_color"], str
         end
 
         # Add a new section to the output.
@@ -29,7 +29,7 @@ class Pry
           return '' if body.compact.empty?
 
           fancy_heading = Pry::Helpers::Text.bold(color(:heading, heading))
-          Pry::Helpers.tablify_or_one_line(fancy_heading, body, @_pry_.config)
+          Pry::Helpers.tablify_or_one_line(fancy_heading, body, @pry_instance.config)
         end
 
         def format_value(value)

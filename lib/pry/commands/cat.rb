@@ -34,15 +34,18 @@ class Pry
       end
 
       def process
-        output = if opts.present?(:ex)
-                   ExceptionFormatter.new(_pry_.last_exception, _pry_, opts).format
-                 elsif opts.present?(:in)
-                   InputExpressionFormatter.new(_pry_.input_ring, opts).format
-                 else
-                   FileFormatter.new(args.first, _pry_, opts).format
-                 end
+        output =
+          if opts.present?(:ex)
+            ExceptionFormatter.new(
+              pry_instance.last_exception, pry_instance, opts
+            ).format
+          elsif opts.present?(:in)
+            InputExpressionFormatter.new(pry_instance.input_ring, opts).format
+          else
+            FileFormatter.new(args.first, pry_instance, opts).format
+          end
 
-        _pry_.pager.page output
+        pry_instance.pager.page output
       end
 
       def complete(search)

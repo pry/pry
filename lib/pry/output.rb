@@ -1,10 +1,10 @@
 class Pry
   class Output
-    attr_reader :_pry_
+    attr_reader :pry_instance
 
-    def initialize(_pry_)
-      @_pry_ = _pry_
-      @boxed_io = _pry_.config.output
+    def initialize(pry_instance)
+      @pry_instance = pry_instance
+      @boxed_io = pry_instance.config.output
     end
 
     def puts(*objs)
@@ -42,7 +42,7 @@ class Pry
     end
 
     def decolorize_maybe(str)
-      if _pry_.config.color
+      if pry_instance.config.color
         str
       else
         Pry::Helpers::Text.strip_color str

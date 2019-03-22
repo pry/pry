@@ -4,8 +4,8 @@ class Pry
       class InstanceVars < Pry::Command::Ls::Formatter
         include Pry::Command::Ls::Interrogatable
 
-        def initialize(interrogatee, no_user_opts, opts, _pry_)
-          super(_pry_)
+        def initialize(interrogatee, no_user_opts, opts, pry_instance)
+          super(pry_instance)
           @interrogatee = interrogatee
           @no_user_opts = no_user_opts
           @default_switch = opts[:ivars]

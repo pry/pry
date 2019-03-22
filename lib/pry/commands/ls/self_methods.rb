@@ -5,8 +5,8 @@ class Pry
         include Pry::Command::Ls::Interrogatable
         include Pry::Command::Ls::MethodsHelper
 
-        def initialize(interrogatee, no_user_opts, opts, _pry_)
-          super(_pry_)
+        def initialize(interrogatee, no_user_opts, opts, pry_instance)
+          super(pry_instance)
           @interrogatee = interrogatee
           @no_user_opts = no_user_opts
           @ppp_switch = opts[:ppp]

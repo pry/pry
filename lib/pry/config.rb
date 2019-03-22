@@ -17,9 +17,9 @@ class Pry
         prompt: Pry::Prompt[:default],
         prompt_safe_contexts: Pry::Prompt::SAFE_CONTEXTS,
 
-        print: proc do |_output, value, _pry_|
-          _pry_.pager.open do |pager|
-            pager.print _pry_.config.output_prefix
+        print: proc do |_output, value, pry_instance|
+          pry_instance.pager.open do |pager|
+            pager.print pry_instance.config.output_prefix
             Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
           end
         end,
@@ -61,10 +61,10 @@ class Pry
         # sessions.
         hooks: Pry::Hooks.new.add_hook(
           :before_session, :default
-        ) do |_out, _target, _pry_|
-          next if _pry_.quiet?
+        ) do |_out, _target, pry_instance|
+          next if pry_instance.quiet?
 
-          _pry_.run_command('whereami --quiet')
+          pry_instance.run_command('whereami --quiet')
         end,
 
         pager: true,
@@ -98,18 +98,18 @@ class Pry
         #   1. In an expression behave like `!` command.
         #   2. At top-level session behave like `exit` command.
         #   3. In a nested session behave like `cd ..`.
-        control_d_handler: proc do |eval_string, _pry_|
+        control_d_handler: proc do |eval_string, pry_instance|
           if !eval_string.empty?
             eval_string.replace('') # Clear input buffer.
-          elsif _pry_.binding_stack.one?
-            _pry_.binding_stack.clear
+          elsif pry_instance.binding_stack.one?
+            pry_instance.binding_stack.clear
             throw(:breakout)
           else
             # Otherwise, saves current binding stack as old stack and pops last
             # binding out of binding stack (the old stack still has that binding).
-            _pry_.command_state["cd"] ||= Pry::Config.from_hash({})
-            _pry_.command_state['cd'].old_stack = _pry_.binding_stack.dup
-            _pry_.binding_stack.pop
+            pry_instance.command_state["cd"] ||= Pry::Config.from_hash({})
+            pry_instance.command_state['cd'].old_stack = pry_instance.binding_stack.dup
+            pry_instance.binding_stack.pop
           end
         end,
 

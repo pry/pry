@@ -164,7 +164,7 @@ describe "Pry::Command" do
 
         expect(inside.eval_string).to eq("eval-string")
         expect(inside.__send__(:command_set)).to eq(@set)
-        expect(inside._pry_).to eq(context[:pry_instance])
+        expect(inside.pry_instance).to eq(context[:pry_instance])
       end
     end
   end

@@ -51,7 +51,7 @@ class Pry
       private
 
       def exception
-        _pry_.last_exception
+        pry_instance.last_exception
       end
 
       def with_line_numbers(bt)

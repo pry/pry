@@ -178,9 +178,9 @@ class Pry
       # traverse back to {#default}.
       #
       # @example
-      #   _pry_.config.prompt_name = 'foo'
-      #   _pry_.config.forget(:prompt_name)
-      #   _pry_.config.prompt_name # => 'pry'
+      #   pry_instance.config.prompt_name = 'foo'
+      #   pry_instance.config.forget(:prompt_name)
+      #   pry_instance.config.prompt_name # => 'pry'
       #
       # @param [#to_s] key
       #
@@ -268,12 +268,12 @@ class Pry
       # Eagerly loads keys into self directly from {#last_default}.
       #
       # @example
-      #  [1] pry(main)> _pry_.config.keys.size
+      #  [1] pry(main)> pry_instance.config.keys.size
       #  => 13
-      #  [2] pry(main)> _pry_.config.eager_load!;
+      #  [2] pry(main)> pry_instance.config.eager_load!;
       #  [warning] Pry.config.exception_whitelist is deprecated,
       #  please use Pry.config.unrescued_exceptions instead.
-      #  [3] pry(main)> _pry_.config.keys.size
+      #  [3] pry(main)> pry_instance.config.keys.size
       #  => 40
       #
       # @return [Array<String>, nil]
@@ -287,8 +287,8 @@ class Pry
 
       #
       # @example
-      #   # _pry_.config -> Pry.config -> Pry::Config.defaults
-      #   [1] pry(main)> _pry_.config.last_default
+      #   # pry_instance.config -> Pry.config -> Pry::Config.defaults
+      #   [1] pry(main)> pry_instance.config.last_default
       #
       # @return [Pry::Config::Behaviour]
       #   The last linked default, or nil if there is none.

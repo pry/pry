@@ -79,8 +79,8 @@ class Pry
     end
 
     command "test-ansi", "" do
-      prev_color = _pry_.config.color
-      _pry_.config.color = true
+      prev_color = pry_instance.config.color
+      pry_instance.config.color = true
 
       picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| red(s) }
          ____      _______________________
@@ -103,7 +103,7 @@ class Pry
       output.puts "\n" * 6
       output.puts "** ENV['TERM'] is #{ENV['TERM']} **\n\n"
 
-      _pry_.config.color = prev_color
+      pry_instance.config.color = prev_color
     end
   end
 end

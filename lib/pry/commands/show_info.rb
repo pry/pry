@@ -22,7 +22,7 @@ class Pry
       end
 
       def process
-        code_object = Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
+        code_object = Pry::CodeObject.lookup(obj_name, pry_instance, super: opts[:super])
         raise CommandError, no_definition_message unless code_object
 
         @original_code_object = code_object
@@ -47,7 +47,7 @@ class Pry
         end
 
         set_file_and_dir_locals(code_object.source_file)
-        _pry_.pager.page result
+        pry_instance.pager.page result
       end
 
       # This method checks whether the `code_object` is a WrappedModule, if it

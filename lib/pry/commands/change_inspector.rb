@@ -14,7 +14,7 @@ class Pry
 
       def process(inspector)
         if inspector_map.key?(inspector)
-          _pry_.print = inspector_map[inspector][:value]
+          pry_instance.print = inspector_map[inspector][:value]
           output.puts "Switched to the '#{inspector}' inspector!"
         else
           raise Pry::CommandError, "'#{inspector}' isn't a known inspector!"

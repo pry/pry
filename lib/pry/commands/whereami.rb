@@ -104,7 +104,7 @@ class Pry
         pretty_code = code.with_line_numbers(use_line_numbers?)
           .with_marker(marker)
           .highlighted
-        _pry_.pager.page(
+        pry_instance.pager.page(
           "\n#{bold('From:')} #{location}:\n\n" << pretty_code << "\n"
         )
       end
@@ -192,7 +192,7 @@ class Pry
 
       def window_size
         if args.empty?
-          _pry_.config.default_window_size
+          pry_instance.config.default_window_size
         else
           args.first.to_i
         end

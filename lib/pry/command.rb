@@ -242,7 +242,17 @@ class Pry
     attr_accessor :context
     attr_accessor :command_set
     attr_accessor :hooks
-    attr_accessor :_pry_
+
+    attr_accessor :pry_instance
+    alias _pry_= pry_instance=
+    def _pry_
+      loc = caller_locations(1..1).first
+      warn(
+        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
+        "pry_instance instead"
+      )
+      pry_instance
+    end
 
     # The block we pass *into* a command so long as `:takes_block` is
     # not equal to `false`
@@ -262,7 +272,7 @@ class Pry
     # @example
     #   run "amend-line",  "5", 'puts "hello world"'
     def run(command_string, *args)
-      command_string = _pry_.config.command_prefix.to_s + command_string
+      command_string = pry_instance.config.command_prefix.to_s + command_string
       complete_string = "#{command_string} #{args.join(' ')}".rstrip
       command_set.process_line(complete_string, context)
     end
@@ -288,7 +298,7 @@ class Pry
       self.eval_string  = context[:eval_string]
       self.command_set  = context[:command_set]
       self.hooks        = context[:hooks]
-      self._pry_        = context[:pry_instance]
+      self.pry_instance = context[:pry_instance]
     end
 
     # @return [Object] The value of `self` inside the `target` binding.
@@ -304,7 +314,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      _pry_.command_state[match] ||= Pry::Config.from_hash({})
+      pry_instance.command_state[match] ||= Pry::Config.from_hash({})
     end
 
     # Revaluate the string (str) and perform interpolation.
@@ -421,7 +431,7 @@ class Pry
 
       block_string =
         if !Pry::Code.complete_expression?(prime_string)
-          _pry_.r(target, prime_string)
+          pry_instance.r(target, prime_string)
         else
           prime_string
         end

@@ -18,7 +18,7 @@ class Pry
         exit_value = target.eval(arg_string)
 
         # clear the binding stack
-        _pry_.binding_stack.clear
+        pry_instance.binding_stack.clear
 
         # break out of the repl loop
         throw(:breakout, exit_value)

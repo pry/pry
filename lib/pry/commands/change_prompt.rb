@@ -27,7 +27,7 @@ class Pry
 
       def list_prompts
         prompts = Pry::Prompt.all.map do |name, prompt|
-          "#{bold(name)}#{red(' (selected)') if _pry_.prompt == prompt}\n" +
+          "#{bold(name)}#{red(' (selected)') if pry_instance.prompt == prompt}\n" +
             prompt.description
         end
         output.puts(prompts.join("\n" * 2))
@@ -35,7 +35,7 @@ class Pry
 
       def change_prompt(prompt)
         if Pry::Prompt[prompt]
-          _pry_.prompt = Pry::Prompt[prompt]
+          pry_instance.prompt = Pry::Prompt[prompt]
         else
           raise Pry::CommandError,
                 "'#{prompt}' isn't a known prompt. Run `change-prompt --list` " \

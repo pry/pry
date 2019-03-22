@@ -12,12 +12,12 @@ class Pry
       def process(selection)
         selection = selection.to_i
 
-        if selection < 0 || selection > _pry_.binding_stack.size - 1
+        if selection < 0 || selection > pry_instance.binding_stack.size - 1
           raise CommandError,
                 "Invalid binding index #{selection} - use `nesting` command " \
                 "to view valid indices."
         else
-          Pry.start(_pry_.binding_stack[selection])
+          Pry.start(pry_instance.binding_stack[selection])
         end
       end
     end

@@ -53,7 +53,7 @@ class Pry
     #   end
     #
     #   # From pry:
-    #   # pry(main)> _pry_.commands = MyCommands
+    #   # pry(main)> pry_instance.commands = MyCommands
     #   # pry(main)> greet john
     #   # Good afternoon John!
     #   # pry(main)> help greet
@@ -68,7 +68,7 @@ class Pry
     #   end
     #
     #   # From pry:
-    #   # pry(main)> _pry_.commands = MyCommands
+    #   # pry(main)> pry_instance.commands = MyCommands
     #   # pry(main)> number-10 john
     #   # hello john, nice number: 10
     #   # pry(main)> help number

@@ -5,7 +5,7 @@ class Pry
 
       attr_reader :args
       attr_reader :opts
-      attr_reader :_pry_
+      attr_reader :pry_instance
 
       # The name of the explicitly given file (if any).
       attr_accessor :file
@@ -18,10 +18,10 @@ class Pry
       @input_expression_ranges = []
       @output_result_ranges = []
 
-      def initialize(args, opts, _pry_)
+      def initialize(args, opts, pry_instance)
         @args = args
         @opts = opts
-        @_pry_ = _pry_
+        @pry_instance = pry_instance
       end
 
       # Add the `--lines`, `-o`, `-i`, `-s`, `-d` options.
@@ -82,7 +82,7 @@ class Pry
       #
       # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
       def code_object
-        Pry::CodeObject.lookup(obj_name, _pry_, super: opts[:super])
+        Pry::CodeObject.lookup(obj_name, pry_instance, super: opts[:super])
       end
 
       # Given a string and a range, return the `range` lines of that
@@ -95,25 +95,25 @@ class Pry
         Array(content.lines.to_a[range]).join
       end
 
-      # The selected `_pry_.output_ring` as a string, as specified by
+      # The selected `pry_instance.output_ring` as a string, as specified by
       # the `-o` switch.
       #
       # @return [String]
       def pry_output_content
         pry_array_content_as_string(
-          _pry_.output_ring,
+          pry_instance.output_ring,
           self.class.output_result_ranges,
           &:pretty_inspect
         )
       end
 
-      # The selected `_pry_.input_ring` as a string, as specified by
+      # The selected `pry_instance.input_ring` as a string, as specified by
       # the `-i` switch.
       #
       # @return [String]
       def pry_input_content
         pry_array_content_as_string(
-          _pry_.input_ring, self.class.input_expression_ranges
+          pry_instance.input_ring, self.class.input_expression_ranges
         ) { |v| v }
       end
 

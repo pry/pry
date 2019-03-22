@@ -13,10 +13,10 @@ class Pry
         state.disabled ^= true
 
         if state.disabled
-          state.prev_prompt = _pry_.prompt
-          _pry_.prompt = Pry::Prompt[:shell]
+          state.prev_prompt = pry_instance.prompt
+          pry_instance.prompt = Pry::Prompt[:shell]
         else
-          _pry_.prompt = state.prev_prompt
+          pry_instance.prompt = state.prev_prompt
         end
       end
     end

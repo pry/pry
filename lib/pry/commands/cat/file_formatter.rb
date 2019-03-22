@@ -4,21 +4,21 @@ class Pry
       class FileFormatter < AbstractFormatter
         attr_reader :file_with_embedded_line
         attr_reader :opts
-        attr_reader :_pry_
+        attr_reader :pry_instance
 
-        def initialize(file_with_embedded_line, _pry_, opts)
+        def initialize(file_with_embedded_line, pry_instance, opts)
           unless file_with_embedded_line
             raise CommandError, "Must provide a filename, --in, or --ex."
           end
 
           @file_with_embedded_line = file_with_embedded_line
           @opts = opts
-          @_pry_ = _pry_
+          @pry_instance = pry_instance
           @code_from_file = Pry::Code.from_file(file_name)
         end
 
         def format
-          set_file_and_dir_locals(file_name, _pry_, _pry_.current_context)
+          set_file_and_dir_locals(file_name, pry_instance, pry_instance.current_context)
           decorate(@code_from_file)
         end
 
@@ -39,7 +39,7 @@ class Pry
         end
 
         def code_window_size
-          _pry_.config.default_window_size || 7
+          pry_instance.config.default_window_size || 7
         end
 
         def decorate(content)

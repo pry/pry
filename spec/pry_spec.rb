@@ -341,7 +341,7 @@ describe Pry do
         it 'should nest properly' do
           Pry.config.input = InputTester.new(
             "cd 1", "cd 2", "cd 3",
-            "\"nest:\#\{(_pry_.binding_stack.size - 1)\}\"", "exit-all"
+            "\"nest:\#\{(pry_instance.binding_stack.size - 1)\}\"", "exit-all"
           )
 
           Pry.config.output = @str_output

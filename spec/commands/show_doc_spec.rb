@@ -148,7 +148,7 @@ describe "show-doc" do
       expect(t.eval("show-doc _c#initialize")).to match(/_c.new :foo/)
       # I don't want the test to rely on which colour codes are there, just to
       # assert that "something" is being colourized.
-      t.eval("_pry_.color = true")
+      t.eval("pry_instance.color = true")
       expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new :foo/)
     end
 
@@ -164,7 +164,7 @@ describe "show-doc" do
       expect(t.eval("show-doc _c#initialize")).to match(/_c.new\(:foo\)/)
       # I don't want the test to rely on which colour codes are there, just to
       # assert that "something" is being colourized.
-      t.eval("_pry_.color = true")
+      t.eval("pry_instance.color = true")
       expect(t.eval("show-doc _c#initialize")).not_to match(/_c.new\(:foo\)/)
     end
 

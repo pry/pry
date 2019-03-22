@@ -10,7 +10,7 @@ class Pry
 
         Open a text editor. When no FILE is given, edits the pry input buffer.
         When a method/module/command is given, the code is opened in an editor.
-        Ensure `Pry.config.editor` or `_pry_.config.editor` is set to your editor of choice.
+        Ensure `Pry.config.editor` or `pry_instance.config.editor` is set to your editor of choice.
 
         edit sample.rb                edit -p MyClass#my_method
         edit sample.rb --line 105     edit MyClass
@@ -65,7 +65,7 @@ class Pry
       end
 
       def repl_edit
-        content = Pry::Editor.new(_pry_).edit_tempfile_with_content(
+        content = Pry::Editor.new(pry_instance).edit_tempfile_with_content(
           initial_temp_file_content,
           initial_temp_file_content.lines.count
         )
@@ -89,12 +89,12 @@ class Pry
       def apply_runtime_patch
         if patch_exception?
           ExceptionPatcher.new(
-            _pry_, state, file_and_line_for_current_exception
+            pry_instance, state, file_and_line_for_current_exception
           ).perform_patch
         else
           if code_object.is_a?(Pry::Method)
             code_object.redefine(
-              Pry::Editor.new(_pry_).edit_tempfile_with_content(
+              Pry::Editor.new(pry_instance).edit_tempfile_with_content(
                 code_object.source
               )
             )
@@ -115,7 +115,7 @@ class Pry
       end
 
       def file_and_line_for_current_exception
-        FileAndLineLocator.from_exception(_pry_.last_exception, opts[:ex].to_i)
+        FileAndLineLocator.from_exception(pry_instance.last_exception, opts[:ex].to_i)
       end
 
       def file_and_line
@@ -139,7 +139,7 @@ class Pry
 
         ensure_file_name_is_valid(file_name)
 
-        Pry::Editor.new(_pry_).invoke_editor(file_name, line, reload?(file_name))
+        Pry::Editor.new(pry_instance).invoke_editor(file_name, line, reload?(file_name))
         set_file_and_dir_locals(file_name)
 
         if reload?(file_name)
@@ -156,7 +156,7 @@ class Pry
       def code_object
         @code_object ||=
           !probably_a_file?(filename_argument) &&
-          Pry::CodeObject.lookup(filename_argument, _pry_)
+          Pry::CodeObject.lookup(filename_argument, pry_instance)
       end
 
       def pry_method?(code_object)
@@ -184,9 +184,9 @@ class Pry
       def input_expression
         case opts[:i]
         when Range
-          (_pry_.input_ring[opts[:i]] || []).join
+          (pry_instance.input_ring[opts[:i]] || []).join
         when Integer
-          _pry_.input_ring[opts[:i]] || ""
+          pry_instance.input_ring[opts[:i]] || ""
         else
           raise Pry::CommandError, "Not a valid range: #{opts[:i]}"
         end
@@ -197,7 +197,7 @@ class Pry
       end
 
       def never_reload?
-        opts.present?(:'no-reload') || _pry_.config.disable_auto_reload
+        opts.present?(:'no-reload') || pry_instance.config.disable_auto_reload
       end
 
       def reload?(file_name = "")
@@ -212,7 +212,7 @@ class Pry
         elsif eval_string.strip != ""
           eval_string
         else
-          _pry_.input_ring.to_a.reverse_each.find { |x| x && x.strip != "" } || ""
+          pry_instance.input_ring.to_a.reverse_each.find { |x| x && x.strip != "" } || ""
         end
       end
 

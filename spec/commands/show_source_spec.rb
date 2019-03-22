@@ -759,7 +759,7 @@ describe "show-source" do
 
       it 'should show source for a command defined inside pry' do
         pry_eval %{
-          _pry_.commands.create_command "foo", "babble" do
+          pry_instance.commands.create_command "foo", "babble" do
             def process() :body_of_foo end
           end
         }
