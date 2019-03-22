@@ -246,11 +246,6 @@ Style/MultilineBlockChain:
     - 'lib/pry/command_set.rb'
     - 'lib/pry/commands/ls/local_vars.rb'
 
-# Offense count: 2
-Style/MultipleComparison:
-  Exclude:
-    - 'lib/pry/indent.rb'
-
 # Offense count: 9
 # Cop supports --auto-correct.
 Style/PerlBackrefs:

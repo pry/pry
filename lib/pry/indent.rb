@@ -338,7 +338,7 @@ class Pry
     # @param [String] token  a token from Coderay
     # @param [Symbol] kind  the kind of that token
     def track_module_nesting(token, kind)
-      if kind == :keyword && (token == "class" || token == "module")
+      if kind == :keyword && %w[class module].include?(token)
         @module_nesting << [token, nil]
         @awaiting_class = true
       elsif @awaiting_class
@@ -363,7 +363,7 @@ class Pry
     # @param [String] token  a token from Coderay
     # @param [Symbol] kind  the kind of that token
     def track_module_nesting_end(token, kind = :keyword)
-      @module_nesting.pop if kind == :keyword && (token == "class" || token == "module")
+      @module_nesting.pop if kind == :keyword && %w[class module].include?(token)
     end
 
     # Return a list of strings which can be used to re-construct the Module.nesting at
