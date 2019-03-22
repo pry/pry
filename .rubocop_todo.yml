@@ -207,11 +207,6 @@ Style/GlobalVars:
 Style/GuardClause:
   Enabled: false
 
-# Offense count: 2
-Style/IdenticalConditionalBranches:
-  Exclude:
-    - 'lib/pry/slop/commands.rb'
-
 # Offense count: 5
 Style/IfInsideElse:
   Exclude:

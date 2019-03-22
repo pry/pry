@@ -138,7 +138,6 @@ class Pry
           @triggered_command = items.shift
           execute_arguments! items
           opts.parse! items
-          execute_global_opts! items
         else
           if (opts = commands['default'])
             opts.parse! items
@@ -147,8 +146,8 @@ class Pry
               raise InvalidCommandError, "Unknown command `#{items[0]}`"
             end
           end
-          execute_global_opts! items
         end
+        execute_global_opts! items
         items
       end
 
