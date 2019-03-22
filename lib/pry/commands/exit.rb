@@ -21,8 +21,8 @@ class Pry
       BANNER
 
       def process
-        if _pry_.binding_stack.one?
-          _pry_.run_command "exit-all #{arg_string}"
+        if pry_instance.binding_stack.one?
+          pry_instance.run_command "exit-all #{arg_string}"
         else
           # otherwise just pop a binding and return user supplied value
           process_pop_and_return
@@ -30,7 +30,7 @@ class Pry
       end
 
       def process_pop_and_return
-        popped_object = _pry_.binding_stack.pop.eval('self')
+        popped_object = pry_instance.binding_stack.pop.eval('self')
 
         # return a user-specified value if given otherwise return the object
         return target.eval(arg_string) unless arg_string.empty?

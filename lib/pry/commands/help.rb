@@ -48,7 +48,7 @@ class Pry
           help_text << help_text_for_commands(group_name, commands) if commands.any?
         end
 
-        _pry_.pager.page help_text.join("\n\n")
+        pry_instance.pager.page help_text.join("\n\n")
       end
 
       # Given a group name and an array of commands,
@@ -121,7 +121,7 @@ class Pry
       #
       # @param [Pry::Command] command
       def display_command(command)
-        _pry_.pager.page command.new.help
+        pry_instance.pager.page command.new.help
       end
 
       # Find a subset of a hash that matches the user's search term.

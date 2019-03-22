@@ -28,7 +28,7 @@ describe Pry::REPL do
   describe "eval_string and binding_stack" do
     it "shouldn't break if we start a nested REPL" do
       ReplTester.start do
-        input  'Pry::REPL.new(_pry_, :target => 10).start'
+        input  'Pry::REPL.new(pry_instance, :target => 10).start'
         output ''
         prompt(/10.*> $/)
 
@@ -45,7 +45,7 @@ describe Pry::REPL do
 
     it "shouldn't break if we start a nested instance" do
       ReplTester.start do
-        input  'Pry.start(10, _pry_.config)'
+        input  'Pry.start(10, pry_instance.config)'
         output ''
         prompt(/10.*> $/)
 
@@ -66,11 +66,11 @@ describe Pry::REPL do
         output ''
         prompt(/10.*> $/)
 
-        input '_pry_.binding_stack.pop'
+        input 'pry_instance.binding_stack.pop'
         output(/^=> #<Binding/)
         prompt(/main.*> $/)
 
-        input '_pry_.binding_stack.pop'
+        input 'pry_instance.binding_stack.pop'
         output(/^=> #<Binding/)
         assert_exited
       end

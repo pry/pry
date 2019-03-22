@@ -82,7 +82,7 @@ describe "cat" do
         begin
           this raises error
         rescue => e
-          _pry_.last_exception = e
+          pry_instance.last_exception = e
         end
       EOS
       expect(@t.eval('cat --ex')).to match(/\d+:(\s*) this raises error/)

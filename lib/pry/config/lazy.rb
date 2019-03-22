@@ -6,10 +6,10 @@ class Pry
     #
     # @example
     #   num = 19
-    #   _pry_.config.foo = Pry::Config::Lazy.new(&proc { num += 1 })
-    #   _pry_.config.foo # => 20
-    #   _pry_.config.foo # => 21
-    #   _pry_.config.foo # => 22
+    #   pry_instance.config.foo = Pry::Config::Lazy.new(&proc { num += 1 })
+    #   pry_instance.config.foo # => 20
+    #   pry_instance.config.foo # => 21
+    #   pry_instance.config.foo # => 22
     #
     # @api private
     # @since v0.12.0

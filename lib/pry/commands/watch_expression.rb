@@ -51,7 +51,7 @@ class Pry
       private
 
       def expressions
-        _pry_.config.watch_expressions ||= []
+        pry_instance.config.watch_expressions ||= []
       end
 
       def delete(index)
@@ -68,7 +68,7 @@ class Pry
         if expressions.empty?
           output.puts "No watched expressions"
         else
-          _pry_.pager.open do |pager|
+          pry_instance.pager.open do |pager|
             pager.puts "Listing all watched expressions:"
             pager.puts ""
             expressions.each_with_index do |expr, index|
@@ -89,15 +89,15 @@ class Pry
       # TODO: fix arguments.
       # https://github.com/pry/pry/commit/b031df2f2f5850ee6e9018f33d35f3485a9b0423
       def add_expression(_arguments)
-        expressions << Expression.new(_pry_, target, arg_string)
+        expressions << Expression.new(pry_instance, target, arg_string)
         output.puts "Watching #{Code.new(arg_string).highlighted}"
       end
 
       def add_hook
         hook = [:after_eval, :watch_expression]
-        unless _pry_.hooks.hook_exists?(*hook)
-          _pry_.hooks.add_hook(*hook) do |_, _pry_|
-            eval_and_print_changed _pry_.output
+        unless pry_instance.hooks.hook_exists?(*hook)
+          pry_instance.hooks.add_hook(*hook) do |_, pry_instance|
+            eval_and_print_changed pry_instance.output
           end
         end
       end

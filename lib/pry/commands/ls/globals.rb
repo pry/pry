@@ -19,8 +19,8 @@ class Pry
              $CHILD_STATUS $SAFE $ERROR_INFO $ERROR_POSITION $LAST_MATCH_INFO
              $LAST_PAREN_MATCH $LAST_READ_LINE $MATCH $POSTMATCH $PREMATCH].freeze
 
-        def initialize(opts, _pry_)
-          super(_pry_)
+        def initialize(opts, pry_instance)
+          super(pry_instance)
           @default_switch = opts[:globals]
         end
 

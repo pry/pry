@@ -63,8 +63,8 @@ class Pry
     include Pry::Helpers::CommandHelpers
 
     class << self
-      def lookup(str, _pry_, options = {})
-        co = new(str, _pry_, options)
+      def lookup(str, pry_instance, options = {})
+        co = new(str, pry_instance, options)
 
         co.default_lookup || co.method_or_class_lookup ||
           co.command_lookup || co.empty_lookup
@@ -73,23 +73,23 @@ class Pry
 
     attr_accessor :str
     attr_accessor :target
-    attr_accessor :_pry_
+    attr_accessor :pry_instance
     attr_accessor :super_level
 
-    def initialize(str, _pry_, options = {})
+    def initialize(str, pry_instance, options = {})
       options = {
         super: 0
       }.merge!(options)
 
       @str = str
-      @_pry_ = _pry_
-      @target = _pry_.current_context
+      @pry_instance = pry_instance
+      @target = pry_instance.current_context
       @super_level = options[:super]
     end
 
     # TODO: just make it so find_command_by_match_or_listing doesn't raise?
     def command_lookup
-      _pry_.commands.find_command_by_match_or_listing(str)
+      pry_instance.commands.find_command_by_match_or_listing(str)
     rescue StandardError
       nil
     end

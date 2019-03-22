@@ -151,7 +151,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
 
     @initial_session = false
 
-    # note these have to be loaded here rather than in pry_instance as
+    # note these have to be loaded here rather than in _pry_ as
     # we only want them loaded once per entire Pry lifetime.
     load_rc_files
   end

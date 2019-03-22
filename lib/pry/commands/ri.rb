@@ -57,7 +57,7 @@ class Pry
 
         # Spin-up an RI insance.
         ri = RDoc::RI::PryDriver.new(
-          _pry_.pager, use_stdout: true, interactive: false
+          pry_instance.pager, use_stdout: true, interactive: false
         )
 
         begin

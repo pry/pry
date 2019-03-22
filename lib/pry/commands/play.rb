@@ -37,7 +37,7 @@ class Pry
       end
 
       def process
-        @cc = CodeCollector.new(args, opts, _pry_)
+        @cc = CodeCollector.new(args, opts, pry_instance)
 
         perform_play
         show_input

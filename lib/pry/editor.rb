@@ -4,10 +4,10 @@ class Pry
   class Editor
     include Pry::Helpers::CommandHelpers
 
-    attr_reader :_pry_
+    attr_reader :pry_instance
 
-    def initialize(_pry_)
-      @_pry_ = _pry_
+    def initialize(pry_instance)
+      @pry_instance = pry_instance
     end
 
     def edit_tempfile_with_content(initial_content, line = 1)
@@ -21,7 +21,7 @@ class Pry
     end
 
     def invoke_editor(file, line, blocking = true)
-      unless _pry_.config.editor
+      unless pry_instance.config.editor
         raise CommandError,
               "Please set Pry.config.editor or export $VISUAL or $EDITOR"
       end
@@ -42,12 +42,12 @@ class Pry
     # all the flags we want as well as the file and line number we
     # want to open at.
     def build_editor_invocation_string(file, line, blocking)
-      if _pry_.config.editor.respond_to?(:call)
-        args = [file, line, blocking][0...(_pry_.config.editor.arity)]
-        _pry_.config.editor.call(*args)
+      if pry_instance.config.editor.respond_to?(:call)
+        args = [file, line, blocking][0...(pry_instance.config.editor.arity)]
+        pry_instance.config.editor.call(*args)
       else
         sanitized_file = Helpers::Platform.windows? ? file : Shellwords.escape(file)
-        editor = _pry_.config.editor
+        editor = pry_instance.config.editor
         flag = blocking_flag_for_editor(blocking)
         start_line = start_line_syntax_for_editor(sanitized_file, line)
         "#{editor} #{flag} #{start_line}"
@@ -131,7 +131,7 @@ class Pry
     #   # => textmate
     #
     def editor_name
-      File.basename(_pry_.config.editor).split(" ").first
+      File.basename(pry_instance.config.editor).split(" ").first
     end
   end
 end

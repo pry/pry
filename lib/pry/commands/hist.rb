@@ -78,7 +78,7 @@ class Pry
       def process_display
         @history = @history.with_line_numbers unless opts.present?(:'no-numbers')
 
-        _pry_.pager.open do |pager|
+        pry_instance.pager.open do |pager|
           @history.print_to_output(pager, true)
         end
       end
@@ -117,7 +117,7 @@ class Pry
         check_for_juxtaposed_replay(replay_sequence)
 
         replay_sequence.lines.each do |line|
-          _pry_.eval line, generated: true
+          pry_instance.eval line, generated: true
         end
       end
 

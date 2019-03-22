@@ -32,7 +32,7 @@ class Pry
       end
 
       def selected_inspector?(inspector)
-        _pry_.print == inspector[:value]
+        pry_instance.print == inspector[:value]
       end
       Pry::Commands.add_command(self)
     end

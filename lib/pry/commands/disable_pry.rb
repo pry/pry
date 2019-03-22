@@ -20,7 +20,7 @@ class Pry
 
       def process
         ENV['DISABLE_PRY'] = 'true'
-        _pry_.run_command "exit"
+        pry_instance.run_command "exit"
       end
     end
 

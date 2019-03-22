@@ -2,10 +2,10 @@ class Pry
   class Command
     class WatchExpression
       class Expression
-        attr_reader :target, :source, :value, :previous_value, :_pry_
+        attr_reader :target, :source, :value, :previous_value, :pry_instance
 
-        def initialize(_pry_, target, source)
-          @_pry_ = _pry_
+        def initialize(pry_instance, target, source)
+          @pry_instance = pry_instance
           @target = target
           @source = Code.new(source).strip
         end

@@ -247,7 +247,7 @@ describe "ls" do
   describe "when no arguments given" do
     describe "when at the top-level" do
       it "should show local variables" do
-        expect(pry_eval("ls")).to match(/_pry_/)
+        expect(pry_eval("ls")).to match(/pry_instance/)
         expect(pry_eval("arbitrar = 1", "ls")).to match(/arbitrar/)
       end
     end

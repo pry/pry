@@ -4,18 +4,20 @@ class Pry
       class ExceptionFormatter < AbstractFormatter
         attr_reader :ex
         attr_reader :opts
-        attr_reader :_pry_
+        attr_reader :pry_instance
         include Pry::Helpers::Text
 
-        def initialize(exception, _pry_, opts)
+        def initialize(exception, pry_instance, opts)
           @ex = exception
           @opts = opts
-          @_pry_ = _pry_
+          @pry_instance = pry_instance
         end
 
         def format
           check_for_errors
-          set_file_and_dir_locals(backtrace_file, _pry_, _pry_.current_context)
+          set_file_and_dir_locals(
+            backtrace_file, pry_instance, pry_instance.current_context
+          )
           code = decorate(
             Pry::Code.from_file(backtrace_file)
               .between(*start_and_end_line_for_code_window)
@@ -27,7 +29,7 @@ class Pry
         private
 
         def code_window_size
-          _pry_.config.default_window_size || 5
+          pry_instance.config.default_window_size || 5
         end
 
         def backtrace_level

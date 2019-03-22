@@ -25,14 +25,15 @@ class Pry
 
         if arg_string.strip == "-"
           unless state.old_stack.empty?
-            _pry_.binding_stack, state.old_stack = state.old_stack, _pry_.binding_stack
+            pry_instance.binding_stack, state.old_stack =
+              state.old_stack, pry_instance.binding_stack
           end
         else
-          stack = ObjectPath.new(arg_string, _pry_.binding_stack).resolve
+          stack = ObjectPath.new(arg_string, pry_instance.binding_stack).resolve
 
-          if stack && stack != _pry_.binding_stack
-            state.old_stack = _pry_.binding_stack
-            _pry_.binding_stack = stack
+          if stack && stack != pry_instance.binding_stack
+            state.old_stack = pry_instance.binding_stack
+            pry_instance.binding_stack = stack
           end
         end
       end

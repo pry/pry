@@ -634,7 +634,7 @@ describe Pry::CommandSet do
       expect(inside.eval_string).to eq(ctx[:eval_string])
       expect(inside.output).to eq(ctx[:output])
       expect(inside.target).to eq(ctx[:target])
-      expect(inside._pry_).to eq(ctx[:pry_instance])
+      expect(inside.pry_instance).to eq(ctx[:pry_instance])
     end
 
     it 'should add command_set to context' do

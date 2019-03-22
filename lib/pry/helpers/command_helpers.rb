@@ -155,7 +155,7 @@ class Pry
         Range.new(a, b)
       end
 
-      def set_file_and_dir_locals(file_name, pry = _pry_, ctx = target)
+      def set_file_and_dir_locals(file_name, pry = pry_instance, ctx = target)
         return if !ctx || !file_name
 
         pry.last_file = File.expand_path(file_name)

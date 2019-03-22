@@ -2,12 +2,12 @@ class Pry
   class Command
     class Edit
       class ExceptionPatcher
-        attr_accessor :_pry_
+        attr_accessor :pry_instance
         attr_accessor :state
         attr_accessor :file_and_line
 
-        def initialize(_pry_, state, exception_file_and_line)
-          @_pry_ = _pry_
+        def initialize(pry_instance, state, exception_file_and_line)
+          @pry_instance = pry_instance
           @state = state
           @file_and_line = exception_file_and_line
         end
@@ -17,8 +17,8 @@ class Pry
           file_name, = file_and_line
           lines = state.dynamical_ex_file || File.read(file_name)
 
-          source = Pry::Editor.new(_pry_).edit_tempfile_with_content(lines)
-          _pry_.evaluate_ruby source
+          source = Pry::Editor.new(pry_instance).edit_tempfile_with_content(lines)
+          pry_instance.evaluate_ruby source
           state.dynamical_ex_file = source.split("\n")
         end
       end

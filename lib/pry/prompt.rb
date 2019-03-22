@@ -7,8 +7,8 @@ class Pry
   #   Pry::Prompt.add(
   #     :ipython,
   #     'IPython-like prompt', [':', '...:']
-  #   ) do |_context, _nesting, _pry_, sep|
-  #     sep == ':' ? "In [#{_pry_.input_ring.count}]: " : '   ...: '
+  #   ) do |_context, _nesting, pry_instance, sep|
+  #     sep == ':' ? "In [#{pry_instance.input_ring.count}]: " : '   ...: '
   #   end
   #
   #   # Produces:
@@ -72,10 +72,10 @@ class Pry
       # @param [Array<String>] separators The separators to differentiate
       #   between prompt modes (default mode and class/method definition mode).
       #   The Array *must* have a size of 2.
-      # @yield [context, nesting, _pry_, sep]
+      # @yield [context, nesting, pry_instance, sep]
       # @yieldparam context [Object] the context where Pry is currently in
       # @yieldparam nesting [Integer] whether the context is nested
-      # @yieldparam _pry_ [Pry] the Pry instance
+      # @yieldparam pry_instance [Pry] the Pry instance
       # @yieldparam separator [String] separator string
       # @return [nil]
       # @raise [ArgumentError] if the size of `separators` is not 2
@@ -96,7 +96,9 @@ class Pry
           name,
           description,
           separators.map do |sep|
-            proc { |context, nesting, _pry_| yield(context, nesting, _pry_, sep) }
+            proc do |context, nesting, pry_instance|
+              yield(context, nesting, pry_instance, sep)
+            end
           end
         )
 
@@ -160,11 +162,11 @@ class Pry
       "The default Pry prompt. Includes information about the current expression \n" \
       "number, evaluation context, and nesting level, plus a reminder that you're \n" \
       'using Pry.'
-    ) do |context, nesting, _pry_, sep|
+    ) do |context, nesting, pry_instance, sep|
       format(
         "[%<in_count>s] %<name>s(%<context>s)%<nesting>s%<separator>s ",
-        in_count: _pry_.input_ring.count,
-        name: _pry_.config.prompt_name,
+        in_count: pry_instance.input_ring.count,
+        name: pry_instance.config.prompt_name,
         context: Pry.view_clip(context),
         nesting: (nesting > 0 ? ":#{nesting}" : ''),
         separator: sep
@@ -184,14 +186,14 @@ class Pry
       "A prompt that displays the binding stack as a path and includes information \n" \
       "about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.",
       %w[> *]
-    ) do |_context, _nesting, _pry_, sep|
-      tree = _pry_.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }
+    ) do |_context, _nesting, pry_instance, sep|
+      tree = pry_instance.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }
       format(
         "[%<in_count>s] (%<name>s) %<tree>s: %<stack_size>s%<separator>s ",
-        in_count: _pry_.input_ring.count,
-        name: _pry_.config.prompt_name,
+        in_count: pry_instance.input_ring.count,
+        name: pry_instance.config.prompt_name,
         tree: tree.join(' / '),
-        stack_size: _pry_.binding_stack.size - 1,
+        stack_size: pry_instance.binding_stack.size - 1,
         separator: sep
       )
     end
@@ -200,10 +202,10 @@ class Pry
       :shell,
       'A prompt that displays `$PWD` as you change it.',
       %w[$ *]
-    ) do |context, _nesting, _pry_, sep|
+    ) do |context, _nesting, pry_instance, sep|
       format(
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
-        name: _pry_.config.prompt_name,
+        name: pry_instance.config.prompt_name,
         context: Pry.view_clip(context),
         pwd: Dir.pwd,
         separator: sep

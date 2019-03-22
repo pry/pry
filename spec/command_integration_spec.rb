@@ -4,9 +4,9 @@ describe "commands" do
     @o = Object.new
 
     # Shortcuts. They save a lot of typing.
-    @bs1 = "Pad.bs1 = _pry_.binding_stack.dup"
-    @bs2 = "Pad.bs2 = _pry_.binding_stack.dup"
-    @bs3 = "Pad.bs3 = _pry_.binding_stack.dup"
+    @bs1 = "Pad.bs1 = pry_instance.binding_stack.dup"
+    @bs2 = "Pad.bs2 = pry_instance.binding_stack.dup"
+    @bs3 = "Pad.bs3 = pry_instance.binding_stack.dup"
 
     @self = "Pad.self = self"
 
@@ -223,7 +223,7 @@ describe "commands" do
 
     it 'should run a command in the context of a session' do
       pry_tester(Object.new).tap do |t|
-        t.eval "@session_ivar = 10", "_pry_.run_command('ls')"
+        t.eval "@session_ivar = 10", "pry_instance.run_command('ls')"
         expect(t.last_output).to match(/@session_ivar/)
       end
     end
@@ -372,7 +372,7 @@ describe "commands" do
     expect(tester.eval(*<<-RUBY.split("\n"))).to match(/instance variables:\s+@x/m)
       @x = nil
       cd 7
-      _pry_.commands.instance_eval { command('bing') { |arg| run arg } }
+      pry_instance.commands.instance_eval { command('bing') { |arg| run arg } }
       cd ..
       bing ls
     RUBY

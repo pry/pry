@@ -15,14 +15,14 @@ describe "play" do
       # end
 
       # describe "integer" do
-      #   it "should process one line from _pry_.last_file" do
+      #   it "should process one line from pry_instance.last_file" do
       #     @t.process_command 'play --lines 1', @eval_str
       #     @eval_str.should =~ /bing = :bing\n/
       #   end
       # end
 
       # describe "range" do
-      #   it "should process multiple lines at once from _pry_.last_file" do
+      #   it "should process multiple lines at once from pry_instance.last_file" do
       #     @t.process_command 'play --lines 1..3', @eval_str
       #     [/bing = :bing\n/, /bang = :bang\n/, /bong = :bong\n/].each { |str|
       #       @eval_str.should =~ str

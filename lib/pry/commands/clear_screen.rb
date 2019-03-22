@@ -7,9 +7,9 @@ class Pry
 
       def process
         if Pry::Helpers::Platform.windows?
-          _pry_.config.system.call(_pry_.output, 'cls', _pry_)
+          pry_instance.config.system.call(pry_instance.output, 'cls', pry_instance)
         else
-          _pry_.config.system.call(_pry_.output, 'clear', _pry_)
+          pry_instance.config.system.call(pry_instance.output, 'clear', pry_instance)
         end
       end
       Pry::Commands.add_command(self)

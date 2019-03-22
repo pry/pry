@@ -210,7 +210,7 @@ class Pry
     {
       _in_: input_ring,
       _out_: output_ring,
-      _pry_: self,
+      pry_instance: self,
       _ex_: last_exception && last_exception.wrapped_exception,
       _file_: last_file,
       _dir_: last_dir,
@@ -253,7 +253,7 @@ class Pry
       exit_value = catch(:breakout) do
         handle_line(line, options)
         # We use 'return !@stopped' here instead of 'return true' so that if
-        # handle_line has stopped this pry instance (e.g. by opening _pry_.repl and
+        # handle_line has stopped this pry instance (e.g. by opening pry_instance.repl and
         # then popping all the bindings) we still exit immediately.
         return !@stopped
       end
@@ -482,7 +482,7 @@ class Pry
       hooks.errors[e_before..-1].each do |e|
         output.puts "#{name} hook failed: #{e.class}: #{e.message}"
         output.puts e.backtrace.first.to_s
-        output.puts "(see _pry_.hooks.errors to debug)"
+        output.puts "(see pry_instance.hooks.errors to debug)"
       end
     end
   end
@@ -550,7 +550,7 @@ class Pry
       session_line: Pry.history.session_line_count + 1,
       history_line: Pry.history.history_line_count + 1,
       expr_number: input_ring.count,
-      _pry_: self,
+      pry_instance: self,
       binding_stack: binding_stack,
       input_ring: input_ring,
       eval_string: @eval_string,
@@ -562,7 +562,7 @@ class Pry
       # prompt (indicating multi-line expression).
       if prompt.is_a?(Pry::Prompt)
         prompt_proc = eval_string.empty? ? prompt.wait_proc : prompt.incomplete_proc
-        return prompt_proc.call(c.object, c.nesting_level, c._pry_)
+        return prompt_proc.call(c.object, c.nesting_level, c.pry_instance)
       end
 
       unless @prompt_warn
@@ -588,7 +588,7 @@ class Pry
     if prompt_proc.arity == 1
       prompt_proc.call(conf)
     else
-      prompt_proc.call(conf.object, conf.nesting_level, conf._pry_)
+      prompt_proc.call(conf.object, conf.nesting_level, conf.pry_instance)
     end
   end
   private :generate_prompt
@@ -630,7 +630,7 @@ class Pry
   undef :pager if method_defined? :pager
   # Returns the currently configured pager
   # @example
-  #   _pry_.pager.page text
+  #   pry_instance.pager.page text
   def pager
     Pry::Pager.new(self)
   end
@@ -638,7 +638,7 @@ class Pry
   undef :output if method_defined? :output
   # Returns an output device
   # @example
-  #   _pry_.output.puts "ohai!"
+  #   pry_instance.output.puts "ohai!"
   def output
     Pry::Output.new(self)
   end

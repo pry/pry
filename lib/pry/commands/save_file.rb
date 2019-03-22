@@ -24,7 +24,7 @@ class Pry
       end
 
       def process
-        @cc = CodeCollector.new(args, opts, _pry_)
+        @cc = CodeCollector.new(args, opts, pry_instance)
         raise CommandError, "Found no code to save." if @cc.content.empty?
 
         if !file_name

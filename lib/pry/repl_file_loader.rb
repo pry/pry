@@ -20,35 +20,35 @@ class Pry
 
     # Switch to interactive mode, i.e take input from the user
     # and use the regular print and exception handlers.
-    # @param [Pry] _pry_ the Pry instance to make interactive.
-    def interactive_mode(_pry_)
-      _pry_.config.input = Pry.config.input
-      _pry_.config.print = Pry.config.print
-      _pry_.config.exception_handler = Pry.config.exception_handler
-      Pry::REPL.new(_pry_).start
+    # @param [Pry] pry_instance the Pry instance to make interactive.
+    def interactive_mode(pry_instance)
+      pry_instance.config.input = Pry.config.input
+      pry_instance.config.print = Pry.config.print
+      pry_instance.config.exception_handler = Pry.config.exception_handler
+      Pry::REPL.new(pry_instance).start
     end
 
     # Switch to non-interactive mode. Essentially
     # this means there is no result output
     # and that the session becomes interactive when an exception is encountered.
-    # @param [Pry] _pry_ the Pry instance to make non-interactive.
-    def non_interactive_mode(_pry_, content)
-      _pry_.print = proc {}
-      _pry_.exception_handler = proc do |o, _e, _p_|
+    # @param [Pry] pry_instance the Pry instance to make non-interactive.
+    def non_interactive_mode(pry_instance, content)
+      pry_instance.print = proc {}
+      pry_instance.exception_handler = proc do |o, _e, _p_|
         _p_.run_command "cat --ex"
         o.puts "...exception encountered, going interactive!"
-        interactive_mode(_pry_)
+        interactive_mode(pry_instance)
       end
 
       content.lines.each do |line|
-        break unless _pry_.eval line, generated: true
+        break unless pry_instance.eval line, generated: true
       end
 
-      unless _pry_.eval_string.empty?
-        _pry_.output.puts(
-          "#{_pry_.eval_string}...exception encountered, going interactive!"
+      unless pry_instance.eval_string.empty?
+        pry_instance.output.puts(
+          "#{pry_instance.eval_string}...exception encountered, going interactive!"
         )
-        interactive_mode(_pry_)
+        interactive_mode(pry_instance)
       end
     end
 
@@ -58,13 +58,13 @@ class Pry
       s = self
 
       Pry::Commands.command "make-interactive", "Make the session interactive" do
-        s.interactive_mode(_pry_)
+        s.interactive_mode(pry_instance)
       end
 
       Pry::Commands.command(
         "load-file", "Load another file through the repl"
       ) do |file_name|
-        s.non_interactive_mode(_pry_, File.read(File.expand_path(file_name)))
+        s.non_interactive_mode(pry_instance, File.read(File.expand_path(file_name)))
       end
     end
 

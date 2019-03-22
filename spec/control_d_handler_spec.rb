@@ -2,7 +2,7 @@ describe 'Pry::Config.defaults.control_d_handler' do
   describe "control-d press" do
     before do
       # Simulates a ^D press.
-      @control_d = "Pry::Config.defaults.control_d_handler.call('', _pry_)"
+      @control_d = "Pry::Config.defaults.control_d_handler.call('', pry_instance)"
     end
 
     describe "in an expression" do
@@ -26,14 +26,14 @@ describe 'Pry::Config.defaults.control_d_handler' do
       it 'should pop last binding from the binding stack' do
         t = pry_tester
         t.eval "cd Object.new"
-        expect(t.eval("_pry_.binding_stack.size")).to eq 2
-        expect(t.eval("_pry_.eval(nil)")).to equal true
-        expect(t.eval("_pry_.binding_stack.size")).to eq 1
+        expect(t.eval("pry_instance.binding_stack.size")).to eq 2
+        expect(t.eval("pry_instance.eval(nil)")).to equal true
+        expect(t.eval("pry_instance.binding_stack.size")).to eq 1
       end
 
       it "breaks out of the parent session" do
         ReplTester.start do
-          input  'Pry::REPL.new(_pry_, :target => 10).start'
+          input  'Pry::REPL.new(pry_instance, :target => 10).start'
           output ''
           prompt(/10.*> $/)
 

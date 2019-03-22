@@ -12,12 +12,12 @@ class Pry
       BANNER
 
       def process
-        _pry_.color = color_toggle
-        output.puts "Syntax highlighting #{_pry_.color ? 'on' : 'off'}"
+        pry_instance.color = color_toggle
+        output.puts "Syntax highlighting #{pry_instance.color ? 'on' : 'off'}"
       end
 
       def color_toggle
-        !_pry_.color
+        !pry_instance.color
       end
 
       Pry::Commands.add_command(self)

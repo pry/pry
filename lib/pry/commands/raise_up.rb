@@ -27,7 +27,7 @@ class Pry
 
         # Handle 'raise-up', 'raise-up "foo"', 'raise-up RuntimeError, 'farble'
         # in a rubyesque manner
-        target.eval("_pry_.raise_up#{captures[0]}")
+        target.eval("pry_instance.raise_up#{captures[0]}")
       end
     end
 
