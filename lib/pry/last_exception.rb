@@ -49,7 +49,7 @@ class Pry
 
     def bt_source_location_for(index)
       backtrace[index] =~ /(.*):(\d+)/
-      [$1, $2.to_i]
+      [::Regexp.last_match(1), ::Regexp.last_match(2).to_i]
     end
 
     def inc_bt_index
