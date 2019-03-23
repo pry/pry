@@ -496,6 +496,10 @@ class Pry
       @method.send(method_name, *args, &block)
     end
 
+    def respond_to_missing?(method_name, include_private = false)
+      @method.respond_to?(method_name) || super
+    end
+
     def comment
       Pry::Code.from_file(source_file).comment_describing(source_line)
     end

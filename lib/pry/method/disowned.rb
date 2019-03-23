@@ -54,6 +54,10 @@ class Pry
         Object.instance_method(:method_missing).bind(self)
           .call(meth_name, *args, &block)
       end
+
+      def respond_to_missing?(method_name, include_private = false)
+        !method(:name).respond_to?(method_name) || super
+      end
     end
   end
 end
