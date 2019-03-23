@@ -128,8 +128,3 @@ Security/Eval:
 # Offense count: 39
 Style/CaseEquality:
   Enabled: false
-
-# Offense count: 27
-Style/CommentedKeyword:
-  Exclude:
-    - 'spec/fixtures/example_nesting.rb'
