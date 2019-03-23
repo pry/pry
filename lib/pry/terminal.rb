@@ -25,7 +25,7 @@ class Pry
       end
 
       def actual_screen_size
-        # The best way, if possible (requires non-jruby ≥1.9 or io-console gem)
+        # The best way, if possible (requires non-jruby >=1.9 or io-console gem)
         screen_size_according_to_io_console ||
           # Fall back to the old standby, though it might be stale:
           screen_size_according_to_env ||

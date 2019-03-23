@@ -137,13 +137,6 @@ Style/AccessModifierDeclarations:
     - 'spec/editor_spec.rb'
     - 'spec/method/patcher_spec.rb'
 
-# Offense count: 2
-# Configuration parameters: AllowedChars.
-Style/AsciiComments:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 39
 Style/CaseEquality:
   Enabled: false

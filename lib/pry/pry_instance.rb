@@ -351,7 +351,7 @@ class Pry
   end
   private :handle_line
 
-  # Potentially deprecated — Use `Pry::REPL.new(pry, :target => target).start`
+  # Potentially deprecated. Use `Pry::REPL.new(pry, :target => target).start`
   # (If nested sessions are going to exist, this method is fine, but a goal is
   # to come up with an alternative to nested sessions altogether.)
   def repl(target = nil)
