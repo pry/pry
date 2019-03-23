@@ -437,10 +437,10 @@ describe Pry do
 
       describe "Pry.binding_for" do
         it 'should return TOPLEVEL_BINDING if parameter self is main' do
-          _main_ = -> { TOPLEVEL_BINDING.eval('self') }
-          expect(Pry.binding_for(_main_.call).is_a?(Binding)).to eq true
-          expect(Pry.binding_for(_main_.call)).to eq TOPLEVEL_BINDING
-          expect(Pry.binding_for(_main_.call)).to eq Pry.binding_for(_main_.call)
+          main = -> { TOPLEVEL_BINDING.eval('self') }
+          expect(Pry.binding_for(main.call).is_a?(Binding)).to eq true
+          expect(Pry.binding_for(main.call)).to eq TOPLEVEL_BINDING
+          expect(Pry.binding_for(main.call)).to eq Pry.binding_for(main.call)
         end
       end
     end

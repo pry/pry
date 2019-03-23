@@ -740,14 +740,11 @@ describe "edit" do
         end
 
         it "should change the alias, but not the original, without breaking super" do
-          $x = :bebe
           pry_eval 'edit -p X#c'
 
           expect(Pry::Method.from_str("X#c").alias?).to eq true
-
           expect(X.new.b).to eq :kinda
           expect(X.new.c).to eq :kindaaa
-          $x = nil
         end
       end
 

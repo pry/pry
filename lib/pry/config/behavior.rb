@@ -317,18 +317,20 @@ class Pry
         q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
       end
 
-      def method_missing(name, *args, &block)
-        key = name.to_s
-        if key[-1] == ASSIGNMENT
-          short_key = key[0..-2]
-          self[short_key] = args[0]
-        elsif key?(key)
-          self[key]
-        elsif @default.respond_to?(name)
-          value = @default.public_send(name, *args, &block)
-          self[key] = __dup(value)
+      # rubocop:disable Style/MethodMissingSuper
+      def method_missing(method_name, *args, &block)
+        name = method_name.to_s
+        if name[-1] == ASSIGNMENT
+          short_name = name[0..-2]
+          self[short_name] = args[0]
+        elsif key?(name)
+          self[name]
+        elsif @default.respond_to?(method_name)
+          value = @default.public_send(method_name, *args, &block)
+          self[name] = __dup(value)
         end
       end
+      # rubocop:enable Style/MethodMissingSuper
 
       def respond_to_missing?(key, include_all = false)
         key = key.to_s.chomp(ASSIGNMENT)
@@ -338,7 +340,7 @@ class Pry
       private
 
       def __clip_inspect(obj)
-        format("#{obj.class}:0x%x", obj.object_id)
+        format("#{obj.class}:0x%<id>x", id: obj.object_id)
       end
 
       def __try_convert_to_hash(obj)

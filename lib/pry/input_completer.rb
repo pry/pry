@@ -147,7 +147,7 @@ class Pry
           end
           select_message(path, receiver, message, candidates)
         when GLOBALVARIABLE_REGEXP # global
-          regmessage = Regexp.new(Regexp.quote($1))
+          regmessage = Regexp.new(Regexp.quote(Regexp.last_match(1)))
           candidates = global_variables.collect(&:to_s).grep(regmessage)
         when VARIABLE_REGEXP # variable
           receiver = Regexp.last_match(1)

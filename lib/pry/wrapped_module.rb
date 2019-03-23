@@ -146,11 +146,15 @@ class Pry
 
     # Forward method invocations to the wrapped module
     def method_missing(method_name, *args, &block)
-      wrapped.send(method_name, *args, &block)
+      if wrapped.respond_to?(method_name)
+        wrapped.send(method_name, *args, &block)
+      else
+        super
+      end
     end
 
-    def respond_to?(method_name, include_all = false)
-      super || wrapped.respond_to?(method_name, include_all)
+    def respond_to_missing?(method_name, include_private = false)
+      wrapped.respond_to?(method_name, include_private) || super
     end
 
     # Retrieve the source location of a module. Return value is in same

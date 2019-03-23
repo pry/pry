@@ -567,7 +567,7 @@ class Pry
 
       unless @prompt_warn
         @prompt_warn = true
-        output.warn(
+        warn(
           "warning: setting prompt with help of " \
           "`Pry.config.prompt = [proc {}, proc {}]` is deprecated. " \
           "Use Pry::Prompt API instead"

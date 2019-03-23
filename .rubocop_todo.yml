@@ -18,10 +18,6 @@ Lint/ShadowedException:
   Exclude:
     - 'lib/pry/method.rb'
 
-# Offense count: 32
-Lint/UnderscorePrefixedVariableName:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
 Lint/Void:
@@ -186,45 +182,3 @@ Style/EvalWithLocation:
     - 'spec/commands/edit_spec.rb'
     - 'spec/commands/watch_expression_spec.rb'
     - 'spec/method_spec.rb'
-
-# Offense count: 3
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: annotated, template, unannotated
-Style/FormatStringToken:
-  Exclude:
-    - 'lib/pry/commands/ls/local_vars.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/pry_class.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowedVariables.
-Style/GlobalVars:
-  Exclude:
-    - 'spec/commands/edit_spec.rb'
-
-# Offense count: 7
-Style/MethodMissingSuper:
-  Exclude:
-    - 'lib/pry/code.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/disowned.rb'
-    - 'lib/pry/output.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 4
-Style/MissingRespondToMissing:
-  Exclude:
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/disowned.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/PerlBackrefs:
-  Exclude:
-    - 'lib/pry/input_completer.rb'
-    - 'lib/pry/last_exception.rb'
-    - 'lib/pry/method.rb'
