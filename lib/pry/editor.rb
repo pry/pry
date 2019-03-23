@@ -36,8 +36,6 @@ class Pry
       end
     end
 
-    private
-
     # Generate the string that's used to start the editor. This includes
     # all the flags we want as well as the file and line number we
     # want to open at.
@@ -53,6 +51,8 @@ class Pry
         "#{editor} #{flag} #{start_line}"
       end
     end
+
+    private
 
     # Start the editor running, using the calculated invocation string
     def open_editor(editor_invocation)

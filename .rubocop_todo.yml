@@ -125,33 +125,9 @@ Security/Eval:
     - 'spec/indent_spec.rb'
     - 'spec/wrapped_module_spec.rb'
 
-# Offense count: 9
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: inline, group
-Style/AccessModifierDeclarations:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/forwardable.rb'
-    - 'lib/pry/helpers/base_helpers.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/editor_spec.rb'
-    - 'spec/method/patcher_spec.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowedChars.
-Style/AsciiComments:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-    - 'lib/pry/terminal.rb'
-
 # Offense count: 39
 Style/CaseEquality:
   Enabled: false
-
-# Offense count: 1
-Style/ClassVars:
-  Exclude:
-    - 'lib/pry/method/patcher.rb'
 
 # Offense count: 27
 Style/CommentedKeyword:
@@ -161,24 +137,3 @@ Style/CommentedKeyword:
 # Offense count: 138
 Style/Documentation:
   Enabled: false
-
-# Offense count: 10
-Style/DoubleNegation:
-  Exclude:
-    - 'lib/pry/code.rb'
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/whereami.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/weird_method_locator.rb'
-    - 'lib/pry/pager.rb'
-    - 'lib/pry/slop/option.rb'
-    - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 27
-Style/EvalWithLocation:
-  Exclude:
-    - 'lib/pry/core_extensions.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/commands/watch_expression_spec.rb'
-    - 'spec/method_spec.rb'

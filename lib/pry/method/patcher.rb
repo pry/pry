@@ -3,7 +3,9 @@ class Pry
     class Patcher
       attr_accessor :method
 
+      # rubocop:disable Style/ClassVars
       @@source_cache = {}
+      # rubocop:enable Style/ClassVars
 
       def initialize(method)
         @method = method

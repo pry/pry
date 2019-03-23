@@ -638,13 +638,19 @@ describe Pry::Method do
     # keyword args are only on >= Ruby 2.1
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("2.1")
       it 'should print the name of keyword args, with :? after the arg name' do
-        eval %{def @class.keyword(keyword_arg: "") end}
+        eval <<-RUBY, binding, __FILE__, __LINE__ + 1
+          def @class.keyword(keyword_arg: '')
+          end
+        RUBY
         signature = Pry::Method.new(@class.method(:keyword)).signature
         expect(signature).to eq("keyword(keyword_arg:?)")
       end
 
       it 'should print the name of keyword args, with : after the arg name' do
-        eval %{def @class.required_keyword(required_key:) end}
+        eval <<-RUBY, binding, __FILE__, __LINE__ + 1
+          def @class.required_keyword(required_key:)
+          end
+        RUBY
         signature = Pry::Method.new(@class.method(:required_keyword)).signature
         expect(signature).to eq("required_keyword(required_key:)")
       end

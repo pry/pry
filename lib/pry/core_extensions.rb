@@ -84,7 +84,7 @@ class Object
       return class_eval { binding } if Pry::Helpers::Platform.jruby? && name.nil?
 
       # class_eval sets both self and the default definee to this class.
-      return class_eval("binding")
+      return class_eval("binding", __FILE__, __LINE__)
     end
 
     unless self.class.method_defined?(:__pry__)

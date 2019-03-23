@@ -5,7 +5,6 @@ class Pry
     # Contains methods for querying the platform that Pry is running on
     # @api public
     # @since v0.12.0
-    # rubocop:disable Style/DoubleNegation
     module Platform
       # @return [Boolean]
       def self.mac_osx?
@@ -47,14 +46,13 @@ class Pry
 
       # @return [Boolean]
       def self.mri_19?
-        !!(mri? && RUBY_VERSION.start_with?('1.9'))
+        mri? && RUBY_VERSION.start_with?('1.9')
       end
 
       # @return [Boolean]
       def self.mri_2?
-        !!(mri? && RUBY_VERSION.start_with?('2'))
+        mri? && RUBY_VERSION.start_with?('2')
       end
     end
-    # rubocop:enable Style/DoubleNegation
   end
 end

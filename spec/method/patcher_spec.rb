@@ -25,7 +25,9 @@ describe Pry::Method::Patcher do
   end
 
   it "should preserve visibility" do
-    class << @x; private :test; end
+    class << @x
+      private :test # rubocop:disable Style/AccessModifierDeclarations
+    end
     expect(@method.visibility).to eq :private
     @method.redefine "def @x.test; :after; end\n"
     expect(Pry::Method(@x.method(:test)).visibility).to eq :private
