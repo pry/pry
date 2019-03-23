@@ -92,9 +92,9 @@ class Pry
           raise CommandError, "Only one of -m, -c, -f, and  LINES may be specified."
         end
 
-        if nothing_to_do?
-          return
-        elsif internal_binding?(target)
+        return if nothing_to_do?
+
+        if internal_binding?(target)
           handle_internal_binding
           return
         end

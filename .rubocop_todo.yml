@@ -23,11 +23,6 @@ Lint/UnderscorePrefixedVariableName:
   Enabled: false
 
 # Offense count: 1
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/pry/pry_instance.rb'
-
-# Offense count: 1
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
 Lint/Void:
   Exclude:
@@ -207,25 +202,6 @@ Style/GlobalVars:
   Exclude:
     - 'spec/commands/edit_spec.rb'
 
-# Offense count: 31
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Enabled: false
-
-# Offense count: 2
-Style/IdenticalConditionalBranches:
-  Exclude:
-    - 'lib/pry/slop/commands.rb'
-
-# Offense count: 5
-Style/IfInsideElse:
-  Exclude:
-    - 'lib/pry/commands/edit.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'lib/pry/repl.rb'
-    - 'lib/pry/slop/commands.rb'
-    - 'lib/pry/slop/option.rb'
-
 # Offense count: 7
 Style/MethodMissingSuper:
   Exclude:
@@ -244,17 +220,6 @@ Style/MissingRespondToMissing:
     - 'lib/pry/method/disowned.rb'
     - 'lib/pry/plugins.rb'
     - 'lib/pry/wrapped_module.rb'
-
-# Offense count: 4
-Style/MultilineBlockChain:
-  Exclude:
-    - 'lib/pry/command_set.rb'
-    - 'lib/pry/commands/ls/local_vars.rb'
-
-# Offense count: 2
-Style/MultipleComparison:
-  Exclude:
-    - 'lib/pry/indent.rb'
 
 # Offense count: 9
 # Cop supports --auto-correct.

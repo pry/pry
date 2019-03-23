@@ -297,11 +297,10 @@ class Pry
     # @param [String] pattern The line that might be a command invocation
     # @return [Pry::Command, nil]
     def [](pattern)
-      @commands.values.select do |command|
+      commands = @commands.values.select do |command|
         command.matches?(pattern)
-      end.max_by do |command|
-        command.match_score(pattern)
       end
+      commands.max_by { |command| command.match_score(pattern) }
     end
     alias find_command []
 
@@ -397,9 +396,10 @@ class Pry
       if (command = find_command(search))
         command.new(context).complete(search)
       else
-        @commands.keys.select do |key|
+        keys = @commands.keys.select do |key|
           String === key && key.start_with?(search)
-        end.map { |key| key + " " }
+        end
+        keys.map { |key| key + " " }
       end
     end
   end

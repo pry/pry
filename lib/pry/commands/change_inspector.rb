@@ -13,12 +13,12 @@ class Pry
       BANNER
 
       def process(inspector)
-        if inspector_map.key?(inspector)
-          pry_instance.print = inspector_map[inspector][:value]
-          output.puts "Switched to the '#{inspector}' inspector!"
-        else
+        unless inspector_map.key?(inspector)
           raise Pry::CommandError, "'#{inspector}' isn't a known inspector!"
         end
+
+        pry_instance.print = inspector_map[inspector][:value]
+        output.puts "Switched to the '#{inspector}' inspector!"
       end
 
       private

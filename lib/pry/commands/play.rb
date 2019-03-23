@@ -49,9 +49,10 @@ class Pry
       end
 
       def show_input
-        if opts.present?(:print) || !Pry::Code.complete_expression?(eval_string)
-          run "show-input"
-        end
+        return unless opts.present?(:print)
+        return unless Pry::Code.complete_expression?(eval_string)
+
+        run 'show-input'
       end
 
       def content_after_options
@@ -97,11 +98,11 @@ class Pry
       end
 
       def file_content
-        if default_file && File.exist?(default_file)
-          @cc.restrict_to_lines(File.read(default_file), @cc.line_range)
-        else
+        if !default_file || !File.exist?(default_file)
           raise CommandError, "File does not exist! File was: #{default_file.inspect}"
         end
+
+        @cc.restrict_to_lines(File.read(default_file), @cc.line_range)
       end
     end
 

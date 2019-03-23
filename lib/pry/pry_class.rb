@@ -367,15 +367,10 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # @param [Object] target The object to get a `Binding` object for.
   # @return [Binding] The `Binding` object.
   def self.binding_for(target)
-    if Binding === target
-      target
-    else
-      if Pry.main == target
-        TOPLEVEL_BINDING
-      else
-        target.__binding__
-      end
-    end
+    return target if Binding === target
+    return TOPLEVEL_BINDING if Pry.main == target
+
+    target.__binding__
   end
 
   def self.toplevel_binding

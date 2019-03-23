@@ -38,7 +38,9 @@ class Pry
 
         if number_of_candidates <= 0
           raise CommandError, "Cannot find a definition for #{name} module!"
-        elsif rank > (number_of_candidates - 1)
+        end
+
+        if rank > (number_of_candidates - 1)
           raise CommandError,
                 "No such module candidate. Allowed candidates range is " \
                 "from 0 to #{number_of_candidates - 1}"

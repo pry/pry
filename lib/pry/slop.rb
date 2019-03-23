@@ -137,10 +137,10 @@ class Pry
         block.arity == 1 ? yield(self) : instance_eval(&block)
       end
 
-      if config[:help]
-        on('-h', '--help', 'Display this help message.', tail: true) do
-          warn help
-        end
+      return unless config[:help]
+
+      on('-h', '--help', 'Display this help message.', tail: true) do
+        warn help
       end
     end
 
@@ -314,9 +314,9 @@ class Pry
     #   end
     def run(callable = nil, &block)
       @runner = callable || block
-      unless @runner.respond_to?(:call)
-        raise ArgumentError, "You must specify a callable object or a block to #run"
-      end
+      return if @runner.respond_to?(:call)
+
+      raise ArgumentError, "You must specify a callable object or a block to #run"
     end
 
     # Check for an options presence.
@@ -587,13 +587,13 @@ class Pry
     # Returns nothing.
     def autocreate(items, index)
       flag = items[index]
-      if !fetch_option(flag) && !@trash.include?(index)
-        option = build_option(Array(flag))
-        argument = items[index + 1]
-        option.config[:argument] = (argument && argument !~ /\A--?/)
-        option.config[:autocreated] = true
-        options << option
-      end
+      return if fetch_option(flag) || @trash.include?(index)
+
+      option = build_option(Array(flag))
+      argument = items[index + 1]
+      option.config[:argument] = (argument && argument !~ /\A--?/)
+      option.config[:autocreated] = true
+      options << option
     end
 
     # Build an option from a list of objects.
@@ -629,10 +629,10 @@ class Pry
         flag.chop!
       end
 
-      if flag.size == 1
-        objects.shift
-        flag
-      end
+      return unless flag.size == 1
+
+      objects.shift
+      flag
     end
 
     # Extract the long flag from an item.
@@ -641,12 +641,12 @@ class Pry
     # config  - The Hash of configuration options built in #build_option.
     def extract_long_flag(objects, config)
       flag = objects.first.to_s
-      if flag =~ /\A(?:--?)?[a-zA-Z][a-zA-Z0-9_-]+\=?\??\z/
-        config[:argument] ||= true if flag.end_with?('=')
-        config[:optional_argument] = true if flag.end_with?('=?')
-        objects.shift
-        clean(flag).sub(/\=\??\z/, '')
-      end
+      return unless flag =~ /\A(?:--?)?[a-zA-Z][a-zA-Z0-9_-]+\=?\??\z/
+
+      config[:argument] ||= true if flag.end_with?('=')
+      config[:optional_argument] = true if flag.end_with?('=?')
+      objects.shift
+      clean(flag).sub(/\=\??\z/, '')
     end
 
     # Remove any leading -- characters from a string.

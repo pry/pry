@@ -133,13 +133,10 @@ class Pry
         while guess
           # needs rescue if this is a Disowned method or a C method or something...
           # TODO: Fix up the exception handling so we don't need a bare rescue
-          if normal_method?(guess)
-            return guess
-          elsif guess != guess.super
-            guess = guess.super
-          else
-            break
-          end
+          return guess if normal_method?(guess)
+          break if guess == guess.super
+
+          guess = guess.super
         end
 
         # Uhoh... none of the methods in the chain had the right `__FILE__` and

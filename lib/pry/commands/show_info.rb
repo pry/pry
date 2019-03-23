@@ -57,21 +57,15 @@ class Pry
       #
       # @return [Pry::WrappedModule, Pry::Method, Pry::Command]
       def code_object_with_accessible_source(code_object)
-        if code_object.is_a?(WrappedModule)
-          candidate = code_object.candidates.find(&:source)
-          if candidate
-            return candidate
-          else
-            unless valid_superclass?(code_object)
-              raise CommandError, no_definition_message
-            end
+        return code_object unless code_object.is_a?(WrappedModule)
 
-            @used_super = true
-            code_object_with_accessible_source(code_object.super)
-          end
-        else
-          code_object
-        end
+        candidate = code_object.candidates.find(&:source)
+        return candidate if candidate
+
+        raise CommandError, no_definition_message unless valid_superclass?(code_object)
+
+        @used_super = true
+        code_object_with_accessible_source(code_object.super)
       end
 
       def valid_superclass?(code_object)

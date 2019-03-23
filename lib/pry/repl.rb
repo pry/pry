@@ -45,10 +45,10 @@ class Pry
     def prologue
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
 
+      return unless pry.config.correct_indent
+
       # Clear the line before starting Pry. This fixes issue #566.
-      if pry.config.correct_indent
-        Kernel.print(Helpers::Platform.windows_ansi? ? "\e[0F" : "\e[0G")
-      end
+      Kernel.print(Helpers::Platform.windows_ansi? ? "\e[0F" : "\e[0G")
     end
 
     # The actual read-eval-print loop.
@@ -183,12 +183,10 @@ class Pry
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
           input_readline(current_prompt)
+        elsif input.method(:readline).arity == 1
+          input_readline(current_prompt)
         else
-          if input.method(:readline).arity == 1
-            input_readline(current_prompt)
-          else
-            input_readline
-          end
+          input_readline
         end
       end
     end

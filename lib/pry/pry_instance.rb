@@ -382,7 +382,7 @@ class Pry
     # the exception either.
     begin
       output.puts "(pry) output error: #{e.inspect}\n#{e.backtrace.join("\n")}"
-    rescue RescuableException => e
+    rescue RescuableException
       if last_result_is_exception?
         output.puts "(pry) output error: failed to show exception"
       else
@@ -517,10 +517,10 @@ class Pry
   def update_input_history(code)
     # Always push to the @input_ring as the @output_ring is always pushed to.
     @input_ring << code
-    if code
-      Pry.line_buffer.push(*code.each_line)
-      Pry.current_line += code.lines.count
-    end
+    return unless code
+
+    Pry.line_buffer.push(*code.each_line)
+    Pry.current_line += code.lines.count
   end
 
   # @return [Boolean] True if the last result is an exception that was raised,

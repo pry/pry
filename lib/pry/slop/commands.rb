@@ -44,9 +44,9 @@ class Pry
           "Slop version 4. Check out http://injekt.github.com/slop/#commands for "\
           "a new implementation of commands."
 
-        if block_given?
-          block.arity == 1 ? yield(self) : instance_eval(&block)
-        end
+        return unless block_given?
+
+        block.arity == 1 ? yield(self) : instance_eval(&block)
       end
 
       # Optionally set the banner for this command help output.
@@ -138,17 +138,12 @@ class Pry
           @triggered_command = items.shift
           execute_arguments! items
           opts.parse! items
-          execute_global_opts! items
-        else
-          if (opts = commands['default'])
-            opts.parse! items
-          else
-            if config[:strict] && items[0]
-              raise InvalidCommandError, "Unknown command `#{items[0]}`"
-            end
-          end
-          execute_global_opts! items
+        elsif (opts = commands['default'])
+          opts.parse! items
+        elsif config[:strict] && items[0]
+          raise InvalidCommandError, "Unknown command `#{items[0]}`"
         end
+        execute_global_opts! items
         items
       end
 
@@ -184,9 +179,9 @@ class Pry
 
       # Returns nothing.
       def execute_global_opts!(items)
-        if (global_opts = commands['global'])
-          global_opts.parse! items
-        end
+        return unless (global_opts = commands['global'])
+
+        global_opts.parse!(items)
       end
     end
   end
