@@ -349,7 +349,7 @@ class Pry
 
     throw(:breakout) if current_binding.nil?
   end
-  private :handle_line
+  private :handle_line # rubocop:disable Style/AccessModifierDeclarations
 
   # Potentially deprecated. Use `Pry::REPL.new(pry, :target => target).start`
   # (If nested sessions are going to exist, this method is fine, but a goal is
@@ -401,7 +401,7 @@ class Pry
       @eval_string.force_encoding(val.encoding)
     end
   end
-  private :ensure_correct_encoding!
+  private :ensure_correct_encoding! # rubocop:disable Style/AccessModifierDeclarations
 
   # If the given line is a valid command, process it in the context of the
   # current `eval_string` and binding.
@@ -591,13 +591,13 @@ class Pry
       prompt_proc.call(conf.object, conf.nesting_level, conf.pry_instance)
     end
   end
-  private :generate_prompt
+  private :generate_prompt # rubocop:disable Style/AccessModifierDeclarations
 
   # the array that the prompt stack is stored in
   def prompt_stack
     @prompt_stack ||= []
   end
-  private :prompt_stack
+  private :prompt_stack # rubocop:disable Style/AccessModifierDeclarations
 
   # Pushes the current prompt onto a stack that it can be restored from later.
   # Use this if you wish to temporarily change the prompt.

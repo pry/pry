@@ -125,18 +125,6 @@ Security/Eval:
     - 'spec/indent_spec.rb'
     - 'spec/wrapped_module_spec.rb'
 
-# Offense count: 9
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: inline, group
-Style/AccessModifierDeclarations:
-  Exclude:
-    - 'lib/pry/command.rb'
-    - 'lib/pry/forwardable.rb'
-    - 'lib/pry/helpers/base_helpers.rb'
-    - 'lib/pry/pry_instance.rb'
-    - 'spec/editor_spec.rb'
-    - 'spec/method/patcher_spec.rb'
-
 # Offense count: 39
 Style/CaseEquality:
   Enabled: false

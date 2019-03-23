@@ -23,7 +23,6 @@ class Pry
         (Module === obj ? Module : Object).instance_method(method)
           .bind(obj).call(*args, &block)
       end
-      public :safe_send
 
       def find_command(name, set = Pry::Commands)
         command_match = set.find do |_, command|

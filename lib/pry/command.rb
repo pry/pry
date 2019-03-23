@@ -411,40 +411,6 @@ class Pry
       call_safely(*(captures + args))
     end
 
-    # Pass a block argument to a command.
-    # @param [String] arg_string The arguments (as a string) passed to the command.
-    #   We inspect these for a '| do' or a '| {' and if we find it we use it
-    #   to start a block input sequence. Once we have a complete
-    #   block, we save it to an accessor that can be retrieved from the command context.
-    #   Note that if we find the '| do' or '| {' we delete this and the
-    #   elements following it from `arg_string`.
-    def pass_block(arg_string)
-      # Workaround for weird JRuby bug where rindex in this case can return nil
-      # even when there's a match.
-      arg_string.scan(/\| *(?:do|\{)/)
-      block_index = $LAST_MATCH_INFO && $LAST_MATCH_INFO.offset(0)[0]
-
-      return unless block_index
-
-      block_init_string = arg_string.slice!(block_index..-1)[1..-1]
-      prime_string = "proc #{block_init_string}\n"
-
-      block_string =
-        if !Pry::Code.complete_expression?(prime_string)
-          pry_instance.r(target, prime_string)
-        else
-          prime_string
-        end
-
-      begin
-        self.command_block = target.eval(block_string)
-      rescue Pry::RescuableException
-        raise CommandError, "Incomplete block definition."
-      end
-    end
-
-    private :pass_block
-
     # Run the command with the given `args`.
     #
     # This is a public wrapper around `#call` which ensures all preconditions
@@ -481,6 +447,38 @@ class Pry
     end
 
     private
+
+    # Pass a block argument to a command.
+    # @param [String] arg_string The arguments (as a string) passed to the command.
+    #   We inspect these for a '| do' or a '| {' and if we find it we use it
+    #   to start a block input sequence. Once we have a complete
+    #   block, we save it to an accessor that can be retrieved from the command context.
+    #   Note that if we find the '| do' or '| {' we delete this and the
+    #   elements following it from `arg_string`.
+    def pass_block(arg_string)
+      # Workaround for weird JRuby bug where rindex in this case can return nil
+      # even when there's a match.
+      arg_string.scan(/\| *(?:do|\{)/)
+      block_index = $LAST_MATCH_INFO && $LAST_MATCH_INFO.offset(0)[0]
+
+      return unless block_index
+
+      block_init_string = arg_string.slice!(block_index..-1)[1..-1]
+      prime_string = "proc #{block_init_string}\n"
+
+      block_string =
+        if !Pry::Code.complete_expression?(prime_string)
+          pry_instance.r(target, prime_string)
+        else
+          prime_string
+        end
+
+      begin
+        self.command_block = target.eval(block_string)
+      rescue Pry::RescuableException
+        raise CommandError, "Incomplete block definition."
+      end
+    end
 
     def find_hooks(event)
       event_name = "#{event}_#{command_name}"

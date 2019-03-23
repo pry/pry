@@ -1,12 +1,6 @@
 require 'pathname'
 
 describe Pry::Editor do
-  class Pry
-    class Editor
-      public :build_editor_invocation_string
-    end
-  end
-
   before do
     # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
     # something "Temp".
