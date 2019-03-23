@@ -56,7 +56,7 @@ class Pry
         @config.each_key do |key|
           predicate = :"#{key}?"
           unless self.class.method_defined?(predicate)
-            self.class.__send__(:define_method, predicate) { !!@config[key] }
+            self.class.__send__(:define_method, predicate) { !@config.key?(key) }
           end
         end
       end

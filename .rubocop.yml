@@ -55,3 +55,6 @@ Metrics/LineLength:
 
 Bundler/OrderedGems:
   Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
