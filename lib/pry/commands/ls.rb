@@ -72,10 +72,10 @@ class Pry
           opt.on :d, :dconstants, "Show deprecated constants"
         end
 
-        if Helpers::Platform.jruby?
-          opt.on :J, "all-java", "Show all the aliases for methods from java " \
-                                 "(default is to show only prettiest)"
-        end
+        return unless Helpers::Platform.jruby?
+
+        opt.on :J, "all-java", "Show all the aliases for methods from java " \
+                               "(default is to show only prettiest)"
       end
 
       # Exclude -q, -v and --grep because they,

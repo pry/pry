@@ -44,9 +44,9 @@ class Pry
         @input.basic_word_break_characters = WORD_ESCAPE_STR
       end
 
-      if @input.respond_to?(:completion_append_character=)
-        @input.completion_append_character = nil
-      end
+      return unless @input.respond_to?(:completion_append_character=)
+
+      @input.completion_append_character = nil
     end
 
     # Return a new completion proc for use by Readline.

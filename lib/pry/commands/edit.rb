@@ -107,9 +107,9 @@ class Pry
           raise CommandError, "Cannot find a valid file for #{filename_argument}"
         end
 
-        if not_a_real_file?(file_name)
-          raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
-        end
+        return unless not_a_real_file?(file_name)
+
+        raise CommandError, "#{file_name} is not a valid file name, cannot edit!"
       end
 
       def file_and_line_for_current_exception
@@ -140,11 +140,9 @@ class Pry
         Pry::Editor.new(pry_instance).invoke_editor(file_name, line, reload?(file_name))
         set_file_and_dir_locals(file_name)
 
-        if reload?(file_name)
-          silence_warnings do
-            load file_name
-          end
-        end
+        return unless reload?(file_name)
+
+        silence_warnings { load(file_name) }
       end
 
       def filename_argument

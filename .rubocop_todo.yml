@@ -202,11 +202,6 @@ Style/GlobalVars:
   Exclude:
     - 'spec/commands/edit_spec.rb'
 
-# Offense count: 31
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Enabled: false
-
 # Offense count: 7
 Style/MethodMissingSuper:
   Exclude:

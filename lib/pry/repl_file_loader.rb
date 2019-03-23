@@ -44,12 +44,12 @@ class Pry
         break unless pry_instance.eval line, generated: true
       end
 
-      unless pry_instance.eval_string.empty?
-        pry_instance.output.puts(
-          "#{pry_instance.eval_string}...exception encountered, going interactive!"
-        )
-        interactive_mode(pry_instance)
-      end
+      return if pry_instance.eval_string.empty?
+
+      pry_instance.output.puts(
+        "#{pry_instance.eval_string}...exception encountered, going interactive!"
+      )
+      interactive_mode(pry_instance)
     end
 
     # Define a few extra commands useful for flipping back & forth

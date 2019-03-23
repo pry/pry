@@ -198,9 +198,9 @@ class Pry
         else
           if @slop.strict?
             raise InvalidArgumentError, "#{value} could not be coerced into Range"
-          else
-            value
           end
+
+          value
         end
       end
     end

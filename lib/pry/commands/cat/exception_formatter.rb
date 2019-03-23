@@ -61,10 +61,9 @@ class Pry
 
         def check_for_errors
           raise CommandError, "No exception found." unless ex
+          return if backtrace_file
 
-          unless backtrace_file
-            raise CommandError, "The given backtrace level is out of bounds."
-          end
+          raise CommandError, "The given backtrace level is out of bounds."
         end
 
         def start_and_end_line_for_code_window

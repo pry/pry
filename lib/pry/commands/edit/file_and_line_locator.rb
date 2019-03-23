@@ -12,11 +12,11 @@ class Pry
           end
 
           def from_code_object(code_object, filename_argument)
-            if File.exist?(code_object.source_file.to_s)
-              [code_object.source_file, code_object.source_line]
-            else
+            unless File.exist?(code_object.source_file.to_s)
               raise CommandError, "Cannot find a file for #{filename_argument}!"
             end
+
+            [code_object.source_file, code_object.source_line]
           end
 
           def from_exception(exception, backtrace_level)

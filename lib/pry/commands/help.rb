@@ -137,11 +137,10 @@ class Pry
 
         hash.each_pair do |key, value|
           next unless key.is_a?(String)
-          if normalize(key) == normalize(search)
-            return { key => value }
-          elsif normalize(key).start_with?(normalize(search))
-            matching[key] = value
-          end
+          return { key => value } if normalize(key) == normalize(search)
+          next unless normalize(key).start_with?(normalize(search))
+
+          matching[key] = value
         end
 
         matching

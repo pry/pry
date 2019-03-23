@@ -44,9 +44,9 @@ class Pry
           "Slop version 4. Check out http://injekt.github.com/slop/#commands for "\
           "a new implementation of commands."
 
-        if block_given?
-          block.arity == 1 ? yield(self) : instance_eval(&block)
-        end
+        return unless block_given?
+
+        block.arity == 1 ? yield(self) : instance_eval(&block)
       end
 
       # Optionally set the banner for this command help output.
@@ -179,9 +179,9 @@ class Pry
 
       # Returns nothing.
       def execute_global_opts!(items)
-        if (global_opts = commands['global'])
-          global_opts.parse! items
-        end
+        return unless (global_opts = commands['global'])
+
+        global_opts.parse!(items)
       end
     end
   end
