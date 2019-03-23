@@ -191,9 +191,3 @@ Style/FormatStringToken:
     - 'lib/pry/commands/ls/local_vars.rb'
     - 'lib/pry/config/behavior.rb'
     - 'lib/pry/pry_class.rb'
-
-# Offense count: 2
-# Configuration parameters: AllowedVariables.
-Style/GlobalVars:
-  Exclude:
-    - 'spec/commands/edit_spec.rb'
