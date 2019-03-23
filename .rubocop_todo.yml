@@ -133,7 +133,3 @@ Style/CaseEquality:
 Style/CommentedKeyword:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
-
-# Offense count: 138
-Style/Documentation:
-  Enabled: false
