@@ -148,11 +148,6 @@ Style/AsciiComments:
 Style/CaseEquality:
   Enabled: false
 
-# Offense count: 1
-Style/ClassVars:
-  Exclude:
-    - 'lib/pry/method/patcher.rb'
-
 # Offense count: 27
 Style/CommentedKeyword:
   Exclude:
