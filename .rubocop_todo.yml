@@ -197,14 +197,3 @@ Style/FormatStringToken:
 Style/GlobalVars:
   Exclude:
     - 'spec/commands/edit_spec.rb'
-
-# Offense count: 7
-Style/MethodMissingSuper:
-  Exclude:
-    - 'lib/pry/code.rb'
-    - 'lib/pry/config/behavior.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/method/disowned.rb'
-    - 'lib/pry/output.rb'
-    - 'lib/pry/plugins.rb'
-    - 'lib/pry/wrapped_module.rb'

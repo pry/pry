@@ -33,8 +33,12 @@ class Pry
       @boxed_io.respond_to?(:tty?) && @boxed_io.tty?
     end
 
-    def method_missing(name, *args, &block)
-      @boxed_io.__send__(name, *args, &block)
+    def method_missing(method_name, *args, &block)
+      if @boxed_io.respond_to?(method_name)
+        @boxed_io.__send__(method_name, *args, &block)
+      else
+        super
+      end
     end
 
     def respond_to_missing?(m, include_all = false)

@@ -501,9 +501,17 @@ RSpec.describe Pry::Code do
   end
 
   describe "#method_missing" do
-    it "forwards any missing methods to the output of '#to_s'" do
-      expect(subject).to receive_message_chain(:to_s, :send)
-      subject.abcdefg
+    context "when a String responds to the given method" do
+      it "forwards the method to a String instance" do
+        expect(subject.upcase).to eq('')
+      end
+    end
+
+    context "when a String does not respond to the given method" do
+      it "raises NoMethodError" do
+        expect { subject.abcdefg }
+          .to raise_error(NoMethodError, /undefined method `abcdefg'/)
+      end
     end
   end
 

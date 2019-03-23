@@ -46,14 +46,16 @@ class Pry
       end
 
       # Raise a more useful error message instead of trying to forward to nil.
-      def method_missing(meth_name, *args, &block)
-        if method(:name).respond_to?(meth_name)
-          raise "Cannot call '#{meth_name}' on an undef'd method."
+      # rubocop:disable Style/MethodMissingSuper
+      def method_missing(method_name, *args, &block)
+        if method(:name).respond_to?(method_name)
+          raise "Cannot call '#{method_name}' on an undef'd method."
         end
 
-        Object.instance_method(:method_missing).bind(self)
-          .call(meth_name, *args, &block)
+        method = Object.instance_method(:method_missing).bind(self)
+        method.call(method_name, *args, &block)
       end
+      # rubocop:enable Style/MethodMissingSuper
 
       def respond_to_missing?(method_name, include_private = false)
         !method(:name).respond_to?(method_name) || super

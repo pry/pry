@@ -493,7 +493,11 @@ class Pry
 
     # Delegate any unknown calls to the wrapped method.
     def method_missing(method_name, *args, &block)
-      @method.send(method_name, *args, &block)
+      if @method.respond_to?(method_name)
+        @method.__send__(method_name, *args, &block)
+      else
+        super
+      end
     end
 
     def respond_to_missing?(method_name, include_private = false)

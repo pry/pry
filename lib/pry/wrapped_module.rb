@@ -146,7 +146,11 @@ class Pry
 
     # Forward method invocations to the wrapped module
     def method_missing(method_name, *args, &block)
-      wrapped.send(method_name, *args, &block)
+      if wrapped.respond_to?(method_name)
+        wrapped.send(method_name, *args, &block)
+      else
+        super
+      end
     end
 
     def respond_to_missing?(method_name, include_private = false)

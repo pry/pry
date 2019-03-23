@@ -331,14 +331,18 @@ class Pry
     end
 
     # Forward any missing methods to the output of `#to_s`.
-    def method_missing(name, *args, &block)
-      to_s.send(name, *args, &block)
+    def method_missing(method_name, *args, &block)
+      if (string = to_s).respond_to?(method_name)
+        string.__send__(method_name, *args, &block)
+      else
+        super
+      end
     end
     undef =~
 
     # Check whether String responds to missing methods.
-    def respond_to_missing?(name, include_all = false)
-      ''.respond_to?(name, include_all)
+    def respond_to_missing?(method_name, include_private = false)
+      ''.respond_to?(method_name, include_private) || super
     end
 
     if RUBY_VERSION.start_with?('1.9')
