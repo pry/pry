@@ -143,10 +143,10 @@ class Pry
       def check_for_juxtaposed_replay(replay_sequence)
         if replay_sequence =~ /\Ahist(?:ory)?\b/
           # Create *fresh* instance of Options for parsing of "hist" command.
-          _slop = slop
-          _slop.parse replay_sequence.split(' ')[1..-1]
+          slop_instance = slop
+          slop_instance.parse(replay_sequence.split(' ')[1..-1])
 
-          if _slop.present?(:r)
+          if slop_instance.present?(:r)
             replay_sequence = replay_sequence.split("\n").join('; ')
             index = opts[:r]
             index = index.min if index.min == index.max || index.max.nil?

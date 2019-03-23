@@ -18,10 +18,6 @@ Lint/ShadowedException:
   Exclude:
     - 'lib/pry/method.rb'
 
-# Offense count: 32
-Lint/UnderscorePrefixedVariableName:
-  Enabled: false
-
 # Offense count: 1
 # Configuration parameters: CheckForMethodsWithNoSideEffects.
 Lint/Void:
