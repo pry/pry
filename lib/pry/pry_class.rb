@@ -250,8 +250,10 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } &&
           obj.inspect.length <= max
       obj.inspect
+    elsif id
+      format("#<#{obj.class}:0x%<id>x>", id: obj.object_id << 1)
     else
-      id ? format("#<#{obj.class}:0x%x>", (obj.object_id << 1)) : "#<#{obj.class}>"
+      "#<#{obj.class}>"
     end
   rescue RescuableException
     "unknown"

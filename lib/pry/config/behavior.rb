@@ -340,7 +340,7 @@ class Pry
       private
 
       def __clip_inspect(obj)
-        format("#{obj.class}:0x%x", obj.object_id)
+        format("#{obj.class}:0x%<id>x", id: obj.object_id)
       end
 
       def __try_convert_to_hash(obj)

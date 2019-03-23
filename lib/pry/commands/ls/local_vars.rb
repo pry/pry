@@ -33,7 +33,11 @@ class Pry
           colorized_lhs = color(:local_var, lhs)
           color_escape_padding = colorized_lhs.size - lhs.size
           pad = desired_width + color_escape_padding
-          Kernel.format("%-#{pad}s = %s", color(:local_var, colorized_lhs), rhs)
+          Kernel.format(
+            "%-#{pad}<name>s = %<value>s",
+            name: color(:local_var, colorized_lhs),
+            value: rhs
+          )
         end
       end
     end
