@@ -773,11 +773,13 @@ describe "edit" do
     before do
       @t = pry_tester
       class BinkyWink
-        eval %(
+        # rubocop:disable Style/EvalWithLocation
+        eval <<-RUBY
           def m1
             binding
           end
-        )
+        RUBY
+        # rubocop:enable Style/EvalWithLocation
 
         def m2
           _foo = :jeremy_jones
@@ -821,10 +823,9 @@ describe "edit" do
     before do
       @t = pry_tester
       class TrinkyDink
-        eval %(
-          def m
-          end
-        )
+        # rubocop:disable Style/EvalWithLocation
+        eval('def m; end')
+        # rubocop:enable Style/EvalWithLocation
       end
     end
 

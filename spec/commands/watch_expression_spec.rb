@@ -3,8 +3,8 @@ describe "watch expression" do
   # 1) Create an instance of pry that can use for multiple calls
   # 2) Exercise the after_eval hook
   # 3) Return the output
-  def eval(expr)
-    output = @tester.eval expr
+  def watch_eval(expr)
+    output = @tester.eval(expr)
     @tester.pry.hooks.exec_hook :after_eval, nil, @tester.pry
     output
   end
@@ -12,27 +12,28 @@ describe "watch expression" do
   before do
     @tester = pry_tester
     @tester.pry.hooks.clear_event_hooks(:after_eval)
-    eval "watch --delete"
+    watch_eval('watch --delete')
   end
 
   it "registers the after_eval hook" do
-    eval 'watch 1+1'
+    watch_eval('watch 1+1')
+    watch_eval('')
     expect(@tester.pry.hooks.hook_exists?(:after_eval, :watch_expression)).to eq(true)
   end
 
   it "prints no watched expressions" do
-    expect(eval('watch')).to match(/No watched expressions/)
+    expect(watch_eval('watch')).to match(/No watched expressions/)
   end
 
   it "watches an expression" do
-    eval "watch 1+1"
-    expect(eval('watch')).to match(/=> 2/)
+    watch_eval 'watch 1+1'
+    expect(watch_eval('watch')).to match(/=> 2/)
   end
 
   it "watches a local variable" do
-    eval 'foo = :bar'
-    eval 'watch foo'
-    expect(eval('watch')).to match(/=> :bar/)
+    watch_eval('foo = :bar')
+    watch_eval('watch foo')
+    expect(watch_eval('watch')).to match(/=> :bar/)
   end
 
   it "prints when an expression changes" do
@@ -100,17 +101,17 @@ describe "watch expression" do
 
   describe "deleting expressions" do
     before do
-      eval 'watch :keeper'
-      eval 'watch :delete'
-      eval 'watch -d 2'
+      watch_eval('watch :keeper')
+      watch_eval('watch :delete')
+      watch_eval('watch -d 2')
     end
 
     it "keeps keeper" do
-      expect(eval('watch')).to match(/keeper/)
+      expect(watch_eval('watch')).to match(/keeper/)
     end
 
     it "deletes delete" do
-      expect(eval('watch')).not_to match(/delete/)
+      expect(watch_eval('watch')).not_to match(/delete/)
     end
   end
 end

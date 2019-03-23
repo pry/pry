@@ -115,8 +115,12 @@ class Pry
           receiver = Regexp.last_match(1)
           message = Regexp.quote(Regexp.last_match(2))
           begin
-            candidates = eval("#{receiver}.constants.collect(&:to_s)", bind)
-            candidates |= eval("#{receiver}.methods.collect(&:to_s)", bind)
+            candidates = eval(
+              "#{receiver}.constants.collect(&:to_s)", bind, __FILE__, __LINE__
+            )
+            candidates |= eval(
+              "#{receiver}.methods.collect(&:to_s)", bind, __FILE__, __LINE__
+            )
           rescue Pry::RescuableException
             candidates = []
           end
@@ -153,15 +157,17 @@ class Pry
           receiver = Regexp.last_match(1)
           message = Regexp.quote(Regexp.last_match(2))
 
-          gv = eval("global_variables", bind).collect(&:to_s)
-          lv = eval("local_variables", bind).collect(&:to_s)
-          cv = eval("self.class.constants", bind).collect(&:to_s)
+          gv = eval("global_variables", bind, __FILE__, __LINE__).collect(&:to_s)
+          lv = eval("local_variables", bind, __FILE__, __LINE__).collect(&:to_s)
+          cv = eval("self.class.constants", bind, __FILE__, __LINE__).collect(&:to_s)
 
           if (gv | lv | cv).include?(receiver) || /^[A-Z]/ =~ receiver && /\./ !~ receiver
             # foo.func and foo is local var. OR
             # Foo::Bar.func
             begin
-              candidates = eval("#{receiver}.methods", bind).collect(&:to_s)
+              candidates = eval(
+                "#{receiver}.methods", bind, __FILE__, __LINE__
+              ).collect(&:to_s)
             rescue Pry::RescuableException
               candidates = []
             end
@@ -195,11 +201,13 @@ class Pry
           candidates = eval(
             "methods | private_methods | local_variables | " \
             "self.class.constants | instance_variables",
-            bind
+            bind, __FILE__, __LINE__ - 2
           ).collect(&:to_s)
 
-          if eval("respond_to?(:class_variables)", bind)
-            candidates += eval("class_variables", bind).collect(&:to_s)
+          if eval("respond_to?(:class_variables)", bind, __FILE__, __LINE__)
+            candidates += eval(
+              "class_variables", bind, __FILE__, __LINE__
+            ).collect(&:to_s)
           end
           candidates =
             (candidates | ReservedWords | custom_completions)
