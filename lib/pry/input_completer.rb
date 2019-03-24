@@ -15,7 +15,7 @@ class Pry
     GLOBALVARIABLE_REGEXP = /^(\$[^.]*)$/.freeze
     VARIABLE_REGEXP = /^([^."].*)\.([^.]*)$/.freeze
 
-    ReservedWords = %w[
+    RESERVED_WORDS = %w[
       BEGIN END
       alias and
       begin break
@@ -214,7 +214,7 @@ class Pry
             ).collect(&:to_s)
           end
           candidates =
-            (candidates | ReservedWords | custom_completions)
+            (candidates | RESERVED_WORDS | custom_completions)
               .grep(/^#{Regexp.quote(input)}/)
           candidates.collect(&path)
         end

@@ -89,12 +89,12 @@ class Pry
                       '.instance_method(::Kernel.__method__).bind(self)'
                 new(binding.eval(str))
               end
-            rescue NameError, NoMethodError
+            rescue NameError, NoMethodError # rubocop:disable Lint/ShadowedException
               Disowned.new(binding.eval('self'), meth_name.to_s)
             end
 
           if WeirdMethodLocator.weird_method?(method, binding)
-            WeirdMethodLocator.new(method, binding).get_method || method
+            WeirdMethodLocator.new(method, binding).find_method || method
           else
             method
           end
@@ -474,12 +474,10 @@ class Pry
     end
 
     # @return [Boolean]
-    def ==(obj)
-      if obj.is_a? Pry::Method
-        obj == @method
-      else
-        @method == obj
-      end
+    def ==(other)
+      return other == @method if other.is_a?(Pry::Method)
+
+      @method == other
     end
 
     # @param [Class] klass

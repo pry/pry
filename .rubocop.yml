@@ -65,3 +65,6 @@ Style/Documentation:
 Style/CommentedKeyword:
   Exclude:
     - 'spec/fixtures/example_nesting.rb'
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false

@@ -6,24 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Configuration parameters: Include.
-# Include: **/*.gemspec
-Gemspec/RequiredRubyVersion:
-  Exclude:
-    - 'pry.gemspec'
-
-# Offense count: 1
-Lint/ShadowedException:
-  Exclude:
-    - 'lib/pry/method.rb'
-
-# Offense count: 1
-# Configuration parameters: CheckForMethodsWithNoSideEffects.
-Lint/Void:
-  Exclude:
-    - 'lib/pry/helpers/table.rb'
-
 # Offense count: 88
 Metrics/AbcSize:
   Max: 48
@@ -61,26 +43,3 @@ Metrics/ParameterLists:
 # Offense count: 29
 Metrics/PerceivedComplexity:
   Max: 25
-
-# Offense count: 1
-Naming/AccessorMethodName:
-  Exclude:
-    - 'lib/pry/method/weird_method_locator.rb'
-
-# Offense count: 1
-Naming/BinaryOperatorParameterName:
-  Exclude:
-    - 'lib/pry/method.rb'
-
-# Offense count: 5
-Naming/ConstantName:
-  Exclude:
-    - 'lib/pry/input_completer.rb'
-    - 'spec/completion_spec.rb'
-
-# Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: lowercase, uppercase
-Naming/HeredocDelimiterCase:
-  Exclude:
-    - 'spec/helpers/table_spec.rb'
