@@ -33,17 +33,17 @@ describe 'Formatting Table' do
     end
 
     it 'should handle a tiny case' do
-      try_round_trip(<<-eot)
+      try_round_trip(<<-TABLE)
 asdf  asfddd  fdass
-      eot
+      TABLE
     end
 
     it 'should handle the basic case' do
-      try_round_trip(<<-eot)
+      try_round_trip(<<-TABLE)
 aadd            ddasffssdad  sdsaadaasd      ssfasaafssd
 adassdfffaasds  f            sdsfasddasfds   ssssdaa
 assfsafsfsds    fsasa        ssdsssafsdasdf
-      eot
+      TABLE
     end
 
     it 'should handle... another basic case' do

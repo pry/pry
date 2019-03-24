@@ -77,10 +77,3 @@ Naming/ConstantName:
   Exclude:
     - 'lib/pry/input_completer.rb'
     - 'spec/completion_spec.rb'
-
-# Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: lowercase, uppercase
-Naming/HeredocDelimiterCase:
-  Exclude:
-    - 'spec/helpers/table_spec.rb'
