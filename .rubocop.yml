@@ -68,3 +68,6 @@ Style/CommentedKeyword:
 
 Gemspec/RequiredRubyVersion:
   Enabled: false
+
+Style/ModuleFunction:
+  Enabled: false
