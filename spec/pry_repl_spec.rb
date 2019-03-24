@@ -128,11 +128,11 @@ describe Pry::REPL do
         def output.tty?
           true
         end
-        input <<EOS
+        input <<TAB
 loop do
 	break #note the tab here
 end
-EOS
+TAB
         output("do\n  break #note the tab here\nend\n\e[1B\e[0G=> nil")
       end
     end

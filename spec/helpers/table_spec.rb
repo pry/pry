@@ -47,7 +47,7 @@ assfsafsfsds    fsasa        ssdsssafsdasdf
     end
 
     it 'should handle... another basic case' do
-      try_round_trip(<<-EOT)
+      try_round_trip(<<-TABLE)
 aaad            dasaasffaasf    fdasfdfss       safdfdddsasd
 aaadfasassdfff  ddadadassasdf   fddsasadfssdss  sasf
 aaddaafaf       dddasaaaaaa     fdsasad         sddsa
@@ -56,14 +56,14 @@ adasadfaaffds   dsfafdsfdfssda  ffadsfafsaafa   ss
 asddaadaaadfdd  dssdss          ffssfsfafaadss  ssas
 asdsdaa         faadf           fsddfff         ssdfssff
 asfadsssaaad    fasfaafdssd     s
-      EOT
+      TABLE
     end
 
     it 'should handle colors' do
-      try_round_trip(<<-EOT)
+      try_round_trip(<<-TABLE)
 \e[31maaaaaaaaaa\e[0m                      \e[31mccccccccccccccccccccccccccccc\e[0m
 \e[31mbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\e[0m  \e[31mddddddddddddd\e[0m
-      EOT
+      TABLE
     end
 
     it 'should handle empty input' do

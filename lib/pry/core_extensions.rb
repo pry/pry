@@ -124,7 +124,7 @@ class BasicObject
     # BasicObjects don't have respond_to?, so we just define the method
     # every time. As they also don't have `.freeze`, this call won't
     # fail as it can for normal Objects.
-    (class << self; self; end).class_eval <<-EOF, __FILE__, __LINE__ + 1
+    (class << self; self; end).class_eval(<<-METHOD, __FILE__, __LINE__ + 1)
       # Get a binding with 'self' set to self, and no locals.
       #
       # The default definee is determined by the context in which the
@@ -136,7 +136,7 @@ class BasicObject
       def __pry__
         ::Kernel.binding
       end
-    EOF
+    METHOD
     __pry__
   end
 end

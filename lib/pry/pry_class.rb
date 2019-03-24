@@ -325,11 +325,11 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     end
 
     if Readline::VERSION =~ /edit/i
-      warn <<-EOT
+      warn(<<-WARN)
 Readline version #{Readline::VERSION} detected - will not auto_resize! correctly.
   For the fix, use GNU Readline instead:
   https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X
-      EOT
+      WARN
       return
     end
 

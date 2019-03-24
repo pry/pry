@@ -80,9 +80,9 @@ describe "whereami" do
   ) do
     class Cor
       def blimey!
-        eval <<-END, binding, "spec/fixtures/example.erb", 1
+        eval(<<-WHEREAMI, binding, 'spec/fixtures/example.erb', 1)
           pry_eval(binding, 'whereami')
-        END
+        WHEREAMI
       end
     end
 
@@ -96,11 +96,11 @@ describe "whereami" do
     'would raise an error'
   ) do
     class Cor
-      eval <<-END, binding, "spec/fixtures/example.erb", 1
+      eval <<-WHEREAMI, binding, "spec/fixtures/example.erb", 1
         def blimey!
           pry_eval(binding, 'whereami')
         end
-      END
+      WHEREAMI
     end
 
     expect { Cor.instance_method(:blimey!).source }

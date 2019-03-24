@@ -22,7 +22,7 @@ class Pry
         meth = method_object
         aliases = meth.aliases
 
-        output.puts unindent <<-EOS
+        output.puts(unindent(<<-OUTPUT))
           Method Information:
           --
           Name: #{meth.name}
@@ -33,7 +33,7 @@ class Pry
           Arity: #{meth.arity}
           Method Signature: #{meth.signature}
           Source Location: #{meth.source_location ? meth.source_location.join(':') : 'Not found.'}
-        EOS
+        OUTPUT
       end
     end
 

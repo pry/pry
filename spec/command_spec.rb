@@ -422,11 +422,11 @@ describe "Pry::Command" do
     end
 
     it 'should accept multiline blocks' do
-      @t.eval <<-EOS
+      @t.eval <<-COMMAND
         walking-spanish | do
           :jesus
         end
-      EOS
+      COMMAND
 
       expect(@context.instance_variable_get(:@x)).to eq :jesus
     end
@@ -595,11 +595,11 @@ describe "Pry::Command" do
             end
           end
 
-          @t.eval <<-EOS
+          @t.eval <<-COMMAND
             walking-spanish | do |x, y|
               [x, y]
             end
-          EOS
+          COMMAND
 
           expect(@context.instance_variable_get(:@x)).to eq [1, 2]
         end

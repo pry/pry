@@ -85,23 +85,6 @@ Naming/HeredocDelimiterCase:
   Exclude:
     - 'spec/helpers/table_spec.rb'
 
-# Offense count: 16
-# Configuration parameters: Blacklist.
-# Blacklist: (?-mix:(^|\s)(EO[A-Z]{1}|END)(\s|$))
-Naming/HeredocDelimiterNaming:
-  Exclude:
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/stat.rb'
-    - 'lib/pry/core_extensions.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/cat_spec.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/commands/whereami_spec.rb'
-    - 'spec/helpers/table_spec.rb'
-    - 'spec/pry_repl_spec.rb'
-
 # Offense count: 25
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db
