@@ -94,7 +94,7 @@ class Pry
             end
 
           if WeirdMethodLocator.weird_method?(method, binding)
-            WeirdMethodLocator.new(method, binding).get_method || method
+            WeirdMethodLocator.new(method, binding).find_method || method
           else
             method
           end
@@ -475,7 +475,7 @@ class Pry
 
     # @return [Boolean]
     def ==(other)
-      return @method == other if other.is_a?(Pry::Method)
+      return other == @method if other.is_a?(Pry::Method)
 
       @method == other
     end

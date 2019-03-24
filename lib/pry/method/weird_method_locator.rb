@@ -57,7 +57,7 @@ class Pry
 
       # @return [Pry::Method, nil] The Pry::Method that matches the
       #   given binding.
-      def get_method
+      def find_method
         find_method_in_superclass || find_renamed_method
       end
 
@@ -65,7 +65,7 @@ class Pry
       #   This usually happens when the method captured by the Binding
       #   has been subsequently deleted.
       def lost_method?
-        !!(get_method.nil? && renamed_method_source_location)
+        !!(find_method.nil? && renamed_method_source_location)
       end
 
       private
