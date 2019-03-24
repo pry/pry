@@ -35,7 +35,9 @@ task :profile do
 end
 
 def modify_base_gemspec
+  # rubocop:disable Security/Eval
   eval(File.read('pry.gemspec')).tap { |s| yield s }
+  # rubocop:enable Security/Eval
 end
 
 namespace :ruby do

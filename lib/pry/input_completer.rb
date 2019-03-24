@@ -115,10 +115,10 @@ class Pry
           receiver = Regexp.last_match(1)
           message = Regexp.quote(Regexp.last_match(2))
           begin
-            candidates = eval(
+            candidates = eval( # rubocop:disable Security/Eval
               "#{receiver}.constants.collect(&:to_s)", bind, __FILE__, __LINE__
             )
-            candidates |= eval(
+            candidates |= eval( # rubocop:disable Security/Eval
               "#{receiver}.methods.collect(&:to_s)", bind, __FILE__, __LINE__
             )
           rescue Pry::RescuableException
@@ -135,7 +135,9 @@ class Pry
           receiver = Regexp.last_match(1)
           message = Regexp.quote(Regexp.last_match(5))
           begin
+            # rubocop:disable Security/Eval
             candidates = eval(receiver, bind).methods.collect(&:to_s)
+            # rubocop:enable Security/Eval
           rescue Pry::RescuableException
             candidates = []
           end
@@ -145,7 +147,9 @@ class Pry
           receiver = Regexp.last_match(1)
           message = Regexp.quote(Regexp.last_match(2))
           begin
+            # rubocop:disable Security/Eval
             candidates = eval(receiver, bind).methods.collect(&:to_s)
+            # rubocop:enable Security/Eval
           rescue Pry::RescuableException
             candidates = []
           end
@@ -165,7 +169,7 @@ class Pry
             # foo.func and foo is local var. OR
             # Foo::Bar.func
             begin
-              candidates = eval(
+              candidates = eval( # rubocop:disable Security/Eval
                 "#{receiver}.methods", bind, __FILE__, __LINE__
               ).collect(&:to_s)
             rescue Pry::RescuableException

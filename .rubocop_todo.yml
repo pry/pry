@@ -114,13 +114,3 @@ Naming/MemoizedInstanceVariableName:
 # AllowedNames: io, id, to, by, on, in, at, ip, db
 Naming/UncommunicativeMethodParamName:
   Enabled: false
-
-# Offense count: 10
-Security/Eval:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/commands/show_info.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'spec/indent_spec.rb'
-    - 'spec/wrapped_module_spec.rb'
