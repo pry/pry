@@ -66,8 +66,3 @@ Metrics/PerceivedComplexity:
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/pry/method/weird_method_locator.rb'
-
-# Offense count: 1
-Naming/BinaryOperatorParameterName:
-  Exclude:
-    - 'lib/pry/method.rb'

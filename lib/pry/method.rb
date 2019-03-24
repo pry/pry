@@ -474,12 +474,10 @@ class Pry
     end
 
     # @return [Boolean]
-    def ==(obj)
-      if obj.is_a? Pry::Method
-        obj == @method
-      else
-        @method == obj
-      end
+    def ==(other)
+      return @method == other if other.is_a?(Pry::Method)
+
+      @method == other
     end
 
     # @param [Class] klass
