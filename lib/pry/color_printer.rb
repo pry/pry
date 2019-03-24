@@ -34,7 +34,7 @@ class Pry
     end
 
     def pp(obj)
-      if String === obj
+      if obj.is_a?(String)
         # Avoid calling Ruby 2.4+ String#pretty_print that prints multiline
         # Strings prettier
         text(obj.inspect)

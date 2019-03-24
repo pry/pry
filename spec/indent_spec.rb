@@ -315,7 +315,9 @@ OUTPUT
         end
       else
         it "should parse nesting on line #{i + 1} of example_nesting.rb" do
+          # rubocop:disable Security/Eval
           expect(Pry::Indent.nesting_at(test, i + 1)).to eq eval(result)
+          # rubocop:enable Security/Eval
         end
       end
     end

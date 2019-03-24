@@ -58,3 +58,10 @@ Bundler/OrderedGems:
 
 Style/DoubleNegation:
   Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/CommentedKeyword:
+  Exclude:
+    - 'spec/fixtures/example_nesting.rb'

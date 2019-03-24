@@ -78,7 +78,7 @@ class Pry
         else
           method =
             begin
-              if Object === b.eval('self')
+              if Object === b.eval('self') # rubocop:disable Style/CaseEquality
                 new(Kernel.instance_method(:method).bind(b.eval("self")).call(meth_name))
               else
                 str = 'class << self; self; end' \
@@ -183,7 +183,7 @@ class Pry
       # @param [Object] obj
       # @return [Array[Class, Module]]
       def resolution_order(obj)
-        if Class === obj
+        if Class === obj # rubocop:disable Style/CaseEquality
           singleton_class_resolution_order(obj) + instance_resolution_order(Class)
         else
           klass = begin
@@ -405,7 +405,7 @@ class Pry
     # @return [Pry::Method, nil] The wrapped method that is called when you
     #   use "super" in the body of this method.
     def super(times = 1)
-      if UnboundMethod === @method
+      if @method.is_a?(UnboundMethod)
         sup = super_using_ancestors(Pry::Method.instance_resolution_order(owner), times)
       else
         sup = super_using_ancestors(Pry::Method.resolution_order(receiver), times)

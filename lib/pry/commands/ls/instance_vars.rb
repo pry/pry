@@ -16,7 +16,7 @@ class Pry
         end
 
         def output_self
-          ivars = if Object === @interrogatee
+          ivars = if Object === @interrogatee # rubocop:disable Style/CaseEquality
                     Pry::Method.safe_send(@interrogatee, :instance_variables)
                   else
                     [] # TODO: BasicObject support

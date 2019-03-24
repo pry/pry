@@ -54,7 +54,7 @@ class Pry
                  end
                 color(:exception_constant, name)
               elsif begin
-                      Module === mod.const_get(name)
+                      mod.const_get(name).is_a?(Module)
                     rescue StandardError
                       false
                     end

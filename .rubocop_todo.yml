@@ -85,55 +85,8 @@ Naming/HeredocDelimiterCase:
   Exclude:
     - 'spec/helpers/table_spec.rb'
 
-# Offense count: 16
-# Configuration parameters: Blacklist.
-# Blacklist: (?-mix:(^|\s)(EO[A-Z]{1}|END)(\s|$))
-Naming/HeredocDelimiterNaming:
-  Exclude:
-    - 'lib/pry/commands/easter_eggs.rb'
-    - 'lib/pry/commands/stat.rb'
-    - 'lib/pry/core_extensions.rb'
-    - 'lib/pry/pry_class.rb'
-    - 'spec/command_spec.rb'
-    - 'spec/commands/cat_spec.rb'
-    - 'spec/commands/edit_spec.rb'
-    - 'spec/commands/show_source_spec.rb'
-    - 'spec/commands/whereami_spec.rb'
-    - 'spec/helpers/table_spec.rb'
-    - 'spec/pry_repl_spec.rb'
-
-# Offense count: 1
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/pry/wrapped_module/candidate.rb'
-
 # Offense count: 25
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db
 Naming/UncommunicativeMethodParamName:
-  Enabled: false
-
-# Offense count: 10
-Security/Eval:
-  Exclude:
-    - 'Rakefile'
-    - 'lib/pry/cli.rb'
-    - 'lib/pry/commands/show_info.rb'
-    - 'lib/pry/input_completer.rb'
-    - 'spec/indent_spec.rb'
-    - 'spec/wrapped_module_spec.rb'
-
-# Offense count: 39
-Style/CaseEquality:
-  Enabled: false
-
-# Offense count: 27
-Style/CommentedKeyword:
-  Exclude:
-    - 'spec/fixtures/example_nesting.rb'
-
-# Offense count: 138
-Style/Documentation:
   Enabled: false

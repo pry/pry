@@ -101,7 +101,7 @@ class Pry
         # create the actual context
         if opts[:context]
           Pry.initial_session_setup
-          context = Pry.binding_for(eval(opts[:context]))
+          context = Pry.binding_for(eval(opts[:context])) # rubocop:disable Security/Eval
           Pry.final_session_setup
         else
           context = Pry.toplevel_binding

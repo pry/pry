@@ -9,7 +9,7 @@ describe Pry::WrappedModule do
     class Host
       %w[spec/fixtures/candidate_helper1.rb
          spec/fixtures/candidate_helper2.rb].each do |file|
-        binding.eval File.read(file), file, 1
+        binding.eval(File.read(file), file, 1) # rubocop:disable Security/Eval
       end
 
       # rank 2

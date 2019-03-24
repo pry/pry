@@ -325,7 +325,7 @@ describe "show-source" do
 
     describe "on variables that shadow methods" do
       before do
-        @t = pry_tester.eval unindent(<<-EOS)
+        @t = pry_tester.eval(unindent(<<-SHADOWED_VAR))
           class ::TestHost
             def hello
               hello = proc { ' smile ' }
@@ -334,7 +334,7 @@ describe "show-source" do
             end
           end
           ::TestHost.new.hello
-        EOS
+        SHADOWED_VAR
       end
 
       after do
@@ -456,7 +456,7 @@ describe "show-source" do
     end
 
     before do
-      pry_eval unindent(<<-EOS)
+      pry_eval(unindent(<<-CLASSES))
         class Dog
           def woof
           end
@@ -466,7 +466,7 @@ describe "show-source" do
           def woof
           end
         end
-      EOS
+      CLASSES
     end
 
     after do

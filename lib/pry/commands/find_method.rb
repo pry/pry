@@ -116,7 +116,7 @@ class Pry
       # @yieldparam klass Each class/module in the namespace.
       #
       def recurse_namespace(klass, done = {}, &block)
-        return if !(Module === klass) || done[klass]
+        return if !klass.is_a?(Module) || done[klass]
 
         done[klass] = true
 

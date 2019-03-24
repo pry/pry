@@ -58,12 +58,12 @@ describe "cat" do
       @t.insert_nil_input # normally happens when a command is executed
       @t.eval ':hello'
 
-      expect(@t.eval('cat --in 1..3')).to eq unindent(<<-EOS)
+      expect(@t.eval('cat --in 1..3')).to eq(unindent(<<-RANGE))
         1:
           10
         3:
           :hello
-      EOS
+      RANGE
     end
   end
 
@@ -78,13 +78,13 @@ describe "cat" do
     end
 
     it 'cat --ex should display repl code that generated exception' do
-      @t.eval unindent(<<-EOS)
+      @t.eval(unindent(<<-LAST_EXCEPTION))
         begin
           this raises error
         rescue => e
           pry_instance.last_exception = e
         end
-      EOS
+      LAST_EXCEPTION
       expect(@t.eval('cat --ex')).to match(/\d+:(\s*) this raises error/)
     end
 

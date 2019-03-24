@@ -476,7 +476,7 @@ describe "edit" do
         Object.remove_const :X if defined? ::X
         Object.remove_const :A if defined? ::A
         @tempfile = Tempfile.new(['pry', '.rb'])
-        @tempfile.puts <<-EOS
+        @tempfile.puts(<<-CLASSES)
         module A
           def a
             :yup
@@ -516,7 +516,7 @@ describe "edit" do
             end
           end
         end
-        EOS
+        CLASSES
         @tempfile.flush
         load @tempfile.path
 

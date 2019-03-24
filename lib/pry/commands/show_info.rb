@@ -212,11 +212,14 @@ class Pry
         if input =~ /([^ ]*)#([a-z0-9_]*)\z/
           prefix = Regexp.last_match(1)
           search = Regexp.last_match(2)
-          methods = begin
-                      Pry::Method.all_from_class(binding.eval(prefix))
-                    rescue RescuableException
-                      return super
-                    end
+          methods =
+            begin
+              # rubocop:disable Security/Eval
+              Pry::Method.all_from_class(binding.eval(prefix))
+              # rubocop:enable Security/Eval
+            rescue RescuableException
+              return super
+            end
           methods.map do |method|
             [prefix, method.name].join('#') if method.name.start_with?(search)
           end.compact

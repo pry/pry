@@ -164,7 +164,7 @@ class Pry
   #   The value the local was set to.
   #
   def inject_local(name, value, b)
-    value = Proc === value ? value.call : value
+    value = value.is_a?(Proc) ? value.call : value
     if b.respond_to?(:local_variable_set)
       b.local_variable_set name, value
     else # < 2.1
@@ -664,7 +664,7 @@ class Pry
                   raise ArgumentError, "wrong number of arguments"
                 elsif !args.first.respond_to?(:exception)
                   raise TypeError, "exception class/object expected"
-                elsif args.length === 1
+                elsif args.size == 1
                   args.first.exception
                 else
                   args.first.exception(args[1])
@@ -672,7 +672,7 @@ class Pry
 
     raise TypeError, "exception object expected" unless exception.is_a? Exception
 
-    exception.set_backtrace(args.length === 3 ? args[2] : caller(1))
+    exception.set_backtrace(args.size == 3 ? args[2] : caller(1))
 
     if force || binding_stack.one?
       binding_stack.clear

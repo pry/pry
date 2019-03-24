@@ -146,7 +146,7 @@ class Pry
         if in_string?
           tokens = tokenize("#{open_delimiters_line}\n#{line}")
           tokens = tokens.drop_while do |token, _type|
-            !(String === token && token.include?("\n"))
+            !(token.is_a?(String) && token.include?("\n"))
           end
           previously_in_string = true
         else

@@ -82,14 +82,14 @@ class Pry
       prev_color = pry_instance.config.color
       pry_instance.config.color = true
 
-      picture = unindent <<-'EOS'.gsub(/[[:alpha:]!]/) { |s| red(s) }
+      picture = unindent <<-'OUTPUT'.gsub(/[[:alpha:]!]/) { |s| red(s) }
          ____      _______________________
         /    \    |  A         W     G    |
        / O  O \   |   N    I    O   N !   |
       |        |  |    S    S    R I   !  |
        \ \__/ / __|     I         K     ! |
         \____/   \________________________|
-      EOS
+      OUTPUT
 
       move_up =
         if Helpers::Platform.windows_ansi?

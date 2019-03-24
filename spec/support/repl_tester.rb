@@ -70,13 +70,13 @@ class ReplTester
 
   # Assert that the current prompt matches the given string or regex.
   def prompt(match)
-    match.should === last_prompt
+    match.should === last_prompt # rubocop:disable Style/CaseEquality
   end
 
   # Assert that the most recent output (since the last time input was called)
   # matches the given string or regex.
   def output(match)
-    match.should === @pry.output.string.chomp
+    match.should === @pry.output.string.chomp # rubocop:disable Style/CaseEquality
   end
 
   # Assert that the Pry session ended naturally after the last input.

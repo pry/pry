@@ -98,10 +98,10 @@ class Pry
         def from_hash(attributes, default = nil)
           new(default).tap do |config|
             attributes.each do |key, value|
-              config[key] = if Hash === value
+              config[key] = if value.is_a?(Hash)
                               from_hash(value)
-                            elsif Array === value
-                              value.map { |v| Hash === v ? from_hash(v) : v }
+                            elsif value.is_a?(Array)
+                              value.map { |v| v.is_a?(Hash) ? from_hash(v) : v }
                             else
                               value
                             end
@@ -149,7 +149,7 @@ class Pry
       def [](key)
         key = key.to_s
         obj = key?(key) ? @lookup[key] : (@default && @default[key])
-        Pry::Config::Lazy === obj ? obj.call : obj
+        obj.is_a?(Pry::Config::Lazy) ? obj.call : obj
       end
 
       #
@@ -344,7 +344,7 @@ class Pry
       end
 
       def __try_convert_to_hash(obj)
-        if Hash === obj
+        if obj.is_a?(Hash)
           obj
         elsif obj.respond_to?(:to_h)
           obj.to_h
@@ -354,7 +354,7 @@ class Pry
       end
 
       def __dup(value)
-        if NODUP.any? { |klass| klass === value }
+        if NODUP.any? { |klass| value.is_a?(klass) }
           value
         else
           value.dup
