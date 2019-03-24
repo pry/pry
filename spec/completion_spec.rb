@@ -99,16 +99,16 @@ describe Pry::InputCompleter do
 
     # Constant
     module Mod
-      remove_const :Con if defined? Con
-      Con = 'Constant'.freeze
+      remove_const :CON if defined? CON
+      CON = 'Constant'.freeze
       module Mod2
       end
     end
 
-    completer_test(Mod).call('Con')
+    completer_test(Mod).call('CON')
 
     # Constants or Class Methods
-    completer_test(o).call('Mod::Con')
+    completer_test(o).call('Mod::CON')
 
     # Symbol
     _foo = :symbol
@@ -132,10 +132,10 @@ describe Pry::InputCompleter do
     end
 
     module Baz
-      remove_const :Con if defined? Con
+      remove_const :CON if defined? CON
       @bar = Bar
       @bazvar = :baz
-      Con = :constant
+      CON = :constant
     end
 
     pry = Pry.new(target: Baz)
@@ -143,7 +143,7 @@ describe Pry::InputCompleter do
 
     b = Pry.binding_for(Bar)
     completer_test(b, pry).call("../@bazvar")
-    completer_test(b, pry).call('/Con')
+    completer_test(b, pry).call('/CON')
   end
 
   it 'should complete for stdlib symbols' do
@@ -172,16 +172,16 @@ describe Pry::InputCompleter do
 
     # Constant
     module Mod
-      remove_const :Con if defined? Con
-      Con = 'Constant'.freeze
+      remove_const :CON if defined? CON
+      CON = 'Constant'.freeze
       module Mod2
       end
     end
 
-    completer_test(Mod).call('Con')
+    completer_test(Mod).call('CON')
 
     # Constants or Class Methods
-    completer_test(o).call('Mod::Con')
+    completer_test(o).call('Mod::CON')
 
     # Symbol
     _foo = :symbol
@@ -205,10 +205,10 @@ describe Pry::InputCompleter do
     end
 
     module Baz
-      remove_const :Con if defined? Con
+      remove_const :CON if defined? CON
       @bar = Bar
       @bazvar = :baz
-      Con = :constant
+      CON = :constant
     end
 
     pry = Pry.new(target: Baz)
@@ -216,7 +216,7 @@ describe Pry::InputCompleter do
 
     b = Pry.binding_for(Bar)
     completer_test(b, pry).call("../@bazvar")
-    completer_test(b, pry).call('/Con')
+    completer_test(b, pry).call('/CON')
   end
 
   it 'should not return nil in its output' do

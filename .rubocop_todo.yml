@@ -71,9 +71,3 @@ Naming/AccessorMethodName:
 Naming/BinaryOperatorParameterName:
   Exclude:
     - 'lib/pry/method.rb'
-
-# Offense count: 5
-Naming/ConstantName:
-  Exclude:
-    - 'lib/pry/input_completer.rb'
-    - 'spec/completion_spec.rb'
