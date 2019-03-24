@@ -124,7 +124,3 @@ Security/Eval:
     - 'lib/pry/input_completer.rb'
     - 'spec/indent_spec.rb'
     - 'spec/wrapped_module_spec.rb'
-
-# Offense count: 39
-Style/CaseEquality:
-  Enabled: false

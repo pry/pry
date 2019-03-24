@@ -52,7 +52,7 @@ class Pry
     # @raise [ArgumentError] if the argument is not a `Module`
     # @param [Module] mod
     def initialize(mod)
-      unless ::Module === mod
+      unless mod.is_a?(Module)
         raise ArgumentError, "Tried to initialize a WrappedModule with a " \
                              "non-module #{mod.inspect}"
       end
@@ -82,7 +82,7 @@ class Pry
     # @return String
     def method_prefix
       if singleton_class?
-        if Module === singleton_instance
+        if Module === singleton_instance # rubocop:disable Style/CaseEquality
           "#{WrappedModule.new(singleton_instance).nonblank_name}."
         else
           "self."
@@ -355,7 +355,7 @@ class Pry
       return if safe_send(parent, :autoload?, name)
 
       child = safe_send(parent, :const_get, name)
-      return unless Module === child
+      return unless child.is_a?(Module)
       return unless safe_send(child, :name) == "#{safe_send(parent, :name)}::#{name}"
 
       child

@@ -28,7 +28,7 @@ class Pry
 
         # Will only show the first line of the backtrace
         exception_handler: proc do |output, exception, _|
-          if UserError === exception && SyntaxError === exception
+          if exception.is_a?(UserError) && exception.is_a?(SyntaxError)
             output.puts "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
           else
             output.puts "#{exception.class}: #{exception.message}"

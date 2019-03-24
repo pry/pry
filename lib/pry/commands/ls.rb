@@ -103,7 +103,9 @@ class Pry
 
       def error_list
         any_args = args.any?
+        # rubocop:disable Style/CaseEquality
         non_mod_interrogatee = !(Module === @interrogatee)
+        # rubocop:enable Style/CaseEquality
         [
           ['-l does not make sense with a specified Object', :locals, any_args],
           ['-g does not make sense with a specified Object', :globals, any_args],

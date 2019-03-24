@@ -39,7 +39,7 @@ class Object
   #   my_method()
   # @see Pry.start
   def pry(object = nil, hash = {})
-    if object.nil? || Hash === object
+    if object.nil? || Hash === object # rubocop:disable Style/CaseEquality
       Pry.start(self, object || {})
     else
       Pry.start(object, hash)

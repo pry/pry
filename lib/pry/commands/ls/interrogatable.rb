@@ -5,7 +5,7 @@ class Pry
         private
 
         def interrogating_a_module?
-          Module === @interrogatee
+          Module === @interrogatee # rubocop:disable Style/CaseEquality
         end
 
         def interrogatee_mod

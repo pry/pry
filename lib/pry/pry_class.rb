@@ -247,8 +247,11 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       # https://github.com/jruby/jruby/commit/d365ebd309cf9df3dde28f5eb36ea97056e0c039
       # we can drop in the future.
       obj.to_s
+      # rubocop:disable Style/CaseEquality
     elsif Pry.config.prompt_safe_contexts.any? { |v| v === obj } &&
           obj.inspect.length <= max
+      # rubocop:enable Style/CaseEquality
+
       obj.inspect
     elsif id
       format("#<#{obj.class}:0x%<id>x>", id: obj.object_id << 1)
@@ -369,7 +372,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   # @param [Object] target The object to get a `Binding` object for.
   # @return [Binding] The `Binding` object.
   def self.binding_for(target)
-    return target if Binding === target
+    return target if Binding === target # rubocop:disable Style/CaseEquality
     return TOPLEVEL_BINDING if Pry.main == target
 
     target.__binding__

@@ -19,10 +19,9 @@ RSpec.describe Pry::Config do
     end
 
     it "recursively walks an Array" do
-      c = described_class.from_hash(ary: [{ number: 2 }, Object, BasicObject.new])
+      c = described_class.from_hash(ary: [{ number: 2 }, Object])
       expect(c.ary[0].number).to eq(2)
       expect(c.ary[1]).to eq(Object)
-      expect(BasicObject === c.ary[2]).to be(true)
     end
   end
 
@@ -274,13 +273,6 @@ RSpec.describe Pry::Config do
       it "invokes #call upon each access" do
         c = described_class.from_hash foo: Pry.lazy { 'foo' }
         expect(c['foo']).to_not equal(c['foo'])
-      end
-    end
-
-    context "when returning an instance of BasicObject" do
-      it "returns without raising an error" do
-        c = described_class.from_hash(foo: BasicObject.new)
-        expect(BasicObject === c['foo']).to be(true)
       end
     end
   end

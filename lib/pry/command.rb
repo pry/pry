@@ -86,7 +86,7 @@ class Pry
           argument_required: false,
           interpolate: true,
           shellwords: true,
-          listing: (String === match ? match : match.inspect),
+          listing: (match.is_a?(String) ? match : match.inspect),
           use_prefix: true,
           takes_block: false
         }

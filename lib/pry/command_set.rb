@@ -325,7 +325,7 @@ class Pry
         return
       end
 
-      unless Class === command && command < Pry::Command
+      unless command.is_a?(Class) && command < Pry::Command
         raise TypeError, "command is not a subclass of Pry::Command"
       end
 
@@ -397,7 +397,7 @@ class Pry
         command.new(context).complete(search)
       else
         keys = @commands.keys.select do |key|
-          String === key && key.start_with?(search)
+          key.is_a?(String) && key.start_with?(search)
         end
         keys.map { |key| key + " " }
       end
