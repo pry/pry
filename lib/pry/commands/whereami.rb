@@ -180,14 +180,11 @@ class Pry
           @method.source_range.include?(@line)
       end
 
-      def expand_path(f)
-        return unless f
+      def expand_path(filename)
+        return unless filename
+        return filename if Pry.eval_path == filename
 
-        if Pry.eval_path == f
-          f
-        else
-          File.expand_path(f)
-        end
+        File.expand_path(filename)
       end
 
       def window_size

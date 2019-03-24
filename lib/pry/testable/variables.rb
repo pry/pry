@@ -34,14 +34,14 @@ class Pry
       # @param [String] value
       #   Its value.
       #
-      # @param [Binding] b
+      # @param [Binding] binding
       #   The binding object to insert a variable into.
       #
       # @return [void]
       #
-      def insert_variable(name, value, b)
+      def insert_variable(name, value, binding)
         Pry.current[:pry_local] = value
-        b.eval("#{name} = ::Pry.current[:pry_local]")
+        binding.eval("#{name} = ::Pry.current[:pry_local]")
       ensure
         Pry.current[:pry_local] = nil
       end

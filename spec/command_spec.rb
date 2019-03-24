@@ -543,7 +543,7 @@ describe "Pry::Command" do
             @set.create_command(
               "walking-spanish", "punk sanders carved one out of wood", takes_block: true
             ) do
-              def process(x, y)
+              def process(x, y) # rubocop:disable Naming/UncommunicativeMethodParamName
                 insert_variable(:@x, x, target)
                 insert_variable(:@y, y, target)
               end
@@ -559,7 +559,7 @@ describe "Pry::Command" do
             "doesn't remove block-related content from arguments if :takes_block => false"
           ) do
             @set.create_command "walking-spanish", "down the hall", takes_block: false do
-              def process(x, y)
+              def process(x, y) # rubocop:disable Naming/UncommunicativeMethodParamName
                 insert_variable(:@x, x, target)
                 insert_variable(:@y, y, target)
               end

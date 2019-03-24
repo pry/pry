@@ -170,12 +170,10 @@ class Pry
         raise CommandError, "Cannot locate: #{name}!"
       end
 
-      def convert_to_range(n)
-        if !n.is_a?(Range)
-          (n..n)
-        else
-          n
-        end
+      def convert_to_range(range)
+        return range if range.is_a?(Range)
+
+        (range..range)
       end
     end
   end

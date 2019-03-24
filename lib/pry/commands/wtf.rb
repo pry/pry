@@ -54,8 +54,8 @@ class Pry
         pry_instance.last_exception
       end
 
-      def with_line_numbers(bt)
-        Pry::Code.new(bt, 0, :text).with_line_numbers.to_s
+      def with_line_numbers(backtrace)
+        Pry::Code.new(backtrace, 0, :text).with_line_numbers.to_s
       end
 
       def backtrace

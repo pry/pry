@@ -1,8 +1,8 @@
 describe "wtf?!" do
   let(:tester) do
     pry_tester do
-      def last_exception=(ex)
-        @pry.last_exception = ex
+      def last_exception=(exception)
+        @pry.last_exception = exception
       end
 
       def last_exception
