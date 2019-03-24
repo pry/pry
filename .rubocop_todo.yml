@@ -84,9 +84,3 @@ Naming/ConstantName:
 Naming/HeredocDelimiterCase:
   Exclude:
     - 'spec/helpers/table_spec.rb'
-
-# Offense count: 25
-# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
-# AllowedNames: io, id, to, by, on, in, at, ip, db
-Naming/UncommunicativeMethodParamName:
-  Enabled: false

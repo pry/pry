@@ -41,8 +41,8 @@ class Pry
       end
     end
 
-    def respond_to_missing?(m, include_all = false)
-      @boxed_io.respond_to?(m, include_all)
+    def respond_to_missing?(method_name, include_private = false)
+      @boxed_io.respond_to?(method_name, include_private)
     end
 
     def decolorize_maybe(str)

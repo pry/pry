@@ -9,8 +9,8 @@ describe "cat" do
         @pry.update_input_history(nil)
       end
 
-      def last_exception=(e)
-        @pry.last_exception = e
+      def last_exception=(exception)
+        @pry.last_exception = exception
       end
     end
   end

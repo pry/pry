@@ -313,8 +313,8 @@ class Pry
         "#<#{__clip_inspect(self)} keys=[#{key_str}] default=#{@default.inspect}>"
       end
 
-      def pretty_print(q)
-        q.text inspect[1..-1].gsub(INSPECT_REGEXP, "default=<")
+      def pretty_print(queue)
+        queue.text(inspect[1..-1].gsub(INSPECT_REGEXP, "default=<"))
       end
 
       # rubocop:disable Style/MethodMissingSuper

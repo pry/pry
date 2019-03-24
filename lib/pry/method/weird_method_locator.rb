@@ -22,15 +22,15 @@ class Pry
         # must commence a search.
         #
         # @param [Pry::Method] method
-        # @param [Binding] b
+        # @param [Binding] binding
         # @return [Boolean]
-        def normal_method?(method, b)
+        def normal_method?(method, binding)
           if method && method.source_file && method.source_range
-            if b.respond_to?(:source_location)
-              binding_file, binding_line = b.source_location
+            if binding.respond_to?(:source_location)
+              binding_file, binding_line = binding.source_location
             else
-              binding_file = b.eval('__FILE__')
-              binding_line = b.eval('__LINE__')
+              binding_file = binding.eval('__FILE__')
+              binding_line = binding.eval('__LINE__')
             end
             (File.expand_path(method.source_file) == File.expand_path(binding_file)) &&
               method.source_range.include?(binding_line)
@@ -39,8 +39,8 @@ class Pry
           false
         end
 
-        def weird_method?(method, b)
-          !normal_method?(method, b)
+        def weird_method?(method, binding)
+          !normal_method?(method, binding)
         end
       end
 
@@ -162,13 +162,13 @@ class Pry
         alias_name && Pry::Method(target_self.method(alias_name))
       end
 
-      def expanded_source_location(sl)
-        return unless sl
+      def expanded_source_location(source_location)
+        return unless source_location
 
         if pry_file?
-          sl
+          source_location
         else
-          [File.expand_path(sl.first), sl.last]
+          [File.expand_path(source_location.first), source_location.last]
         end
       end
 

@@ -157,20 +157,20 @@ class Pry
   # @param [Object] value
   #   The value to set the local to.
   #
-  # @param [Binding] b
+  # @param [Binding] binding
   #   The binding to set the local on.
   #
   # @return [Object]
   #   The value the local was set to.
   #
-  def inject_local(name, value, b)
+  def inject_local(name, value, binding)
     value = value.is_a?(Proc) ? value.call : value
-    if b.respond_to?(:local_variable_set)
-      b.local_variable_set name, value
+    if binding.respond_to?(:local_variable_set)
+      binding.local_variable_set name, value
     else # < 2.1
       begin
         Pry.current[:pry_local] = value
-        b.eval "#{name} = ::Pry.current[:pry_local]"
+        binding.eval "#{name} = ::Pry.current[:pry_local]"
       ensure
         Pry.current[:pry_local] = nil
       end
@@ -498,15 +498,11 @@ class Pry
     self.last_result = result unless code =~ /\A\s*\z/
   end
 
-  #
   # Set the last exception for a session.
-  #
-  # @param [Exception] e
-  #   the last exception.
-  #
-  def last_exception=(e)
-    last_exception = Pry::LastException.new(e)
+  # @param [Exception] exception The last exception.
+  def last_exception=(exception)
     @last_result_is_exception = true
+    last_exception = Pry::LastException.new(exception)
     @output_ring << last_exception
     @last_exception = last_exception
   end

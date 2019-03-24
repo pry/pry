@@ -63,8 +63,8 @@ class Pry
         items
       end
 
-      def column_count=(n)
-        @column_count = n
+      def column_count=(count)
+        @column_count = count
         _recolumn
       end
 

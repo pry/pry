@@ -10,22 +10,22 @@ class Pry
   class LastException < BasicObject
     attr_accessor :bt_index
 
-    def initialize(e)
-      @e = e
+    def initialize(exception)
+      @exception = exception
       @bt_index = 0
       @file, @line = bt_source_location_for(0)
     end
 
     def method_missing(name, *args, &block)
-      if @e.respond_to?(name)
-        @e.public_send(name, *args, &block)
+      if @exception.respond_to?(name)
+        @exception.public_send(name, *args, &block)
       else
         super
       end
     end
 
     def respond_to_missing?(name, include_all = false)
-      @e.respond_to?(name, include_all)
+      @exception.respond_to?(name, include_all)
     end
 
     #
@@ -44,7 +44,7 @@ class Pry
     #   returns the wrapped exception
     #
     def wrapped_exception
-      @e
+      @exception
     end
 
     def bt_source_location_for(index)

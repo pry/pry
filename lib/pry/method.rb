@@ -68,29 +68,33 @@ class Pry
       # use it to instantiate a `Pry::Method`. Return `nil` if this isn't
       # possible.
       #
-      # @param [Binding] b
+      # @param [Binding] binding
       # @return [Pry::Method, nil]
       #
-      def from_binding(b)
-        meth_name = b.eval('::Kernel.__method__')
+      def from_binding(binding)
+        meth_name = binding.eval('::Kernel.__method__')
         if [:__script__, nil].include?(meth_name)
           nil
         else
           method =
             begin
-              if Object === b.eval('self') # rubocop:disable Style/CaseEquality
-                new(Kernel.instance_method(:method).bind(b.eval("self")).call(meth_name))
+              if Object === binding.eval('self') # rubocop:disable Style/CaseEquality
+                new(
+                  Kernel.instance_method(:method)
+                    .bind(binding.eval("self"))
+                    .call(meth_name)
+                )
               else
                 str = 'class << self; self; end' \
                       '.instance_method(::Kernel.__method__).bind(self)'
-                new(b.eval(str))
+                new(binding.eval(str))
               end
             rescue NameError, NoMethodError
-              Disowned.new(b.eval('self'), meth_name.to_s)
+              Disowned.new(binding.eval('self'), meth_name.to_s)
             end
 
-          if WeirdMethodLocator.weird_method?(method, b)
-            WeirdMethodLocator.new(method, b).get_method || method
+          if WeirdMethodLocator.weird_method?(method, binding)
+            WeirdMethodLocator.new(method, binding).get_method || method
           else
             method
           end
