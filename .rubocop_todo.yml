@@ -13,11 +13,6 @@ Gemspec/RequiredRubyVersion:
   Exclude:
     - 'pry.gemspec'
 
-# Offense count: 1
-Lint/ShadowedException:
-  Exclude:
-    - 'lib/pry/method.rb'
-
 # Offense count: 88
 Metrics/AbcSize:
   Max: 48

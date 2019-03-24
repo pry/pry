@@ -89,7 +89,7 @@ class Pry
                       '.instance_method(::Kernel.__method__).bind(self)'
                 new(binding.eval(str))
               end
-            rescue NameError, NoMethodError
+            rescue NameError, NoMethodError # rubocop:disable Lint/ShadowedException
               Disowned.new(binding.eval('self'), meth_name.to_s)
             end
 
