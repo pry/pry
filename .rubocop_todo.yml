@@ -18,12 +18,6 @@ Lint/ShadowedException:
   Exclude:
     - 'lib/pry/method.rb'
 
-# Offense count: 1
-# Configuration parameters: CheckForMethodsWithNoSideEffects.
-Lint/Void:
-  Exclude:
-    - 'lib/pry/helpers/table.rb'
-
 # Offense count: 88
 Metrics/AbcSize:
   Max: 48

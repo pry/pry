@@ -60,7 +60,6 @@ class Pry
         @items = items
         _rebuild_colorless_cache
         _recolumn
-        items
       end
 
       def column_count=(count)
