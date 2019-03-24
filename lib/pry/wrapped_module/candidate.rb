@@ -117,7 +117,7 @@ class Pry
       # @return [Array] The source location of the last method in this
       #   candidate's module definition.
       def last_method_source_location
-        @end_method_source_location ||= method_candidates[@rank].last.source_location
+        @last_method_source_location ||= method_candidates[@rank].last.source_location
       end
 
       # Return the number of lines between the start of the class definition and

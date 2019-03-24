@@ -102,13 +102,6 @@ Naming/HeredocDelimiterNaming:
     - 'spec/helpers/table_spec.rb'
     - 'spec/pry_repl_spec.rb'
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyleForLeadingUnderscores.
-# SupportedStylesForLeadingUnderscores: disallowed, required, optional
-Naming/MemoizedInstanceVariableName:
-  Exclude:
-    - 'lib/pry/wrapped_module/candidate.rb'
-
 # Offense count: 25
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: io, id, to, by, on, in, at, ip, db
