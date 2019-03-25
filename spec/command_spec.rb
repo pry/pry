@@ -480,7 +480,7 @@ RSpec.describe Pry::Command do
 
     subject { Class.new(described_class).new(pry_instance: Pry.new) }
 
-    it "returns a state hash" do
+    it "returns a state object" do
       expect(subject.state).to be_an(OpenStruct)
     end
 

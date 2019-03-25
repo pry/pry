@@ -68,15 +68,15 @@ RSpec.describe Pry::History do
 
   describe "#clear" do
     before do
-      @old_file = Pry.config.history.file
+      @old_file = Pry.config.history_file
       @hist_file_path = File.expand_path('spec/fixtures/pry_history')
-      Pry.config.history.file = @hist_file_path
+      Pry.config.history_file = @hist_file_path
       Pry.history.clear
       Pry.load_history
     end
 
     after do
-      Pry.config.history.file = @old_file
+      Pry.config.history_file = @old_file
     end
 
     it "clears this session's history" do
@@ -130,12 +130,12 @@ RSpec.describe Pry::History do
     before do
       @histfile = Tempfile.new(%w[pryhistory txt])
       @history = Pry::History.new(file_path: @histfile.path)
-      Pry.config.history.should_save = true
+      Pry.config.history_save = true
     end
 
     after do
       @histfile.close(true)
-      Pry.config.history.should_save = false
+      Pry.config.history_save = false
     end
 
     it "saves lines to a file as they are written" do
@@ -152,7 +152,7 @@ RSpec.describe Pry::History do
     end
 
     it "should not write histignore words to the history file" do
-      Pry.config.history.histignore = ["ls", /hist*/, 'exit']
+      Pry.config.history_ignorelist = ["ls", /hist*/, 'exit']
       @history.push "ls"
       @history.push "hist"
       @history.push "kakaroto"
@@ -164,8 +164,8 @@ RSpec.describe Pry::History do
   end
 
   describe "expanding the history file path" do
-    before { Pry.config.history.should_save = true  }
-    after  { Pry.config.history.should_save = false }
+    before { Pry.config.history_save = true  }
+    after  { Pry.config.history_save = false }
 
     it "recognizes ~ (#1262)" do
       # This is a pretty dumb way of testing this, but at least it shouldn't
@@ -193,7 +193,7 @@ RSpec.describe Pry::History do
       end
 
       it "handles #{error_class} failure to write history" do
-        Pry.config.history.should_save = true
+        Pry.config.history_save = true
         expect(File).to receive(:open).with(file_path, "a", 0o600).and_raise(error_class)
         expect(history).to receive(:warn).with(/Unable to write history file:/)
         expect { history.push("anything") }.to_not raise_error

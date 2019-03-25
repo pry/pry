@@ -176,13 +176,13 @@ describe "hist" do
 
   describe "sessions" do
     before do
-      @old_file = Pry.config.history.file
-      Pry.config.history.file = File.expand_path('spec/fixtures/pry_history')
+      @old_file = Pry.config.history_file
+      Pry.config.history_file = File.expand_path('spec/fixtures/pry_history')
       @hist.load
     end
 
     after do
-      Pry.config.history.file = @old_file
+      Pry.config.history_file = @old_file
     end
 
     it "displays history only for current session" do
@@ -202,7 +202,7 @@ describe "hist" do
     end
 
     it "should not display histignore words in history" do
-      Pry.config.history.histignore = [
+      Pry.config.history_ignorelist = [
         "well",
         "hello",
         "beautiful",

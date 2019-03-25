@@ -90,7 +90,7 @@ describe Pry::Prompt do
 
     it "computes prompt name dynamically" do
       proc = described_class[:default].wait_proc
-      pry.config.prompt_name = Pry.lazy { enum.next }
+      pry.config.prompt_name = Pry::Config::LazyValue.new { enum.next }
       expect(proc.call(Object.new, 1, pry, '>')).to eq('[1] a(#<Object>):1> ')
       expect(proc.call(Object.new, 1, pry, '>')).to eq('[1] b(#<Object>):1> ')
     end

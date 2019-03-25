@@ -178,14 +178,10 @@ describe "show-doc" do
         def decolumnize(output); end
       end
 
-      begin
-        t = pry_tester(binding)
-        Pry.config.color = true
-        expect(t.eval("show-doc _c#decolumnize")).to match(/ls -l \$HOME/)
-        expect(t.eval("show-doc _c#decolumnize")).not_to match(/`ls -l \$HOME`/)
-      ensure
-        Pry.config.color = false
-      end
+      t = pry_tester(binding)
+      t.pry.config.color = true
+      expect(t.eval("show-doc _c#decolumnize")).to match(/ls -l \$HOME/)
+      expect(t.eval("show-doc _c#decolumnize")).not_to match(/`ls -l \$HOME`/)
     end
   end
 

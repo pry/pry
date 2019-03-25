@@ -30,27 +30,13 @@ class Pry
 
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
-    extend Pry::Config::Convenience
-    config_shortcut(*Pry::Config.shortcuts)
-
-    def prompt=(value)
-      config.prompt = value
-    end
-
-    def prompt
-      config.prompt
-    end
-
-    def history
-      return @history if @history
-
-      @history =
-        if defined?(Pry.config.input::HISTORY)
-          History.new(history: Pry.config.input::HISTORY)
-        else
-          History.new
-        end
-    end
+    def_delegators(
+      :@config, :input, :input=, :output, :output=, :commands,
+      :commands=, :print, :print=, :exception_handler, :exception_handler=,
+      :hooks, :hooks=, :color, :color=, :pager, :pager=, :editor, :editor=,
+      :memory_size, :memory_size=, :extra_sticky_locals, :extra_sticky_locals=,
+      :prompt, :prompt=, :history, :history=
+    )
 
     #
     # @example
@@ -162,7 +148,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     @session_finalized = true
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
-    load_history if Pry.config.history.should_load
+    load_history if Pry.config.history_load
     load_traps if Pry.config.should_trap_interrupts
     load_win32console if Helpers::Platform.windows? && !Helpers::Platform.windows_ansi?
   end
@@ -342,7 +328,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     @initial_session = true
     @session_finalized = nil
 
-    self.config = Pry::Config.new Pry::Config.defaults
+    self.config = Pry::Config.new
     self.cli = false
     self.current_line = 1
     self.line_buffer = [""]
@@ -400,24 +386,6 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     yield
   ensure
     Thread.current[:pry_critical_section] -= 1
-  end
-
-  # Wraps a block in a named block called `Pry::Config::Lazy`. This is used for
-  # dynamic config values, which are calculated every time
-  # {Pry::Config::Lazy#call} is called.
-  #
-  # @example
-  #   # pryrc
-  #   Pry.config.prompt_name = Pry.lazy { rand(100) }
-  #
-  #   # Session
-  #   [1] 96(main)>
-  #   [2] 19(main)>
-  #   [3] 80(main)>
-  #
-  # @return [#call]
-  def self.lazy(&block)
-    Pry::Config::Lazy.new(&block)
   end
 end
 

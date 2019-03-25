@@ -195,7 +195,7 @@ describe "edit" do
       end
 
       it "should reload the file" do
-        Pry.config.editor = lambda { |file, _line|
+        @t.pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << "FOO = 'BAR'" }
           nil
         }
@@ -244,7 +244,7 @@ describe "edit" do
       describe "with --patch" do
         # Original source code must be untouched.
         it "should apply changes only in memory (monkey patching)" do
-          Pry.config.editor = lambda { |file, _line|
+          @t.pry.config.editor = lambda { |file, _line|
             File.open(file, 'w') { |f| f << "FOO3 = 'PIYO'" }
             @patched_def = File.open(file, 'r').read
             nil
@@ -265,7 +265,7 @@ describe "edit" do
 
     describe "with --ex NUM" do
       before do
-        Pry.config.editor = proc do |file, line|
+        @t.pry.config.editor = proc do |file, line|
           @__ex_file__ = file
           @__ex_line__ = line
           nil
@@ -341,7 +341,7 @@ describe "edit" do
     end
 
     it "should evaluate the expression" do
-      Pry.config.editor = lambda { |file, _line|
+      @t.pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -350,7 +350,7 @@ describe "edit" do
     end
 
     it "should ignore -n for tempfiles" do
-      Pry.config.editor = lambda { |file, _line|
+      @t.pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -359,7 +359,7 @@ describe "edit" do
     end
 
     it "should not evaluate a file with -n" do
-      Pry.config.editor = lambda { |file, _line|
+      @t.pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') { |f| f << "'FOO'\n" }
         nil
       }
@@ -374,7 +374,7 @@ describe "edit" do
 
     it "should write the evaluated command to history" do
       quote = 'history repeats itself, first as tradegy...'
-      Pry.config.editor = lambda { |file, _line|
+      @t.pry.config.editor = lambda { |file, _line|
         File.open(file, 'w') do |f|
           f << quote
         end

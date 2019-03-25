@@ -8,6 +8,9 @@
 * Added ability to forward ARGV to a Pry session via `--` (or `-`) when
   launching Pry from shell
   ([#1902](https://github.com/pry/pry/commit/5cd65d3c0eb053f6edcdf571eea5d0cd990626ed))
+* Added `Pry::Config::LazyValue` & `Pry::Config::MemoizedValue`, which allow
+  storing callable procs in the config
+  ([#2024](https://github.com/pry/pry/pull/2024))
 
 #### API changes
 
@@ -65,6 +68,8 @@
   ([#2001](https://github.com/pry/pry/pull/2001))
 * Deleted `Pry::BlockCommand#opts` (use `#context` instead)
   ([#2003](https://github.com/pry/pry/pull/2003))
+* Deleted `Pry.lazy` (use `Pry::Config::LazyValue` instead)
+  ([#2024](https://github.com/pry/pry/pull/2024))
 
 #### Bug fixes
 

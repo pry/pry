@@ -25,6 +25,8 @@ require 'ostruct'
 
 # rubocop:disable Metrics/ClassLength
 class Pry
+  extend Pry::Forwardable
+
   attr_accessor :binding_stack
   attr_accessor :custom_completions
   attr_accessor :eval_string
@@ -45,8 +47,13 @@ class Pry
 
   attr_reader :config
 
-  extend Pry::Config::Convenience
-  config_shortcut(*Pry::Config.shortcuts)
+  def_delegators(
+    :@config, :input, :input=, :output, :output=, :commands,
+    :commands=, :print, :print=, :exception_handler, :exception_handler=,
+    :hooks, :hooks=, :color, :color=, :pager, :pager=, :editor, :editor=,
+    :memory_size, :memory_size=, :extra_sticky_locals, :extra_sticky_locals=
+  )
+
   EMPTY_COMPLETIONS = [].freeze
 
   # Create a new {Pry} instance.
@@ -75,8 +82,7 @@ class Pry
     @eval_string   = ""
     @backtrace     = options.delete(:backtrace) || caller
     target = options.delete(:target)
-    @config = Pry::Config.new
-    config.merge!(options)
+    @config = self.class.config.merge(options)
     push_prompt(config.prompt)
     @input_ring = Pry::Ring.new(config.memory_size)
     @output_ring = Pry::Ring.new(config.memory_size)

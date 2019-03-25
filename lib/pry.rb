@@ -45,9 +45,10 @@ require 'pry/commands/ls/ls_entity'
 require 'pry/commands/ls/methods_helper'
 require 'pry/commands/ls'
 
-require 'pry/config/convenience'
-require 'pry/config/lazy'
-require 'pry/config/behavior'
+require 'pry/config/attributable'
+require 'pry/config/value'
+require 'pry/config/memoized_value'
+require 'pry/config/lazy_value'
 require 'pry/config'
 
 require 'pry/pry_class'
