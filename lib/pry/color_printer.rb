@@ -1,7 +1,7 @@
 require 'pp'
 
-# PP subclass for streaming inspect output in color.
 class Pry
+  # PP subclass for streaming inspect output in color.
   class ColorPrinter < ::PP
     Pry::SyntaxHighlighter.overwrite_coderay_comment_token!
 
