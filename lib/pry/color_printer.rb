@@ -1,4 +1,5 @@
 require 'pp'
+require 'English'
 
 class Pry
   # PP subclass for streaming inspect output in color.
