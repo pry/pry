@@ -1,5 +1,3 @@
-require 'coderay'
-
 class Pry
   class Code
     # Represents a range of lines in a code listing.

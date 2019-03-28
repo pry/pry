@@ -1,5 +1,3 @@
-require 'coderay'
-
 class Pry
   module Helpers
     # This class contains methods useful for extracting

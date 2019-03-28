@@ -1,5 +1,3 @@
-require 'coderay'
-
 describe Pry do
   describe "output failsafe" do
     after { Pry.config.print = Pry::Config.defaults.print }

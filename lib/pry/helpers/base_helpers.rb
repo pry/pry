@@ -1,5 +1,3 @@
-require 'coderay'
-
 class Pry
   module Helpers
     module BaseHelpers

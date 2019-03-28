@@ -1,5 +1,4 @@
 require 'pp'
-require 'coderay'
 
 # PP subclass for streaming inspect output in color.
 class Pry

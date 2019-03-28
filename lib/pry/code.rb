@@ -1,4 +1,3 @@
-require 'coderay'
 require 'method_source'
 
 class Pry

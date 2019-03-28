@@ -1,5 +1,3 @@
-require 'coderay'
-
 class Pry
   class Code
     # Represents a line of code (which may, in fact, contain multiple lines if
