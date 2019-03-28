@@ -77,7 +77,7 @@ describe Pry do
     it "should colorize strings as though they were ruby" do
       pry = Pry.new
       accumulator = StringIO.new
-      colorized   = CodeRay.scan("[1]", :ruby).term
+      colorized = Pry::SyntaxHighlighter.highlight('[1]')
       pry.config.output = accumulator
       pry.config.print.call(accumulator, [1], pry)
       expect(accumulator.string).to eq("=> #{colorized}\n")

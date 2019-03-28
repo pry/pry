@@ -54,7 +54,7 @@ class Pry
       # @param [Symbol] code_type
       # @return [void]
       def colorize(code_type)
-        tuple[0] = CodeRay.scan(line, code_type).term
+        tuple[0] = SyntaxHighlighter.highlight(line, code_type)
       end
 
       # Prepends the line number `lineno` to the `line`.

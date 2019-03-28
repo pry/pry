@@ -14,7 +14,9 @@ class Pry
 
       def process_rdoc(comment)
         comment = comment.dup
-        last_match_ruby = proc { CodeRay.scan(Regexp.last_match(1), :ruby).term }
+        last_match_ruby = proc do
+          SyntaxHighlighter.highlight(Regexp.last_match(1))
+        end
         comment.gsub(%r{<code>(?:\s*\n)?(.*?)\s*</code>}m, &last_match_ruby)
           .gsub(%r{<em>(?:\s*\n)?(.*?)\s*</em>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
           .gsub(%r{<i>(?:\s*\n)?(.*?)\s*</i>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
