@@ -6,15 +6,6 @@ class Pry
   class ColorPrinter < ::PP
     Pry::SyntaxHighlighter.overwrite_coderay_comment_token!
 
-    OBJ_COLOR = begin
-      code = Pry::SyntaxHighlighter.keyword_token_color
-      if code.start_with? "\e"
-        code
-      else
-        "\e[0m\e[0;#{code}m"
-      end
-    end
-
     def self.pp(obj, out = $DEFAULT_OUTPUT, width = 79, newline = "\n")
       q = ColorPrinter.new(out, width, newline)
       q.guard_inspect_key { q.pp obj }
@@ -66,7 +57,9 @@ class Pry
     private
 
     def highlight_object_literal(object_literal)
-      "#{OBJ_COLOR}#{object_literal}\e[0m"
+      code = Pry::SyntaxHighlighter.keyword_token_color
+      obj_color = code.start_with?("\e") ? code : "\e[0m\e[0;#{code}m"
+      "#{obj_color}#{object_literal}\e[0m"
     end
   end
 end
