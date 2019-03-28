@@ -82,8 +82,8 @@ class Pry
     # @param [String] filename
     # @param [Symbol] default (:unknown) the file type to assume if none could be
     #   detected.
-    # @return [Symbol, nil] The CodeRay type of a file from its extension, or
-    #   `nil` if `:unknown`.
+    # @return [Symbol, nil] The SyntaxHighlighter type of a file from its
+    #   extension, or `nil` if `:unknown`.
     def type_from_filename(filename, default = :unknown)
       _, @code_type = EXTENSIONS.find do |k, _|
         k.any? { |ext| ext == File.extname(filename) }

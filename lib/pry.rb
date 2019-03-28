@@ -15,6 +15,7 @@ require 'pry/hooks'
 require 'pry/input_completer'
 require 'pry/command'
 require 'pry/command_set'
+require 'pry/syntax_highlighter'
 
 Pry::Commands = Pry::CommandSet.new unless defined?(Pry::Commands)
 

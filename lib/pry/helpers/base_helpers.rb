@@ -40,7 +40,7 @@ class Pry
       end
 
       def colorize_code(code)
-        CodeRay.scan(code, :ruby).term
+        SyntaxHighlighter.highlight(code)
       end
 
       def highlight(string, regexp, highlight_color = :bright_yellow)

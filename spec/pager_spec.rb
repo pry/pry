@@ -23,7 +23,7 @@ describe "Pry::Pager" do
     end
 
     def record_string_with_color_codes
-      @pt.record(CodeRay.scan("0123456789", :ruby).term + "\n")
+      @pt.record(Pry::SyntaxHighlighter.highlight('0123456789') + "\n")
     end
 
     it "records short lines that don't add up to a page" do

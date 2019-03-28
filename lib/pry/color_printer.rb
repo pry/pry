@@ -4,16 +4,16 @@ require 'coderay'
 # PP subclass for streaming inspect output in color.
 class Pry
   class ColorPrinter < ::PP
+    Pry::SyntaxHighlighter.overwrite_coderay_comment_token!
+
     OBJ_COLOR = begin
-      code = CodeRay::Encoders::Terminal::TOKEN_COLORS[:keyword]
+      code = Pry::SyntaxHighlighter.keyword_token_color
       if code.start_with? "\e"
         code
       else
         "\e[0m\e[0;#{code}m"
       end
     end
-
-    CodeRay::Encoders::Terminal::TOKEN_COLORS[:comment][:self] = "\e[1;34m"
 
     def self.pp(obj, out = $DEFAULT_OUTPUT, width = 79, newline = "\n")
       q = ColorPrinter.new(out, width, newline)
@@ -29,7 +29,7 @@ class Pry
       elsif str.start_with?('#<') || str == '=' || str == '>'
         super highlight_object_literal(str), width
       else
-        super CodeRay.scan(str, :ruby).term, width
+        super(SyntaxHighlighter.highlight(str), width)
       end
     end
 
