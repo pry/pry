@@ -3,7 +3,7 @@ class Pry
     # The methods defined on {Text} are available to custom commands via
     # {Pry::Command#text}.
     module Text
-      extend self # rubocop:disable Style/ModuleFunction
+      extend self
 
       COLORS = {
         "black" => 0,

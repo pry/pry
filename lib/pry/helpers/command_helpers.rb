@@ -2,94 +2,73 @@ require 'tempfile'
 
 class Pry
   module Helpers
-    # rubocop:disable Metrics/ModuleLength
     module CommandHelpers
       include OptionsHelpers
 
-      module_function
+      extend self
 
       # Open a temp file and yield it to the block, closing it after
       # @return [String] The path of the temp file
       def temp_file(ext = '.rb')
         file = Tempfile.new(['pry', ext])
-        yield file
+        yield(file)
       ensure
-        file.close(true) if file
+        file.close(true)
       end
 
-      def internal_binding?(target)
-        m = target.eval("::Kernel.__method__").to_s
+      def internal_binding?(context)
+        method_name = context.eval("::Kernel.__method__").to_s
         # class_eval is here because of http://jira.codehaus.org/browse/JRUBY-6753
-        %w[__binding__ __pry__ class_eval].include?(m)
+        %w[__binding__ __pry__ class_eval].include?(method_name)
+        # TODO: codehaus is dead, there was no test for this and the
+        # description for the commit doesn't exist. Probably a candidate for
+        # removal so we have a chance to introduce a regression and document it
+        # properly.
       end
 
-      def get_method_or_raise(name, target, opts = {}, omit_help = false)
-        meth = Pry::Method.from_str(name, target, opts)
-
-        if name && !meth
-          command_error(
-            "The method '#{name}' could not be found.", omit_help, MethodNotFound
-          )
+      def get_method_or_raise(method_name, context, opts = {})
+        method = Pry::Method.from_str(method_name, context, opts)
+        if !method && method_name
+          raise Pry::MethodNotFound, "method '#{method_name}' could not be found."
         end
 
         (opts[:super] || 0).times do
-          if meth.super
-            meth = meth.super
+          if method.super
+            method = method.super
           else
-            command_error(
-              "'#{meth.name_with_owner}' has no super method.",
-              omit_help,
-              MethodNotFound
-            )
+            raise Pry::MethodNotFound,
+                  "'#{method.name_with_owner}' has no super method"
           end
         end
 
-        if !meth || (!name && internal_binding?(target))
-          command_error(
-            "No method name given, and context is not a method.",
-            omit_help,
-            MethodNotFound
-          )
+        if !method || (!method_name && internal_binding?(context))
+          raise Pry::MethodNotFound,
+                'no method name given, and context is not a method'
         end
 
-        set_file_and_dir_locals(meth.source_file)
-        meth
+        set_file_and_dir_locals(method.source_file)
+        method
       end
 
-      def command_error(message, omit_help, klass = CommandError)
-        message += " Type `#{command_name} --help` for help." unless omit_help
-        raise klass, message
-      end
-
-      # Remove any common leading whitespace from every line in `text`.
-      #
-      # This can be used to make a HEREDOC line up with the left margin, without
+      # Remove any common leading whitespace from every line in `text`. This
+      # can be used to make a HEREDOC line up with the left margin, without
       # sacrificing the indentation level of the source code.
       #
-      # e.g.
-      #   opt.banner unindent <<-USAGE
+      # @example
+      #   opt.banner(unindent(<<-USAGE))
       #     Lorem ipsum dolor sit amet, consectetur adipisicing elit,
       #     sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
       #       "Ut enim ad minim veniam."
       #   USAGE
       #
-      # Heavily based on textwrap.dedent from Python, which is:
-      #   Copyright (C) 1999-2001 Gregory P. Ward.
-      #   Copyright (C) 2002, 2003 Python Software Foundation.
-      #   Written by Greg Ward <gward@python.net>
-      #
-      #   Licensed under <http://docs.python.org/license.html>
-      #   From <http://hg.python.org/cpython/file/6b9f0a6efaeb/Lib/textwrap.py>
-      #
-      # @param [String] text The text from which to remove indentation
-      # @return [String] The text with indentation stripped.
-      def unindent(text, left_padding = 0)
-        # Empty blank lines
-        text = text.sub(/^[ \t]+$/, '')
+      # @param [String] dirty_text The text from which to remove indentation
+      # @return [String] the text with indentation stripped
+      def unindent(dirty_text, left_padding = 0)
+        text = dirty_text.sub(/\A[ \t]+\z/, '') # Empty blank lines.
 
-        # Find the longest common whitespace to all indented lines
-        # Ignore lines containing just -- or ++ as these seem to be used by
-        # comment authors as delimeters.
+        # Find the longest common whitespace to all indented lines. Ignore lines
+        # containing just -- or ++ as these seem to be used by comment authors
+        # as delimeters.
         scanned_text = text.scan(/^[ \t]*(?!--\n|\+\+\n)(?=[^ \t\n])/)
         margin = scanned_text.inject do |current_margin, next_indent|
           if next_indent.start_with?(current_margin)
@@ -97,7 +76,7 @@ class Pry
           elsif current_margin.start_with?(next_indent)
             next_indent
           else
-            ""
+            ''
           end
         end
 
@@ -106,7 +85,7 @@ class Pry
 
       # Restrict a string to the given range of lines (1-indexed)
       # @param [String] content The string.
-      # @param [Range, Fixnum] lines The line(s) to restrict it to.
+      # @param [Range, Integer] lines The line(s) to restrict it to.
       # @return [String] The resulting string.
       def restrict_to_lines(content, lines)
         line_range = one_index_range_or_number(lines)
@@ -114,11 +93,7 @@ class Pry
       end
 
       def one_index_number(line_number)
-        if line_number > 0
-          line_number - 1
-        else
-          line_number
-        end
+        line_number > 0 ? line_number - 1 : line_number
       end
 
       # convert a 1-index range to a 0-indexed one
@@ -165,6 +140,5 @@ class Pry
         pry.inject_local("_dir_", pry.last_dir, ctx)
       end
     end
-    # rubocop:enable Metrics/ModuleLength
   end
 end
