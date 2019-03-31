@@ -90,7 +90,6 @@ require 'pry/commands/change_prompt'
 require 'pry/commands/clear_screen'
 require 'pry/commands/code_collector'
 require 'pry/commands/disable_pry'
-require 'pry/commands/disabled_commands'
 require 'pry/commands/easter_eggs'
 
 require 'pry/commands/edit'

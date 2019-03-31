@@ -14,7 +14,7 @@ class Pry
         the end.
 
         As alternatives, consider using `exit!` to force the current Ruby process
-        to quit immediately; or using `edit-method -p` to remove the `binding.pry`
+        to quit immediately; or using `edit -p` to remove the `binding.pry`
         from the code.
       BANNER
 

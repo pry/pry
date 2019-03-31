@@ -34,7 +34,7 @@ class Pry
     #   executing the command. Defaults to true.
     # @option options [String] :listing The listing name of the
     #   command. That is the name by which the command is looked up by
-    #   help and by show-command. Necessary for commands with regex matches.
+    #   help and by show-source. Necessary for commands with regex matches.
     # @option options [Boolean] :use_prefix Whether the command uses
     #   `Pry.config.command_prefix` prefix (if one is defined). Defaults
     #   to true.

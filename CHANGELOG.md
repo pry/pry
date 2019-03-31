@@ -59,6 +59,8 @@
 * Deleted commands: `gem-cd`, `gem-install`, `gem-list`, `gem-open`,
   `gem-readme`, `gem-search`, `gem-stats`
   ([#1981](https://github.com/pry/pry/pull/1981))
+* Deleted deprecated commands: `edit-method` and `show-command`
+  ([#1981](https://github.com/pry/pry/pull/1981))
 
 #### Bug fixes
 
