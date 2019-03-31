@@ -34,7 +34,7 @@ class Pry
     #   executing the command. Defaults to true.
     # @option options [String] :listing The listing name of the
     #   command. That is the name by which the command is looked up by
-    #   help and by show-command. Necessary for commands with regex matches.
+    #   help and by show-source. Necessary for commands with regex matches.
     # @option options [Boolean] :use_prefix Whether the command uses
     #   `Pry.config.command_prefix` prefix (if one is defined). Defaults
     #   to true.
@@ -234,17 +234,6 @@ class Pry
       @commands[new_match].description = options.delete(:description)
       @commands[new_match].options.merge!(options)
       @commands.delete(cmd.match)
-    end
-
-    def disabled_command(disabled_command_name, message, matcher = disabled_command_name)
-      create_command(disabled_command_name) do
-        match matcher
-        description ""
-
-        define_method(:process) do
-          output.puts "DISABLED: #{message}"
-        end
-      end
     end
 
     # Sets or gets the description for a command (replacing the old
