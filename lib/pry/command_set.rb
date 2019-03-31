@@ -236,17 +236,6 @@ class Pry
       @commands.delete(cmd.match)
     end
 
-    def disabled_command(disabled_command_name, message, matcher = disabled_command_name)
-      create_command(disabled_command_name) do
-        match matcher
-        description ""
-
-        define_method(:process) do
-          output.puts "DISABLED: #{message}"
-        end
-      end
-    end
-
     # Sets or gets the description for a command (replacing the old
     # description). Returns current description if no description
     # parameter provided.

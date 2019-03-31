@@ -60,7 +60,9 @@
   `gem-readme`, `gem-search`, `gem-stats`
   ([#1981](https://github.com/pry/pry/pull/1981))
 * Deleted deprecated commands: `edit-method` and `show-command`
-  ([#1981](https://github.com/pry/pry/pull/1981))
+  ([#2001](https://github.com/pry/pry/pull/2001))
+* Deleted `Pry::Command#disabled_commands`
+  ([#2001](https://github.com/pry/pry/pull/2001))
 
 #### Bug fixes
 
