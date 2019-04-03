@@ -171,7 +171,7 @@ class Pry
     def find_command_by_match_or_listing(match_or_listing)
       cmd = (@commands[match_or_listing] ||
         Pry::Helpers::BaseHelpers.find_command(match_or_listing, @commands))
-      cmd || raise(ArgumentError, "Cannot find a command: '#{match_or_listing}'!")
+      cmd || raise(ArgumentError, "cannot find a command: '#{match_or_listing}'")
     end
 
     # Aliases a command
@@ -186,7 +186,7 @@ class Pry
     # @example Pass explicit description (overriding default).
     #   Pry.config.commands.alias_command "lM", "ls -M", :desc => "cutiepie"
     def alias_command(match, action, options = {})
-      (cmd = find_command(action)) || raise("Command: `#{action}` not found")
+      (cmd = find_command(action)) || raise("command: '#{action}' not found")
       original_options = cmd.options.dup
 
       options = original_options.merge!(
@@ -201,6 +201,7 @@ class Pry
         run action, *args
       end
 
+      # TODO: untested. What's this about?
       c.class_eval do
         define_method(:complete) do |input|
           cmd.new(context).complete(input)
@@ -252,22 +253,6 @@ class Pry
       return cmd.description unless description
 
       cmd.description = description
-    end
-
-    # Defines helpers methods for this command sets.
-    # Those helpers are only defined in this command set.
-    #
-    # @yield A block defining helper methods
-    # @example
-    #   helpers do
-    #     def hello
-    #       puts "Hello!"
-    #     end
-    #
-    #     include OtherModule
-    #   end
-    def helpers(&block)
-      helper_module.class_eval(&block)
     end
 
     # @return [Array]
@@ -371,12 +356,6 @@ class Pry
       end
     end
 
-    # @private (used for testing)
-    def run_command(context, match, *args)
-      (command = @commands[match]) || raise(NoCommandError.new(match, self))
-      command.new(context).call_safely(*args)
-    end
-
     # Generate completions for the user's search.
     # @param [String] search The line to search for
     # @param [Hash] context  The context to create the command with
@@ -390,6 +369,24 @@ class Pry
         end
         keys.map { |key| key + " " }
       end
+    end
+
+    private
+
+    # Defines helpers methods for this command sets.
+    # Those helpers are only defined in this command set.
+    #
+    # @yield A block defining helper methods
+    # @example
+    #   helpers do
+    #     def hello
+    #       puts "Hello!"
+    #     end
+    #
+    #     include OtherModule
+    #   end
+    def helpers(&block)
+      helper_module.class_eval(&block)
     end
   end
 
