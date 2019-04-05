@@ -10,6 +10,10 @@ class Pry
     extend Helpers::DocumentationHelpers
     extend CodeObject::Helpers
 
+    include Pry::Helpers::BaseHelpers
+    include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Text
+
     # represents a void return value for a command
     VOID_VALUE = Object.new
 
@@ -91,38 +95,7 @@ class Pry
           takes_block: false
         }
       end
-    end
 
-    # Make those properties accessible to instances
-    def name
-      self.class.name
-    end
-
-    def match
-      self.class.match
-    end
-
-    def description
-      self.class.description
-    end
-
-    def block
-      self.class.block
-    end
-
-    def command_options
-      self.class.options
-    end
-
-    def command_name
-      self.class.command_name
-    end
-
-    def source
-      self.class.source
-    end
-
-    class << self
       def name
         super.to_s == "" ? "#<class(Pry::Command #{match.inspect})>" : super
       end
@@ -236,17 +209,8 @@ class Pry
     attr_accessor :context
     attr_accessor :command_set
     attr_accessor :hooks
-
     attr_accessor :pry_instance
     alias _pry_= pry_instance=
-    def _pry_
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
-        "pry_instance instead"
-      )
-      pry_instance
-    end
 
     # The block we pass *into* a command so long as `:takes_block` is
     # not equal to `false`
@@ -255,6 +219,47 @@ class Pry
     #     puts "block content"
     #   end
     attr_accessor :command_block
+
+    # Instantiate a command, in preparation for calling it.
+    # @param [Hash] context The runtime context to use with this command.
+    def initialize(context = {})
+      self.context      = context
+      self.target       = context[:target]
+      self.output       = context[:output]
+      self.eval_string  = context[:eval_string]
+      self.command_set  = context[:command_set]
+      self.hooks        = context[:hooks]
+      self.pry_instance = context[:pry_instance]
+    end
+
+    # Make those properties accessible to instances
+    def name
+      self.class.name
+    end
+
+    def match
+      self.class.match
+    end
+
+    def description
+      self.class.description
+    end
+
+    def block
+      self.class.block
+    end
+
+    def command_options
+      self.class.options
+    end
+
+    def command_name
+      self.class.command_name
+    end
+
+    def source
+      self.class.source
+    end
 
     # Run a command from another command.
     # @param [String] command_string The string that invokes the command
@@ -279,20 +284,13 @@ class Pry
       VOID_VALUE
     end
 
-    include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::CommandHelpers
-    include Pry::Helpers::Text
-
-    # Instantiate a command, in preparation for calling it.
-    # @param [Hash] context The runtime context to use with this command.
-    def initialize(context = {})
-      self.context      = context
-      self.target       = context[:target]
-      self.output       = context[:output]
-      self.eval_string  = context[:eval_string]
-      self.command_set  = context[:command_set]
-      self.hooks        = context[:hooks]
-      self.pry_instance = context[:pry_instance]
+    def _pry_
+      loc = caller_locations(1..1).first
+      warn(
+        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
+        "pry_instance instead"
+      )
+      pry_instance
     end
 
     # @return [Object] The value of `self` inside the `target` binding.
