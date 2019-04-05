@@ -3,14 +3,6 @@ RSpec.describe Pry::CommandSet do
     Pry::CommandSet.new { import(Pry::Commands) }
   end
 
-  let(:ctx) do
-    {
-      target: binding,
-      command_set: set,
-      pry_instance: Pry.new(output: StringIO.new)
-    }
-  end
-
   describe "#new" do
     it "merges other set with itself" do
       other_set = described_class.new
