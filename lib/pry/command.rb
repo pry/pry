@@ -516,26 +516,4 @@ class Pry
       end
     end
   end
-
-  # A super-class for Commands that are created with a single block.
-  #
-  # This class ensures that the block is called with the correct number of arguments
-  # and the right context.
-  #
-  # Create subclasses using {Pry::CommandSet#command}.
-  class BlockCommand < Command
-    # backwards compatibility
-    alias opts context
-
-    # Call the block that was registered with this command.
-    # @param [Array<String>] args The arguments passed
-    # @return [Object] The return value of the block
-    def call(*args)
-      instance_exec(*correct_arg_arity(block.arity, args), &block)
-    end
-
-    def help
-      "#{command_options[:listing].to_s.ljust(18)} #{description}"
-    end
-  end
 end
