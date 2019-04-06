@@ -6,9 +6,6 @@ class Pry
   #
   # Create subclasses using {Pry::CommandSet#command}.
   class BlockCommand < Command
-    # backwards compatibility
-    alias opts context
-
     # Call the block that was registered with this command.
     # @param [Array<String>] args The arguments passed
     # @return [Object] The return value of the block

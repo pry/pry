@@ -63,6 +63,8 @@
   ([#2001](https://github.com/pry/pry/pull/2001))
 * Deleted `Pry::Command#disabled_commands`
   ([#2001](https://github.com/pry/pry/pull/2001))
+* Deleted `Pry::BlockCommand#opts` (use `#context` instead)
+  ([#2003](https://github.com/pry/pry/pull/2003))
 
 #### Bug fixes
 
