@@ -77,7 +77,7 @@ class Pry
         output.puts slop.help
         void
       else
-        process(*correct_arg_arity(method(:process).arity, args))
+        process(*normalize_method_args(method(:process), args))
       end
     end
 

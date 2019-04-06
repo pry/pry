@@ -500,17 +500,19 @@ class Pry
       ret
     end
 
-    # Fix the number of arguments we pass to a block to avoid arity warnings.
-    # @param [Fixnum] arity The arity of the block
-    # @param [Array] args The arguments to pass
-    # @return [Array] A (possibly shorter) array of the arguments to pass
-    def correct_arg_arity(arity, args)
-      if arity < 0
+    # Normalize method arguments according to its arity.
+    #
+    # @param [Integer] method
+    # @param [Array] args
+    # @return [Array] a (possibly shorter) array of the arguments to pass
+    def normalize_method_args(method, args)
+      case method.arity
+      when -1
         args
-      elsif arity == 0
+      when 0
         []
-      elsif arity > 0
-        args.values_at(*(0..(arity - 1)).to_a)
+      else
+        args.values_at(*(0..(method.arity - 1)).to_a)
       end
     end
   end

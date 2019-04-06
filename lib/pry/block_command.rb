@@ -10,7 +10,7 @@ class Pry
     # @param [Array<String>] args The arguments passed
     # @return [Object] The return value of the block
     def call(*args)
-      instance_exec(*correct_arg_arity(block.arity, args), &block)
+      instance_exec(*normalize_method_args(block, args), &block)
     end
 
     def help
