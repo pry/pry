@@ -187,12 +187,6 @@ class Pry
         end
       end
 
-      # @deprecated Replaced with {Pry::Hooks#add_hook}. Left for compatibility.
-      # Store hooks to be run before or after the command body.
-      def hooks
-        Pry.hooks
-      end
-
       def command_regex
         pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
         prefix = convert_to_regex(pr)
@@ -482,7 +476,7 @@ class Pry
 
     def find_hooks(event)
       event_name = "#{event}_#{command_name}"
-      (hooks || self.class.hooks).get_hooks(event_name).values
+      (hooks || Pry.hooks || self.class.hooks).get_hooks(event_name).values
     end
 
     def before_hooks
