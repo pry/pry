@@ -161,8 +161,7 @@ class Pry
       end
 
       def command_regex
-        pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
-        prefix = convert_to_regex(pr)
+        prefix = convert_to_regex(Pry.config.command_prefix)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
         /^#{prefix}#{convert_to_regex(match)}(?!\S)/
@@ -403,6 +402,16 @@ class Pry
       call_safely(*(captures + args))
     end
 
+    # Generate completions for this command
+    #
+    # @param [String] _search The line typed so far
+    # @return [Array<String>]  Completion words
+    def complete(_search)
+      []
+    end
+
+    private
+
     # Run the command with the given `args`.
     #
     # This is a public wrapper around `#call` which ensures all preconditions
@@ -429,16 +438,6 @@ class Pry
     ensure
       Symbol.instance_eval { define_method(:call, call_method) } if call_method
     end
-
-    # Generate completions for this command
-    #
-    # @param [String] _search The line typed so far
-    # @return [Array<String>]  Completion words
-    def complete(_search)
-      []
-    end
-
-    private
 
     # Pass a block argument to a command.
     # @param [String] arg_string The arguments (as a string) passed to the command.
