@@ -123,7 +123,7 @@ class Pry
     end
 
     def history_file_path
-      File.expand_path(@file_path || Pry.config.history.file)
+      history_file and File.expand_path(@file_path || Pry.config.history.file)
     end
 
     def invalid_readline_line?(line)
