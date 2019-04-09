@@ -1,831 +1,710 @@
-describe "Pry::Command" do
-  before do
-    @set = Pry::CommandSet.new
-    @set.import Pry::Commands
+require 'stringio'
+
+RSpec.describe Pry::Command do
+  subject do
+    Class.new(described_class) do
+      def process; end
+    end
   end
 
-  describe 'call_safely' do
-    it 'should abort early if arguments are required' do
-      cmd = @set.create_command(
-        'arthur-dent', "Doesn't understand Thursdays", argument_required: true
-      ) do
-      end
+  let(:default_options) do
+    {
+      argument_required: false,
+      interpolate: true,
+      keep_retval: false,
+      shellwords: true,
+      takes_block: false,
+      use_prefix: true,
+      listing: 'nil'
+    }
+  end
 
-      expect { mock_command(cmd, %w[]) }.to raise_error Pry::CommandError
-    end
+  describe ".match" do
+    context "when no argument is given" do
+      context "and when match was defined previously" do
+        before { subject.match('old-match') }
 
-    it 'should return VOID without keep_retval' do
-      cmd = @set.create_command(
-        'zaphod-beeblebrox', "Likes pan-Galactic Gargle Blasters"
-      ) do
-        def process
-          3
+        it "doesn't overwrite match" do
+          expect(subject.match).to eq('old-match')
         end
       end
 
-      expect(mock_command(cmd).return).to eq Pry::Command::VOID_VALUE
+      context "and when match was not defined previously" do
+        it "sets match to nil" do
+          subject.match
+          expect(subject.match).to be_nil
+        end
+      end
     end
 
-    it 'should return the return value with keep_retval' do
-      cmd = @set.create_command 'tricia-mcmillian', "a.k.a Trillian", keep_retval: true do
-        def process
-          5
+    context "when given an argument" do
+      context "and when match is a string" do
+        it "sets command options with listing as match" do
+          subject.match('match') # rubocop:disable Performance/RedundantMatch
+          expect(subject.command_options).to include(listing: 'match')
         end
       end
 
-      expect(mock_command(cmd).return).to eq 5
+      context "and when match is an object" do
+        let(:object) do
+          obj = Object.new
+          def obj.inspect
+            'inspect'
+          end
+          obj
+        end
+
+        it "sets command options with listing as object's inspect" do
+          subject.match(object)
+          expect(subject.command_options).to include(listing: 'inspect')
+        end
+      end
+    end
+  end
+
+  describe ".description" do
+    context "and when description was defined previously" do
+      before { subject.description('old description') }
+
+      it "doesn't overwrite match" do
+        subject.description
+        expect(subject.description).to eq('old description')
+      end
     end
 
-    context "hooks API" do
+    context "and when description was not defined previously" do
+      it "sets description to nil" do
+        expect(subject.description).to be_nil
+      end
+    end
+
+    context "when given an argument" do
+      it "sets description" do
+        subject.description('description')
+        expect(subject.description).to eq('description')
+      end
+    end
+  end
+
+  describe ".command_options" do
+    context "when no argument is given" do
+      context "and when command options were defined previously" do
+        before { subject.command_options(foo: :bar) }
+
+        it "returns memoized command options" do
+          expect(subject.command_options).to eq(default_options.merge(foo: :bar))
+        end
+      end
+
+      context "and when command options were not defined previously" do
+        it "sets command options to default options" do
+          subject.command_options
+          expect(subject.command_options).to eq(default_options)
+        end
+      end
+    end
+
+    context "when given an argument" do
+      let(:new_option) { { new_option: 'value' } }
+
+      it "merges the argument with command options" do
+        expect(subject.command_options(new_option))
+          .to eq(default_options.merge(new_option))
+      end
+    end
+  end
+
+  describe ".banner" do
+    context "when no argument is given" do
+      context "and when banner was defined previously" do
+        before { subject.banner('banner') }
+
+        it "returns the memoized banner" do
+          expect(subject.banner).to eq('banner')
+        end
+      end
+
+      context "and when banner was not defined previously" do
+        it "return nil" do
+          subject.banner
+          expect(subject.banner).to be_nil
+        end
+      end
+    end
+
+    context "when given an argument" do
+      it "merges the argument with command options" do
+        expect(subject.banner('banner')).to eq('banner')
+      end
+    end
+  end
+
+  describe ".block" do
+    context "when block exists" do
+      let(:block) { proc {} }
+
+      it "returns the block" do
+        subject.block = block
+        expect(subject.block).to eql(block)
+      end
+    end
+
+    context "when block doesn't exist" do
+      it "uses #process method" do
+        expect(subject.block.name).to eq(:process)
+      end
+    end
+  end
+
+  describe ".source" do
+    it "returns source code of the method" do
+      expect(subject.source).to eq("def process; end\n")
+    end
+  end
+
+  describe ".doc" do
+    subject do
+      Class.new(described_class) do
+        def help
+          'help'
+        end
+      end
+    end
+
+    it "returns help output" do
+      expect(subject.doc).to eq('help')
+    end
+  end
+
+  describe ".source_file" do
+    it "returns source file" do
+      expect(subject.source_file).to match(__FILE__)
+    end
+  end
+
+  describe ".source_line" do
+    it "returns source line" do
+      expect(subject.source_line).to be_kind_of(Integer)
+    end
+  end
+
+  describe ".default_options" do
+    context "when given a String argument" do
+      it "returns default options with string listing" do
+        expect(subject.default_options('listing'))
+          .to eq(default_options.merge(listing: 'listing'))
+      end
+    end
+
+    context "when given an Object argument" do
+      let(:object) do
+        obj = Object.new
+        def obj.inspect
+          'inspect'
+        end
+        obj
+      end
+
+      it "returns default options with object's inspect as listing" do
+        expect(subject.default_options(object))
+          .to eq(default_options.merge(listing: 'inspect'))
+      end
+    end
+  end
+
+  describe ".name" do
+    it "returns the name of the command" do
+      expect(subject.name).to eq('#<class(Pry::Command nil)>')
+    end
+
+    context "when super command name exists" do
+      subject do
+        parent = Class.new(described_class) do
+          def name
+            'parent name'
+          end
+        end
+
+        Class.new(parent)
+      end
+
+      it "returns the name of the parent command" do
+        expect(subject.name).to eq('#<class(Pry::Command nil)>')
+      end
+    end
+  end
+
+  describe ".inspect" do
+    subject do
+      Class.new(described_class) do
+        def self.name
+          'name'
+        end
+      end
+    end
+
+    it "returns command name" do
+      expect(subject.inspect).to eq('name')
+    end
+  end
+
+  describe ".command_name" do
+    before { subject.match('foo') }
+
+    it "returns listing" do
+      expect(subject.command_name).to eq('foo')
+    end
+  end
+
+  describe ".subclass" do
+    it "returns a new class" do
+      klass = subject.subclass('match', 'desc', {}, Module.new)
+      expect(klass).to be_a(Class)
+      expect(klass).not_to eql(subject)
+    end
+
+    it "includes helpers to the new class" do
+      mod = Module.new { def foo; end }
+      klass = subject.subclass('match', 'desc', {}, mod)
+      expect(klass.new).to respond_to(:foo)
+    end
+
+    it "sets match on the new class" do
+      klass = subject.subclass('match', 'desc', {}, Module.new)
+      expect(klass.match).to eq('match')
+    end
+
+    it "sets description on the new class" do
+      klass = subject.subclass('match', 'desc', {}, Module.new)
+      expect(klass.description).to eq('desc')
+    end
+
+    it "sets command options on the new class" do
+      klass = subject.subclass('match', 'desc', { foo: :bar }, Module.new)
+      expect(klass.command_options).to include(foo: :bar)
+    end
+
+    it "sets block on the new class" do
+      block = proc {}
+      klass = subject.subclass('match', 'desc', { foo: :bar }, Module.new, &block)
+      expect(klass.block).to eql(block)
+    end
+  end
+
+  describe ".matches?" do
+    context "when given value matches command regex" do
+      before { subject.match('test-command') }
+
+      it "returns true" do
+        expect(subject.matches?('test-command')).to be_truthy
+      end
+    end
+
+    context "when given value doesn't match command regex" do
+      it "returns false" do
+        expect(subject.matches?('test-command')).to be_falsey
+      end
+    end
+  end
+
+  describe ".match_score" do
+    context "when command regex matches given value" do
+      context "and when the size of last match is more than 1" do
+        before { subject.match(/\.(.*)/) }
+
+        it "returns the length of the first match" do
+          expect(subject.match_score('.||')).to eq(1)
+        end
+      end
+
+      context "and when the size of last match is 1 or 0" do
+        before { subject.match('hi') }
+
+        it "returns the length of the last match" do
+          expect(subject.match_score('hi there')).to eq(2)
+        end
+      end
+    end
+
+    context "when command regex doesn't match given value" do
+      it "returns -1" do
+        expect(subject.match_score('test')).to eq(-1)
+      end
+    end
+  end
+
+  describe ".command_regex" do
+    before { subject.match('test-command') }
+
+    context "when use_prefix is true" do
+      before { subject.command_options(use_prefix: true) }
+
+      it "returns a Regexp without a prefix" do
+        expect(subject.command_regex).to eq(/^test\-command(?!\S)/)
+      end
+    end
+
+    context "when use_prefix is false" do
+      before { subject.command_options(use_prefix: false) }
+
+      it "returns a Regexp with a prefix" do
+        expect(subject.command_regex).to eq(/^(?:)?test\-command(?!\S)/)
+      end
+    end
+  end
+
+  describe ".convert_to_regex" do
+    context "when given object is a String" do
+      it "escapes the string as a Regexp" do
+        expect(subject.convert_to_regex('foo.+')).to eq('foo\\.\\+')
+      end
+    end
+
+    context "when given object is an Object" do
+      let(:obj) { Object.new }
+
+      it "returns the given object" do
+        expect(subject.convert_to_regex(obj)).to eql(obj)
+      end
+    end
+  end
+
+  describe ".group" do
+    context "when name is given" do
+      it "sets group to that name" do
+        expect(subject.group('Test Group')).to eq('Test Group')
+      end
+    end
+
+    context "when source file matches a pry command" do
       before do
-        @set.create_command 'jamaica', 'Out of Many, One People' do
-          def process
-            output.puts 1 + args[0].to_i
-          end
-        end
+        expect_any_instance_of(Pry::Method).to receive(:source_file)
+          .and_return('/pry/test_commands/test_command.rb')
       end
 
-      let(:hooks) do
-        h = Pry::Hooks.new
-        h.add_hook('before_jamaica', 'name1') do |i|
-          output.puts 3 - i.to_i
-        end
-
-        h.add_hook('before_jamaica', 'name2') do |i|
-          output.puts 4 - i.to_i
-        end
-
-        h.add_hook('after_jamaica', 'name3') do |i|
-          output.puts 2 + i.to_i
-        end
-
-        h.add_hook('after_jamaica', 'name4') do |i|
-          output.puts 3 + i.to_i
-        end
-      end
-
-      it "should call hooks in the right order" do
-        out = pry_tester(hooks: hooks, commands: @set).process_command('jamaica 2')
-        expect(out).to eq("1\n2\n3\n4\n5\n")
-      end
-    end
-  end
-
-  describe 'help' do
-    it 'should default to the description for blocky commands' do
-      @set.command 'oolon-colluphid', "Raving Atheist" do
-      end
-
-      expect(mock_command(@set['help'], %w[oolon-colluphid], command_set: @set).output)
-        .to match(/Raving Atheist/)
-    end
-
-    it 'should use slop to generate the help for classy commands' do
-      @set.create_command 'eddie', "The ship-board computer" do
-        def options(opt)
-          opt.banner "Over-cheerful, and makes a ticking noise."
-        end
-      end
-
-      expect(mock_command(@set['help'], %w[eddie], command_set: @set).output)
-        .to match(/Over-cheerful/)
-    end
-
-    it 'should provide --help for classy commands' do
-      cmd = @set.create_command 'agrajag', "Killed many times by Arthur" do
-        def options(opt)
-          opt.on :r, :retaliate, "Try to get Arthur back"
-        end
-      end
-
-      expect(mock_command(cmd, %w[--help]).output).to match(/--retaliate/)
-    end
-
-    it 'should provide a -h for classy commands' do
-      cmd = @set.create_command(
-        'zarniwoop', "On an intergalactic cruise, in his office."
-      ) do
-        def options(opt)
-          opt.on :e, :escape, "Help zaphod escape the Total Perspective Vortex"
-        end
-      end
-
-      expect(mock_command(cmd, %w[--help]).output).to match(/Total Perspective Vortex/)
-    end
-
-    it 'should use the banner provided' do
-      cmd = @set.create_command 'deep-thought', "The second-best computer ever" do
-        banner <<-BANNER
-          Who's merest operational parameters, I am not worthy to compute.
-        BANNER
-      end
-
-      expect(mock_command(cmd, %w[--help]).output).to match(/Who\'s merest/)
-    end
-  end
-
-  describe 'context' do
-    let(:context) do
-      {
-        target: binding,
-        output: StringIO.new,
-        eval_string: "eval-string",
-        command_set: @set,
-        pry_instance: Pry.new
-      }
-    end
-
-    describe '#setup' do
-      it 'should capture lots of stuff from the hash passed to new before setup' do
-        inside = inner_scope do |probe|
-          cmd = @set.create_command('fenchurch', "Floats slightly off the ground") do
-            define_method(:setup, &probe)
-          end
-
-          cmd.new(context).call
-        end
-
-        expect(inside.context).to eq(context)
-        expect(inside.target).to eq(context[:target])
-        expect(inside.target_self).to eq(context[:target].eval('self'))
-        expect(inside.output).to eq(context[:output])
+      it "sets group name to command name" do
+        expect(subject.group).to eq('Test command')
       end
     end
 
-    describe '#process' do
-      it 'should capture lots of stuff from the hash passed to new before setup' do
-        inside = inner_scope do |probe|
-          cmd = @set.create_command('fenchurch', "Floats slightly off the ground") do
-            define_method(:process, &probe)
-          end
-
-          cmd.new(context).call
-        end
-
-        expect(inside.eval_string).to eq("eval-string")
-        expect(inside.__send__(:command_set)).to eq(@set)
-        expect(inside.pry_instance).to eq(context[:pry_instance])
-      end
-    end
-  end
-
-  describe 'classy api' do
-    it 'should call setup, then subcommands, then options, then process' do
-      cmd = @set.create_command 'rooster', "Has a tasty towel" do
-        def setup
-          output.puts "setup"
-        end
-
-        def subcommands(_cmd)
-          output.puts "subcommands"
-        end
-
-        def options(_opt)
-          output.puts "options"
-        end
-
-        def process
-          output.puts "process"
-        end
-      end
-
-      expect(mock_command(cmd).output).to eq "setup\nsubcommands\noptions\nprocess\n"
-    end
-
-    it 'should raise a command error if process is not overridden' do
-      cmd = @set.create_command 'jeltz', "Commander of a Vogon constructor fleet" do
-        def proccces; end
-      end
-
-      expect { mock_command(cmd) }.to raise_error Pry::CommandError
-    end
-
-    it 'should work if neither options, nor setup is overridden' do
-      cmd = @set.create_command 'wowbagger', "Immortal, insulting.", keep_retval: true do
-        def process
-          5
-        end
-      end
-
-      expect(mock_command(cmd).return).to eq 5
-    end
-
-    it 'should provide opts and args as provided by slop' do
-      cmd = @set.create_command 'lintilla', "One of 800,000,000 clones" do
-        def options(opt)
-          opt.on :f, :four, "A numeric four", as: Integer, optional_argument: true
-        end
-
-        def process
-          output.puts args.inspect
-          output.puts opts[:f]
-        end
-      end
-
-      result = mock_command(cmd, %w[--four 4 four])
-      expect(result.output.split).to eq ['["four"]', '4']
-    end
-
-    it 'should allow overriding options after definition' do
-      cmd = @set.create_command(
-        /number-(one|two)/, "Lieutenants of the Golgafrinchan Captain", shellwords: false
-      ) do
-        command_options listing: 'number-one'
-      end
-
-      expect(cmd.command_options[:shellwords]).to eq false
-      expect(cmd.command_options[:listing]).to eq 'number-one'
-    end
-
-    it "should create subcommands" do
-      cmd = @set.create_command 'mum', 'Your mum' do
-        def subcommands(cmd)
-          cmd.command :yell
-        end
-
-        def process
-          output.puts opts.fetch_command(:blahblah).inspect
-          output.puts opts.fetch_command(:yell).present?
-        end
-      end
-
-      result = mock_command(cmd, ['yell'])
-      expect(result.output.split).to eq %w[nil true]
-    end
-
-    it "should create subcommand options" do
-      cmd = @set.create_command 'mum', 'Your mum' do
-        def subcommands(cmd)
-          cmd.command :yell do
-            on :p, :person
-          end
-        end
-
-        def process
-          output.puts args.inspect
-          output.puts opts.fetch_command(:yell).present?
-          output.puts opts.fetch_command(:yell).person?
-        end
-      end
-
-      result = mock_command(cmd, %w[yell --person papa])
-      expect(result.output.split).to eq ['["papa"]', 'true', 'true']
-    end
-
-    it "should accept top-level arguments" do
-      cmd = @set.create_command 'mum', 'Your mum' do
-        def subcommands(cmd)
-          cmd.on :yell
-        end
-
-        def process
-          args.should == %w[yell papa sonny daughter]
-        end
-      end
-
-      mock_command(cmd, %w[yell papa sonny daughter])
-    end
-
-    describe "explicit classes" do
+    context "when source file matches a pry plugin" do
       before do
-        @x = Class.new(Pry::ClassCommand) do
-          options baby: :pig
-          match(/goat/)
-          description "waaaninngggiiigygygygygy"
-        end
+        expect_any_instance_of(Pry::Method).to receive(:source_file)
+          .and_return('pry-test-1.2.3')
       end
 
-      it 'subclasses should inherit options, match and description from superclass' do
-        k = Class.new(@x)
-        expect(k.options).to eq @x.options
-        expect(k.match).to eq @x.match
-        expect(k.description).to eq @x.description
+      it "sets group name to plugin name" do
+        expect(subject.group).to eq('pry-test (v1.2.3)')
+      end
+    end
+
+    context "when source file matches 'pryrc'" do
+      before do
+        expect_any_instance_of(Pry::Method).to receive(:source_file)
+          .and_return('pryrc')
+      end
+
+      it "sets group name to pryrc" do
+        expect(subject.group).to eq('pryrc')
+      end
+    end
+
+    context "when source file doesn't match anything" do
+      it "returns '(other)'" do
+        expect(subject.group).to eq('(other)')
       end
     end
   end
 
-  describe 'tokenize' do
-    it "should interpolate string with \#{} in them" do
-      expect do |probe|
-        cmd = @set.command('random-dent', &probe)
+  describe "#run" do
+    let(:command_set) do
+      set = Pry::CommandSet.new
+      set.command('test') {}
+      set
+    end
 
-        _foo = 5
+    subject do
+      command = Class.new(described_class)
+      command.new(command_set: command_set, pry_instance: Pry.new)
+    end
+
+    it "runs a command from another command" do
+      result = subject.run('test')
+      expect(result).to be_command
+    end
+  end
+
+  describe "#commands" do
+    let(:command_set) do
+      set = Pry::CommandSet.new
+      set.command('test') do
+        def process; end
+      end
+      set
+    end
+
+    subject do
+      command = Class.new(described_class)
+      command.new(command_set: command_set, pry_instance: Pry.new)
+    end
+
+    it "returns command set as a hash" do
+      expect(subject.commands).to eq('test' => command_set['test'])
+    end
+  end
+
+  describe "#void" do
+    it "returns void value" do
+      expect(subject.new.void).to eq(Pry::Command::VOID_VALUE)
+    end
+  end
+
+  describe "#target_self" do
+    let(:target) { binding }
+
+    subject { Class.new(described_class).new(target: target) }
+
+    it "returns the value of self inside the target binding" do
+      expect(subject.target_self).to eq(target.eval('self'))
+    end
+  end
+
+  describe "#state" do
+    let(:target) { binding }
+
+    subject { Class.new(described_class).new(pry_instance: Pry.new) }
+
+    it "returns a state hash" do
+      expect(subject.state).to be_a(Pry::Config)
+    end
+
+    it "remembers the state" do
+      subject.state[:foo] = :bar
+      expect(subject.state[:foo]).to eq(:bar)
+    end
+  end
+
+  describe "#interpolate_string" do
+    context "when given string contains \#{" do
+      let(:target) do
+        foo = 'bar'
+        binding
+      end
+
+      subject { Class.new(described_class).new(target: target) }
+
+      it "returns the result of eval within target" do
         # rubocop:disable Lint/InterpolationCheck
-        cmd.new(target: binding).process_line('random-dent #{1 + 2} #{3 + _foo}')
+        expect(subject.interpolate_string('#{foo}')).to eq('bar')
         # rubocop:enable Lint/InterpolationCheck
-      end.to yield_with_args('3', '8')
+      end
     end
 
-    it 'should not fail if interpolation is not needed and target is not set' do
-      expect do |probe|
-        cmd = @set.command('the-book', &probe)
+    context "when given string doesn't contain \#{" do
+      it "returns the given string" do
+        expect(subject.new.interpolate_string('foo')).to eq('foo')
+      end
+    end
+  end
 
-        cmd.new.process_line 'the-book --help'
-      end.to yield_with_args('--help')
+  describe "#check_for_command_collision" do
+    let(:command_set) do
+      set = Pry::CommandSet.new
+      set.command('test') do
+        def process; end
+      end
+      set
     end
 
-    it 'should not interpolate commands with :interpolate => false' do
-      # rubocop:disable Lint/InterpolationCheck
-      expect do |probe|
-        cmd = @set.command('thor', 'norse god', interpolate: false, &probe)
+    let(:output) { StringIO.new }
 
-        cmd.new.process_line 'thor %(#{foo})'
-      end.to yield_with_args('%(#{foo})')
-      # rubocop:enable Lint/InterpolationCheck
+    subject do
+      command = Class.new(described_class)
+      command.new(command_set: command_set, target: target, output: output)
     end
 
-    it 'should use shell-words to split strings' do
-      expect do |probe|
-        cmd = @set.command('eccentrica', &probe)
+    context "when a command collides with a local variable" do
+      let(:target) do
+        test = 'foo'
+        binding
+      end
 
-        cmd.new.process_line %(eccentrica "gallumbits" 'erot''icon' 6)
-      end.to yield_with_args('gallumbits', 'eroticon', '6')
+      it "displays a warning" do
+        subject.check_for_command_collision('test', '')
+        expect(output.string)
+          .to match("'test', which conflicts with a local-variable")
+      end
     end
 
-    it 'should split on spaces if shellwords is not used' do
-      expect do |probe|
-        cmd = @set.command(
-          'bugblatter-beast', 'would eat its grandmother', shellwords: false, &probe
+    context "when a command collides with a method" do
+      let(:target) do
+        def test; end
+        binding
+      end
+
+      it "displays a warning" do
+        subject.check_for_command_collision('test', '')
+        expect(output.string).to match("'test', which conflicts with a method")
+      end
+    end
+
+    context "when a command doesn't collide" do
+      let(:target) do
+        def test; end
+        binding
+      end
+
+      it "doesn't display a warning" do
+        subject.check_for_command_collision('nothing', '')
+        expect(output.string).to be_empty
+      end
+    end
+  end
+
+  describe "#tokenize" do
+    let(:target) { binding }
+    let(:klass) { Class.new(described_class) }
+    let(:target) { binding }
+
+    subject { klass.new(target: target) }
+
+    before { klass.match('test') }
+
+    context "when given string uses interpolation" do
+      let(:target) do
+        foo = 4
+        binding
+      end
+
+      before { klass.command_options(interpolate: true) }
+
+      it "interpolates the string in the target's context" do
+        # rubocop:disable Lint/InterpolationCheck
+        expect(subject.tokenize('test #{1 + 2} #{3 + foo}'))
+          .to eq(['test', '3 7', [], %w[3 7]])
+        # rubocop:enable Lint/InterpolationCheck
+      end
+
+      context "and when interpolation is disabled" do
+        before { klass.command_options(interpolate: false) }
+
+        it "doesn't interpolate the string" do
+          # rubocop:disable Lint/InterpolationCheck
+          expect(subject.tokenize('test #{3 + foo}'))
+            .to eq(['test', '#{3 + foo}', [], %w[#{3 + foo}]])
+          # rubocop:enable Lint/InterpolationCheck
+        end
+      end
+    end
+
+    context "when given string doesn't match a command" do
+      it "raises CommandError" do
+        expect { subject.tokenize('boom') }
+          .to raise_error(Pry::CommandError, /command which didn't match/)
+      end
+    end
+
+    context "when target is not set" do
+      subject { klass.new }
+
+      it "still returns tokens" do
+        expect(subject.tokenize('test --help'))
+          .to eq(['test', '--help', [], ['--help']])
+      end
+    end
+
+    context "when shellwords is enabled" do
+      before { klass.command_options(shellwords: true) }
+
+      it "strips quotes from the arguments" do
+        expect(subject.tokenize(%(test "foo" 'bar' 1)))
+          .to eq(['test', %("foo" 'bar' 1), [], %w[foo bar 1]])
+      end
+    end
+
+    context "when shellwords is disabled" do
+      before { klass.command_options(shellwords: false) }
+
+      it "doesn't split quotes from the arguments" do
+        # rubocop:disable Lint/PercentStringArray
+        expect(subject.tokenize(%(test "foo" 'bar' 1)))
+          .to eq(['test', %("foo" 'bar' 1), [], %w["foo" 'bar' 1]])
+        # rubocop:enable Lint/PercentStringArray
+      end
+    end
+
+    context "when command regex has captures" do
+      before { klass.match(/perfectly (normal)( beast)/i) }
+
+      it "returns the captures" do
+        expect(subject.tokenize('Perfectly Normal Beast (honest!)')).to eq(
+          [
+            'Perfectly Normal Beast',
+            '(honest!)',
+            ['Normal', ' Beast'],
+            ['(honest!)']
+          ]
         )
-
-        cmd.new.process_line %(bugblatter-beast "of traal")
-      end.to yield_with_args('"of', 'traal"')
-    end
-
-    it 'should add captures to arguments for regex commands' do
-      expect do |probe|
-        cmd = @set.command(/perfectly (normal)( beast)?/i, &probe)
-
-        cmd.new.process_line %(Perfectly Normal Beast (honest!))
-      end.to yield_with_args('Normal', ' Beast', '(honest!)')
+      end
     end
   end
 
-  describe 'process_line' do
-    it 'should check for command name collisions if configured' do
-      old = Pry.config.collision_warning
-      Pry.config.collision_warning = true
-
-      cmd = @set.command '_frankie' do
-      end
-
-      _frankie = 'boyle'
-      output = StringIO.new
-      cmd.new(target: binding, output: output).process_line %(_frankie mouse)
-
-      expect(output.string).to match(/command .* conflicts/)
-
-      Pry.config.collision_warning = old
-    end
-
-    it 'should spot collision warnings on assignment if configured' do
-      old = Pry.config.collision_warning
-      Pry.config.collision_warning = true
-
-      cmd = @set.command 'frankie' do
-      end
-
-      output = StringIO.new
-      cmd.new(target: binding, output: output).process_line %(frankie = mouse)
-
-      expect(output.string).to match(/command .* conflicts/)
-
-      Pry.config.collision_warning = old
-    end
-
-    it "should set the commands' arg_string and captures" do
-      inside = inner_scope do |probe|
-        cmd = @set.command(/benj(ie|ei)/, &probe)
-
-        cmd.new.process_line %(benjie mouse)
-      end
-
-      expect(inside.arg_string).to eq("mouse")
-      expect(inside.captures).to eq(['ie'])
-    end
-
-    it "should raise an error if the line doesn't match the command" do
-      cmd = @set.command 'grunthos', 'the flatulent'
-      expect { cmd.new.process_line %(grumpos) }.to raise_error Pry::CommandError
-    end
-  end
-
-  describe "block parameters" do
-    before do
-      @context = Object.new
-      @set.command "walking-spanish", "down the hall", takes_block: true do
-        insert_variable(:@x, command_block.call, target)
-      end
-      @set.import Pry::Commands
-
-      @t = pry_tester(@context, commands: @set)
-    end
-
-    it 'should accept multiline blocks' do
-      @t.eval <<-COMMAND
-        walking-spanish | do
-          :jesus
-        end
-      COMMAND
-
-      expect(@context.instance_variable_get(:@x)).to eq :jesus
-    end
-
-    it 'should accept normal parameters along with block' do
-      @set.block_command "walking-spanish",
-                         "litella's been screeching for a blind pig.",
-                         takes_block: true do |x, y|
-        insert_variable(:@x, x, target)
-        insert_variable(:@y, y, target)
-        insert_variable(:@block_var, command_block.call, target)
-      end
-
-      @t.eval 'walking-spanish john carl| { :jesus }'
-
-      expect(@context.instance_variable_get(:@x)).to eq "john"
-      expect(@context.instance_variable_get(:@y)).to eq "carl"
-      expect(@context.instance_variable_get(:@block_var)).to eq :jesus
-    end
-
-    describe "single line blocks" do
-      it 'should accept blocks with do ; end' do
-        @t.eval 'walking-spanish | do ; :jesus; end'
-        expect(@context.instance_variable_get(:@x)).to eq :jesus
-      end
-
-      it 'should accept blocks with do; end' do
-        @t.eval 'walking-spanish | do; :jesus; end'
-        expect(@context.instance_variable_get(:@x)).to eq :jesus
-      end
-
-      it 'should accept blocks with { }' do
-        @t.eval 'walking-spanish | { :jesus }'
-        expect(@context.instance_variable_get(:@x)).to eq :jesus
+  describe "#process_line" do
+    let(:klass) do
+      Class.new(described_class) do
+        def call(*args); end
       end
     end
 
-    describe "block-related content removed from arguments" do
-      describe "arg_string" do
-        it 'should remove block-related content from arg_string (with one normal arg)' do
-          @set.block_command(
-            "walking-spanish", "down the hall", takes_block: true
-          ) do |x, _y|
-            insert_variable(:@arg_string, arg_string, target)
-            insert_variable(:@x, x, target)
-          end
+    let(:target) do
+      test = 4
+      binding
+    end
 
-          @t.eval 'walking-spanish john| { :jesus }'
+    let(:output) { StringIO.new }
 
-          expect(@context.instance_variable_get(:@arg_string))
-            .to eq(@context.instance_variable_get(:@x))
+    subject { klass.new(target: target, output: output) }
+
+    before { klass.match(/test(y)?/) }
+
+    it "sets arg_string" do
+      subject.process_line('test -v')
+      expect(subject.arg_string).to eq('-v')
+    end
+
+    it "sets captures" do
+      subject.process_line('testy')
+      expect(subject.captures).to eq(['y'])
+    end
+
+    describe "collision warnings" do
+      context "when collision warnings are configured" do
+        before do
+          expect(Pry.config).to receive(:collision_warning).and_return(true)
         end
 
-        it 'should remove block-related content from arg_string (with no normal args)' do
-          @set.block_command "walking-spanish", "down the hall", takes_block: true do
-            insert_variable(:@arg_string, arg_string, target)
-          end
-
-          @t.eval 'walking-spanish | { :jesus }'
-
-          expect(@context.instance_variable_get(:@arg_string)).to eq ""
-        end
-
-        it(
-          "doesn't remove block-related content from arg_string " \
-          "when :takes_block => false"
-        ) do
-          block_string = "| { :jesus }"
-          @set.block_command "walking-spanish", "homemade special", takes_block: false do
-            insert_variable(:@arg_string, arg_string, target)
-          end
-
-          @t.eval "walking-spanish #{block_string}"
-
-          expect(@context.instance_variable_get(:@arg_string)).to eq block_string
+        it "prints a warning when there's a collision" do
+          subject.process_line('test')
+          expect(output.string).to match(/conflicts with a local-variable/)
         end
       end
 
-      describe "args" do
-        describe "block_command" do
-          it "should remove block-related content from arguments" do
-            @set.block_command(
-              "walking-spanish", "glass is full of sand", takes_block: true
-            ) do |x, y|
-              insert_variable(:@x, x, target)
-              insert_variable(:@y, y, target)
-            end
-
-            @t.eval 'walking-spanish | { :jesus }'
-
-            expect(@context.instance_variable_get(:@x)).to eq nil
-            expect(@context.instance_variable_get(:@y)).to eq nil
-          end
-
-          it(
-            "doesn't remove block-related content from arguments if :takes_block => false"
-          ) do
-            @set.block_command(
-              "walking-spanish", "litella screeching for a blind pig", takes_block: false
-            ) do |x, y|
-              insert_variable(:@x, x, target)
-              insert_variable(:@y, y, target)
-            end
-
-            @t.eval 'walking-spanish | { :jesus }'
-
-            expect(@context.instance_variable_get(:@x)).to eq "|"
-            expect(@context.instance_variable_get(:@y)).to eq "{"
-          end
+      context "when collision warnings are not set" do
+        before do
+          expect(Pry.config).to receive(:collision_warning).and_return(false)
         end
 
-        describe "create_command" do
-          it "should remove block-related content from arguments" do
-            @set.create_command(
-              "walking-spanish", "punk sanders carved one out of wood", takes_block: true
-            ) do
-              def process(x, y) # rubocop:disable Naming/UncommunicativeMethodParamName
-                insert_variable(:@x, x, target)
-                insert_variable(:@y, y, target)
-              end
-            end
-
-            @t.eval 'walking-spanish | { :jesus }'
-
-            expect(@context.instance_variable_get(:@x)).to eq nil
-            expect(@context.instance_variable_get(:@y)).to eq nil
-          end
-
-          it(
-            "doesn't remove block-related content from arguments if :takes_block => false"
-          ) do
-            @set.create_command "walking-spanish", "down the hall", takes_block: false do
-              def process(x, y) # rubocop:disable Naming/UncommunicativeMethodParamName
-                insert_variable(:@x, x, target)
-                insert_variable(:@y, y, target)
-              end
-            end
-
-            @t.eval 'walking-spanish | { :jesus }'
-
-            expect(@context.instance_variable_get(:@x)).to eq "|"
-            expect(@context.instance_variable_get(:@y)).to eq "{"
-          end
-        end
-      end
-    end
-
-    describe "blocks can take parameters" do
-      describe "{} style blocks" do
-        it 'should accept multiple parameters' do
-          @set.block_command "walking-spanish", "down the hall", takes_block: true do
-            insert_variable(:@x, command_block.call(1, 2), target)
-          end
-
-          @t.eval 'walking-spanish | { |x, y| [x, y] }'
-
-          expect(@context.instance_variable_get(:@x)).to eq [1, 2]
-        end
-      end
-
-      describe "do/end style blocks" do
-        it 'should accept multiple parameters' do
-          @set.create_command "walking-spanish", "litella", takes_block: true do
-            def process
-              insert_variable(:@x, command_block.call(1, 2), target)
-            end
-          end
-
-          @t.eval <<-COMMAND
-            walking-spanish | do |x, y|
-              [x, y]
-            end
-          COMMAND
-
-          expect(@context.instance_variable_get(:@x)).to eq [1, 2]
-        end
-      end
-    end
-
-    describe "closure behaviour" do
-      it 'should close over locals in the definition context' do
-        @t.eval 'var = :hello', 'walking-spanish | { var }'
-        expect(@context.instance_variable_get(:@x)).to eq :hello
-      end
-    end
-
-    describe "exposing block parameter" do
-      describe "block_command" do
-        it "should expose block in command_block method" do
-          @set.block_command "walking-spanish", "glass full of sand", takes_block: true do
-            insert_variable(:@x, command_block.call, target)
-          end
-
-          @t.eval 'walking-spanish | { :jesus }'
-
-          expect(@context.instance_variable_get(:@x)).to eq :jesus
-        end
-      end
-
-      describe "create_command" do
-        it "should NOT expose &block in create_command's process method" do
-          @set.create_command "walking-spanish", "down the hall", takes_block: true do
-            def process(&block)
-              block.call # rubocop:disable Performance/RedundantBlockCall
-            end
-          end
-          @out = StringIO.new
-
-          expect { @t.eval 'walking-spanish | { :jesus }' }.to raise_error(NoMethodError)
-        end
-
-        it "should expose block in command_block method" do
-          @set.create_command "walking-spanish", "homemade special", takes_block: true do
-            def process
-              insert_variable(:@x, command_block.call, target)
-            end
-          end
-
-          @t.eval 'walking-spanish | { :jesus }'
-
-          expect(@context.instance_variable_get(:@x)).to eq :jesus
+        it "prints a warning when there's a collision" do
+          subject.process_line('test')
+          expect(output.string).to be_empty
         end
       end
     end
   end
 
-  describe "a command made with a custom sub-class" do
-    before do
-      class MyTestCommand < Pry::ClassCommand
-        match(/my-*test/)
-        description 'So just how many sound technicians does it take to' \
-          'change a lightbulb? 1? 2? 3? 1-2-3? Testing?'
-        options shellwords: false, listing: 'my-test'
-
-        undef process if method_defined? :process
-
-        def process
-          output.puts command_name * 2
-        end
-      end
-
-      Pry.config.commands.add_command MyTestCommand
-    end
-
-    after do
-      Pry.config.commands.delete 'my-test'
-    end
-
-    it "allows creation of custom subclasses of Pry::Command" do
-      expect(pry_eval('my---test')).to match(/my-testmy-test/)
-    end
-
-    it "shows the source of the process method" do
-      expect(pry_eval('show-source my-test')).to match(/output.puts command_name/)
-    end
-
-    describe "command options hash" do
-      it "is always present" do
-        options_hash = {
-          keep_retval: false,
-          argument_required: false,
-          interpolate: true,
-          shellwords: false,
-          listing: 'my-test',
-          use_prefix: true,
-          takes_block: false
-        }
-        expect(MyTestCommand.options).to eq options_hash
-      end
-
-      describe ":listing option" do
-        it "defaults to :match if not set explicitly" do
-          class HappyNewYear < Pry::ClassCommand
-            match 'happy-new-year'
-            description 'Happy New Year 2013'
-          end
-          Pry.config.commands.add_command HappyNewYear
-
-          expect(HappyNewYear.options[:listing]).to eq 'happy-new-year'
-
-          Pry.config.commands.delete 'happy-new-year'
-        end
-
-        it "can be set explicitly" do
-          class MerryChristmas < Pry::ClassCommand
-            match 'merry-christmas'
-            description 'Merry Christmas!'
-            command_options listing: 'happy-holidays'
-          end
-          Pry.config.commands.add_command MerryChristmas
-
-          expect(MerryChristmas.options[:listing]).to eq 'happy-holidays'
-
-          Pry.config.commands.delete 'merry-christmas'
-        end
-
-        it "equals to :match option's inspect, if :match is Regexp" do
-          class CoolWinter < Pry::ClassCommand
-            match(/.*winter/)
-            description 'Is winter cool or cool?'
-          end
-          Pry.config.commands.add_command CoolWinter
-
-          expect(CoolWinter.options[:listing]).to eq '/.*winter/'
-
-          Pry.config.commands.delete(/.*winter/)
-        end
-      end
-    end
-  end
-
-  describe "commands can save state" do
-    before do
-      @set = Pry::CommandSet.new do
-        create_command "litella", "desc" do
-          def process
-            state.my_state ||= 0
-            state.my_state += 1
-          end
-        end
-
-        create_command "sanders", "desc" do
-          def process
-            state.my_state = "wood"
-          end
-        end
-
-        create_command(/[Hh]ello-world/, "desc") do
-          def process
-            state.my_state ||= 0
-            state.my_state += 2
-          end
-        end
-      end.import Pry::Commands
-
-      @t = pry_tester(commands: @set)
-    end
-
-    it 'should save state for the command on the Pry#command_state hash' do
-      @t.eval 'litella'
-      expect(@t.pry.command_state["litella"].my_state).to eq 1
-    end
-
-    it 'should ensure state is maintained between multiple invocations of command' do
-      @t.eval 'litella'
-      @t.eval 'litella'
-      expect(@t.pry.command_state["litella"].my_state).to eq 2
-    end
-
-    it 'should ensure state with same name stored seperately for each command' do
-      @t.eval 'litella', 'sanders'
-
-      expect(@t.pry.command_state["litella"].my_state).to eq 1
-      expect(@t.pry.command_state["sanders"].my_state).to eq("wood")
-    end
-
-    it 'should ensure state is properly saved for regex commands' do
-      @t.eval 'hello-world', 'Hello-world'
-      expect(@t.pry.command_state[/[Hh]ello-world/].my_state).to eq 4
-    end
-  end
-
-  if defined?(Bond)
-    describe 'complete' do
-      it 'should return the arguments that are defined' do
-        @set.create_command "torrid" do
-          def options(opt)
-            opt.on :test
-            opt.on :lest
-            opt.on :pests
-          end
-        end
-
-        expect(@set.complete('torrid ')).to.include('--test ')
-      end
-    end
-  end
-
-  describe 'group' do
-    before do
-      @set.import(
-        Pry::CommandSet.new do
-          create_command("magic") { group("Not for a public use") }
-        end
-      )
-    end
-
-    it 'should be correct for default commands' do
-      expect(@set["help"].group).to eq "Help"
-    end
-
-    it 'should not change once it is initialized' do
-      @set["magic"].group("-==CD COMMAND==-")
-      expect(@set["magic"].group).to eq "Not for a public use"
-    end
-
-    it 'should not disappear after the call without parameters' do
-      @set["magic"].group
-      expect(@set["magic"].group).to eq "Not for a public use"
+  describe "#complete" do
+    it "returns empty array" do
+      expect(subject.new.complete('')).to eq([])
     end
   end
 end

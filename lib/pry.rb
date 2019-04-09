@@ -14,6 +14,8 @@ require 'pry/exceptions'
 require 'pry/hooks'
 require 'pry/input_completer'
 require 'pry/command'
+require 'pry/class_command'
+require 'pry/block_command'
 require 'pry/command_set'
 require 'pry/syntax_highlighter'
 

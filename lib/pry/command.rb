@@ -10,6 +10,10 @@ class Pry
     extend Helpers::DocumentationHelpers
     extend CodeObject::Helpers
 
+    include Pry::Helpers::BaseHelpers
+    include Pry::Helpers::CommandHelpers
+    include Pry::Helpers::Text
+
     # represents a void return value for a command
     VOID_VALUE = Object.new
 
@@ -91,38 +95,7 @@ class Pry
           takes_block: false
         }
       end
-    end
 
-    # Make those properties accessible to instances
-    def name
-      self.class.name
-    end
-
-    def match
-      self.class.match
-    end
-
-    def description
-      self.class.description
-    end
-
-    def block
-      self.class.block
-    end
-
-    def command_options
-      self.class.options
-    end
-
-    def command_name
-      self.class.command_name
-    end
-
-    def source
-      self.class.source
-    end
-
-    class << self
       def name
         super.to_s == "" ? "#<class(Pry::Command #{match.inspect})>" : super
       end
@@ -188,8 +161,7 @@ class Pry
       end
 
       def command_regex
-        pr = Pry.respond_to?(:config) ? Pry.config.command_prefix : ""
-        prefix = convert_to_regex(pr)
+        prefix = convert_to_regex(Pry.config.command_prefix)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
         /^#{prefix}#{convert_to_regex(match)}(?!\S)/
@@ -236,17 +208,8 @@ class Pry
     attr_accessor :context
     attr_accessor :command_set
     attr_accessor :hooks
-
     attr_accessor :pry_instance
     alias _pry_= pry_instance=
-    def _pry_
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
-        "pry_instance instead"
-      )
-      pry_instance
-    end
 
     # The block we pass *into* a command so long as `:takes_block` is
     # not equal to `false`
@@ -255,6 +218,47 @@ class Pry
     #     puts "block content"
     #   end
     attr_accessor :command_block
+
+    # Instantiate a command, in preparation for calling it.
+    # @param [Hash] context The runtime context to use with this command.
+    def initialize(context = {})
+      self.context      = context
+      self.target       = context[:target]
+      self.output       = context[:output]
+      self.eval_string  = context[:eval_string]
+      self.command_set  = context[:command_set]
+      self.hooks        = context[:hooks]
+      self.pry_instance = context[:pry_instance]
+    end
+
+    # Make those properties accessible to instances
+    def name
+      self.class.name
+    end
+
+    def match
+      self.class.match
+    end
+
+    def description
+      self.class.description
+    end
+
+    def block
+      self.class.block
+    end
+
+    def command_options
+      self.class.options
+    end
+
+    def command_name
+      self.class.command_name
+    end
+
+    def source
+      self.class.source
+    end
 
     # Run a command from another command.
     # @param [String] command_string The string that invokes the command
@@ -279,20 +283,13 @@ class Pry
       VOID_VALUE
     end
 
-    include Pry::Helpers::BaseHelpers
-    include Pry::Helpers::CommandHelpers
-    include Pry::Helpers::Text
-
-    # Instantiate a command, in preparation for calling it.
-    # @param [Hash] context The runtime context to use with this command.
-    def initialize(context = {})
-      self.context      = context
-      self.target       = context[:target]
-      self.output       = context[:output]
-      self.eval_string  = context[:eval_string]
-      self.command_set  = context[:command_set]
-      self.hooks        = context[:hooks]
-      self.pry_instance = context[:pry_instance]
+    def _pry_
+      loc = caller_locations(1..1).first
+      warn(
+        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
+        "pry_instance instead"
+      )
+      pry_instance
     end
 
     # @return [Object] The value of `self` inside the `target` binding.
@@ -405,6 +402,16 @@ class Pry
       call_safely(*(captures + args))
     end
 
+    # Generate completions for this command
+    #
+    # @param [String] _search The line typed so far
+    # @return [Array<String>]  Completion words
+    def complete(_search)
+      []
+    end
+
+    private
+
     # Run the command with the given `args`.
     #
     # This is a public wrapper around `#call` which ensures all preconditions
@@ -431,16 +438,6 @@ class Pry
     ensure
       Symbol.instance_eval { define_method(:call, call_method) } if call_method
     end
-
-    # Generate completions for this command
-    #
-    # @param [String] _search The line typed so far
-    # @return [Array<String>]  Completion words
-    def complete(_search)
-      []
-    end
-
-    private
 
     # Pass a block argument to a command.
     # @param [String] arg_string The arguments (as a string) passed to the command.
@@ -502,231 +499,20 @@ class Pry
       ret
     end
 
-    # Fix the number of arguments we pass to a block to avoid arity warnings.
-    # @param [Fixnum] arity The arity of the block
-    # @param [Array] args The arguments to pass
-    # @return [Array] A (possibly shorter) array of the arguments to pass
-    def correct_arg_arity(arity, args)
-      if arity < 0
+    # Normalize method arguments according to its arity.
+    #
+    # @param [Integer] method
+    # @param [Array] args
+    # @return [Array] a (possibly shorter) array of the arguments to pass
+    def normalize_method_args(method, args)
+      case method.arity
+      when -1
         args
-      elsif arity == 0
+      when 0
         []
-      elsif arity > 0
-        args.values_at(*(0..(arity - 1)).to_a)
-      end
-    end
-  end
-
-  # A super-class for Commands that are created with a single block.
-  #
-  # This class ensures that the block is called with the correct number of arguments
-  # and the right context.
-  #
-  # Create subclasses using {Pry::CommandSet#command}.
-  class BlockCommand < Command
-    # backwards compatibility
-    alias opts context
-
-    # Call the block that was registered with this command.
-    # @param [Array<String>] args The arguments passed
-    # @return [Object] The return value of the block
-    def call(*args)
-      instance_exec(*correct_arg_arity(block.arity, args), &block)
-    end
-
-    def help
-      "#{command_options[:listing].to_s.ljust(18)} #{description}"
-    end
-  end
-
-  # A super-class of Commands with structure.
-  #
-  # This class implements the bare-minimum functionality that a command should
-  # have, namely a --help switch, and then delegates actual processing to its
-  # subclasses.
-  #
-  # Create subclasses using {Pry::CommandSet#create_command}, and override the
-  # `options(opt)` method to set up an instance of Pry::Slop, and the `process`
-  # method to actually run the command. If necessary, you can also override
-  # `setup` which will be called before `options`, for example to require any
-  # gems your command needs to run, or to set up state.
-  class ClassCommand < Command
-    class << self
-      # Ensure that subclasses inherit the options, description and
-      # match from a ClassCommand super class.
-      def inherited(klass)
-        klass.match match
-        klass.description description
-        klass.command_options options
-      end
-
-      def source
-        source_object.source
-      end
-
-      def doc
-        new.help
-      end
-
-      def source_location
-        source_object.source_location
-      end
-
-      def source_file
-        source_object.source_file
-      end
-      alias file source_file
-
-      def source_line
-        source_object.source_line
-      end
-      alias line source_line
-
-      private
-
-      # The object used to extract the source for the command.
-      #
-      # This should be a `Pry::Method(block)` for a command made with `create_command`
-      # and a `Pry::WrappedModule(self)` for a command that's a standard class.
-      # @return [Pry::WrappedModule, Pry::Method]
-      def source_object
-        @source_object ||= if name =~ /^[A-Z]/
-                             Pry::WrappedModule(self)
-                           else
-                             Pry::Method(block)
-                           end
-      end
-    end
-
-    attr_accessor :opts
-    attr_accessor :args
-
-    # Set up `opts` and `args`, and then call `process`.
-    #
-    # This method will display help if necessary.
-    #
-    # @param [Array<String>] args The arguments passed
-    # @return [Object] The return value of `process` or VOID_VALUE
-    def call(*args)
-      setup
-
-      self.opts = slop
-      self.args = opts.parse!(args)
-
-      if opts.present?(:help)
-        output.puts slop.help
-        void
       else
-        process(*correct_arg_arity(method(:process).arity, args))
+        args.values_at(*(0..(method.arity - 1)).to_a)
       end
-    end
-
-    # Return the help generated by Pry::Slop for this command.
-    def help
-      slop.help
-    end
-
-    # Return an instance of Pry::Slop that can parse either subcommands or the
-    # options that this command accepts.
-    def slop
-      Pry::Slop.new do |opt|
-        opt.banner(unindent(self.class.banner))
-        subcommands(opt)
-        options(opt)
-        opt.on :h, :help, 'Show this message.'
-      end
-    end
-
-    # Generate shell completions
-    # @param [String] search  The line typed so far
-    # @return [Array<String>]  the words to complete
-    def complete(search)
-      slop.flat_map do |opt|
-        [opt.long && "--#{opt.long} " || opt.short && "-#{opt.short}"]
-      end.compact + super
-    end
-
-    # A method called just before `options(opt)` as part of `call`.
-    #
-    # This method can be used to set up any context your command needs to run,
-    # for example requiring gems, or setting default values for options.
-    #
-    # @example
-    #   def setup
-    #     require 'gist'
-    #     @action = :method
-    #   end
-    def setup; end
-
-    # A method to setup Pry::Slop commands so it can parse the subcommands your
-    # command expects. If you need to set up default values, use `setup`
-    # instead.
-    #
-    # @example A minimal example
-    #   def subcommands(cmd)
-    #     cmd.command :download do |opt|
-    #       description 'Downloads a content from a server'
-    #
-    #       opt.on :verbose, 'Use verbose output'
-    #
-    #       run do |options, arguments|
-    #         ContentDownloader.download(options, arguments)
-    #       end
-    #     end
-    #   end
-    #
-    # @example Define the invokation block anywhere you want
-    #   def subcommands(cmd)
-    #     cmd.command :download do |opt|
-    #       description 'Downloads a content from a server'
-    #
-    #       opt.on :verbose, 'Use verbose output'
-    #     end
-    #   end
-    #
-    #   def process
-    #     # Perform calculations...
-    #     opts.fetch_command(:download).run do |options, arguments|
-    #       ContentDownloader.download(options, arguments)
-    #     end
-    #     # More calculations...
-    #   end
-    def subcommands(cmd); end
-
-    # A method to setup Pry::Slop so it can parse the options your command expects.
-    #
-    # @note Please don't do anything side-effecty in the main part of this
-    # method, as it may be called by Pry at any time for introspection reasons.
-    # If you need to set up default values, use `setup` instead.
-    #
-    # @example
-    #  def options(opt)
-    #    opt.banner "Gists methods or classes"
-    #    opt.on(:c, :class, "gist a class") do
-    #      @action = :class
-    #    end
-    #  end
-    def options(opt); end
-
-    # The actual body of your command should go here.
-    #
-    # The `opts` mehod can be called to get the options that Pry::Slop has passed,
-    # and `args` gives the remaining, unparsed arguments.
-    #
-    # The return value of this method is discarded unless the command was
-    # created with `:keep_retval => true`, in which case it is returned to the
-    # repl.
-    #
-    # @example
-    #   def process
-    #     if opts.present?(:class)
-    #       gist_class
-    #     else
-    #       gist_method
-    #     end
-    #   end
-    def process
-      raise CommandError, "command '#{command_name}' not implemented"
     end
   end
 end
