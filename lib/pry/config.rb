@@ -78,7 +78,7 @@ class Pry
 
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
-        editor: Pry.default_editor_for_platform,
+        editor: Pry::Editor.default,
         should_load_rc: true,
         should_load_local_rc: true,
         should_trap_interrupts: Pry::Helpers::Platform.jruby?,
