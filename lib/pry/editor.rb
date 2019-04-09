@@ -2,6 +2,16 @@ require 'shellwords'
 
 class Pry
   class Editor
+    def self.default
+      return ENV['VISUAL'] if ENV['VISUAL'] && !ENV['VISUAL'].empty?
+      return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
+      return 'notepad' if Helpers::Platform.windows?
+
+      %w[editor nano vi].find do |editor|
+        Kernel.system("which #{editor} > /dev/null 2>&1")
+      end
+    end
+
     include Pry::Helpers::CommandHelpers
 
     attr_reader :pry_instance

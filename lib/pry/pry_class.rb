@@ -306,16 +306,6 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     nil
   end
 
-  def self.default_editor_for_platform
-    return ENV['VISUAL'] if ENV['VISUAL'] && !ENV['VISUAL'].empty?
-    return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
-    return 'notepad' if Helpers::Platform.windows?
-
-    %w[editor nano vi].detect do |editor|
-      system("which #{editor} > /dev/null 2>&1")
-    end
-  end
-
   def self.auto_resize!
     Pry.config.input # by default, load Readline
 

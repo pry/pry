@@ -16,6 +16,48 @@ describe Pry::Editor do
     @editor = Pry::Editor.new(Pry.new)
   end
 
+  describe ".default" do
+    context "when $VISUAL is defined" do
+      before { ENV['VISUAL'] = 'emacs' }
+      after { ENV['VISUAL'] = nil }
+
+      it "returns the value of $VISUAL" do
+        expect(described_class.default).to eq('emacs')
+      end
+    end
+
+    context "when $EDITOR is defined" do
+      before { ENV['EDITOR'] = 'vim' }
+      after { ENV['EDITOR'] = nil }
+
+      it "returns the value of $EDITOR" do
+        expect(described_class.default).to eq('vim')
+      end
+    end
+
+    context "when platform is Windows" do
+      before do
+        allow(Pry::Helpers::Platform).to receive(:windows?).and_return(true)
+      end
+
+      it "returns 'notepad'" do
+        expect(described_class.default).to eq('notepad')
+      end
+    end
+
+    context "when no editor is detected" do
+      before { allow(Kernel).to receive(:system) }
+
+      %w[editor nano vi].each do |text_editor_name|
+        it "shells out to find '#{text_editor_name}'" do
+          expect(Kernel).to receive(:system)
+            .with("which #{text_editor_name} > /dev/null 2>&1")
+          described_class.default
+        end
+      end
+    end
+  end
+
   describe "build_editor_invocation_string", skip: !Pry::Helpers::Platform.windows? do
     it 'should shell-escape files' do
       invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
