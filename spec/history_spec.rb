@@ -1,7 +1,7 @@
 require 'tempfile'
 require 'rbconfig'
 
-describe Pry do
+RSpec.describe Pry::History do
   before do
     Pry.history.clear
 
@@ -17,6 +17,32 @@ describe Pry do
   after do
     Pry.history.clear
     Pry.history.instance_variable_set(:@original_lines, 0)
+  end
+
+  describe ".default_file" do
+    it "returns ~/.local/share/pry/pry_history" do
+      expect(described_class.default_file).to match('/.local/share/pry/pry_history')
+    end
+
+    context "when ~/.pry_history exists" do
+      before do
+        allow(File).to receive(:exist?)
+          .with(File.expand_path('~/.pry_history')).and_return(true)
+      end
+
+      it "returns ~/.pry_history" do
+        expect(described_class.default_file).to match('/.pry_history')
+      end
+    end
+
+    context "when $XDG_DATA_HOME is defined" do
+      before { ENV['XDG_DATA_HOME'] = '/my/path' }
+      after { ENV['XDG_DATA_HOME'] = nil }
+
+      it "returns config location relative to $XDG_DATA_HOME" do
+        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+      end
+    end
   end
 
   describe '#push' do
