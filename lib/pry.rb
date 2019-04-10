@@ -19,6 +19,7 @@ require 'pry/block_command'
 require 'pry/command_set'
 require 'pry/syntax_highlighter'
 require 'pry/editor'
+require 'pry/history'
 
 Pry::Commands = Pry::CommandSet.new unless defined?(Pry::Commands)
 
@@ -64,7 +65,6 @@ require 'pry/wrapped_module/candidate'
 
 require 'pry/slop'
 require 'pry/cli'
-require 'pry/history'
 require 'pry/core_extensions'
 require 'pry/repl_file_loader'
 

@@ -119,21 +119,11 @@ class Pry
         file_completions: proc { Dir["."] },
         ls: Pry::Config.from_hash(Pry::Command::Ls::DEFAULT_OPTIONS),
         completer: Pry::InputCompleter,
-        history: Pry::Config.from_hash(
-          should_save: true, should_load: true
-        ).tap do |history|
-          history_file =
-            if File.exist?(File.expand_path('~/.pry_history'))
-              '~/.pry_history'
-            elsif ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
-              # See XDG Base Directory Specification at
-              # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-              ENV['XDG_DATA_HOME'] + '/pry/pry_history'
-            else
-              '~/.local/share/pry/pry_history'
-            end
-          history.file = File.expand_path(history_file)
-        end,
+        history: {
+          should_save: true,
+          should_load: true,
+          file: Pry::History.default_file
+        },
         exec_string: ""
       )
     end

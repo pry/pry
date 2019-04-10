@@ -2,6 +2,20 @@ class Pry
   # The History class is responsible for maintaining the user's input history,
   # both internally and within Readline.
   class History
+    def self.default_file
+      history_file =
+        if File.exist?(File.expand_path('~/.pry_history'))
+          '~/.pry_history'
+        elsif ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
+          # See XDG Base Directory Specification at
+          # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+          ENV['XDG_DATA_HOME'] + '/pry/pry_history'
+        else
+          '~/.local/share/pry/pry_history'
+        end
+      File.expand_path(history_file)
+    end
+
     attr_accessor :loader, :saver
 
     # @return [Fixnum] Number of lines in history when Pry first loaded.
