@@ -6,6 +6,13 @@ class Pry
   class ColorPrinter < ::PP
     Pry::SyntaxHighlighter.overwrite_coderay_comment_token!
 
+    def self.default(_output, value, pry_instance)
+      pry_instance.pager.open do |pager|
+        pager.print pry_instance.config.output_prefix
+        pp(value, pager, Pry::Terminal.width! - 1)
+      end
+    end
+
     def self.pp(obj, output = $DEFAULT_OUTPUT, max_width = 79)
       queue = ColorPrinter.new(output, max_width, "\n")
       queue.guard_inspect_key { queue.pp(obj) }

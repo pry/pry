@@ -1,6 +1,16 @@
 RSpec.describe Pry::ColorPrinter do
   let(:output) { StringIO.new }
 
+  describe ".default" do
+    let(:output) { StringIO.new }
+    let(:pry_instance) { Pry.new(output: output) }
+
+    it "prints output prefix with value" do
+      described_class.default(StringIO.new, 'foo', pry_instance)
+      expect(output.string).to eq("=> \"foo\"\n")
+    end
+  end
+
   describe ".pp" do
     context "when no exception is raised in #inspect" do
       let(:healthy_class) do

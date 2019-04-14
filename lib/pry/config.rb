@@ -16,14 +16,7 @@ class Pry
         prompt_name: Pry::Prompt::DEFAULT_NAME,
         prompt: Pry::Prompt[:default],
         prompt_safe_contexts: Pry::Prompt::SAFE_CONTEXTS,
-
-        print: proc do |_output, value, pry_instance|
-          pry_instance.pager.open do |pager|
-            pager.print pry_instance.config.output_prefix
-            Pry::ColorPrinter.pp(value, pager, Pry::Terminal.width! - 1)
-          end
-        end,
-
+        print: Pry::ColorPrinter.method(:default),
         quiet: false,
 
         # Will only show the first line of the backtrace

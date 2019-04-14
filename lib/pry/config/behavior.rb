@@ -40,7 +40,7 @@ class Pry
       ASSIGNMENT = "=".freeze
 
       NODUP = [
-        TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc,
+        TrueClass, FalseClass, NilClass, Symbol, Numeric, Module, Proc, Method,
         Pry::Prompt, Pry::Config::Lazy
       ].freeze
 
