@@ -34,14 +34,7 @@ class Pry
         # sessions.
         hooks: Pry::Hooks.default,
         pager: true,
-
-        system: proc do |output, cmd, _|
-          next if system(cmd)
-
-          output.puts 'Error: there was a problem executing system ' \
-                      "command: #{cmd}"
-        end,
-
+        system: Pry::SystemCommandHandler.method(:default),
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
         editor: Pry::Editor.default,
