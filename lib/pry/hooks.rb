@@ -10,6 +10,16 @@ class Pry
   #     puts "hello"
   #   end
   class Hooks
+    def self.default
+      hooks = new
+      hooks.add_hook(:before_session, :default) do |_out, _target, pry_instance|
+        next if pry_instance.quiet?
+
+        pry_instance.run_command('whereami --quiet')
+      end
+      hooks
+    end
+
     def initialize
       @hooks = Hash.new { |h, k| h[k] = [] }
     end
