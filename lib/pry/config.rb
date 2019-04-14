@@ -7,7 +7,6 @@ class Pry
     # @return [Pry::Config]
     #   An object who implements the default configuration for all
     #   Pry sessions.
-    # rubocop:disable Metrics/AbcSize
     def self.defaults
       defaults = from_hash(
         input: Pry.lazy { lazy_readline(defaults) },
@@ -18,26 +17,7 @@ class Pry
         prompt_safe_contexts: Pry::Prompt::SAFE_CONTEXTS,
         print: Pry::ColorPrinter.method(:default),
         quiet: false,
-
-        # Will only show the first line of the backtrace
-        exception_handler: proc do |output, exception, _|
-          if exception.is_a?(UserError) && exception.is_a?(SyntaxError)
-            output.puts "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
-          else
-            output.puts "#{exception.class}: #{exception.message}"
-            output.puts "from #{exception.backtrace.first}"
-
-            if exception.respond_to? :cause
-              cause = exception.cause
-              while cause
-                output.puts "Caused by #{cause.class}: #{cause}\n"
-                output.puts "from #{cause.backtrace.first}"
-                cause = cause.cause
-              end
-            end
-          end
-        end,
-
+        exception_handler: Pry::ExceptionHandler.method(:handle_exception),
         unrescued_exceptions: [
           ::SystemExit, ::SignalException, Pry::TooSafeException
         ],
@@ -113,7 +93,6 @@ class Pry
         exec_string: ""
       )
     end
-    # rubocop:enable Metrics/AbcSize
 
     def self.shortcuts
       Convenience::SHORTCUTS
