@@ -21,6 +21,7 @@ require 'pry/syntax_highlighter'
 require 'pry/editor'
 require 'pry/history'
 require 'pry/color_printer'
+require 'pry/exception_handler'
 
 Pry::Commands = Pry::CommandSet.new unless defined?(Pry::Commands)
 
