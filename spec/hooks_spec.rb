@@ -3,6 +3,34 @@ describe Pry::Hooks do
     @hooks = Pry::Hooks.new
   end
 
+  describe ".default" do
+    it "returns hooks with default before_session hook" do
+      hooks = described_class.default
+      expect(hooks.hook_exists?('before_session', :default)).to be_truthy
+    end
+
+    context "when pry instance is quiet" do
+      let(:pry_instance) { Pry.new(quiet: true) }
+
+      it "doesn't run the whereami command" do
+        expect(pry_instance).not_to receive(:run_command)
+        hooks = described_class.default
+        hooks.exec_hook(:before_session, StringIO.new, {}, pry_instance)
+      end
+    end
+
+    context "when pry instance is not quiet" do
+      let(:pry_instance) { Pry.new(quiet: false) }
+      let(:output) { StringIO.new }
+
+      it "runs the whereami command" do
+        expect(pry_instance).to receive(:run_command).with('whereami --quiet')
+        hooks = described_class.default
+        hooks.exec_hook(:before_session, StringIO.new, {}, pry_instance)
+      end
+    end
+  end
+
   describe "adding a new hook" do
     it 'should not execute hook while adding it' do
       run = false

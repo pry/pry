@@ -59,14 +59,7 @@ class Pry
 
         # The default hooks - display messages when beginning and ending Pry
         # sessions.
-        hooks: Pry::Hooks.new.add_hook(
-          :before_session, :default
-        ) do |_out, _target, pry_instance|
-          next if pry_instance.quiet?
-
-          pry_instance.run_command('whereami --quiet')
-        end,
-
+        hooks: Pry::Hooks.default,
         pager: true,
 
         system: proc do |output, cmd, _|
