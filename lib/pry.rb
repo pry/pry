@@ -20,6 +20,7 @@ require 'pry/command_set'
 require 'pry/syntax_highlighter'
 require 'pry/editor'
 require 'pry/history'
+require 'pry/color_printer'
 
 Pry::Commands = Pry::CommandSet.new unless defined?(Pry::Commands)
 
@@ -48,7 +49,6 @@ require 'pry/config'
 require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/inspector'
-require 'pry/color_printer'
 require 'pry/pager'
 require 'pry/terminal'
 require 'pry/indent'
