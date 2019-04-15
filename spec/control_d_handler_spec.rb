@@ -1,56 +1,49 @@
-describe 'Pry::Config.defaults.control_d_handler' do
-  describe "control-d press" do
-    before do
-      # Simulates a ^D press.
-      @control_d = "Pry::Config.defaults.control_d_handler.call('', pry_instance)"
+RSpec.describe Pry::ControlDHandler do
+  context "when given eval string is non-empty" do
+    let(:eval_string) { 'hello' }
+    let(:pry_instance) { Pry.new }
+
+    it "clears input buffer" do
+      described_class.default(eval_string, pry_instance)
+      expect(eval_string).to be_empty
+    end
+  end
+
+  context "when given eval string is empty & pry instance has one binding" do
+    let(:eval_string) { '' }
+    let(:pry_instance) { Pry.new.tap { |p| p.binding_stack = [binding] } }
+
+    it "throws :breakout" do
+      expect { described_class.default(eval_string, pry_instance) }
+        .to throw_symbol(:breakout)
     end
 
-    describe "in an expression" do
-      it "should clear out passed string" do
-        str = 'hello world'
-        Pry::Config.defaults.control_d_handler.call(str, nil)
-        expect(str).to eq ''
-      end
+    it "clears binding stack" do
+      expect { described_class.default(eval_string, pry_instance) }
+        .to throw_symbol
+      expect(pry_instance.binding_stack).to be_empty
+    end
+  end
+
+  context "when given eval string is empty & pry instance has 2+ bindings" do
+    let(:eval_string) { '' }
+    let(:binding1) { binding }
+    let(:binding2) { binding }
+    let(:binding_stack) { [binding1, binding2] }
+
+    let(:pry_instance) do
+      Pry.new.tap { |p| p.binding_stack = binding_stack }
     end
 
-    describe 'at top-level session' do
-      it 'should break out of a REPL loop' do
-        instance = Pry.new
-        expect(instance.binding_stack).not_to be_empty
-        expect(instance.eval(nil)).to equal false
-        expect(instance.binding_stack).to be_empty
-      end
+    it "saves a dup of the current binding stack in the 'cd' command" do
+      described_class.default(eval_string, pry_instance)
+      cd_state = pry_instance.command_state['cd']
+      expect(cd_state.old_stack).to eq([binding1, binding2])
     end
 
-    describe 'in a nested session' do
-      it 'should pop last binding from the binding stack' do
-        t = pry_tester
-        t.eval "cd Object.new"
-        expect(t.eval("pry_instance.binding_stack.size")).to eq 2
-        expect(t.eval("pry_instance.eval(nil)")).to equal true
-        expect(t.eval("pry_instance.binding_stack.size")).to eq 1
-      end
-
-      it "breaks out of the parent session" do
-        ReplTester.start do
-          input  'Pry::REPL.new(pry_instance, :target => 10).start'
-          output ''
-          prompt(/10.*> $/)
-
-          input  'self'
-          output '=> 10'
-
-          input  nil # Ctrl-D
-          output ''
-
-          input  'self'
-          output '=> main'
-
-          input  nil # Ctrl-D
-          output '=> nil' # Exit value of nested REPL.
-          assert_exited
-        end
-      end
+    it "pops the binding off the stack" do
+      described_class.default(eval_string, pry_instance)
+      expect(pry_instance.binding_stack).to eq([binding1])
     end
   end
 end
