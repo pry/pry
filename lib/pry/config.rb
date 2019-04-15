@@ -51,27 +51,7 @@ class Pry
         should_load_requires: true,
         should_load_plugins: true,
         windows_console_warning: true,
-
-        # Deal with the ^D key being pressed. Different behaviour in different
-        # cases:
-        #   1. In an expression behave like `!` command.
-        #   2. At top-level session behave like `exit` command.
-        #   3. In a nested session behave like `cd ..`.
-        control_d_handler: proc do |eval_string, pry_instance|
-          if !eval_string.empty?
-            eval_string.replace('') # Clear input buffer.
-          elsif pry_instance.binding_stack.one?
-            pry_instance.binding_stack.clear
-            throw(:breakout)
-          else
-            # Otherwise, saves current binding stack as old stack and pops last
-            # binding out of binding stack (the old stack still has that binding).
-            pry_instance.command_state["cd"] ||= Pry::Config.from_hash({})
-            pry_instance.command_state['cd'].old_stack = pry_instance.binding_stack.dup
-            pry_instance.binding_stack.pop
-          end
-        end,
-
+        control_d_handler: Pry::ControlDHandler.method(:default),
         memory_size: 100,
         extra_sticky_locals: {},
         command_completions: proc { defaults.commands.keys },
