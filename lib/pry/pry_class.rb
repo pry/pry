@@ -5,14 +5,22 @@ class Pry
   HOME_RC_FILE =
     if ENV.key?('PRYRC')
       ENV['PRYRC']
-    elsif File.exist?(File.expand_path('~/.pryrc'))
-      '~/.pryrc'
-    elsif ENV.key?('XDG_CONFIG_HOME') && ENV['XDG_CONFIG_HOME'] != ''
-      # See XDG Base Directory Specification at
-      # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-      ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
     else
-      '~/.config/pry/pryrc'
+      pryrc = begin
+                File.expand_path('~/.pryrc')
+              rescue ArgumentError
+                # couldn't find login name -- expanding `~'
+                nil
+              end
+      if pryrc && File.exist?(pryrc)
+        '~/.pryrc'
+      elsif ENV.key?('XDG_CONFIG_HOME') && ENV['XDG_CONFIG_HOME'] != ''
+        # See XDG Base Directory Specification at
+        # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+        ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
+      else
+        '~/.config/pry/pryrc'
+      end
     end
   LOCAL_RC_FILE = "./.pryrc".freeze
 
