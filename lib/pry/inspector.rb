@@ -2,7 +2,7 @@ class Pry
   class Inspector
     MAP = {
       "default" => {
-        value: Pry::Config.defaults.print,
+        value: Pry.config.print,
         description: <<-DESCRIPTION.each_line.map(&:lstrip!)
           The default Pry inspector. It has paging and color support, and uses
           pretty_inspect when printing an object.

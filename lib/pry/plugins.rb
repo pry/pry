@@ -1,3 +1,5 @@
+require 'ostruct'
+
 class Pry
   class PluginManager
     PRY_PLUGIN_PREFIX = /^pry-/.freeze
@@ -57,7 +59,7 @@ class Pry
       # Does not reload plugin if it's already active.
       def activate!
         # Create the configuration object for the plugin.
-        Pry.config.send("#{gem_name.tr('-', '_')}=", Pry::Config.from_hash({}))
+        Pry.config.send("#{gem_name.tr('-', '_')}=", OpenStruct.new)
 
         begin
           require gem_name unless active?
