@@ -196,6 +196,10 @@ class Pry
                   end
         end
       end
+
+      def state
+        Pry::CommandState.default.state_for(match)
+      end
     end
 
     # Properties of one execution of a command (passed by {Pry#run_command} as a hash of
@@ -305,7 +309,7 @@ class Pry
     #   state.my_state = "my state"  # this will not conflict with any
     #                                # `state.my_state` used in another command.
     def state
-      pry_instance.command_state[match] ||= Pry::Config.from_hash({})
+      self.class.state
     end
 
     # Revaluate the string (str) and perform interpolation.

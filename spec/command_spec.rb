@@ -416,6 +416,12 @@ RSpec.describe Pry::Command do
     end
   end
 
+  describe ".state" do
+    it "returns a command state" do
+      expect(described_class.state).to be_an(OpenStruct)
+    end
+  end
+
   describe "#run" do
     let(:command_set) do
       set = Pry::CommandSet.new
@@ -475,12 +481,12 @@ RSpec.describe Pry::Command do
     subject { Class.new(described_class).new(pry_instance: Pry.new) }
 
     it "returns a state hash" do
-      expect(subject.state).to be_a(Pry::Config)
+      expect(subject.state).to be_an(OpenStruct)
     end
 
     it "remembers the state" do
-      subject.state[:foo] = :bar
-      expect(subject.state[:foo]).to eq(:bar)
+      subject.state.foo = :bar
+      expect(subject.state.foo).to eq(:bar)
     end
   end
 

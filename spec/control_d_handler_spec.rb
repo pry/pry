@@ -37,7 +37,7 @@ RSpec.describe Pry::ControlDHandler do
 
     it "saves a dup of the current binding stack in the 'cd' command" do
       described_class.default(eval_string, pry_instance)
-      cd_state = pry_instance.command_state['cd']
+      cd_state = pry_instance.commands['cd'].state
       expect(cd_state.old_stack).to eq([binding1, binding2])
     end
 
