@@ -16,20 +16,16 @@ describe 'cd' do
       end
 
       def command_state
-        pry.command_state["cd"]
+        pry.commands['cd'].state
       end
 
       def old_stack
-        pry.command_state['cd'].old_stack.dup
+        pry.commands['cd'].state.old_stack.dup
       end
     end
   end
 
-  describe 'state' do
-    it 'should not to be set up in fresh instance' do
-      expect(@t.command_state).to equal nil
-    end
-  end
+  after { Pry::CommandState.default.reset('cd') }
 
   describe 'old stack toggling with `cd -`' do
     describe 'in fresh pry instance' do

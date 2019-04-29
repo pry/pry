@@ -5,10 +5,12 @@ describe Pry::Command::ShellCommand do
 
       @t = pry_tester(@o) do
         def command_state
-          pry.command_state[Pry::Command::ShellCommand.match]
+          Pry::CommandState.default.state_for(Pry::Command::ShellCommand.match)
         end
       end
     end
+
+    after { Pry::CommandState.default.reset(Pry::Command::ShellCommand.match) }
 
     describe ".cd" do
       before do
