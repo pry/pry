@@ -9,6 +9,7 @@ require 'rspec'
 require 'pry/testable'
 require 'English'
 require 'stringio'
+require 'ostruct'
 
 Dir['./spec/support/**/*.rb'].map do |file|
   require file
@@ -22,9 +23,7 @@ class Module
   # rubocop:enable Style/AccessModifierDeclarations
 end
 
-Pad = Class.new do
-  include Pry::Config::Behavior
-end.new(nil)
+Pad = OpenStruct.new
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]

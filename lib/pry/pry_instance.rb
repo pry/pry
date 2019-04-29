@@ -1,4 +1,5 @@
 require 'method_source'
+require 'ostruct'
 
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
@@ -537,7 +538,7 @@ class Pry
     object = current_binding.eval('self')
     open_token = @indent.open_delimiters.last || @indent.stack.last
 
-    c = Pry::Config.assign(
+    c = OpenStruct.new(
       object: object,
       nesting_level: binding_stack.size - 1,
       open_token: open_token,

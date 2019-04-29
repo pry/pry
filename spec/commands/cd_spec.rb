@@ -129,7 +129,7 @@ describe 'cd' do
     describe 'when using ^D (Control-D) key press' do
       it 'should keep correct old binding' do
         @t.eval 'cd :john_dogg', 'cd :mon_dogg', 'cd :kyr_dogg',
-                'Pry::Config.defaults.control_d_handler.call("", pry_instance)'
+                'Pry.config.control_d_handler.call("", pry_instance)'
         expect(@t.mapped_binding_stack).to eq [@o, :john_dogg, :mon_dogg]
 
         @t.eval 'cd -'
