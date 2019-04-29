@@ -485,8 +485,8 @@ RSpec.describe Pry::Command do
     end
 
     it "remembers the state" do
-      subject.state[:foo] = :bar
-      expect(subject.state[:foo]).to eq(:bar)
+      subject.state.foo = :bar
+      expect(subject.state.foo).to eq(:bar)
     end
   end
 
