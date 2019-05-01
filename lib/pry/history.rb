@@ -21,8 +21,12 @@ class Pry
     # @return [Fixnum] Number of lines in history when Pry first loaded.
     attr_reader :original_lines
 
+    # @return [Integer] total number of lines, including original lines
+    attr_reader :history_line_count
+
     def initialize(options = {})
       @history = options[:history] || []
+      @history_line_count = @history.count
       @file_path = options[:file_path]
       @original_lines = 0
       @loader = method(:read_from_file)
@@ -37,6 +41,7 @@ class Pry
 
         @history << line.chomp
         @original_lines += 1
+        @history_line_count += 1
       end
     end
 
@@ -55,6 +60,7 @@ class Pry
       return line if line == last_line
 
       @history << line
+      @history_line_count += 1
       @saver.call(line) if !should_ignore?(line) && Pry.config.history_save
 
       line
@@ -65,17 +71,13 @@ class Pry
     # history file.
     def clear
       @history.clear
+      @history_line_count = 0
       @original_lines = 0
-    end
-
-    # @return [Fixnum] The number of lines in history.
-    def history_line_count
-      @history.count
     end
 
     # @return [Fixnum] The number of lines in history from just this session.
     def session_line_count
-      @history.count - @original_lines
+      @history_line_count - @original_lines
     end
 
     # Return an Array containing all stored history.
