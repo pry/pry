@@ -20,7 +20,7 @@ class Pry
         private
 
         def color(type, str)
-          Pry::Helpers::Text.send pry_instance.config.ls["#{type}_color"], str
+          Pry::Helpers::Text.send pry_instance.config.ls.send("#{type}_color"), str
         end
 
         # Add a new section to the output.

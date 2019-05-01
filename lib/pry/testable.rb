@@ -34,20 +34,6 @@ class Pry
       end
     end
 
-    TEST_DEFAULTS = {
-      color: false,
-      pager: false,
-      should_load_rc: false,
-      should_load_local_rc: false,
-      correct_indent: false,
-      collison_warning: false,
-      history: {
-        should_load: false,
-        should_save: false
-      }
-    }.freeze
-    private_constant :TEST_DEFAULTS
-
     #
     # Sets various configuration options that make Pry optimal for a test
     # environment, see source code for complete details.
@@ -55,8 +41,17 @@ class Pry
     # @return [void]
     #
     def self.set_testenv_variables
-      Pry.config = Pry::Config.from_hash TEST_DEFAULTS, Pry::Config.defaults
-      Pry.config.hooks = Pry::Hooks.new
+      Pry.config = Pry::Config.new.merge(
+        color: false,
+        pager: false,
+        should_load_rc: false,
+        should_load_local_rc: false,
+        correct_indent: false,
+        collision_warning: false,
+        history_save: false,
+        history_load: false,
+        hooks: Pry::Hooks.new
+      )
     end
 
     #
@@ -65,7 +60,7 @@ class Pry
     # @return [void]
     #
     def self.unset_testenv_variables
-      Pry.config = Pry::Config.from_hash({}, Pry::Config.defaults)
+      Pry.config = Pry::Config.new
     end
   end
 end

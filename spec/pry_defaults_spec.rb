@@ -373,7 +373,7 @@ describe "test Pry defaults" do
         binding,
         input: InputTester.new("1", "exit-all"),
         output: @str_output,
-        hooks: Pry::Config.defaults.hooks
+        hooks: Pry::Config.new.hooks
       )
 
       expect(@str_output.string).to match(/[w]hereami by default/)
@@ -384,7 +384,7 @@ describe "test Pry defaults" do
         input: InputTester.new('exit-all'),
         output: @str_output,
         quiet: true,
-        hooks: Pry::Config.defaults.hooks
+        hooks: Pry::Config.new.hooks
       )
 
       expect(@str_output.string).to eq ""

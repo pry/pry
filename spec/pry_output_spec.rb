@@ -1,6 +1,6 @@
 describe Pry do
   describe "output failsafe" do
-    after { Pry.config.print = Pry::Config.defaults.print }
+    after { Pry.config.print = Pry::Config.new.print }
 
     it "should catch serialization exceptions" do
       Pry.config.print = proc { raise "catch-22" }

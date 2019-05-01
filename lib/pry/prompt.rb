@@ -34,13 +34,6 @@ class Pry
   # @since v0.11.0
   # @api public
   class Prompt
-    # @return [String]
-    DEFAULT_NAME = 'pry'.freeze
-
-    # @return [Array<Object>] the list of objects that are known to have a
-    #   1-line #inspect output suitable for prompt
-    SAFE_CONTEXTS = [String, Numeric, Symbol, nil, true, false].freeze
-
     # A Hash that holds all prompts. The keys of the Hash are prompt
     # names, the values are Hash instances of the format {:description, :value}.
     @prompts = {}

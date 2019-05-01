@@ -45,7 +45,7 @@ describe Pry::REPL do
 
     it "shouldn't break if we start a nested instance" do
       ReplTester.start do
-        input  'Pry.start(10, pry_instance.config)'
+        input  'Pry.start(10)'
         output ''
         prompt(/10.*> $/)
 

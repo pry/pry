@@ -55,7 +55,7 @@ class Pry
       return line if line == last_line
 
       @history << line
-      @saver.call(line) if !should_ignore?(line) && Pry.config.history.should_save
+      @saver.call(line) if !should_ignore?(line) && Pry.config.history_save
 
       line
     end
@@ -95,17 +95,17 @@ class Pry
     private
 
     # Check if the line match any option in the histignore
-    # [Pry.config.history.histignore]
+    # [Pry.config.history_ignorelist]
     # @return [Boolean] a boolean that notifies if the line was found in the
     #   histignore array.
     def should_ignore?(line)
-      hist_ignore = Pry.config.history.histignore
+      hist_ignore = Pry.config.history_ignorelist
       return false if hist_ignore.nil? || hist_ignore.empty?
 
       hist_ignore.any? { |p| line.to_s.match(p) }
     end
 
-    # The default loader. Yields lines from `Pry.history.config.file`.
+    # The default loader. Yields lines from `Pry.config.history_file`.
     def read_from_file
       path = history_file_path
 
@@ -114,7 +114,7 @@ class Pry
       warn "Unable to read history file: #{error.message}"
     end
 
-    # The default saver. Appends the given line to `Pry.history.config.file`.
+    # The default saver. Appends the given line to `Pry.config.history_file`.
     def save_to_file(line)
       history_file.puts line if history_file
     end
@@ -137,7 +137,7 @@ class Pry
     end
 
     def history_file_path
-      File.expand_path(@file_path || Pry.config.history.file)
+      File.expand_path(@file_path || Pry.config.history_file)
     end
 
     def invalid_readline_line?(line)

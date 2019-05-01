@@ -1,289 +1,134 @@
 RSpec.describe Pry::Config do
-  describe ".from_hash" do
-    it "returns an object without a default" do
-      local = described_class.from_hash({})
-      expect(local.default).to eq(nil)
+  specify { expect(subject.input).to respond_to(:readline) }
+  specify { expect(subject.output).to be_an(IO) }
+  specify { expect(subject.commands).to be_a(Pry::CommandSet) }
+  specify { expect(subject.prompt_name).to be_a(String) }
+  specify { expect(subject.prompt).to be_a(Pry::Prompt) }
+  specify { expect(subject.prompt_safe_contexts).to be_an(Array) }
+  specify { expect(subject.print).to be_a(Method) }
+  specify { expect(subject.quiet).to be(true).or be(false) }
+  specify { expect(subject.exception_handler).to be_a(Method) }
+  specify { expect(subject.unrescued_exceptions).to be_an(Array) }
+  specify { expect(subject.hooks).to be_a(Pry::Hooks) }
+  specify { expect(subject.pager).to be(true).or be(false) }
+  specify { expect(subject.system).to be_a(Method) }
+  specify { expect(subject.color).to be(true).or be(false) }
+  specify { expect(subject.default_window_size).to be_a(Numeric) }
+  specify { expect(subject.editor).to be_a(String) }
+  specify { expect(subject.should_load_rc).to be(true).or be(false) }
+  specify { expect(subject.should_load_local_rc).to be(true).or be(false) }
+  specify { expect(subject.should_trap_interrupts).to be(true).or be(false) }
+  specify { expect(subject.disable_auto_reload).to be(true).or be(false) }
+  specify { expect(subject.command_prefix).to be_a(String) }
+  specify { expect(subject.auto_indent).to be(true).or be(false) }
+  specify { expect(subject.correct_indent).to be(true).or be(false) }
+  specify { expect(subject.collision_warning).to be(true).or be(false) }
+  specify { expect(subject.output_prefix).to be_a(String) }
+  specify { expect(subject.requires).to be_an(Array) }
+  specify { expect(subject.should_load_requires).to be(true).or be(false) }
+  specify { expect(subject.should_load_plugins).to be(true).or be(false) }
+  specify { expect(subject.windows_console_warning).to be(true).or be(false) }
+  specify { expect(subject.control_d_handler).to be_a(Method) }
+  specify { expect(subject.memory_size).to be_a(Numeric) }
+  specify { expect(subject.extra_sticky_locals).to be_a(Hash) }
+  specify { expect(subject.command_completions).to be_a(Proc) }
+  specify { expect(subject.file_completions).to be_a(Proc) }
+  specify { expect(subject.ls).to be_an(OpenStruct) }
+  specify { expect(subject.completer).to eq(Pry::InputCompleter) }
+  specify { expect(subject.history).to be_a(Pry::History) }
+  specify { expect(subject.history_save).to eq(true).or be(false) }
+  specify { expect(subject.history_load).to eq(true).or be(false) }
+  specify { expect(subject.history_file).to be_a(String) }
+  specify { expect(subject.exec_string).to be_a(String) }
+
+  describe "#merge!" do
+    it "merges given hash with the config instance" do
+      subject.merge!(output_prefix: '~> ', exec_string: '!')
+
+      expect(subject.output_prefix).to eq('~> ')
+      expect(subject.exec_string).to eq('!')
     end
 
-    it "returns an object with a default" do
-      default = described_class.new(nil)
-      local = described_class.from_hash({}, default)
-      expect(local.default).to eq(local)
+    it "returns self" do
+      config = subject.merge!(output_prefix: '~> ')
+      expect(subject).to eql(config)
     end
 
-    it "recursively walks a Hash" do
-      h = { 'foo1' => { 'foo2' => { 'foo3' => 'foobar' } } }
-      default = described_class.from_hash(h)
-      expect(default.foo1).to be_instance_of(described_class)
-      expect(default.foo1.foo2).to be_instance_of(described_class)
-    end
+    context "when an undefined option is given" do
+      it "adds the option to the config" do
+        subject.merge!(new_option: 1, other_option: 2)
 
-    it "recursively walks an Array" do
-      c = described_class.from_hash(ary: [{ number: 2 }, Object])
-      expect(c.ary[0].number).to eq(2)
-      expect(c.ary[1]).to eq(Object)
-    end
-  end
-
-  describe "bug #1552" do
-    specify(
-      "a local key has precendence over its default when the stored value is false"
-    ) do
-      local = described_class.from_hash({}, described_class.from_hash('color' => true))
-      local.color = false
-      expect(local.color).to eq(false)
-    end
-  end
-
-  describe "bug #1277" do
-    specify "a local key has precendence over an inherited method of the same name" do
-      local = described_class.from_hash(output: 'foobar')
-      local.extend(
-        Module.new do
-          def output
-            'broken'
-          end
-        end
-      )
-      expect(local.output).to eq('foobar')
-    end
-  end
-
-  describe "reserved keys" do
-    it "raises ReservedKeyError on assignment of a reserved key" do
-      local = described_class.new
-      local.instance_variable_get(:@reserved_keys).each do |key|
-        expect { local[key] = 1 }.to raise_error(described_class::ReservedKeyError)
+        expect(subject.new_option).to eq(1)
+        expect(subject.other_option).to eq(2)
       end
     end
   end
 
-  describe "traversal to parent" do
-    it "traverses back to the parent when a local key is not found" do
-      local = described_class.new described_class.from_hash(foo: 1)
-      expect(local.foo).to eq(1)
+  describe "#merge" do
+    it "returns a new config object" do
+      expect(subject).not_to equal(subject.merge(new_option: 1, other_option: 2))
     end
 
-    it "stores a local key and prevents traversal to the parent" do
-      local = described_class.new described_class.from_hash(foo: 1)
-      local.foo = 2
-      expect(local.foo).to eq(2)
-    end
+    it "doesn't mutate the original config" do
+      subject.merge(new_option: 1, other_option: 2)
 
-    it "traverses through a chain of parents" do
-      root = described_class.from_hash(foo: 21)
-      local1 = described_class.new(root)
-      local2 = described_class.new(local1)
-      local3 = described_class.new(local2)
-      expect(local3.foo).to eq(21)
-    end
-
-    it "stores a local copy of the parents hooks upon accessing them" do
-      parent = described_class.from_hash(hooks: "parent_hooks")
-      local  = described_class.new parent
-      local.hooks.gsub! 'parent', 'local'
-      expect(local.hooks).to eq 'local_hooks'
-      expect(parent.hooks).to eq('parent_hooks')
+      expect(subject).not_to respond_to(:new_option)
+      expect(subject).not_to respond_to(:other_option)
     end
   end
 
-  describe "#respond_to_missing?" do
-    before do
-      @config = described_class.new(nil)
+  describe "#method_missing" do
+    context "when invoked method ends with =" do
+      it "assigns a new custom option" do
+        subject.foo = 1
+        expect(subject.foo).to eq(1)
+      end
     end
 
-    it "returns a Method object for a dynamic key" do
-      @config["key"] = 1
-      method_obj = @config.method(:key)
-      expect(method_obj.name).to eq :key
-      expect(method_obj.call).to eq(1)
+    context "when invoked method is not an option" do
+      it "raises NoMethodError" do
+        expect { subject.foo }.to raise_error(NoMethodError)
+      end
     end
 
-    it "returns a Method object for a setter on a parent" do
-      config = described_class.from_hash({}, described_class.from_hash(foo: 1))
-      expect(config.method(:foo=)).to be_an_instance_of(Method)
+    context "when invoked method is a LazyValue" do
+      it "defines a callable attribute" do
+        subject.foo = Pry::Config::LazyValue.new { 1 }
+        expect(subject.foo).to eq(1)
+      end
     end
   end
 
   describe "#respond_to?" do
-    before do
-      @config = described_class.new(nil)
+    context "when checking an undefined option" do
+      it "returns false" do
+        expect(subject.respond_to?(:foo)).to be(false)
+      end
     end
 
-    it "returns true for a local key" do
-      @config.zzfoo = 1
-      expect(@config.respond_to?(:zzfoo)).to eq(true)
-    end
+    context "when checking a defined option" do
+      before { subject.foo = 1 }
 
-    it "returns false for an unknown key" do
-      expect(@config.respond_to?(:blahblah)).to eq(false)
-    end
-  end
+      it "returns true for the reader" do
+        expect(subject.respond_to?(:foo)).to be(true)
+      end
 
-  describe "#default" do
-    it "returns nil" do
-      local = described_class.new(nil)
-      expect(local.default).to eq(nil)
-    end
-
-    it "returns the default" do
-      default = described_class.new(nil)
-      local = described_class.new(default)
-      expect(local.default).to eq(default)
-    end
-  end
-
-  describe "#keys" do
-    it "returns an array of local keys" do
-      root = described_class.from_hash({ zoo: "boo" }, nil)
-      local = described_class.from_hash({ foo: "bar" }, root)
-      expect(local.keys).to eq(["foo"])
-    end
-  end
-
-  describe "#==" do
-    it "compares equality through the underlying lookup table" do
-      local1 = described_class.new(nil)
-      local2 = described_class.new(nil)
-      local1.foo = "hi"
-      local2.foo = "hi"
-      expect(local1).to eq(local2)
-    end
-
-    it "compares equality against an object who does not implement #to_hash" do
-      local1 = described_class.new(nil)
-      expect(local1).not_to eq(Object.new)
-    end
-
-    it "returns false when compared against nil" do
-      # rubocop:disable Style/NilComparison
-      expect(described_class.new(nil) == nil).to eq(false)
-      # rubocop:enable Style/NilComparison
-    end
-  end
-
-  describe '#forget' do
-    it 'restores a key to its default value' do
-      last_default = described_class.from_hash(a: 'c')
-      middle_default = described_class.from_hash({ a: 'b' }, last_default)
-      c = described_class.from_hash({ a: 'a' }, middle_default)
-      c.forget(:a)
-      expect(c.a).to eq('c')
-    end
-  end
-
-  describe "#to_hash" do
-    it "provides a copy of local key & value pairs as a Hash" do
-      local = described_class.new described_class.from_hash(bar: true)
-      local.foo = "21"
-      expect(local.to_hash).to eq("foo" => "21")
-    end
-
-    it "returns a duplicate of the lookup table" do
-      local = described_class.new(nil)
-      local.to_hash["foo"] = 42
-      expect(local.foo).not_to eq(42)
-    end
-  end
-
-  describe "#merge!" do
-    before do
-      @config = described_class.new(nil)
-    end
-
-    it "merges an object who returns a Hash through #to_hash" do
-      obj = Class.new do
-        def to_hash
-          { epoch: 1 }
-        end
-      end.new
-      @config.merge!(obj)
-      expect(@config.epoch).to eq(1)
-    end
-
-    it "merges an object who returns a Hash through #to_h" do
-      obj = Class.new do
-        def to_h
-          { epoch: 2 }
-        end
-      end.new
-      @config.merge!(obj)
-      expect(@config.epoch).to eq(2)
-    end
-
-    it "merges a Hash" do
-      @config[:epoch] = 420
-      expect(@config.epoch).to eq(420)
-    end
-
-    it "raises a TypeError for objects who can't become a Hash" do
-      expect { @config.merge!(Object.new) }.to raise_error TypeError
-    end
-  end
-
-  describe "#clear" do
-    before do
-      @local = described_class.new(nil)
-    end
-
-    it "returns true" do
-      expect(@local.clear).to eq(true)
-    end
-
-    it "clears local assignments" do
-      @local.foo = 1
-      @local.clear
-      expect(@local.to_hash).to eq({})
-    end
-  end
-
-  describe "#[]=" do
-    it "stores keys as strings" do
-      local = described_class.from_hash({})
-      local[:zoo] = "hello"
-      expect(local.to_hash).to eq("zoo" => "hello")
+      it "returns true for the writer" do
+        expect(subject.respond_to?(:foo=)).to be(true)
+      end
     end
   end
 
   describe "#[]" do
-    it "traverses back to a default" do
-      default = described_class.from_hash(k: 1)
-      local = described_class.new(default)
-      expect(local['k']).to eq(1)
+    it "reads the config value" do
+      expect_any_instance_of(Pry::Config::Value).to receive(:call)
+      subject[:foo] = 1
+      subject[:foo]
     end
 
-    it "traverses back to a default (2 deep)" do
-      default1 = described_class.from_hash(k: 1)
-      default2 = described_class.from_hash({}, default1)
-      local = described_class.new(default2)
-      expect(local['k']).to eq(1)
-    end
-
-    it "traverses back to a default that doesn't exist, and returns nil" do
-      local = described_class.from_hash({}, nil)
-      expect(local['output']).to eq(nil)
-    end
-
-    context "when returning a Pry::Config::Lazy object" do
-      it "invokes #call on it" do
-        c = described_class.from_hash foo: Pry.lazy { 10 }
-        expect(c['foo']).to eq(10)
-      end
-
-      it "invokes #call upon each access" do
-        c = described_class.from_hash foo: Pry.lazy { 'foo' }
-        expect(c['foo']).to_not equal(c['foo'])
-      end
-    end
-  end
-
-  describe "#eager_load!" do
-    it "eagerly loads keys from the last default into self" do
-      last_default = described_class.from_hash(foo: 1, bar: 2, baz: 3)
-      c = described_class.from_hash({}, last_default)
-      expect(c.keys.size).to eq(0)
-      c.eager_load!
-      expect(c.keys.size).to eq(3)
+    it "returns the config value" do
+      subject[:foo] = 1
+      expect(subject[:foo]).to eq(1)
     end
   end
 end
