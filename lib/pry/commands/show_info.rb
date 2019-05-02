@@ -139,7 +139,7 @@ class Pry
 
       def method_header(code_object, line_num)
         h = ""
-        h << (code_object.c_method? ? "(C Method):" : ":#{line_num}:")
+        h << (code_object.c_method? ? ' (C Method):' : ":#{line_num}:")
         h << method_sections(code_object)[:owner]
         h << method_sections(code_object)[:visibility]
         h << method_sections(code_object)[:signature]
