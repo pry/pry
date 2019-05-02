@@ -514,7 +514,7 @@ class Pry
     # @return [YARD::CodeObjects::MethodObject]
     # @raise [CommandError] when the method can't be found or `pry-doc` isn't installed.
     def pry_doc_info
-      if Pry.config.has_pry_doc
+      if defined?(PryDoc)
         Pry::MethodInfo.info_for(@method) ||
           raise(
             CommandError,
