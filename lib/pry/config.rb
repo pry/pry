@@ -151,6 +151,10 @@ class Pry
     # @return [String]
     attribute :output_prefix
 
+    # @return [String]
+    # @since ?.?.?
+    attribute :rc_file
+
     def initialize
       merge!(
         input: MemoizedValue.new { lazy_readline },
@@ -181,6 +185,7 @@ class Pry
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
         editor: Pry::Editor.default,
+        rc_file: default_rc_file,
         should_load_rc: true,
         should_load_local_rc: true,
         should_trap_interrupts: Pry::Helpers::Platform.jruby?,
@@ -270,6 +275,20 @@ class Pry
         " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
       )
       raise
+    end
+
+    def default_rc_file
+      if ENV.key?('PRYRC')
+        ENV['PRYRC']
+      elsif File.exist?(File.expand_path('~/.pryrc'))
+        '~/.pryrc'
+      elsif ENV.key?('XDG_CONFIG_HOME') && ENV['XDG_CONFIG_HOME'] != ''
+        # See XDG Base Directory Specification at
+        # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+        ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
+      else
+        '~/.config/pry/pryrc'
+      end
     end
   end
 end

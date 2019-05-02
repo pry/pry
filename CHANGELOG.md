@@ -11,6 +11,8 @@
 * Added `Pry::Config::LazyValue` & `Pry::Config::MemoizedValue`, which allow
   storing callable procs in the config
   ([#2024](https://github.com/pry/pry/pull/2024))
+* Added the `rc_file` config option that tells Pry the path to `pryrc`
+  ([#2027](https://github.com/pry/pry/pull/2027))
 
 #### API changes
 

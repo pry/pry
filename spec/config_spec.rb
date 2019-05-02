@@ -40,6 +40,46 @@ RSpec.describe Pry::Config do
   specify { expect(subject.history_load).to eq(true).or be(false) }
   specify { expect(subject.history_file).to be_a(String) }
   specify { expect(subject.exec_string).to be_a(String) }
+  specify { expect(subject.rc_file).to be_a(String) }
+
+  describe "#rc_file" do
+    context "when $PRYRC env variable is set" do
+      before { ENV['PRYRC'] = '/foo/pryrc' }
+      after { ENV.delete('PRYRC') }
+
+      it "defaults to the value of PRYRC env variable" do
+        expect(subject.rc_file).to eq('/foo/pryrc')
+      end
+    end
+
+    context "when ~/.pryrc exists" do
+      before do
+        allow(File).to receive(:exist?)
+        expect(File).to receive(:exist?)
+          .with(File.expand_path('~/.pryrc')).and_return(true)
+      end
+
+      it "defaults ~/.pryrc" do
+        expect(subject.rc_file).to eq('~/.pryrc')
+      end
+    end
+
+    context "when $XDG_CONFIG_HOME is defined" do
+      before do
+        allow(File).to receive(:exist?)
+        expect(File).to receive(:exist?)
+          .with(File.expand_path('~/.pryrc')).and_return(false)
+
+        ENV['XDG_CONFIG_HOME'] = '/xdg_home'
+      end
+
+      after { ENV.delete('XDG_CONFIG_HOME') }
+
+      it "defaults $XDG_CONFIG_HOME/pry/pryrc" do
+        expect(subject.rc_file).to eq('/xdg_home/pry/pryrc')
+      end
+    end
+  end
 
   describe "#merge!" do
     it "merges given hash with the config instance" do
