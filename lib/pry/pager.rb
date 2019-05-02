@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # A pager is an `IO`-like object that accepts text and either prints it
 # immediately, prints it one page at a time, or streams it to an external
 # program to print one page at a time.

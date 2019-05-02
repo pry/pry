@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "Pry.run_command" do
   before do
     o = Object.new

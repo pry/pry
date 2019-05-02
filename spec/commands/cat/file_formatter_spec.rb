@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Command::Cat::FileFormatter do
   before do
     @p   = Pry.new

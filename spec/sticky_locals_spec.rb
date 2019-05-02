@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "Sticky locals (_file_ and friends)" do
   it 'locals should all exist upon initialization' do
     expect { pry_eval '_file_', '_dir_', '_ex_', 'pry_instance', '_' }

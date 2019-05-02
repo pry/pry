@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rank 0
 class CandidateTest
   def test1; end

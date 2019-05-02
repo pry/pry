@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'set'
 
 describe Pry::Method do

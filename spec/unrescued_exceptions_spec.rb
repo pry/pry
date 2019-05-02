@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "Pry.config.unrescued_exceptions" do
   before do
     @str_output = StringIO.new

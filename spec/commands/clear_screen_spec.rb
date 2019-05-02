@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe "clear-screen" do
   before do
     @t = pry_tester

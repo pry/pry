@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # {Pry::LastException} is a proxy class who wraps an Exception object for
 # {Pry#last_exception}. it extends the exception object with methods that

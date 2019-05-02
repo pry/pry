@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # A class to manage the loading of files through the REPL loop.
   # This is an interesting trick as it processes your file as if it

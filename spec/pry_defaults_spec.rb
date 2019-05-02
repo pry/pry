@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 _version = 1
 
 describe "test Pry defaults" do

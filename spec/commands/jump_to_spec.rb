@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe "jump-to" do
   let(:obj) { Object.new }
 

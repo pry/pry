@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe 'Formatting Table' do
   it 'knows about colorized fitting' do
     t = Pry::Helpers::Table.new %w[hihi], column_count: 1

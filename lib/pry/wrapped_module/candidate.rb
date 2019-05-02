@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class WrappedModule
     # This class represents a single candidate for a module/class definition.

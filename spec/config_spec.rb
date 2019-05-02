@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Config do
   specify { expect(subject.input).to respond_to(:readline) }
   specify { expect(subject.output).to be_an(IO) }

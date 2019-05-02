@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Method
     # This class is responsible for locating the *real* `Pry::Method`

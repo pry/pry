@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "amend-line" do
   before do
     @t = pry_tester

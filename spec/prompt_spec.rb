@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Prompt do
   describe ".[]" do
     it "accesses prompts" do

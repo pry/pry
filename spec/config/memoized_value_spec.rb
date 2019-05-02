@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Config::MemoizedValue do
   describe "#call" do
     subject { described_class.new { rand } }

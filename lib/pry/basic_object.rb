@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class BasicObject < BasicObject
     [:Kernel, :File, :Dir, :LoadError, :ENV, :Pry].each do |constant|

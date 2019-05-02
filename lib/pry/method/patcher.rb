@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Method
     class Patcher

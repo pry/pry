@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "commands" do
   before do
     @str_output = StringIO.new

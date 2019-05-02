@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "exit-program" do
   it 'should raise SystemExit' do
     expect { pry_eval('exit-program') }.to raise_error SystemExit

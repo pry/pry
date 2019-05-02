@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Helpers::CommandHelpers do
   describe "#temp_file" do
     it "yields a tempfile" do

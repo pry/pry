@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::ControlDHandler do
   context "when given eval string is non-empty" do
     let(:pry_instance) do

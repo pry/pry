@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This command needs a TONNE more tests for it, but i can't figure out
 # how to do them yet, and i really want to release. Sorry. Someone
 # come along and do a better job.

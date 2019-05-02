@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::CodeObject do
   let(:pry) do
     Pry.new.tap { |p| p.binding_stack = [binding] }

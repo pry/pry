@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Hooks do
   before do
     @hooks = Pry::Hooks.new

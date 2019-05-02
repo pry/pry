@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Config::Value do
   describe "#call" do
     context "when given value is a MemoizedValue" do

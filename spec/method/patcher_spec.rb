@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Method::Patcher do
   # rubocop:disable Style/SingleLineMethods
   before do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Helpers::DocumentationHelpers do
   before do
     @helper = Pry::Helpers::DocumentationHelpers

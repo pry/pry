@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Config::LazyValue do
   describe "#call" do
     subject { described_class.new { rand } }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "!" do
   before do
     @t = pry_tester

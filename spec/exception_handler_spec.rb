@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::ExceptionHandler do
   describe ".handle_exception" do
     let(:output) { StringIO.new }

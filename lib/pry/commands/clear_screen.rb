@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class ClearScreen < Pry::ClassCommand

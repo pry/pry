@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   module Helpers
     def self.tablify_or_one_line(heading, things, config = Pry.config)

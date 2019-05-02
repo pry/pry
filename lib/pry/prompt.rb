@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # Prompt represents the Pry prompt, which can be used with Readline-like
   # libraries. It defines a few default prompts (default prompt, simple prompt,

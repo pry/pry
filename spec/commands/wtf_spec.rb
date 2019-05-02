@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "wtf?!" do
   let(:tester) do
     pry_tester do

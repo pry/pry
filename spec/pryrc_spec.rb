@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry do
   describe 'loading rc files' do
     before do

@@ -71,3 +71,9 @@ Gemspec/RequiredRubyVersion:
 
 Style/ModuleFunction:
   Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+  Exclude:
+    - 'spec/fixtures/example_nesting.rb'

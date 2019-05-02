@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::ColorPrinter do
   let(:output) { StringIO.new }
 

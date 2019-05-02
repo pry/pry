@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Command::ShellCommand do
   describe 'cd' do
     before do

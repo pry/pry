@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Config
     # Attributable provides the ability to create "attribute"

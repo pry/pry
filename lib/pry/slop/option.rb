@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Slop
     class Option

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # taken from irb
 # Implements tab completion for Readline in Pry
 class Pry

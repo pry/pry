@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def mock_pry(*args)
   args.flatten!
   binding = args.first.is_a?(Binding) ? args.shift : binding()
