@@ -27,6 +27,7 @@ RSpec.describe Pry::History do
     context "when ~/.pry_history exists" do
       before do
         allow(File).to receive(:exist?)
+        expect(File).to receive(:exist?)
           .with(File.expand_path('~/.pry_history')).and_return(true)
       end
 

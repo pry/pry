@@ -2,18 +2,6 @@ require 'stringio'
 require 'pathname'
 
 class Pry
-  HOME_RC_FILE =
-    if ENV.key?('PRYRC')
-      ENV['PRYRC']
-    elsif File.exist?(File.expand_path('~/.pryrc'))
-      '~/.pryrc'
-    elsif ENV.key?('XDG_CONFIG_HOME') && ENV['XDG_CONFIG_HOME'] != ''
-      # See XDG Base Directory Specification at
-      # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-      ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
-    else
-      '~/.config/pry/pryrc'
-    end
   LOCAL_RC_FILE = "./.pryrc".freeze
 
   class << self
@@ -78,8 +66,8 @@ class Pry
     puts "Error loading #{file}: #{e}\n#{e.backtrace.first}"
   end
 
-  # Load HOME_RC_FILE and LOCAL_RC_FILE if appropriate
-  # This method can also be used to reload the files if they have changed.
+  # Load RC files if appropriate This method can also be used to reload the
+  # files if they have changed.
   def self.load_rc_files
     rc_files_to_load.each do |file|
       critical_section do
@@ -91,7 +79,7 @@ class Pry
   # Load the local RC file (./.pryrc)
   def self.rc_files_to_load
     files = []
-    files << HOME_RC_FILE if Pry.config.should_load_rc
+    files << Pry.config.rc_file if Pry.config.should_load_rc
     files << LOCAL_RC_FILE if Pry.config.should_load_local_rc
     files.map { |file| real_path_to(file) }.compact.uniq
   end

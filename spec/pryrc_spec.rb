@@ -1,7 +1,7 @@
 describe Pry do
   describe 'loading rc files' do
     before do
-      stub_const('Pry::HOME_RC_FILE', 'spec/fixtures/testrc')
+      Pry.config.rc_file = 'spec/fixtures/testrc'
       stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testrc/../testrc')
 
       Pry.instance_variable_set(:@initial_session, true)
@@ -25,7 +25,7 @@ describe Pry do
     # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
     unless Pry::Helpers::Platform.jruby_19?
       it "should not load the rc file twice if it's symlinked differently" do
-        stub_const('Pry::HOME_RC_FILE', 'spec/fixtures/testrc')
+        Pry.config.rc_file = 'spec/fixtures/testrc'
         stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testlinkrc')
 
         Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
@@ -66,7 +66,7 @@ describe Pry do
 
     describe "that raise exceptions" do
       before do
-        Pry::HOME_RC_FILE.replace "spec/fixtures/testrcbad"
+        Pry.config.rc_file = 'spec/fixtures/testrcbad'
         Pry.config.should_load_local_rc = false
 
         putsed = nil
