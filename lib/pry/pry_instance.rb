@@ -274,88 +274,6 @@ class Pry
     false
   end
 
-  def handle_line(line, options)
-    if line.nil?
-      config.control_d_handler.call(@eval_string, self)
-      return
-    end
-
-    ensure_correct_encoding!(line)
-    Pry.history << line unless options[:generated]
-
-    @suppress_output = false
-    inject_sticky_locals!
-    begin
-      unless process_command_safely(line)
-        @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
-      end
-    rescue RescuableException => e
-      self.last_exception = e
-      result = e
-
-      Pry.critical_section do
-        show_result(result)
-      end
-      return
-    end
-
-    # This hook is supposed to be executed after each line of ruby code
-    # has been read (regardless of whether eval_string is yet a complete expression)
-    exec_hook :after_read, eval_string, self
-
-    begin
-      complete_expr = Pry::Code.complete_expression?(@eval_string)
-    rescue SyntaxError => e
-      output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
-      reset_eval_string
-    end
-
-    if complete_expr
-      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
-        @suppress_output = true
-      end
-
-      # A bug in jruby makes java.lang.Exception not rescued by
-      # `rescue Pry::RescuableException` clause.
-      #
-      # * https://github.com/pry/pry/issues/854
-      # * https://jira.codehaus.org/browse/JRUBY-7100
-      #
-      # Until that gets fixed upstream, treat java.lang.Exception
-      # as an additional exception to be rescued explicitly.
-      #
-      # This workaround has a side effect: java exceptions specified
-      # in `Pry.config.unrescued_exceptions` are ignored.
-      jruby_exceptions = []
-      jruby_exceptions << Java::JavaLang::Exception if Helpers::Platform.jruby?
-
-      begin
-        # Reset eval string, in case we're evaluating Ruby that does something
-        # like open a nested REPL on this instance.
-        eval_string = @eval_string
-        reset_eval_string
-
-        result = evaluate_ruby(eval_string)
-      rescue RescuableException, *jruby_exceptions => e
-        # Eliminate following warning:
-        # warning: singleton on non-persistent Java type X
-        # (http://wiki.jruby.org/Persistence)
-        if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
-          e.class.__persistent__ = true
-        end
-        self.last_exception = e
-        result = e
-      end
-
-      Pry.critical_section do
-        show_result(result)
-      end
-    end
-
-    throw(:breakout) if current_binding.nil?
-  end
-  private :handle_line # rubocop:disable Style/AccessModifierDeclarations
-
   # Potentially deprecated. Use `Pry::REPL.new(pry, :target => target).start`
   # (If nested sessions are going to exist, this method is fine, but a goal is
   # to come up with an alternative to nested sessions altogether.)
@@ -397,16 +315,6 @@ class Pry
   ensure
     output.flush if output.respond_to?(:flush)
   end
-
-  # Force `eval_string` into the encoding of `val`. [Issue #284]
-  def ensure_correct_encoding!(val)
-    if @eval_string.empty? &&
-       val.respond_to?(:encoding) &&
-       val.encoding != @eval_string.encoding
-      @eval_string.force_encoding(val.encoding)
-    end
-  end
-  private :ensure_correct_encoding! # rubocop:disable Style/AccessModifierDeclarations
 
   # If the given line is a valid command, process it in the context of the
   # current `eval_string` and binding.
@@ -585,21 +493,6 @@ class Pry
     end
   end
 
-  def generate_prompt(prompt_proc, conf)
-    if prompt_proc.arity == 1
-      prompt_proc.call(conf)
-    else
-      prompt_proc.call(conf.object, conf.nesting_level, conf.pry_instance)
-    end
-  end
-  private :generate_prompt # rubocop:disable Style/AccessModifierDeclarations
-
-  # the array that the prompt stack is stored in
-  def prompt_stack
-    @prompt_stack ||= []
-  end
-  private :prompt_stack # rubocop:disable Style/AccessModifierDeclarations
-
   # Pushes the current prompt onto a stack that it can be restored from later.
   # Use this if you wish to temporarily change the prompt.
   #
@@ -696,6 +589,111 @@ class Pry
   # @return [Boolean]
   def quiet?
     config.quiet
+  end
+
+  private
+
+  def handle_line(line, options)
+    if line.nil?
+      config.control_d_handler.call(@eval_string, self)
+      return
+    end
+
+    ensure_correct_encoding!(line)
+    Pry.history << line unless options[:generated]
+
+    @suppress_output = false
+    inject_sticky_locals!
+    begin
+      unless process_command_safely(line)
+        @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
+      end
+    rescue RescuableException => e
+      self.last_exception = e
+      result = e
+
+      Pry.critical_section do
+        show_result(result)
+      end
+      return
+    end
+
+    # This hook is supposed to be executed after each line of ruby code
+    # has been read (regardless of whether eval_string is yet a complete expression)
+    exec_hook :after_read, eval_string, self
+
+    begin
+      complete_expr = Pry::Code.complete_expression?(@eval_string)
+    rescue SyntaxError => e
+      output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
+      reset_eval_string
+    end
+
+    if complete_expr
+      if @eval_string =~ /;\Z/ || @eval_string.empty? || @eval_string =~ /\A *#.*\n\z/
+        @suppress_output = true
+      end
+
+      # A bug in jruby makes java.lang.Exception not rescued by
+      # `rescue Pry::RescuableException` clause.
+      #
+      # * https://github.com/pry/pry/issues/854
+      # * https://jira.codehaus.org/browse/JRUBY-7100
+      #
+      # Until that gets fixed upstream, treat java.lang.Exception
+      # as an additional exception to be rescued explicitly.
+      #
+      # This workaround has a side effect: java exceptions specified
+      # in `Pry.config.unrescued_exceptions` are ignored.
+      jruby_exceptions = []
+      jruby_exceptions << Java::JavaLang::Exception if Helpers::Platform.jruby?
+
+      begin
+        # Reset eval string, in case we're evaluating Ruby that does something
+        # like open a nested REPL on this instance.
+        eval_string = @eval_string
+        reset_eval_string
+
+        result = evaluate_ruby(eval_string)
+      rescue RescuableException, *jruby_exceptions => e
+        # Eliminate following warning:
+        # warning: singleton on non-persistent Java type X
+        # (http://wiki.jruby.org/Persistence)
+        if Helpers::Platform.jruby? && e.class.respond_to?('__persistent__')
+          e.class.__persistent__ = true
+        end
+        self.last_exception = e
+        result = e
+      end
+
+      Pry.critical_section do
+        show_result(result)
+      end
+    end
+
+    throw(:breakout) if current_binding.nil?
+  end
+
+  # Force `eval_string` into the encoding of `val`. [Issue #284]
+  def ensure_correct_encoding!(val)
+    if @eval_string.empty? &&
+       val.respond_to?(:encoding) &&
+       val.encoding != @eval_string.encoding
+      @eval_string.force_encoding(val.encoding)
+    end
+  end
+
+  def generate_prompt(prompt_proc, conf)
+    if prompt_proc.arity == 1
+      prompt_proc.call(conf)
+    else
+      prompt_proc.call(conf.object, conf.nesting_level, conf.pry_instance)
+    end
+  end
+
+  # the array that the prompt stack is stored in
+  def prompt_stack
+    @prompt_stack ||= []
   end
 end
 # rubocop:enable Metrics/ClassLength
