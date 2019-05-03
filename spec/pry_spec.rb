@@ -466,4 +466,57 @@ describe Pry do
       expect(backtrace.any? { |l| l.include?(location) }).to equal true
     end
   end
+
+  describe "#eval" do
+    context "when line is nil" do
+      let(:line) { nil }
+
+      context "and when eval string is non-empty" do
+        before { subject.eval_string = 'hello' }
+
+        it "clears input buffer" do
+          subject.eval(line)
+          expect(subject.eval_string).to be_empty
+        end
+      end
+
+      context "and when eval string is empty & pry instance has one binding" do
+        before do
+          subject.eval_string = ''
+          subject.binding_stack = [binding]
+        end
+
+        it "catches :breakout" do
+          expect { subject.eval(line) }.not_to throw_symbol(:breakout)
+        end
+
+        it "clears binding stack" do
+          subject.eval(line)
+          expect(subject.binding_stack).to be_empty
+        end
+      end
+
+      context "and when given eval string is empty & pry instance has 2+ bindings" do
+        let(:binding1) { binding }
+        let(:binding2) { binding }
+        let(:binding_stack) { [binding1, binding2] }
+
+        before do
+          subject.eval_string = ''
+          subject.binding_stack = binding_stack
+        end
+
+        it "saves a dup of the current binding stack in the 'cd' command" do
+          subject.eval(line)
+          cd_state = subject.commands['cd'].state
+          expect(cd_state.old_stack).to eq([binding1, binding2])
+        end
+
+        it "pops the binding off the stack" do
+          subject.eval(line)
+          expect(subject.binding_stack).to eq([binding1])
+        end
+      end
+    end
+  end
 end

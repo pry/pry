@@ -695,5 +695,26 @@ class Pry
   def prompt_stack
     @prompt_stack ||= []
   end
+
+  # Deal with the ^D key being pressed. Different behaviour in different
+  # cases:
+  #   1. In an expression behave like `!` command.
+  #   2. At top-level session behave like `exit` command.
+  #   3. In a nested session behave like `cd ..`.
+  def handle_control_d_press
+    if !@eval_string.empty?
+      # Clear input buffer.
+      @eval_string = ''
+    elsif binding_stack.one?
+      binding_stack.clear
+      throw(:breakout)
+    else
+      # Otherwise, saves current binding stack as old stack and pops last
+      # binding out of binding stack (the old stack still has that binding).
+      cd_state = Pry::CommandState.default.state_for('cd')
+      cd_state.old_stack = binding_stack.dup
+      binding_stack.pop
+    end
+  end
 end
 # rubocop:enable Metrics/ClassLength

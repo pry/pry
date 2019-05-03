@@ -106,9 +106,6 @@ class Pry
     # @return [Integer] how many input/output lines to keep in memory
     attribute :memory_size
 
-    # @return [Proc]
-    attribute :control_d_handler
-
     # @return [Proc] The proc that runs system commands
     attribute :system
 
@@ -199,7 +196,6 @@ class Pry
         should_load_requires: true,
         should_load_plugins: true,
         windows_console_warning: true,
-        control_d_handler: Pry::ControlDHandler.method(:default),
         memory_size: 100,
         extra_sticky_locals: {},
         command_completions: proc { commands.keys },

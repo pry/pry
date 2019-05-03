@@ -72,6 +72,8 @@
   ([#2003](https://github.com/pry/pry/pull/2003))
 * Deleted `Pry.lazy` (use `Pry::Config::LazyValue` instead)
   ([#2024](https://github.com/pry/pry/pull/2024))
+* Deleted `control_d_handler` configuration option
+  ([#2024](https://github.com/pry/pry/pull/2024))
 
 #### Bug fixes
 
