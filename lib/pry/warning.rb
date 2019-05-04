@@ -9,12 +9,12 @@ class Pry
     # @return [void]
     def self.warn(message)
       if Kernel.respond_to?(:caller_locations)
-        location = caller_locations(1..1).first
+        location = caller_locations(2..2).first
         path = location.path
         lineno = location.lineno
       else
         # Ruby 1.9.3 support.
-        frame = caller.first.split(':') # rubocop:disable Performance/Caller
+        frame = caller[1].split(':') # rubocop:disable Performance/Caller
         path = frame.first
         lineno = frame[1]
       end
