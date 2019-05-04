@@ -132,19 +132,17 @@ class Pry
     # @deprecated Use a `Pry::Prompt` instance directly
     def [](key)
       key = key.to_s
-      loc = caller_locations(1..1).first
-
       if %w[name description].include?(key)
-        warn(
-          "#{loc.path}:#{loc.lineno}: warning: `Pry::Prompt[:#{@name}][:#{key}]` " \
-          "is deprecated. Use `#{self.class}##{key}` instead"
+        Pry::Warning.warn(
+          "`Pry::Prompt[:#{@name}][:#{key}]` is deprecated. " \
+          "Use `#{self.class}##{key}` instead"
         )
         public_send(key)
       elsif key.to_s == 'value'
-        warn(
-          "#{loc.path}:#{loc.lineno}: warning: `#{self.class}[:#{@name}][:value]` " \
-          "is deprecated. Use `#{self.class}#prompt_procs` instead or an " \
-          "instance of `#{self.class}` directly"
+        Pry::Warning.warn(
+          "`#{self.class}[:#{@name}][:value]` is deprecated. Use " \
+          "`#{self.class}#prompt_procs` instead or an instance of " \
+          "`#{self.class}` directly"
         )
         @prompt_procs
       end

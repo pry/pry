@@ -288,11 +288,7 @@ class Pry
     end
 
     def _pry_
-      loc = caller_locations(1..1).first
-      warn(
-        "#{loc.path}:#{loc.lineno}: warning: _pry_ is deprecated, use " \
-        "pry_instance instead"
-      )
+      Pry::Warning.warn('_pry_ is deprecated, use pry_instance instead')
       pry_instance
     end
 
