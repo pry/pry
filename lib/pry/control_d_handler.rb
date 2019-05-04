@@ -7,9 +7,10 @@ class Pry
     #   1. In an expression behave like `!` command.
     #   2. At top-level session behave like `exit` command.
     #   3. In a nested session behave like `cd ..`.
-    def self.default(eval_string, pry_instance)
-      if !eval_string.empty?
-        eval_string.replace('') # Clear input buffer.
+    def self.default(pry_instance)
+      if !pry_instance.eval_string.empty?
+        # Clear input buffer.
+        pry_instance.eval_string = ''
       elsif pry_instance.binding_stack.one?
         pry_instance.binding_stack.clear
         throw(:breakout)

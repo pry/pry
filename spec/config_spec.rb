@@ -28,7 +28,7 @@ RSpec.describe Pry::Config do
   specify { expect(subject.should_load_requires).to be(true).or be(false) }
   specify { expect(subject.should_load_plugins).to be(true).or be(false) }
   specify { expect(subject.windows_console_warning).to be(true).or be(false) }
-  specify { expect(subject.control_d_handler).to be_a(Method) }
+  specify { expect(subject.control_d_handler).to respond_to(:call) }
   specify { expect(subject.memory_size).to be_a(Numeric) }
   specify { expect(subject.extra_sticky_locals).to be_a(Hash) }
   specify { expect(subject.command_completions).to be_a(Proc) }
@@ -169,6 +169,76 @@ RSpec.describe Pry::Config do
     it "returns the config value" do
       subject[:foo] = 1
       expect(subject[:foo]).to eq(1)
+    end
+  end
+
+  describe "#control_d_handler=" do
+    context "when the handler expects multiple arguments" do
+      it "prints a warning" do
+        expect(Pry::Warning).to receive(:warn).with(
+          "control_d_handler's arity of 2 parameters was deprecated " \
+          '(eval_string, pry_instance). Now it gets passed just 1 ' \
+          'parameter (pry_instance)'
+        )
+        subject.control_d_handler = proc { |_arg1, _arg2| }
+      end
+    end
+
+    context "when the handler expects just one argument" do
+      it "doesn't print a warning" do
+        expect(Pry::Warning).not_to receive(:warn)
+        subject.control_d_handler = proc { |_arg1| }
+      end
+    end
+  end
+
+  describe "#control_d_handler" do
+    let(:pry_instance) { Pry.new }
+
+    context "when it returns a callable accepting one argument" do
+      context "and when it is called with one argument" do
+        it "calls the handler with a pry instance" do
+          subject.control_d_handler = proc do |arg|
+            expect(arg).to eql(pry_instance)
+          end
+          subject.control_d_handler.call(pry_instance)
+        end
+      end
+
+      context "and when it is called with multiple arguments" do
+        before { allow(Pry::Warning).to receive(:warn) }
+
+        it "calls the handler with a pry instance" do
+          subject.control_d_handler = proc do |arg|
+            expect(arg).to eql(pry_instance)
+          end
+          subject.control_d_handler.call('', pry_instance)
+        end
+      end
+    end
+
+    context "when it returns a callabale with two arguments" do
+      before { allow(Pry::Warning).to receive(:warn) }
+
+      context "and when it's called with one argument" do
+        it "calls the handler with a eval_string and a pry instance" do
+          subject.control_d_handler = proc do |arg1, arg2|
+            expect(arg1).to eq('')
+            expect(arg2).to eql(pry_instance)
+          end
+          subject.control_d_handler.call(pry_instance)
+        end
+      end
+
+      context "and when it's called with multiple arguments" do
+        it "calls the handler with a eval_string and a pry instance" do
+          subject.control_d_handler = proc do |arg1, arg2|
+            expect(arg1).to eq('')
+            expect(arg2).to eql(pry_instance)
+          end
+          subject.control_d_handler.call('', pry_instance)
+        end
+      end
     end
   end
 end
