@@ -261,6 +261,33 @@ class Pry
       @custom_attrs = @custom_attrs.dup
     end
 
+    def control_d_handler=(value)
+      proxy_proc =
+        if value.arity == 2
+          Pry::Warning.warn(
+            "control_d_handler's arity of 2 parameters was deprecated " \
+            '(eval_string, pry_instance). Now it gets passed just 1 ' \
+            'parameter (pry_instance)'
+          )
+          proc do |*args|
+            if args.size == 2
+              value.call(args.first, args[1])
+            else
+              value.call(args.first.eval_string, args.first)
+            end
+          end
+        else
+          proc do |*args|
+            if args.size == 2
+              value.call(args[1])
+            else
+              value.call(args.first)
+            end
+          end
+        end
+      @control_d_handler = proxy_proc
+    end
+
     private
 
     def lazy_readline

@@ -595,7 +595,7 @@ class Pry
 
   def handle_line(line, options)
     if line.nil?
-      config.control_d_handler.call(@eval_string, self)
+      config.control_d_handler.call(self)
       return
     end
 
