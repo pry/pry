@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   module Helpers
     module BaseHelpers

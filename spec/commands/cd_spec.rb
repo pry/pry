@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe 'cd' do
   before do
     @o = Object.new

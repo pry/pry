@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "Pry::Pager" do
   describe "PageTracker" do
     before do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # Implements a hooks system for Pry. A hook is a callable that is associated
   # with an event. A number of events are currently provided by Pry, these

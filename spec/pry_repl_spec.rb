@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::REPL do
   it "should let you run commands in the middle of multiline expressions" do
     ReplTester.start do

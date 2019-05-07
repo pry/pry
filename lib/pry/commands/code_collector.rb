@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class CodeCollector
@@ -142,7 +144,7 @@ class Pry
           end
 
           ranged_array = Array(array[range]) || []
-          ranged_array.compact.each { |v| all << yield(v) }
+          ranged_array.compact.each { |v| all += yield(v) }
         end
 
         all

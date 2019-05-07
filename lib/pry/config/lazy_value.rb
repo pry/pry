@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Config
     # LazyValue is a Proc (block) wrapper. It is meant to be used as a

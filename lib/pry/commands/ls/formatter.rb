@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class Ls < Pry::ClassCommand
@@ -33,7 +35,7 @@ class Pry
         end
 
         def format_value(value)
-          Pry::ColorPrinter.pp(value, '')
+          Pry::ColorPrinter.pp(value, ''.dup)
         end
 
         def correct_opts?

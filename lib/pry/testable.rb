@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # good idea ???
 # if you're testing pry plugin you should require pry by yourself, no?
 require 'pry' unless defined?(Pry)

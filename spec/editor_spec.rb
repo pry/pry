@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pathname'
 
 describe Pry::Editor do

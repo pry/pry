@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # A super-class for Commands that are created with a single block.
   #

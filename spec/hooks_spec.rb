@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Hooks do
   before do
     @hooks = Pry::Hooks.new
@@ -121,14 +123,14 @@ describe Pry::Hooks do
       end
 
       it 'should preserve hook order' do
-        name = ""
+        name = ''
         h1 = Pry::Hooks.new
-        h1.add_hook(:test_hook, :testing3) { name << "h" }
-        h1.add_hook(:test_hook, :testing4) { name << "n" }
+        h1.add_hook(:test_hook, :testing3) { name += "h" }
+        h1.add_hook(:test_hook, :testing4) { name += "n" }
 
         h2 = Pry::Hooks.new
-        h2.add_hook(:test_hook, :testing1) { name << "j" }
-        h2.add_hook(:test_hook, :testing2) { name << "o" }
+        h2.add_hook(:test_hook, :testing1) { name += "j" }
+        h2.add_hook(:test_hook, :testing2) { name += "o" }
 
         h2.merge!(h1)
         h2.exec_hook(:test_hook)

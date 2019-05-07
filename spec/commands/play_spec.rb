@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This command needs a TONNE more tests for it, but i can't figure out
 # how to do them yet, and i really want to release. Sorry. Someone
 # come along and do a better job.
@@ -35,6 +37,7 @@ describe "play" do
     it 'should play a file' do
       @t.process_command 'play spec/fixtures/whereami_helper.rb'
       expect(@t.eval_string).to eq unindent(<<-STR)
+        # frozen_string_literal: true
         # rubocop:disable Layout/EmptyLineBetweenDefs
         class Cor
           def a; end
@@ -48,16 +51,18 @@ describe "play" do
 
     it 'should output file contents with print option' do
       @t.process_command 'play --print spec/fixtures/whereami_helper.rb'
-      expect(@t.last_output).to eq unindent(<<-STR)
-        1: # rubocop:disable Layout/EmptyLineBetweenDefs
-        2: class Cor
-        3:   def a; end
-        4:   def b; end
-        5:   def c; end
-        6:   def d; end
-        7: end
-        8: # rubocop:enable Layout/EmptyLineBetweenDefs
-      STR
+      expect(@t.last_output).to eq(
+        " 1: \# frozen_string_literal: true\n" \
+        " 2: \n" \
+        " 3: \# rubocop:disable Layout/EmptyLineBetweenDefs\n" \
+        " 4: class Cor\n" \
+        " 5:   def a; end\n" \
+        " 6:   def b; end\n" \
+        " 7:   def c; end\n" \
+        " 8:   def d; end\n" \
+        " 9: end\n" \
+        "10: \# rubocop:enable Layout/EmptyLineBetweenDefs\n"
+      )
     end
   end
 

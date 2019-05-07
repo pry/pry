@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::CommandSet do
   let(:set) do
     Pry::CommandSet.new { import(Pry::Commands) }

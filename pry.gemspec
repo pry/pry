@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.expand_path('../lib/pry/version', __FILE__)
 
 Gem::Specification.new do |s|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class FindMethod < Pry::ClassCommand
@@ -97,7 +99,7 @@ class Pry
       # if `-c` was not given
       def additional_info(header, method)
         if opts.content?
-          ": " << colorize_code(matched_method_lines(header, method))
+          ': ' + colorize_code(matched_method_lines(header, method))
         else
           ""
         end

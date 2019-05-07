@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "readline" unless defined?(Readline)
 require "pry/input_completer"
 

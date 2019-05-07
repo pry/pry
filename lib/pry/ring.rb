@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # A ring is a thread-safe fixed-capacity array to which you can only add
   # elements. Older entries are overwritten as you add new elements, so that the

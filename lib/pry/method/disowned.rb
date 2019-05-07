@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Method
     # A Disowned Method is one that's been removed from the class on which it was defined.

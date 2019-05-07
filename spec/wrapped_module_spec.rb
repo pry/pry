@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::WrappedModule do
   describe "#initialize" do
     it "should raise an exception when a non-module is passed" do
@@ -183,7 +185,8 @@ describe Pry::WrappedModule do
 
   describe ".singleton_class?" do
     it "should be true for singleton classes" do
-      expect(Pry::WrappedModule.new(class << ""; self; end).singleton_class?).to eq true
+      mod = Pry::WrappedModule.new(class << Object.new; self; end)
+      expect(mod).to be_singleton_class
     end
 
     it "should be false for normal classes" do
@@ -202,10 +205,12 @@ describe Pry::WrappedModule do
     end
 
     it "should return the attached object" do
-      expect(Pry::WrappedModule.new(class << "hi"; self; end).singleton_instance)
-        .to eq "hi"
-      expect(Pry::WrappedModule.new(class << Object; self; end).singleton_instance)
-        .to equal(Object)
+      instance = Object.new
+      mod = class << instance; self; end
+      expect(Pry::WrappedModule.new(mod).singleton_instance).to eq(instance)
+
+      klass = class << Object; self; end
+      expect(Pry::WrappedModule.new(klass).singleton_instance).to equal(Object)
     end
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "hist" do
   before do
     Pry.history.clear

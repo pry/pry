@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::CLI do
   before { described_class.reset }
 

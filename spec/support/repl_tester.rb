@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'delegate'
 
 # This is for super-high-level integration testing.

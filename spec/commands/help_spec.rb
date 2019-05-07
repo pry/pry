@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "help" do
   before do
     @oldset = Pry.config.commands

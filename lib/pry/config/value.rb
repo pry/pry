@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Config
     # Value holds a value for the given attribute and decides how it should

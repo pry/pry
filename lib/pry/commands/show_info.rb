@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class ShowInfo < Pry::ClassCommand
@@ -73,7 +75,7 @@ class Pry
       end
 
       def content_and_header_for_code_object(code_object)
-        header(code_object) << content_for(code_object)
+        header(code_object) + content_for(code_object)
       end
 
       def content_and_headers_for_all_module_candidates(mod)
@@ -82,13 +84,13 @@ class Pry
         mod.number_of_candidates.times do |v|
           candidate = mod.candidate(v)
           begin
-            result << "\nCandidate #{v + 1}/#{mod.number_of_candidates}: " \
+            result += "\nCandidate #{v + 1}/#{mod.number_of_candidates}: " \
                       "#{candidate.source_file}:#{candidate.source_line}\n"
             content = content_for(candidate)
 
-            result << "Number of lines: #{content.lines.count}\n\n" << content
+            result += "Number of lines: #{content.lines.count}\n\n" + content
           rescue Pry::RescuableException
-            result << "\nNo content found.\n"
+            result += "\nNo content found.\n"
             next
           end
         end
@@ -106,17 +108,17 @@ class Pry
         content = content_for(code_object)
 
         h = "\n#{bold('From:')} #{file_name}"
-        h << code_object_header(code_object, line_num)
-        h << "\n#{bold('Number of lines:')} " << "#{content.lines.count}\n\n"
+        h += code_object_header(code_object, line_num)
+        h += "\n#{bold('Number of lines:')} " + "#{content.lines.count}\n\n"
         if @used_super
-          h << bold('** Warning:')
-          h << " Cannot find code for #{@original_code_object.nonblank_name}. " \
+          h += bold('** Warning:')
+          h += " Cannot find code for #{@original_code_object.nonblank_name}. " \
                "Showing superclass #{code_object.nonblank_name} instead. **\n\n"
         end
 
         if content.lines.none?
-          h << bold('** Warning:')
-          h << " Cannot find code for '#{code_object.name}' (source_location is nil)"
+          h += bold('** Warning:')
+          h += " Cannot find code for '#{code_object.name}' (source_location is nil)"
         end
 
         h
@@ -139,23 +141,23 @@ class Pry
 
       def method_header(code_object, line_num)
         h = ""
-        h << (code_object.c_method? ? ' (C Method):' : ":#{line_num}:")
-        h << method_sections(code_object)[:owner]
-        h << method_sections(code_object)[:visibility]
-        h << method_sections(code_object)[:signature]
+        h += (code_object.c_method? ? ' (C Method):' : ":#{line_num}:")
+        h += method_sections(code_object)[:owner]
+        h += method_sections(code_object)[:visibility]
+        h += method_sections(code_object)[:signature]
         h
       end
 
       def module_header(code_object, line_num)
         h = ""
-        h << ":#{line_num}\n"
-        h << bold(code_object.module? ? "Module" : "Class")
-        h << " #{bold('name:')} #{code_object.nonblank_name}"
+        h += ":#{line_num}\n"
+        h += bold(code_object.module? ? "Module" : "Class")
+        h += " #{bold('name:')} #{code_object.nonblank_name}"
 
         if code_object.number_of_candidates > 1
-          h << bold("\nNumber of monkeypatches: ")
-          h << code_object.number_of_candidates.to_s
-          h << ". Use the `-a` option to display all available monkeypatches"
+          h += bold("\nNumber of monkeypatches: ")
+          h += code_object.number_of_candidates.to_s
+          h += ". Use the `-a` option to display all available monkeypatches"
         end
         h
       end

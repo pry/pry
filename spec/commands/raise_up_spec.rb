@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "raise-up" do
   before do
     @self  = "Pad.self = self"

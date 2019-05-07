@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "find-method" do
   MyKlass = Class.new do
     def hello

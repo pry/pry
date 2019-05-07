@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry::Ring do
   let(:ring) { described_class.new(3) }
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "show-input" do
   before do
     @t = pry_tester

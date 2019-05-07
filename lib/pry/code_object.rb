@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # This class is responsible for taking a string (identifying a
   # command/class/method/etc) and returning the relevant type of object.

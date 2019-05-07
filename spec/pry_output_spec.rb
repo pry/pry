@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe Pry do
   describe "output failsafe" do
     after { Pry.config.print = Pry::Config.new.print }

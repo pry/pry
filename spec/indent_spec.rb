@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Please keep in mind that any hash signs ("#") in the heredoc strings are
 # placed on purpose. Without these editors might remove the whitespace on empty
 # lines.

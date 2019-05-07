@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # @return [Array] Code of the method used when implementing Pry's
   #   __binding__, along with line indication to be used with instance_eval (and

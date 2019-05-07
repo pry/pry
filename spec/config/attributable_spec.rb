@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::Config::Attributable do
   subject { klass.new }
 

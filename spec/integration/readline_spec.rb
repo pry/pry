@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # These specs ensure that Pry doesn't require readline until the first time a
 # REPL is started.
 

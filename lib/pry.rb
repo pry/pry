@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pry/version'
 require 'pry/last_exception'
 require 'pry/forwardable'

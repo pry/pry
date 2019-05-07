@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'delegate'
 require 'shellwords'
 
@@ -352,7 +354,7 @@ class Pry
     # @param [String] val The line of input
     # @return [Array]
     def tokenize(val)
-      val.replace(interpolate_string(val)) if command_options[:interpolate]
+      val = interpolate_string(val) if command_options[:interpolate]
 
       self.class.command_regex =~ val
 

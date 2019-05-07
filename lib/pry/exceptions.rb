@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # As a REPL, we often want to catch any unexpected exceptions that may have
   # been raised; however we don't want to go overboard and prevent the user

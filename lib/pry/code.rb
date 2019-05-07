@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'method_source'
 
 class Pry
@@ -254,12 +256,12 @@ class Pry
     # @return [String] a formatted representation (based on the configuration of
     #   the object).
     def to_s
-      print_to_output("", false)
+      print_to_output(''.dup, false)
     end
 
     # @return [String] a (possibly highlighted) copy of the source code.
     def highlighted
-      print_to_output("", true)
+      print_to_output(''.dup, true)
     end
 
     # Writes a formatted representation (based on the configuration of the

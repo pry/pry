@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   Pry::Commands.instance_eval do
     command(%r{!s/(.*?)/(.*?)}, "") do |source, dest|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Slop
     class Option
@@ -125,12 +127,12 @@ class Pry
         out = "    #{short ? "-#{short}, " : ' ' * 4}"
 
         if long
-          out << "--#{long}"
+          out += "--#{long}"
           size = long.size
           diff = @slop.config[:longest_flag] - size
-          out << (' ' * (diff + 6))
+          out += (' ' * (diff + 6))
         else
-          out << (' ' * (@slop.config[:longest_flag] + 8))
+          out += (' ' * (@slop.config[:longest_flag] + 8))
         end
 
         "#{out}#{description}"

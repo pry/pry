@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "exit" do
   before { @pry = Pry.new(target: :outer, output: StringIO.new) }
 

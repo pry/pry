@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::CommandState do
   describe ".default" do
     it "returns the default command state" do

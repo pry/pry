@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class WatchExpression
@@ -12,7 +14,7 @@ class Pry
 
         def eval!
           @previous_value = value
-          @value = Pry::ColorPrinter.pp(target_eval(target, source), "")
+          @value = Pry::ColorPrinter.pp(target_eval(target, source), ''.dup)
         end
 
         def to_s

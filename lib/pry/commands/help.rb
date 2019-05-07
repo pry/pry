@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   class Command
     class Help < Pry::ClassCommand
@@ -58,7 +60,7 @@ class Pry
       # @param [Array<Pry::Command>] commands
       # @return [String] The generated help string.
       def help_text_for_commands(name, commands)
-        "#{bold(name.capitalize)}\n" << commands.map do |command|
+        "#{bold(name.capitalize)}\n" + commands.map do |command|
           "  #{command.options[:listing].to_s.ljust(18)} " \
           "#{command.description.capitalize}"
         end.join("\n")

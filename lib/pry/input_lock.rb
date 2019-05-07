@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Pry
   # There is one InputLock per input (such as STDIN) as two REPLs on the same
   # input makes things delirious. InputLock serializes accesses to the input so

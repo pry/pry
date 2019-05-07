@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "reload_code" do
   describe "reload_current_file" do
     it 'raises an error source code not found' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe "exit-all" do
   before { @pry = Pry.new }
 

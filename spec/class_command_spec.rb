@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::ClassCommand do
   describe ".inherited" do
     context "when match is defined" do

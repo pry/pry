@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Pry::BlockCommand do
   subject { Class.new(described_class).new }
 
