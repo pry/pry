@@ -94,7 +94,7 @@ class Pry
         when SYMBOL_REGEXP # Symbol
           if Symbol.respond_to?(:all_symbols)
             sym = Regexp.quote(Regexp.last_match(1))
-            candidates = Symbol.all_symbols.collect { |s| ":" << s.id2name }
+            candidates = Symbol.all_symbols.collect { |s| ":" + s.id2name }
             candidates.grep(/^#{sym}/)
           else
             []
@@ -102,7 +102,7 @@ class Pry
         when TOPLEVEL_LOOKUP_REGEXP # Absolute Constant or class methods
           receiver = Regexp.last_match(1)
           candidates = Object.constants.collect(&:to_s)
-          candidates.grep(/^#{receiver}/).collect { |e| "::" << e }
+          candidates.grep(/^#{receiver}/).collect { |e| "::" + e }
         when CONSTANT_REGEXP # Constant
           message = Regexp.last_match(1)
           begin
@@ -230,7 +230,7 @@ class Pry
       candidates.grep(/^#{message}/).collect do |e|
         next unless e =~ /^[a-zA-Z_]/
 
-        path.call(receiver + "." << e)
+        path.call(receiver + "." + e)
       end.compact
     end
 

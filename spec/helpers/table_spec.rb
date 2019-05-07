@@ -22,7 +22,8 @@ describe 'Formatting Table' do
     def try_round_trip(expected)
       things = expected.split(/\s+/).sort
       actual = Pry::Helpers.tablify(things, FAKE_COLUMNS).to_s.strip
-      [expected, actual].each { |e| e.gsub!(/\s+$/, '') }
+      expected = expected.gsub(/\s+$/, '')
+      actual = actual.gsub(/\s+$/, '')
       if actual != expected
         bar = '-' * 25
         puts \

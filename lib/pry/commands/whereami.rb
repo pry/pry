@@ -107,7 +107,7 @@ class Pry
           .with_marker(marker)
           .highlighted
         pry_instance.pager.page(
-          "\n#{bold('From:')} #{location}:\n\n" << pretty_code << "\n"
+          "\n#{bold('From:')} #{location}:\n\n" + pretty_code + "\n"
         )
       end
 

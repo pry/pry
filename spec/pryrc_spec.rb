@@ -39,7 +39,7 @@ describe Pry do
     it "should not load the pryrc if pryrc's directory permissions do not allow this" do
       Dir.mktmpdir do |dir|
         File.chmod 0o000, dir
-        Pry::LOCAL_RC_FILE.replace File.join(dir, '.pryrc')
+        stub_const('Pry::LOCAL_RC_FILE', File.join(dir, '.pryrc'))
         Pry.config.should_load_rc = true
         expect do
           Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)

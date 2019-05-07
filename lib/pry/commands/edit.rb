@@ -71,9 +71,7 @@ class Pry
           initial_temp_file_content,
           initial_temp_file_content.lines.count
         )
-        silence_warnings do
-          eval_string.replace content
-        end
+        pry_instance.eval_string = content
         Pry.history.push(content)
       end
 

@@ -14,7 +14,7 @@ class Pry
 
       def process
         indented_str = Pry::Indent.indent(eval_string)
-        eval_string.replace indented_str
+        pry_instance.eval_string = indented_str
       end
     end
 

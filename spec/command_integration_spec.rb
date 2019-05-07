@@ -452,7 +452,6 @@ describe "commands" do
   ) do
     klass = Pry::CommandSet.new do
       command "hello", "", keep_retval: true do
-        eval_string.replace("6")
         7
       end
     end

@@ -81,7 +81,7 @@ class Pry
   def initialize(options = {})
     @binding_stack = []
     @indent        = Pry::Indent.new
-    @eval_string   = ""
+    @eval_string   = ''.dup
     @backtrace     = options.delete(:backtrace) || caller
     target = options.delete(:target)
     @config = self.class.config.merge(options)
@@ -229,7 +229,7 @@ class Pry
   # Reset the current eval string. If the user has entered part of a multiline
   # expression, this discards that input.
   def reset_eval_string
-    @eval_string = ""
+    @eval_string = ''.dup
   end
 
   # Pass a line of input to Pry.
@@ -345,7 +345,7 @@ class Pry
         # the command that was invoked was non-void (had a return value) and so we make
         # the value of the current expression equal to the return value
         # of the command.
-        @eval_string.replace "::Pry.current[:pry_cmd_result].retval\n"
+        @eval_string = "::Pry.current[:pry_cmd_result].retval\n"
       end
       true
     else
@@ -608,7 +608,7 @@ class Pry
     inject_sticky_locals!
     begin
       unless process_command_safely(line)
-        @eval_string << "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
+        @eval_string += "#{line.chomp}\n" if !line.empty? || !@eval_string.empty?
       end
     rescue RescuableException => e
       self.last_exception = e

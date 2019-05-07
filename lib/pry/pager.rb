@@ -170,7 +170,7 @@ class Pry
           write_to_pager str
         else
           @tracker.record str
-          @buffer << str
+          @buffer += str
 
           write_to_pager @buffer if @tracker.page?
         end

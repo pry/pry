@@ -35,7 +35,7 @@ class Pry
         end
 
         def format_value(value)
-          Pry::ColorPrinter.pp(value, '')
+          Pry::ColorPrinter.pp(value, ''.dup)
         end
 
         def correct_opts?

@@ -16,10 +16,10 @@ class Pry
           raise CommandError, "No input expressions!" if numbered_input_items.empty?
 
           if numbered_input_items.length > 1
-            content = ""
+            content = ''
             numbered_input_items.each do |i, s|
-              content << "#{Helpers::Text.bold(i.to_s)}:\n"
-              content << decorate(Pry::Code(s).with_indentation(2)).to_s
+              content += "#{Helpers::Text.bold(i.to_s)}:\n"
+              content += decorate(Pry::Code(s).with_indentation(2)).to_s
             end
 
             content
