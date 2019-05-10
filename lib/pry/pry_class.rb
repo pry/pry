@@ -16,7 +16,6 @@ class Pry
     attr_accessor :quiet
     attr_accessor :last_internal_error
     attr_accessor :config
-    attr_writer :history
 
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 

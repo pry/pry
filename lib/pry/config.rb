@@ -108,9 +108,6 @@ class Pry
     # @return [Integer] how many input/output lines to keep in memory
     attribute :memory_size
 
-    # @return [Proc]
-    attribute :control_d_handler
-
     # @return [Proc] The proc that runs system commands
     attribute :system
 
@@ -263,6 +260,7 @@ class Pry
       @custom_attrs = @custom_attrs.dup
     end
 
+    attr_reader :control_d_handler
     def control_d_handler=(value)
       proxy_proc =
         if value.arity == 2
