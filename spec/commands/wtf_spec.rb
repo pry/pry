@@ -1,39 +1,164 @@
 # frozen_string_literal: true
 
-describe "wtf?!" do
-  let(:tester) do
-    pry_tester do
-      def last_exception=(exception)
-        @pry.last_exception = exception
-      end
+RSpec.describe Pry::Command::Wtf do
+  describe "#process" do
+    let(:output) { StringIO.new }
 
-      def last_exception
-        @pry.last_exception
-      end
-    end
-  end
-
-  it "unwinds nested exceptions" do
-    if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.0.0')
-      skip('Exception#cause is not supported')
+    let(:exception) do
+      error = RuntimeError.new('oops')
+      error.set_backtrace(Array.new(6) { "/bin/pry:23:in `<main>'" })
+      error
     end
 
-    begin
-      begin
+    let(:pry_instance) do
+      instance = Pry.new
+      instance.last_exception = exception
+      instance
+    end
+
+    before do
+      subject.pry_instance = pry_instance
+      subject.output = output
+      subject.opts = Pry::Slop.new
+      subject.captures = ['']
+    end
+
+    context "when there wasn't an exception raised" do
+      before { subject.pry_instance = Pry.new }
+
+      it "raises Pry::CommandError" do
+        expect { subject.process }
+          .to raise_error(Pry::CommandError, 'No most-recent exception')
+      end
+    end
+
+    context "when the verbose flag is missing" do
+      before { expect(subject.opts).to receive(:verbose?).and_return(false) }
+
+      it "prints only a part of the exception backtrace" do
+        subject.process
+        expect(subject.output.string).to eq(
+          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "--\n" \
+          "0: /bin/pry:23:in `<main>'\n" \
+          "1: /bin/pry:23:in `<main>'\n" \
+          "2: /bin/pry:23:in `<main>'\n" \
+          "3: /bin/pry:23:in `<main>'\n" \
+          "4: /bin/pry:23:in `<main>'\n"
+        )
+      end
+    end
+
+    context "when the verbose flag is present" do
+      before { expect(subject.opts).to receive(:verbose?).and_return(true) }
+
+      it "prints full exception backtrace" do
+        subject.process
+        expect(subject.output.string).to eq(
+          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "--\n" \
+          "0: /bin/pry:23:in `<main>'\n" \
+          "1: /bin/pry:23:in `<main>'\n" \
+          "2: /bin/pry:23:in `<main>'\n" \
+          "3: /bin/pry:23:in `<main>'\n" \
+          "4: /bin/pry:23:in `<main>'\n" \
+          "5: /bin/pry:23:in `<main>'\n"
+        )
+      end
+    end
+
+    context "when captures contains exclamations (wtf?! invocation)" do
+      before { subject.captures = ['!'] }
+
+      it "prints more of backtrace" do
+        subject.process
+        expect(subject.output.string).to eq(
+          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "--\n" \
+          "0: /bin/pry:23:in `<main>'\n" \
+          "1: /bin/pry:23:in `<main>'\n" \
+          "2: /bin/pry:23:in `<main>'\n" \
+          "3: /bin/pry:23:in `<main>'\n" \
+          "4: /bin/pry:23:in `<main>'\n" \
+          "5: /bin/pry:23:in `<main>'\n" \
+        )
+      end
+    end
+
+    context "when given a nested exception" do
+      let(:nested_exception) do
         begin
-          raise 'inner'
-        rescue RuntimeError
-          raise 'outer'
+          begin
+            begin
+              raise 'inner'
+            rescue RuntimeError
+              raise 'outer'
+            end
+          end
+        rescue RuntimeError => error
+          error.set_backtrace(Array.new(6) { "/bin/pry:23:in `<main>'" })
+          error.cause.set_backtrace(Array.new(6) { "/bin/pry:23:in `<main>'" })
+          error
         end
       end
-    rescue RuntimeError => ex
-      tester.last_exception = ex
-    end
 
-    expect(tester.eval('wtf -v')).to match(/
-      Exception:\sRuntimeError:\souter
-      .+
-      Caused\sby:\sRuntimeError:\sinner
-    /xm)
+      before do
+        if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('2.0.0')
+          skip('Exception#cause is not supported')
+        end
+
+        pry_instance.last_exception = nested_exception
+      end
+
+      context "and when the verbose flag is missing" do
+        before { expect(subject.opts).to receive(:verbose?).twice.and_return(false) }
+
+        it "prints parts of both original and nested exception backtrace" do
+          subject.process
+          expect(subject.output.string).to eq(
+            "\e[1mException:\e[0m RuntimeError: outer\n" \
+            "--\n" \
+            "0: /bin/pry:23:in `<main>'\n" \
+            "1: /bin/pry:23:in `<main>'\n" \
+            "2: /bin/pry:23:in `<main>'\n" \
+            "3: /bin/pry:23:in `<main>'\n" \
+            "4: /bin/pry:23:in `<main>'\n" \
+            "\e[1mCaused by:\e[0m RuntimeError: inner\n" \
+            "--\n" \
+            "0: /bin/pry:23:in `<main>'\n" \
+            "1: /bin/pry:23:in `<main>'\n" \
+            "2: /bin/pry:23:in `<main>'\n" \
+            "3: /bin/pry:23:in `<main>'\n" \
+            "4: /bin/pry:23:in `<main>'\n"
+          )
+        end
+      end
+
+      context "and when the verbose flag present" do
+        before { expect(subject.opts).to receive(:verbose?).twice.and_return(true) }
+
+        it "prints both original and nested exception backtrace" do
+          subject.process
+          expect(subject.output.string).to eq(
+            "\e[1mException:\e[0m RuntimeError: outer\n" \
+            "--\n" \
+            "0: /bin/pry:23:in `<main>'\n" \
+            "1: /bin/pry:23:in `<main>'\n" \
+            "2: /bin/pry:23:in `<main>'\n" \
+            "3: /bin/pry:23:in `<main>'\n" \
+            "4: /bin/pry:23:in `<main>'\n" \
+            "5: /bin/pry:23:in `<main>'\n" \
+            "\e[1mCaused by:\e[0m RuntimeError: inner\n" \
+            "--\n" \
+            "0: /bin/pry:23:in `<main>'\n" \
+            "1: /bin/pry:23:in `<main>'\n" \
+            "2: /bin/pry:23:in `<main>'\n" \
+            "3: /bin/pry:23:in `<main>'\n" \
+            "4: /bin/pry:23:in `<main>'\n" \
+            "5: /bin/pry:23:in `<main>'\n"
+          )
+        end
+      end
+    end
   end
 end
