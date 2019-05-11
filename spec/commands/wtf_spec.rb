@@ -160,5 +160,56 @@ RSpec.describe Pry::Command::Wtf do
         end
       end
     end
+
+    context "when the code flag is present" do
+      let(:exception) do
+        error = RuntimeError.new('oops')
+        error.set_backtrace(
+          Array.new(6) { "#{__FILE__}:#{__LINE__}:in `<main>'" }
+        )
+        error
+      end
+
+      before do
+        expect(subject.opts).to receive(:code?).at_least(:once).and_return(true)
+      end
+
+      it "prints lines of code that exception frame references" do
+        subject.process
+        expect(subject.output.string).to eq(
+          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "--\n" \
+          "0: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
+          "1: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
+          "2: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
+          "3: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
+          "4: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n"
+        )
+      end
+
+      context "and when referenced frame doesn't exist" do
+        before do
+          expect(File).to receive(:open).at_least(:once).and_raise(Errno::ENOENT)
+        end
+
+        it "skips code and prints only the backtrace frame" do
+          subject.process
+          expect(subject.output.string).to eq(
+            "\e[1mException:\e[0m RuntimeError: oops\n" \
+            "--\n" \
+            "0: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+            "1: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+            "2: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+            "3: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+            "4: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n"
+          )
+        end
+      end
+    end
   end
 end

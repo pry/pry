@@ -22,8 +22,11 @@ class Pry
         wtf -v
       BANNER
 
+      RUBY_FRAME_PATTERN = /\A(?<file>(.+)):(?<line>(\d+))/.freeze
+
       def options(opt)
         opt.on :v, :verbose, "Show the full backtrace"
+        opt.on :c, :code, "Show code corresponding to the backtrace frame"
       end
 
       def process
@@ -59,14 +62,31 @@ class Pry
       end
 
       def format_backtrace(backtrace)
-        return with_line_numbers(backtrace) if opts.verbose?
+        lines = trim_backtrace(backtrace).map do |frame|
+          next frame unless opts.code?
 
-        size_of_backtrace = [captures[0].size, 0.5].max * 10
-        with_line_numbers(backtrace.first(size_of_backtrace))
+          match = frame.match(RUBY_FRAME_PATTERN)
+          code = read_line(match[:file], match[:line].to_i)
+          [bold(frame), code].join("\n")
+        end
+
+        Pry::Code.new(lines.compact, 0, :text).with_line_numbers.to_s
       end
 
-      def with_line_numbers(backtrace)
-        Pry::Code.new(backtrace, 0, :text).with_line_numbers.to_s
+      def trim_backtrace(backtrace)
+        return backtrace if opts.verbose?
+
+        size_of_backtrace = [captures[0].size, 0.5].max * 10
+        backtrace.first(size_of_backtrace)
+      end
+
+      def read_line(file, line)
+        File.open(file, 'r') do |f|
+          (line - 1).times { f.gets }
+          f.gets
+        end
+      rescue Errno::ENOENT
+        nil
       end
     end
 

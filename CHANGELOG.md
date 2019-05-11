@@ -13,6 +13,8 @@
   ([#2024](https://github.com/pry/pry/pull/2024))
 * Added the `rc_file` config option that tells Pry the path to `pryrc`
   ([#2027](https://github.com/pry/pry/pull/2027))
+* Added the `--code` flag to the `wtf` command, which shows code for each
+  backtrace frame ([#2037](https://github.com/pry/pry/pull/2037))
 
 #### API changes
 
