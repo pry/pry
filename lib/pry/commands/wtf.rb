@@ -27,45 +27,46 @@ class Pry
       end
 
       def process
-        raise Pry::CommandError, "No most-recent exception" unless exception
-
-        output.puts "#{bold('Exception:')} #{exception.class}: #{exception}\n--"
-        if opts.verbose?
-          output.puts with_line_numbers(backtrace)
-        else
-          output.puts with_line_numbers(backtrace.first(size_of_backtrace))
+        unless pry_instance.last_exception
+          raise Pry::CommandError, "No most-recent exception"
         end
 
-        return unless exception.respond_to?(:cause)
-
-        cause = exception.cause
-        while cause
-          output.puts "#{bold('Caused by:')} #{cause.class}: #{cause}\n--"
-          if opts.verbose?
-            output.puts with_line_numbers(cause.backtrace)
-          else
-            output.puts with_line_numbers(cause.backtrace.first(size_of_backtrace))
-          end
-          cause = cause.cause
+        text = ''.dup
+        unwind_exceptions.each_with_index do |exception, i|
+          title = (i == 0 ? 'Exception' : 'Caused by')
+          text << format_header(title, exception)
+          text << format_backtrace(exception.backtrace)
         end
+        output.puts(text)
       end
 
       private
 
-      def exception
-        pry_instance.last_exception
+      def unwind_exceptions
+        exception_list = []
+        exception = pry_instance.last_exception
+
+        while exception
+          exception_list << exception
+          exception = (exception.cause if exception.respond_to?(:cause))
+        end
+
+        exception_list
+      end
+
+      def format_header(title, exception)
+        "#{bold(title + ':')} #{exception.class}: #{exception}\n--\n"
+      end
+
+      def format_backtrace(backtrace)
+        return with_line_numbers(backtrace) if opts.verbose?
+
+        size_of_backtrace = [captures[0].size, 0.5].max * 10
+        with_line_numbers(backtrace.first(size_of_backtrace))
       end
 
       def with_line_numbers(backtrace)
         Pry::Code.new(backtrace, 0, :text).with_line_numbers.to_s
-      end
-
-      def backtrace
-        exception.backtrace
-      end
-
-      def size_of_backtrace
-        [captures[0].size, 0.5].max * 10
       end
     end
 
