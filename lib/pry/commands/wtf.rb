@@ -11,7 +11,7 @@ class Pry
       banner <<-'BANNER'
         Usage: wtf[?|!]
 
-        Show's a few lines of the backtrace of the most recent exception (also available
+        Shows a few lines of the backtrace of the most recent exception (also available
         as `_ex_.backtrace`). If you want to see more lines, add more question marks or
         exclamation marks.
 
