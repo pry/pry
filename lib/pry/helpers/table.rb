@@ -5,7 +5,7 @@ class Pry
     def self.tablify_or_one_line(heading, things, config = Pry.config)
       plain_heading = Pry::Helpers::Text.strip_color(heading)
       attempt = Table.new(things, column_count: things.size)
-      if attempt.fits_on_line?(Terminal.width! - plain_heading.size - 2)
+      if attempt.fits_on_line?(Terminal.width - plain_heading.size - 2)
         "#{heading}: #{attempt}\n"
       else
         "#{heading}: \n#{tablify_to_screen_width(things, { indent: '  ' }, config)}\n"
@@ -16,10 +16,10 @@ class Pry
       options ||= {}
       things = things.compact
       if (indent = options[:indent])
-        usable_width = Terminal.width! - indent.size
+        usable_width = Terminal.width - indent.size
         tablify(things, usable_width, config).to_s.gsub(/^/, indent)
       else
-        tablify(things, Terminal.width!, config).to_s
+        tablify(things, Terminal.width, config).to_s
       end
     end
 
