@@ -88,11 +88,11 @@ class Pry
       private
 
       def height
-        @height ||= Pry::Terminal.height!
+        @height ||= Pry::Terminal.height
       end
 
       def width
-        @width ||= Pry::Terminal.width!
+        @width ||= Pry::Terminal.width
       end
     end
 

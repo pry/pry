@@ -300,7 +300,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
 
     trap :WINCH do
       begin
-        Readline.set_screen_size(*Terminal.size!)
+        Readline.set_screen_size(*Terminal.size)
       rescue StandardError => e
         warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
       end
