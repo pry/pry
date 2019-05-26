@@ -5,8 +5,8 @@ class Pry
     attr_reader :pry_instance
 
     def initialize(pry_instance)
-      @pry_instance = pry_instance
       @output = pry_instance.config.output
+      @color = pry_instance.config.color
     end
 
     def puts(*objs)
@@ -48,11 +48,9 @@ class Pry
     end
 
     def decolorize_maybe(str)
-      if pry_instance.config.color
-        str
-      else
-        Pry::Helpers::Text.strip_color str
-      end
+      return str if @color
+
+      Pry::Helpers::Text.strip_color(str)
     end
   end
 end
