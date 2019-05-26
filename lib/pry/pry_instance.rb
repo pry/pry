@@ -80,7 +80,7 @@ class Pry
   #   The initial context for this session.
   def initialize(options = {})
     @binding_stack = []
-    @indent        = Pry::Indent.new
+    @indent        = Pry::Indent.new(self)
     @eval_string   = ''.dup
     @backtrace     = options.delete(:backtrace) || caller
     target = options.delete(:target)

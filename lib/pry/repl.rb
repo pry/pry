@@ -21,7 +21,7 @@ class Pry
     # @option options [Object] :target The initial target of the session.
     def initialize(pry, options = {})
       @pry    = pry
-      @indent = Pry::Indent.new
+      @indent = Pry::Indent.new(pry)
 
       @readline_output = nil
 
