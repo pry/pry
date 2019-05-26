@@ -31,7 +31,7 @@ class Pry
           return '' if body.compact.empty?
 
           fancy_heading = Pry::Helpers::Text.bold(color(:heading, heading))
-          Pry::Helpers.tablify_or_one_line(fancy_heading, body, @pry_instance.config)
+          Pry::Helpers.tablify_or_one_line(fancy_heading, body, @pry_instance)
         end
 
         def format_value(value)

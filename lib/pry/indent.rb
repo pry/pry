@@ -101,7 +101,8 @@ class Pry
       indent.module_nesting
     end
 
-    def initialize
+    def initialize(pry_instance = Pry.new)
+      @pry_instance = pry_instance
       reset
     end
 
@@ -394,7 +395,7 @@ class Pry
       line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
       whitespace = ' ' * overhang
 
-      cols = Terminal.width
+      cols = @pry_instance.output.width
       lines = cols == 0 ? 1 : (line_to_measure.length / cols + 1).to_i
 
       if Helpers::Platform.windows_ansi?

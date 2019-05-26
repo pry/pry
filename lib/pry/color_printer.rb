@@ -11,7 +11,7 @@ class Pry
     def self.default(_output, value, pry_instance)
       pry_instance.pager.open do |pager|
         pager.print pry_instance.config.output_prefix
-        pp(value, pager, Pry::Terminal.width - 1)
+        pp(value, pager, pry_instance.output.width - 1)
       end
     end
 

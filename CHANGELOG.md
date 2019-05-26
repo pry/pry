@@ -86,6 +86,8 @@
   ([#1898](https://github.com/pry/pry/pull/1898))
 * Fixed Ruby 2.6 warning about `Binding#source_location`
   ([#1904](https://github.com/pry/pry/pull/1904))
+* Fixed wrong `winsize` when custom `output` is passed to Pry
+  ([#2045](https://github.com/pry/pry/pull/2045))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 

@@ -5,7 +5,7 @@
 # lines.
 describe Pry::Indent do
   before do
-    @indent = Pry::Indent.new
+    @indent = Pry::Indent.new(Pry.new)
   end
 
   it 'should indent an array' do

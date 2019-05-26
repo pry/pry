@@ -2,29 +2,30 @@
 
 class Pry
   module Helpers
-    def self.tablify_or_one_line(heading, things, config = Pry.config)
+    def self.tablify_or_one_line(heading, things, pry_instance = Pry.new)
       plain_heading = Pry::Helpers::Text.strip_color(heading)
       attempt = Table.new(things, column_count: things.size)
-      if attempt.fits_on_line?(Terminal.width - plain_heading.size - 2)
+      if attempt.fits_on_line?(pry_instance.output.width - plain_heading.size - 2)
         "#{heading}: #{attempt}\n"
       else
-        "#{heading}: \n#{tablify_to_screen_width(things, { indent: '  ' }, config)}\n"
+        content = tablify_to_screen_width(things, { indent: '  ' }, pry_instance)
+        "#{heading}: \n#{content}\n"
       end
     end
 
-    def self.tablify_to_screen_width(things, options, config = Pry.config)
+    def self.tablify_to_screen_width(things, options, pry_instance = Pry.new)
       options ||= {}
       things = things.compact
       if (indent = options[:indent])
-        usable_width = Terminal.width - indent.size
-        tablify(things, usable_width, config).to_s.gsub(/^/, indent)
+        usable_width = pry_instance.output.width - indent.size
+        tablify(things, usable_width, pry_instance).to_s.gsub(/^/, indent)
       else
-        tablify(things, Terminal.width, config).to_s
+        tablify(things, pry_instance.output.width, pry_instance).to_s
       end
     end
 
-    def self.tablify(things, line_length, config = Pry.config)
-      table = Table.new(things, { column_count: things.size }, config)
+    def self.tablify(things, line_length, pry_instance = Pry.new)
+      table = Table.new(things, { column_count: things.size }, pry_instance)
       until (table.column_count == 1) || table.fits_on_line?(line_length)
         table.column_count -= 1
       end
@@ -33,9 +34,9 @@ class Pry
 
     class Table
       attr_reader :items, :column_count
-      def initialize(items, args, config = Pry.config)
+      def initialize(items, args, pry_instance = Pry.new)
         @column_count = args[:column_count]
-        @config = config
+        @config = pry_instance.config
         self.items = items
       end
 

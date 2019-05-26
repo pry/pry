@@ -194,4 +194,175 @@ RSpec.describe Pry::Output do
       end
     end
   end
+
+  describe "#size" do
+    context "when the output is a tty and responds to winsize" do
+      before do
+        skip("io/console doesn't support JRuby") if Pry::Helpers::Platform.jruby?
+        expect(output).to receive(:tty?).and_return(true)
+        expect(output).to receive(:winsize).and_return([1, 1])
+      end
+
+      it "returns the io/console winsize" do
+        expect(subject.size).to eq([1, 1])
+      end
+    end
+
+    context "when the output is not a tty" do
+      before do
+        skip("io/console doesn't support JRuby") if Pry::Helpers::Platform.jruby?
+        expect(output).to receive(:tty?).and_return(false)
+        allow(ENV).to receive(:[])
+      end
+
+      context "and ENV has size info in ROWS and COLUMNS" do
+        before do
+          expect(ENV).to receive(:[]).with('ROWS').and_return(2)
+          expect(ENV).to receive(:[]).with('COLUMNS').and_return(2)
+        end
+
+        it "returns the ENV variable winsize" do
+          expect(subject.size).to eq([2, 2])
+        end
+      end
+
+      context "and ENV has size info in LINES and COLUMNS" do
+        before do
+          expect(ENV).to receive(:[]).with('LINES').and_return(3)
+          expect(ENV).to receive(:[]).with('COLUMNS').and_return(2)
+        end
+
+        it "returns ENV variable winsize" do
+          expect(subject.size).to eq([3, 2])
+        end
+      end
+    end
+
+    context "when the output is not a tty and no info in ENV" do
+      let(:readline) { Object.new }
+
+      before do
+        unless Pry::Helpers::Platform.jruby?
+          expect(output).to receive(:tty?).and_return(false)
+        end
+
+        allow(ENV).to receive(:[])
+
+        stub_const('Readline', readline)
+      end
+
+      context "when Readline's size has no zeroes" do
+        before do
+          expect(readline).to receive(:get_screen_size).and_return([1, 1])
+        end
+
+        it "returns the Readline winsize" do
+          expect(subject.size).to eq([1, 1])
+        end
+      end
+
+      context "when Readline's size has zero column" do
+        before do
+          expect(readline).to receive(:get_screen_size).and_return([1, 0])
+        end
+
+        it "returns the default size" do
+          expect(subject.size).to eq([27, 80])
+        end
+      end
+    end
+
+    context "when the output is not a tty, and no info in ENV and no Readline info" do
+      let(:readline) { Object.new }
+
+      before do
+        unless Pry::Helpers::Platform.jruby?
+          expect(output).to receive(:tty?).and_return(false)
+        end
+
+        allow(ENV).to receive(:[])
+        stub_const('Readline', readline)
+        expect(readline).to receive(:respond_to?)
+          .with(:get_screen_size).and_return(false)
+      end
+
+      context "and when there's ANSICON ENV variable" do
+        context "and when it can be matched" do
+          context "and when the size consists of positive integers" do
+            before do
+              expect(ENV).to receive(:[]).with('ANSICON').and_return('(5x5)')
+            end
+
+            it "returns the ansicon winsize" do
+              expect(subject.size).to eq([5, 5])
+            end
+          end
+
+          context "and when the size has a zero column" do
+            before do
+              expect(ENV).to receive(:[]).with('ANSICON').and_return('(0x0)')
+            end
+
+            it "returns the default winsize" do
+              expect(subject.size).to eq([27, 80])
+            end
+          end
+        end
+
+        context "and when it cannot be matched" do
+          before do
+            expect(ENV).to receive(:[]).with('ANSICON').and_return('5x5')
+          end
+
+          it "returns the default winsize" do
+            expect(subject.size).to eq([27, 80])
+          end
+        end
+      end
+
+      context "and when there's no ANSICON ENV variable" do
+        it "returns the default winsize" do
+          expect(subject.size).to eq([27, 80])
+        end
+      end
+    end
+  end
+
+  describe "#width" do
+    let(:readline) { Object.new }
+
+    before do
+      unless Pry::Helpers::Platform.jruby?
+        expect(output).to receive(:tty?).and_return(false)
+      end
+
+      allow(ENV).to receive(:[])
+      stub_const('Readline', readline)
+      expect(readline).to receive(:respond_to?)
+        .with(:get_screen_size).and_return(false)
+    end
+
+    it "returns the number of columns" do
+      expect(subject.width).to eq(80)
+    end
+  end
+
+  describe "#height" do
+    let(:readline) { Object.new }
+
+    before do
+      unless Pry::Helpers::Platform.jruby?
+        expect(output).to receive(:tty?).and_return(false)
+      end
+
+      allow(ENV).to receive(:[])
+      stub_const('Readline', readline)
+      expect(readline).to receive(:respond_to?)
+        .with(:get_screen_size).and_return(false)
+    end
+
+    it "returns the number of rows" do
+      expect(subject.height).to eq(27)
+    end
+  end
 end
