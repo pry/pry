@@ -8,7 +8,6 @@ describe "show-source" do
     def @o.sample_method
       :sample
     end
-
     Object.remove_const :Test if Object.const_defined? :Test
     Object.const_set(:Test, Module.new)
   end
@@ -37,16 +36,18 @@ describe "show-source" do
 
   it "should output a method's source if inside method and no name given" do
     def @o.sample
-      pry_eval(binding, 'show-source').should =~ /def @o.sample/
+      pry_eval(binding, 'show-source')
     end
-    @o.sample
+    docs = @o.sample
+    expect(docs).to match(/def @o.sample/)
   end
 
   it "should output a method's source inside method using the -l switch" do
     def @o.sample
-      pry_eval(binding, 'show-source -l').should =~ /def @o.sample/
+      pry_eval(binding, 'show-source -l')
     end
-    @o.sample
+    docs = @o.sample
+    expect(docs).to match(/def @o.sample/)
   end
 
   it "should find methods even if there are spaces in the arguments" do
@@ -339,9 +340,7 @@ describe "show-source" do
         SHADOWED_VAR
       end
 
-      after do
-        Object.remove_const(:TestHost)
-      end
+      after { Object.remove_const(:TestHost) }
 
       it "source of variable takes precedence over method that is being shadowed" do
         source = @t.eval('show-source hello')
@@ -365,9 +364,7 @@ describe "show-source" do
       end
     end
 
-    after do
-      Object.remove_const(:TestHost)
-    end
+    after { Object.remove_const(:TestHost) }
 
     it "outputs source of its class if variable doesn't respond to source_location" do
       _test_host = TestHost.new
