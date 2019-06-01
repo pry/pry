@@ -50,7 +50,7 @@ class Pry
       return unless pry.config.correct_indent
 
       # Clear the line before starting Pry. This fixes issue #566.
-      Kernel.print(Helpers::Platform.windows_ansi? ? "\e[0F" : "\e[0G")
+      output.print(Helpers::Platform.windows_ansi? ? "\e[0F" : "\e[0G")
     end
 
     # The actual read-eval-print loop.
