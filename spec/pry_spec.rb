@@ -19,7 +19,7 @@ describe Pry do
     # regression test for exotic object support
     it "Should not error when return value is a BasicObject instance" do
       ReplTester.start do
-        input('BasicObject.new').should =~ /^=> #<BasicObject:/
+        expect(input('BasicObject.new')).to match(/^=> #<BasicObject:/)
       end
     end
   end

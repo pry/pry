@@ -54,9 +54,9 @@ describe "show-doc" do
   ) do
     # sample comment
     def @o.sample
-      pry_eval(binding, 'show-doc').should =~ /sample comment/
+      pry_eval(binding, 'show-doc')
     end
-    @o.sample
+    expect(@o.sample).to match(/sample comment/)
   end
 
   describe "finding find super method docs with help of `--super` switch" do

@@ -592,10 +592,7 @@ describe "edit" do
 
         it "should successfully replace a class method" do
           pry_eval 'edit -p X.x'
-
-          class << X
-            X.method(:x).owner.should == self
-          end
+          expect(X.method(:x).owner).to eq class << X; self end
           expect(X.method(:x).receiver).to eq X
           expect(X.x).to eq :maybe
         end

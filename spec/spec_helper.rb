@@ -37,10 +37,6 @@ if ENV["SET_TRACE_FUNC"]
 end
 
 RSpec.configure do |config|
-  config.expect_with :rspec do |c|
-    c.syntax = [:should, :expect]
-  end
-
   config.before(:each) do
     Pry::Testable.set_testenv_variables
   end

@@ -22,14 +22,14 @@ describe "whereami" do
   it 'should work in objects with no method methods' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami').should =~ /Cor[#]blimey!/
+        pry_eval(binding, 'whereami')
       end
 
       def method
         "moo"
       end
     end
-    Cor.new.blimey!
+    expect(Cor.new.blimey!).to match(/Cor[#]blimey!/)
     Object.remove_const(:Cor)
   end
 
@@ -37,11 +37,10 @@ describe "whereami" do
     class Cor
       def blimey!
         pry_eval(binding, 'whereami', '_file_')
-          .should == File.expand_path(__FILE__)
       end
     end
 
-    Cor.new.blimey!
+    expect(Cor.new.blimey!).to eq File.expand_path(__FILE__)
     Object.remove_const(:Cor)
   end
 
@@ -55,11 +54,11 @@ describe "whereami" do
       class Cor
         prepend Cor2
         def blimey!
-          pry_eval(binding, 'whereami').should =~ /Cor2[#]blimey!/
+          pry_eval(binding, 'whereami')
         end
       end
 
-      Cor.new.blimey!
+      expect(Cor.new.blimey!).to match(/Cor2[#]blimey!/)
 
       Object.remove_const(:Cor)
       Object.remove_const(:Cor2)
@@ -139,10 +138,10 @@ describe "whereami" do
   it 'should show code window (not just method source) if parameter passed to whereami' do
     class Cor
       def blimey!
-        pry_eval(binding, 'whereami 3').should =~ /class Cor/
+        pry_eval(binding, 'whereami 3')
       end
     end
-    Cor.new.blimey!
+    expect(Cor.new.blimey!).to match(/class Cor/)
     Object.remove_const(:Cor)
   end
 
@@ -211,11 +210,11 @@ describe "whereami" do
 
     it 'should show class when -c option used, and binding is outside a method' do
       class Cor
+        extend RSpec::Matchers
         def blimey; end
-
         out = pry_eval(binding, 'whereami -c')
-        out.should =~ /class Cor/
-        out.should =~ /blimey/
+        expect(out).to match(/class Cor/)
+        expect(out).to match(/blimey/)
       end
       Object.remove_const(:Cor)
     end
@@ -224,12 +223,12 @@ describe "whereami" do
   it 'should not show line numbers or marker when -n switch is used' do
     class Cor
       def blimey!
-        out = pry_eval(binding, 'whereami -n')
-        out.should =~ /^\s*def/
-        out.should_not =~ /\=\>/
+        pry_eval(binding, 'whereami -n')
       end
     end
-    Cor.new.blimey!
+    out = Cor.new.blimey!
+    expect(out).to match(/^\s*def/)
+    expect(out).to_not match(/\=\>/)
     Object.remove_const(:Cor)
   end
 

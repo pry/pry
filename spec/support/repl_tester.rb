@@ -40,6 +40,8 @@ class ReplTester
     instance.thread.kill if instance && instance.thread && instance.thread.alive?
   end
 
+  include RSpec::Matchers
+
   attr_accessor :thread, :mailbox, :last_prompt
 
   def initialize(options = {})
@@ -71,14 +73,14 @@ class ReplTester
   end
 
   # Assert that the current prompt matches the given string or regex.
-  def prompt(match)
-    match.should === last_prompt # rubocop:disable Style/CaseEquality
+  def prompt(pattern)
+    expect(last_prompt).to match pattern
   end
 
   # Assert that the most recent output (since the last time input was called)
   # matches the given string or regex.
-  def output(match)
-    match.should === @pry.output.string.chomp # rubocop:disable Style/CaseEquality
+  def output(pattern)
+    expect(@pry.output.string.chomp).to match pattern
   end
 
   # Assert that the Pry session ended naturally after the last input.
