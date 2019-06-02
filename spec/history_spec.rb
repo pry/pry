@@ -25,20 +25,15 @@ RSpec.describe Pry::History do
     let(:xdg_name) { 'XDG_DATA_HOME' }
     let(:default_path) { File.expand_path '~/.pry_history' }
 
-    around do |spec|
-      xdg_val = ENV[xdg_name]
-      begin spec.call
-      ensure ENV[xdg_name] = xdg_val
-      end
-    end
-
     def stub_hist(options)
       has_default = options.fetch :has_default
       xdg_home    = options.fetch :xdg_home
       allow(File).to receive(:exist?) # there's a test helper hook that hits this
-      expect(File).to receive(:exist?)
-        .with(default_path).and_return(has_default)
-      ENV[xdg_name] = xdg_home # for ENV, setting to nil is equivalent to deleting
+      allow(File).to receive(:exist?).with(default_path).and_return(has_default)
+      allow(ENV).to receive(:[])
+      allow(ENV).to receive(:key?)
+      allow(ENV).to receive(:[]).with(xdg_name).and_return(xdg_home)
+      allow(ENV).to receive(:key?).with(xdg_name).and_return(!!xdg_home)
     end
 
     it "returns ~/.local/share/pry/pry_history" do
