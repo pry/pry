@@ -7,7 +7,7 @@ RSpec.describe Pry::Config::MemoizedValue do
       expect(instance.call).to eq(instance.call)
     end
 
-    specify "even if the result is falsy" do
+    it "doesn't conflate falsiness with unmemoizedness" do
       count = 0
       instance = described_class.new do
         count += 1
