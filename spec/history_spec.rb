@@ -22,27 +22,35 @@ RSpec.describe Pry::History do
   end
 
   describe ".default_file" do
+    let(:xdg_name) { 'XDG_DATA_HOME' }
+    let(:default_path) { File.expand_path '~/.pry_history' }
+
+    def stub_hist(options)
+      has_default = options.fetch :has_default
+      xdg_home    = options.fetch :xdg_home
+      allow(File).to receive(:exist?) # there's a test helper hook that hits this
+      allow(File).to receive(:exist?).with(default_path).and_return(has_default)
+      allow(ENV).to receive(:[])
+      allow(ENV).to receive(:key?)
+      allow(ENV).to receive(:[]).with(xdg_name).and_return(xdg_home)
+      allow(ENV).to receive(:key?).with(xdg_name).and_return(!!xdg_home)
+    end
+
     it "returns ~/.local/share/pry/pry_history" do
+      stub_hist has_default: false, xdg_home: nil
       expect(described_class.default_file).to match('/.local/share/pry/pry_history')
     end
 
     context "when ~/.pry_history exists" do
-      before do
-        allow(File).to receive(:exist?)
-        expect(File).to receive(:exist?)
-          .with(File.expand_path('~/.pry_history')).and_return(true)
-      end
-
       it "returns ~/.pry_history" do
-        expect(described_class.default_file).to match('/.pry_history')
+        stub_hist has_default: true, xdg_home: nil
+        expect(described_class.default_file).to eq default_path
       end
     end
 
     context "when $XDG_DATA_HOME is defined" do
-      before { ENV['XDG_DATA_HOME'] = '/my/path' }
-      after { ENV['XDG_DATA_HOME'] = nil }
-
       it "returns config location relative to $XDG_DATA_HOME" do
+        stub_hist has_default: false, xdg_home: '/my/path'
         expect(described_class.default_file).to eq('/my/path/pry/pry_history')
       end
     end
