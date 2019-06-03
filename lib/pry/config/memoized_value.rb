@@ -19,11 +19,15 @@ class Pry
     class MemoizedValue
       def initialize(&block)
         @block = block
+        @called = false
         @call = nil
       end
 
       def call
-        @call ||= @block.call
+        return @call if @called
+
+        @called = true
+        @call = @block.call
       end
     end
   end
