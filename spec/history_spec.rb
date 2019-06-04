@@ -53,6 +53,11 @@ RSpec.describe Pry::History do
         stub_hist has_default: false, xdg_home: '/my/path'
         expect(described_class.default_file).to eq('/my/path/pry/pry_history')
       end
+
+      it "returns config location relative to $XDG_DATA_HOME when ~/.pryrc exists" do
+        stub_hist has_default: true, xdg_home: '/my/path'
+        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+      end
     end
   end
 

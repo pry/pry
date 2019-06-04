@@ -6,12 +6,12 @@ class Pry
   class History
     def self.default_file
       history_file =
-        if File.exist?(File.expand_path('~/.pry_history'))
-          '~/.pry_history'
-        elsif ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
+        if ENV.key?('XDG_DATA_HOME') && ENV['XDG_DATA_HOME'] != ''
           # See XDG Base Directory Specification at
           # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
           ENV['XDG_DATA_HOME'] + '/pry/pry_history'
+        elsif File.exist?(File.expand_path('~/.pry_history'))
+          '~/.pry_history'
         else
           '~/.local/share/pry/pry_history'
         end
