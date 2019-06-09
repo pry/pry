@@ -45,6 +45,7 @@ RSpec.configure do |config|
 
   config.after(:each) do
     Pry::Testable.unset_testenv_variables
+    Pry.reset_defaults
   end
   config.include Pry::Testable::Mockable
   config.include Pry::Testable::Utility
