@@ -48,7 +48,7 @@ class Pry
       end
 
       def cd_path_env
-        ENV['CDPATH']
+        Pry::Env['CDPATH']
       end
 
       def cd_path_exists?

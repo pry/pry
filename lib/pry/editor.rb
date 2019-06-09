@@ -5,12 +5,18 @@ require 'shellwords'
 class Pry
   class Editor
     def self.default
-      return ENV['VISUAL'] if ENV['VISUAL'] && !ENV['VISUAL'].empty?
-      return ENV['EDITOR'] if ENV['EDITOR'] && !ENV['EDITOR'].empty?
+      if (visual = Pry::Env['VISUAL'])
+        return visual
+      end
+
+      if (editor = Pry::Env['EDITOR'])
+        return editor
+      end
+
       return 'notepad' if Helpers::Platform.windows?
 
-      %w[editor nano vi].find do |editor|
-        Kernel.system("which #{editor} > /dev/null 2>&1")
+      %w[editor nano vi].find do |editor_exe|
+        Kernel.system("which #{editor_exe} > /dev/null 2>&1")
       end
     end
 

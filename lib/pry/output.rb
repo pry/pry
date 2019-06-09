@@ -107,7 +107,7 @@ class Pry
     end
 
     def env_size
-      size = [ENV['LINES'] || ENV['ROWS'], ENV['COLUMNS']]
+      size = [Pry::Env['LINES'] || Pry::Env['ROWS'], Pry::Env['COLUMNS']]
       size if nonzero_column?(size)
     end
 
@@ -123,7 +123,7 @@ class Pry
     end
 
     def ansicon_env_size
-      return unless ENV['ANSICON'] =~ /\((.*)x(.*)\)/
+      return unless Pry::Env['ANSICON'] =~ /\((.*)x(.*)\)/
 
       size = [Regexp.last_match(2), Regexp.last_match(1)]
       size if nonzero_column?(size)

@@ -128,7 +128,7 @@ class Pry
     # buffered content.
     class SystemPager < NullPager
       def self.default_pager
-        pager = ENV["PAGER"] || ""
+        pager = Pry::Env['PAGER'] || ''
 
         # Default to less, and make sure less is being passed the correct
         # options
