@@ -28,6 +28,7 @@ require 'pry/system_command_handler'
 require 'pry/control_d_handler'
 require 'pry/command_state'
 require 'pry/warning'
+require 'pry/env'
 
 Pry::Commands = Pry::CommandSet.new unless defined?(Pry::Commands)
 
