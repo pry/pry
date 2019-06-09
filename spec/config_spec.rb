@@ -56,14 +56,18 @@ RSpec.describe Pry::Config do
       end
     end
 
-    context "when ~/.pryrc exists" do
+    context "when ~/.pryrc exists and $XDG_CONFIG_HOME is undefined" do
       before do
         allow(File).to receive(:exist?)
         expect(File).to receive(:exist?)
           .with(File.expand_path('~/.pryrc')).and_return(true)
+
+        allow(Pry::Env).to receive(:[])
+        allow(Pry::Env).to receive(:[])
+          .with('XDG_CONFIG_HOME').and_return(nil)
       end
 
-      it "defaults ~/.pryrc" do
+      it "defaults to ~/.pryrc" do
         expect(subject.rc_file).to eq('~/.pryrc')
       end
     end
