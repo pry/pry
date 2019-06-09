@@ -307,12 +307,12 @@ class Pry
     def default_rc_file
       if ENV.key?('PRYRC')
         ENV['PRYRC']
-      elsif File.exist?(File.expand_path('~/.pryrc'))
-        '~/.pryrc'
       elsif ENV.key?('XDG_CONFIG_HOME') && ENV['XDG_CONFIG_HOME'] != ''
         # See XDG Base Directory Specification at
         # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
         ENV['XDG_CONFIG_HOME'] + '/pry/pryrc'
+      elsif File.exist?(File.expand_path('~/.pryrc'))
+        '~/.pryrc'
       else
         '~/.config/pry/pryrc'
       end
