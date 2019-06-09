@@ -212,13 +212,13 @@ RSpec.describe Pry::Output do
       before do
         skip("io/console doesn't support JRuby") if Pry::Helpers::Platform.jruby?
         expect(output).to receive(:tty?).and_return(false)
-        allow(ENV).to receive(:[])
+        allow(Pry::Env).to receive(:[])
       end
 
       context "and ENV has size info in ROWS and COLUMNS" do
         before do
-          expect(ENV).to receive(:[]).with('ROWS').and_return(2)
-          expect(ENV).to receive(:[]).with('COLUMNS').and_return(2)
+          expect(Pry::Env).to receive(:[]).with('ROWS').and_return(2)
+          expect(Pry::Env).to receive(:[]).with('COLUMNS').and_return(2)
         end
 
         it "returns the ENV variable winsize" do
@@ -228,8 +228,8 @@ RSpec.describe Pry::Output do
 
       context "and ENV has size info in LINES and COLUMNS" do
         before do
-          expect(ENV).to receive(:[]).with('LINES').and_return(3)
-          expect(ENV).to receive(:[]).with('COLUMNS').and_return(2)
+          expect(Pry::Env).to receive(:[]).with('LINES').and_return(3)
+          expect(Pry::Env).to receive(:[]).with('COLUMNS').and_return(2)
         end
 
         it "returns ENV variable winsize" do
@@ -246,7 +246,7 @@ RSpec.describe Pry::Output do
           expect(output).to receive(:tty?).and_return(false)
         end
 
-        allow(ENV).to receive(:[])
+        allow(Pry::Env).to receive(:[])
 
         stub_const('Readline', readline)
       end
@@ -280,7 +280,7 @@ RSpec.describe Pry::Output do
           expect(output).to receive(:tty?).and_return(false)
         end
 
-        allow(ENV).to receive(:[])
+        allow(Pry::Env).to receive(:[])
         stub_const('Readline', readline)
         expect(readline).to receive(:respond_to?)
           .with(:get_screen_size).and_return(false)
@@ -290,7 +290,7 @@ RSpec.describe Pry::Output do
         context "and when it can be matched" do
           context "and when the size consists of positive integers" do
             before do
-              expect(ENV).to receive(:[]).with('ANSICON').and_return('(5x5)')
+              expect(Pry::Env).to receive(:[]).with('ANSICON').and_return('(5x5)')
             end
 
             it "returns the ansicon winsize" do
@@ -300,7 +300,7 @@ RSpec.describe Pry::Output do
 
           context "and when the size has a zero column" do
             before do
-              expect(ENV).to receive(:[]).with('ANSICON').and_return('(0x0)')
+              expect(Pry::Env).to receive(:[]).with('ANSICON').and_return('(0x0)')
             end
 
             it "returns the default winsize" do
@@ -311,7 +311,7 @@ RSpec.describe Pry::Output do
 
         context "and when it cannot be matched" do
           before do
-            expect(ENV).to receive(:[]).with('ANSICON').and_return('5x5')
+            expect(Pry::Env).to receive(:[]).with('ANSICON').and_return('5x5')
           end
 
           it "returns the default winsize" do
@@ -336,7 +336,7 @@ RSpec.describe Pry::Output do
         expect(output).to receive(:tty?).and_return(false)
       end
 
-      allow(ENV).to receive(:[])
+      allow(Pry::Env).to receive(:[])
       stub_const('Readline', readline)
       expect(readline).to receive(:respond_to?)
         .with(:get_screen_size).and_return(false)
@@ -355,7 +355,7 @@ RSpec.describe Pry::Output do
         expect(output).to receive(:tty?).and_return(false)
       end
 
-      allow(ENV).to receive(:[])
+      allow(Pry::Env).to receive(:[])
       stub_const('Readline', readline)
       expect(readline).to receive(:respond_to?)
         .with(:get_screen_size).and_return(false)

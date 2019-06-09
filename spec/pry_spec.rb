@@ -26,11 +26,8 @@ describe Pry do
 
   describe 'DISABLE_PRY' do
     before do
-      ENV['DISABLE_PRY'] = 'true'
-    end
-
-    after do
-      ENV.delete 'DISABLE_PRY'
+      allow(Pry::Env).to receive(:[])
+      allow(Pry::Env).to receive(:[]).with('DISABLE_PRY').and_return(true)
     end
 
     it 'should not binding.pry' do
@@ -44,11 +41,8 @@ describe Pry do
 
   describe 'FAIL_PRY' do
     before do
-      ENV['FAIL_PRY'] = 'true'
-    end
-
-    after do
-      ENV.delete 'FAIL_PRY'
+      allow(Pry::Env).to receive(:[])
+      allow(Pry::Env).to receive(:[]).with('FAIL_PRY').and_return(true)
     end
 
     it 'should raise an error for binding.pry' do
