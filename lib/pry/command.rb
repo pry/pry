@@ -166,7 +166,7 @@ class Pry
         prefix = convert_to_regex(Pry.config.command_prefix)
         prefix = "(?:#{prefix})?" unless options[:use_prefix]
 
-        /^#{prefix}#{convert_to_regex(match)}(?!\S)/
+        /\A#{prefix}#{convert_to_regex(match)}(?!\S)/
       end
 
       def convert_to_regex(obj)

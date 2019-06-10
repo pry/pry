@@ -456,7 +456,7 @@ describe "commands" do
       end
     end
 
-    expect(pry_tester(commands: klass).eval("def yo\nhello\n")).to eq 7
+    expect(pry_tester(commands: klass).eval("def yo", "hello")).to eq 7
   end
 
   it(
@@ -469,7 +469,7 @@ describe "commands" do
       end
     end
 
-    expect(pry_tester(commands: klass).eval("def yo\nhello\n")).to eq 5
+    expect(pry_tester(commands: klass).eval("def yo", "hello\n")).to eq 5
   end
 
   it 'should set the commands default, and the default should be overridable' do
