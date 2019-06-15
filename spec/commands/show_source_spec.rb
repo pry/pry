@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
-require "fixtures/show_source_doc_examples"
+describe "show-source" do # rubocop:disable Metrics/BlockLength
+  def define_persistent_class(file, class_body)
+    file.puts(class_body)
+    file.close
+    require(file.path)
+  end
 
-describe "show-source" do
   before do
     @o = Object.new
     def @o.sample_method
@@ -515,71 +519,160 @@ describe "show-source" do
     # ONCE per file, so will not find multiple monkeypatches in the
     # SAME file.
     describe "show-source -a" do
-      it 'should show the source for all monkeypatches defined in different files' do
-        class TestClassForShowSource
-          def beta; end
-        end
+      let(:tempfile) { Tempfile.new(%w[pry .rb]) }
 
-        result = pry_eval('show-source TestClassForShowSource -a')
-        expect(result).to match(/def alpha/)
-        expect(result).to match(/def beta/)
-      end
+      context "when there are instance method monkeypatches in different files" do
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            class TestClass
+              def alpha; end
+            end
+          CLASS
 
-      it 'should show the source for a class_eval-based monkeypatch' do
-        TestClassForShowSourceClassEval.class_eval do
-          def class_eval_method; end
-        end
-
-        result = pry_eval('show-source TestClassForShowSourceClassEval -a')
-        expect(result).to match(/def class_eval_method/)
-      end
-
-      it 'should ignore -a when object is not a module' do
-        TestClassForShowSourceClassEval.class_eval do
-          def class_eval_method
-            :bing
+          class TestClass
+            def beta; end
           end
         end
 
-        result = pry_eval(
-          'show-source TestClassForShowSourceClassEval#class_eval_method -a'
-        )
-        expect(result).to match(/bing/)
-      end
-
-      it 'should show the source for an instance_eval-based monkeypatch' do
-        TestClassForShowSourceInstanceEval.instance_eval do
-          def instance_eval_method; end
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
         end
 
-        result = pry_eval('show-source TestClassForShowSourceInstanceEval -a')
-        expect(result).to match(/def instance_eval_method/)
+        it "shows the source for all monkeypatches" do
+          result = pry_eval('show-source TestClass -a')
+          expect(result).to match(/def alpha/)
+          expect(result).to match(/def beta/)
+        end
       end
 
-      describe "messages relating to -a" do
-        it(
-          'indicates all available monkeypatches can be shown with -a when ' \
-          '(when -a not used and more than one candidate exists for class)'
-        ) do
-          class TestClassForShowSource
-            def gamma; end
-          end
+      context "when there are class method monkeypatches in different files" do
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            class TestClass
+              def self.alpha; end
+            end
+          CLASS
 
-          result = pry_eval('show-source TestClassForShowSource')
+          class TestClass
+            def self.beta; end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "shows the source for all monkeypatches" do
+          result = pry_eval('show-source TestClass -a')
+          expect(result).to match(/def self.alpha/)
+          expect(result).to match(/def self.beta/)
+        end
+      end
+
+      context "when there are class-eval monkeypatches in different files" do
+        let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            class TestClass
+              def self.alpha; end
+            end
+          CLASS
+
+          TestClass.class_eval do
+            def class_eval_method
+              :bing
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "shows the source for all monkeypatches" do
+          result = pry_eval('show-source TestClass -a')
+          expect(result).to match(/def class_eval_method/)
+        end
+
+        it "ignores -a because object is not a module" do
+          result = pry_eval('show-source TestClass#class_eval_method -a')
+          expect(result).to match(/bing/)
+        end
+      end
+
+      context "when there are instance-eval monkeypatches in different files" do
+        let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            class TestClass
+              def self.alpha; end
+            end
+          CLASS
+
+          TestClass.instance_eval do
+            def instance_eval_method
+              :bing
+            end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "shows the source for all monkeypatches" do
+          result = pry_eval('show-source TestClass -a')
+          expect(result).to match(/def instance_eval_method/)
+        end
+      end
+
+      context "when -a is not used and there are multiple monkeypatches" do
+        let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            class TestClass
+              def self.alpha; end
+            end
+          CLASS
+
+          class TestClass
+            def beta; end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "mentions available monkeypatches" do
+          result = pry_eval('show-source TestClass')
           expect(result).to match(/available monkeypatches/)
         end
+      end
 
-        it(
-          "doesn't mention monkeypatches when only 1 candidate exists for " \
-          "selected class"
-        ) do
-          class Aarrrrrghh
-            def o; end
+      context "when -a is not used and there's only one candidate for the class" do
+        before do
+          # alpha
+          class TestClass
+            def alpha; end
           end
+        end
 
-          result = pry_eval('show-source Aarrrrrghh')
+        after do
+          Object.remove_const(:TestClass)
+        end
+
+        it "doesn't mention anything about monkeypatches" do
+          result = pry_eval('show-source TestClass')
           expect(result).not_to match(/available monkeypatches/)
-          Object.remove_const(:Aarrrrrghh)
         end
       end
     end
@@ -803,11 +896,29 @@ describe "show-source" do
   end
 
   describe "should set _file_ and _dir_" do
+    let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+    before do
+      define_persistent_class(tempfile, <<-CLASS)
+        class TestClass
+          def alpha; end
+        end
+      CLASS
+    end
+
+    after do
+      Object.remove_const(:TestClass)
+      tempfile.unlink
+    end
+
     it 'should set _file_ and _dir_ to file containing method source' do
       t = pry_tester
-      t.process_command "show-source TestClassForShowSource#alpha"
-      expect(t.pry.last_file).to match(/show_source_doc_examples/)
-      expect(t.pry.last_dir).to match(/fixtures/)
+      t.process_command "show-source TestClass#alpha"
+
+      path = tempfile.path.split('/')[0..-2].join('/')
+      expect(t.pry.last_dir).to match(path)
+
+      expect(t.pry.last_file).to match(tempfile.path)
     end
   end
 
@@ -945,22 +1056,782 @@ describe "show-source" do
     end
   end
 
-  context "when the --doc switch is provided" do
-    before do
-      # Foo has docs.
-      class Foo
-        def bar
-          :bar
+  describe "show-source --doc" do
+    context "when given a class with a doc" do
+      before do
+        # Foo has docs.
+        class Foo
+          def bar; end
+        end
+      end
+
+      after { Object.remove_const(:Foo) }
+
+      it "shows documentation for the code object along with source code" do
+        expect(pry_eval(binding, "show-source Foo -d")).to match(
+          /Foo has docs\.\n\s+class Foo/
+        )
+      end
+    end
+
+    context "when given a module with a doc" do
+      before do
+        # TestMod has docs
+        module TestMod
+          def foo; end
+        end
+      end
+
+      after { Object.remove_const(:TestMod) }
+
+      it "shows documentation for the code object along with source code" do
+        expect(pry_eval(binding, "show-source TestMod -d")).to match(
+          /TestMod has docs\n\s+module TestMod/
+        )
+      end
+    end
+
+    context "when the Const = Class.new syntax is used" do
+      before do
+        # TestClass has docs
+        TestClass = Class.new do
+          def foo; end
+        end
+      end
+
+      after { Object.remove_const(:TestClass) }
+
+      it "shows documentation for the class" do
+        expect(pry_eval(binding, "show-source TestClass -d")).to match(
+          /TestClass has docs\n\s+TestClass = Class.new/
+        )
+      end
+    end
+
+    context "when the Const = Module.new syntax is used" do
+      before do
+        # TestMod has docs
+        TestMod = Module.new do
+          def foo; end
+        end
+      end
+
+      after { Object.remove_const(:TestMod) }
+
+      it "shows documentation for the module" do
+        expect(pry_eval(binding, "show-source TestMod -d")).to match(
+          /TestMod has docs\n\s+TestMod = Module.new/
+        )
+      end
+    end
+
+    context "when given a class defined in a REPL session" do
+      after { Object.remove_const(:TobinaMyDog) }
+
+      it "shows documentation for the class" do
+        t = pry_tester
+        t.eval <<-RUBY
+          # hello tobina
+          class TobinaMyDog
+            def woof
+            end
+          end
+        RUBY
+        expect(t.eval('show-source -d TobinaMyDog')).to match(/hello tobina/)
+      end
+    end
+
+    context "when the current context is a non-nested class" do
+      before do
+        # top-level beta
+        class BetaClass
+          def alpha; end
+        end
+
+        class AlphaClass
+          # nested beta
+          class BetaClass
+            def beta; end
+          end
+        end
+      end
+
+      after do
+        [:BetaClass, :AlphaClass].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows docs for the nested classes" do
+        expect(pry_eval(AlphaClass, "show-source -d BetaClass"))
+          .to match(/nested beta/)
+      end
+    end
+
+    context "when given a nested class" do
+      before do
+        # top-level beta
+        class BetaClass
+          def alpha; end
+        end
+
+        class AlphaClass
+          # nested beta
+          class BetaClass
+            def beta; end
+          end
+        end
+      end
+
+      after do
+        [:BetaClass, :AlphaClass].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows docs for the nested classes" do
+        expect(pry_eval(AlphaClass, "show-source -d AlphaClass::BetaClass"))
+          .to match(/nested beta/)
+      end
+    end
+
+    context "when given a method with a doc" do
+      before do
+        @obj = Object.new
+
+        # test doc
+        def @obj.test_method; end
+      end
+
+      it "finds the method's documentation" do
+        expect(pry_eval(binding, "show-source -d @obj.test_method"))
+          .to match(/test doc/)
+      end
+    end
+
+    context "when #call is defined on Symbol" do
+      before do
+        class Symbol
+          def call; end
+        end
+
+        @obj = Object.new
+
+        # test doc
+        def @obj.test_method; end
+      end
+
+      after { Symbol.class_eval { undef :call } }
+
+      it "still finds documentation" do
+        expect(pry_eval(binding, "show-source -d @obj.test_method"))
+          .to match(/test doc/)
+      end
+    end
+
+    context "when no docs can be found for the given class" do
+      before do
+        class TestClass
+          def test_method; end
+        end
+      end
+
+      after { Object.remove_const(:TestClass) }
+
+      it "raises Pry::CommandError" do
+        expect { pry_eval(binding, "show-source -d TestClass") }
+          .to raise_error(Pry::CommandError)
+      end
+    end
+
+    context "when no docs can be found for the given method" do
+      before do
+        @obj = Object.new
+        def @obj.test_method; end
+      end
+
+      it "raises Pry::CommandError" do
+        expect { pry_eval(binding, "show-source -d @obj.test_method") }
+          .to raise_error(Pry::CommandError)
+      end
+    end
+
+    context "when the --line-numbers switch is provided" do
+      before do
+        @obj = Object.new
+
+        # test doc
+        def @obj.test_method; end
+      end
+
+      it "outputs a method's docs with line numbers" do
+        expect(pry_eval(binding, "show-source -d --line-numbers @obj.test_method"))
+          .to match(/\d: test doc/)
+      end
+    end
+
+    context "when the --base-one switch is provided" do
+      before do
+        @obj = Object.new
+
+        # test doc
+        def @obj.test_method; end
+      end
+
+      it "outputs a method's docs with line numbering starting at 1" do
+        expect(pry_eval(binding, "show-source -d --base-one @obj.test_method"))
+          .to match(/1: test doc/)
+      end
+    end
+
+    context "when the current context is a method" do
+      it "outputs the method without needing to use its name" do
+        obj = Object.new
+
+        # test method
+        def obj.test_method
+          pry_eval(binding, 'show-source -d')
+        end
+
+        expect(obj.test_method).to match(/test method/)
+      end
+    end
+
+    context "when given a proc" do
+      it "should show documentation for object" do
+        # this is a documentation
+        _the_proc = proc { puts 'hello world!' }
+
+        expect(mock_pry(binding, "show-source -d _the_proc"))
+          .to match(/this is a documentation/)
+      end
+    end
+
+    context "when no class/module arg is given" do
+      before do
+        module TestHost
+          # hello there froggy
+          module M
+            def d; end
+
+            def e; end
+          end
+        end
+      end
+
+      after { Object.remove_const(:TestHost) }
+
+      it "returns the doc for the current module" do
+        expect(pry_eval(TestHost::M, 'show-source -d'))
+          .to match(/hello there froggy/)
+      end
+    end
+
+    context "when given a 'broken' module" do
+      before do
+        module TestHost
+          # hello
+          module M
+            binding.eval("def a; end", "dummy.rb", 1)
+            binding.eval("def b; end", "dummy.rb", 2)
+            binding.eval("def c; end", "dummy.rb", 3)
+          end
+
+          # goodbye
+          module M
+            def d; end
+
+            def e; end
+          end
+        end
+      end
+
+      after { Object.remove_const(:TestHost) }
+
+      # FIXME: THis is nto a good spec anyway, because i dont think it
+      # SHOULD skip!
+      it "skips over the module" do
+        output = pry_eval('show-source -d TestHost::M')
+        expect(output).to match(/goodbye/)
+        expect(output).not_to match(/hello/)
+      end
+    end
+
+    describe "should set _file_ and _dir_" do
+      let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+      before do
+        define_persistent_class(tempfile, <<-CLASS)
+          class TestClass
+            # this is alpha
+            def alpha; end
+          end
+        CLASS
+      end
+
+      after do
+        Object.remove_const(:TestClass)
+        tempfile.unlink
+      end
+
+      it "sets _file_ and _dir_ to file containing method source" do
+        t = pry_tester
+        t.process_command "show-source -d TestClass#alpha"
+
+        path = tempfile.path.split('/')[0..-2].join('/')
+        expect(t.pry.last_dir).to match(path)
+
+        expect(t.pry.last_file).to match(tempfile.path)
+      end
+    end
+
+    context "when provided a class without docs that has a superclass with docs" do
+      before do
+        # parent class
+        class Parent
+          def foo; end
+        end
+
+        class Child < Parent; end
+      end
+
+      after do
+        [:Child, :Parent].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows the docs of the superclass" do
+        expect(pry_eval(binding, 'show-source -d Child')).to match(/parent class/)
+      end
+
+      it "shows a warning about superclass reversion" do
+        expect(pry_eval(binding, 'show-source -d Child')).to match(
+          /Warning.*?Cannot find.*?Child.*Showing.*Parent instead/
+        )
+      end
+    end
+
+    context "when provided a class without docs that has nth superclass with docs" do
+      before do
+        # grandparent class
+        class Grandparent
+          def foo; end
+        end
+
+        class Parent < Grandparent; end
+        class Child < Parent; end
+      end
+
+      after do
+        [:Grandparent, :Child, :Parent].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows the docs of the superclass" do
+        expect(pry_eval(binding, 'show-source -d Child'))
+          .to match(/grandparent class/)
+      end
+
+      it "shows a warning about superclass reversion" do
+        expect(pry_eval(binding, 'show-source -d Child')).to match(
+          /Warning.*?Cannot find.*?Child.*Showing.*Grandparent instead/
+        )
+      end
+    end
+
+    context "when provided a class without docs that has a superclass without docs" do
+      before do
+        class Parent
+          def foo; end
+        end
+
+        class Child < Parent; end
+      end
+
+      after do
+        [:Child, :Parent].each { |name| Object.remove_const(name) }
+      end
+
+      it "raises Pry::CommandError" do
+        expect { pry_eval(binding, 'show-source -d Child') }
+          .to raise_error(Pry::CommandError)
+      end
+    end
+
+    context "when the module with docs was included in another module" do
+      before do
+        # mod module doc
+        module Alpha
+          def foo; end
+        end
+
+        module Beta
+          include Alpha
+        end
+      end
+
+      after do
+        [:Beta, :Alpha].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows the included module's doc" do
+        expect(pry_eval(binding, 'show-source -d Beta'))
+          .to match(/mod module doc/)
+      end
+
+      it "shows a warning about the included module reversion" do
+        expect(pry_eval(binding, 'show-source -d Beta')).to match(
+          /Warning.*?Cannot find.*?Beta.*Showing.*Alpha instead/
+        )
+      end
+    end
+
+    context "when both the base mod and the included module have no docs" do
+      before do
+        module Alpha
+          def foo; end
+        end
+
+        module Beta
+          include Alpha
+        end
+      end
+
+      after do
+        [:Beta, :Alpha].each { |name| Object.remove_const(name) }
+      end
+
+      it "raises Pry::CommandError" do
+        expect { pry_eval(binding, 'show-source -d Beta') }
+          .to raise_error(Pry::CommandError)
+      end
+    end
+
+    context "when included module has docs and there are intermediary docless modules" do
+      before do
+        # alpha doc
+        module Alpha
+          def alpha; end
+        end
+
+        module Beta
+          include Alpha
+        end
+
+        module Gamma
+          include Beta
+        end
+      end
+
+      after do
+        [:Gamma, :Beta, :Alpha].each { |name| Object.remove_const(name) }
+      end
+
+      it "shows nth level included module doc" do
+        expect(pry_eval(binding, 'show-source -d Gamma')).to match(/alpha doc/)
+      end
+
+      it "shows a warning about module reversion" do
+        expect(pry_eval(binding, 'show-source -d Gamma')).to match(
+          /Warning.*?Cannot find.*?Gamma.*Showing.*Alpha instead/
+        )
+      end
+    end
+
+    context "when the --super switch is provided" do
+      before do
+        class Grandparent
+          # grandparent init
+          def initialize; end
+        end
+
+        class Parent < Grandparent
+          # parent init
+          def initialize; end
+        end
+
+        class Child < Parent
+          # child init
+          def initialize; end
+        end
+
+        @obj = Child.new
+
+        # instance init
+        def @obj.initialize; end
+      end
+
+      after do
+        [:Grandparent, :Parent, :Child].each { |name| Object.remove_const(name) }
+      end
+
+      context "and when it's passed once" do
+        it "finds the super method docs" do
+          expect(pry_eval(binding, 'show-source -d --super @obj.initialize'))
+            .to match(/child init/)
+        end
+      end
+
+      context "and when it's passed twice" do
+        it "finds the parent method docs" do
+          expect(pry_eval(binding, 'show-source -d -ss @obj.initialize'))
+            .to match(/parent init/)
+        end
+      end
+
+      context "and when it's passed thrice" do
+        it "finds the grandparent method docs" do
+          expect(pry_eval(binding, 'show-source -d -sss @obj.initialize'))
+            .to match(/parent init/)
+        end
+      end
+
+      context "and when the super method doesn't exist" do
+        it "raises Pry::CommandError" do
+          expect { pry_eval(binding, 'show-source -d -ssss @obj.initialize') }
+            .to raise_error(Pry::CommandError)
+        end
+      end
+
+      context "and when the explicit argument is not provided" do
+        let(:son) { Child.new }
+        it "finds super method docs without explicit method argument" do
+          # son init
+          def son.initialize
+            pry_eval(binding, 'show-source -d --super')
+          end
+
+          expect(son.initialize).to match(/child init/)
+        end
+
+        it "finds super method docs with multiple `--super` switches" do
+          son.extend(
+            Module.new do
+              def initialize; end
+            end
+          )
+
+          # son init
+          def son.initialize
+            pry_eval(binding, 'show-source -d --super --super')
+          end
+
+          expect(son.initialize).to match(/child init/)
         end
       end
     end
 
-    after { Object.remove_const(:Foo) }
+    describe "code highlighting" do
+      context "when there's code in the docs" do
+        let(:klass) do
+          Class.new do
+            # This can initialize your class:
+            #
+            #   a = klass.new :foo
+            #
+            # @param foo
+            def initialize(foo); end
+          end
+        end
 
-    it "shows documentation for the code object along with source code" do
-      expect(pry_eval(binding, "show-source Foo -d")).to match(
-        /Foo has docs\.\n\s+class Foo/
-      )
+        it "highlights the code" do
+          expect(pry_eval(binding, 'show-source -d klass#initialize'))
+            .to match(/klass.new :foo/)
+
+          # We don't want the test to rely on which colour codes are there, so
+          # we just assert that something is being colorized.
+          expect(
+            pry_eval(
+              binding,
+              'pry_instance.color = true',
+              "show-source -d klass#initialize"
+            )
+          ).not_to match(/klass.new :foo/)
+        end
+      end
+
+      context "when there's inline code in the docs" do
+        let(:klass) do
+          Class.new do
+            # After initializing your class with `klass.new(:inline)`, go have
+            # fun!
+            #
+            # @param foo
+            def initialize(foo); end
+          end
+        end
+
+        it "highlights the code" do
+          expect(pry_eval(binding, 'show-source -d klass#initialize'))
+            .to match(/klass.new\(:inline\)/)
+
+          # We don't want the test to rely on which colour codes are there, so
+          # we just assert that something is being colorized.
+          expect(
+            pry_eval(
+              binding,
+              'pry_instance.color = true',
+              "show-source -d klass#initialize"
+            )
+          ).not_to match(/klass.new\(:inline\)/)
+        end
+      end
+
+      context "when there's inline code with backticks the docs" do
+        let(:klass) do
+          Class.new do
+            # Convert aligned output (from many shell commands) into nested arrays:
+            #
+            #   a = decolumnize `ls -l $HOME`
+            #
+            # @param output
+            def decolumnize(output); end
+          end
+        end
+
+        it "doesn't highlight the backticks" do
+          output = pry_eval(
+            binding,
+            'pry_instance.color = true',
+            "show-source -d klass#decolumnize"
+          )
+
+          expect(output).to match(/ls -l \$HOME/)
+          expect(output).not_to match(/`ls -l \$HOME`/)
+        end
+      end
+    end
+
+    describe "the --all switch behavior" do
+      let(:tempfile) { Tempfile.new(%w[pry .rb]) }
+
+      context "when there are monkeypatches in different files" do
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            # file monkeypatch
+            class TestClass
+              def alpha; end
+            end
+          CLASS
+
+          # local monkeypatch
+          class TestClass
+            def beta; end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "shows them" do
+          result = pry_eval(binding, 'show-source -d TestClass -a')
+          expect(result).to match(/file monkeypatch/)
+          expect(result).to match(/local monkeypatch/)
+        end
+      end
+
+      context "when --all is not used but there are multiple monkeypatches" do
+        before do
+          define_persistent_class(tempfile, <<-CLASS)
+            # alpha
+            class TestClass
+              def alpha; end
+            end
+          CLASS
+
+          class TestClass
+            def beta; end
+          end
+        end
+
+        after do
+          Object.remove_const(:TestClass)
+          tempfile.unlink
+        end
+
+        it "correctly displays the number of monkeypatches" do
+          result = pry_eval(binding, 'show-source -d TestClass')
+          expect(result).to match(/Number of monkeypatches: 2/)
+        end
+
+        it "displays the original definition first" do
+          result = pry_eval(binding, 'show-source -d TestClass')
+          expect(result).to match(/alpha/)
+        end
+
+        it "mentions available monkeypatches" do
+          result = pry_eval(binding, 'show-source -d TestClass')
+          expect(result).to match(/available monkeypatches/)
+        end
+      end
+
+      context "when --all is not used and there's only 1 candidate for the class" do
+        before do
+          # alpha
+          class TestClass
+            def alpha; end
+          end
+        end
+
+        after { Object.remove_const(:TestClass) }
+
+        it "doesn't mention anything about monkeypatches" do
+          result = pry_eval(binding, 'show-source -d TestClass')
+          expect(result).not_to match(/available monkeypatches/)
+        end
+      end
+    end
+
+    context "when used against a command" do
+      let(:default_commands) { Pry.config.commands }
+
+      let(:command_set) do
+        Pry::CommandSet.new { import Pry::Commands }
+      end
+
+      before { Pry.config.commands = command_set }
+      after { Pry.config.commands = default_commands }
+
+      it "displays help for a specific command" do
+        expect(pry_eval('show-source -d ls')).to match(/Usage: ls/)
+      end
+
+      it "displays help for a regex command with a \"listing\"" do
+        command_set.command(/bar(.*)/, 'Test listing', listing: 'foo') {}
+        expect(pry_eval('show-source -d foo')).to match(/Test listing/)
+      end
+
+      it "displays help for a command with a spaces in its name" do
+        command_set.command('command with spaces', 'command with spaces desc') {}
+        expect(pry_eval('show-source -d command with spaces')).to match(
+          /command with spaces desc/
+        )
+      end
+
+      describe "class commands" do
+        before do
+          # pretty pink pincers
+          class LobsterLady < Pry::ClassCommand
+            match 'lobster-lady'
+            description 'nada.'
+            def process
+              'lobster'
+            end
+          end
+
+          command_set.add_command(LobsterLady)
+        end
+
+        after { Object.remove_const(:LobsterLady) }
+
+        context "when looking up by command name" do
+          it "displays help" do
+            expect(pry_eval('show-source -d lobster-lady')).to match(/nada/)
+          end
+        end
+
+        context "when class is used (rather than command name) is used for lookup" do
+          it "displays actual preceding comment for a class command" do
+            expect(pry_eval('show-source -d LobsterLady')).to match(/pretty pink pincers/)
+          end
+        end
+      end
     end
   end
 end
