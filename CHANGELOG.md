@@ -88,6 +88,10 @@
   ([#1904](https://github.com/pry/pry/pull/1904))
 * Fixed wrong `winsize` when custom `output` is passed to Pry
   ([#2045](https://github.com/pry/pry/pull/2045))
+* Fixed `XDG_CONFIG_HOME` & `XDG_DATA_HOME` precedence. When these env variables
+  are set, Pry no longer uses traditional files like `~/.pryrc` &
+  `~/.pry_history`. Instead, the env variable paths are loaded first
+  ([#2056](https://github.com/pry/pry/pull/2056))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
