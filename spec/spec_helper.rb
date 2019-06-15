@@ -37,12 +37,15 @@ if ENV["SET_TRACE_FUNC"]
 end
 
 RSpec.configure do |config|
+  config.order = 'random'
+
   config.before(:each) do
     Pry::Testable.set_testenv_variables
   end
 
   config.after(:each) do
     Pry::Testable.unset_testenv_variables
+    Pry.reset_defaults
   end
   config.include Pry::Testable::Mockable
   config.include Pry::Testable::Utility

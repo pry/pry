@@ -260,8 +260,10 @@ RSpec.describe Pry::CodeObject do
     end
 
     context "when looking up class methods of a named class" do
-      class TestClass
-        def self.class_method; end
+      before do
+        class TestClass
+          def self.class_method; end
+        end
       end
 
       after { Object.remove_const(:TestClass) }

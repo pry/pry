@@ -802,51 +802,45 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
   end
 
   describe "on commands" do
-    before do
-      @oldset = Pry.config.commands
-      @set = Pry.config.commands = Pry::CommandSet.new do
-        import Pry::Commands
-      end
+    let(:default_commands) { Pry.config.commands }
+
+    let(:command_set) do
+      Pry::CommandSet.new { import Pry::Commands }
     end
 
-    after do
-      Pry.config.commands = @oldset
-    end
+    before { Pry.config.commands = command_set }
+    after { Pry.config.commands = default_commands }
 
     describe "block commands" do
       it 'should show source for an ordinary command' do
-        @set.command('foo', :body_of_foo) {}
-
-        expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
+        command_set.command('foo', :body_of_foo) {}
+        expect(pry_eval(binding, 'show-source foo')).to match(/:body_of_foo/)
       end
 
       it "should output source of commands using special characters" do
-        @set.command('!%$', 'I gots the yellow fever') {}
-
-        expect(pry_eval('show-source !%$')).to match(/yellow fever/)
+        command_set.command('!%$', 'I gots the yellow fever') {}
+        expect(pry_eval(binding, 'show-source !%$')).to match(/yellow fever/)
       end
 
       it 'should show source for a command with spaces in its name' do
-        @set.command('foo bar', :body_of_foo_bar) {}
-
-        expect(pry_eval('show-source foo bar')).to match(/:body_of_foo_bar/)
+        command_set.command('foo bar', :body_of_foo_bar) {}
+        expect(pry_eval(binding, 'show-source foo bar')).to match(/:body_of_foo_bar/)
       end
 
       it 'should show source for a command by listing name' do
-        @set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") { ; }
-
-        expect(pry_eval('show-source bar')).to match(/:body_of_foo_bar_regex/)
+        command_set.command(/foo(.*)/, :body_of_foo_bar_regex, listing: "bar") {}
+        expect(pry_eval(binding, 'show-source bar')).to match(/:body_of_foo_bar_regex/)
       end
     end
 
     describe "create_command commands" do
       it 'should show source for a command' do
-        @set.create_command "foo", "babble" do
+        command_set.create_command "foo", "babble" do
           def process
             :body_of_foo
           end
         end
-        expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
+        expect(pry_eval(binding, 'show-source foo')).to match(/:body_of_foo/)
       end
 
       it 'should show source for a command defined inside pry' do
@@ -855,7 +849,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
             def process() :body_of_foo end
           end
         }
-        expect(pry_eval('show-source foo')).to match(/:body_of_foo/)
+        expect(pry_eval(binding, 'show-source foo')).to match(/:body_of_foo/)
       end
     end
 
@@ -1789,17 +1783,17 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       after { Pry.config.commands = default_commands }
 
       it "displays help for a specific command" do
-        expect(pry_eval('show-source -d ls')).to match(/Usage: ls/)
+        expect(pry_eval(binding, 'show-source -d ls')).to match(/Usage: ls/)
       end
 
       it "displays help for a regex command with a \"listing\"" do
         command_set.command(/bar(.*)/, 'Test listing', listing: 'foo') {}
-        expect(pry_eval('show-source -d foo')).to match(/Test listing/)
+        expect(pry_eval(binding, 'show-source -d foo')).to match(/Test listing/)
       end
 
       it "displays help for a command with a spaces in its name" do
         command_set.command('command with spaces', 'command with spaces desc') {}
-        expect(pry_eval('show-source -d command with spaces')).to match(
+        expect(pry_eval(binding, 'show-source -d command with spaces')).to match(
           /command with spaces desc/
         )
       end

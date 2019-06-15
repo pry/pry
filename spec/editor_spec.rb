@@ -20,8 +20,10 @@ describe Pry::Editor do
 
   describe ".default" do
     context "when $VISUAL is defined" do
-      before { ENV['VISUAL'] = 'emacs' }
-      after { ENV['VISUAL'] = nil }
+      before do
+        allow(Pry::Env).to receive(:[])
+        expect(Pry::Env).to receive(:[]).with('VISUAL').and_return('emacs')
+      end
 
       it "returns the value of $VISUAL" do
         expect(described_class.default).to eq('emacs')
@@ -29,8 +31,10 @@ describe Pry::Editor do
     end
 
     context "when $EDITOR is defined" do
-      before { ENV['EDITOR'] = 'vim' }
-      after { ENV['EDITOR'] = nil }
+      before do
+        allow(Pry::Env).to receive(:[])
+        expect(Pry::Env).to receive(:[]).with('EDITOR').and_return('vim')
+      end
 
       it "returns the value of $EDITOR" do
         expect(described_class.default).to eq('vim')
@@ -39,6 +43,10 @@ describe Pry::Editor do
 
     context "when platform is Windows" do
       before do
+        allow(Pry::Env).to receive(:[])
+        allow(Pry::Env).to receive(:[]).with('VISUAL').and_return(nil)
+        allow(Pry::Env).to receive(:[]).with('EDITOR').and_return(nil)
+
         allow(Pry::Helpers::Platform).to receive(:windows?).and_return(true)
       end
 
@@ -48,7 +56,10 @@ describe Pry::Editor do
     end
 
     context "when no editor is detected" do
-      before { allow(Kernel).to receive(:system) }
+      before do
+        allow(ENV).to receive(:key?).and_return(false)
+        allow(Kernel).to receive(:system)
+      end
 
       %w[editor nano vi].each do |text_editor_name|
         it "shells out to find '#{text_editor_name}'" do
