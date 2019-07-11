@@ -342,7 +342,7 @@ RSpec.describe Pry::Command do
       before { subject.command_options(use_prefix: true) }
 
       it "returns a Regexp without a prefix" do
-        expect(subject.command_regex).to eq(/^test\-command(?!\S)/)
+        expect(subject.command_regex).to eq(/\Atest\-command(?!\S)/)
       end
     end
 
@@ -350,7 +350,7 @@ RSpec.describe Pry::Command do
       before { subject.command_options(use_prefix: false) }
 
       it "returns a Regexp with a prefix" do
-        expect(subject.command_regex).to eq(/^(?:)?test\-command(?!\S)/)
+        expect(subject.command_regex).to eq(/\A(?:)?test\-command(?!\S)/)
       end
     end
   end

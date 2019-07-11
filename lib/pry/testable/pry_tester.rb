@@ -29,7 +29,15 @@ class Pry
             if @pry.process_command(str)
               last_command_result_or_output
             else
-              @pry.evaluate_ruby(str)
+              # Check if this is a multiline paste.
+              begin
+                complete_expr = Pry::Code.complete_expression?(str)
+              rescue SyntaxError => exception
+                @pry.output.puts(
+                  "SyntaxError: #{exception.message.sub(/.*syntax error, */m, '')}"
+                )
+              end
+              @pry.evaluate_ruby(str) if complete_expr
             end
         end
 
