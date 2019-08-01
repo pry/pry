@@ -52,8 +52,6 @@ class Pry
             @history.take_lines(1, opts[:head] || 10)
           elsif opts.present?(:tail)
             @history.take_lines(-(opts[:tail] || 10), opts[:tail] || 10)
-          elsif opts.present?(:show)
-            @history.between(opts[:show])
           else
             @history
           end
