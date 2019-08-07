@@ -15,6 +15,8 @@
   ([#2027](https://github.com/pry/pry/pull/2027))
 * Added the `--code` flag to the `wtf` command, which shows code for each
   backtrace frame ([#2037](https://github.com/pry/pry/pull/2037))
+* Added the ability to paste method call chains with leading dots
+  ([#2060](https://github.com/pry/pry/pull/2060))
 
 #### API changes
 
