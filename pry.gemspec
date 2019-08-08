@@ -20,8 +20,13 @@ Gem::Specification.new do |s|
     'rwfitzge@gmail.com',
     'silin@kyrylo.org'
   ]
-  s.summary = "An IRB alternative and runtime developer console"
-  s.description = s.summary
+  s.summary = 'A runtime developer console and IRB alternative with powerful ' \
+              'introspection capabilities.'
+  s.description = <<DESC
+Pry is a runtime developer console and IRB alternative with powerful
+introspection capabilities. Pry aims to be more than an IRB replacement. It is
+an attempt to bring REPL driven programming to the Ruby language.
+DESC
   s.homepage = "http://pryrepl.org"
   s.licenses = ['MIT']
 
@@ -29,7 +34,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.files         = `git ls-files bin lib *.md LICENSE`.split("\n")
 
-  s.add_dependency 'coderay',       '~> 1.1.0'
+  s.add_dependency 'coderay', '~> 1.1'
   s.add_dependency 'method_source', '~> 0.9.0'
 
   s.metadata['changelog_uri'] = 'https://github.com/pry/pry/blob/master/CHANGELOG.md'
