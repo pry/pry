@@ -20,8 +20,13 @@ Gem::Specification.new do |s|
     'rwfitzge@gmail.com',
     'silin@kyrylo.org'
   ]
-  s.summary = "An IRB alternative and runtime developer console"
-  s.description = s.summary
+  s.summary = 'A runtime developer console and IRB alternative with powerful ' \
+              'introspection capabilities.'
+  s.description = <<DESC
+Pry is a runtime developer console and IRB alternative with powerful
+introspection capabilities. Pry aims to be more than an IRB replacement. It is
+an attempt to bring REPL driven programming to the Ruby language.
+DESC
   s.homepage = "http://pryrepl.org"
   s.licenses = ['MIT']
 
