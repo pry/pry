@@ -34,7 +34,7 @@ DESC
   s.require_paths = ["lib"]
   s.files         = `git ls-files bin lib *.md LICENSE`.split("\n")
 
-  s.add_dependency 'coderay',       '~> 1.1.0'
+  s.add_dependency 'coderay', '~> 1.1'
   s.add_dependency 'method_source', '~> 0.9.0'
 
   s.metadata['changelog_uri'] = 'https://github.com/pry/pry/blob/master/CHANGELOG.md'
