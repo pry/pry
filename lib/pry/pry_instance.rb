@@ -289,6 +289,10 @@ class Pry
 
     result = current_binding.eval(code, Pry.eval_path, Pry.current_line)
     set_last_result(result, code)
+  rescue ArgumentError => e
+    invocation = code.strip
+    output.puts "Method Signature: #{Pry::Method.from_str(invocation).signature}\n"
+    raise e
   ensure
     update_input_history(code)
     exec_hook :after_eval, result, self
