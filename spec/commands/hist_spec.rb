@@ -132,6 +132,15 @@ describe "hist" do
     expect(out).to match(/b\n\d+:.*c\n\d+:.*d/)
   end
 
+  it 'should show lines between offsets A and B with the --show switch' do
+    ("a".."f").each do |v|
+      @hist.push v
+    end
+
+    out = @t.eval 'hist --show -4..-2'
+    expect(out).to eq "3: c\n4: d\n5: e\n"
+  end
+
   it "should store a call with `--replay` flag" do
     @t.eval ":banzai"
     @t.eval "hist --replay 1"
