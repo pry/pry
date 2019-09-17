@@ -627,8 +627,16 @@ class Pry
     begin
       complete_expr = Pry::Code.complete_expression?(@eval_string)
     rescue SyntaxError => e
-      output.puts "SyntaxError: #{e.message.sub(/.*syntax error, */m, '')}"
       reset_eval_string
+
+      result = SyntaxError.new(e.message.sub(/^\(eval\)/, Pry.eval_path))
+      result.set_backtrace(e.backtrace)
+      result.extend(UserError)
+      self.last_exception = result
+
+      Pry.critical_section do
+        show_result(result)
+      end
     end
 
     if complete_expr
