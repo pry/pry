@@ -629,13 +629,10 @@ class Pry
     rescue SyntaxError => e
       reset_eval_string
 
-      result = SyntaxError.new(e.message.sub(/^\(eval\)/, Pry.eval_path))
-      result.set_backtrace(e.backtrace)
-      result.extend(UserError)
-      self.last_exception = result
-
+      e.extend(UserError)
+      self.last_exception = e
       Pry.critical_section do
-        show_result(result)
+        show_result(e)
       end
     end
 
