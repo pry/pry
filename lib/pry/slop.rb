@@ -454,7 +454,7 @@ class Pry
     def method_missing(method, *args, &block)
       meth = method.to_s
       if meth.end_with?('?')
-        meth.chop!
+        meth = meth.chop
         present?(meth) || present?(meth.tr('_', '-'))
       else
         super
