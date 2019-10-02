@@ -26,9 +26,9 @@ describe Pry::Prompt do
       expect(described_class[:my_prompt]).to be_a(described_class)
     end
 
-    it "raises error when separators.size != 2" do
-      expect { described_class.add(:my_prompt, '', [1, 2, 3]) }
-        .to raise_error(ArgumentError, /separators size must be 2/)
+    it "raises error when separators.size != 4" do
+      expect { described_class.add(:my_prompt, '', 1..5) }
+        .to raise_error(ArgumentError, /separators size must be 4/)
     end
 
     it "raises error on adding a prompt with the same name" do
@@ -44,21 +44,21 @@ describe Pry::Prompt do
 
   describe "#name" do
     it "returns name" do
-      prompt = described_class.new(:test, '', Array.new(2) { proc { '' } })
+      prompt = described_class.new(:test, '', Array.new(4) { proc { '' } })
       expect(prompt.name).to eq(:test)
     end
   end
 
   describe "#description" do
     it "returns description" do
-      prompt = described_class.new(:test, 'descr', Array.new(2) { proc { '' } })
+      prompt = described_class.new(:test, 'descr', Array.new(4) { proc { '' } })
       expect(prompt.description).to eq('descr')
     end
   end
 
   describe "#prompt_procs" do
     it "returns the proc array" do
-      prompt_procs = [proc { '>' }, proc { '*' }]
+      prompt_procs = [proc { '>' }, proc { '*' }, proc { "'" }, proc { "'" }]
       prompt = described_class.new(:test, 'descr', prompt_procs)
       expect(prompt.prompt_procs).to eq(prompt_procs)
     end
@@ -66,17 +66,33 @@ describe Pry::Prompt do
 
   describe "#wait_proc" do
     it "returns the first proc" do
-      prompt_procs = [proc { '>' }, proc { '*' }]
+      prompt_procs = [proc { '>' }, proc { '*' }, proc { "'" }, proc { "'" }]
       prompt = described_class.new(:test, '', prompt_procs)
-      expect(prompt.wait_proc).to eq(prompt_procs.first)
+      expect(prompt.wait_proc).to eq(prompt_procs[0])
     end
   end
 
   describe "#incomplete_proc" do
     it "returns the second proc" do
-      prompt_procs = [proc { '>' }, proc { '*' }]
+      prompt_procs = [proc { '>' }, proc { '*' }, proc { "'" }, proc { "'" }]
       prompt = described_class.new(:test, '', prompt_procs)
-      expect(prompt.incomplete_proc).to eq(prompt_procs.last)
+      expect(prompt.incomplete_proc).to eq(prompt_procs[1])
+    end
+  end
+
+  describe "#string_proc" do
+    it "returns the second proc" do
+      prompt_procs = [proc { '>' }, proc { '*' }, proc { "'" }, proc { "'" }]
+      prompt = described_class.new(:test, '', prompt_procs)
+      expect(prompt.string_proc).to eq(prompt_procs[2])
+    end
+  end
+
+  describe "#single_quote_string_proc" do
+    it "returns the second proc" do
+      prompt_procs = [proc { '>' }, proc { '*' }, proc { "'" }, proc { "'" }]
+      prompt = described_class.new(:test, '', prompt_procs)
+      expect(prompt.single_quote_string_proc).to eq(prompt_procs[3])
     end
   end
 

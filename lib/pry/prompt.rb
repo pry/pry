@@ -8,7 +8,7 @@ class Pry
   # @example Registering a new Pry prompt
   #   Pry::Prompt.add(
   #     :ipython,
-  #     'IPython-like prompt', [':', '...:']
+  #     'IPython-like prompt', [':', '...:', '...\"', '...\' ]
   #   ) do |_context, _nesting, pry_instance, sep|
   #     sep == ':' ? "In [#{pry_instance.input_ring.count}]: " : '   ...: '
   #   end
@@ -23,7 +23,9 @@ class Pry
   # @example Manually instantiating the Prompt class
   #   prompt_procs = [
   #     proc { '#{rand(1)}>" },
-  #     proc { "#{('a'..'z').to_a.sample}*" }
+  #     proc { "#{('a'..'z').to_a.sample}*" },
+  #     proc { "#{('A'..'Z').to_a.sample}*" },
+  #     proc { "#{('A'..'Z').to_a.sample}*" }
   #   ]
   #   prompt = Pry::Prompt.new(
   #     :random,
@@ -66,21 +68,21 @@ class Pry
       # @param [String] description
       # @param [Array<String>] separators The separators to differentiate
       #   between prompt modes (default mode and class/method definition mode).
-      #   The Array *must* have a size of 2.
+      #   The Array *must* have a size of 4.
       # @yield [context, nesting, pry_instance, sep]
       # @yieldparam context [Object] the context where Pry is currently in
       # @yieldparam nesting [Integer] whether the context is nested
       # @yieldparam pry_instance [Pry] the Pry instance
       # @yieldparam separator [String] separator string
       # @return [nil]
-      # @raise [ArgumentError] if the size of `separators` is not 2
+      # @raise [ArgumentError] if the size of `separators` is not 4
       # @raise [ArgumentError] if `prompt_name` is already occupied
       # @since v0.12.0
-      def add(name, description = '', separators = %w[> *])
+      def add(name, description = '', separators = %w[> * " '])
         name = name.to_s
 
-        unless separators.size == 2
-          raise ArgumentError, "separators size must be 2, given #{separators.size}"
+        unless separators.size == 4
+          raise ArgumentError, "separators size must be 4, given #{separators.size}"
         end
 
         if @prompts.key?(name)
@@ -108,7 +110,7 @@ class Pry
     attr_reader :description
 
     # @return [Array<Proc>] the array of procs that hold
-    #   `[wait_proc, incomplete_proc]`
+    #   `[wait_proc, incomplete_proc, string_proc, single_quote_string_proc]`
     attr_reader :prompt_procs
 
     # @param [String] name
@@ -122,13 +124,25 @@ class Pry
 
     # @return [Proc] the proc which builds the wait prompt (`>`)
     def wait_proc
-      @prompt_procs.first
+      @prompt_procs[0]
     end
 
     # @return [Proc] the proc which builds the prompt when in the middle of an
     #   expression such as open method, etc. (`*`)
     def incomplete_proc
-      @prompt_procs.last
+      @prompt_procs[1]
+    end
+
+    # @return [Proc] the proc which builds the prompt when in the middle of a
+    #   multiline double quoted string. (`"`)
+    def string_proc
+      @prompt_procs[2]
+    end
+
+    # @return [Proc] the proc which builds the prompt when in the middle of a
+    #   multiline single quoted string. (`'`)
+    def single_quote_string_proc
+      @prompt_procs[3]
     end
 
     # @deprecated Use a `Pry::Prompt` instance directly
@@ -169,7 +183,7 @@ class Pry
     add(
       :simple,
       "A simple `>>`.",
-      ['>> ', ' | ']
+      ['>> ', ' | ', '"', "'"]
     ) do |_, _, _, sep|
       sep
     end
@@ -178,7 +192,7 @@ class Pry
       :nav,
       "A prompt that displays the binding stack as a path and includes information \n" \
       "about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.",
-      %w[> *]
+      %w[> * " ']
     ) do |_context, _nesting, pry_instance, sep|
       tree = pry_instance.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }
       format(
@@ -194,7 +208,7 @@ class Pry
     add(
       :shell,
       'A prompt that displays `$PWD` as you change it.',
-      %w[$ *]
+      %w[$ * " ']
     ) do |context, _nesting, pry_instance, sep|
       format(
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
@@ -208,7 +222,7 @@ class Pry
     add(
       :none,
       'Wave goodbye to the Pry prompt.',
-      Array.new(2)
+      Array.new(4)
     ) { '' }
   end
 end

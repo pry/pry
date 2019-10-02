@@ -97,6 +97,58 @@ describe Pry::REPL do
         prompt(/> $/)
       end
     end
+
+    describe "multiline string handling" do
+      it "should change prompt between double quoted multiline strings" do
+        ReplTester.start do
+          prompt("[1] pry(main)> ")
+          input '"'
+          prompt("[1] pry(main)\" ")
+          input '"'
+          prompt("[2] pry(main)> ")
+        end
+      end
+
+      it "should change prompt between single quoted multiline strings" do
+        ReplTester.start do
+          prompt("[1] pry(main)> ")
+          input "'"
+          prompt("[1] pry(main)\' ")
+          input "'"
+          prompt("[2] pry(main)> ")
+        end
+      end
+
+      it "should change prompt between HEREDOC multiline strings" do
+        ReplTester.start do
+          prompt("[1] pry(main)> ")
+          input '<<FOO'
+          prompt("[1] pry(main)\" ")
+          input 'FOO'
+          prompt("[2] pry(main)> ")
+        end
+      end
+
+      it "should change prompt between interpolated string % notation" do
+        ReplTester.start do
+          prompt("[1] pry(main)> ")
+          input '%q('
+          prompt("[1] pry(main)' ")
+          input ')'
+          prompt("[2] pry(main)> ")
+        end
+      end
+
+      it "should change prompt between string % notation" do
+        ReplTester.start do
+          prompt("[1] pry(main)> ")
+          input '%Q('
+          prompt("[1] pry(main)\" ")
+          input ')'
+          prompt("[2] pry(main)> ")
+        end
+      end
+    end
   end
 
   describe "space prefix" do

@@ -469,10 +469,7 @@ class Pry
     )
 
     Pry.critical_section do
-      # If input buffer is empty, then use normal prompt. Otherwise use the wait
-      # prompt (indicating multi-line expression).
       if prompt.is_a?(Pry::Prompt)
-        prompt_proc = eval_string.empty? ? prompt.wait_proc : prompt.incomplete_proc
         return prompt_proc.call(c.object, c.nesting_level, c.pry_instance)
       end
 
@@ -484,7 +481,6 @@ class Pry
           "Use Pry::Prompt API instead"
         )
       end
-
       # If input buffer is empty then use normal prompt
       if eval_string.empty?
         generate_prompt(Array(prompt).first, c)
@@ -492,6 +488,24 @@ class Pry
       else
         generate_prompt(Array(prompt).last, c)
       end
+    end
+  end
+
+  # If input buffer is empty, then use normal prompt.
+  # If input buffer starts with a double quoted string,
+  #   then use string_proc.
+  # If input buffer starts with a single quoted string,
+  #   then use single_quote_string_proc.
+  # Otherwise use the wait prompt (indicating multi-line expression).
+  def prompt_proc
+    return prompt.wait_proc if eval_string.empty?
+
+    if eval_string.start_with?('"', "<<", "%Q(")
+      prompt.string_proc
+    elsif eval_string.start_with?("'", "%q(")
+      prompt.single_quote_string_proc
+    else
+      prompt.incomplete_proc
     end
   end
 
