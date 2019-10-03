@@ -8,7 +8,7 @@ class Pry
   # @example Registering a new Pry prompt
   #   Pry::Prompt.add(
   #     :ipython,
-  #     'IPython-like prompt', [':', '...:', '...\"', '...\' ]
+  #     'IPython-like prompt', [':', '...:', '...\"', '...\'' ]
   #   ) do |_context, _nesting, pry_instance, sep|
   #     sep == ':' ? "In [#{pry_instance.input_ring.count}]: " : '   ...: '
   #   end
