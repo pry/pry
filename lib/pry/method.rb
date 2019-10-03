@@ -18,6 +18,7 @@ class Pry
   # This class wraps the normal `Method` and `UnboundMethod` classes
   # to provide extra functionality useful to Pry.
   class Method # rubocop:disable Metrics/ClassLength
+    extend Forwardable
     extend Helpers::BaseHelpers
     include Helpers::BaseHelpers
     include Helpers::DocumentationHelpers
@@ -260,6 +261,8 @@ class Pry
       @visibility = known_info[:visibility]
     end
 
+    def_delegators :@method, :owner, :parameters, :receiver
+
     # Get the name of the method as a String, regardless of the underlying
     # Method#name type.
     #
@@ -303,6 +306,11 @@ class Pry
                   when :ruby
                     ruby_source
                   end
+    end
+
+    # @return [Array<(String, Integer)>] The location of the source code of the method.
+    def source_location
+      @method.__send__(:source_location)
     end
 
     # Update the live copy of the method's source.
