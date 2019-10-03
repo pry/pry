@@ -27,7 +27,7 @@ describe Pry::Prompt do
     end
 
     it "raises error when separators.size != 4" do
-      expect { described_class.add(:my_prompt, '', 1..5) }
+      expect { described_class.add(:my_prompt, '', (1..5).to_a) }
         .to raise_error(ArgumentError, /separators size must be 4/)
     end
 
