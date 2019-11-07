@@ -9,7 +9,15 @@ Pry
 
 ![Pry logo](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
-© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2018<br>
+© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2018<br> (Creator)
+
+© Kyrylo Silin ([kyrylosilin](https://twitter.com/kyrylosilin)) 2018<br> (Maintainer)
+
+**Alumni:**
+
+* Conrad Irwin
+* Ryan Fitzgerald
+* Robert Gleeson
 
 * http://pryrepl.org/
 * [YARD API documentation](http://www.rubydoc.info/gems/pry)
