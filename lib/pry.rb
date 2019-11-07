@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# (C) John Mair (banisterfiend) 2016
+# MIT License
 
 require 'pry/version'
 require 'pry/last_exception'

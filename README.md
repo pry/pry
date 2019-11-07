@@ -9,6 +9,8 @@ Pry
 
 ![Pry logo](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
+© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2018<br>
+
 * http://pryrepl.org/
 * [YARD API documentation](http://www.rubydoc.info/gems/pry)
 * [Wiki](https://github.com/pry/pry/wiki)
@@ -426,3 +428,10 @@ License
 -------
 
 The project uses the MIT License. See LICENSE.md for details.
+
+Contributors
+------------
+
+Pry is primarily the work of [John Mair (banisterfiend)](https://github.com/banister), for full list
+of contributors see the
+[contributors graph](https://github.com/pry/pry/graphs/contributors).
