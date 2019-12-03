@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # (C) John Mair (banisterfiend) 2016
 # MIT License
 
