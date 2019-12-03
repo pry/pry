@@ -25,6 +25,29 @@ Pry
 * [YARD API documentation](http://www.rubydoc.info/gems/pry)
 * [Wiki](https://github.com/pry/pry/wiki)
 
+Table of Contents
+=================
+
+* [Introduction](#introduction)
+* [Key features](#key-features)
+* [Installation](#installation)
+* [Overview](#overview)
+   * [Commands](#commands)
+   * [Navigating around state](#navigating-around-state)
+   * [Runtime invocation](#runtime-invocation)
+   * [Command Shell Integration](#command-shell-integration)
+   * [Code Browsing](#code-browsing)
+   * [Documentation Browsing](#documentation-browsing)
+   * [Gist integration](#gist-integration)
+   * [Edit methods](#edit-methods)
+   * [Live Help System](#live-help-system)
+   * [Use Pry as your Rails Console](#use-pry-as-your-rails-console)
+   * [Syntax Highlighting](#syntax-highlighting)
+* [Supported Rubies](#supported-rubies)
+* [Contact](#contact)
+* [License](#license)
+* [Contributors](#contributors)
+
 Introduction
 ------------
 
