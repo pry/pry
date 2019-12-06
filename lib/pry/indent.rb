@@ -160,6 +160,10 @@ class Pry
         before.times { prefix.sub! SPACES, '' }
         new_prefix = prefix + SPACES * after
 
+        if !end_with_newline?(output) && already_indented?(output, prefix)
+          prefix = "\n" + prefix
+        end
+
         line = prefix + line.lstrip unless previously_in_string
 
         output += line
@@ -274,6 +278,14 @@ class Pry
     # @return Boolean
     def in_string?
       !open_delimiters.empty?
+    end
+
+    def already_indented?(output, prefix)
+      !output.lines.to_a[-1].nil? && output.lines.to_a[-1].to_s.start_with?(prefix)
+    end
+
+    def end_with_newline?(output)
+      output.lines.to_a[-1].to_s.end_with?("\n")
     end
 
     # Given a string of Ruby code, use CodeRay to export the tokens.
