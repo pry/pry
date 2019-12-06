@@ -162,14 +162,14 @@ class Pry
 
         line = prefix + line.lstrip unless previously_in_string
 
-        output += line
+        output += "#{line.chomp}\n"
 
         prefix = new_prefix
       end
 
       @indent_level = prefix
 
-      output
+      output.chomp
     end
 
     # Get the indentation for the start of the next line.
