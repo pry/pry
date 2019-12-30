@@ -103,7 +103,7 @@ class Pry
 
       def class_regexes
         mod_type_string = wrapped.class.to_s.downcase
-        [/^\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
+        [/(^|=)\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
          /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
          /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
       end

@@ -218,6 +218,17 @@ describe "whereami" do
       end
       Object.remove_const(:Cor)
     end
+
+    it 'should show class when -c option used, and beginning of the class is on the' \
+       'same line as another expression' do
+      out = class Cor
+              def blimey; end
+              pry_eval(binding, 'whereami -c')
+            end
+      expect(out).to match(/class Cor/)
+      expect(out).to match(/blimey/)
+      Object.remove_const(:Cor)
+    end
   end
 
   it 'should not show line numbers or marker when -n switch is used' do
