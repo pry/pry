@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'rake', '~> 10.0'
+gem 'rake'
 gem 'yard'
 gem 'rspec', '~> 3.8.0'
 
