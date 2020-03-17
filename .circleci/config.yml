@@ -131,7 +131,7 @@ jobs:
       - <<: *unit
   "ruby-2.7":
     docker:
-      - image: circleci/ruby:2.7.0-preview1
+      - image: circleci/ruby:2.7.0
     working_directory: ~/pry
     steps:
       - <<: *repo_restore_cache
