@@ -94,6 +94,8 @@
   are set, Pry no longer uses traditional files like `~/.pryrc` &
   `~/.pry_history`. Instead, the env variable paths are loaded first
   ([#2056](https://github.com/pry/pry/pull/2056))
+* Fixed the `$SAFE will become a normal global variable in Ruby 3.0` warning on
+  Ruby 2.7 ([#2107](https://github.com/pry/pry/pull/2107))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 

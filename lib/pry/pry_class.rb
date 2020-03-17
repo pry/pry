@@ -6,6 +6,13 @@ require 'pathname'
 class Pry
   LOCAL_RC_FILE = "./.pryrc".freeze
 
+  # @return [Boolean] true if this Ruby supports safe levels and tainting,
+  #  to guard against using deprecated or unsupported features
+  HAS_SAFE_LEVEL = (
+    RUBY_ENGINE == 'ruby' &&
+    Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.7')
+  )
+
   class << self
     extend Pry::Forwardable
     attr_accessor :custom_completions
