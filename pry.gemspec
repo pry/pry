@@ -27,7 +27,7 @@ Pry is a runtime developer console and IRB alternative with powerful
 introspection capabilities. Pry aims to be more than an IRB replacement. It is
 an attempt to bring REPL driven programming to the Ruby language.
 DESC
-  s.homepage = "http://pryrepl.org"
+  s.homepage = "http://pry.github.io"
   s.licenses = ['MIT']
 
   s.executables   = ["pry"]
