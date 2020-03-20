@@ -239,7 +239,7 @@ describe Pry::InputCompleter do
   unless Pry::Helpers::Platform.jruby?
     # Classes that override .hash are still hashable in JRuby, for some reason.
     it 'ignores methods from modules that override Object#hash incompatibly' do
-      # skip unless Pry::Helpers::Platform.jruby?
+      require 'irb'
 
       m = Module.new do
         def self.hash; end
