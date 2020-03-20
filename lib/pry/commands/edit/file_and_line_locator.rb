@@ -9,7 +9,7 @@ class Pry
             if target.respond_to?(:source_location)
               target.source_location
             else
-              [target.eval("__FILE__"), target.eval("__LINE__")]
+              target.eval("[__FILE__, __LINE__]")
             end
           end
 
