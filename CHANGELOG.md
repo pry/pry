@@ -96,6 +96,9 @@
   ([#2056](https://github.com/pry/pry/pull/2056))
 * Fixed the `$SAFE will become a normal global variable in Ruby 3.0` warning on
   Ruby 2.7 ([#2107](https://github.com/pry/pry/pull/2107))
+* Fixed bug when `whereami -c` cannot show beginning of the class, which is on
+  the same line as another expression
+  ([#2098](https://github.com/pry/pry/pull/2098))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
