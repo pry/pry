@@ -23,23 +23,41 @@ describe Pry do
     end
   end
 
-  ([
+  [
     ["end"],
     ["puts )("],
     ["1 1"],
-    ["puts :"]
-  ] + [
+    ["puts :"],
+
     # in this case the syntax error is "expecting ')'".
     ["def", "method(1"],
+
     # in this case the syntax error is "expecting keyword_end".
-    ["o = Object.new.tap{ def o.render;", "'MEH'", "}"]
-  ]).compact.each do |foo|
+    ["o = Object.new.tap{ def o.render;", "'MEH'", "}"],
+
+    # multiple syntax errors reported in one SyntaxException
+    ["puts {'key'=>'val'}.to_json"]
+  ].compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end
 
       expect(@str_output.string).to match(/SyntaxError/)
+    end
+
+    it "should display correct number of errors on invalid syntax like #{foo.inspect}" do
+      begin
+        # rubocop:disable Security/Eval
+        eval(foo.join("\n"))
+        # rubocop:enable Security/Eval
+      rescue SyntaxError => e
+        error_count = e.message.scan(/syntax error/).count
+      end
+      expect(error_count).not_to be_nil
+
+      pry_output = mock_pry(*foo)
+      expect(pry_output.scan(/SyntaxError/).count).to eq(error_count)
     end
   end
 
