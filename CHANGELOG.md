@@ -1,5 +1,10 @@
 ### master
 
+#### Bug fixes
+
+* Fixed bug where on invalid input only the last syntax error is displayed
+  (instead of all of them) ([#2117](https://github.com/pry/pry/pull/2117))
+
 ### [v0.13.0][v0.13.0] (March 21, 2020)
 
 #### Features
