@@ -101,6 +101,10 @@
   ([#2098](https://github.com/pry/pry/pull/2098))
 * Fixed bug when `Object#owner` is defined, which results into somewhat broken
   method introspection ([#2113](https://github.com/pry/pry/pull/2113))
+* Fixed bug when indentation leaves parts of input after pressing enter when
+  Readline is enabled with mode indicators for vi mode. This was supposed to be
+  fixed in v0.12.2 but it regressed
+  ([#2114](https://github.com/pry/pry/pull/2114))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
