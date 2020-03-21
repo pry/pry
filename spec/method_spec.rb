@@ -658,4 +658,67 @@ describe Pry::Method do
       end
     end
   end
+
+  describe "#owner" do
+    context "when it is overriden in Object" do
+      before do
+        module OwnerMod
+          def owner
+            :fail
+          end
+        end
+
+        Object.__send__(:include, OwnerMod)
+      end
+
+      after { Object.remove_const(:OwnerMod) }
+
+      it "correctly reports the owner" do
+        method = described_class.new(method(:puts))
+        expect(method.owner).not_to eq(:fail)
+      end
+    end
+  end
+
+  describe "#parameters" do
+    context "when it is overriden in Object" do
+      before do
+        module ParametersMod
+          def parameters
+            :fail
+          end
+        end
+
+        Object.__send__(:include, ParametersMod)
+      end
+
+      after { Object.remove_const(:ParametersMod) }
+
+      it "correctly reports the parameters" do
+        method = described_class.new(method(:puts))
+        expect(method.parameters).not_to eq(:fail)
+      end
+    end
+  end
+
+  describe "#receiver" do
+    context "when it is overriden in Object" do
+      before do
+        module ReceiverMod
+          def receiver
+            :fail
+          end
+        end
+
+        Object.__send__(:include, ReceiverMod)
+      end
+
+      after { Object.remove_const(:ReceiverMod) }
+
+      it "correctly reports the receiver" do
+        method = described_class.new(method(:puts))
+        expect(method.receiver).not_to eq(:fail)
+      end
+    end
+  end
 end

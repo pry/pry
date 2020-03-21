@@ -99,6 +99,8 @@
 * Fixed bug when `whereami -c` cannot show beginning of the class, which is on
   the same line as another expression
   ([#2098](https://github.com/pry/pry/pull/2098))
+* Fixed bug when `Object#owner` is defined, which results into somewhat broken
+  method introspection ([#2113](https://github.com/pry/pry/pull/2113))
 
 ### [v0.12.2][v0.12.2] (November 12, 2018)
 
