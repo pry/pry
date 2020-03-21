@@ -11,6 +11,12 @@ RSpec.describe 'Bundler' do
       code = <<-RUBY
       require "pry"
       require "bundler/inline"
+
+      # Silence the "The Gemfile specifies no dependencies" warning
+      class Bundler::UI::Shell
+        def warn(*args, &block); end
+      end
+
       gemfile(true) do
         source "https://rubygems.org"
       end
