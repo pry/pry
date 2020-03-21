@@ -2,7 +2,7 @@
 
 class Pry
   # @api private
-  # @since ?.?.?
+  # @since v0.13.0
   module SystemCommandHandler
     class << self
       def default(output, command, _pry_instance)

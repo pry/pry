@@ -2,7 +2,7 @@
 
 class Pry
   # @api private
-  # @since ?.?.?
+  # @since v0.13.0
   module Warning
     # Prints a warning message with exact file and line location, similar to how
     # Ruby's -W prints warnings.

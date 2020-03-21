@@ -4,7 +4,7 @@ require 'coderay'
 
 class Pry
   # @api private
-  # @since ?.?.?
+  # @since v0.13.0
   class SyntaxHighlighter
     def self.highlight(code, language = :ruby)
       tokenize(code, language).term

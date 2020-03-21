@@ -151,7 +151,7 @@ class Pry
     attribute :output_prefix
 
     # @return [String]
-    # @since ?.?.?
+    # @since v0.13.0
     attribute :rc_file
 
     def initialize

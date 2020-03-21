@@ -2,7 +2,7 @@
 
 class Pry
   # @api private
-  # @since ?.?.?
+  # @since v0.13.0
   module ExceptionHandler
     class << self
       # Will only show the first line of the backtrace.

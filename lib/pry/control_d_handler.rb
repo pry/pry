@@ -2,7 +2,7 @@
 
 class Pry
   # @api private
-  # @since ?.?.?
+  # @since v0.13.0
   module ControlDHandler
     # Deal with the ^D key being pressed. Different behaviour in different
     # cases:
