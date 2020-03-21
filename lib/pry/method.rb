@@ -19,6 +19,8 @@ class Pry
   # to provide extra functionality useful to Pry.
   class Method # rubocop:disable Metrics/ClassLength
     extend Helpers::BaseHelpers
+    extend Forwardable
+
     include Helpers::BaseHelpers
     include Helpers::DocumentationHelpers
     include CodeObject::Helpers
@@ -248,6 +250,9 @@ class Pry
         obj.class
       end
     end
+
+    # Workaround for https://github.com/pry/pry/pull/2086
+    def_delegators :@method, :owner, :parameters, :receiver
 
     # A new instance of `Pry::Method` wrapping the given `::Method`,
     # `UnboundMethod`, or `Proc`.
