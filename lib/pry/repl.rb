@@ -243,7 +243,7 @@ class Pry
           # rb-readline doesn't support this method:
           # https://github.com/ConnorAtherton/rb-readline/issues/152
           if Readline.vi_editing_mode?
-            overhang += current_prompt.length - indented_val.length
+            overhang = output.width - current_prompt.size - indented_val.size
           end
         rescue NotImplementedError
           # VI editing mode is unsupported on JRuby.
