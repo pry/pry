@@ -6,7 +6,7 @@ class Pry
     # accessors. Attribute accessors create a standard "attr_writer" and a
     # customised "attr_reader". This reader is Proc-aware (lazy).
     #
-    # @since ?.?.?
+    # @since v0.13.0
     # @api private
     module Attributable
       def attribute(attr_name)

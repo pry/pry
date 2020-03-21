@@ -14,7 +14,7 @@ class Pry
     #   value.call # => 20
     #
     # @api private
-    # @since ?.?.?
+    # @since v0.13.0
     # @see Pry::Config::LazyValue
     class MemoizedValue
       def initialize(&block)

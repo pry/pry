@@ -3,7 +3,7 @@
 class Pry
   # Env is a helper module to work with environment variables.
   #
-  # @since ?.?.?
+  # @since v0.13.0
   # @api private
   module Env
     def self.[](key)

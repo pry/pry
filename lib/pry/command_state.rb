@@ -9,7 +9,7 @@ class Pry
   # subsequent command invocations. All state saved here is unique to the
   # command.
   #
-  # @since ?.?.?
+  # @since v0.13.0
   # @api private
   class CommandState
     def self.default

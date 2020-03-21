@@ -5,7 +5,7 @@ class Pry
     # Value holds a value for the given attribute and decides how it should
     # be read. Procs get called, other values are returned as is.
     #
-    # @since ?.?.?
+    # @since v0.13.0
     # @api private
     class Value
       def initialize(value)

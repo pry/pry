@@ -1,5 +1,7 @@
 ### master
 
+### [v0.13.0][v0.13.0] (March 21, 2020)
+
 #### Features
 
 * Added metadata to the gem (such as changelog URI, source code URI & bug
@@ -1057,3 +1059,4 @@ complete CHANGELOG:
 [v0.12.0]: https://github.com/pry/pry/releases/tag/v0.12.0
 [v0.12.1]: https://github.com/pry/pry/releases/tag/v0.12.1
 [v0.12.2]: https://github.com/pry/pry/releases/tag/v0.12.2
+[v0.13.0]: https://github.com/pry/pry/releases/tag/v0.13.0
