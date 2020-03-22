@@ -150,11 +150,11 @@ Pry::CLI.add_options do
     Pry.config.should_load_local_rc = false
   end
 
-  on :s, "select-plugin=", "Only load specified plugin (and no others)." do |plugin_name|
+  on :s, "select-plugin=", "Only load specified plugin (and no others)." do |_plugin_name|
     warn "The --select-plugin option is deprecated and has no effect"
   end
 
-  on :d, "disable-plugin=", "Disable a specific plugin." do |plugin_name|
+  on :d, "disable-plugin=", "Disable a specific plugin." do |_plugin_name|
     warn "The --disable-plugin option is deprecated and has no effect"
   end
 
