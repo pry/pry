@@ -24,8 +24,6 @@ class Pry
     attr_accessor :last_internal_error
     attr_accessor :config
 
-    def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
-
     def_delegators(
       :@config, :input, :input=, :output, :output=, :commands,
       :commands=, :print, :print=, :exception_handler, :exception_handler=,
@@ -332,9 +330,7 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
 
   # Basic initialization.
   def self.init
-    @plugin_manager ||= PluginManager.new
     reset_defaults
-    locate_plugins
   end
 
   # Return a `Binding` object for `target` or return `target` if it is

@@ -35,13 +35,6 @@ class Pry
         self
       end
 
-      # Bring in options defined in plugins
-      def add_plugin_options
-        Pry.plugins.values.each(&:load_cli_options)
-
-        self
-      end
-
       # Add a block responsible for processing parsed options.
       def add_option_processor(&block)
         self.option_processors ||= []
@@ -158,11 +151,11 @@ Pry::CLI.add_options do
   end
 
   on :s, "select-plugin=", "Only load specified plugin (and no others)." do |plugin_name|
-    Pry.plugins[plugin_name].activate!
+    warn "The --select-plugin option is deprecated and has no effect"
   end
 
   on :d, "disable-plugin=", "Disable a specific plugin." do |plugin_name|
-    Pry.plugins[plugin_name].disable!
+    warn "The --disable-plugin option is deprecated and has no effect"
   end
 
   on "no-plugins", "Suppress loading of plugins." do
