@@ -124,15 +124,6 @@ class Pry
   end
 end
 
-# Bring in options defined by plugins
-Pry::Slop.new do
-  on "no-plugins" do
-    Pry.config.should_load_plugins = false
-  end
-end.parse(ARGV.dup)
-
-Pry::CLI.add_plugin_options if Pry.config.should_load_plugins
-
 # The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do
   banner(
@@ -167,7 +158,6 @@ Pry::CLI.add_options do
   end
 
   on :s, "select-plugin=", "Only load specified plugin (and no others)." do |plugin_name|
-    Pry.config.should_load_plugins = false
     Pry.plugins[plugin_name].activate!
   end
 
@@ -176,7 +166,7 @@ Pry::CLI.add_options do
   end
 
   on "no-plugins", "Suppress loading of plugins." do
-    Pry.config.should_load_plugins = false
+    warn "The --no-plugins option is deprecated and has no effect"
   end
 
   on "plugins", "List installed plugins." do

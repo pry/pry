@@ -142,7 +142,6 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     return if @session_finalized
 
     @session_finalized = true
-    load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history_load
     load_traps if Pry.config.should_trap_interrupts
