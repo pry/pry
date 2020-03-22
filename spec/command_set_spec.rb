@@ -185,9 +185,14 @@ RSpec.describe Pry::CommandSet do
       expect(new_command.description).to eq('Alias for `test`')
     end
 
-    it "sets aliased command's listing" do
+    it "sets aliased command's listing for string alias" do
       new_command = subject.alias_command('new-test', 'test')
       expect(new_command.options).to include(listing: 'new-test')
+    end
+
+    it "sets aliased command's listing for regex alias" do
+      new_command = subject.alias_command(/test[!?]+/, 'test')
+      expect(new_command.options[:listing].to_s).to eq('/test[!?]+/')
     end
 
     it "sets group for the aliased command automatically" do
