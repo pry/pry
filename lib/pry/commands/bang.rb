@@ -6,7 +6,7 @@ class Pry
       match(/^\s*!\s*$/)
       group 'Editing'
       description 'Clear the input buffer.'
-      command_options use_prefix: false
+      command_options use_prefix: false, listing: '!'
 
       banner <<-'BANNER'
         Clear the input buffer. Useful if the parsing process goes wrong and you get

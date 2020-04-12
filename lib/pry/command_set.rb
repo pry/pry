@@ -193,7 +193,7 @@ class Pry
 
       options = original_options.merge!(
         desc: "Alias for `#{action}`",
-        listing: match
+        listing: match.is_a?(String) ? match : match.inspect
       ).merge!(options)
 
       # ensure default description is used if desc is nil
