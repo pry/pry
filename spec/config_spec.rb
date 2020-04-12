@@ -150,8 +150,8 @@ RSpec.describe Pry::Config do
     end
 
     context "when invoked method is not an option" do
-      it "raises NoMethodError" do
-        expect { subject.foo }.to raise_error(NoMethodError)
+      it "returns nil" do
+        expect(subject.foo).to be_nil
       end
     end
 

@@ -5,6 +5,12 @@
 * Fixed bug where on invalid input only the last syntax error is displayed
   (instead of all of them) ([#2117](https://github.com/pry/pry/pull/2117))
 
+#### API changes
+
+* `Pry::Config` returns `nil` on undefined option instead of raising
+  `NoMethodError` (usually invoked via `Pry.config.foo_option` calls)
+  ([#2126](https://github.com/pry/pry/pull/2126))
+
 ### [v0.13.0][v0.13.0] (March 21, 2020)
 
 #### Features
