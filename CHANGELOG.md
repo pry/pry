@@ -1,15 +1,17 @@
 ### master
 
+### [v0.13.1][v0.13.1] (April 12, 2020)
+
 #### Bug fixes
 
 * Fixed bug where on invalid input only the last syntax error is displayed
   (instead of all of them) ([#2117](https://github.com/pry/pry/pull/2117))
-
-#### API changes
-
-* `Pry::Config` returns `nil` on undefined option instead of raising
-  `NoMethodError` (usually invoked via `Pry.config.foo_option` calls)
+* Fixed `Pry::Config` raising `NoMethodError` on undefined option instead of
+  returning `nil` (usually invoked via `Pry.config.foo_option` calls)
   ([#2126](https://github.com/pry/pry/pull/2126))
+* Fixed `help` command not displaying regexp aliases properly
+  ([#2120](https://github.com/pry/pry/pull/2120))
+* Fixed `pry-backtrace` not working ([#2122](https://github.com/pry/pry/pull/2122))
 
 ### [v0.13.0][v0.13.0] (March 21, 2020)
 
@@ -1071,3 +1073,4 @@ complete CHANGELOG:
 [v0.12.1]: https://github.com/pry/pry/releases/tag/v0.12.1
 [v0.12.2]: https://github.com/pry/pry/releases/tag/v0.12.2
 [v0.13.0]: https://github.com/pry/pry/releases/tag/v0.13.0
+[v0.13.1]: https://github.com/pry/pry/releases/tag/v0.13.1
