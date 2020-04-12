@@ -239,17 +239,17 @@ class Pry
       @custom_attrs[attr.to_s].call
     end
 
-    def method_missing(method_name, *args, &block)
+    # rubocop:disable Style/MethodMissingSuper
+    def method_missing(method_name, *args, &_block)
       name = method_name.to_s
 
       if name.end_with?('=')
         self[name[0..-2]] = args.first
       elsif @custom_attrs.key?(name)
         self[name]
-      else
-        super
       end
     end
+    # rubocop:enable Style/MethodMissingSuper
 
     def respond_to_missing?(method_name, include_all = false)
       @custom_attrs.key?(method_name.to_s.tr('=', '')) || super
