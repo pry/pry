@@ -42,7 +42,7 @@ RSpec.describe Pry::Config do
   specify { expect(subject.history_load).to eq(true).or be(false) }
   specify { expect(subject.history_file).to be_a(String) }
   specify { expect(subject.exec_string).to be_a(String) }
-  specify { expect(subject.rc_file).to be_a(String) }
+  specify { expect(subject.rc_file).to be_a(String).or be(nil) }
 
   describe "#rc_file" do
     context "when $PRYRC env variable is set" do
