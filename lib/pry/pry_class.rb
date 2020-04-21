@@ -87,7 +87,7 @@ class Pry
   # Load the local RC file (./.pryrc)
   def self.rc_files_to_load
     files = []
-    files << Pry.config.rc_file if Pry.config.should_load_rc
+    files << Pry.config.rc_file if Pry.config.rc_file && Pry.config.should_load_rc
     files << LOCAL_RC_FILE if Pry.config.should_load_local_rc
     files.map { |file| real_path_to(file) }.compact.uniq
   end
