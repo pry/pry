@@ -307,10 +307,10 @@ class Pry
     def default_rc_file
       [Pry::Env['PRYRC'],
        # See XDG Base Directory Specification at
-       # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+       # https://specifications.freedesktop.org/basedir-spec/latest/
        "#{Pry::Env['XDG_CONFIG_HOME']}/pry/pryrc",
        File.expand_path('~/.pryrc'),
-       '~/.config/pry/pryrc']
+       File.expand_path('~/.config/pry/pryrc')]
         .compact
         .find { |file| File.exist?(file) }
     end

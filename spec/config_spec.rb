@@ -80,31 +80,58 @@ RSpec.describe Pry::Config do
         allow(Pry::Env).to receive(:[])
         allow(Pry::Env).to receive(:[])
           .with('XDG_CONFIG_HOME').and_return('/xdg_home')
+      end
 
-        allow(File).to receive(:exist?)
-        allow(File).to receive(:exist?)
-          .with('/xdg_home/pry/pryrc').and_return(true)
+      context "and when '/xdg_home/pry/pryrc' exists" do
+        before do
+          allow(File).to receive(:exist?)
+          allow(File).to receive(:exist?)
+            .with('/xdg_home/pry/pryrc').and_return(true)
+        end
+
+        it "defaults to $XDG_CONFIG_HOME/pry/pryrc" do
+          expect(subject.rc_file).to eq('/xdg_home/pry/pryrc')
+        end
       end
 
       context "and when ~/.pryrc exists" do
         before do
           allow(File).to receive(:exist?)
+          allow(File).to receive(:exist?)
             .with(File.expand_path('~/.pryrc')).and_return(true)
         end
 
-        it "defaults to $XDG_CONFIG_HOME/pry/pryrc" do
-          expect(subject.rc_file).to eq('/xdg_home/pry/pryrc')
+        it "defaults to ~/.pryrc" do
+          expect(subject.rc_file).to eq(File.expand_path('~/.pryrc'))
         end
-      end
 
-      context "and when ~/.pryrc doesn't exist" do
+      context "and when ~/.config/pry/pryrc exists" do
         before do
           allow(File).to receive(:exist?)
-            .with(File.expand_path('~/.pryrc')).and_return(false)
+          allow(File).to receive(:exist?)
+            .with(File.expand_path('~/.config/pry/pryrc')).and_return(true)
         end
 
-        it "defaults to $XDG_CONFIG_HOME/pry/pryrc" do
-          expect(subject.rc_file).to eq('/xdg_home/pry/pryrc')
+        it "defaults to ~/.config/pry/pryrc" do
+          expect(subject.rc_file).to eq(File.expand_path('~/.config/pry/pryrc'))
+        end
+      end
+      end
+
+      context "and when no default rc file exists" do
+        before do
+          allow(File).to receive(:exist?)
+          allow(Pry::Env).to receive(:[]).with('PRYRC').and_return(nil)
+          allow(File).to receive(:exist?)
+            .with('/xdg_home/pry/pryrc').and_return(false)
+          allow(File).to receive(:exist?)
+            .with(File.expand_path('~/.pryrc')).and_return(false)
+          allow(File).to receive(:exist?)
+            .with(File.expand_path('~/.config/pry/pryrc')).and_return(false)
+        end
+
+        it "should return nil" do
+          expect(subject.rc_file).to eq(nil)
         end
       end
     end
