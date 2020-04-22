@@ -105,17 +105,17 @@ RSpec.describe Pry::Config do
           expect(subject.rc_file).to eq(File.expand_path('~/.pryrc'))
         end
 
-      context "and when ~/.config/pry/pryrc exists" do
-        before do
-          allow(File).to receive(:exist?)
-          allow(File).to receive(:exist?)
-            .with(File.expand_path('~/.config/pry/pryrc')).and_return(true)
-        end
+        context "and when ~/.config/pry/pryrc exists" do
+          before do
+            allow(File).to receive(:exist?)
+            allow(File).to receive(:exist?)
+              .with(File.expand_path('~/.config/pry/pryrc')).and_return(true)
+          end
 
-        it "defaults to ~/.config/pry/pryrc" do
-          expect(subject.rc_file).to eq(File.expand_path('~/.config/pry/pryrc'))
+          it "defaults to ~/.config/pry/pryrc" do
+            expect(subject.rc_file).to eq(File.expand_path('~/.config/pry/pryrc'))
+          end
         end
-      end
       end
 
       context "and when no default rc file exists" do
