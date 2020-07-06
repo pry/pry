@@ -154,7 +154,7 @@ Pry::CLI.add_options do
   end
 
   on "no-history", "Disable history loading" do
-    Pry.config.history.should_load = false
+    Pry.config.history_save = false
   end
 
   on "no-color", "Disable syntax highlighting for session" do
