@@ -41,7 +41,7 @@ class Pry
       end
 
       def process_cd(dest)
-        state.old_pwd = Dir.pwd
+        state.old_pwd = Dir.pwd.encode('UTF-8')
         Dir.chdir(File.expand_path(path_from_cd_path(dest) || dest))
       rescue Errno::ENOENT
         raise CommandError, "No such directory: #{dest}"

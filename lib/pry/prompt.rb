@@ -200,7 +200,7 @@ class Pry
         "%<name>s %<context>s:%<pwd>s %<separator>s ",
         name: pry_instance.config.prompt_name,
         context: Pry.view_clip(context),
-        pwd: Dir.pwd,
+        pwd: Dir.pwd.encode('UTF-8'),
         separator: sep
       )
     end
