@@ -339,7 +339,7 @@ class Pry
         super
       end
     end
-    undef =~
+    undef =~ if method_defined?(:=~)
 
     # Check whether String responds to missing methods.
     def respond_to_missing?(method_name, include_private = false)
