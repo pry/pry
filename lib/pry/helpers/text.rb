@@ -21,20 +21,20 @@ class Pry
 
       COLORS.each_pair do |color, value|
         define_method color do |text|
-          "\033[0;#{30 + value}m#{text}\033[0m"
+          "\001\033[0;#{30 + value}m\002#{text}\001\033[0m\002"
         end
 
         define_method "bright_#{color}" do |text|
-          "\033[1;#{30 + value}m#{text}\033[0m"
+          "\001\033[1;#{30 + value}m\002#{text}\001\033[0m\002"
         end
 
         COLORS.each_pair do |bg_color, bg_value|
           define_method "#{color}_on_#{bg_color}" do |text|
-            "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+            "\001\033[0;#{30 + value};#{40 + bg_value}m\002#{text}\001\033[0m\002"
           end
 
           define_method "bright_#{color}_on_#{bg_color}" do |text|
-            "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+            "\001\033[1;#{30 + value};#{40 + bg_value}m\002#{text}\001\033[0m\002"
           end
         end
       end
@@ -52,7 +52,7 @@ class Pry
       # @param [String, #to_s] text
       # @return [String] _text_
       def bold(text)
-        "\e[1m#{text}\e[0m"
+        "\001\e[1m\002#{text}\001\e[0m\002"
       end
 
       # Returns `text` in the default foreground colour.
