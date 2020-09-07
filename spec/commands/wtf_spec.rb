@@ -38,7 +38,7 @@ RSpec.describe Pry::Command::Wtf do
       it "prints only a part of the exception backtrace" do
         subject.process
         expect(subject.output.string).to eq(
-          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: oops\n" \
           "--\n" \
           "0: /bin/pry:23:in `<main>'\n" \
           "1: /bin/pry:23:in `<main>'\n" \
@@ -55,7 +55,7 @@ RSpec.describe Pry::Command::Wtf do
       it "prints full exception backtrace" do
         subject.process
         expect(subject.output.string).to eq(
-          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: oops\n" \
           "--\n" \
           "0: /bin/pry:23:in `<main>'\n" \
           "1: /bin/pry:23:in `<main>'\n" \
@@ -73,7 +73,7 @@ RSpec.describe Pry::Command::Wtf do
       it "prints more of backtrace" do
         subject.process
         expect(subject.output.string).to eq(
-          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: oops\n" \
           "--\n" \
           "0: /bin/pry:23:in `<main>'\n" \
           "1: /bin/pry:23:in `<main>'\n" \
@@ -116,14 +116,14 @@ RSpec.describe Pry::Command::Wtf do
         it "prints parts of both original and nested exception backtrace" do
           subject.process
           expect(subject.output.string).to eq(
-            "\e[1mException:\e[0m RuntimeError: outer\n" \
+            "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: outer\n" \
             "--\n" \
             "0: /bin/pry:23:in `<main>'\n" \
             "1: /bin/pry:23:in `<main>'\n" \
             "2: /bin/pry:23:in `<main>'\n" \
             "3: /bin/pry:23:in `<main>'\n" \
             "4: /bin/pry:23:in `<main>'\n" \
-            "\e[1mCaused by:\e[0m RuntimeError: inner\n" \
+            "\001\e[1m\002Caused by:\001\e[0m\002 RuntimeError: inner\n" \
             "--\n" \
             "0: /bin/pry:23:in `<main>'\n" \
             "1: /bin/pry:23:in `<main>'\n" \
@@ -140,7 +140,7 @@ RSpec.describe Pry::Command::Wtf do
         it "prints both original and nested exception backtrace" do
           subject.process
           expect(subject.output.string).to eq(
-            "\e[1mException:\e[0m RuntimeError: outer\n" \
+            "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: outer\n" \
             "--\n" \
             "0: /bin/pry:23:in `<main>'\n" \
             "1: /bin/pry:23:in `<main>'\n" \
@@ -148,7 +148,7 @@ RSpec.describe Pry::Command::Wtf do
             "3: /bin/pry:23:in `<main>'\n" \
             "4: /bin/pry:23:in `<main>'\n" \
             "5: /bin/pry:23:in `<main>'\n" \
-            "\e[1mCaused by:\e[0m RuntimeError: inner\n" \
+            "\001\e[1m\002Caused by:\001\e[0m\002 RuntimeError: inner\n" \
             "--\n" \
             "0: /bin/pry:23:in `<main>'\n" \
             "1: /bin/pry:23:in `<main>'\n" \
@@ -177,17 +177,17 @@ RSpec.describe Pry::Command::Wtf do
       it "prints lines of code that exception frame references" do
         subject.process
         expect(subject.output.string).to eq(
-          "\e[1mException:\e[0m RuntimeError: oops\n" \
+          "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: oops\n" \
           "--\n" \
-          "0: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "0: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
           "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
-          "1: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "1: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
           "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
-          "2: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "2: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
           "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
-          "3: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "3: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
           "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n" \
-          "4: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
+          "4: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
           "             Array.new(6) { \"\#{__FILE__}:\#{__LINE__}:in `<main>'\" }\n"
         )
       end
@@ -200,13 +200,13 @@ RSpec.describe Pry::Command::Wtf do
         it "skips code and prints only the backtrace frame" do
           subject.process
           expect(subject.output.string).to eq(
-            "\e[1mException:\e[0m RuntimeError: oops\n" \
+            "\001\e[1m\002Exception:\001\e[0m\002 RuntimeError: oops\n" \
             "--\n" \
-            "0: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
-            "1: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
-            "2: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
-            "3: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n" \
-            "4: \e[1m#{__FILE__}:168:in `<main>'\e[0m\n"
+            "0: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
+            "1: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
+            "2: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
+            "3: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n" \
+            "4: \001\e[1m\002#{__FILE__}:168:in `<main>'\001\e[0m\002\n"
           )
         end
       end
