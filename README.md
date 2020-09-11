@@ -82,7 +82,7 @@ Installation
 ### Bundler
 
 ```ruby
-gem 'pry', '~> 0.12.2'
+gem 'pry', '~> 0.13.1'
 ```
 
 ### Manual
