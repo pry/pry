@@ -28,7 +28,6 @@ RSpec.describe Pry::Config do
   specify { expect(subject.output_prefix).to be_a(String) }
   specify { expect(subject.requires).to be_an(Array) }
   specify { expect(subject.should_load_requires).to be(true).or be(false) }
-  specify { expect(subject.should_load_plugins).to be(true).or be(false) }
   specify { expect(subject.windows_console_warning).to be(true).or be(false) }
   specify { expect(subject.control_d_handler).to respond_to(:call) }
   specify { expect(subject.memory_size).to be_a(Numeric) }

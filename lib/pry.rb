@@ -13,7 +13,6 @@ require 'pry/helpers'
 
 require 'pry/basic_object'
 require 'pry/prompt'
-require 'pry/plugins'
 require 'pry/code_object'
 require 'pry/exceptions'
 require 'pry/hooks'
