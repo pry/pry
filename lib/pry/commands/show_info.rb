@@ -85,7 +85,7 @@ class Pry
           candidate = mod.candidate(v)
           begin
             result += "\nCandidate #{v + 1}/#{mod.number_of_candidates}: " \
-                      "#{candidate.source_file}:#{candidate.source_line}\n"
+                      "#{candidate.source_file.encode('UTF-8')}:#{candidate.source_line}\n"
             content = content_for(candidate)
 
             result += "Number of lines: #{content.lines.count}\n\n" + content
@@ -107,7 +107,7 @@ class Pry
         file_name, line_num = file_and_line_for(code_object)
         content = content_for(code_object)
 
-        h = "\n#{bold('From:')} #{file_name}"
+        h = "\n#{bold('From:')} #{file_name.encode('UTF-8')}"
         h += code_object_header(code_object, line_num)
         h += "\n#{bold('Number of lines:')} " + "#{content.lines.count}\n\n"
         if @used_super
