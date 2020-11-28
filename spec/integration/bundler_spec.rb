@@ -9,8 +9,9 @@ RSpec.describe 'Bundler' do
   context "when Pry requires Gemfile, which doesn't specify Pry as a dependency" do
     it "loads auto-completion correctly" do
       code = <<-RUBY
-      require "pry"
+      require "bundler"
       require "bundler/inline"
+      require "pry"
 
       # Silence the "The Gemfile specifies no dependencies" warning
       class Bundler::UI::Shell
