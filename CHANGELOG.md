@@ -1,5 +1,21 @@
 ### master
 
+#### Features
+
+* Made `?` an alias to `show-source -d`
+  ([#2133](https://github.com/pry/pry/pull/2133))
+
+#### Breaking changes
+
+* Deleted support for plugin autoloading
+  ([#2119](https://github.com/pry/pry/pull/2119)). In order to load a Pry plugin
+  you must `require` it from your `pryrc` or add it to your Gemfile.
+
+  ```rb
+  # ~/.pryrc
+  require 'pryrc'
+  ```
+
 ### [v0.13.1][v0.13.1] (April 12, 2020)
 
 #### Bug fixes
