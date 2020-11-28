@@ -89,6 +89,5 @@ class Pry
     end
 
     Pry::Commands.add_command(Pry::Command::ShowDoc)
-    Pry::Commands.alias_command '?', 'show-doc'
   end
 end
