@@ -5,17 +5,15 @@ class Pry
   # both internally and within Readline.
   class History
     def self.default_file
-      history_file =
-        if (xdg_home = Pry::Env['XDG_DATA_HOME'])
-          # See XDG Base Directory Specification at
-          # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-          xdg_home + '/pry/pry_history'
-        elsif File.exist?(File.expand_path('~/.pry_history'))
-          '~/.pry_history'
-        else
-          '~/.local/share/pry/pry_history'
-        end
-      File.expand_path(history_file)
+      if (xdg_home = Pry::Env['XDG_DATA_HOME'])
+        # See XDG Base Directory Specification at
+        # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
+        File.join(xdg_home, 'pry', 'pry_history')
+      elsif File.exist?(path = File.join(home_path, '.pry_history'))
+        path
+      else
+        File.join(home_path, '.local', 'share', 'pry', 'pry_history')
+      end
     end
 
     attr_accessor :loader, :saver
@@ -148,6 +146,14 @@ class Pry
       # `Readline::HISTORY << line` raises an `ArgumentError` if `line`
       # includes a null byte
       line.include?("\0")
+    end
+
+    def home_path
+      Dir.home
+    rescue ArgumentError, NoMethodError
+      # $HOME is not set in systemd service File.expand_path('~') will not work here
+      require 'etc' unless defined?(Etc)
+      Etc.getpwuid(Process.uid).dir
     end
   end
 end

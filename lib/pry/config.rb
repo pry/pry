@@ -306,11 +306,11 @@ class Pry
       elsif (xdg_home = Pry::Env['XDG_CONFIG_HOME'])
         # See XDG Base Directory Specification at
         # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
-        xdg_home + '/pry/pryrc'
-      elsif File.exist?(File.join(home_path, '.pryrc'))
-        '~/.pryrc'
+        File.join(xdg_home, 'pry', 'pryrc')
+      elsif File.exist?(path = File.join(home_path, '.pryrc'))
+        path
       else
-        '~/.config/pry/pryrc'
+        File.join(home_path, '.config', 'pry', 'pryrc')
       end
     end
 
