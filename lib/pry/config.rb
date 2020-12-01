@@ -307,21 +307,19 @@ class Pry
         # See XDG Base Directory Specification at
         # https://standards.freedesktop.org/basedir-spec/basedir-spec-0.8.html
         xdg_home + '/pry/pryrc'
-      elsif File.exist?(File.join(get_home_path, '.pryrc'))
+      elsif File.exist?(File.join(home_path, '.pryrc'))
         '~/.pryrc'
       else
         '~/.config/pry/pryrc'
       end
     end
 
-    def get_home_path
-      begin
-        Dir.home
-      rescue ArgumentError, NoMethodError
-        # $HOME is not set in systemd service File.expand_path('~') will not work here
-        require 'etc' unless defined?(Etc)
-        Etc.getpwuid(Process.uid).dir
-      end
+    def home_path
+      Dir.home
+    rescue ArgumentError, NoMethodError
+      # $HOME is not set in systemd service File.expand_path('~') will not work here
+      require 'etc' unless defined?(Etc)
+      Etc.getpwuid(Process.uid).dir
     end
   end
 end
