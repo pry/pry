@@ -148,7 +148,7 @@ class Pry
       line.include?("\0")
     end
 
-    def home_path
+    def self.home_path
       Dir.home
     rescue ArgumentError, NoMethodError
       # $HOME is not set in systemd service File.expand_path('~') will not work here
