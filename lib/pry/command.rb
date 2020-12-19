@@ -57,6 +57,12 @@ class Pry
       alias options command_options
       alias options= command_options=
 
+      # Options passed onto `Pry::Slop#initialize`.
+      def slop_options(options = nil)
+        @options = options if options
+        @options || {}
+      end
+
       # Define or get the command's banner
       def banner(arg = nil)
         @banner = arg if arg

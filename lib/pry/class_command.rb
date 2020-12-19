@@ -20,6 +20,7 @@ class Pry
         klass.match match
         klass.description description
         klass.command_options options
+        klass.slop_options slop_options
       end
 
       def source
@@ -91,7 +92,7 @@ class Pry
     # Return an instance of Pry::Slop that can parse either subcommands or the
     # options that this command accepts.
     def slop
-      Pry::Slop.new do |opt|
+      Pry::Slop.new(self.class.slop_options) do |opt|
         opt.banner(unindent(self.class.banner))
         subcommands(opt)
         options(opt)

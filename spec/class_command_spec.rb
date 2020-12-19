@@ -41,6 +41,18 @@ RSpec.describe Pry::ClassCommand do
           .to match(hash_including(listing: 'listing'))
       end
     end
+
+    context "when slop_options is defined" do
+      subject do
+        Class.new(described_class) do
+          slop_options strict: true
+        end
+      end
+
+      it 'sets slop_options on the subclass' do
+        expect(subject.slop_options).to eq(strict: true)
+      end
+    end
   end
 
   describe ".source" do
@@ -233,6 +245,18 @@ RSpec.describe Pry::ClassCommand do
 
       it "adds subcommands to Slop" do
         expect(subject.slop.fetch_option(:test)).not_to be_nil
+      end
+    end
+
+    context "when there are slop options" do
+      subject do
+        Class.new(described_class) do
+          slop_options strict: true
+        end.new
+      end
+
+      it 'enables strict option parsing' do
+        expect(subject.slop).to be_strict
       end
     end
   end
