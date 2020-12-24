@@ -39,6 +39,15 @@ class Pry
         end
       end
 
+      # Escape _text_ with SGR escape _codes_
+      #
+      # @param text [String]
+      # @param *codes [Integer] SGR code
+      def escape(text, *codes)
+        seq = codes.compact.join(";")
+        "\e[#{seq}m#{text}\e[0m"
+      end
+
       # Remove any color codes from _text_.
       #
       # @param  [String, #to_s] text
