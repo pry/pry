@@ -39,6 +39,22 @@ class Pry
         end
       end
 
+      # Apply _color_ or style to _text_
+      #
+      # @param text [String]
+      # @param color [nil, Symbol] Color selected from `COLORS`
+      # @option bold [nil, true, false]
+      # @option faded [nil, true, false]
+      # @return [String] Text
+      def colorize(text, color = nil, bold: false, faded: false)
+        b = []
+        b << 1 if bold
+        b << 2 if faded
+        b << 0 if b.empty?
+
+        escape(text, b, COLORS[color.to_s])
+      end
+
       # Escape _text_ with SGR escape _codes_
       #
       # @param text [String]
