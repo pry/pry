@@ -36,7 +36,7 @@ describe Pry do
     ["o = Object.new.tap{ def o.render;", "'MEH'", "}"],
 
     # multiple syntax errors reported in one SyntaxException
-    ["puts {'key'=>'val'}.to_json"]
+    ["puts {key: 'val'}.to_json"]
   ].compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
