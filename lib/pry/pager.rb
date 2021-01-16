@@ -134,11 +134,7 @@ class Pry
         # options. By default, -X is passed. Do not pass -X if
         # `Pry.config.less_alt_screen` is set to true.
         if pager.strip.empty? || pager =~ /^less\b/
-          if Pry.config.less_alt_screen
-            pager = "less -R -F"
-          else
-            pager = "less -R -F -X"
-          end
+          pager = Pry.config.less_alt_screen ? "less -R -F" : "less -R -F -X"
         end
 
         pager
