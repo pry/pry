@@ -67,6 +67,9 @@ class Pry
     # @return [Boolean]
     attribute :pager
 
+    # @return [Boolean]
+    attribute :less_alt_screen
+
     # @return [Boolean] whether the global ~/.pryrc should be loaded
     attribute :should_load_rc
 

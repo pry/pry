@@ -131,8 +131,15 @@ class Pry
         pager = Pry::Env['PAGER'] || ''
 
         # Default to less, and make sure less is being passed the correct
-        # options
-        pager = "less -R -F -X" if pager.strip.empty? || pager =~ /^less\b/
+        # options. By default, -X is passed. Do not pass -X if
+        # `Pry.config.less_alt_screen` is set to true.
+        if pager.strip.empty? || pager =~ /^less\b/
+          if Pry.config.less_alt_screen
+            pager = "less -R -F"
+          else
+            pager = "less -R -F -X"
+          end
+        end
 
         pager
       end
