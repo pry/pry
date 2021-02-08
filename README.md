@@ -21,7 +21,7 @@ Pry
 
 **Links:**
 
-* https://pryrepl.org/
+* https://pry.github.com/
 * [YARD API documentation](https://www.rubydoc.info/gems/pry)
 * [Wiki](https://github.com/pry/pry/wiki)
 

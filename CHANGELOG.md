@@ -1,9 +1,12 @@
 ### master
 
+### [v0.14.0][v0.14.0] (February 8, 2021)
+
 #### Features
 
 * Made `?` an alias to `show-source -d`
   ([#2133](https://github.com/pry/pry/pull/2133))
+* Added support for Ruby 3.0
 
 #### Breaking changes
 
@@ -1090,3 +1093,4 @@ complete CHANGELOG:
 [v0.12.2]: https://github.com/pry/pry/releases/tag/v0.12.2
 [v0.13.0]: https://github.com/pry/pry/releases/tag/v0.13.0
 [v0.13.1]: https://github.com/pry/pry/releases/tag/v0.13.1
+[v0.14.0]: https://github.com/pry/pry/releases/tag/v0.14.0
