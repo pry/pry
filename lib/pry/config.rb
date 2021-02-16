@@ -73,6 +73,9 @@ class Pry
     # @return [Boolean] whether the local ./.pryrc should be loaded
     attribute :should_load_local_rc
 
+    # @return [Boolean]
+    attribute :should_load_plugins
+
     # @return [Boolean] whether to load files specified with the -r flag
     attribute :should_load_requires
 
@@ -193,6 +196,7 @@ class Pry
         output_prefix: '=> ',
         requires: [],
         should_load_requires: true,
+        should_load_plugins: false,
         windows_console_warning: true,
         control_d_handler: Pry::ControlDHandler.method(:default),
         memory_size: 100,
