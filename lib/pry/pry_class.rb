@@ -24,6 +24,7 @@ class Pry
     attr_accessor :last_internal_error
     attr_accessor :config
 
+    # TODO: Remove def_delegators :@plugin_manager when removing plugin auto-loading
     def_delegators :@plugin_manager, :plugins, :load_plugins, :locate_plugins
 
     def_delegators(
@@ -142,6 +143,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     return if @session_finalized
 
     @session_finalized = true
+    # TODO: Remove load_plugins when removing plugin auto-loading
     load_plugins if Pry.config.should_load_plugins
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history_load
@@ -333,9 +335,13 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
 
   # Basic initialization.
   def self.init
+    # TODO: Remove PluginManager when removing plugin auto-loading
     @plugin_manager ||= PluginManager.new
     reset_defaults
-    locate_plugins
+    if Pry.config.should_load_plugins # rubocop:disable Style/GuardClause
+      # TODO: Remove locate_plugins when removing plugin auto-loading
+      locate_plugins
+    end
   end
 
   # Return a `Binding` object for `target` or return `target` if it is

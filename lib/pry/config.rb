@@ -73,6 +73,7 @@ class Pry
     # @return [Boolean] whether the local ./.pryrc should be loaded
     attribute :should_load_local_rc
 
+    # TODO: Remove should_load_plugins when removing plugin auto-loading
     # @return [Boolean]
     attribute :should_load_plugins
 
