@@ -8,35 +8,60 @@ class Pry
       extend self
 
       COLORS = {
-        "black" => 0,
-        "red" => 1,
-        "green" => 2,
-        "yellow" => 3,
-        "blue" => 4,
-        "purple" => 5,
-        "magenta" => 5,
-        "cyan" => 6,
-        "white" => 7
+        "black" => 30,
+        "red" => 31,
+        "green" => 32,
+        "yellow" => 33,
+        "blue" => 34,
+        "purple" => 35,
+        "magenta" => 35,
+        "cyan" => 36,
+        "white" => 37
       }.freeze
 
       COLORS.each_pair do |color, value|
         define_method color do |text|
-          "\033[0;#{30 + value}m#{text}\033[0m"
+          "\033[0;#{value}m#{text}\033[0m"
         end
 
         define_method "bright_#{color}" do |text|
-          "\033[1;#{30 + value}m#{text}\033[0m"
+          "\033[1;#{value}m#{text}\033[0m"
         end
 
         COLORS.each_pair do |bg_color, bg_value|
           define_method "#{color}_on_#{bg_color}" do |text|
-            "\033[0;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+            "\033[0;#{value};#{bg_value+10}m#{text}\033[0m"
           end
 
           define_method "bright_#{color}_on_#{bg_color}" do |text|
-            "\033[1;#{30 + value};#{40 + bg_value}m#{text}\033[0m"
+            "\033[1;#{value};#{bg_value+10}m#{text}\033[0m"
           end
         end
+      end
+
+      # Apply _color_ or style to _text_
+      #
+      # @param text [String]
+      # @param color [nil, Symbol] Color selected from `COLORS`
+      # @option bold [nil, true, false]
+      # @option faded [nil, true, false]
+      # @return [String] Text
+      def colorize(text, color = nil, bold: false, faded: false)
+        b = []
+        b << 1 if bold
+        b << 2 if faded
+        b << 0 if b.empty?
+
+        escape(text, b, COLORS[color.to_s])
+      end
+
+      # Escape _text_ with SGR escape _codes_
+      #
+      # @param text [String]
+      # @param *codes [Integer] SGR code
+      def escape(text, *codes)
+        seq = codes.compact.join(";")
+        "\e[#{seq}m#{text}\e[0m"
       end
 
       # Remove any color codes from _text_.
