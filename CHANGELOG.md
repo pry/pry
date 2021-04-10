@@ -1,5 +1,10 @@
 ### master
 
+#### Bug fixes
+
+* Fixed bad coloring of some RDoc-style docs
+  (([#2182](https://github.com/pry/pry/pull/2182))
+
 ### [v0.14.0][v0.14.0] (February 8, 2021)
 
 #### Features
