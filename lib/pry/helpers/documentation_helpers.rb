@@ -17,12 +17,13 @@ class Pry
         last_match_ruby = proc do
           SyntaxHighlighter.highlight(Regexp.last_match(1))
         end
+
         comment.gsub(%r{<code>(?:\s*\n)?(.*?)\s*</code>}m, &last_match_ruby)
           .gsub(%r{<em>(?:\s*\n)?(.*?)\s*</em>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
           .gsub(%r{<i>(?:\s*\n)?(.*?)\s*</i>}m) { "\e[1m#{Regexp.last_match(1)}\e[0m" }
           .gsub(%r{<tt>(?:\s*\n)?(.*?)\s*</tt>}m, &last_match_ruby)
           .gsub(/\B\+(\w+?)\+\B/) { "\e[32m#{Regexp.last_match(1)}\e[0m" }
-          .gsub(/((?:^[ \t]+.+(?:\n+|\Z))+)/, &last_match_ruby)
+          .gsub(/((?:^[ \t]+(?:(?!.+\e\[)).+(?:\n+|\Z))+)/, &last_match_ruby)
           .gsub(/`(?:\s*\n)?([^\e]*?)\s*`/) { "`#{last_match_ruby.call}`" }
       end
 

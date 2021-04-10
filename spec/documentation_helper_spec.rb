@@ -72,5 +72,9 @@ describe Pry::Helpers::DocumentationHelpers do
     it "should not remove ++" do
       expect(@helper.process_rdoc("--\n  comment in a bubble\n++")).to match(/\+\+/)
     end
+
+    it "should not syntax highlight already highlighted code" do
+      expect(@helper.process_rdoc("  \e\[31mFOO\e\[0m")).to match(/  \e\[31mFOO\e\[0m/)
+    end
   end
 end
