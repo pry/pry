@@ -163,11 +163,8 @@ Pry::CLI.add_options do
   end
 
   on "plugins", "List installed plugins." do
-    puts "Installed Plugins:"
-    puts "--"
-    Pry.locate_plugins.each do |plugin|
-      puts plugin.name.to_s.ljust(18) << plugin.spec.summary
-    end
+    warn "The --plugins option is deprecated and has no effect"
+    warn "Try using `gem list pry-`"
     Kernel.exit
   end
 
