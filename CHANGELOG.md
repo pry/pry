@@ -3,7 +3,13 @@
 #### Bug fixes
 
 * Fixed bad coloring of some RDoc-style docs
-  (([#2182](https://github.com/pry/pry/pull/2182))
+  ([#2182](https://github.com/pry/pry/pull/2182))
+* Fixed broken `--plugins` option. It shows a warning now
+  ([#2180](https://github.com/pry/pry/pull/2180))
+* Fixed bad output on printing non-visible characters with color codes
+  ([#2154](https://github.com/pry/pry/pull/2154))
+* Fixed bad output when colors are disabled and a string with color codes is
+  printed ([#2158](https://github.com/pry/pry/pull/2158))
 
 ### [v0.14.0][v0.14.0] (February 8, 2021)
 
