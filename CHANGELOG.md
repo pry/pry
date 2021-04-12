@@ -1,5 +1,7 @@
 ### master
 
+### [v0.14.1][v0.14.1] (April 12, 2021)
+
 #### Bug fixes
 
 * Fixed bad coloring of some RDoc-style docs
@@ -1105,3 +1107,4 @@ complete CHANGELOG:
 [v0.13.0]: https://github.com/pry/pry/releases/tag/v0.13.0
 [v0.13.1]: https://github.com/pry/pry/releases/tag/v0.13.1
 [v0.14.0]: https://github.com/pry/pry/releases/tag/v0.14.0
+[v0.14.1]: https://github.com/pry/pry/releases/tag/v0.14.1
