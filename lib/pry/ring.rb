@@ -56,8 +56,8 @@ class Pry
     #   exist
     def [](index)
       @mutex.synchronize do
-        return @buffer[(count + index) % max_size] if index.is_a?(Integer)
         return @buffer[index] if count <= max_size
+        return @buffer[(count + index) % max_size] if index.is_a?(Integer)
 
         transpose_buffer_tail[index]
       end

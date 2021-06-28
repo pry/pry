@@ -1,5 +1,10 @@
 ### master
 
+#### Bug fixes
+
+* Fixed bug where reading from the `_out_` sticky local variable could return
+  wrong results ([#2201](https://github.com/pry/pry/pull/2201))
+
 ### [v0.14.1][v0.14.1] (April 12, 2021)
 
 #### Bug fixes

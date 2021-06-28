@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe Pry::Ring do
-  let(:ring) { described_class.new(3) }
+  subject(:ring) { described_class.new(3) }
 
   describe "#<<" do
     it "adds elements as is when the ring is not full" do
@@ -28,6 +28,8 @@ describe Pry::Ring do
     end
 
     context "when the ring is not full" do
+      subject(:ring) { described_class.new(100) }
+
       before { ring << 1 << 2 << 3 }
 
       it "reads elements" do
