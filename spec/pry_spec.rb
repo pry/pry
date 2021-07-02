@@ -184,6 +184,21 @@ describe Pry do
           .to raise_error SignalException
       end
 
+      it "should return if started inside signal handler" do
+        if Pry::Helpers::Platform.jruby?
+          skip "jruby allows mutex usage in signal handlers"
+        end
+
+        if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.0.0")
+          skip "pre-2.0 mri allows mutex usage in signal handlers"
+        end
+
+        output = nil
+        trap("USR1") { output = mock_pry }
+        Process.kill("USR1", Process.pid)
+        expect(output).to match(/Unable to obtain mutex lock/)
+      end
+
       describe "multi-line input" do
         it "works" do
           expect(mock_pry('x = ', '1 + 4')).to match(/5/)

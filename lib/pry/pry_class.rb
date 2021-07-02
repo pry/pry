@@ -168,6 +168,12 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
       return
     end
 
+    unless mutex_available?
+      output.puts "ERROR: Unable to obtain mutex lock."
+      output.puts "This can happen if binding.pry is called from a signal handler"
+      return
+    end
+
     options[:target] = Pry.binding_for(target || toplevel_binding)
     initial_session_setup
     final_session_setup
@@ -378,6 +384,13 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
   ensure
     Thread.current[:pry_critical_section] -= 1
   end
+
+  def self.mutex_available?
+    Mutex.new.synchronize { true }
+  rescue ThreadError
+    false
+  end
+  private_class_method :mutex_available?
 end
 
 Pry.init
