@@ -1,6 +1,7 @@
 Pry
 ===
 
+[![Pry Build Status](https://github.com/pry/pry/workflows/pry/badge.svg)](https://github.com/pry/pry/actions)
 [![Circle Build Status](https://circleci.com/gh/pry/pry.svg?style=shield)](https://circleci.com/gh/pry/pry)
 [![Code Climate](https://codeclimate.com/github/pry/pry.svg)](https://codeclimate.com/github/pry/pry)
 [![Gem Version](https://badge.fury.io/rb/pry.svg)](https://badge.fury.io/rb/pry)

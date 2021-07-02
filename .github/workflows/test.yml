@@ -1,0 +1,38 @@
+name: pry
+
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
+        ruby: [2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, '3.0', head, jruby, jruby-head]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Rubocop lint
+      run: which rubocop && bundle exec rubocop || true
+
+    - name: YARD lint
+      run: >-
+        touch README # Workaround for "incorrect" links in README.md
+        bundle exec yardoc --fail-on-warning --no-progress --readme=README
+
+    - name: Display Ruby version
+      run: ruby -v
+
+    - name: Test
+      run: bundle exec rake
+      env:
+        # Make sure TERM is set so Pry can indent correctly inside tests.
+        TERM: screen-256color
