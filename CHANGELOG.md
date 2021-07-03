@@ -4,6 +4,9 @@
 
 * Fixed bug where reading from the `_out_` sticky local variable could return
   wrong results ([#2201](https://github.com/pry/pry/pull/2201))
+* Fixed bug where paged output can erroneously display non-visible control
+  characters (`\001` aka `^A` & `\002` aka `^B`)
+  ([#2207](https://github.com/pry/pry/pull/2207))
 
 ### [v0.14.1][v0.14.1] (April 12, 2021)
 
