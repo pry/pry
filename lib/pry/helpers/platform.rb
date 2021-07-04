@@ -58,7 +58,7 @@ class Pry
             kernel32.GetConsoleMode(stdout_handle, mode) != 0 &&
             mode.value & enable_virtual_terminal_processing != 0
 
-        rescue
+        rescue LoadError, Fiddle::DLError
           false
         ensure
           Fiddle.free mode.to_ptr if mode
