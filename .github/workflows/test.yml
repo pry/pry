@@ -21,7 +21,11 @@ jobs:
         bundler-cache: true
 
     - name: Rubocop lint
-      run: which rubocop && bundle exec rubocop || true
+      run: |
+        if bundle list | grep rubocop
+        then
+            bundle exec rubocop --parallel
+        fi
 
     - name: YARD lint
       run: |
