@@ -87,7 +87,7 @@ describe Pry::REPL do
         end
       end
 
-      ReplTester.start(commands: set) do
+      ReplTester.start(commands: set, auto_indent: true) do
         input  'def x'
         output ''
         prompt(/\*   $/)
@@ -125,6 +125,7 @@ describe Pry::REPL do
 
   describe "autoindent" do
     it "should raise no exception when indented with a tab" do
+      allow(Pry::Helpers::BaseHelpers).to receive(:use_ansi_codes?).and_return(true)
       ReplTester.start(correct_indent: true, auto_indent: true) do
         output = @pry.config.output
         def output.tty?

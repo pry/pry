@@ -37,7 +37,8 @@ class Pry
 
       def use_ansi_codes?
         Pry::Helpers::Platform.windows_ansi? ||
-          ((term = Pry::Env['TERM']) && term != "dumb")
+          Pry::Helpers::Platform.windows_conpty? ||
+          (term = Pry::Env['TERM']; term != nil && term != "dumb")
       end
 
       def colorize_code(code)
