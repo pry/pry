@@ -24,7 +24,7 @@ jobs:
       run: which rubocop && bundle exec rubocop || true
 
     - name: YARD lint
-      run: >-
+      run: |
         touch README # Workaround for "incorrect" links in README.md
         bundle exec yardoc --fail-on-warning --no-progress --readme=README
 
