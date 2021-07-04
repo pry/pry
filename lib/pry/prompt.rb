@@ -177,7 +177,7 @@ class Pry
     add(
       :nav,
       "A prompt that displays the binding stack as a path and includes information \n" \
-      "about '_in_' and '_out_'.",
+      "about #{Helpers::Text.bold('_in_')} and #{Helpers::Text.bold('_out_')}.",
       %w[> *]
     ) do |_context, _nesting, pry_instance, sep|
       tree = pry_instance.binding_stack.map { |b| Pry.view_clip(b.eval('self')) }

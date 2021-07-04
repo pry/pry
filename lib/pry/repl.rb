@@ -92,7 +92,10 @@ class Pry
     # @return [:no_more_input] On EOF.
     def read
       @indent.reset if pry.eval_string.empty?
+
       current_prompt = pry.select_prompt
+      current_prompt = current_prompt.gsub(/(\e\[[\d;]+m)/, "\001\\1\002") if pry.config.escape_prompt
+
       indentation = pry.config.auto_indent ? @indent.current_prefix : ''
 
       val = read_line("#{current_prompt}#{indentation}")

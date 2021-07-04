@@ -391,7 +391,6 @@ class Pry
     #
     # @return [String] correctly indented line
     def correct_indentation(prompt, code, overhang = 0)
-      prompt = prompt.delete("\001\002")
       line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
       whitespace = ' ' * overhang
 

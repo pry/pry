@@ -685,6 +685,7 @@ class Pry
     end
   end
 
+  # @return [String]
   def generate_prompt(prompt_proc, conf)
     if prompt_proc.arity == 1
       prompt_proc.call(conf)

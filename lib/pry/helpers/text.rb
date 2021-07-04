@@ -7,9 +7,6 @@ class Pry
     module Text
       extend self
 
-      HEADER_START = "\001"
-      HEADER_END = "\002"
-
       DECORATIONS = {
         "bold" => '1',
         "faint" => '2',
@@ -65,15 +62,7 @@ class Pry
       # @param text [String]
       # @return [String]
       def escape_text(color_code, text)
-
-        header_start = nil
-        header_end = nil
-        if Pry.config.escape_headers
-          header_start = HEADER_START
-          header_end = HEADER_END
-        end
-
-        "#{header_start}\e[#{color_code}m#{header_end}#{text}#{header_start}\e[0m#{header_end}"
+        "\e[#{color_code}m#{text}\e[0m"
       end
 
       # Remove any color codes from _text_.
@@ -81,7 +70,7 @@ class Pry
       # @param  [String, #to_s] text
       # @return [String] _text_ stripped of any color codes.
       def strip_color(text)
-        text.to_s.gsub(/(\001)?(\e\[(\d[;\d]?)*m)(\002)?/, '')
+        text.to_s.gsub(/\001|\002|\e\[[\d;]+m/, '')
       end
 
       # Returns `text` in the default foreground colour.
