@@ -4,6 +4,15 @@
 
 * Fixed bug where reading from the `_out_` sticky local variable could return
   wrong results ([#2201](https://github.com/pry/pry/pull/2201))
+* Fixed issue with printing control characters `\001`/`^A` and `\002`/`^B`. ([#2209](https://github.com/pry/pry/pull/2209))
+  \
+  Added `Pry.config.escape_prompt` to manage adding those control characters to the prompt (the default is `true`).
+  It can then be disabled for terminals that don't have readline, or where readline's version doesn't support those characters.
+  \
+  Added support for [ConPty](https://devblogs.microsoft.com/commandline/windows-command-line-introducing-the-windows-pseudo-console-conpty/)
+  in Windows, which supports Ansi escapes natively.
+  \
+  Fixed all unit tests to run in Windows.
 
 ### [v0.14.1][v0.14.1] (April 12, 2021)
 
