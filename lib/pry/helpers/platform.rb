@@ -10,18 +10,18 @@ class Pry
     module Platform
       # @return [Boolean]
       def self.mac_osx?
-        RbConfig::CONFIG['host_os'].match? /\Adarwin/i
+        /\Adarwin/i.match? RbConfig::CONFIG['host_os']
       end
 
       # @return [Boolean]
       def self.linux?
-        RbConfig::CONFIG['host_os'].match? /linux/i
+        /linux/i.match? RbConfig::CONFIG['host_os']
       end
 
       # @return [Boolean] true when Pry is running on Windows with ANSI support,
       #   false otherwise
       def self.windows?
-        RbConfig::CONFIG['host_os'].match? /mswin|mingw/
+        /mswin|mingw/.match? RbConfig::CONFIG['host_os']
       end
 
       # Checks older version of Windows console that required alternative
