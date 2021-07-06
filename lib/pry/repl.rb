@@ -99,7 +99,7 @@ class Pry
       val = read_line("#{current_prompt}#{indentation}")
 
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
-      return val unless val.is_a?(String) || !pry.config.auto_indent
+      return val unless val.is_a?(String) && pry.config.auto_indent
 
       indented_val = @indent.indent(val)
 
