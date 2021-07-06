@@ -136,7 +136,7 @@ loop do
 	break #note the tab here
 end
 TAB
-        output("do\n  break #note the tab here\nend\n\e\\[1B\e\\[0G=> nil")
+        output("do\n  break #note the tab here\nend\n\e\\[K\n=> nil")
       end
     end
   end
