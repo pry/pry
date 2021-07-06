@@ -29,7 +29,7 @@ class Pry
       # @return [Boolean]
       def self.windows_ansi?
         # ensures that ConPty isn't available before checking anything else
-        windows? && !windows_conpty? && !!(defined?(Win32::Console) || Pry::Env['ANSICON'] || mri_2?)
+        windows? && !!(windows_conpty? || defined?(Win32::Console) || Pry::Env['ANSICON'] || mri_2?)
       end
 
       # New version of Windows console that understands Ansi escapes codes.

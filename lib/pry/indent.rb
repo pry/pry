@@ -9,7 +9,6 @@ class Pry
   # will be indented or un-indented by correctly.
   #
   class Indent
-    include Helpers::BaseHelpers
 
     # Raised if {#module_nesting} would not work.
     class UnparseableNestingError < StandardError; end
@@ -379,33 +378,6 @@ class Pry
 
         "#{kind} #{token}"
       end
-    end
-
-    # Return a string which, when printed, will rewrite the previous line with
-    # the correct indentation. Mostly useful for fixing 'end'.
-    #
-    # @param [String] prompt The user's prompt
-    # @param [String] code The code the user just typed in
-    # @param [Integer] overhang The number of characters to erase afterwards (the
-    #   the difference in length between the old line and the new one)
-    #
-    # @return [String] correctly indented line
-    def correct_indentation(prompt, code, overhang = 0)
-      line_to_measure = Pry::Helpers::Text.strip_color(prompt) << code
-      whitespace = ' ' * overhang
-
-      cols = @pry_instance.output.width
-      lines = cols == 0 ? 1 : (line_to_measure.length / cols + 1).to_i
-
-      if Helpers::Platform.windows_ansi?
-        move_up = "\e[#{lines}F"
-        move_down = "\e[#{lines}E"
-      else
-        move_up = "\e[#{lines}A\e[0G"
-        move_down = "\e[#{lines}B\e[0G"
-      end
-
-      "#{move_up}#{prompt}#{colorize_code(code)}#{whitespace}#{move_down}"
     end
   end
 end

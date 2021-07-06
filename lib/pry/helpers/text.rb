@@ -70,7 +70,7 @@ class Pry
       # @param  [String, #to_s] text
       # @return [String] _text_ stripped of any color codes.
       def strip_color(text)
-        text.to_s.gsub(/\001|\002|\e\[[\d;]+m/, '')
+        text.to_s.gsub(/\001|\002|\e\[[\d;]*m/, '')
       end
 
       # Returns `text` in the default foreground colour.

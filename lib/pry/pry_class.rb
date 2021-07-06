@@ -144,9 +144,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     load_history if Pry.config.history_load
     load_traps if Pry.config.should_trap_interrupts
 
-    windows_no_ansi = Helpers::Platform.windows? &&
-      !Helpers::Platform.windows_ansi? &&
-      !Helpers::Platform.windows_conpty?
+    windows_no_ansi = Helpers::Platform.windows? && !Helpers::Platform.windows_ansi?
 
     load_win32console if windows_no_ansi
   end

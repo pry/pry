@@ -36,12 +36,10 @@ class Pry
       end
 
       def use_ansi_codes?
-        Pry::Helpers::Platform.windows_ansi? ||
-          Pry::Helpers::Platform.windows_conpty? ||
-          dumb_term?
+        Pry::Helpers::Platform.windows_ansi? || smart_term?
       end
 
-      def dumb_term?
+      def smart_term?
         term = Pry::Env['TERM']
         term != nil && term != "dumb"
       end
