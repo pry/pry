@@ -15,7 +15,7 @@ RSpec.describe 'The bin/pry CLI', slow: true do
 
       # Pry will emit silent garbage because of our auto indent feature.
       # This lambda cleans the output of that garbage.
-      out = out.strip.sub(/^\e\[0[FG]/, "")
+      out = out.strip.sub(/^\e\[G/, "")
 
       [out, status]
     }
