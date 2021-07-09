@@ -7,8 +7,21 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
-        ruby: [2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, '3.0', head, jruby, jruby-head]
+        ruby:
+          - 2.0
+          - 2.1
+          - 2.2
+          - 2.3
+          - 2.4
+          - 2.5
+          - 2.6
+          - 2.7
+          # Due to https://github.com/actions/runner/issues/849,
+          # we have to use quotes for '3.0'
+          - '3.0'
+          - head
+          - jruby
+          - jruby-head
 
     runs-on: ${{ matrix.os }}
 
