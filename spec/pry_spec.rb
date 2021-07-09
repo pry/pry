@@ -186,6 +186,10 @@ describe Pry do
 
       describe "inside signal handler" do
         before do
+          unless Signal.list.has_key?('USR1')
+            skip "Host OS #{RbConfig::CONFIG['host_os']} doesn't support signal USR1"
+          end
+
           if Pry::Helpers::Platform.jruby?
             skip "jruby allows mutex usage in signal handlers"
           end

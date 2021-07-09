@@ -67,6 +67,9 @@ class Pry
     # @return [Boolean]
     attribute :pager
 
+    # @return [Boolean]
+    attribute :escape_prompt
+
     # @return [Boolean] whether the global ~/.pryrc should be loaded
     attribute :should_load_rc
 
@@ -177,6 +180,7 @@ class Pry
 
         hooks: Pry::Hooks.default,
         pager: true,
+        escape_prompt: true,
         system: Pry::SystemCommandHandler.method(:default),
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,

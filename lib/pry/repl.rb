@@ -50,7 +50,7 @@ class Pry
       return unless pry.config.correct_indent
 
       # Clear the line before starting Pry. This fixes issue #566.
-      output.print(Helpers::Platform.windows_ansi? ? "\e[0F" : "\e[0G")
+      output.print "\e[G"
     end
 
     # The actual read-eval-print loop.
@@ -92,30 +92,31 @@ class Pry
     # @return [:no_more_input] On EOF.
     def read
       @indent.reset if pry.eval_string.empty?
+
       current_prompt = pry.select_prompt
       indentation = pry.config.auto_indent ? @indent.current_prefix : ''
 
       val = read_line("#{current_prompt}#{indentation}")
 
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
-      return val unless val.is_a?(String)
+      return val unless val.is_a?(String) && pry.config.auto_indent
 
-      if pry.config.auto_indent
-        original_val = "#{indentation}#{val}"
-        indented_val = @indent.indent(val)
+      indented_val = @indent.indent(val)
 
-        if output.tty? &&
-           pry.config.correct_indent &&
-           Pry::Helpers::BaseHelpers.use_ansi_codes?
-          output.print @indent.correct_indentation(
-            current_prompt,
-            indented_val,
-            calculate_overhang(current_prompt, original_val, indented_val)
-          )
-          output.flush
-        end
-      else
-        indented_val = val
+      if output.tty? && pry.config.correct_indent && Pry::Helpers::BaseHelpers.use_ansi_codes?
+        clean_prompt = Pry::Helpers::Text.strip_color(current_prompt)
+        lines = output.calculate_num_lines(clean_prompt.length + indented_val.length)
+
+        # move cursor to the beginning of the line, and up N lines (^[nF)
+        # then move right the length of the prompt (^[nC)
+        move_cursor = "\e[#{lines}F\e[#{clean_prompt.length}C"
+
+        colored_code = Pry::Helpers::BaseHelpers.colorize_code(indented_val)
+        clear_rest_of_line = "\e[K"
+
+        output.print move_cursor, colored_code, clear_rest_of_line
+        output.puts
+        output.flush
       end
 
       indented_val
@@ -168,6 +169,12 @@ class Pry
     # @param [String] current_prompt The prompt to use for input.
     # @return [String?] The next line of input, or `nil` on <Ctrl-D>.
     def read_line(current_prompt)
+
+      if pry.config.escape_prompt
+        current_prompt = current_prompt.gsub(/(\e\[[\d;]*m)/, "\001\\1\002")
+        current_prompt.gsub!(/[\001\002]{2,}/) { |match| match[0] }
+      end
+
       handle_read_errors do
         if coolline_available?
           input.completion_proc = proc do |cool|
@@ -195,7 +202,8 @@ class Pry
 
     def input_readline(*args)
       Pry::InputLock.for(:all).interruptible_region do
-        input.readline(*args)
+        i = input
+        i.readline(*args)
       end
     end
 
@@ -226,32 +234,6 @@ class Pry
       return if @readline_output
 
       @readline_output = (Readline.output = Pry.config.output) if piping?
-    end
-
-    # Calculates correct overhang for current line. Supports vi Readline
-    # mode and its indicators such as "(ins)" or "(cmd)".
-    #
-    # @return [Integer]
-    # @note This doesn't calculate overhang for Readline's emacs mode with an
-    #   indicator because emacs is the default mode and it doesn't use
-    #   indicators in 99% of cases.
-    def calculate_overhang(current_prompt, original_val, indented_val)
-      overhang = original_val.length - indented_val.length
-
-      if readline_available? && Readline.respond_to?(:vi_editing_mode?)
-        begin
-          # rb-readline doesn't support this method:
-          # https://github.com/ConnorAtherton/rb-readline/issues/152
-          if Readline.vi_editing_mode?
-            overhang = output.width - current_prompt.size - indented_val.size
-          end
-        rescue NotImplementedError
-          # VI editing mode is unsupported on JRuby.
-          # https://github.com/pry/pry/issues/1840
-          nil
-        end
-      end
-      [0, overhang].max
     end
   end
 end

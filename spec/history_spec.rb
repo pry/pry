@@ -4,21 +4,13 @@ require 'tempfile'
 require 'rbconfig'
 
 RSpec.describe Pry::History do
+
+  # different platforms require different types of Readline, so best not to rely on it for these tests:
+  let(:history) { Pry::History.new }
+
   before do
-    Pry.history.clear
-
-    @saved_history = "1\n2\n3\ninvalid\0 line\n"
-
-    Pry.history.loader = proc do |&blk|
-      @saved_history.lines.each { |l| blk.call(l) }
-    end
-
-    Pry.load_history
-  end
-
-  after do
-    Pry.history.clear
-    Pry.history.instance_variable_set(:@original_lines, 0)
+    # don't write anywhere by default
+    history.saver = ->(_line) {}
   end
 
   describe ".default_file" do
@@ -51,34 +43,34 @@ RSpec.describe Pry::History do
     context "when $XDG_DATA_HOME is defined" do
       it "returns config location relative to $XDG_DATA_HOME" do
         stub_hist has_default: false, xdg_home: '/my/path'
-        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+        expect(described_class.default_file).to end_with('/my/path/pry/pry_history')
       end
 
       it "returns config location relative to $XDG_DATA_HOME when ~/.pryrc exists" do
         stub_hist has_default: true, xdg_home: '/my/path'
-        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+        expect(described_class.default_file).to end_with('/my/path/pry/pry_history')
       end
     end
   end
 
   describe '#push' do
     it "does not record duplicated lines" do
-      Pry.history << '3'
-      Pry.history << '_ += 1'
-      Pry.history << '_ += 1'
-      expect(Pry.history.to_a.grep('_ += 1').count).to eq 1
+      history << '3'
+      history << '_ += 1'
+      history << '_ += 1'
+      expect(history.to_a.grep('_ += 1').count).to eq 1
     end
 
     it "does not record lines that contain a NULL byte" do
-      c = Pry.history.to_a.size
-      Pry.history << "a\0b"
-      expect(Pry.history.to_a.size).to eq c
+      c = history.to_a.size
+      history << "a\0b"
+      expect(history.to_a.size).to eq c
     end
 
     it "does not record empty lines" do
-      c = Pry.history.to_a.size
-      Pry.history << ''
-      expect(Pry.history.to_a.size).to eq c
+      c = history.to_a.size
+      history << ''
+      expect(history.to_a.size).to eq c
     end
   end
 
@@ -87,8 +79,8 @@ RSpec.describe Pry::History do
       @old_file = Pry.config.history_file
       @hist_file_path = File.expand_path('spec/fixtures/pry_history')
       Pry.config.history_file = @hist_file_path
-      Pry.history.clear
-      Pry.load_history
+      history.clear
+      history.load
     end
 
     after do
@@ -96,15 +88,15 @@ RSpec.describe Pry::History do
     end
 
     it "clears this session's history" do
-      expect(Pry.history.to_a.size).to be > 0
-      Pry.history.clear
-      expect(Pry.history.to_a.size).to eq 0
-      expect(Pry.history.original_lines).to eq 0
+      expect(history.to_a.size).to be > 0
+      history.clear
+      expect(history.to_a.size).to eq 0
+      expect(history.original_lines).to eq 0
     end
 
     it "doesn't affect the contents of the history file" do
-      expect(Pry.history.to_a.size).to eq 3
-      Pry.history.clear
+      expect(history.to_a.size).to eq 3
+      history.clear
 
       File.open(@hist_file_path, 'r') do |fh|
         file = fh.to_a
@@ -117,28 +109,37 @@ RSpec.describe Pry::History do
 
   describe "#history_line_count" do
     it "counts entries in history" do
-      Pry.history.clear
+      history.clear
       saved_history = "olgierd\ngustlik\njanek\ngrzes\ntomek\n"
-      Pry.history.loader = proc do |&blk|
+      history.loader = proc do |&blk|
         saved_history.lines.each { |l| blk.call(l) }
       end
-      Pry.load_history
+      history.load
 
-      expect(Pry.history.history_line_count).to eq 5
+      expect(history.history_line_count).to eq 5
     end
   end
 
   describe "#session_line_count" do
     it "returns the number of lines in history from just this session" do
-      Pry.history << 'you?'
-      Pry.history << 'you are so precious'
-      expect(Pry.history.session_line_count).to eq 2
+      history << 'you?'
+      history << 'you are so precious'
+      expect(history.session_line_count).to eq 2
     end
   end
 
   describe ".load_history" do
+
+    before do
+      history.loader = proc do |&blk|
+        "1\n2\n3\ninvalid\0 line\n".each_line { |l| blk.call(l) }
+      end
+
+      history.load
+    end
+
     it "reads the contents of the file" do
-      expect(Pry.history.to_a[-2..-1]).to eq %w[2 3]
+      expect(history.to_a[-2..-1]).to eq %w[2 3]
     end
   end
 
@@ -203,13 +204,18 @@ RSpec.describe Pry::History do
 
     [Errno::EACCES, Errno::ENOENT].each do |error_class|
       it "handles #{error_class} failure to read from history" do
-        expect(File).to receive(:foreach).and_raise(error_class)
+        allow(File).to receive(:exist?).and_return(true)
+        allow(File).to receive(:foreach).and_raise(error_class)
         expect(history).to receive(:warn).with(/Unable to read history file:/)
         expect { history.load }.to_not raise_error
       end
 
       it "handles #{error_class} failure to write history" do
         Pry.config.history_save = true
+
+        # restore default saver
+        history.saver = history.method(:save_to_file)
+
         expect(File).to receive(:open).with(file_path, "a", 0o600).and_raise(error_class)
         expect(history).to receive(:warn).with(/Unable to write history file:/)
         expect { history.push("anything") }.to_not raise_error

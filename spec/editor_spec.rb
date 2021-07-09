@@ -57,6 +57,7 @@ describe Pry::Editor do
 
     context "when no editor is detected" do
       before do
+        allow(Pry::Helpers::Platform).to receive(:windows?).and_return(false)
         allow(ENV).to receive(:key?).and_return(false)
         allow(Kernel).to receive(:system)
       end
@@ -71,7 +72,11 @@ describe Pry::Editor do
     end
   end
 
-  describe "build_editor_invocation_string", skip: !Pry::Helpers::Platform.windows? do
+  describe "build_editor_invocation_string" do
+    before do
+      allow(Pry::Helpers::Platform).to receive(:windows?).and_return(false)
+    end
+
     it 'should shell-escape files' do
       invocation_str = @editor.build_editor_invocation_string(@tf_path, 5, true)
       expect(invocation_str).to match(/#{@tf_dir}.+hello\\ world\.rb/)
