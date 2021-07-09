@@ -31,7 +31,11 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
+
+    # Run manually, don't cache deps due to a bug with Ruby 2.4 and Ruby 2.5
+    # https://github.com/pry/pry/actions/runs/1016360216
+    - name: Install dependencies
+      run: bundle install
 
     - name: Rubocop lint
       run: |
