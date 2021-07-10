@@ -305,6 +305,14 @@ OUTPUT
     expect(@indent.indent(input)).to eq output
   end
 
+  it "should not raise error, if MIDWAY_TOKENS are used without indentation" do
+    expect { @indent.indent("when") }.not_to raise_error
+    expect { @indent.reset.indent("else") }.not_to raise_error
+    expect { @indent.reset.indent("elsif") }.not_to raise_error
+    expect { @indent.reset.indent("ensure") }.not_to raise_error
+    expect { @indent.reset.indent("rescue") }.not_to raise_error
+  end
+
   describe "nesting" do
     test = File.read("spec/fixtures/example_nesting.rb")
 
