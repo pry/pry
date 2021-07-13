@@ -102,7 +102,7 @@ TXT
     expect(@indent.indent(input)).to eq output
   end
 
-  it 'should properly indent nested code with consecutive linebreaks' do
+  it 'strips empty lines' do
     input = <<TXT.strip
 class C
   def foo
@@ -115,21 +115,18 @@ class C
 end
 TXT
 
-    # rubocop:disable Layout/TrailingWhitespace
     output = <<TXT.strip
 class C
   def foo
     :foo
   end
-  
   def bar
     :bar
   end
 end
 TXT
-    # rubocop:enable Layout/TrailingWhitespace
 
-    expect(@indent.indent(input).inspect).to eq output.inspect
+    expect(@indent.indent(input)).to eq output
   end
 
   it 'should indent statements such as if, else, etc' do
