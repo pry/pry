@@ -102,6 +102,26 @@ TXT
     expect(@indent.indent(input)).to eq output
   end
 
+  it 'returns self when given already-indented code' do
+    input = <<TXT.strip
+class C
+  def foo
+    :foo
+  end
+
+  def bar
+    :bar
+  end
+end
+TXT
+
+    output = input.lines.to_a
+    output[4] = '  ' + output[4]
+    output = output.join
+
+    expect(@indent.indent(input)).to eq output
+  end
+
   it 'should indent statements such as if, else, etc' do
     input = <<TXT.strip
 if a == 10
