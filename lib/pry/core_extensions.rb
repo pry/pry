@@ -78,7 +78,7 @@ class Object
       # Module.new.class_eval("binding") has different behaviour than CRuby,
       # where this is not needed: class_eval("binding") vs class_eval{binding}.
       # Using a block works around the difference of behaviour on JRuby.
-      # The scope is clear of local variabless. Don't add any.
+      # The scope is clear of local variables. Don't add any.
       #
       # This fixes the following two spec failures, at https://travis-ci.org/pry/pry/jobs/274470002
       # 1) ./spec/pry_spec.rb:360:in `block in (root)'
