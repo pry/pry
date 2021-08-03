@@ -109,7 +109,7 @@ class Pry
     # reset internal state
     def reset
       @stack = []
-      @indent_level = String.new('')
+      @indent_level = String.new
       @heredoc_queue = []
       @close_heredocs = {}
       @string_start = nil
