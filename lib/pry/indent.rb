@@ -109,7 +109,7 @@ class Pry
     # reset internal state
     def reset
       @stack = []
-      @indent_level = ''
+      @indent_level = String.new # rubocop:disable Style/EmptyLiteral
       @heredoc_queue = []
       @close_heredocs = {}
       @string_start = nil
