@@ -318,7 +318,7 @@ rb_ary_select(VALUE ary)
 One use-case for Pry is to explore a program at run-time by `cd`-ing in and out
 of objects and viewing and invoking methods. In the course of exploring it may
 be useful to read the documentation for a specific method that you come
-across. Like `show-source` the `show-doc` command supports two syntaxes - the
+across. `show-source` command supports two syntaxes - the
 normal `ri` syntax as well as accepting the name of any method that is currently
 in scope.
 
@@ -340,14 +340,26 @@ In our example we will enter the `Gem` class and view the documentation for the
 
 ```ruby
 pry(main)> cd Gem
-pry(Gem):1> show-doc try_activate
+pry(Gem):1> show-source try_activate -d
 
-From: /Users/john/.rvm/rubies/ruby-1.9.2-p180/lib/ruby/site_ruby/1.9.1/rubygems.rb:201
-Number of lines: 3
+From: /Users/john/rbenv/versions/2.7.1/lib/ruby/2.7.0/rubygems.rb:194:
+Owner: #<Class:Gem>
+Visibility: public
+Signature: try_activate(path)
+Number of lines: 28
 
 Try to activate a gem containing path. Returns true if
 activation succeeded or wasn't needed because it was already
 activated. Returns false if it can't find the path in a gem.
+
+def self.try_activate(path)
+  # finds the _latest_ version... regardless of loaded specs and their deps
+  # if another gem had a requirement that would mean we shouldn't
+  # activate the latest version, then either it would already be activated
+  # or if it was ambiguous (and thus unresolved) the code in our custom
+  # require will try to activate the more specific version.
+
+  spec = Gem::Specification.find_by_path path
 pry(Gem):1>
 ```
 
