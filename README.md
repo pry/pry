@@ -267,23 +267,23 @@ syntax and also simply the name of a method that's in scope. You can optionally
 pass the `-l` option to `show-source` to include line numbers in the output.
 
 In the following example we will enter the `Pry` class, list the instance
-methods beginning with 're' and display the source code for the `rep` method:
+methods beginning with 're' and display the source code for the `repl` method:
 
 ```ruby
 pry(main)> cd Pry
 pry(Pry):1> ls -M --grep re
-Pry#methods: re  readline  refresh  rep  repl  repl_epilogue  repl_prologue  retrieve_line
-pry(Pry):1> show-source rep -l
+Pry#methods: current_binding  current_context  last_result  last_result=  last_result_is_exception?  repl  reset_eval_string  set_last_result  show_result  suppress_output  suppress_output=
+pry(Pry):1> show-source repl -l
 
-From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb:143
-Number of lines: 6
+From: /home/john/ruby/projects/pry/lib/pry/pry_instance.rb:279:
+Owner: Pry
+Visibility: public
+Signature: repl(target=?)
+Number of lines: 3
 
-143: def rep(target=TOPLEVEL_BINDING)
-144:   target = Pry.binding_for(target)
-145:   result = re(target)
-146:
-147:   show_result(result) if should_print?
-148: end
+279: def repl(target = nil)
+280:   Pry::REPL.new(self, target: target).start
+281: end
 ```
 
 Note that we can also view C methods (from Ruby Core) using the
