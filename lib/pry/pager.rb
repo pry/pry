@@ -137,32 +137,27 @@ class Pry
         pager
       end
 
-      @system_pager = nil
-
       def self.available?
-        if @system_pager.nil?
-          @system_pager =
-            begin
-              pager_executable = default_pager.split(' ').first
-              if Helpers::Platform.windows? || Helpers::Platform.windows_ansi?
-                `where /Q #{pager_executable}`
-              else
-                `which #{pager_executable}`
-              end
-              $CHILD_STATUS.success?
-            rescue StandardError
-              false
-            end
-        else
-          @system_pager
-        end
+        @system_pager
       end
 
       def initialize(*)
         super
-        @tracker = PageTracker.new(height, width)
-        @buffer  = ""
-        @pager   = nil
+        @tracker      = PageTracker.new(height, width)
+        @buffer       = ""
+        @pager        = nil
+        @system_pager =
+          begin
+            pager_executable = default_pager.split(' ').first
+            if Helpers::Platform.windows? || Helpers::Platform.windows_ansi?
+              `where /Q #{pager_executable}`
+            else
+              `which #{pager_executable}`
+            end
+            $CHILD_STATUS.success?
+          rescue StandardError
+            false
+          end
       end
 
       def write(str)
