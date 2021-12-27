@@ -22,7 +22,7 @@ jobs:
           - 3.1
           # - head is currently broken due to yard support for 3.2.0-dev
           - jruby
-          - jruby-head
+          # - jruby-head
 
     runs-on: ${{ matrix.os }}
 
