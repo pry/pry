@@ -1,5 +1,10 @@
 inherit_from: .rubocop_todo.yml
 
+# Prevents Ruby 3.1 incompatibility error. You can enable this cop when Ruby 2.4 support is dropped.
+# See https://github.com/rubocop/rubocop/issues/10258
+Layout/BlockAlignment:
+  Enabled: false
+
 Style/NumericPredicate:
   Enabled: false
 
