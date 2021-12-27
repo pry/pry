@@ -20,7 +20,7 @@ jobs:
           # we have to use quotes for '3.0'
           - '3.0'
           - 3.1
-          - head
+          # - head is currently broken due to yard support for 3.2.0-dev
           - jruby
           - jruby-head
 
