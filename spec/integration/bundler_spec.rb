@@ -13,12 +13,18 @@ RSpec.describe 'Bundler' do
       require "bundler/inline"
       require "pry"
 
-      # Silence the "The Gemfile specifies no dependencies" warning
-      class Bundler::UI::Shell
-        def warn(*args, &block); end
+      options = {}
+
+      if Gem::Version.new(Bundler::VERSION) > Gem::Version.new("2.0")
+        options = { quiet: true }
+      else
+        # Silence the "The Gemfile specifies no dependencies" warning
+        class Bundler::UI::Shell
+          def warn(*args, &block); end
+        end
       end
 
-      gemfile(true) do
+      gemfile(true, options) do
         source "https://rubygems.org"
       end
       exit 42 if Pry.config.completer
