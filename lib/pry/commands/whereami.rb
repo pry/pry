@@ -150,7 +150,8 @@ class Pry
       end
 
       def code_window
-        Pry::Code.from_file(@file).around(@line, window_size)
+        before_lines, after_lines = window_size
+        Pry::Code.from_file(@file).around(@line, before_lines, after_lines)
       end
 
       def method_code
@@ -193,7 +194,7 @@ class Pry
         if args.empty?
           pry_instance.config.default_window_size
         else
-          args.first.to_i
+          args.slice(0, 2).map(&:to_i)
         end
       end
     end

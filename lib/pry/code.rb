@@ -173,17 +173,20 @@ class Pry
       end
     end
 
-    # Remove all lines except for the +lines+ on either side of and including
-    # +lineno+.
+    # Remove all lines except for the +before_lines+ before and +after_lines+ after
+    # and including +lineno+.
     #
     # @param [Integer] lineno
-    # @param [Integer] lines
+    # @param [Integer] before_lines
+    # @param [Integer] after_lines
     # @return [Code]
-    def around(lineno, lines = 1)
+    def around(lineno, before_lines = 1, after_lines = nil)
       return self unless lineno
 
+      after_lines ||= before_lines
+
       select do |loc|
-        loc.lineno >= lineno - lines && loc.lineno <= lineno + lines
+        loc.lineno >= lineno - before_lines && loc.lineno <= lineno + after_lines
       end
     end
 
