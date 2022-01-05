@@ -530,9 +530,9 @@ class Pry
       else
         fail_msg = "Cannot locate this method: #{name}."
         if Helpers::Platform.mri?
-          fail_msg += " Run 'gem install pry-doc' to install" \
+          fail_msg += " Run `gem install pry-doc` to install" \
                       " Ruby Core documentation," \
-                      " and 'require pry-doc' to load it.\n"
+                      " and `require 'pry-doc'` to load it.\n"
         end
         raise CommandError, fail_msg
       end
