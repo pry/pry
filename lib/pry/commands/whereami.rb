@@ -22,13 +22,14 @@ class Pry
       group 'Context'
 
       banner <<-'BANNER'
-        Usage: whereami [-qn] [LINES]
+        Usage: whereami [-qn] [-m|-c|-f|LINES...]
 
         Describe the current location. If you use `binding.pry` inside a method then
         whereami will print out the source for that method.
 
         If a number is passed, then LINES lines before and after the current line will be
-        shown instead of the method itself.
+        shown instead of the method itself. Two numbers can be passed to specify lines
+        before and after the current line to be shown independently.
 
         The `-q` flag can be used to suppress error messages in the case that there's
         no code to show. This is used by pry in the default before_session hook to show
