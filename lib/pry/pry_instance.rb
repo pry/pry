@@ -20,7 +20,7 @@ require 'ostruct'
 # This will show a list of available commands and their usage. For more
 # information about Pry you can refer to the following resources:
 #
-# * http://pryrepl.org/
+# * https://pry.github.io
 # * https://github.com/pry/pry
 # * the IRC channel, which is #pry on the Freenode network
 #

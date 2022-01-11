@@ -122,7 +122,7 @@ Pry::CLI.add_options do
   banner(
     "Usage: pry [OPTIONS]\n" \
     "Start a Pry session.\n" \
-    "See http://pryrepl.org/ for more information.\n" \
+    "See http://pry.github.io/ for more information.\n" \
     "Copyright (c) 2016 John Mair (banisterfiend)" \
   )
 
