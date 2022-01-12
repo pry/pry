@@ -13,6 +13,7 @@ RSpec.describe Pry::Config do
   specify { expect(subject.unrescued_exceptions).to be_an(Array) }
   specify { expect(subject.hooks).to be_a(Pry::Hooks) }
   specify { expect(subject.pager).to be(true).or be(false) }
+  specify { expect(subject.escape_prompt).to be(true).or be(false) }
   specify { expect(subject.system).to be_a(Method) }
   specify { expect(subject.color).to be(true).or be(false) }
   specify { expect(subject.default_window_size).to be_a(Numeric) }

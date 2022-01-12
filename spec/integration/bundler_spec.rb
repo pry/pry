@@ -2,9 +2,9 @@
 
 require 'rbconfig'
 
-RSpec.describe 'Bundler' do
-  let(:ruby) { RbConfig.ruby.shellescape }
-  let(:pry_dir) { File.expand_path(File.join(__FILE__, '../../../lib')).shellescape }
+RSpec.describe 'Bundler', slow: true do
+  let(:ruby) { RbConfig.ruby }
+  let(:pry_dir) { File.expand_path(File.join(__FILE__, '../../../lib')) }
 
   context "when Pry requires Gemfile, which doesn't specify Pry as a dependency" do
     it "loads auto-completion correctly" do
@@ -23,7 +23,7 @@ RSpec.describe 'Bundler' do
       end
       exit 42 if Pry.config.completer
       RUBY
-      `#{ruby} -I#{pry_dir} -e'#{code}'`
+      IO.popen([ruby, '-I', pry_dir, '-e', code, err: [:child, :out]], &:read)
       expect($CHILD_STATUS.exitstatus).to eq(42)
     end
   end

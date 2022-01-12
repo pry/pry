@@ -143,7 +143,10 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
     load_requires if Pry.config.should_load_requires
     load_history if Pry.config.history_load
     load_traps if Pry.config.should_trap_interrupts
-    load_win32console if Helpers::Platform.windows? && !Helpers::Platform.windows_ansi?
+
+    windows_no_ansi = Helpers::Platform.windows? && !Helpers::Platform.windows_ansi?
+
+    load_win32console if windows_no_ansi
   end
 
   # Start a Pry REPL.

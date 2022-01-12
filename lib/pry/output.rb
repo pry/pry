@@ -5,8 +5,6 @@ class Pry
     # @return [Array<Integer>] default terminal screen size [rows, cols]
     DEFAULT_SIZE = [27, 80].freeze
 
-    attr_reader :pry_instance
-
     def initialize(pry_instance)
       @output = pry_instance.config.output
       @color = pry_instance.config.color
@@ -73,6 +71,16 @@ class Pry
     # Return a screen height or the default if that fails.
     def height
       size.first
+    end
+
+    # Returns the number of lines it takes to fill a specified length.
+    #
+    # @param [Integer] length The length to check the number of lines
+    #
+    # @return [Integer] number of lines that the specified length occupies
+    def calculate_num_lines(length)
+      *, cols = size
+      cols == nil || cols == 0 ? 1 : (length / cols + 1).to_i
     end
 
     private

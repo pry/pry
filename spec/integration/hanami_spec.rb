@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "shellwords"
 require 'rbconfig'
 
-RSpec.describe "Hanami integration" do
+RSpec.describe "Hanami integration", slow: true do
   before :all do
-    @ruby = RbConfig.ruby.shellescape
-    @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib')).shellescape
+    @ruby = RbConfig.ruby
+    @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib'))
   end
 
   it "does not enter an infinite loop (#1471, #1621)" do
@@ -36,7 +35,7 @@ RSpec.describe "Hanami integration" do
         Timeout.timeout(1) { Action.new.call("define prison, in the abstract sense") }
         exit 42
     RUBY
-    `#{@ruby} -I#{@pry_dir} -e'#{code}'`
+    IO.popen([@ruby, '-I', @pry_dir, '-e', code, err: [:child, :out]], &:read)
     expect($CHILD_STATUS.exitstatus).to eq(42)
   end
 end
