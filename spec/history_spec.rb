@@ -49,14 +49,16 @@ RSpec.describe Pry::History do
     end
 
     context "when $XDG_DATA_HOME is defined" do
+      let(:expected_file_path) { File.expand_path('/my/path/pry/pry_history') }
+
       it "returns config location relative to $XDG_DATA_HOME" do
         stub_hist has_default: false, xdg_home: '/my/path'
-        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+        expect(described_class.default_file).to eq(expected_file_path)
       end
 
       it "returns config location relative to $XDG_DATA_HOME when ~/.pryrc exists" do
         stub_hist has_default: true, xdg_home: '/my/path'
-        expect(described_class.default_file).to eq('/my/path/pry/pry_history')
+        expect(described_class.default_file).to eq(expected_file_path)
       end
     end
   end
@@ -189,8 +191,9 @@ RSpec.describe Pry::History do
       history = Pry::History.new(file_path: '~/test_history')
       error = Class.new(RuntimeError)
 
+      expected_path = File.expand_path(File.join(ENV['HOME'].to_s, "/test_history"))
       expect(File).to receive(:open)
-        .with(File.join(ENV['HOME'].to_s, "/test_history"), 'a', 0o600)
+        .with(expected_path, 'a', 0o600)
         .and_raise(error)
 
       expect { history.push 'a line' }.to raise_error error
