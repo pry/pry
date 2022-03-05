@@ -59,6 +59,7 @@ describe Pry::Editor do
       before do
         allow(ENV).to receive(:key?).and_return(false)
         allow(Kernel).to receive(:system)
+        allow(Pry::Helpers::Platform).to receive(:windows?).and_return(false)
       end
 
       %w[editor nano vi].each do |text_editor_name|
