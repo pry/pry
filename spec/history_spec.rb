@@ -4,8 +4,12 @@ require 'tempfile'
 require 'rbconfig'
 
 RSpec.describe Pry::History do
+  # different platforms require different types of Readline.
+  # so best not to rely on it for these tests:
+  let(:history) { Pry::History.new }
+
   before do
-    Pry.history.clear
+    Pry.history = history
 
     @saved_history = "1\n2\n3\ninvalid\0 line\n"
 
@@ -201,21 +205,21 @@ RSpec.describe Pry::History do
   end
 
   describe "file io errors" do
-    let(:history) { Pry::History.new(file_path: file_path) }
+    let(:custom_history) { Pry::History.new(file_path: file_path) }
     let(:file_path) { Tempfile.new("pry_history_spec").path }
 
     [Errno::EACCES, Errno::ENOENT].each do |error_class|
       it "handles #{error_class} failure to read from history" do
         expect(File).to receive(:foreach).and_raise(error_class)
-        expect(history).to receive(:warn).with(/Unable to read history file:/)
-        expect { history.load }.to_not raise_error
+        expect(custom_history).to receive(:warn).with(/Unable to read history file:/)
+        expect { custom_history.load }.to_not raise_error
       end
 
       it "handles #{error_class} failure to write history" do
         Pry.config.history_save = true
         expect(File).to receive(:open).with(file_path, "a", 0o600).and_raise(error_class)
-        expect(history).to receive(:warn).with(/Unable to write history file:/)
-        expect { history.push("anything") }.to_not raise_error
+        expect(custom_history).to receive(:warn).with(/Unable to write history file:/)
+        expect { custom_history.push("anything") }.to_not raise_error
       end
     end
   end
