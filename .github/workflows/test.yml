@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         ruby:
           - 2.0
           - 2.1
@@ -23,8 +23,24 @@ jobs:
           # - head is currently broken due to yard support for 3.2.0-dev
           - jruby
           # - jruby-head
+        exclude:
+          - os: windows-latest
+            ruby: jruby
+          - os: windows-latest
+            ruby: '2.0'
+          - os: windows-latest
+            ruby: '2.1'
+          - os: windows-latest
+            ruby: '2.2'
+          - os: windows-latest
+            ruby: '2.3' # Intermittent failing Expression: RBASIC_CLASS(ret) == rb_cString
+          - os: windows-latest
+            ruby: '3.0'
+          - os: windows-latest
+            ruby: '3.1'
 
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
 
     steps:
     - uses: actions/checkout@v2
@@ -38,12 +54,10 @@ jobs:
     - name: Install dependencies
       run: bundle install
 
+    # Rubocop is not included on the Gemfile for earlier rubies. This can be dropped as soon as the support is dropped.
     - name: Rubocop lint
-      run: |
-        if bundle list | grep rubocop
-        then
-            bundle exec rubocop --parallel
-        fi
+      if: matrix.ruby != '2.0' && matrix.ruby != '2.1' && matrix.ruby != '2.2'
+      run: rubocop --parallel
 
     - name: YARD lint
       run: |

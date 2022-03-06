@@ -125,6 +125,7 @@ describe Pry::REPL do
 
   describe "autoindent" do
     it "should raise no exception when indented with a tab" do
+      skip if Pry::Helpers::Platform.windows?
       ReplTester.start(correct_indent: true, auto_indent: true) do
         output = @pry.config.output
         def output.tty?

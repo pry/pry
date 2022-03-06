@@ -2,8 +2,7 @@
 
 describe "hist" do
   before do
-    Pry.history.clear
-    @hist = Pry.history
+    @hist = Pry.history = Pry::History.new
 
     @str_output = StringIO.new
     @t = pry_tester history: @hist do
