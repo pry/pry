@@ -4,8 +4,6 @@ require 'tempfile'
 require 'rbconfig'
 
 RSpec.describe Pry::History do
-  # different platforms require different types of Readline.
-  # so best not to rely on it for these tests:
   let(:history) { Pry::History.new }
 
   before do

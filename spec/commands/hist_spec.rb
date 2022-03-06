@@ -2,8 +2,6 @@
 
 describe "hist" do
   before do
-    # different platforms require different types of Readline.
-    # so best not to rely on it for these tests:
     @hist = Pry.history = Pry::History.new
 
     @str_output = StringIO.new
