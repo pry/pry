@@ -10,9 +10,6 @@ RSpec.describe "Hanami integration" do
   end
 
   it "does not enter an infinite loop (#1471, #1621)" do
-    if RUBY_VERSION.start_with? "1.9"
-      skip "prepend is not supported on this version of Ruby"
-    end
     code = <<-RUBY
         require "pry"
         require "timeout"
