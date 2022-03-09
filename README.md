@@ -444,7 +444,7 @@ Supported Rubies
 ----------------
 
 * CRuby >= 2.0.0
-* JRuby >= 1.7
+* JRuby >= 9.0
 
 Contact
 -------

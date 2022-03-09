@@ -258,7 +258,7 @@ class Pry
           y.yield candidate(num)
         end
       end
-      Helpers::Platform.jruby_19? ? enum.to_a : enum
+      enum
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.

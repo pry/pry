@@ -24,16 +24,13 @@ describe Pry do
       expect(TEST_RC).to eq [0]
     end
 
-    # Resolving symlinks doesn't work on jruby 1.9 [jruby issue #538]
-    unless Pry::Helpers::Platform.jruby_19?
-      it "should not load the rc file twice if it's symlinked differently" do
-        Pry.config.rc_file = 'spec/fixtures/testrc'
-        stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testlinkrc')
+    it "should not load the rc file twice if it's symlinked differently" do
+      Pry.config.rc_file = 'spec/fixtures/testrc'
+      stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/testlinkrc')
 
-        Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
+      Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
 
-        expect(TEST_RC).to eq [0]
-      end
+      expect(TEST_RC).to eq [0]
     end
 
     it "should not load the pryrc if pryrc's directory permissions do not allow this" do
