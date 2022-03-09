@@ -208,6 +208,7 @@ describe Pry do
         end
 
         it "should return with error message" do
+          expect(mock_pry('1 + 1')).to eql("=> 2\n")
           Process.kill("USR1", Process.pid)
           expect(@str_output).to match(/Unable to obtain mutex lock/)
         end
