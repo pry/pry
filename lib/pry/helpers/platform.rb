@@ -28,7 +28,7 @@ class Pry
       def self.windows_ansi?
         return false unless windows?
 
-        !!(defined?(Win32::Console) || Pry::Env['ANSICON'] || mri_2?)
+        !!(defined?(Win32::Console) || Pry::Env['ANSICON'] || mri?)
       end
 
       # @return [Boolean]

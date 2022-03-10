@@ -35,8 +35,6 @@ jobs:
           - os: windows-latest
             ruby: '2.3' # Intermittent failing Expression: RBASIC_CLASS(ret) == rb_cString
           - os: windows-latest
-            ruby: '3.0'
-          - os: windows-latest
             ruby: '3.1'
 
     runs-on: ${{ matrix.os }}
