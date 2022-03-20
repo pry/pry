@@ -39,7 +39,6 @@ Table of Contents
    * [Command Shell Integration](#command-shell-integration)
    * [Code Browsing](#code-browsing)
    * [Documentation Browsing](#documentation-browsing)
-   * [Gist integration](#gist-integration)
    * [Edit methods](#edit-methods)
    * [Live Help System](#live-help-system)
    * [Use Pry as your Rails Console](#use-pry-as-your-rails-console)
