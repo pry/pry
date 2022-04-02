@@ -21,11 +21,11 @@ jobs:
           - '3.0'
           - 3.1
           # - head is currently broken due to yard support for 3.2.0-dev
-          - jruby
+          - jruby-9.3.3.0
           # - jruby-head
         exclude:
           - os: windows-latest
-            ruby: jruby
+            ruby: jruby-9.3.3.0
           - os: windows-latest
             ruby: '2.0'
           - os: windows-latest
