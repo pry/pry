@@ -158,7 +158,7 @@ class Pry
 
         alias_name = all_methods_for(target_self).find do |v|
           location = target_self.method(v).source_location
-          expanded_source_location(location) == renamed_method_source_location
+          location && expanded_source_location(location) == renamed_method_source_location
         end
 
         alias_name && Pry::Method(target_self.method(alias_name))

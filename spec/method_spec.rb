@@ -208,6 +208,44 @@ describe Pry::Method do
       m = Pry::Method.from_binding(o.borscht)
       expect(m.source).to eq Pry::Method(o.method(:paella)).source
     end
+
+    it 'should not find a wrong method by matching on nil source location' do
+      included_module = Module.new do
+        def self.included(base)
+          base.send :alias_method, "respond_to_without_variables?", "respond_to?"
+          base.send :alias_method, "respond_to?", "respond_to_with_variables?"
+        end
+
+        def respond_to_with_variables?(sym, include_priv=false)
+          respond_to_without_variables?(sym, include_priv)
+        end
+      end
+
+      o = Object.new
+      class << o
+        attr_reader :tasks
+        def task(name, &block)
+          @tasks ||= {}
+          @tasks[name] = block
+        end
+
+        def load
+          path = File.expand_path("../fixtures/test_task.rb", __FILE__)
+          instance_eval File.read(path), path
+        end
+      end
+
+      o.load
+
+      o2 = Object.new
+      o2.singleton_class.send(:include, included_module)
+
+      # Verify preconditions.
+      expect(o2.method(:respond_to_without_variables?).source_location).to be_nil
+
+      b = o2.instance_eval(&o.tasks[:test_task])
+      expect(Pry::Method.from_binding(b).name).to eq "load"
+    end
   end
 
   describe 'super' do
