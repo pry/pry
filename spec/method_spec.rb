@@ -216,7 +216,7 @@ describe Pry::Method do
           base.send :alias_method, "respond_to?", "respond_to_with_variables?"
         end
 
-        def respond_to_with_variables?(sym, include_priv=false)
+        def respond_to_with_variables?(sym, include_priv = false)
           respond_to_without_variables?(sym, include_priv)
         end
       end
@@ -229,13 +229,13 @@ describe Pry::Method do
           @tasks[name] = block
         end
 
-        def load
-          path = File.expand_path("../fixtures/test_task.rb", __FILE__)
+        def load_task
+          path = File.expand_path("fixtures/test_task.rb", __dir__)
           instance_eval File.read(path), path
         end
       end
 
-      o.load
+      o.load_task
 
       o2 = Object.new
       o2.singleton_class.send(:include, included_module)
@@ -244,7 +244,7 @@ describe Pry::Method do
       expect(o2.method(:respond_to_without_variables?).source_location).to be_nil
 
       b = o2.instance_eval(&o.tasks[:test_task])
-      expect(Pry::Method.from_binding(b).name).to eq "load"
+      expect(Pry::Method.from_binding(b).name).to eq "load_task"
     end
   end
 
