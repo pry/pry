@@ -230,7 +230,7 @@ describe Pry::Method do
         end
 
         def load_task
-          path = File.expand_path("fixtures/test_task.rb", __dir__)
+          path = File.expand_path("spec/fixtures/test_task.rb")
           instance_eval File.read(path), path
         end
       end
