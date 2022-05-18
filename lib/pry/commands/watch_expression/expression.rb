@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class WatchExpression
+    class WatchExpression < Pry::ClassCommand
       class Expression
         attr_reader :target, :source, :value, :previous_value, :pry_instance
 

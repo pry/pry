@@ -2,6 +2,10 @@
 
 require 'method_source'
 
+require 'pry/code/loc'
+require 'pry/code/code_range'
+require 'pry/code/code_file'
+
 class Pry
   class << self
     # Convert the given object into an instance of `Pry::Code`, if it isn't

@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Cat
+    class Cat < Pry::ClassCommand
       class AbstractFormatter
         include Pry::Helpers::CommandHelpers
         include Pry::Helpers::BaseHelpers

@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Cat
+    class Cat < Pry::ClassCommand
       class InputExpressionFormatter < AbstractFormatter
         attr_accessor :input_expressions
         attr_accessor :opts
