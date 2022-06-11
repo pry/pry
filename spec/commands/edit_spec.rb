@@ -23,13 +23,7 @@ describe "edit" do
     before do
       # OS-specific tempdir name. For GNU/Linux it's "tmp", for Windows it's
       # something "Temp".
-      @tf_dir =
-        if Pry::Helpers::Platform.mri_19?
-          Pathname.new(Dir::Tmpname.tmpdir)
-        else
-          Pathname.new(Dir.tmpdir)
-        end
-
+      @tf_dir = Pathname.new(Dir.tmpdir)
       @tf_path = File.expand_path(File.join(@tf_dir.to_s, 'bar.rb'))
       FileUtils.touch(@tf_path)
     end

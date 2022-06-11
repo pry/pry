@@ -9,18 +9,3 @@ jobs:
 
     steps:
       - checkout
-
-      - run:
-          name: Install Bundler dependencies
-          command: bundle install
-
-      - run:
-          name: Install Nano text editor (required for some tests)
-          command: apk add nano
-
-      - run:
-          name: Run unit tests
-          command: bundle exec rake
-          environment:
-            # Make sure TERM is set so Pry can indent correctly inside tests.
-            TERM: screen-256color

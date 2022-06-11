@@ -346,14 +346,6 @@ class Pry
       ''.respond_to?(method_name, include_private) || super
     end
 
-    if RUBY_VERSION.start_with?('1.9')
-      # @todo This is needed for Ruby 1.9 support where `lines` return an
-      #   Enumerator. Newer Rubies return an Array
-      def lines
-        super.to_a
-      end
-    end
-
     protected
 
     # An abstraction of the `dup.instance_eval` pattern used throughout this

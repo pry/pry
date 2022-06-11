@@ -442,8 +442,8 @@ putting the line `Pry.color = false` in your `pryrc` file.
 Supported Rubies
 ----------------
 
-* CRuby >= 1.9.3
-* JRuby >= 1.7
+* CRuby >= 2.0.0
+* JRuby >= 9.0
 
 Contact
 -------

@@ -47,7 +47,7 @@ RSpec.describe Pry::ExceptionHandler do
       end
 
       before do
-        if RUBY_VERSION.start_with?('1.9', '2.0')
+        if RUBY_VERSION.start_with?('2.0')
           skip("Ruby #{RUBY_VERSION} doesn't support nested exceptions")
         end
       end

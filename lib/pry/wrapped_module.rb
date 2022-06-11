@@ -246,19 +246,14 @@ class Pry
       method_candidates.count
     end
 
-    # @note On JRuby 1.9 and higher, in certain conditions, this method chucks
-    #   away its ability to be quick (when there are lots of monkey patches,
-    #   like in Rails). However, it should be efficient enough on other rubies.
-    # @see https://github.com/jruby/jruby/issues/525
-    # @return [Enumerator, Array] on JRuby 1.9 and higher returns Array, on
-    #  other rubies returns Enumerator
+    # @return [Array]
     def candidates
       enum = Enumerator.new do |y|
         (0...number_of_candidates).each do |num|
           y.yield candidate(num)
         end
       end
-      Helpers::Platform.jruby_19? ? enum.to_a : enum
+      enum
     end
 
     # @return [Boolean] Whether YARD docs are available for this module.
