@@ -98,14 +98,15 @@ class Pry
       #   line number is one-indexed.
       def first_line_of_module_definition(file, line)
         searchable_lines = lines_for_file(file)[0..(line - 2)]
-        searchable_lines.rindex { |v| class_regexes.any? { |r| r =~ v } } + 1
+        searchable_lines.rindex { |v| module_definition_first_line?(v) } + 1
       end
 
-      def class_regexes
+      def module_definition_first_line?(line)
         mod_type_string = wrapped.class.to_s.downcase
-        [/(^|=)\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped.name.split(/::/).last}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\s*?=\s*?#{wrapped.class}/,
-         /^\s*(::)?#{wrapped.name.split(/::/).last}\.(class|instance)_eval/]
+        wrapped_name_last = wrapped.name.split(/::/).last
+        /(^|=)\s*#{mod_type_string}\s+(?:(?:\w*)::)*?#{wrapped_name_last}/ =~ line ||
+          /^\s*(::)?#{wrapped_name_last}\s*?=\s*?#{wrapped.class}/ =~ line ||
+          /^\s*(::)?#{wrapped_name_last}\.(class|instance)_eval/ =~ line
       end
 
       # This method is used by `Candidate#source_location` as a
