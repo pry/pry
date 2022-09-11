@@ -20,9 +20,9 @@ class Pry
 
       # Methods to delegate to associated `Pry::WrappedModule
       # instance`.
-      private_delegates = [:lines_for_file, :method_candidates, :yard_docs?, :name]
-      public_delegates = [:wrapped, :module?, :class?, :nonblank_name,
-                          :number_of_candidates]
+      private_delegates = %i[lines_for_file method_candidates yard_docs? name]
+      public_delegates = %i[wrapped module? class? nonblank_name
+                            number_of_candidates]
 
       def_delegators :@wrapper, *public_delegates
       def_private_delegators :@wrapper, *private_delegates

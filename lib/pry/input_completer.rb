@@ -270,7 +270,7 @@ class Pry
       end
 
       # FIXME: Add Pry here as well?
-      [:IRB, :SLex, :RubyLex, :RubyToken].each do |module_name|
+      %i[IRB SLex RubyLex RubyToken].each do |module_name|
         next unless Object.const_defined?(module_name)
 
         scanner.call(Object.const_get(module_name))

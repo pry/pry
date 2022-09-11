@@ -57,8 +57,8 @@ class Pry
     #
     # :pre_constant and :preserved_constant are the CodeRay 0.9.8 and 1.0.0
     # classifications of "true", "false", and "nil".
-    IGNORE_TOKENS = [:space, :content, :string, :method, :ident,
-                     :constant, :pre_constant, :predefined_constant].freeze
+    IGNORE_TOKENS = %i[space content string method ident
+                       constant pre_constant predefined_constant].freeze
 
     # Tokens that indicate the end of a statement (i.e. that, if they appear
     # directly before an "if" indicates that that if applies to the same line,
@@ -66,10 +66,10 @@ class Pry
     #
     # :reserved and :keywords are the CodeRay 0.9.8 and 1.0.0 respectively
     # classifications of "super", "next", "return", etc.
-    STATEMENT_END_TOKENS = IGNORE_TOKENS + [:regexp, :integer, :float,
-                                            :keyword, :delimiter, :reserved,
-                                            :instance_variable,
-                                            :class_variable, :global_variable]
+    STATEMENT_END_TOKENS = IGNORE_TOKENS + %i[regexp integer float
+                                              keyword delimiter reserved
+                                              instance_variable
+                                              class_variable global_variable]
 
     # Collection of tokens that should appear dedented even though they
     # don't affect the surrounding code.
