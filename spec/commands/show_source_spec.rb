@@ -1151,7 +1151,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:BetaClass, :AlphaClass].each { |name| Object.remove_const(name) }
+        %i[BetaClass AlphaClass].each { |name| Object.remove_const(name) }
       end
 
       it "shows docs for the nested classes" do
@@ -1176,7 +1176,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:BetaClass, :AlphaClass].each { |name| Object.remove_const(name) }
+        %i[BetaClass AlphaClass].each { |name| Object.remove_const(name) }
       end
 
       it "shows docs for the nested classes" do
@@ -1386,7 +1386,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Child, :Parent].each { |name| Object.remove_const(name) }
+        %i[Child Parent].each { |name| Object.remove_const(name) }
       end
 
       it "shows the docs of the superclass" do
@@ -1412,7 +1412,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Grandparent, :Child, :Parent].each { |name| Object.remove_const(name) }
+        %i[Grandparent Child Parent].each { |name| Object.remove_const(name) }
       end
 
       it "shows the docs of the superclass" do
@@ -1437,7 +1437,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Child, :Parent].each { |name| Object.remove_const(name) }
+        %i[Child Parent].each { |name| Object.remove_const(name) }
       end
 
       it "raises Pry::CommandError" do
@@ -1459,7 +1459,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Beta, :Alpha].each { |name| Object.remove_const(name) }
+        %i[Beta Alpha].each { |name| Object.remove_const(name) }
       end
 
       it "shows the included module's doc" do
@@ -1486,7 +1486,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Beta, :Alpha].each { |name| Object.remove_const(name) }
+        %i[Beta Alpha].each { |name| Object.remove_const(name) }
       end
 
       it "raises Pry::CommandError" do
@@ -1512,7 +1512,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Gamma, :Beta, :Alpha].each { |name| Object.remove_const(name) }
+        %i[Gamma Beta Alpha].each { |name| Object.remove_const(name) }
       end
 
       it "shows nth level included module doc" do
@@ -1550,7 +1550,7 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
       end
 
       after do
-        [:Grandparent, :Parent, :Child].each { |name| Object.remove_const(name) }
+        %i[Grandparent Parent Child].each { |name| Object.remove_const(name) }
       end
 
       context "and when it's passed once" do

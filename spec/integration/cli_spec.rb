@@ -13,7 +13,7 @@ RSpec.describe 'The bin/pry CLI' do
                       pry_dir,
                       'bin/pry',
                       *args,
-                      err: [:child, :out]], &:read)
+                      err: %i[child out]], &:read)
       status = $CHILD_STATUS
 
       # Pry will emit silent garbage because of our auto indent feature.

@@ -4,8 +4,8 @@ class Pry
   class Command
     class Ls < Pry::ClassCommand
       class Constants < Pry::Command::Ls::Formatter
-        DEPRECATED_CONSTANTS = [
-          :Data, :Fixnum, :Bignum, :TimeoutError, :NIL, :FALSE, :TRUE
+        DEPRECATED_CONSTANTS = %i[
+          Data Fixnum Bignum TimeoutError NIL FALSE TRUE
         ].tap do |constants|
           constants << :JavaPackageModuleTemplate if Helpers::Platform.jruby?
         end

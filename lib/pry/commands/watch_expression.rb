@@ -96,7 +96,7 @@ class Pry
       end
 
       def add_hook
-        hook = [:after_eval, :watch_expression]
+        hook = %i[after_eval watch_expression]
         return if pry_instance.hooks.hook_exists?(*hook)
 
         pry_instance.hooks.add_hook(*hook) do |_, pry_instance|
