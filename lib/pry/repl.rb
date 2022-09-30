@@ -185,7 +185,7 @@ class Pry
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
           input_readline(current_prompt)
-        elsif input.method(:readline).arity == 1
+        elsif [1,-1,-2].include? input.method(:readline).arity # allow optional extra arguments
           input_readline(current_prompt)
         else
           input_readline
