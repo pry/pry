@@ -141,8 +141,7 @@ class Pry
         retry
 
       # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
-      # quit.  This is only for MRI 1.9; other versions of Ruby don't let you
-      # send Interrupt from within Readline.
+      # quit.
       rescue Interrupt
         return :control_c
 

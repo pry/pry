@@ -47,11 +47,6 @@ class Pry
       end
 
       # @return [Boolean]
-      def self.mri_19?
-        mri? && RUBY_VERSION.start_with?('1.9')
-      end
-
-      # @return [Boolean]
       def self.mri_2?
         mri? && RUBY_VERSION.start_with?('2')
       end
