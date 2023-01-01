@@ -3,6 +3,21 @@ name: pry
 on: [push, pull_request]
 
 jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2
+
+    - name: Install dependencies
+      run: bundle install
+
+    - name: Rubocop lint
+      run: rubocop --parallel
+
   test:
     strategy:
       matrix:
@@ -51,11 +66,6 @@ jobs:
     # https://github.com/pry/pry/actions/runs/1016360216
     - name: Install dependencies
       run: bundle install
-
-    # Rubocop is not included on the Gemfile for earlier rubies. This can be dropped as soon as the support is dropped.
-    - name: Rubocop lint
-      if: matrix.ruby != '2.0' && matrix.ruby != '2.1' && matrix.ruby != '2.2'
-      run: rubocop --parallel
 
     - name: YARD lint
       run: |
