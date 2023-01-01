@@ -140,6 +140,11 @@ class Pry
         should_retry = false
         retry
 
+      # Handle <Ctrl+C> like Bash: empty the current input buffer, but don't
+      # quit.
+      rescue Interrupt
+        return :control_c
+
       # If we get a random error when trying to read a line we don't want to
       # automatically retry, as the user will see a lot of error messages
       # scroll past and be unable to do anything about it.
