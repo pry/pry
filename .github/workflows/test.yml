@@ -35,7 +35,8 @@ jobs:
           # we have to use quotes for '3.0'
           - '3.0'
           - 3.1
-          # - head is currently broken due to yard support for 3.2.0-dev
+          - 3.2
+          - head
           - jruby-9.3.3.0
           # - jruby-head
         exclude:
@@ -51,6 +52,10 @@ jobs:
             ruby: '2.3' # Intermittent failing Expression: RBASIC_CLASS(ret) == rb_cString
           - os: windows-latest
             ruby: '3.1'
+          - os: windows-latest
+            ruby: '3.2'
+          - os: windows-latest
+            ruby: 'head'
 
     runs-on: ${{ matrix.os }}
     continue-on-error: true
