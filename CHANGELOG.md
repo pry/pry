@@ -1,9 +1,33 @@
 ### master
 
+#### Features
+
+* Configure `code` as a supported editor on Pry::Editor
+  ([#2236](https://github.com/pry/pry/pull/2236))
+* Added support for Ruby 3.2
+  ([#2263](https://github.com/pry/pry/pull/2263))
+* Added support for Ruby 3.1
+  ([#2228](https://github.com/pry/pry/pull/2228))
+
 #### Bug fixes
 
+* Short circuit eval regexes in finding module definition
+  ([#2253](https://github.com/pry/pry/pull/2253))
+* Revert "Escape non-printing characters"
+  ([#2235](https://github.com/pry/pry/pull/2235))
+* Fixed bug where WeirdMethodLocator would fail to find the source of a method breaking whereami
+  ([#2244](https://github.com/pry/pry/pull/2244))
+* Fixed bug where pry would throw an FrozenError when dealing with incomplete tokens
+  ([#2136](https://github.com/pry/pry/pull/2136))
+* Restore --no-history CLI flag functionality
+  ([#2196](https://github.com/pry/pry/pull/2196))
 * Fixed bug where reading from the `_out_` sticky local variable could return
   wrong results ([#2201](https://github.com/pry/pry/pull/2201))
+
+#### Breaking Changes
+
+* Remove support for Ruby 1.9 and JRuby < 9.0
+  ([#2239](https://github.com/pry/pry/pull/2239))
 
 ### [v0.14.1][v0.14.1] (April 12, 2021)
 
