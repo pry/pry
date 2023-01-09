@@ -1,5 +1,7 @@
 ### master
 
+### [v0.14.2][v0.14.2] (January 9, 2023)
+
 #### Features
 
 * Configure `code` as a supported editor on Pry::Editor
