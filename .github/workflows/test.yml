@@ -23,7 +23,7 @@ jobs:
       matrix:
         os: ['ubuntu-20.04', windows-latest]
         ruby:
-          - 2.0
+          - '2.0'
           - 2.1
           - 2.2
           - 2.3
