@@ -194,10 +194,6 @@ describe Pry do
             skip "jruby allows mutex usage in signal handlers"
           end
 
-          if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.0.0")
-            skip "pre-2.0 mri allows mutex usage in signal handlers"
-          end
-
           trap("USR1") { @str_output = mock_pry }
         end
 
