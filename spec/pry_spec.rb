@@ -210,6 +210,9 @@ describe Pry do
         it "should return with error message" do
           expect(mock_pry('1 + 1')).to eql("=> 2\n")
           Process.kill("USR1", Process.pid)
+
+          sleep 0.01 if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.1.0")
+
           expect(@str_output).to match(/Unable to obtain mutex lock/)
         end
       end
