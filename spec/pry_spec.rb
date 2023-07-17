@@ -194,10 +194,6 @@ describe Pry do
             skip "jruby allows mutex usage in signal handlers"
           end
 
-          if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.0.0")
-            skip "pre-2.0 mri allows mutex usage in signal handlers"
-          end
-
           trap("USR1") { @str_output = mock_pry }
         end
 
@@ -210,6 +206,9 @@ describe Pry do
         it "should return with error message" do
           expect(mock_pry('1 + 1')).to eql("=> 2\n")
           Process.kill("USR1", Process.pid)
+
+          sleep 0.01 if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.1.0")
+
           expect(@str_output).to match(/Unable to obtain mutex lock/)
         end
       end
