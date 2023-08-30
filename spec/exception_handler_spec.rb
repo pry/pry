@@ -30,9 +30,10 @@ RSpec.describe Pry::ExceptionHandler do
             .to include("StandardError: oops\nfrom /bin/pry:23:in `<main>'\n")
         else
           expect(output.string)
-            .to include("StandardError: oops (StandardError)\nfrom /bin/pry:23:in `<main>'\n")
+            .to include("StandardError: oops (StandardError)\n
+                        from /bin/pry:23:in `<main>'\n")
         end
-      end      
+      end
     end
 
     context "when exception is a nested standard error" do
