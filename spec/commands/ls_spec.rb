@@ -93,14 +93,25 @@ describe "ls" do
     end
 
     it "should show public methods with -p" do
-      expect(pry_eval("ls -p Class.new{ def goo; end }.new")).to match(/methods: goo/)
+      if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+        expect(pry_eval("ls -p Class.new{ def goo; end }.new")).to match(/methods: goo/)
+      else
+        expect(pry_eval("ls -p Class.new{ def goo; end }.new")).to match(/methods:\n goo/)
+      end      
     end
 
     it "should show protected/private methods with -p" do
-      expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }"))
-        .to match(/methods: goo/)
-      expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new"))
-        .to match(/methods: goo/)
+      if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+        expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }"))
+          .to match(/methods: goo/)
+        expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new"))
+          .to match(/methods: goo/)
+      else
+        expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }"))
+          .to match(/methods:\n goo/)
+        expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new"))
+          .to match(/methods:\n goo/)
+      end
     end
 
     it "should work for objects with an overridden method method" do
