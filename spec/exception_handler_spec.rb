@@ -29,8 +29,9 @@ RSpec.describe Pry::ExceptionHandler do
           expect(output.string)
             .to include("StandardError: oops\nfrom /bin/pry:23:in `<main>'\n")
         else
+          message = "StandardError: oops (StandardError)\nfrom /bin/pry:23:in `<main>'\n"
           expect(output.string)
-            .to include("StandardError: oops (StandardError)\nfrom /bin/pry:23:in `<main>'\n")
+            .to include(message)
         end
       end
     end

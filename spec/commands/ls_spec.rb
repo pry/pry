@@ -93,11 +93,12 @@ describe "ls" do
     end
 
     it "should show public methods with -p" do
+      message = "ls -p Class.new{ def goo; end }.new"
       if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
-        expect(pry_eval("ls -p Class.new{ def goo; end }.new")).to match(/methods: goo/)
+        expect(pry_eval(message)).to match(/methods: goo/)
       else
-        expect(pry_eval("ls -p Class.new{ def goo; end }.new")).to match(/methods:\n goo/)
-      end      
+        expect(pry_eval(message)).to match(/#<Class:.*>#methods: goo/m)
+      end
     end
 
     it "should show protected/private methods with -p" do
@@ -108,9 +109,9 @@ describe "ls" do
           .to match(/methods: goo/)
       else
         expect(pry_eval("ls -pM Class.new{ def goo; end; protected :goo }"))
-          .to match(/methods:\n goo/)
+          .to match(/#<Class:.*>#methods: goo/)
         expect(pry_eval("ls -p Class.new{ def goo; end; private :goo }.new"))
-          .to match(/methods:\n goo/)
+          .to match(/#<Class:.*>#methods: goo/)
       end
     end
 
