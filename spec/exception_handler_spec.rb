@@ -25,8 +25,14 @@ RSpec.describe Pry::ExceptionHandler do
 
       it "prints standard error message" do
         described_class.handle_exception(output, exception, pry_instance)
-        expect(output.string)
-          .to eq("StandardError: oops\nfrom /bin/pry:23:in `<main>'\n")
+        if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+          expect(output.string)
+            .to include("StandardError: oops\nfrom /bin/pry:23:in `<main>'\n")
+        else
+          message = "StandardError: oops (StandardError)\nfrom /bin/pry:23:in `<main>'\n"
+          expect(output.string)
+            .to include(message)
+        end
       end
     end
 
@@ -54,12 +60,21 @@ RSpec.describe Pry::ExceptionHandler do
 
       it "prints standard error message" do
         described_class.handle_exception(output, exception, pry_instance)
-        expect(output.string).to match(
-          /RuntimeError:\souter\soops\n
-           from\s.+\n
-           Caused\sby\sRuntimeError:\snested\soops\n
-           from.+/x
-        )
+        if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+          expect(output.string).to match(
+            /RuntimeError:\souter\soops\n
+            from\s.+\n
+            Caused\sby\sRuntimeError:\snested\soops\n
+            from.+/x
+          )
+        else
+          expect(output.string).to match(
+            /RuntimeError:\souter\soops\s\(RuntimeError\)\n
+            from\s.+\n
+            Caused\sby\sRuntimeError:\snested\soops\n
+            from\s.+/x
+          )
+        end
       end
     end
   end

@@ -30,8 +30,13 @@ class Pry
       end
 
       def exception_text(exception)
-        "#{exception.class}: #{exception.message}\n" \
-        "from #{exception.backtrace.first}\n"
+        if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+          "#{exception.class}: #{exception.message}\n" \
+          "from #{exception.backtrace.first}\n"
+        else
+          "#{exception.class}: #{exception.detailed_message}\n" \
+          "from #{exception.backtrace.first}\n"
+        end
       end
 
       def cause_text(cause)
