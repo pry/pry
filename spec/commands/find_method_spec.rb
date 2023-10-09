@@ -48,7 +48,9 @@ describe "find-method" do
   end
 
   it "should work with badly behaved constants" do
+    MyKlass::Z = BasicObject.new
     MyKlass::X = Object.new
+
     def (MyKlass::X).hash
       raise "mooo"
     end
