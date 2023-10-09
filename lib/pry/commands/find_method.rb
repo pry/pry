@@ -128,7 +128,7 @@ class Pry
           next if klass.autoload?(name)
 
           begin
-            const = klass.const_get(name)
+            const = Pry::Method.singleton_class_of(klass.const_get(name))
           rescue RescuableException # rubocop:disable Lint/HandleExceptions
             # constant loading is an inexact science at the best of times,
             # this often happens when a constant was .autoload? but someone
