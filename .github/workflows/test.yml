@@ -85,3 +85,5 @@ jobs:
       env:
         # Make sure TERM is set so Pry can indent correctly inside tests.
         TERM: screen-256color
+        ROWS: 40
+        COLUMNS: 160
