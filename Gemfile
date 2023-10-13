@@ -7,7 +7,7 @@ gem 'rake'
 gem 'yard'
 gem 'rspec'
 
-gem "psych", '<= 5.1.0'
+gem "psych", '<= 5.2.0'
 
 # Rubocop supports only >=2.2.0
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.2.0')
