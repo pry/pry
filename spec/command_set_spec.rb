@@ -399,23 +399,4 @@ RSpec.describe Pry::CommandSet do
       end
     end
   end
-
-  # TODO: rewrite this block.
-  if defined?(Bond)
-    describe "#complete" do
-      it "should list all command names" do
-        set.create_command('susan') {}
-        expect(set.complete('sus')).to.include 'susan '
-      end
-
-      it "should delegate to commands" do
-        set.create_command('susan') do
-          def complete(_search)
-            ['--foo']
-          end
-        end
-        expect(set.complete('susan ')).to eq ['--foo']
-      end
-    end
-  end
 end
