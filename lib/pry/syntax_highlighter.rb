@@ -11,7 +11,7 @@ class Pry
     end
 
     def self.tokenize(code, language = :ruby)
-      CodeRay.scan(code, language)
+      CodeRay::Scanners[language].new(code).tokens
     end
 
     def self.keyword_token_color

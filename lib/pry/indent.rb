@@ -281,9 +281,7 @@ class Pry
     # @param [String] string The Ruby to lex
     # @return [Array] An Array of pairs of [token_value, token_type]
     def tokenize(string)
-      tokens = SyntaxHighlighter.tokenize(string)
-      tokens = tokens.tokens.each_slice(2) if tokens.respond_to?(:tokens) # Coderay 1.0.0
-      tokens.to_a
+      SyntaxHighlighter.tokenize(string).each_slice(2).to_a
     end
 
     # Update the internal state about what kind of strings are open.
