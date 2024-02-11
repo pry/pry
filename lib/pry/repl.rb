@@ -179,7 +179,9 @@ class Pry
           end
         end
 
-        if readline_available?
+        if reline_available?
+          input_reline(current_prompt)
+        elsif readline_available?
           set_readline_output
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
@@ -192,10 +194,25 @@ class Pry
       end
     end
 
+    def input_reline(*args)
+      require 'prism'
+
+      Pry::InputLock.for(:all).interruptible_region do
+        input.readmultiline(*args) do |multiline_input|
+          Pry.commands.find_command(multiline_input) ||
+            (Prism.parse_success?(multiline_input) && !Reline::IOGate.in_pasting?)
+        end
+      end
+    end
+
     def input_readline(*args)
       Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
       end
+    end
+
+    def reline_available?
+      defined?(Reline) && input == Reline
     end
 
     def readline_available?
