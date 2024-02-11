@@ -197,6 +197,14 @@ class Pry
     def input_reline(*args)
       require 'prism'
 
+      Reline.output_modifier_proc = lambda do |text, _|
+        if pry.color
+          SyntaxHighlighter.highlight(text)
+        else
+          text
+        end
+      end
+
       Pry::InputLock.for(:all).interruptible_region do
         input.readmultiline(*args) do |multiline_input|
           Pry.commands.find_command(multiline_input) ||
