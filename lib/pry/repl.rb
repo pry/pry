@@ -205,6 +205,12 @@ class Pry
         end
       end
 
+      Reline.auto_indent_proc = lambda do |lines, line_index, byte_pointer, is_newline|
+        pry_indentation = Pry::Indent.new
+        pry_indentation.indent(lines.join("\n"))
+        pry_indentation.last_indent_level.length
+      end
+
       Pry::InputLock.for(:all).interruptible_region do
         input.readmultiline(*args) do |multiline_input|
           Pry.commands.find_command(multiline_input) ||
