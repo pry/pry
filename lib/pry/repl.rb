@@ -100,7 +100,7 @@ class Pry
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless val.is_a?(String)
 
-      if pry.config.auto_indent
+      if pry.config.auto_indent && !reline_available?
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
