@@ -413,17 +413,20 @@ description if the `--help` option is available.
 
 ### Use Pry as your Rails Console
 
-The recommended way to use Pry as your Rails console is to add [the `pry-rails`
-gem](https://github.com/rweng/pry-rails) to your Gemfile. This replaces the
-default console with Pry, in addition to loading the Rails console helpers and
-adding some useful Rails-specific commands.
-
-If you don't want to change your Gemfile, you can still run a Pry console in
-your app's environment using Pry's `-r` flag:
+You can run a Pry console in your app's environment using Pry's `-r` flag:
 
 ```sh
 pry -r ./config/environment
 ```
+
+Or start the rails console (`bin/rails console`) and then type `pry`.
+
+It's also possible to use Pry as your Rails console by adding [the `pry-rails`
+gem](https://github.com/pry/pry-rails) to your Gemfile. This replaces the
+default console with Pry, in addition to loading the Rails console helpers and
+adding some useful Rails-specific commands.
+
+**Note that `pry-rails` is not currently maintained.**
 
 Also check out the
 [wiki](https://github.com/pry/pry/wiki/Setting-up-Rails-or-Heroku-to-use-Pry)
