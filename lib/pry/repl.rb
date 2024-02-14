@@ -206,10 +206,14 @@ class Pry
       end
 
       if pry.config.auto_indent
-        Reline.auto_indent_proc = lambda do |lines, _line_index, _byte_pointer, _newline|
-          pry_indentation = Pry::Indent.new
-          pry_indentation.indent(lines.join("\n"))
-          pry_indentation.last_indent_level.length
+        Reline.auto_indent_proc = lambda do |lines, line_index, _byte_pointer, _newline|
+          if line_index == 0
+            0
+          else
+            pry_indentation = Pry::Indent.new
+            pry_indentation.indent(lines.join("\n"))
+            pry_indentation.last_indent_level.length
+          end
         end
       end
 
