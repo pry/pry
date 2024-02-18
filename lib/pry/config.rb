@@ -7,7 +7,7 @@ class Pry
   class Config
     extend Attributable
 
-    # @return [IO, #readline] he object from which Pry retrieves its lines of
+    # @return [IO, #readline] the object from which Pry retrieves its lines of
     #   input
     attribute :input
 
