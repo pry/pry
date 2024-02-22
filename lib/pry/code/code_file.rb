@@ -31,7 +31,7 @@ class Pry
 
     # Store the current working directory. This allows show-source etc. to work if
     # your process has changed directory since boot. [Issue #675]
-    INITIAL_PWD = Dir.pwd
+    INITIAL_PWD = Dir.pwd.encode('UTF-8')
 
     # @return [Symbol] The type of code stored in this wrapper.
     attr_reader :code_type
@@ -98,7 +98,7 @@ class Pry
 
     # @return [String]
     def from_pwd
-      File.expand_path(@filename, Dir.pwd)
+      File.expand_path(@filename, Dir.pwd.encode('UTF-8'))
     end
 
     # @return [String]
