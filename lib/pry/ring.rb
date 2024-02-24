@@ -3,7 +3,7 @@
 class Pry
   # A ring is a thread-safe fixed-capacity array to which you can only add
   # elements. Older entries are overwritten as you add new elements, so that the
-  # ring can never contain more than `max_size` elemens.
+  # ring can never contain more than `max_size` elements.
   #
   # @example
   #   ring = Pry::Ring.new(3)

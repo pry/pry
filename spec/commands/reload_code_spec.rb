@@ -19,7 +19,7 @@ describe "reload_code" do
       end.to raise_error(Pry::CommandError)
     end
 
-    it 'reloads pry commmand' do
+    it 'reloads pry command' do
       expect(pry_eval("reload-code reload-code")).to match(/reload-code was reloaded!/)
     end
 

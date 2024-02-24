@@ -123,7 +123,7 @@ class Pry
       # know which __FILE__ and __LINE__ the binding is at, we can hope to
       # disambiguate these cases.
       #
-      # This obviously won't work if the source is unavaiable for some reason,
+      # This obviously won't work if the source is unavailable for some reason,
       # or if both methods have the same __FILE__ and __LINE__.
       #
       # @return [Pry::Method, nil] The Pry::Method representing the

@@ -61,7 +61,7 @@ describe Pry do
     end
   end
 
-  it "should not intefere with syntax errors explicitly raised" do
+  it "should not interfere with syntax errors explicitly raised" do
     input_tester = InputTester.new('raise SyntaxError, "unexpected $end"')
     redirect_pry_io(input_tester, @str_output) do
       Pry.start
@@ -91,15 +91,15 @@ describe Pry do
     expect(output).to match(/^RuntimeError.*\nSyntaxError.*\n=> true/m)
   end
 
-  it "should allow whitespace delimeted strings" do
+  it "should allow whitespace delimited strings" do
     expect(mock_pry('"%s" % % foo ')).to match(/"foo"/)
   end
 
-  it "should allow newline delimeted strings" do
+  it "should allow newline delimited strings" do
     expect(mock_pry('"%s" % %', 'foo')).to match(/"foo"/)
   end
 
-  it "should allow whitespace delimeted strings ending on the first char of a line" do
+  it "should allow whitespace delimited strings ending on the first char of a line" do
     expect(mock_pry('"%s" % % ', ' #done!')).to match(/"\\n"/)
   end
 end

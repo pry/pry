@@ -73,7 +73,7 @@ class Pry
       # Build a Slop object from a option specification.
       #
       # This allows you to design your options via a simple String rather
-      # than programatically. Do note though that with this method, you're
+      # than programmatically. Do note though that with this method, you're
       # unable to pass any advanced options to the on() method when creating
       # options.
       #

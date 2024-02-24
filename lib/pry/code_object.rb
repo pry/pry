@@ -11,7 +11,7 @@ class Pry
   # object the user wants (applying precedence rules in doing so -- i.e methods
   # get precedence over commands with the same name) and 2. Returning
   # the appropriate object. If the user fails to provide a string
-  # identifer for the object (i.e they pass in `nil` or "") then the
+  # identifier for the object (i.e they pass in `nil` or "") then the
   # object looked up will be the 'current method' or 'current class'
   # associated with the Binding.
   #
@@ -97,7 +97,7 @@ class Pry
       nil
     end
 
-    # when no paramter is given (i.e CodeObject.lookup(nil)), then we
+    # when no parameter is given (i.e CodeObject.lookup(nil)), then we
     # lookup the 'current object' from the binding.
     def empty_lookup
       return nil if str && !str.empty?

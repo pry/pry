@@ -43,7 +43,7 @@ class Pry
       #
       # When we're redefining aliased methods we will overwrite the method at the
       # unaliased name (so that super continues to work). By wrapping that code in a
-      # transation we make that not happen, which means that alias_method_chains, etc.
+      # translation we make that not happen, which means that alias_method_chains, etc.
       # continue to work.
       #
       def with_method_transaction
@@ -95,7 +95,7 @@ class Pry
       # Update the source code so that when it has the right owner when eval'd.
       #
       # This (combined with definition_for_owner) is backup for the case that
-      # wrap_for_nesting fails, to ensure that the method will stil be defined in
+      # wrap_for_nesting fails, to ensure that the method will still be defined in
       # the correct place.
       #
       # @param [String] source  The source to wrap

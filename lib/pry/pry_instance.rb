@@ -388,7 +388,7 @@ class Pry
   # @param [*Object] args The arguments to pass to the hook
   # @return [Object, Exception] The return value of the hook or the exception raised
   #
-  # If executing a hook raises an exception, we log that and then continue sucessfully.
+  # If executing a hook raises an exception, we log that and then continue successfully.
   # To debug such errors, use the global variable $pry_hook_error, which is set as a
   # result.
   def exec_hook(name, *args, &block)
@@ -549,7 +549,7 @@ class Pry
   # and a mistake in specifying that exception.
   #
   # (i.e. raise-up RunThymeError.new should not be the same as
-  #  raise-up NameError, "unititialized constant RunThymeError")
+  #  raise-up NameError, "uninitialized constant RunThymeError")
   #
   def raise_up_common(force, *args)
     exception = if args == []
