@@ -305,9 +305,15 @@ RSpec.describe Pry::Code do
         expect(subject.around(2).lines).to eql(%W[1\n 2\n 3\n])
       end
 
-      context "and we specify how many lines to select" do
+      context "and we specify how many lines to select by an integer" do
         it "selects more than 1 line around" do
           expect(subject.around(4, 2).lines).to eql(%W[2\n 3\n 4\n 5\n 6\n])
+        end
+      end
+
+      context "and we specify how many lines to select by two integers" do
+        it "selects before and after lines around independently" do
+          expect(subject.around(4, 2, 3).lines).to eql(%W[2\n 3\n 4\n 5\n 6\n 7\n])
         end
       end
     end
