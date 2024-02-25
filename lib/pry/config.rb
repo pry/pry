@@ -2,9 +2,35 @@
 
 require 'ostruct'
 
+require 'pry/config/attributable'
+require 'pry/config/value'
+require 'pry/config/memoized_value'
+require 'pry/config/lazy_value'
+
 class Pry
   # @api private
   class Config
+    DEFAULT_LS_OPTIONS = {
+        heading_color: :bright_blue,
+        public_method_color: :default,
+        private_method_color: :blue,
+        protected_method_color: :blue,
+        method_missing_color: :bright_red,
+        local_var_color: :yellow,
+        pry_var_color: :default, # e.g. _, pry_instance, _file_
+        instance_var_color: :blue, # e.g. @foo
+        class_var_color: :bright_blue, # e.g. @@foo
+        global_var_color: :default, # e.g. $CODERAY_DEBUG, $eventmachine_library
+        builtin_global_color: :cyan, # e.g. $stdin, $-w, $PID
+        pseudo_global_color: :cyan, # e.g. $~, $1..$9, $LAST_MATCH_INFO
+        constant_color: :default, # e.g. VERSION, ARGF
+        class_constant_color: :blue, # e.g. Object, Kernel
+        exception_constant_color: :magenta, # e.g. Exception, RuntimeError
+        unloaded_constant_color: :yellow, # Any constant that is still in .autoload? state
+        separator: "  ",
+        ceiling: [Object, Module, Class]
+      }.freeze
+
     extend Attributable
 
     # @return [IO, #readline] the object from which Pry retrieves its lines of
@@ -199,7 +225,7 @@ class Pry
         extra_sticky_locals: {},
         command_completions: proc { commands.keys },
         file_completions: proc { Dir['.'] },
-        ls: OpenStruct.new(Pry::Command::Ls::DEFAULT_OPTIONS),
+        ls: OpenStruct.new(DEFAULT_LS_OPTIONS),
         completer: Pry::InputCompleter,
         history_save: true,
         history_load: true,

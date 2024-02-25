@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Cat
+    class Cat < Pry::ClassCommand
       class ExceptionFormatter < AbstractFormatter
         attr_reader :ex
         attr_reader :opts

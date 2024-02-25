@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Cat
+    class Cat < Pry::ClassCommand
       class FileFormatter < AbstractFormatter
         attr_reader :file_with_embedded_line
         attr_reader :opts

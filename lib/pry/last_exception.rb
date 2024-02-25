@@ -9,7 +9,7 @@
 # to the wrapped exception object.
 #
 class Pry
-  class LastException < BasicObject
+  class LastException < ::BasicObject
     attr_accessor :bt_index
 
     def initialize(exception)

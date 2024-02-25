@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'pry/commands/edit/exception_patcher'
+require 'pry/commands/edit/file_and_line_locator'
+
 class Pry
   class Command
     class Edit < Pry::ClassCommand
