@@ -469,7 +469,7 @@ describe Pry::Method do
           .to eq(class << @class; self; end)
       end
 
-      it "should attrbute overridden methods to the class not the module" do
+      it "should attribute overridden methods to the class not the module" do
         @class = Class.new do
           class << self
             def meth; 1; end
@@ -698,7 +698,7 @@ describe Pry::Method do
   end
 
   describe "#owner" do
-    context "when it is overriden in Object" do
+    context "when it is overridden in Object" do
       before do
         module OwnerMod
           def owner
@@ -719,7 +719,7 @@ describe Pry::Method do
   end
 
   describe "#parameters" do
-    context "when it is overriden in Object" do
+    context "when it is overridden in Object" do
       before do
         module ParametersMod
           def parameters
@@ -740,7 +740,7 @@ describe Pry::Method do
   end
 
   describe "#receiver" do
-    context "when it is overriden in Object" do
+    context "when it is overridden in Object" do
       before do
         module ReceiverMod
           def receiver

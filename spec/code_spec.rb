@@ -255,7 +255,7 @@ RSpec.describe Pry::Code do
     end
 
     context "when start_line is a Range" do
-      it "returns a range fo lines corresponding to the given Range" do
+      it "returns a range of lines corresponding to the given Range" do
         expect(subject.between(2..3).lines).to eq(%W[2\n 3\n])
       end
     end
@@ -434,7 +434,7 @@ RSpec.describe Pry::Code do
   describe "#expression_at" do
     subject { described_class.new(['def foo', '  :test', 'end']) }
 
-    it "returns a multiline expressiong starting on the given line number" do
+    it "returns a multiline expression starting on the given line number" do
       expect(subject.expression_at(1)).to eq("def foo\n  :test\nend\n")
     end
   end

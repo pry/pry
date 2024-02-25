@@ -57,7 +57,7 @@ class Pry
           RDoc::RI.const_set :PryDriver, subclass # hook it up!
         end
 
-        # Spin-up an RI insance.
+        # Spin-up an RI instance.
         ri = RDoc::RI::PryDriver.new(
           pry_instance.pager, use_stdout: true, interactive: false
         )

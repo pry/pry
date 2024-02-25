@@ -28,7 +28,7 @@ RSpec.describe Pry::CommandSet do
       expect(subject.count).to eq(1)
     end
 
-    it "assings default description" do
+    it "assigns default description" do
       command = subject.block_command('test')
       expect(command.description).to eq('No description.')
     end
@@ -59,7 +59,7 @@ RSpec.describe Pry::CommandSet do
       expect(subject.count).to eq(1)
     end
 
-    it "assings default description" do
+    it "assigns default description" do
       command = subject.create_command('test') {}
       expect(command.description).to eq('No description.')
     end
@@ -225,7 +225,7 @@ RSpec.describe Pry::CommandSet do
   describe "#rename_command" do
     before { subject.command('test') }
 
-    it "renames a comamnd" do
+    it "renames a command" do
       subject.rename_command('new-name', 'test')
       expect(subject['test']).to be_nil
       expect(subject['new-name']).not_to be_nil

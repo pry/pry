@@ -234,7 +234,7 @@ class Pry
       end.compact
     end
 
-    # build_path seperates the input into two parts: path and input.
+    # build_path separates the input into two parts: path and input.
     # input is the partial string that should be completed
     # path is a proc that takes an input and builds a full path.
     def build_path(input)

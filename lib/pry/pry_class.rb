@@ -215,7 +215,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   #   The maximum number of chars before clipping occurs.
   #
   # @option options [Boolean] :id (false)
-  #   Boolean to indicate whether or not a hex reprsentation of the object ID
+  #   Boolean to indicate whether or not a hex representation of the object ID
   #   is attached to the return value when the length of inspect is greater than
   #   value of `:max_length`.
   #

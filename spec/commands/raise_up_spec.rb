@@ -17,7 +17,7 @@ describe "raise-up" do
     end
   end
 
-  it "should raise an unamed exception with raise-up" do
+  it "should raise an unnamed exception with raise-up" do
     redirect_pry_io(InputTester.new("raise 'stop'", "raise-up 'noreally'")) do
       expect { Object.new.pry }.to raise_error(RuntimeError, "noreally")
     end

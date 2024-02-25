@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Pry
-  # N.B. using a regular expresion here so that "raise-up 'foo'" does the right thing.
+  # N.B. using a regular expression here so that "raise-up 'foo'" does the right thing.
   class Command
     class RaiseUp < Pry::ClassCommand
       match(/raise-up(!?\b.*)/)

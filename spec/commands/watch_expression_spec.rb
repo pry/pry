@@ -64,7 +64,7 @@ describe "watch expression" do
     end
   end
 
-  it "doesn't print when an expresison remains the same" do
+  it "doesn't print when an expression remains the same" do
     ReplTester.start do
       input 'a = 1'
       output '=> 1'

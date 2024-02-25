@@ -8,7 +8,7 @@ describe "exit-all" do
     expect(@pry.exit_value).to equal nil
   end
 
-  it "should break out of the repl wth a user specified value" do
+  it "should break out of the repl with a user specified value" do
     expect(@pry.eval("exit-all 'message'")).to equal false
     expect(@pry.exit_value).to eq("message")
   end

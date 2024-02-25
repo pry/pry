@@ -127,7 +127,7 @@ RSpec.describe Pry::ClassCommand do
       end
     end
 
-    context "when help is not invloved" do
+    context "when help is not involved" do
       context "when #process accepts no arguments" do
         subject do
           command = Class.new(described_class) do

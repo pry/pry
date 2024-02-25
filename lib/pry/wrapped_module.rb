@@ -286,7 +286,7 @@ class Pry
     #   highest rank, that is the 'monkey patch' of this module with the
     #   highest number of methods, which contains a source code line that
     #   defines the module. It is considered the 'canonical' definition
-    #   for the module. In the absense of a suitable candidate, the
+    #   for the module. In the absence of a suitable candidate, the
     #   candidate of rank 0 will be returned, or a CommandError raised if
     #   there are no candidates at all.
     def primary_candidate

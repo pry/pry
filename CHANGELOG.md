@@ -977,7 +977,7 @@ complete CHANGELOG:
 * _pry_ now passed as 3rd parameter to :before_session hook
 * ls colors now configurable via Pry.config.ls.local_var_color = :bright_red etc
 * ls separator configurable via, e.g Pry.config.ls.separator = "  "
-* Pry.view_clip() now only calls inspect on a few immediates, otherwise uses the #<> syntax, which has been truncated further to exclude teh mem address, again related to #245
+* Pry.view_clip() now only calls inspect on a few immediates, otherwise uses the #<> syntax, which has been truncated further to exclude the mem address, again related to #245
 
 ### 0.9.3 (2011/7/27)
 * cat --ex (cats 5 lines above and below line in file where exception was raised)

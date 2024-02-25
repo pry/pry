@@ -76,7 +76,7 @@ class Pry
 
       # Takes two numbers that are 1-indexed, and returns a range (or
       # number) that is 0-indexed. 1-indexed means the first element is
-      # indentified by 1 rather than by 0 (as is the case for Ruby arrays).
+      # identified by 1 rather than by 0 (as is the case for Ruby arrays).
       # @param [Fixnum] start_line_number One-indexed number.
       # @param [Fixnum] end_line_number One-indexed number.
       # @return [Range] The zero-indexed range.

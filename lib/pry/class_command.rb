@@ -137,7 +137,7 @@ class Pry
     #     end
     #   end
     #
-    # @example Define the invokation block anywhere you want
+    # @example Define the invocation block anywhere you want
     #   def subcommands(cmd)
     #     cmd.command :download do |opt|
     #       description 'Downloads a content from a server'
@@ -172,7 +172,7 @@ class Pry
 
     # The actual body of your command should go here.
     #
-    # The `opts` mehod can be called to get the options that Pry::Slop has passed,
+    # The `opts` method can be called to get the options that Pry::Slop has passed,
     # and `args` gives the remaining, unparsed arguments.
     #
     # The return value of this method is discarded unless the command was

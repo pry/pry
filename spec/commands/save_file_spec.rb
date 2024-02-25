@@ -100,7 +100,7 @@ describe "save-file" do
     #       Pry::Method.from_obj(@o, :bang).source
     #   end
 
-    #   it 'should save multiple methods to a file trucated by --lines' do
+    #   it 'should save multiple methods to a file truncated by --lines' do
     #     @t.eval "save-file #{@path} -m baby -m bang --lines 2..-2"
 
     #     # must add 1 as first line of method is 1
@@ -108,7 +108,7 @@ describe "save-file" do
     #       Pry::Method.from_obj(@o, :bang).source).lines.to_a[1..-2].join
     #   end
 
-    #   it 'should save multiple methods to a file trucated by --lines 1 ' \
+    #   it 'should save multiple methods to a file truncated by --lines 1 ' \
     #      '(single parameter, not range)' do
     #     @t.eval "save-file #{@path} -m baby -m bang --lines 1"
 

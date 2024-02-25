@@ -202,7 +202,7 @@ describe "hist" do
       expect(@t.eval('hist')).to match(/1:\shello\n2:\sworld/)
     end
 
-    it "displays all history (including the current sesion) with `--all` switch" do
+    it "displays all history (including the current session) with `--all` switch" do
       @hist.push('goodbye')
       @hist.push('world')
 
