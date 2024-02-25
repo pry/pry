@@ -34,6 +34,9 @@ class Pry
     #   exceptions
     attribute :default_window_size
 
+    # @return [Integer] The cutoff size of lines of method to show
+    attribute :method_size_cutoff
+
     # @return [Pry::Hooks]
     attribute :hooks
 
@@ -180,6 +183,7 @@ class Pry
         system: Pry::SystemCommandHandler.method(:default),
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
+        method_size_cutoff: 30,
         editor: Pry::Editor.default,
         rc_file: default_rc_file,
         should_load_rc: true,
