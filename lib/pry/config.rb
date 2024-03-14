@@ -153,7 +153,7 @@ class Pry
 
     def initialize
       merge!(
-        input: MemoizedValue.new { lazy_readline },
+        input: MemoizedValue.new { choose_input },
         output: $stdout.tap { |out| out.sync = true },
         commands: Pry::Commands,
         prompt_name: 'pry',
@@ -286,7 +286,9 @@ class Pry
 
     private
 
-    def lazy_readline
+    def choose_input
+      return InputStdioShim.new if Pry::Env['TERM'] == 'dumb'
+
       require 'readline'
       ::Readline
     rescue LoadError
