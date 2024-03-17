@@ -512,7 +512,7 @@ RSpec.describe Pry::Code do
     context "when a String does not respond to the given method" do
       it "raises NoMethodError" do
         expect { subject.abcdefg }
-          .to raise_error(NoMethodError, /undefined method `abcdefg'/)
+          .to raise_error(NoMethodError, /undefined method (`|')abcdefg'/)
       end
     end
   end
