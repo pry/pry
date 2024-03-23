@@ -57,6 +57,8 @@ require 'pry/config/memoized_value'
 require 'pry/config/lazy_value'
 require 'pry/config'
 
+require 'pry/input/simple_stdio'
+
 require 'pry/pry_class'
 require 'pry/pry_instance'
 require 'pry/inspector'
