@@ -172,23 +172,25 @@ RSpec.describe Pry::Config do
     end
   end
 
-  describe "#input" do
-    context "when TERM=dumb" do
-      around do |example|
-        old_term = ENV['TERM']
-        ENV['TERM'] = 'dumb'
+  if defined?(Reline)
+    describe "#input" do
+      context "when TERM=dumb" do
+        around do |example|
+          old_term = ENV['TERM']
+          ENV['TERM'] = 'dumb'
 
-        example.run
-        ENV['TERM'] = old_term
+          example.run
+          ENV['TERM'] = old_term
+        end
+
+        it "configures input with SimpleStdio" do
+          expect(subject.input).to eql(Pry::Input::SimpleStdio)
+        end
       end
 
       it "configures input with SimpleStdio" do
-        expect(subject.input).to eql(Pry::Input::SimpleStdio)
+        expect(subject.input).to eql(Readline)
       end
-    end
-
-    it "configures input with SimpleStdio" do
-      expect(subject.input).to eql(Readline)
     end
   end
 
