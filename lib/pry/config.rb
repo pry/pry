@@ -287,8 +287,16 @@ class Pry
     private
 
     def choose_input
-      return InputStdioShim.new if Pry::Env['TERM'] == 'dumb'
+      input = load_readline
 
+      if Pry::Env['TERM'] == 'dumb' && (defined?(Reline) && input == Reline)
+        input = Pry::Input::SimpleStdio
+      end
+
+      input
+    end
+
+    def load_readline
       require 'readline'
       ::Readline
     rescue LoadError

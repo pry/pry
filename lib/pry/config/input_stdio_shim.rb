@@ -2,7 +2,7 @@
 
 class Pry
   # Readline replacement for low-capability terminals.
-  class InputStdioShim
+  class StdioInput
     def readline(prompt)
       $stdout.print(prompt)
       $stdin.gets
