@@ -220,7 +220,7 @@ class Pry
       Pry::InputLock.for(:all).interruptible_region do
         input.readmultiline(*args) do |multiline_input|
           Pry.commands.find_command(multiline_input) ||
-            (Prism.parse_success?(multiline_input) && !Reline::IOGate.in_pasting?)
+            (complete_expression?(multiline_input) && !Reline::IOGate.in_pasting?)
         end
       end
     end
@@ -262,6 +262,17 @@ class Pry
       return if @readline_output
 
       @readline_output = (Readline.output = Pry.config.output) if piping?
+    end
+
+    UNEXPECTED_TOKENS = %i[unexpected_token_ignore lambda_open].freeze
+
+    def complete_expression?(multiline_input)
+      lex = Prism.lex(multiline_input)
+
+      errors = lex.errors
+      return true if errors.empty?
+
+      errors.any? { |error| UNEXPECTED_TOKENS.include?(error.type) }
     end
 
     # Calculates correct overhang for current line. Supports vi Readline
