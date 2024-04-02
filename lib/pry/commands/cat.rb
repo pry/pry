@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'pry/commands/cat/abstract_formatter.rb'
+require 'pry/commands/cat/input_expression_formatter.rb'
+require 'pry/commands/cat/exception_formatter.rb'
+require 'pry/commands/cat/file_formatter.rb'
+
 class Pry
   class Command
     class Cat < Pry::ClassCommand

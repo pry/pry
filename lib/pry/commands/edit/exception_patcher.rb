@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Edit
+    class Edit < Pry::ClassCommand
       class ExceptionPatcher
         attr_accessor :pry_instance
         attr_accessor :state

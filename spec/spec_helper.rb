@@ -8,6 +8,8 @@ require 'English'
 require 'stringio'
 require 'ostruct'
 
+require 'pry/commands'
+
 Dir['./spec/support/**/*.rb'].map do |file|
   require file
 end

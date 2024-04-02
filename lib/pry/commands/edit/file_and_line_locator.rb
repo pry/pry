@@ -2,7 +2,7 @@
 
 class Pry
   class Command
-    class Edit
+    class Edit < Pry::ClassCommand
       module FileAndLineLocator
         class << self
           def from_binding(target)

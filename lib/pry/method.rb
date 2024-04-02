@@ -2,6 +2,10 @@
 
 require 'method_source'
 
+require 'pry/method/weird_method_locator'
+require 'pry/method/disowned'
+require 'pry/method/patcher'
+
 class Pry
   class << self
     # If the given object is a `Pry::Method`, return it unaltered. If it's

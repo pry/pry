@@ -22,10 +22,10 @@ class Pry
     attr_accessor :cli
     attr_accessor :quiet
     attr_accessor :last_internal_error
-    attr_accessor :config
+    attr_writer :config
 
     def_delegators(
-      :@config, :input, :input=, :output, :output=, :commands,
+      :config, :input, :input=, :output, :output=, :commands,
       :commands=, :print, :print=, :exception_handler, :exception_handler=,
       :hooks, :hooks=, :color, :color=, :pager, :pager=, :editor, :editor=,
       :memory_size, :memory_size=, :extra_sticky_locals, :extra_sticky_locals=,
@@ -45,6 +45,10 @@ class Pry
     #
     def configure
       yield config
+    end
+
+    def config
+      @config ||= Pry::Config.new
     end
   end
 
@@ -128,6 +132,8 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   # requires, and history.
   def self.initial_session_setup
     return unless initial_session?
+
+    require "pry/commands"
 
     @initial_session = false
 
@@ -327,7 +333,6 @@ Readline version #{Readline::VERSION} detected - will not auto_resize! correctly
     @initial_session = true
     @session_finalized = nil
 
-    self.config = Pry::Config.new
     self.cli = false
     self.current_line = 1
     self.line_buffer = [""]
