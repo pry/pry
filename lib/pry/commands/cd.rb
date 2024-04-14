@@ -22,6 +22,8 @@ class Pry
         https://github.com/pry/pry/wiki/State-navigation#wiki-Changing_scope
       BANNER
 
+      command_options state: %i[old_stack]
+
       def process
         state.old_stack ||= []
 

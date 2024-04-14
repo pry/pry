@@ -19,7 +19,7 @@ class Pry
       else
         # Otherwise, saves current binding stack as old stack and pops last
         # binding out of binding stack (the old stack still has that binding).
-        cd_state = Pry::CommandState.default.state_for('cd')
+        cd_state = Pry::CommandState.default.state_for(Pry::Command::Cd)
         cd_state.old_stack = pry_instance.binding_stack.dup
         pry_instance.binding_stack.pop
       end

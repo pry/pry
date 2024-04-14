@@ -7,7 +7,7 @@ class Pry
       group 'Input and Output'
       description "All text following a '.' is forwarded to the shell."
       command_options listing: '.<shell command>', use_prefix: false,
-                      takes_block: true
+                      takes_block: true, state: %i[old_pwd]
 
       banner <<-'BANNER'
         Usage: .COMMAND_NAME

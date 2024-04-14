@@ -6,6 +6,7 @@ class Pry
       match 'shell-mode'
       group 'Input and Output'
       description 'Toggle shell mode. Bring in pwd prompt and file completion.'
+      command_options state: %i[disabled prev_prompt]
 
       banner <<-'BANNER'
         Toggle shell mode. Bring in pwd prompt and file completion.

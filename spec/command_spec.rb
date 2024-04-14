@@ -420,7 +420,7 @@ RSpec.describe Pry::Command do
 
   describe ".state" do
     it "returns a command state" do
-      expect(described_class.state).to be_an(OpenStruct)
+      expect(described_class.state).to be_an(Struct)
     end
   end
 
@@ -478,17 +478,10 @@ RSpec.describe Pry::Command do
   end
 
   describe "#state" do
-    let(:target) { binding }
-
     subject { Class.new(described_class).new(pry_instance: Pry.new) }
 
     it "returns a state object" do
-      expect(subject.state).to be_an(OpenStruct)
-    end
-
-    it "remembers the state" do
-      subject.state.foo = :bar
-      expect(subject.state.foo).to eq(:bar)
+      expect(subject.state).to be_an(Struct)
     end
   end
 

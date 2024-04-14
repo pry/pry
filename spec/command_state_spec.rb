@@ -17,33 +17,35 @@ RSpec.describe Pry::CommandState do
 
   describe "#state_for" do
     it "returns a state for the matching command" do
-      subject.state_for('command').foobar = 1
-      expect(subject.state_for('command').foobar).to eq(1)
+      subject.state_for(Pry::Command::Cd).old_stack = 1
+      expect(subject.state_for(Pry::Command::Cd).old_stack).to eq(1)
     end
 
     it "returns new state for new command" do
-      expect(subject.state_for('command'))
-        .not_to equal(subject.state_for('other-command'))
+      expect(subject.state_for(Pry::Command::Cd))
+        .not_to equal(subject.state_for(Pry::Command::Play))
     end
 
     it "memoizes state for the same command" do
-      expect(subject.state_for('command')).to equal(subject.state_for('command'))
+      state_a = subject.state_for(Pry::Command::Cd)
+      state_b = subject.state_for(Pry::Command::Cd)
+      expect(state_a).to equal(state_b)
     end
   end
 
   describe "#reset" do
     it "resets the command state for the given command" do
-      subject.state_for('command').foobar = 1
-      subject.reset('command')
-      expect(subject.state_for('command').foobar).to be_nil
+      subject.state_for(Pry::Command::Cd).old_stack = 1
+      subject.reset(Pry::Command::Cd)
+      expect(subject.state_for(Pry::Command::Cd).old_stack).to be_nil
     end
 
     it "doesn't reset command state for other commands" do
-      subject.state_for('command').foobar = 1
-      subject.state_for('other-command').foobar = 1
-      subject.reset('command')
+      subject.state_for(Pry::Command::Cd).old_stack = 1
+      subject.state_for(Pry::Command::WatchExpression).watch_expressions = 1
+      subject.reset(Pry::Command::Cd)
 
-      expect(subject.state_for('other-command').foobar).to eq(1)
+      expect(subject.state_for(Pry::Command::WatchExpression).watch_expressions).to eq(1)
     end
   end
 end
