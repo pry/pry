@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'method_source'
-require 'ostruct'
 
 ##
 # Pry is a powerful alternative to the standard IRB shell for Ruby. It
@@ -93,7 +92,6 @@ class Pry
     @input_ring << nil
     push_initial_binding(target)
     exec_hook(:when_started, target, options, self)
-    @prompt_warn = false
   end
 
   # This is the prompt at the top of the prompt stack.
@@ -452,45 +450,17 @@ class Pry
   # @return [String] The prompt.
   def select_prompt
     object = current_binding.eval('self')
-    open_token = @indent.open_delimiters.last || @indent.stack.last
-
-    c = OpenStruct.new(
-      object: object,
-      nesting_level: binding_stack.size - 1,
-      open_token: open_token,
-      session_line: Pry.history.session_line_count + 1,
-      history_line: Pry.history.history_line_count + 1,
-      expr_number: input_ring.count,
-      pry_instance: self,
-      binding_stack: binding_stack,
-      input_ring: input_ring,
-      eval_string: @eval_string,
-      cont: !@eval_string.empty?
-    )
+    nesting_level = binding_stack.size - 1
+    pry_instance = self
 
     Pry.critical_section do
       # If input buffer is empty, then use normal prompt. Otherwise use the wait
       # prompt (indicating multi-line expression).
       if prompt.is_a?(Pry::Prompt)
         prompt_proc = eval_string.empty? ? prompt.wait_proc : prompt.incomplete_proc
-        return prompt_proc.call(c.object, c.nesting_level, c.pry_instance)
-      end
-
-      unless @prompt_warn
-        @prompt_warn = true
-        Kernel.warn(
-          "warning: setting prompt with help of " \
-          "`Pry.config.prompt = [proc {}, proc {}]` is deprecated. " \
-          "Use Pry::Prompt API instead"
-        )
-      end
-
-      # If input buffer is empty then use normal prompt
-      if eval_string.empty?
-        generate_prompt(Array(prompt).first, c)
-      # Otherwise use the wait prompt (indicating multi-line expression)
+        return prompt_proc.call(object, nesting_level, pry_instance)
       else
-        generate_prompt(Array(prompt).last, c)
+        output.puts "ERROR: Use Pry::Prompt API."
       end
     end
   end
@@ -682,14 +652,6 @@ class Pry
        val.respond_to?(:encoding) &&
        val.encoding != @eval_string.encoding
       @eval_string.force_encoding(val.encoding)
-    end
-  end
-
-  def generate_prompt(prompt_proc, conf)
-    if prompt_proc.arity == 1
-      prompt_proc.call(conf)
-    else
-      prompt_proc.call(conf.object, conf.nesting_level, conf.pry_instance)
     end
   end
 

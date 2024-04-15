@@ -28,7 +28,7 @@ describe "test Pry defaults" do
     end
 
     it 'should pass in the prompt if readline arity is 1' do
-      Pry.prompt = proc { "A" }
+      Pry.prompt = Pry::Prompt[:simple]
 
       arity_one_input = Class.new do
         attr_accessor :prompt
@@ -39,11 +39,11 @@ describe "test Pry defaults" do
       end.new
 
       Pry.start(self, input: arity_one_input, output: StringIO.new)
-      expect(arity_one_input.prompt).to eq Pry.prompt.call
+      expect(arity_one_input.prompt).to eq Pry.prompt.wait_proc.call
     end
 
     it 'should not pass in the prompt if the arity is 0' do
-      Pry.prompt = proc { "A" }
+      Pry.prompt = Pry::Prompt[:simple]
 
       arity_zero_input = Class.new do
         def readline
@@ -56,7 +56,7 @@ describe "test Pry defaults" do
     end
 
     it 'should not pass in the prompt if the arity is -1' do
-      Pry.prompt = proc { "A" }
+      Pry.prompt = Pry::Prompt[:simple]
 
       arity_multi_input = Class.new do
         attr_accessor :prompt
