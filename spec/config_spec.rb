@@ -34,7 +34,7 @@ RSpec.describe Pry::Config do
   specify { expect(subject.extra_sticky_locals).to be_a(Hash) }
   specify { expect(subject.command_completions).to be_a(Proc) }
   specify { expect(subject.file_completions).to be_a(Proc) }
-  specify { expect(subject.ls).to be_an(OpenStruct) }
+  specify { expect(subject.ls).to be_an(Pry::Command::Ls::Config) }
   specify { expect(subject.completer).to eq(Pry::InputCompleter) }
   specify { expect(subject.history).to be_a(Pry::History) }
   specify { expect(subject.history_save).to eq(true).or be(false) }
