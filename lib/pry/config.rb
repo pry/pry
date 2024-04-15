@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ostruct'
-
 class Pry
   # @api private
   class Config
@@ -199,7 +197,7 @@ class Pry
         extra_sticky_locals: {},
         command_completions: proc { commands.keys },
         file_completions: proc { Dir['.'] },
-        ls: OpenStruct.new(Pry::Command::Ls::DEFAULT_OPTIONS),
+        ls: Pry::Command::Ls::Config.default,
         completer: Pry::InputCompleter,
         history_save: true,
         history_load: true,
