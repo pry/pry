@@ -4,6 +4,12 @@ require 'pathname'
 require 'tempfile'
 
 describe "edit" do
+  EditHelper = Struct.new(:required, :counter, :le) do
+    def reset
+      @required, @counter, @ie = nil
+    end
+  end.new
+
   before do
     @old_editor = Pry.config.editor
     @file = @line = @contents = nil
@@ -76,65 +82,65 @@ describe "edit" do
         Pry.config.editor = lambda { |file, _line|
           File.open(file, 'w') { |f| f << 'require_relative "baz.rb"' }
           File.open(file.gsub('bar.rb', 'baz.rb'), 'w') do |f|
-            f << "Pad.required = true; FileUtils.rm(__FILE__)"
+            f << "EditHelper.required = true; FileUtils.rm(__FILE__)"
           end
           nil
         }
         pry_eval "edit #{@tf_path}"
-        expect(Pad.required).to eq true
+        expect(EditHelper.required).to eq true
       end
     end
 
     describe do
       before do
-        Pad.counter = 0
+        EditHelper.counter = 0
         Pry.config.editor = lambda { |file, _line|
-          File.open(file, 'w') { |f| f << "Pad.counter = Pad.counter + 1" }
+          File.open(file, 'w') { |f| f << "EditHelper.counter = EditHelper.counter + 1" }
           nil
         }
       end
 
       it "should reload the file if it is a ruby file" do
         temp_file do |tf|
-          counter = Pad.counter
+          counter = EditHelper.counter
           path    = tf.path
 
           pry_eval "edit #{path}"
 
-          expect(Pad.counter).to eq counter + 1
+          expect(EditHelper.counter).to eq counter + 1
         end
       end
 
       it "should not reload the file if it is not a ruby file" do
         temp_file('.py') do |tf|
-          counter = Pad.counter
+          counter = EditHelper.counter
           path    = tf.path
 
           pry_eval "edit #{path}"
 
-          expect(Pad.counter).to eq counter
+          expect(EditHelper.counter).to eq counter
         end
       end
 
       it "should not reload a ruby file if -n is given" do
         temp_file do |tf|
-          counter = Pad.counter
+          counter = EditHelper.counter
           path    = tf.path
 
           pry_eval "edit -n #{path}"
 
-          expect(Pad.counter).to eq counter
+          expect(EditHelper.counter).to eq counter
         end
       end
 
       it "should reload a non-ruby file if -r is given" do
         temp_file('.pryrc') do |tf|
-          counter = Pad.counter
+          counter = EditHelper.counter
           path    = tf.path
 
           pry_eval "edit -r #{path}"
 
-          expect(Pad.counter).to eq counter + 1
+          expect(EditHelper.counter).to eq counter + 1
         end
       end
     end
@@ -212,16 +218,16 @@ describe "edit" do
           nil
         }
 
-        Pad.le = @t.last_exception
+        EditHelper.le = @t.last_exception
         redirect_pry_io(InputTester.new("def broken_method", "binding.pry", "end",
                                         "broken_method",
-                                        "pry_instance.last_exception = Pad.le",
+                                        "pry_instance.last_exception = EditHelper.le",
                                         "edit --ex -n", "exit-all", "exit-all")) do
           Object.new.pry
         end
 
         expect(source_location).to contain_exactly(%r{(/private)?#{@path}}, 3)
-        Pad.clear
+        EditHelper.reset
       end
 
       it "should not reload the file if -n is passed" do

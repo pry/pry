@@ -16,10 +16,6 @@ describe "show-source" do # rubocop:disable Metrics/BlockLength
     Object.const_set(:Test, Module.new)
   end
 
-  after do
-    Pad.clear
-  end
-
   it "should output a method's source" do
     expect(pry_eval(binding, 'show-source @o.sample_method')).to match(/def @o.sample/)
   end

@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
 describe "commands" do
+  CommandHelper = Struct.new(:bs1, :bs2, :bs3, :self, :bong) do
+    def reset
+      @bs1, @bs2, @bs3, @self, @bong = nil
+    end
+  end.new
+
   before do
     @str_output = StringIO.new
     @o = Object.new
 
     # Shortcuts. They save a lot of typing.
-    @bs1 = "Pad.bs1 = pry_instance.binding_stack.dup"
-    @bs2 = "Pad.bs2 = pry_instance.binding_stack.dup"
-    @bs3 = "Pad.bs3 = pry_instance.binding_stack.dup"
+    @bs1 = "CommandHelper.bs1 = pry_instance.binding_stack.dup"
+    @bs2 = "CommandHelper.bs2 = pry_instance.binding_stack.dup"
+    @bs3 = "CommandHelper.bs3 = pry_instance.binding_stack.dup"
 
-    @self = "Pad.self = self"
+    @self = "CommandHelper.self = self"
 
     @command_tester = Pry::CommandSet.new do
       command "command1", "command 1 test" do
@@ -22,11 +28,11 @@ describe "commands" do
       end
     end
 
-    Pad.bong = "bong"
+    CommandHelper.bong = "bong"
   end
 
   after do
-    Pad.clear
+    CommandHelper.reset
     Pry.reset_defaults
   end
 
@@ -126,9 +132,9 @@ describe "commands" do
         Pry.start(@o, commands: set)
       end
 
-      expect(Pad.bs1.size).to eq 7
-      expect(Pad.self).to eq @o
-      expect(Pad.bs2.size).to eq 1
+      expect(CommandHelper.bs1.size).to eq 7
+      expect(CommandHelper.self).to eq @o
+      expect(CommandHelper.bs2.size).to eq 1
     end
 
     it 'should allow running of cd command when contained in a single string' do
@@ -143,9 +149,9 @@ describe "commands" do
         Pry.start(@o, commands: set)
       end
 
-      expect(Pad.bs1.size).to eq 7
-      expect(Pad.self).to eq @o
-      expect(Pad.bs2.size).to eq 1
+      expect(CommandHelper.bs1.size).to eq 7
+      expect(CommandHelper.self).to eq @o
+      expect(CommandHelper.bs2.size).to eq 1
     end
 
     it 'should allow running of cd command when split into array' do
@@ -160,9 +166,9 @@ describe "commands" do
         Pry.start(@o, commands: set)
       end
 
-      expect(Pad.bs1.size).to eq 7
-      expect(Pad.self).to eq @o
-      expect(Pad.bs2.size).to eq 1
+      expect(CommandHelper.bs1.size).to eq 7
+      expect(CommandHelper.self).to eq @o
+      expect(CommandHelper.bs2.size).to eq 1
     end
 
     it 'should run a command from within a command' do
@@ -239,7 +245,7 @@ describe "commands" do
     end
 
     # rubocop:disable Lint/InterpolationCheck
-    expect(pry_tester(commands: set).eval('hello #{Pad.bong}')).to match(/bong/)
+    expect(pry_tester(commands: set).eval('hello #{CommandHelper.bong}')).to match(/bong/)
     # rubocop:enable Lint/InterpolationCheck
   end
 
@@ -268,8 +274,8 @@ describe "commands" do
     end
 
     # rubocop:disable Lint/InterpolationCheck
-    expect(pry_tester(commands: set).eval('hello #{Pad.bong}'))
-      .to match(/Pad\.bong/)
+    expect(pry_tester(commands: set).eval('hello #{CommandHelper.bong}'))
+      .to match(/CommandHelper\.bong/)
     # rubocop:enable Lint/InterpolationCheck
   end
 

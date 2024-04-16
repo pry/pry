@@ -1,14 +1,20 @@
 # frozen_string_literal: true
 
 describe "raise-up" do
+  RaiseHelper = Struct.new(:self, :inner, :outer, :deep) do
+    def reset
+      @self, @inner, @outer, @deep = nil
+    end
+  end.new
+
   before do
-    @self  = "Pad.self = self"
-    @inner = "Pad.inner = self"
-    @outer = "Pad.outer = self"
+    @self  = "RaiseHelper.self = self"
+    @inner = "RaiseHelper.inner = self"
+    @outer = "RaiseHelper.outer = self"
   end
 
   after do
-    Pad.clear
+    RaiseHelper.reset
   end
 
   it "should raise the exception with raise-up" do
@@ -29,8 +35,8 @@ describe "raise-up" do
       Pry.start(:outer)
     end
 
-    expect(Pad.inner).to eq :inner
-    expect(Pad.outer).to eq :outer
+    expect(RaiseHelper.inner).to eq :inner
+    expect(RaiseHelper.outer).to eq :outer
   end
 
   it "should raise the most recently raised exception" do
@@ -40,15 +46,15 @@ describe "raise-up" do
 
   it "should allow you to cd up and (eventually) out" do
     redirect_pry_io(InputTester.new("cd :inner", "raise NoMethodError", @inner,
-                                    "deep = :deep", "cd deep", "Pad.deep = self",
+                                    "deep = :deep", "cd deep", "RaiseHelper.deep = self",
                                     "raise-up NoMethodError", "raise-up", @outer,
                                     "raise-up", "exit-all")) do
       expect { Pry.start(:outer) }.to raise_error NoMethodError
     end
 
-    expect(Pad.deep).to  eq :deep
-    expect(Pad.inner).to eq :inner
-    expect(Pad.outer).to eq :outer
+    expect(RaiseHelper.deep).to  eq :deep
+    expect(RaiseHelper.inner).to eq :inner
+    expect(RaiseHelper.outer).to eq :outer
   end
 
   it "should jump immediately out of nested contexts with !" do

@@ -127,8 +127,9 @@ describe Pry do
       end
 
       it 'should be able to operate inside the BasicObject class' do
-        pry_eval(BasicObject, ":foo", "Pad.obj = _")
-        expect(Pad.obj).to eq :foo
+        ObjectStore = Struct.new(:obj).new
+        pry_eval(BasicObject, ":foo", "ObjectStore.obj = _")
+        expect(ObjectStore.obj).to eq :foo
       end
 
       it 'should set an ivar on an object' do
@@ -323,10 +324,11 @@ describe Pry do
         end
 
         it 'store exceptions' do
-          mock_pry("foo!", "Pad.in = _in_[-1]; Pad.out = _out_[-1]")
+          InOut = Struct.new(:in, :out).new
+          mock_pry("foo!", "InOut.in = _in_[-1]; InOut.out = _out_[-1]")
 
-          expect(Pad.in).to eq "foo!\n"
-          expect(Pad.out).to be_a_kind_of NoMethodError
+          expect(InOut.in).to eq "foo!\n"
+          expect(InOut.out).to be_a_kind_of NoMethodError
         end
       end
 
