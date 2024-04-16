@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ostruct'
-
 class Pry
   # CommandState is a data structure to hold per-command state.
   #
@@ -20,12 +18,19 @@ class Pry
       @command_state = {}
     end
 
-    def state_for(command_name)
-      @command_state[command_name] ||= OpenStruct.new
+    def state_for(command_class)
+      @command_state[command_class] ||= command_struct(command_class)
     end
 
-    def reset(command_name)
-      @command_state[command_name] = OpenStruct.new
+    def reset(command_class)
+      @command_state[command_class] = command_struct(command_class)
+    end
+
+    private
+
+    def command_struct(command_class)
+      Struct.new(:command, *command_class.command_options[:state])
+        .new(command: command_class)
     end
   end
 end

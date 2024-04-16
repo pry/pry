@@ -200,7 +200,7 @@ class Pry
       end
 
       def state
-        Pry::CommandState.default.state_for(match)
+        Pry::CommandState.default.state_for(self)
       end
     end
 

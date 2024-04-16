@@ -7,7 +7,7 @@ class Pry
       group 'Context'
       description 'Watch the value of an expression and print a notification ' \
                   'whenever it changes.'
-      command_options use_prefix: false
+      command_options use_prefix: false, state: %i[watch_expressions]
 
       banner <<-'BANNER'
         Usage: watch [EXPRESSION]

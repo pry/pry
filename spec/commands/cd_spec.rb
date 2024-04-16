@@ -27,7 +27,7 @@ describe 'cd' do
     end
   end
 
-  after { Pry::CommandState.default.reset('cd') }
+  after { Pry::CommandState.default.reset(Pry::Command::Cd) }
 
   describe 'old stack toggling with `cd -`' do
     describe 'in fresh pry instance' do

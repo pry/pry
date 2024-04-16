@@ -22,6 +22,8 @@ class Pry
         https://github.com/pry/pry/wiki/Editor-integration#wiki-Edit_command
       BANNER
 
+      command_options state: %i[dynamical_ex_file]
+
       def options(opt)
         opt.on :e, :ex, "Open the file that raised the most recent exception " \
                         "(_ex_.file)",
