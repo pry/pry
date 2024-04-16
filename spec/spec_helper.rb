@@ -6,7 +6,6 @@ require 'rspec'
 require 'pry/testable'
 require 'English'
 require 'stringio'
-require 'ostruct'
 
 Dir['./spec/support/**/*.rb'].map do |file|
   require file
@@ -19,8 +18,6 @@ class Module
   public :remove_method
   # rubocop:enable Style/AccessModifierDeclarations
 end
-
-Pad = OpenStruct.new
 
 # to help with tracking down bugs that cause an infinite loop in the test suite
 if ENV["SET_TRACE_FUNC"]

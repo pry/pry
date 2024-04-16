@@ -43,7 +43,7 @@ describe "hist" do
     @hist.push "cd 2"
 
     @t.eval("hist --replay 0..2")
-    stack = @t.eval("Pad.stack = pry_instance.binding_stack.dup")
+    stack = @t.eval("stack = pry_instance.binding_stack.dup")
     expect(stack.map { |b| b.eval("self") }).to eq [TOPLEVEL_BINDING.eval("self"), 1, 2]
   end
 

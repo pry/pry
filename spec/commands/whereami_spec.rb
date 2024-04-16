@@ -4,6 +4,8 @@ require 'method_source'
 
 describe "whereami" do
   it 'should work with methods that have been undefined' do
+    Pad = Struct.new(:binding).new
+
     class Cor
       def blimey!
         Cor.send :undef_method, :blimey!
