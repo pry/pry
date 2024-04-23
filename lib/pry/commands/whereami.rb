@@ -44,11 +44,31 @@ class Pry
       def setup
         if target.respond_to?(:source_location)
           file, @line = target.source_location
-          @file = expand_path(file)
         else
-          @file = expand_path(target.eval('__FILE__'))
+          file = target.eval('__FILE__')
           @line = target.eval('__LINE__')
         end
+
+        # If the current location is in a top-level script, then the filename
+        # returned by source_location or __FILE__ will be just the filename with
+        # no path: e.g. 'myscript.rb'. If the current working directory has been
+        # changed, then expand_path(file) will construct an incorrect path to
+        # the source. We can use __dir__ to fix this case.
+        if !file.nil? && !File.absolute_path?(file)
+          dir = target.eval('__dir__')
+
+          # We have to be careful not to join with dir if it's also a relative
+          # path. There are some cases where the file and dir paths are both
+          # relative to the same directory, like:
+          #
+          # __FILE__: "spec/fixtures/example.erb"
+          # __dir__:  "spec/fixtures"
+          if !dir.nil? && File.absolute_path?(dir)
+            file = File.join(dir, file)
+          end
+        end
+
+        @file = expand_path(file)
         @method = Pry::Method.from_binding(target)
       end
 

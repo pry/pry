@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'method_source'
+require 'open3'
 
 describe "whereami" do
   it 'should work with methods that have been undefined' do
@@ -277,4 +278,15 @@ describe "whereami" do
   it "should work inside an object" do
     expect(pry_eval(Object.new, 'whereami')).to match(/Inside #<Object/)
   end
+
+  it 'should work after chdir from main script' do
+    script_dir = File.expand_path(File.join(__dir__, '..', 'fixtures'))
+    script = 'whereami_main_chdir.rb'
+
+    output, status = Open3.capture2(RbConfig.ruby, script, chdir: script_dir)
+
+    expect(status.success?).to be true
+    expect(output.strip).to eq File.join(script_dir, script)
+  end
+
 end
