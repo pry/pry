@@ -54,7 +54,7 @@ class Pry
         # no path: e.g. 'myscript.rb'. If the current working directory has been
         # changed, then expand_path(file) will construct an incorrect path to
         # the source. We can use __dir__ to fix this case.
-        if !file.nil? && !File.absolute_path?(file)
+        if !file.nil? && !absolute_path?(file)
           dir = target.eval('__dir__')
 
           # We have to be careful not to join with dir if it's also a relative
@@ -63,7 +63,7 @@ class Pry
           #
           # __FILE__: "spec/fixtures/example.erb"
           # __dir__:  "spec/fixtures"
-          if !dir.nil? && File.absolute_path?(dir)
+          if !dir.nil? && absolute_path?(dir)
             file = File.join(dir, file)
           end
         end
@@ -207,6 +207,35 @@ class Pry
         return filename if Pry.eval_path == filename
 
         File.expand_path(filename)
+      end
+
+      # These are #defines in the ruby C code that control how absolute_path?
+      # works. They don't seem to be accessible at runtime but they can be
+      # figured out from runtime behavior. This is copied from
+      # test/pathname/test_pathname.rb in the ruby source code (which looks to
+      # be under the 2-clause BSD license, not sure the best way to comply with
+      # the licensing terms for just 3 lines of code).
+      DOSISH = File::ALT_SEPARATOR != nil
+      DOSISH_DRIVE_LETTER = File.dirname("A:") == "A:."
+      DOSISH_UNC = File.dirname("//") == "//"
+
+      def absolute_path?(path)
+        # File.absolute_path? was added in ruby-2.7.0
+        return File.absolute_path?(path) if File.respond_to?(:absolute_path?)
+
+        if DOSISH_DRIVE_LETTER
+          return true if path =~ /^[a-z]:[\/\\]/i
+        end
+
+        if DOSISH_UNC
+          return true if path =~ /^[\/\\]{2}/i
+        end
+
+        if !DOSISH
+          return true if path[0] == '/'
+        end
+
+        return false
       end
 
       def window_size
