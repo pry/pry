@@ -63,9 +63,7 @@ class Pry
           #
           # __FILE__: "spec/fixtures/example.erb"
           # __dir__:  "spec/fixtures"
-          if !dir.nil? && absolute_path?(dir)
-            file = File.join(dir, file)
-          end
+          file = File.join(dir, file) if !dir.nil? && absolute_path?(dir)
         end
 
         @file = expand_path(file)
@@ -215,7 +213,7 @@ class Pry
       # test/pathname/test_pathname.rb in the ruby source code (which looks to
       # be under the 2-clause BSD license, not sure the best way to comply with
       # the licensing terms for just 3 lines of code).
-      DOSISH = File::ALT_SEPARATOR != nil
+      DOSISH = !File::ALT_SEPARATOR.nil?
       DOSISH_DRIVE_LETTER = File.dirname("A:") == "A:."
       DOSISH_UNC = File.dirname("//") == "//"
 
@@ -224,18 +222,18 @@ class Pry
         return File.absolute_path?(path) if File.respond_to?(:absolute_path?)
 
         if DOSISH_DRIVE_LETTER
-          return true if path =~ /^[a-z]:[\/\\]/i
+          return true if path =~ %r{^[a-z]:[/\\]}i
         end
 
         if DOSISH_UNC
-          return true if path =~ /^[\/\\]{2}/i
+          return true if path =~ %r{^[/\\]{2}}i
         end
 
-        if !DOSISH
+        unless DOSISH
           return true if path[0] == '/'
         end
 
-        return false
+        false
       end
 
       def window_size

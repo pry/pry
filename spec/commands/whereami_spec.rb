@@ -288,5 +288,4 @@ describe "whereami" do
     expect(status.success?).to be true
     expect(output.strip).to eq File.join(script_dir, script)
   end
-
 end
