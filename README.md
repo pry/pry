@@ -421,7 +421,7 @@ pry -r ./config/environment
 
 Or start the rails console (`bin/rails console`) and then type `pry`.
 
-It's also possible to use Pry as your Rails console by adding [the `pry-rails`
+It's also possible to use Pry as your Rails console by adding [the pry-rails
 gem](https://github.com/pry/pry-rails) to your Gemfile. This replaces the
 default console with Pry, in addition to loading the Rails console helpers and
 adding some useful Rails-specific commands.
