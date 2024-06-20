@@ -35,6 +35,15 @@ class Pry
         self
       end
 
+      # TODO: Remove add_plugin_options when removing plugin auto-loading
+      # Bring in options defined in plugins
+      def add_plugin_options
+        Pry::Warning.warn "Pry.plugins is deprecated and will be removed entirely"
+        Pry.plugins.values.each(&:load_cli_options)
+
+        self
+      end
+
       # Add a block responsible for processing parsed options.
       def add_option_processor(&block)
         self.option_processors ||= []
@@ -117,6 +126,17 @@ class Pry
   end
 end
 
+# TODO: Remove enable-plugins when removing plugin auto-loading
+# Bring in options defined by plugins
+Pry::Slop.new do
+  on "enable-plugins" do
+    Pry.config.should_load_plugins = true
+  end
+end.parse(ARGV.dup)
+
+# TODO: Remove add_plugin_options when removing plugin auto-loading
+Pry::CLI.add_plugin_options if Pry.config.should_load_plugins
+
 # The default Pry command line options (before plugin options are included)
 Pry::CLI.add_options do
   banner(
@@ -160,6 +180,11 @@ Pry::CLI.add_options do
 
   on "no-plugins", "Suppress loading of plugins." do
     warn "The --no-plugins option is deprecated and has no effect"
+  end
+
+  on :p, "enable-plugins", "Opt-in to auto loading of plugins." do
+    warn "The --enable-plugins option is deprecated"
+    Pry.config.should_load_plugins = true
   end
 
   on "plugins", "List installed plugins." do

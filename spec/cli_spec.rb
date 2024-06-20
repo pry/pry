@@ -41,6 +41,21 @@ RSpec.describe Pry::CLI do
     end
   end
 
+  describe ".add_plugin_options" do
+    it "returns self" do
+      expect(described_class.add_plugin_options).to eq(described_class)
+    end
+
+    it "loads cli options of plugins" do
+      plugin_mock = double
+      expect(plugin_mock).to receive(:load_cli_options)
+      plugins = { 'pry-testplugin' => plugin_mock }
+      expect(Pry).to receive(:plugins).and_return(plugins)
+
+      described_class.add_plugin_options
+    end
+  end
+
   describe ".add_option_processor" do
     it "returns self" do
       expect(described_class.add_option_processor {}).to eq(described_class)
