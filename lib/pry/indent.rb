@@ -17,6 +17,9 @@ class Pry
     # @return [String] String containing the spaces to be inserted before the next line.
     attr_reader :indent_level
 
+    # @return [String] String containing the spaces for the current line.
+    attr_reader :last_indent_level
+
     # @return [Array<String>] The stack of open tokens.
     attr_reader :stack
 
@@ -110,6 +113,7 @@ class Pry
     def reset
       @stack = []
       @indent_level = String.new # rubocop:disable Style/EmptyLiteral
+      @last_indent_level = @indent_level
       @heredoc_queue = []
       @close_heredocs = {}
       @string_start = nil
@@ -164,11 +168,11 @@ class Pry
 
         output += line
 
+        @last_indent_level = prefix
         prefix = new_prefix
       end
 
       @indent_level = prefix
-
       output
     end
 
