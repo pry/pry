@@ -1,5 +1,10 @@
 ### master
 
+#### Features
+
+* Added support for Ruby 3.5
+  ([#2307](https://github.com/pry/pry/pull/2307))
+
 ### [v0.14.2][v0.14.2] (January 9, 2023)
 
 #### Features
