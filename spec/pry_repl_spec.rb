@@ -108,7 +108,7 @@ describe Pry::REPL do
 
     describe "with more than 1 space" do
       it "prioritizes commands over variables" do
-        expect(mock_pry('    ls = 2+2')).to match(/SyntaxError.+unexpected '='/)
+        expect(mock_pry('    ls = 2+2')).to match(/SyntaxError.+unexpected '='/m)
       end
     end
   end

@@ -5,6 +5,23 @@ describe Pry do
     @str_output = StringIO.new
   end
 
+  def error_count_from(code)
+    if defined?(Prism) && Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.4.0')
+      error_count = Prism.parse(code).errors.length
+    else
+      begin
+        # rubocop:disable Security/Eval
+        eval(code)
+        # rubocop:enable Security/Eval
+      rescue SyntaxError => e
+        error_count = e.message.scan(/unexpected.*/).count
+      end
+    end
+    expect(error_count).not_to be_nil
+
+    error_count
+  end
+
   [
     ["p = '", "'"],
     ["def", "a", "(); end"],
@@ -23,41 +40,36 @@ describe Pry do
     end
   end
 
-  [
+  examples = [
     ["end"],
     ["puts )("],
     ["1 1"],
-    ["puts :"],
-
-    # in this case the syntax error is "expecting ')'".
-    ["def", "method(1"],
-
     # in this case the syntax error is "expecting keyword_end".
     ["o = Object.new.tap{ def o.render;", "'MEH'", "}"],
 
     # multiple syntax errors reported in one SyntaxException
     ["puts {key: 'val'}.to_json"]
-  ].compact.each do |foo|
+  ]
+
+  if Gem::Version.new(RUBY_VERSION) <= Gem::Version.new('3.3.0')
+    # in this case the syntax error is "expecting ')'".
+    examples << ["def", "method(1"]
+    examples << ["puts :"]
+  end
+
+  examples.compact.each do |foo|
     it "should raise an error on invalid syntax like #{foo.inspect}" do
       redirect_pry_io(InputTester.new(*foo), @str_output) do
         Pry.start
       end
 
-      expect(@str_output.string).to match(/SyntaxError/)
+      expect(@str_output.string).to match(/(SyntaxError|syntax errors? found)/)
     end
 
     it "should display correct number of errors on invalid syntax like #{foo.inspect}" do
-      begin
-        # rubocop:disable Security/Eval
-        eval(foo.join("\n"))
-        # rubocop:enable Security/Eval
-      rescue SyntaxError => e
-        error_count = e.message.scan(/syntax error/).count
-      end
-      expect(error_count).not_to be_nil
-
       pry_output = mock_pry(*foo)
-      expect(pry_output.scan(/SyntaxError/).count).to eq(error_count)
+      errors_found = error_count_from(foo.join("\n"))
+      expect(pry_output.scan(/expected.*\n/).count).to eq(errors_found)
     end
   end
 
@@ -88,7 +100,8 @@ describe Pry do
       "puts foo)",
       "_ex_.is_a?(RuntimeError)"
     )
-    expect(output).to match(/^RuntimeError.*\nSyntaxError.*\n=> true/m)
+
+    expect(output).to match(/^RuntimeError.*(SyntaxError|syntax errors).*=> true/m)
   end
 
   it "should allow whitespace delimited strings" do
