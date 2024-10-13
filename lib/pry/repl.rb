@@ -195,8 +195,6 @@ class Pry
     end
 
     def input_reline(*args)
-      require 'prism'
-
       Reline.output_modifier_proc = lambda do |text, _|
         if pry.color
           SyntaxHighlighter.highlight(text)
@@ -232,7 +230,7 @@ class Pry
     end
 
     def reline_available?
-      defined?(Reline) && input == Reline
+      defined?(Reline) && input == Reline && prism_available?
     end
 
     def readline_available?
@@ -241,6 +239,13 @@ class Pry
 
     def coolline_available?
       defined?(Coolline) && input.is_a?(Coolline)
+    end
+
+    def prism_available?
+      require 'prism'
+
+      @prism_available ||= defined?(Prism) &&
+                           Gem::Version.new(Prism::VERSION) >= Gem::Version.new('0.25.0')
     end
 
     # If `$stdout` is not a tty, it's probably a pipe.
