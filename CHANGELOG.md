@@ -2,6 +2,8 @@
 
 #### Features
 
+* Added support for Reline
+  ([#2298](https://github.com/pry/pry/pull/2298))
 * Added support for Ruby 3.3
   ([#2295](https://github.com/pry/pry/pull/2295)
 * Added Pry::Input::SimpleStdio for dumb terminals when Reline is in use

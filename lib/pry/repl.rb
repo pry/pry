@@ -100,7 +100,7 @@ class Pry
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless val.is_a?(String)
 
-      if pry.config.auto_indent
+      if pry.config.auto_indent && !reline_available?
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
@@ -179,7 +179,9 @@ class Pry
           end
         end
 
-        if readline_available?
+        if reline_available?
+          input_reline(current_prompt)
+        elsif readline_available?
           set_readline_output
           input_readline(current_prompt, false) # false since we'll add it manually
         elsif coolline_available?
@@ -192,10 +194,43 @@ class Pry
       end
     end
 
+    def input_reline(*args)
+      Reline.output_modifier_proc = lambda do |text, _|
+        if pry.color
+          SyntaxHighlighter.highlight(text)
+        else
+          text
+        end
+      end
+
+      if pry.config.auto_indent
+        Reline.auto_indent_proc = lambda do |lines, line_index, _byte_pointer, _newline|
+          if line_index == 0
+            0
+          else
+            pry_indentation = Pry::Indent.new
+            pry_indentation.indent(lines.join("\n"))
+            pry_indentation.last_indent_level.length
+          end
+        end
+      end
+
+      Pry::InputLock.for(:all).interruptible_region do
+        input.readmultiline(*args) do |multiline_input|
+          Pry.commands.find_command(multiline_input) ||
+            (complete_expression?(multiline_input) && !Reline::IOGate.in_pasting?)
+        end
+      end
+    end
+
     def input_readline(*args)
       Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
       end
+    end
+
+    def reline_available?
+      defined?(Reline) && input == Reline && prism_available?
     end
 
     def readline_available?
@@ -204,6 +239,13 @@ class Pry
 
     def coolline_available?
       defined?(Coolline) && input.is_a?(Coolline)
+    end
+
+    def prism_available?
+      require 'prism'
+
+      @prism_available ||= defined?(Prism) &&
+                           Gem::Version.new(Prism::VERSION) >= Gem::Version.new('0.25.0')
     end
 
     # If `$stdout` is not a tty, it's probably a pipe.
@@ -225,6 +267,17 @@ class Pry
       return if @readline_output
 
       @readline_output = (Readline.output = Pry.config.output) if piping?
+    end
+
+    UNEXPECTED_TOKENS = %i[unexpected_token_ignore lambda_open].freeze
+
+    def complete_expression?(multiline_input)
+      lex = Prism.lex(multiline_input)
+
+      errors = lex.errors
+      return true if errors.empty?
+
+      errors.any? { |error| UNEXPECTED_TOKENS.include?(error.type) }
     end
 
     # Calculates correct overhang for current line. Supports vi Readline
