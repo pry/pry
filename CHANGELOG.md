@@ -9,6 +9,8 @@
 * Remove OpenStruct usage
   ([#2307](https://github.com/pry/pry/pull/2307))
   ([#2309](https://github.com/pry/pry/pull/2309))
+# Disable coloring of output when NO_COLOR is set.
+  ([#2323](https://github.com/pry/pry/pull/2323)
 
 #### Bug Fixes
 

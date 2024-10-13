@@ -161,6 +161,8 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
 
     options = options.to_hash
 
+    options[:color] = false if Pry::Env['NO_COLOR']
+
     if in_critical_section?
       output.puts "ERROR: Pry started inside Pry."
       output.puts "This can happen if you have a binding.pry inside a #to_s " \
