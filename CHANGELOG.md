@@ -2,8 +2,29 @@
 
 #### Features
 
-* Added support for Ruby 3.5
+* Added support for Ruby 3.3
+  ([#2295](https://github.com/pry/pry/pull/2295)
+* Added Pry::Input::SimpleStdio for dumb terminals when Reline is in use
+  ([#2304](https://github.com/pry/pry/pull/2304))
+* Remove OpenStruct usage
   ([#2307](https://github.com/pry/pry/pull/2307))
+  ([#2309](https://github.com/pry/pry/pull/2309))
+
+#### Bug Fixes
+
+* Fix typos on docs and and comments
+  ([2300](https://github.com/pry/pry/pull/2300))
+  ([2301](https://github.com/pry/pry/pull/2301))
+* Fix 'calling clear method' on user code when defined in pry context.
+  ([#2291](https://github.com/pry/pry/pull/2291))
+* Fix arguments WatchExpression#add_expression
+  ([#2278](https://github.com/pry/pry/pull/2278))
+
+### Breaking changes
+
+* Remove support for deprecated `Pry.config.prompt = [proc {}, proc {}]`
+  Use Pry::Prompt API instead
+  ([#2308](https://github.com/pry/pry/pull/2308))
 
 ### [v0.14.2][v0.14.2] (January 9, 2023)
 
