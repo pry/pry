@@ -39,6 +39,35 @@ describe Pry do
     end
   end
 
+  describe 'NO_COLOR' do
+    let(:output) { StringIO.new }
+
+    before do
+      Pry.config.color = true
+      allow(Pry::Env).to receive(:[])
+      allow(Pry::Env).to receive(:[]).with('TERM').and_return('xterm-256color')
+
+      Pry.config.output = output
+      Pry.config.input = InputTester.new('"some string"')
+    end
+
+    after do
+      Pry.reset_defaults
+    end
+
+    it 'should respect NO_COLOR ENV precedence' do
+      allow(Pry::Env).to receive(:[]).with('NO_COLOR').and_return('1')
+
+      Pry.start
+      expect(output.string).to eql("=> \"some string\"\n")
+    end
+
+    it 'should colorize NO_COLOR is not present' do
+      Pry.start
+      expect(output.string).to include("\e[31m\e[1;31m")
+    end
+  end
+
   describe 'FAIL_PRY' do
     before do
       allow(Pry::Env).to receive(:[])
