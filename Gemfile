@@ -18,7 +18,6 @@ if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.3.0')
   gem 'prism', '>= 0.25.0'
 end
 
-# Rubocop supports only >=2.2.0
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.2.0')
-  gem 'rubocop', '= 0.66.0', require: false
+  gem 'rubocop', require: false
 end
