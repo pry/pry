@@ -1,8 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
-Style/IfUnlessModifier:
-  Exclude:
-    - "Gemfile"
+AllCops:
+  TargetRubyVersion: 2.0
+  NewCops: enable
+  SuggestExtensions: false
 
 # Prevents Ruby 3.1 incompatibility error. You can enable this cop when Ruby 2.4 support is dropped.
 # See https://github.com/rubocop/rubocop/issues/10258
@@ -12,44 +13,40 @@ Layout/BlockAlignment:
 Style/NumericPredicate:
   Enabled: false
 
-Layout/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false
 
 Naming/MethodName:
   Exclude:
-    - 'spec/code_object_spec.rb'
-    - 'lib/pry/method.rb'
-    - 'lib/pry/wrapped_module.rb'
-    - 'lib/pry/code.rb'
+    - "spec/code_object_spec.rb"
+    - "lib/pry/method.rb"
+    - "lib/pry/wrapped_module.rb"
+    - "lib/pry/code.rb"
 
 Metrics/ModuleLength:
   Exclude:
-    - 'lib/pry/config/behavior.rb'
+    - "lib/pry/config/behavior.rb"
 
 Layout/CommentIndentation:
   Exclude:
-    - 'spec/fixtures/example_nesting.rb'
+    - "spec/fixtures/example_nesting.rb"
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
 Style/ClassAndModuleChildren:
   Exclude:
-    - 'spec/fixtures/example_nesting.rb'
-
-Style/Semicolon:
-  Exclude:
-    - 'spec/method_spec.rb'
+    - "spec/fixtures/example_nesting.rb"
 
 Style/SingleLineMethods:
   Exclude:
-    - 'spec/method_spec.rb'
-    - 'spec/fixtures/example_nesting.rb'
+    - "spec/method_spec.rb"
+    - "spec/fixtures/example_nesting.rb"
 
 Style/StringLiterals:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 90
 
 Bundler/OrderedGems:
@@ -63,7 +60,7 @@ Style/Documentation:
 
 Style/CommentedKeyword:
   Exclude:
-    - 'spec/fixtures/example_nesting.rb'
+    - "spec/fixtures/example_nesting.rb"
 
 Gemspec/RequiredRubyVersion:
   Enabled: false
@@ -75,4 +72,4 @@ Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always
   Exclude:
-    - 'spec/fixtures/example_nesting.rb'
+    - "spec/fixtures/example_nesting.rb"
