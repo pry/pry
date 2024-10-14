@@ -20,5 +20,5 @@ end
 
 # Rubocop supports only >=2.2.0
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.2.0')
-  gem 'rubocop', '= 0.66.0', require: false
+  gem 'rubocop', '1.66.1', require: false
 end
