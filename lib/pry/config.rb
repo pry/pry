@@ -61,6 +61,9 @@ class Pry
     # @return [Boolean]
     attribute :pager
 
+    # @return [Boolean]
+    attribute :multiline
+
     # @return [Boolean] whether the global ~/.pryrc should be loaded
     attribute :should_load_rc
 
@@ -164,6 +167,7 @@ class Pry
         hooks: Pry::Hooks.default,
         pager: true,
         system: Pry::SystemCommandHandler.method(:default),
+        multiline: true,
         color: Pry::Helpers::BaseHelpers.use_ansi_codes?,
         default_window_size: 5,
         editor: Pry::Editor.default,
