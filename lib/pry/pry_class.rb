@@ -75,19 +75,27 @@ class Pry
   # Load RC files if appropriate This method can also be used to reload the
   # files if they have changed.
   def self.load_rc_files
-    rc_files_to_load.each do |file|
-      critical_section do
-        load_file_at_toplevel(file)
-      end
-    end
+    rc_files_loaded.clear
+    load_rc_file(Pry.config.rc_file) if Pry.config.rc_file && Pry.config.should_load_rc
+    load_rc_file(LOCAL_RC_FILE) if Pry.config.should_load_local_rc
   end
 
-  # Load the local RC file (./.pryrc)
-  def self.rc_files_to_load
-    files = []
-    files << Pry.config.rc_file if Pry.config.rc_file && Pry.config.should_load_rc
-    files << LOCAL_RC_FILE if Pry.config.should_load_local_rc
-    files.map { |file| real_path_to(file) }.compact.uniq
+  def self.load_rc_file(file)
+    file = real_path_to(file)
+    return if file.nil?
+    return if rc_files_loaded.include?(file)
+
+    critical_section do
+      load_file_at_toplevel(file)
+    end
+
+    rc_files_loaded << file
+  end
+  private_class_method :load_rc_file
+
+  # @return [Array<String>] the files that have been loaded by {.load_rc_files}
+  def self.rc_files_loaded
+    @rc_files_loaded ||= []
   end
 
   # Expand a file to its canonical name (following symlinks as appropriate)
