@@ -24,10 +24,6 @@ class Pry
     # @return [Array] Exception that Pry shouldn't rescue
     attribute :unrescued_exceptions
 
-    # @deprecated
-    # @return [Array] Exception that Pry shouldn't rescue
-    attribute :exception_whitelist
-
     # @return [Integer] The number of lines of context to show before and after
     #   exceptions
     attribute :default_window_size
@@ -164,14 +160,6 @@ class Pry
         unrescued_exceptions: [
           ::SystemExit, ::SignalException, Pry::TooSafeException
         ],
-
-        exception_whitelist: MemoizedValue.new do
-          output.puts(
-            '[warning] Pry.config.exception_whitelist is deprecated, ' \
-            'please use Pry.config.unrescued_exceptions instead.'
-          )
-          unrescued_exceptions
-        end,
 
         hooks: Pry::Hooks.default,
         pager: true,
