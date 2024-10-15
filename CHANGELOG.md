@@ -29,6 +29,9 @@
 * Remove support for deprecated `Pry.config.prompt = [proc {}, proc {}]`
   Use Pry::Prompt API instead
   ([#2308](https://github.com/pry/pry/pull/2308))
+* Remove deprecated `Pry.config.exception_whitelist`.
+  Use `Pry.config.unrescued_exceptions` instead.
+  ([#2326](https://github.com/pry/pry/pull/2326))
 
 ### [v0.14.2][v0.14.2] (January 9, 2023)
 
