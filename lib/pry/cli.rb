@@ -145,6 +145,10 @@ Pry::CLI.add_options do
     Pry.config.color = false
   end
 
+  on "no-multiline", "Disables multiline (defaults to true with Reline)" do
+    Pry.config.multiline = false
+  end
+
   on :f, "Suppress loading of pryrc" do
     Pry.config.should_load_rc = false
     Pry.config.should_load_local_rc = false
