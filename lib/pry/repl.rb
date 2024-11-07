@@ -230,7 +230,7 @@ class Pry
     end
 
     def reline_available?
-      defined?(Reline) && input == Reline && prism_available?
+      defined?(Reline) && input == Reline
     end
 
     def readline_available?
@@ -272,12 +272,16 @@ class Pry
     UNEXPECTED_TOKENS = %i[unexpected_token_ignore lambda_open].freeze
 
     def complete_expression?(multiline_input)
-      lex = Prism.lex(multiline_input)
+      if prism_available?
+        lex = Prism.lex(multiline_input)
 
-      errors = lex.errors
-      return true if errors.empty?
+        errors = lex.errors
+        return true if errors.empty?
 
-      errors.any? { |error| UNEXPECTED_TOKENS.include?(error.type) }
+        errors.any? { |error| UNEXPECTED_TOKENS.include?(error.type) }
+      else
+        Pry::Code.complete_expression?(multiline_input)
+      end
     end
 
     # Calculates correct overhang for current line. Supports vi Readline
