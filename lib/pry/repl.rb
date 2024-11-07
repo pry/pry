@@ -100,7 +100,7 @@ class Pry
       # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
       return val unless val.is_a?(String)
 
-      if pry.config.auto_indent && !reline_available?
+      if pry.config.auto_indent && !input_multiline?
         original_val = "#{indentation}#{val}"
         indented_val = @indent.indent(val)
 
@@ -180,7 +180,29 @@ class Pry
         end
 
         if reline_available?
-          input_reline(current_prompt)
+          Reline.output_modifier_proc = lambda do |text, _|
+            if pry.color
+              SyntaxHighlighter.highlight(text)
+            else
+              text
+            end
+          end
+
+          if pry.config.auto_indent
+            Reline.auto_indent_proc = lambda do |lines, line_index, _byte_ptr, _newline|
+              if line_index == 0
+                0
+              else
+                pry_indentation = Pry::Indent.new
+                pry_indentation.indent(lines.join("\n"))
+                pry_indentation.last_indent_level.length
+              end
+            end
+          end
+        end
+
+        if input_multiline?
+          input_readmultiline(current_prompt, false)
         elsif readline_available?
           set_readline_output
           input_readline(current_prompt, false) # false since we'll add it manually
@@ -194,27 +216,7 @@ class Pry
       end
     end
 
-    def input_reline(*args)
-      Reline.output_modifier_proc = lambda do |text, _|
-        if pry.color
-          SyntaxHighlighter.highlight(text)
-        else
-          text
-        end
-      end
-
-      if pry.config.auto_indent
-        Reline.auto_indent_proc = lambda do |lines, line_index, _byte_pointer, _newline|
-          if line_index == 0
-            0
-          else
-            pry_indentation = Pry::Indent.new
-            pry_indentation.indent(lines.join("\n"))
-            pry_indentation.last_indent_level.length
-          end
-        end
-      end
-
+    def input_readmultiline(*args)
       Pry::InputLock.for(:all).interruptible_region do
         input.readmultiline(*args) do |multiline_input|
           Pry.commands.find_command(multiline_input) ||
@@ -227,6 +229,10 @@ class Pry
       Pry::InputLock.for(:all).interruptible_region do
         input.readline(*args)
       end
+    end
+
+    def input_multiline?
+      !!pry.config.multiline && reline_available?
     end
 
     def reline_available?

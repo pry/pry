@@ -15,6 +15,7 @@ RSpec.describe Pry::Config do
   specify { expect(subject.pager).to be(true).or be(false) }
   specify { expect(subject.system).to be_a(Method) }
   specify { expect(subject.color).to be(true).or be(false) }
+  specify { expect(subject.multiline).to be(true).or be(false) }
   specify { expect(subject.default_window_size).to be_a(Numeric) }
   specify { expect(subject.editor).to be_a(String) }
   specify { expect(subject.should_load_rc).to be(true).or be(false) }
