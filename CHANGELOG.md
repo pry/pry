@@ -13,6 +13,8 @@
   ([#2309](https://github.com/pry/pry/pull/2309))
 # Disable coloring of output when NO_COLOR is set.
   ([#2323])(https://github.com/pry/pry/pull/2323)
+# Add `pry --no-multiline` flag to keep single line prompt.
+  ([#2327](https://github.com/pry/pry/pull/2327)
 
 #### Bug Fixes
 
