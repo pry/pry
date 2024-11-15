@@ -1,26 +1,26 @@
-### master
+### [v0.15.0][v0.15.0] (November 15, 2024)
 
 #### Features
 
 * Added support for Reline
   ([#2298](https://github.com/pry/pry/pull/2298))
 * Added support for Ruby 3.3
-  ([#2295](https://github.com/pry/pry/pull/2295)
+  ([#2295](https://github.com/pry/pry/pull/2295))
 * Added Pry::Input::SimpleStdio for dumb terminals when Reline is in use
   ([#2304](https://github.com/pry/pry/pull/2304))
 * Remove OpenStruct usage
   ([#2307](https://github.com/pry/pry/pull/2307))
   ([#2309](https://github.com/pry/pry/pull/2309))
-# Disable coloring of output when NO_COLOR is set.
-  ([#2323])(https://github.com/pry/pry/pull/2323)
-# Add `pry --no-multiline` flag to keep single line prompt.
-  ([#2327](https://github.com/pry/pry/pull/2327)
+* Disable coloring of output when NO_COLOR is set.
+  ([#2323])(https://github.com/pry/pry/pull/2323))
+* Add `pry --no-multiline` flag to keep single line prompt.
+  ([#2327](https://github.com/pry/pry/pull/2327))
 
 #### Bug Fixes
 
 * Fix typos on docs and and comments
-  ([2300](https://github.com/pry/pry/pull/2300))
-  ([2301](https://github.com/pry/pry/pull/2301))
+  ([#2300](https://github.com/pry/pry/pull/2300))
+  ([#2301](https://github.com/pry/pry/pull/2301))
 * Fix 'calling clear method' on user code when defined in pry context.
   ([#2291](https://github.com/pry/pry/pull/2291))
 * Fix arguments WatchExpression#add_expression
