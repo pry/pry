@@ -1,3 +1,10 @@
+### Unreleased
+
+#### Bug Fixes
+
+* Restore Pry.config.ls compatibility
+  ([#2335](https://github.com/pry/pry/pull/2335))
+
 ### [v0.15.0][v0.15.0] (November 15, 2024)
 
 #### Features
