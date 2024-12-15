@@ -247,6 +247,30 @@ describe "ls" do
     end
   end
 
+  describe "colors" do
+    around do |example|
+      old_config = Pry.config.ls
+      Pry.config.ls = Pry::Command::Ls::Config.default
+      example.run
+      Pry.config.ls = old_config
+    end
+
+    it "should configure colors via config.ls" do
+      pry_eval("Pry.config.ls.heading_color = :bright_green")
+      expect(Pry.config.ls.heading_color).to eql(:bright_green)
+    end
+
+    it "should be accessible via Hash access " do
+      pry_eval("Pry.config.ls[:heading_color] = :bright_red")
+      expect(Pry.config.ls.heading_color).to eql(:bright_red)
+    end
+
+    it "should be able to iterate over all configured colors" do
+      expect(Pry.config.ls.keys.member?(:protected_method_color)).to be_truthy
+      expect(Pry.config.ls.each_pair.to_a).to_not be_empty
+    end
+  end
+
   describe "grep" do
     it "should reduce the number of outputted things" do
       expect(pry_eval("ls -c Object")).to match(/ArgumentError/)
