@@ -3,20 +3,25 @@ name: pry
 on: [push, pull_request]
 
 jobs:
-  rubocop:
+  lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3
 
-    - name: Install dependencies
-      run: bundle install
+      - name: Install dependencies
+        run: bundle install
 
-    - name: Rubocop lint
-      run: rubocop --parallel
+      - name: Rubocop lint
+        run: rubocop --parallel
+
+      - name: YARD lint
+        run: |
+          touch README # Workaround for "incorrect" links in README.md
+          bundle exec yardoc --fail-on-warning --no-progress --readme=README
 
   test:
     strategy:
@@ -64,29 +69,24 @@ jobs:
     continue-on-error: true
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
 
-    # Run manually, don't cache deps due to a bug with Ruby 2.4 and Ruby 2.5
-    # https://github.com/pry/pry/actions/runs/1016360216
-    - name: Install dependencies
-      run: bundle install
+      # Run manually, don't cache deps due to a bug with Ruby 2.4 and Ruby 2.5
+      # https://github.com/pry/pry/actions/runs/1016360216
+      - name: Install dependencies
+        run: bundle install
 
-    - name: YARD lint
-      run: |
-        touch README # Workaround for "incorrect" links in README.md
-        bundle exec yardoc --fail-on-warning --no-progress --readme=README
+      - name: Display Ruby version
+        run: ruby -v
 
-    - name: Display Ruby version
-      run: ruby -v
-
-    - name: Test
-      run: bundle exec rake
-      env:
-        # Make sure TERM is set so Pry can indent correctly inside tests.
-        TERM: screen-256color
-        ROWS: 40
-        COLUMNS: 160
+      - name: Test
+        run: bundle exec rake
+        env:
+          # Make sure TERM is set so Pry can indent correctly inside tests.
+          TERM: screen-256color
+          ROWS: 40
+          COLUMNS: 160
