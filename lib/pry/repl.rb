@@ -248,10 +248,17 @@ class Pry
     end
 
     def prism_available?
-      require 'prism'
+      @prism_available ||= begin
+        # rubocop:disable Lint/SuppressedException
+        begin
+          require 'prism'
+        rescue LoadError
+        end
+        # rubocop:enable Lint/SuppressedException
 
-      @prism_available ||= defined?(Prism) &&
-                           Gem::Version.new(Prism::VERSION) >= Gem::Version.new('0.25.0')
+        defined?(Prism) &&
+          Gem::Version.new(Prism::VERSION) >= Gem::Version.new('0.25.0')
+      end
     end
 
     # If `$stdout` is not a tty, it's probably a pipe.
