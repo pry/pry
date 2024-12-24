@@ -256,7 +256,7 @@ class Pry
         end
         # rubocop:enable Lint/SuppressedException
 
-        defined?(Prism) &&
+        defined?(Prism::VERSION) &&
           Gem::Version.new(Prism::VERSION) >= Gem::Version.new('0.25.0')
       end
     end
