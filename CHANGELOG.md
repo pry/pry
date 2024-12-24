@@ -1,9 +1,11 @@
-### Unreleased
+### [v0.15.1](v0.15.1) (December 24, 2024)
 
 #### Bug Fixes
 
 * Restore Pry.config.ls compatibility
   ([#2335](https://github.com/pry/pry/pull/2335))
+* Avoid breaking reading inputs if Prism is not available
+  ([#2338](https://github.com/pry/pry/pull/2338))
 
 ### [v0.15.0][v0.15.0] (November 15, 2024)
 
