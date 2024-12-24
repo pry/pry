@@ -1,3 +1,10 @@
+### [v0.15.2](v0.15.2) (December 24, 2024)
+
+#### Bug Fixes
+
+* Avoid breaking reading input if Prism version is undetectable
+  ([#2340](https://github.com/pry/pry/pull/2340))
+
 ### [v0.15.1](v0.15.1) (December 24, 2024)
 
 #### Bug Fixes
