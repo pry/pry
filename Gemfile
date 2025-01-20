@@ -6,6 +6,7 @@ gemspec
 gem 'rake'
 gem 'yard'
 gem 'rspec'
+gem 'irb'
 
 gem "psych", '<= 5.3.0'
 
