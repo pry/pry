@@ -9,9 +9,9 @@ Pry
 
 ![Pry logo](https://www.dropbox.com/s/zp8o63kquby2rln/pry_logo_350.png?raw=1)
 
-© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2013<br> (Creator)
+© John Mair ([banisterfiend](https://twitter.com/banisterfiend)) 2010<br> (Creator)
 
-© Kyrylo Silin ([kyrylosilin](https://twitter.com/kyrylosilin)) 2013<br> (Maintainer)
+© Kyrylo Silin ([kyrylosilin](https://twitter.com/kyrylosilin)) 2010<br> (Maintainer)
 
 **Alumni:**
 
