@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# (C) John Mair (banisterfiend) 2015
+# (C) John Mair (banisterfiend) 2013
 # MIT License
 
 require 'pry/version'

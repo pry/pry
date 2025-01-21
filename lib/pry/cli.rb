@@ -123,7 +123,7 @@ Pry::CLI.add_options do
     "Usage: pry [OPTIONS]\n" \
     "Start a Pry session.\n" \
     "See http://pry.github.io/ for more information.\n" \
-    "Copyright (c) 2015 John Mair (banisterfiend)" \
+    "Copyright (c) 2013 John Mair (banisterfiend)" \
   )
 
   on(
