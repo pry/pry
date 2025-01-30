@@ -113,6 +113,5 @@ class Pry
     Pry::Commands.add_command(Pry::Command::ShowSource)
     Pry::Commands.alias_command 'show-method', 'show-source'
     Pry::Commands.alias_command '$', 'show-source'
-    Pry::Commands.alias_command '?', 'show-source -d'
   end
 end
