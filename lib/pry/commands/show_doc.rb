@@ -21,16 +21,6 @@ class Pry
         show-doc Pry -a    # for all definitions of Pry class (all monkey patches)
       BANNER
 
-      def process
-        super
-
-        output.puts(
-          "\nWARNING: the show-doc command is deprecated. It will be removed " \
-          "from future Pry versions.\nPlease use 'show-source' with the -d " \
-          "(or --doc) switch instead\nExample: show-source #{obj_name} -d"
-        )
-      end
-
       # The docs for code_object prepared for display.
       def content_for(code_object)
         Code.new(
