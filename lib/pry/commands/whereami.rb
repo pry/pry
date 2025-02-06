@@ -11,12 +11,6 @@ class Pry
         @method_code = nil
       end
 
-      class << self
-        attr_accessor :method_size_cutoff
-      end
-
-      @method_size_cutoff = 30
-
       match 'whereami'
       description 'Show code surrounding the current context.'
       group 'Context'
@@ -138,7 +132,11 @@ class Pry
       end
 
       def small_method?
-        @method.source_range.count < self.class.method_size_cutoff
+        @method.source_range.count < cutoff_size
+      end
+
+      def cutoff_size
+        pry_instance.config.method_size_cutoff || 30
       end
 
       def default_code
