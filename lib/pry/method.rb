@@ -359,7 +359,7 @@ class Pry
     # @return [Fixnum, nil] The line of code in `source_file` which begins
     #   the method's definition, or `nil` if that information is unavailable.
     def source_line
-      source_location.nil? ? nil : source_location.last
+      source_location.nil? ? nil : source_location[1]
     end
 
     # @return [Range, nil] The range of lines in `source_file` which contain

@@ -65,7 +65,7 @@ RSpec.describe Pry::ClassCommand do
     subject { Class.new(described_class) }
 
     it "returns source location" do
-      expect(subject.source_location)
+      expect(subject.source_location.take(2))
         .to match([/class_command.rb/, be_kind_of(Integer)])
     end
   end

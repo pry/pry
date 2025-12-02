@@ -97,7 +97,7 @@ class Pry
 
       def target_line
         if target.respond_to?(:source_location)
-          target.source_location.last
+          target.source_location[1]
         else
           target.eval('__LINE__')
         end
@@ -170,7 +170,7 @@ class Pry
         if pry_file?
           source_location
         else
-          [File.expand_path(source_location.first), source_location.last]
+          [File.expand_path(source_location.first), source_location[1]]
         end
       end
 

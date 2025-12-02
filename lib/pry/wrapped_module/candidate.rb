@@ -130,7 +130,13 @@ class Pry
       #
       # @return [Integer] number of lines.
       def number_of_lines_in_first_chunk
-        end_method_line = last_method_source_location.last
+        # Ruby 4.0+ provides more details, including end of method:
+        # https://bugs.ruby-lang.org/issues/6012
+        end_method_line = if last_method_source_location.size == 5
+          last_method_source_location[-2]
+        else
+          last_method_source_location.last
+        end
 
         end_method_line - line
       end
