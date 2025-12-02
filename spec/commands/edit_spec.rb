@@ -793,7 +793,7 @@ describe "edit" do
 
     it 'should edit method context' do
       Pry.config.editor = lambda do |file, line|
-        expect([file, line]).to eq BinkyWink.instance_method(:m2).source_location
+        expect([file, line]).to eq BinkyWink.instance_method(:m2).source_location.take(2)
         nil
       end
 
