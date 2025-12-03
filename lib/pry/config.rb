@@ -290,10 +290,15 @@ class Pry
       require 'readline'
       ::Readline
     rescue LoadError
+      require 'reline'
+      ::Reline
+    rescue LoadError
       output.puts(
         "Sorry, you can't use Pry without Readline or a compatible library. \n" \
         "Possible solutions: \n" \
         " * Rebuild Ruby with Readline support using `--with-readline` \n" \
+        " * Use the reline gem \n" \
+        " * Use the readline-ext gem \n " \
         " * Use the rb-readline gem, which is a pure-Ruby port of Readline \n" \
         " * Use the pry-coolline gem, a pure-ruby alternative to Readline"
       )
