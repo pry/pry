@@ -60,7 +60,7 @@ class Pry
       # @return [Pry::Method, nil] The Pry::Method that matches the
       #   given binding.
       def find_method
-        find_method_in_superclass || find_renamed_method
+        find_renamed_method || find_method_in_superclass
       end
 
       # @return [Boolean] Whether the Pry::Method is unrecoverable

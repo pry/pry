@@ -6,7 +6,8 @@ describe Pry do
   end
 
   def error_count_from(code)
-    if defined?(Prism) && Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.4.0')
+    if !Pry::Helpers::Platform.jruby? &&
+       defined?(Prism) && Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.4.0')
       error_count = Prism.parse(code).errors.length
     else
       begin
