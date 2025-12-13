@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require File.expand_path('lib/pry/version', __dir__)
+$LOAD_PATH.unshift File.expand_path('lib', __dir__)
+require 'pry/version'
 
 Gem::Specification.new do |s|
   s.name    = "pry"
