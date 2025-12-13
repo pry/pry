@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name    = "pry"
   s.version = Pry::VERSION
 
-  s.required_ruby_version = '>= 2.0'
+  s.required_ruby_version = '>= 2.6'
 
   s.authors = [
     'John Mair (banisterfiend)',
