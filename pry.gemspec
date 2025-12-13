@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name    = "pry"
   s.version = Pry::VERSION
 
-  s.required_ruby_version = '>= 2.0'
+  s.required_ruby_version = '>= 2.6'
 
   s.authors = [
     'John Mair (banisterfiend)',
@@ -37,6 +37,7 @@ DESC
 
   s.add_dependency 'coderay', '~> 1.1'
   s.add_dependency 'method_source', '~> 1.0'
+  s.add_dependency 'reline', '>=0.6.0'
 
   s.metadata['changelog_uri'] = 'https://github.com/pry/pry/blob/master/CHANGELOG.md'
   s.metadata['source_code_uri'] = 'https://github.com/pry/pry'

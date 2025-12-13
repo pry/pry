@@ -28,12 +28,6 @@ jobs:
       matrix:
         os: ["ubuntu-latest", windows-latest]
         ruby:
-          - "2.0"
-          - 2.1
-          - 2.2
-          - 2.3
-          - 2.4
-          - 2.5
           - 2.6
           - 2.7
           # Due to https://github.com/actions/runner/issues/849,
@@ -49,14 +43,6 @@ jobs:
         exclude:
           - os: windows-latest
             ruby: jruby-10.0.2.0
-          - os: windows-latest
-            ruby: "2.0"
-          - os: windows-latest
-            ruby: "2.1"
-          - os: windows-latest
-            ruby: "2.2"
-          - os: windows-latest
-            ruby: "2.3" # Intermittent failing Expression: RBASIC_CLASS(ret) == rb_cString
           - os: windows-latest
             ruby: "3.1"
           - os: windows-latest
