@@ -487,7 +487,7 @@ describe Pry do
         end
 
         it "should raise if more than two arguments are passed to Object#pry" do
-          expect { pry(20, :quiet, input: Readline) }.to raise_error ArgumentError
+          expect { pry(20, :quiet, input: Pry.config.input) }.to raise_error ArgumentError
         end
       end
 

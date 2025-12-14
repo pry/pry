@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require "readline" unless defined?(Readline)
 require "pry/input_completer"
 
 def completer_test(bind, pry = nil, assert_flag = true)
   test = proc do |symbol|
-    input = pry || Readline
+    input = pry || Pry.config.input
     input_completer = Pry::InputCompleter.new(input, pry)
     completions = input_completer.call(symbol[0..-2], target: Pry.binding_for(bind))
     expect(completions.include?(symbol)).to eq(assert_flag)
@@ -36,7 +35,7 @@ describe Pry::InputCompleter do
   it "should not crash if there's a Module that has a symbolic name." do
     skip unless Pry::Helpers::Platform.jruby?
     expect do
-      Pry::InputCompleter.new(Readline).call(
+      Pry::InputCompleter.new(Pry.config.input).call(
         "a.to_s.", target: Pry.binding_for(Object.new)
       )
     end.not_to raise_error
@@ -44,7 +43,7 @@ describe Pry::InputCompleter do
 
   it 'should take parenthesis and other characters into account for symbols' do
     expect do
-      Pry::InputCompleter.new(Readline).call(
+      Pry::InputCompleter.new(Pry.config.input).call(
         ":class)", target: Pry.binding_for(Object.new)
       )
     end.not_to raise_error
@@ -124,8 +123,9 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod))
-      .include?('Mod2/')).to eq(true)
+    output = Pry::InputCompleter.new(Pry.config.input)
+      .call('Mod2/', target: Pry.binding_for(Mod))
+    expect(output.include?('Mod2/')).to eq(true)
   end
 
   it 'should complete for arbitrary scopes' do
@@ -197,8 +197,9 @@ describe Pry::InputCompleter do
     completer_test(binding).call('o.foo')
 
     # trailing slash
-    expect(Pry::InputCompleter.new(Readline).call('Mod2/', target: Pry.binding_for(Mod))
-      .include?('Mod2/')).to eq(true)
+    output = Pry::InputCompleter.new(Pry.config.input)
+      .call('Mod2/', target: Pry.binding_for(Mod))
+    expect(output.include?('Mod2/')).to eq(true)
   end
 
   it 'should complete for arbitrary scopes' do
@@ -223,7 +224,7 @@ describe Pry::InputCompleter do
 
   it 'should not return nil in its output' do
     pry = Pry.new
-    expect(Pry::InputCompleter.new(Readline, pry).call("pry.", target: binding))
+    expect(Pry::InputCompleter.new(Pry.config.input, pry).call("pry.", target: binding))
       .not_to include nil
   end
 

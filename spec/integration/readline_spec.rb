@@ -7,7 +7,9 @@ require "shellwords"
 require 'rbconfig'
 
 RSpec.describe "Readline" do
-  before :all do
+  before do
+    skip if Gem::Version.new(RUBY_VERSION) > Gem::Version.new("3.4.0")
+
     @ruby = RbConfig.ruby.shellescape
     @pry_dir = File.expand_path(File.join(__FILE__, '../../../lib')).shellescape
   end
