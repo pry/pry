@@ -294,34 +294,7 @@ you can add "Pry.config.windows_console_warning = false" to your pryrc.
   end
 
   def self.auto_resize!
-    Pry.config.input # by default, load Readline
-
-    if !defined?(Readline) || Pry.config.input != Readline
-      warn "Sorry, you must be using Readline for Pry.auto_resize! to work."
-      return
-    end
-
-    if Readline::VERSION =~ /edit/i
-      warn(<<-WARN)
-Readline version #{Readline::VERSION} detected - will not auto_resize! correctly.
-  For the fix, use GNU Readline instead:
-  https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X
-      WARN
-      return
-    end
-
-    trap :WINCH do
-      begin
-        Readline.set_screen_size(*output.size)
-      rescue StandardError => e
-        warn "\nPry.auto_resize!'s Readline.set_screen_size failed: #{e}"
-      end
-      begin
-        Readline.refresh_line
-      rescue StandardError => e
-        warn "\nPry.auto_resize!'s Readline.refresh_line failed: #{e}"
-      end
-    end
+    warn "Pry.auto_resize! was experimental and has been removed."
   end
 
   # Set all the configurable options back to their default values
