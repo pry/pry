@@ -8,8 +8,6 @@ gem 'yard'
 gem 'rspec'
 gem 'irb'
 
-gem "psych", '<= 5.3.0'
-
 if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.3.0')
   gem 'method_source', '= 1.0.0'
 end
