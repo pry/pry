@@ -1,3 +1,22 @@
+### [v0.16.0](v0.16.0) (December 26, 2025)
+
+#### Features
+
+* Ruby 4.0 Support.
+  Pry will now require and default to Reline for newer Rubies.
+  ([#2357](https://github.com/pry/pry/pull/2357))
+  ([#2349](https://github.com/pry/pry/pull/2349))
+* Revert 'Unify show-doc with show-source'.
+  ([#2346](https://github.com/pry/pry/pull/2346))
+
+#### Breaking Changes
+
+* Remove experimental `Pry.auto_resize!`
+  Returns a warning. The code will be removed later.
+  ([#2359](https://github.com/pry/pry/pull/2359))
+* Drop support for Ruby < 2.6
+  ([#2349](https://github.com/pry/pry/pull/2349))
+
 ### [v0.15.2](v0.15.2) (December 24, 2024)
 
 #### Bug Fixes
