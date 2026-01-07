@@ -27,8 +27,8 @@ class Pry
         end
 
         def output_self
-          variables = format(@target.eval('global_variables'))
-          output_section('global variables', grep.regexp[variables])
+          globals = grep.regexp[@target.eval('global_variables')]
+          output_section('global variables', format(globals))
         end
 
         private

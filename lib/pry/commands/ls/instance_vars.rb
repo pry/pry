@@ -24,6 +24,8 @@ class Pry
                     [] # TODO: BasicObject support
                   end
           kvars = Pry::Method.safe_send(interrogatee_mod, :class_variables)
+          ivars = grep.regexp[ivars]
+          kvars = grep.regexp[kvars]
           ivars_out = output_section('instance variables', format(:instance_var, ivars))
           kvars_out = output_section('class variables', format(:class_var, kvars))
           ivars_out + kvars_out

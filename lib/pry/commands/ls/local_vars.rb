@@ -14,6 +14,7 @@ class Pry
           locals = @target.eval('local_variables').reject do |e|
             @sticky_locals.key?(e.to_sym)
           end
+          locals = grep.regexp[locals]
           name_value_pairs = locals.map do |name|
             [name, @target.eval(name.to_s)]
           end
@@ -37,7 +38,7 @@ class Pry
           pad = desired_width + color_escape_padding
           Kernel.format(
             "%-#{pad}<name>s = %<value>s",
-            name: color(:local_var, colorized_lhs),
+            name: colorized_lhs,
             value: rhs
           )
         end

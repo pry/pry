@@ -27,7 +27,8 @@ class Pry
         def output_self
           mod = interrogatee_mod
           constants = WrappedModule.new(mod).constants(@verbose_switch)
-          output_section('constants', grep.regexp[format(mod, constants)])
+          constants = grep.regexp[constants]
+          output_section('constants', format(mod, constants))
         end
 
         private
