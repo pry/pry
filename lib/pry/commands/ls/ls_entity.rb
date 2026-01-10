@@ -50,7 +50,7 @@ class Pry
         end
 
         def local_vars
-          LocalVars.new(@opts, pry_instance)
+          grep LocalVars.new(@opts, pry_instance)
         end
 
         def entities
