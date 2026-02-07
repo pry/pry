@@ -115,7 +115,7 @@ class Pry
           @out.print "\e[0m"
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
-          raise StopPaging if Readline.readline("").chomp == "q"
+          raise StopPaging if Pry.config.input.readline("").chomp == "q"
 
           @tracker.reset
         end
