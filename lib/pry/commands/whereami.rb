@@ -22,13 +22,14 @@ class Pry
       group 'Context'
 
       banner <<-'BANNER'
-        Usage: whereami [-qn] [LINES]
+        Usage: whereami [-qn] [-m|-c|-f|LINES...]
 
         Describe the current location. If you use `binding.pry` inside a method then
         whereami will print out the source for that method.
 
         If a number is passed, then LINES lines before and after the current line will be
-        shown instead of the method itself.
+        shown instead of the method itself. Two numbers can be passed to specify lines
+        before and after the current line to be shown independently.
 
         The `-q` flag can be used to suppress error messages in the case that there's
         no code to show. This is used by pry in the default before_session hook to show
@@ -150,7 +151,8 @@ class Pry
       end
 
       def code_window
-        Pry::Code.from_file(@file).around(@line, window_size)
+        before_lines, after_lines = window_size
+        Pry::Code.from_file(@file).around(@line, before_lines, after_lines)
       end
 
       def method_code
@@ -193,7 +195,7 @@ class Pry
         if args.empty?
           pry_instance.config.default_window_size
         else
-          args.first.to_i
+          args.slice(0, 2).map(&:to_i)
         end
       end
     end
