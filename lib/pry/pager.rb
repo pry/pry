@@ -8,6 +8,9 @@ class Pry
     class StopPaging < StandardError
     end
 
+    # @return [String] the 'less' executable and its options
+    LESS_PAGER = 'less --RAW-CONTROL-CHARS --raw-control-chars -F -X'
+
     attr_reader :pry_instance
 
     def initialize(pry_instance)
@@ -130,9 +133,8 @@ class Pry
       def self.default_pager
         pager = Pry::Env['PAGER'] || ''
 
-        # Default to less, and make sure less is being passed the correct
-        # options
-        pager = "less -R -F -X" if pager.strip.empty? || pager =~ /^less\b/
+        # Default to less.
+        pager = LESS_PAGER if pager.strip.empty? || pager =~ /^less\b/
 
         pager
       end
