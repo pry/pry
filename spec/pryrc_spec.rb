@@ -63,6 +63,16 @@ describe Pry do
       expect(Object.const_defined?(:TEST_RC)).to eq false
     end
 
+    it "should not load the local rc if the global rc disables it" do
+      Pry.config.rc_file = 'spec/fixtures/globalrc'
+      stub_const('Pry::LOCAL_RC_FILE', 'spec/fixtures/localrc')
+      Pry.config.should_load_rc = true
+      Pry.config.should_load_local_rc = true
+      Pry.start(self, input: StringIO.new("exit-all\n"), output: StringIO.new)
+      expect(LOADED_LOCAL_RC).to be false
+      Object.remove_const(:LOADED_LOCAL_RC)
+    end
+
     describe "that raise exceptions" do
       before do
         Pry.config.rc_file = 'spec/fixtures/testrcbad'

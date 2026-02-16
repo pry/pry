@@ -1,0 +1,2 @@
+LOADED_LOCAL_RC = false
+Pry.config.should_load_local_rc = false
