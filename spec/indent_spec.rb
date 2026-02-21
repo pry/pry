@@ -102,6 +102,33 @@ TXT
     expect(@indent.indent(input)).to eq output
   end
 
+  it 'strips empty lines' do
+    input = <<TXT.strip
+class C
+  def foo
+    :foo
+  end
+
+  def bar
+    :bar
+  end
+end
+TXT
+
+    output = <<TXT.strip
+class C
+  def foo
+    :foo
+  end
+  def bar
+    :bar
+  end
+end
+TXT
+
+    expect(@indent.indent(input)).to eq output
+  end
+
   it 'should indent statements such as if, else, etc' do
     input = <<TXT.strip
 if a == 10
