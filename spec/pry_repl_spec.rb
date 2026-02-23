@@ -79,6 +79,9 @@ describe Pry::REPL do
     end
 
     it "should immediately evaluate eval_string after cmd if complete" do
+      old_term = ENV['TERM']
+      ENV['TERM'] = 'xterm'
+
       set = Pry::CommandSet.new do
         import Pry::Commands
 
@@ -87,7 +90,7 @@ describe Pry::REPL do
         end
       end
 
-      ReplTester.start(commands: set) do
+      ReplTester.start(commands: set, auto_indent: true) do
         input  'def x'
         output ''
         prompt(/\*   $/)
@@ -96,6 +99,8 @@ describe Pry::REPL do
         output '=> "hello"'
         prompt(/> $/)
       end
+    ensure
+      ENV['TERM'] = old_term
     end
   end
 
@@ -126,6 +131,10 @@ describe Pry::REPL do
   describe "autoindent" do
     it "should raise no exception when indented with a tab" do
       skip if Pry::Helpers::Platform.windows?
+
+      old_term = ENV['TERM']
+      ENV['TERM'] = 'xterm'
+
       ReplTester.start(correct_indent: true, auto_indent: true) do
         output = @pry.config.output
         def output.tty?
@@ -138,6 +147,8 @@ end
 TAB
         output("do\n  break #note the tab here\nend\n\e\\[1B\e\\[0G=> nil")
       end
+    ensure
+      ENV['TERM'] = old_term
     end
   end
 end
