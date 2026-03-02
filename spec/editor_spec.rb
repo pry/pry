@@ -64,6 +64,22 @@ describe Pry::Editor do
         end
       end
     end
+
+    context "when no $VISUAL, $EDITOR, or system editor is found" do
+      before do
+        allow(Pry::Env).to receive(:[]).and_return(nil)
+        allow(Pry::Helpers::Platform).to receive(:windows?).and_return(false)
+        allow(Kernel).to receive(:system).and_return(false)
+      end
+
+      it "falls back to 'nano'" do
+        expect(described_class.default).to eq('nano')
+      end
+
+      it "returns a String" do
+        expect(described_class.default).to be_a(String)
+      end
+    end
   end
 
   describe "build_editor_invocation_string" do

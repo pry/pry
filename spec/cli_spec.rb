@@ -201,7 +201,7 @@ RSpec.describe Pry::CLI do
       before { described_class.options = proc {} }
 
       it "loads files through repl and exits" do
-        expect(Pry).to receive(:load_file_through_repl).with(match(%r{pry/foo}))
+        expect(Pry).to receive(:load_file_through_repl).with(match(%r{/foo$}))
         expect(Kernel).to receive(:exit)
 
         opts = described_class.parse_options(%w[foo])

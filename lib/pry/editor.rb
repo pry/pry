@@ -17,7 +17,7 @@ class Pry
 
       %w[editor nano vi].find do |editor_exe|
         Kernel.system("which #{editor_exe} > /dev/null 2>&1")
-      end
+      end || 'nano'
     end
 
     include Pry::Helpers::CommandHelpers

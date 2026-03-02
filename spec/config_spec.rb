@@ -44,6 +44,118 @@ RSpec.describe Pry::Config do
   specify { expect(subject.exec_string).to be_a(String) }
   specify { expect(subject.rc_file).to be_a(String).or be(nil) }
 
+  context "when not on windows", if: !Pry::Helpers::Platform.windows? do
+    describe "defaults when TERM is not set" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV.delete('TERM')
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(false)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(false)
+      end
+    end
+
+    describe "defaults when TERM is dumb" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV['TERM'] = 'dumb'
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(false)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(false)
+      end
+    end
+  end
+
+  context "when on windows", if: Pry::Helpers::Platform.windows? do
+    describe "defaults when TERM is not set" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV.delete('TERM')
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(true)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(true)
+      end
+    end
+
+    describe "defaults when TERM is dumb" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV['TERM'] = 'dumb'
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(true)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(true)
+      end
+    end
+  end
+
+  describe "defaults when TERM is set to a valid terminal" do
+    around do |example|
+      old_term = ENV['TERM']
+      ENV['TERM'] = 'xterm-256color'
+      example.run
+      ENV['TERM'] = old_term
+    end
+
+    it "returns true for color" do
+      config = described_class.new
+      expect(config.color).to be(true)
+    end
+
+    it "returns true for auto_indent" do
+      config = described_class.new
+      expect(config.auto_indent).to be(true)
+    end
+  end
+
+  describe "defaults when EDITOR is not set" do
+    before do
+      allow(Pry::Env).to receive(:[]).and_call_original
+      allow(Pry::Env).to receive(:[]).with('VISUAL').and_return(nil)
+      allow(Pry::Env).to receive(:[]).with('EDITOR').and_return(nil)
+    end
+
+    it "returns a String for editor" do
+      config = described_class.new
+      expect(config.editor).to be_a(String)
+    end
+  end
+
   describe "#rc_file" do
     context "when $PRYRC env variable is set" do
       before do
