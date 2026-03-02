@@ -44,43 +44,83 @@ RSpec.describe Pry::Config do
   specify { expect(subject.exec_string).to be_a(String) }
   specify { expect(subject.rc_file).to be_a(String).or be(nil) }
 
-  describe "defaults when TERM is not set" do
-    around do |example|
-      old_term = ENV['TERM']
-      ENV.delete('TERM')
-      example.run
-    ensure
-      ENV['TERM'] = old_term
+  context "when not on windows", if: !Pry::Helpers::Platform.windows? do
+    describe "defaults when TERM is not set" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV.delete('TERM')
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(false)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(false)
+      end
     end
 
-    it "returns false for color" do
-      config = described_class.new
-      expect(config.color).to be(false)
-    end
+    describe "defaults when TERM is dumb" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV['TERM'] = 'dumb'
+        example.run
+        ENV['TERM'] = old_term
+      end
 
-    it "returns false for auto_indent" do
-      config = described_class.new
-      expect(config.auto_indent).to be(false)
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(false)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(false)
+      end
     end
   end
 
-  describe "defaults when TERM is dumb" do
-    around do |example|
-      old_term = ENV['TERM']
-      ENV['TERM'] = 'dumb'
-      example.run
-    ensure
-      ENV['TERM'] = old_term
+  context "when on windows", if: Pry::Helpers::Platform.windows? do
+    describe "defaults when TERM is not set" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV.delete('TERM')
+        example.run
+        ENV['TERM'] = old_term
+      end
+
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(true)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(true)
+      end
     end
 
-    it "returns false for color" do
-      config = described_class.new
-      expect(config.color).to be(false)
-    end
+    describe "defaults when TERM is dumb" do
+      around do |example|
+        old_term = ENV['TERM']
+        ENV['TERM'] = 'dumb'
+        example.run
+        ENV['TERM'] = old_term
+      end
 
-    it "returns false for auto_indent" do
-      config = described_class.new
-      expect(config.auto_indent).to be(false)
+      it "returns false for color" do
+        config = described_class.new
+        expect(config.color).to be(true)
+      end
+
+      it "returns false for auto_indent" do
+        config = described_class.new
+        expect(config.auto_indent).to be(true)
+      end
     end
   end
 
@@ -89,7 +129,6 @@ RSpec.describe Pry::Config do
       old_term = ENV['TERM']
       ENV['TERM'] = 'xterm-256color'
       example.run
-    ensure
       ENV['TERM'] = old_term
     end
 
