@@ -192,6 +192,8 @@ class Pry
       original_options = cmd.options.dup
 
       options = original_options.merge!(
+        shellwords: false
+      ).merge!(
         desc: "Alias for `#{action}`",
         listing: match.is_a?(String) ? match : match.inspect
       ).merge!(options)
