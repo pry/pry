@@ -164,7 +164,10 @@ class Pry
         before.times { prefix.sub! SPACES, '' }
         new_prefix = prefix + SPACES * after
 
-        line = prefix + line.lstrip unless previously_in_string
+        unless previously_in_string
+          line = line.lstrip
+          line = prefix + line unless line.empty?
+        end
 
         output += line
 
