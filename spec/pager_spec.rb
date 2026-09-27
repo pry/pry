@@ -1,6 +1,48 @@
 # frozen_string_literal: true
 
 describe "Pry::Pager" do
+  describe "SimplePager" do
+    it "uses the Pry instance's input backend at page breaks" do
+      input = Class.new do
+        attr_reader :prompts
+
+        def initialize
+          @prompts = []
+        end
+
+        def readline(prompt)
+          @prompts << prompt
+          "\n"
+        end
+      end.new
+
+      output = Class.new do
+        def height
+          4
+        end
+
+        def width
+          80
+        end
+
+        def print(*)
+          nil
+        end
+      end.new
+
+      config = Struct.new(:pager, :input).new(true, input)
+      pry_instance = Struct.new(:config, :output, :input).new(config, output, input)
+
+      Pry.config.input = Object.new
+      stub_const("Readline", Module.new)
+      allow(Pry::Pager::SystemPager).to receive(:available?).and_return(false)
+
+      Pry::Pager.new(pry_instance).page("one line\n")
+
+      expect(input.prompts).to eq([""])
+    end
+  end
+
   describe "PageTracker" do
     before do
       @pt = Pry::Pager::PageTracker.new(10, 10)

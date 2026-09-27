@@ -57,7 +57,7 @@ class Pry
       if !pry_instance.config.pager
         NullPager.new(pry_instance.output)
       elsif !SystemPager.available? || Helpers::Platform.jruby?
-        SimplePager.new(pry_instance.output)
+        SimplePager.new(pry_instance.output, pry_instance.input)
       else
         SystemPager.new(pry_instance.output)
       end
@@ -99,8 +99,9 @@ class Pry
     # `SimplePager` is a straightforward pure-Ruby pager. We use it on
     # JRuby and when we can't find a usable external pager.
     class SimplePager < NullPager
-      def initialize(*)
-        super
+      def initialize(out, input = Pry.config.input)
+        super(out)
+        @input = input
         @tracker = PageTracker.new(height - 3, width)
       end
 
@@ -115,7 +116,7 @@ class Pry
           @out.print "\e[0m"
           @out.print "<page break> --- Press enter to continue " \
                      "( q<enter> to break ) --- <page break>\n"
-          raise StopPaging if Pry.config.input.readline("").chomp == "q"
+          raise StopPaging if @input.readline("").chomp == "q"
 
           @tracker.reset
         end
