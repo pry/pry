@@ -64,7 +64,7 @@ class Pry
 
         raise CommandError,
               "Cannot reload #{identifier} as it has no associated file on disk. " \
-              "File found was: #{code_object.source_file}"
+              "File found was: #{code_object.source_file.encode('UTF-8')}"
       end
     end
 
