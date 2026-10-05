@@ -5,6 +5,9 @@ class Pry
     extend Pry::Forwardable
     def_delegators :@pry, :input, :output
 
+    # Sentinel value to distinguish "not set" from "explicitly nil"
+    READLINE_UNSET = Object.new.freeze
+
     # @return [Pry] The instance of {Pry} that the user is controlling.
     attr_accessor :pry
 
@@ -24,6 +27,7 @@ class Pry
       @indent = Pry::Indent.new(pry)
 
       @readline_output = nil
+      @original_readline_state = {}
 
       @pry.push_binding options[:target] if options[:target]
     end
@@ -45,6 +49,7 @@ class Pry
     # Set up the repl session.
     # @return [void]
     def prologue
+      save_readline_state
       pry.exec_hook :before_session, pry.output, pry.current_binding, pry
 
       return unless pry.config.correct_indent
@@ -82,6 +87,7 @@ class Pry
     # Clean up after the repl session.
     # @return [void]
     def epilogue
+      restore_readline_state
       pry.exec_hook :after_session, pry.output, pry.current_binding, pry
     end
 
@@ -294,6 +300,60 @@ class Pry
         errors.any? { |error| UNEXPECTED_TOKENS.include?(error.type) }
       else
         Pry::Code.complete_expression?(multiline_input)
+      end
+    end
+
+    # Save the original Readline state before modifying it.
+    # This allows us to restore it when exiting Pry.
+    # @return [void]
+    def save_readline_state
+      return unless defined?(Readline)
+
+      @original_readline_state = {}
+
+      # Save Readline settings if using Readline
+      if Readline.respond_to?(:completion_proc)
+        @original_readline_state[:completion_proc] = Readline.completion_proc || READLINE_UNSET
+      else
+        @original_readline_state[:completion_proc] = READLINE_UNSET
+      end
+
+      if Readline.respond_to?(:basic_word_break_characters)
+        @original_readline_state[:basic_word_break_characters] =
+          Readline.basic_word_break_characters.dup
+      else
+        @original_readline_state[:basic_word_break_characters] = READLINE_UNSET
+      end
+
+      if Readline.respond_to?(:completion_append_character)
+        @original_readline_state[:completion_append_character] =
+          Readline.completion_append_character
+      else
+        @original_readline_state[:completion_append_character] = READLINE_UNSET
+      end
+    end
+
+    # Restore the original Readline state after exiting Pry.
+    # @return [void]
+    def restore_readline_state
+      return unless defined?(Readline) && @original_readline_state.any?
+
+      # Restore completion_proc
+      if @original_readline_state.key?(:completion_proc)
+        value = @original_readline_state[:completion_proc]
+        Readline.completion_proc = (value == READLINE_UNSET ? nil : value) if Readline.respond_to?(:completion_proc=)
+      end
+
+      # Restore basic_word_break_characters
+      if @original_readline_state.key?(:basic_word_break_characters)
+        value = @original_readline_state[:basic_word_break_characters]
+        Readline.basic_word_break_characters = value if value != READLINE_UNSET && Readline.respond_to?(:basic_word_break_characters=)
+      end
+
+      # Restore completion_append_character
+      if @original_readline_state.key?(:completion_append_character)
+        value = @original_readline_state[:completion_append_character]
+        Readline.completion_append_character = value if value != READLINE_UNSET && Readline.respond_to?(:completion_append_character=)
       end
     end
 
