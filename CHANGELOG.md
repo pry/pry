@@ -1,3 +1,15 @@
+### [v0.16.1](v0.16.1) (October 19, 2026)
+
+#### Bug Fixes
+
+* Fix `ls -G` grep filtering across all variable types
+  ([#2363](https://github.com/pry/pry/pull/2363))
+* Fix Readline call on Ruby 4+ with SimplePager
+  ([#2366](https://github.com/pry/pry/pull/2366))
+  ([#2373](https://github.com/pry/pry/pull/2373))
+* Fix test failures when `TERM` and `EDITOR` are unset
+  ([#2367](https://github.com/pry/pry/pull/2367))
+
 ### [v0.16.0](v0.16.0) (December 26, 2025)
 
 #### Features
