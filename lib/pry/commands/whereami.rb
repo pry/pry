@@ -44,11 +44,29 @@ class Pry
       def setup
         if target.respond_to?(:source_location)
           file, @line = target.source_location
-          @file = expand_path(file)
         else
-          @file = expand_path(target.eval('__FILE__'))
+          file = target.eval('__FILE__')
           @line = target.eval('__LINE__')
         end
+
+        # If the current location is in a top-level script, then the filename
+        # returned by source_location or __FILE__ will be just the filename with
+        # no path: e.g. 'myscript.rb'. If the current working directory has been
+        # changed, then expand_path(file) will construct an incorrect path to
+        # the source. We can use __dir__ to fix this case.
+        if !file.nil? && !absolute_path?(file)
+          dir = target.eval('__dir__')
+
+          # We have to be careful not to join with dir if it's also a relative
+          # path. There are some cases where the file and dir paths are both
+          # relative to the same directory, like:
+          #
+          # __FILE__: "spec/fixtures/example.erb"
+          # __dir__:  "spec/fixtures"
+          file = File.join(dir, file) if !dir.nil? && absolute_path?(dir)
+        end
+
+        @file = expand_path(file)
         @method = Pry::Method.from_binding(target)
       end
 
@@ -187,6 +205,35 @@ class Pry
         return filename if Pry.eval_path == filename
 
         File.expand_path(filename)
+      end
+
+      # These are #defines in the ruby C code that control how absolute_path?
+      # works. They don't seem to be accessible at runtime but they can be
+      # figured out from runtime behavior. This is copied from
+      # test/pathname/test_pathname.rb in the ruby source code (which looks to
+      # be under the 2-clause BSD license, not sure the best way to comply with
+      # the licensing terms for just 3 lines of code).
+      DOSISH = !File::ALT_SEPARATOR.nil?
+      DOSISH_DRIVE_LETTER = File.dirname("A:") == "A:."
+      DOSISH_UNC = File.dirname("//") == "//"
+
+      def absolute_path?(path)
+        # File.absolute_path? was added in ruby-2.7.0
+        return File.absolute_path?(path) if File.respond_to?(:absolute_path?)
+
+        if DOSISH_DRIVE_LETTER
+          return true if path =~ %r{^[a-z]:[/\\]}i
+        end
+
+        if DOSISH_UNC
+          return true if path =~ %r{^[/\\]{2}}i
+        end
+
+        unless DOSISH
+          return true if path[0] == '/'
+        end
+
+        false
       end
 
       def window_size
