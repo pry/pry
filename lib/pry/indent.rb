@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ripper'
+
 class Pry
   ##
   # Pry::Indent is a class that can be used to indent a number of lines
@@ -221,7 +223,7 @@ class Pry
 
       # If the list of tokens contains a matching closing token the line should
       # not be indented (and thus we should return true).
-      tokens.each do |token, kind|
+      tokens.each_with_index do |(token, kind), index|
         is_singleline_if =
           SINGLELINE_TOKENS.include?(token) && end_of_statement?(last_token, last_kind)
         is_optional_do = (token == "do" && seen_for_at.include?(add_after - 1))
@@ -241,6 +243,8 @@ class Pry
         if kind == :delimiter
           track_delimiter(token)
         elsif OPEN_TOKENS.key?(token) && !is_optional_do && !is_singleline_if
+          next if token == 'def' && endless_method?(tokens, index)
+
           @stack << token
           add_after += 1
         elsif token == OPEN_TOKENS[@stack.last]
@@ -261,6 +265,24 @@ class Pry
 
       [remove_before, add_after]
     end
+
+    # Ask Ruby about the header only. The method body may itself open a block.
+    # An equals sign in a setter name or a default argument does not end the header.
+    def endless_method?(tokens, index)
+      header = +'def'
+      tokens.drop(index + 1).each do |text, kind|
+        next unless text.is_a?(String)
+
+        if text == '=' && kind == :operator
+          program = Ripper.sexp("#{header}= nil")
+          nodes = program && program[1]
+          return true if nodes && nodes.one? && %i[def defs].include?(nodes.first[0])
+        end
+        header << text
+      end
+      false
+    end
+    private :endless_method?
 
     # If the code just before an "if" or "while" token on a line looks like the
     # end of a statement, then we want to treat that "if" as a singleline, not

@@ -29,6 +29,24 @@ describe Pry::Indent do
     expect(@indent.indent(input)).to eq output
   end
 
+  it 'keeps consecutive endless methods at class indentation' do
+    skip 'endless methods require Ruby 3' if RUBY_VERSION < '3.0'
+
+    lines = ['class Foo', 'def biz = "biz"', 'def self.bar(x = 1) = x', 'end']
+    expect(lines.map { |line| @indent.indent(line) }).to eq [
+      'class Foo', '  def biz = "biz"', '  def self.bar(x = 1) = x', 'end'
+    ]
+    expect(@indent.current_prefix).to eq ''
+  end
+
+  it 'keeps indentation for ordinary methods with equals signs' do
+    ['def value=(x)', 'def value(x = 1)', 'def value x = 1'].each do |header|
+      expect(@indent.indent(header)).to eq header
+      expect(@indent.indent('x')).to eq '  x'
+      expect(@indent.indent('end')).to eq 'end'
+    end
+  end
+
   it 'should indent a module and class' do
     input        = "module Foo\n# Hello world\nend"
     output       = "module Foo\n  # Hello world\nend"
