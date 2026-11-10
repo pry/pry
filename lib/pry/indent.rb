@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ripper'
-
 class Pry
   ##
   # Pry::Indent is a class that can be used to indent a number of lines
@@ -273,16 +271,43 @@ class Pry
       tokens.drop(index + 1).each do |text, kind|
         next unless text.is_a?(String)
 
-        if text == '=' && kind == :operator
-          program = Ripper.sexp("#{header}= nil")
-          nodes = program && program[1]
-          return true if nodes && nodes.one? && %i[def defs].include?(nodes.first[0])
-        end
+        equals_operator = text == '=' && kind == :operator
+        return true if equals_operator && endless_header?("#{header}= nil")
+
         header << text
       end
       false
     end
     private :endless_method?
+
+    def endless_header?(source)
+      if endless_method_parser == :prism
+        result = ::Prism.parse(source)
+        return false unless result.success?
+
+        nodes = result.value.statements.body
+        node = nodes.first
+        nodes.one? && node.is_a?(::Prism::DefNode) && !node.equal_loc.nil?
+      else
+        program = Ripper.sexp(source)
+        nodes = program && program[1]
+        nodes && nodes.one? && %i[def defs].include?(nodes.first[0])
+      end
+    end
+    private :endless_header?
+
+    # Ordinary indentation should not load an optional parser. Remember a failed
+    # Prism load too, including unavailable native extensions, just as REPL does.
+    def endless_method_parser
+      @endless_method_parser ||= begin
+        require 'prism'
+        :prism
+      rescue LoadError
+        require 'ripper'
+        :ripper
+      end
+    end
+    private :endless_method_parser
 
     # If the code just before an "if" or "while" token on a line looks like the
     # end of a statement, then we want to treat that "if" as a singleline, not

@@ -47,6 +47,57 @@ describe Pry::Indent do
     end
   end
 
+  it 'recognizes endless operator methods and equals signs in default strings' do
+    skip 'endless methods require Ruby 3' if RUBY_VERSION < '3.0'
+
+    headers = ['def ==(other) = false', 'def [](key) = key', 'def value(x = "=") = x']
+    headers.each do |line|
+      expect(@indent.indent(line)).to eq line
+      expect(@indent.current_prefix).to eq ''
+    end
+  end
+
+  it 'preserves indentation opened by the body of an endless method' do
+    skip 'endless methods require Ruby 3' if RUBY_VERSION < '3.0'
+
+    lines = ['def value = if true', '42', 'end']
+    expect(lines.map { |line| @indent.indent(line) }).to eq [
+      'def value = if true', '  42', 'end'
+    ]
+    expect(@indent.current_prefix).to eq ''
+  end
+
+  it 'does not load a parser for an ordinary method without equals signs' do
+    expect(@indent).not_to receive(:require)
+
+    expect(@indent.indent("def value\n42\nend")).to eq "def value\n  42\nend"
+  end
+
+  it 'remembers when the optional Prism parser cannot be loaded' do
+    expect(@indent).to receive(:require).with('prism').once.and_raise(LoadError)
+    expect(@indent).to receive(:require).with('ripper').once.and_call_original
+
+    2.times { expect(@indent.send(:endless_header?, 'def value(x = nil')).to be_falsey }
+  end
+
+  it 'does not hide runtime errors raised while loading Prism' do
+    error = RuntimeError.new('broken parser')
+    expect(@indent).to receive(:require).with('prism').and_raise(error)
+    expect(@indent).not_to receive(:require).with('ripper')
+
+    expect { @indent.send(:endless_header?, 'def value = nil') }
+      .to raise_error(RuntimeError, 'broken parser')
+  end
+
+  it 'does not hide a failure to load the fallback parser' do
+    error = LoadError.new('missing ripper')
+    expect(@indent).to receive(:require).with('prism').and_raise(LoadError)
+    expect(@indent).to receive(:require).with('ripper').and_raise(error)
+
+    expect { @indent.send(:endless_header?, 'def value = nil') }
+      .to raise_error(LoadError, 'missing ripper')
+  end
+
   it 'should indent a module and class' do
     input        = "module Foo\n# Hello world\nend"
     output       = "module Foo\n  # Hello world\nend"
