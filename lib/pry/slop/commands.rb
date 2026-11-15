@@ -151,7 +151,7 @@ class Pry
 
       # Returns a nested Hash with Slop options and values. See Slop#to_hash.
       def to_hash
-        Hash[commands.map { |k, v| [k.to_sym, v.to_hash] }]
+        commands.map { |k, v| [k.to_sym, v.to_hash] }.to_h
       end
 
       # Returns the help String.
