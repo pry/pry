@@ -150,8 +150,8 @@ describe "whereami" do
   it 'should show entire method when -m option used' do
     old_size = Pry.config.default_window_size
     Pry.config.default_window_size = 1
-    old_cutoff = Pry::Command::Whereami.method_size_cutoff
-    Pry::Command::Whereami.method_size_cutoff = 1
+    old_cutoff = Pry.config.method_size_cutoff
+    Pry.config.method_size_cutoff = 1
     class Cor
       def blimey!
         @foo = 1
@@ -159,8 +159,8 @@ describe "whereami" do
         pry_eval(binding, 'whereami -m')
       end
     end
-    Pry::Command::Whereami.method_size_cutoff = old_cutoff
     Pry.config.default_window_size = old_size
+    Pry.config.method_size_cutoff = old_cutoff
     result = Cor.new.blimey!
     Object.remove_const(:Cor)
     expect(result).to match(/def blimey/)
