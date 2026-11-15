@@ -86,7 +86,7 @@ class Pry
       end
 
       def location
-        "#{@file}:#{@line} #{@method && @method.name_with_owner}"
+        "#{@file.encode('UTF-8')}:#{@line} #{@method && @method.name_with_owner}"
       end
 
       def process
